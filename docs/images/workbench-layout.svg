@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+<title id="title">RQ1 Blackboard workbench layout</title><desc id="desc">Schematic of the current workbench: input on the left, requirement queue and selected requirement on the right, workflow guide at the top, status bar below. Illustrative content, not a screenshot.</desc>
+<style>text{font-family:Arial,sans-serif;fill:#162d36}.small{font-size:14px;fill:#596b76}.label{font-size:16px;font-weight:700}.title{font-size:22px;font-weight:700}</style>
+<rect x="0" y="0" width="1200" height="760" rx="0" fill="#f2f5f7" stroke="#d5dfe5"/>
+<rect x="0" y="0" width="1200" height="64" rx="0" fill="#102b2b" stroke="#102b2b"/>
+<text x="24" y="40" class="title" style="fill:#fff">RQ1 Blackboard</text>
+<text x="250" y="39" class="small" style="fill:#c1dbd4">Evidence · requirements · review</text>
+<text x="24" y="98" class="title">From evidence to reviewed requirements</text>
+<rect x="24" y="118" width="276" height="57" rx="10" fill="#fff" stroke="#d5dfe5"/>
+<text x="38" y="143" class="label">1  Sources &amp; questions</text>
+<rect x="316" y="118" width="276" height="57" rx="10" fill="#fff" stroke="#d5dfe5"/>
+<text x="330" y="143" class="label">2  Extract &amp; inspect</text>
+<rect x="608" y="118" width="276" height="57" rx="10" fill="#fff" stroke="#d5dfe5"/>
+<text x="622" y="143" class="label">3  Review &amp; evaluate</text>
+<rect x="900" y="118" width="276" height="57" rx="10" fill="#fff" stroke="#d5dfe5"/>
+<text x="914" y="143" class="label">4  Export to VPE</text>
+<text x="24" y="198" class="small">Layout diagram of the current interface · illustrative data · not a screenshot</text>
+<rect x="24" y="219" width="300" height="472" rx="10" fill="#fff" stroke="#d5dfe5"/>
+<text x="40" y="250" class="label">1  Requirement Workbench</text>
+<rect x="40" y="264" width="268" height="38" rx="10" fill="#eff8f5" stroke="#d5dfe5"/>
+<text x="54" y="289" class="label">Add files / Drop artifacts</text>
+<text x="40" y="325" class="small">Source corpus ID</text>
+<rect x="40" y="335" width="268" height="31" rx="10" fill="#fff" stroke="#d5dfe5"/>
+<text x="52" y="357" class="small">construction-pilot-01</text>
+<text x="40" y="393" class="small">CQ-guided extraction</text>
+<text x="40" y="421" class="small">Requirement text</text>
+<rect x="40" y="431" width="268" height="65" rx="10" fill="#fff" stroke="#d5dfe5"/>
+<text x="52" y="455" class="small">Each dataset must identify its</text>
+<text x="52" y="479" class="small">license and applicable standard.</text>
+<text x="40" y="521" class="small">Competency questions and user tasks</text>
+<rect x="40" y="532" width="268" height="37" rx="10" fill="#fff" stroke="#d5dfe5"/>
+<text x="52" y="556" class="small">Which datasets can I reuse?</text>
+<text x="40" y="596" class="small">Extraction strategy</text>
+<rect x="40" y="607" width="268" height="31" rx="10" fill="#fff" stroke="#d5dfe5"/>
+<text x="52" y="629" class="small">Rule-based (baseline)</text>
+<rect x="40" y="649" width="122" height="28" rx="10" fill="#fff" stroke="#d5dfe5"/>
+<text x="53" y="669" class="small">Analyze</text>
+<rect x="174" y="649" width="134" height="28" rx="10" fill="#d9f1e9" stroke="#d5dfe5"/>
+<text x="190" y="669" class="label">Extract</text>
+<rect x="340" y="219" width="836" height="53" rx="10" fill="#fff" stroke="#d5dfe5"/>
+<rect x="352" y="229" width="206" height="33" rx="10" fill="#0f766e" stroke="#d5dfe5"/>
+<text x="365" y="251" class="label" style="fill:#fff">Requirement Review</text>
+<text x="581" y="251" class="label">Expert Evaluation</text>
+<rect x="340" y="282" width="836" height="56" rx="10" fill="#fff" stroke="#d5dfe5"/>
+<text x="355" y="306" class="label">2  Review overview, counts and validation warnings</text>
+<text x="355" y="327" class="small">Machine validation flags are separate from your review decisions.</text>
+<rect x="340" y="350" width="285" height="341" rx="10" fill="#fff" stroke="#d5dfe5"/>
+<text x="356" y="378" class="label">3  Requirement Queue</text>
+<rect x="356" y="390" width="252" height="32" rx="10" fill="#f4f7f9" stroke="#d5dfe5"/>
+<text x="369" y="412" class="label">Export RQ1 Dataset</text>
+<text x="356" y="451" class="small">Status · Type · Validation · Scope</text>
+<rect x="356" y="465" width="252" height="49" rx="10" fill="#edf8f4" stroke="#0f766e"/>
+<text x="369" y="486" class="small">License / access conditions</text>
+<text x="369" y="505" class="small">Candidate · source evidence</text>
+<rect x="356" y="524" width="252" height="49" rx="10" fill="#fff" stroke="#d5dfe5"/>
+<text x="369" y="545" class="small">Schema conformance</text>
+<text x="369" y="564" class="small">Candidate · source evidence</text>
+<rect x="356" y="583" width="252" height="49" rx="10" fill="#fff" stroke="#d5dfe5"/>
+<text x="369" y="604" class="small">Semantic discovery needs</text>
+<text x="369" y="623" class="small">Candidate · source evidence</text>
+<text x="356" y="670" class="small">Select rows to inspect; check to merge.</text>
+<rect x="640" y="350" width="536" height="341" rx="10" fill="#fff" stroke="#d5dfe5"/>
+<text x="656" y="378" class="label">4  Selected requirement</text>
+<text x="656" y="404" class="small">Statement, ID and human review status</text>
+<rect x="656" y="419" width="504" height="42" rx="10" fill="#f4f7f9" stroke="#d5dfe5"/>
+<text x="668" y="445" class="small">Validation · Scope · Strategy · Model · Evidence</text>
+<rect x="656" y="474" width="145" height="31" rx="10" fill="#fff" stroke="#d5dfe5"/>
+<text x="668" y="496" class="label">Approve</text>
+<rect x="813" y="474" width="145" height="31" rx="10" fill="#fff" stroke="#d5dfe5"/>
+<text x="825" y="496" class="label">Needs review</text>
+<rect x="996" y="474" width="145" height="31" rx="10" fill="#fff" stroke="#d5dfe5"/>
+<text x="1008" y="496" class="label">Reject</text>
+<text x="656" y="531" class="small">Normalized statement / intent / review notes</text>
+<text x="656" y="560" class="small">▸ Evidence for this requirement</text>
+<text x="656" y="589" class="small">▸ FAIR and metadata actions</text>
+<text x="656" y="618" class="small">▸ Raw contributions and critic findings (panel runs)</text>
+<text x="656" y="649" class="small">Duplicate suggestions / Split requirement</text>
+<rect x="0" y="713" width="1200" height="47" rx="0" fill="#102b2b" stroke="#102b2b"/>
+<text x="24" y="742" class="label" style="fill:#fff">5  Status bar: progress, extraction results, export confirmations and errors</text>
+</svg>

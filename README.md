@@ -7,6 +7,9 @@ Derived from [Sebastian's SimpleLLM & SAST Blackboard](https://github.com/U0iS11
 with the existing RQ1 service and interface migrated from
 [Visual Profile Editor](https://github.com/jundahuang9123/visual-profile-editor).
 
+See the [visual UI and operating guide](docs/UI_GUIDE.md) for the interface layout,
+a first run, review controls, multi-agent setup, expert evaluation and exports.
+
 ## Current implementation
 
 - Domain evidence ingestion: text, AAS JSON/AASX, DCAT/RDF, and lightweight IFC.
@@ -69,8 +72,9 @@ Expert evaluation exports frozen packages and
 
 The `/api/requirements/export-rq1-dataset` API runs a reproducible extraction;
 it does not export unsaved browser edits. Use the UI's **Export RQ1 Dataset** for
-reviewed browser state. Browser review and evaluation state is currently held in
-memory, so export it before reloading. The API also offers explicit requirement
+reviewed browser state. The UI has no full-session save/restore, so export before
+reloading. Some reviewer draft fields use browser-local storage; this does not
+back up the complete evaluation session. The API also offers explicit requirement
 set save/load endpoints, backed by local YAML files; these are not automatic UI
 session persistence.
 
