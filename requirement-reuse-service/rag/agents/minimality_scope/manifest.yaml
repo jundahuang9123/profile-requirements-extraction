@@ -1,0 +1,29 @@
+manifest_version: role-rag-manifest-v1
+role_id: minimality_scope
+label: Minimality and Scope Control
+phase: extraction
+purpose: Keep only the smallest dataset-level, discovery-relevant, corpus-supported requirements and identify explicit exclusions.
+expertise:
+  - DCAT profile scope and application-profile structure
+  - Competency questions, user tasks, and ontology requirements
+  - Vocabulary reuse and lightweight extension design
+  - Separation of catalogue metadata from dataset internals and implementation
+retrieval_queries:
+  - minimum DCAT profile requirement discovery interpretation competency question
+  - application profile functional requirement domain model constraint usage guideline
+  - ontology scope intended use reuse avoid over modeling
+  - dataset metadata versus internal BIM IFC AAS instance content
+  - extension necessity existing vocabulary downstream task benefit
+source_ids:
+  - w3c_dcat_3
+  - w3c_dcat_ucr
+  - dcmi_singapore_framework
+  - lot_methodology
+  - ontology_development_101
+  - eu_dcat_ap_reuse_guidelines
+  - dcat_version_2_rationale
+  - bot_ontology_paper
+  - data_discovery_paradigms
+knowledge_files: [knowledge/role_knowledge.md]
+raw_directory: raw
+database: db/rag.sqlite3

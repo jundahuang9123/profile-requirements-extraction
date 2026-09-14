@@ -1,0 +1,8 @@
+fastapi==0.115.8
+uvicorn[standard]==0.34.0
+pydantic==2.10.6
+rdflib==7.1.4
+python-multipart==0.0.20
+httpx==0.28.1
+PyYAML==6.0.2
+anthropic>=0.50.0

@@ -1,0 +1,708 @@
+# Traceable Requirement Record - LinkML schema
+#
+# Normative definition of the requirement representation used by the
+# requirement-reuse-service (RQ1: requirement extraction and representation).
+# Each requirement record links source evidence, the predefined task or declared need
+# task it supports, FAIR relevance, candidate reusable DCAT/DCAT-AP terms, the
+# proposed profile action, validation evidence, and extraction provenance.
+#
+# The operational Pydantic models in requirement_reuse_service/models.py
+# mirror this schema; records are serialized as YAML in the requirement-set
+# registry and as JSON over the API.
+id: https://w3id.org/construct-dcat/requirement-record
+name: requirement_record
+title: Traceable Requirement Record
+description: >-
+  Requirement representation for semi-automated, reuse-first DCAT profile
+  engineering. Connects domain evidence to profile-design decisions and later
+  validation, while recording how each candidate was produced (rule-based,
+  LLM-assisted, hybrid, or role-conditioned panel extraction) and how human experts assessed it.
+license: https://www.apache.org/licenses/LICENSE-2.0
+prefixes:
+  linkml: https://w3id.org/linkml/
+  rr: https://w3id.org/construct-dcat/requirement-record/
+  dcterms: http://purl.org/dc/terms/
+  prov: http://www.w3.org/ns/prov#
+default_prefix: rr
+default_range: string
+imports:
+  - linkml:types
+
+classes:
+  AnalysisResponse:
+    description: RQ1 extraction response with study setup, funnel metrics, and reviewed requirement candidates.
+    attributes:
+      strategy:
+        range: ExtractionStrategy
+      study_setup:
+        description: Source corpus, CQ-guided flag, allowed extraction inputs, and held-out validation inputs.
+      evidence_units:
+        range: EvidenceUnit
+        multivalued: true
+      requirements:
+        range: CandidateRequirement
+        multivalued: true
+      duplicate_groups:
+        range: DuplicateGroup
+        multivalued: true
+      user_tasks:
+        range: UserTask
+        multivalued: true
+      funnel_metrics:
+        description: Evidence units -> source signals -> candidate requirements -> duplicate/discard metrics.
+      warnings:
+        multivalued: true
+      workflow_id: {}
+      workflow_version: {}
+      study_mode:
+        range: StudyMode
+      study_phase:
+        range: StudyPhase
+      input_hash: {}
+      panel_preset: {}
+      panel_status: {}
+      agent_runs:
+        range: AgentRunRecord
+        multivalued: true
+      raw_agent_requirements:
+        range: CandidateRequirement
+        multivalued: true
+      consolidation_events:
+        range: ConsolidationEvent
+        multivalued: true
+      critique_findings:
+        range: CritiqueFinding
+        multivalued: true
+      agent_contexts:
+        range: AgentContextTrace
+        multivalued: true
+      workflow_trace:
+        range: WorkflowTraceEvent
+        multivalued: true
+
+  RequirementSet:
+    description: A named, persisted collection of requirement records plus the user tasks they were extracted against.
+    slots: [id, name, description, created_at, strategy]
+    attributes:
+      requirements:
+        range: CandidateRequirement
+        multivalued: true
+      user_tasks:
+        range: UserTask
+        multivalued: true
+      analysis:
+        range: AnalysisResponse
+        description: Optional complete extraction response preserving role-level panel output.
+
+  EvidenceUnit:
+    description: Source chunk sent to rules/LLM extraction and cited by candidate requirements.
+    slots: [id]
+    attributes:
+      source_id: {}
+      artifact_name: {}
+      artifact_kind: {}
+      locator: {}
+      content: {}
+      extracted_facts:
+        multivalued: true
+      confidence:
+        range: float
+
+  DuplicateGroup:
+    description: Suggested duplicate/merge group for requirement review.
+    slots: [id]
+    attributes:
+      requirement_ids:
+        multivalued: true
+      suggested_merged_statement: {}
+      reason: {}
+      confidence:
+        range: float
+
+  UserTask:
+    description: A predefined competency question, corpus-derived user task, or declared stakeholder need.
+    slots: [id]
+    attributes:
+      statement:
+        required: true
+      kind:
+        range: UserTaskKind
+      stakeholder:
+        description: Stakeholder role the task belongs to (e.g. data steward, site manager).
+      source:
+        description: Where the predefined task came from (declared corpus, task file, or project documentation).
+
+  CandidateRequirement:
+    description: A traceable profile-design requirement candidate awaiting or carrying expert review.
+    slots: [id]
+    attributes:
+      raw_statement:
+        description: Evidence-near phrasing the requirement was derived from.
+      normalized_statement:
+        description: Normalized, testable profile-design statement.
+      requirement_type:
+        range: RequirementType
+      source_evidence:
+        range: SourceEvidence
+        multivalued: true
+        description: Verbatim, locatable evidence the requirement is grounded in.
+      normalized_intent:
+        range: NormalizedIntent
+      fair_dimensions:
+        range: FairDimension
+        multivalued: true
+      fair_rationale:
+        description: Why the requirement supports the listed FAIR dimensions.
+      candidate_metadata_actions:
+        range: CandidateMetadataAction
+        multivalued: true
+        description: Proposed reuse/extension actions with candidate terms.
+      supports_user_tasks:
+        multivalued: true
+        description: IDs of user tasks / competency questions this requirement supports (enables CQ-coverage evaluation).
+      requires_multiple_elements:
+        range: boolean
+        description: >-
+          When true, the requirement explicitly mandates several distinct profile
+          elements, so RQ2 minimal mode keeps the best term per slot instead of a
+          single primary action. Defaults to false (candidate terms are alternatives).
+      validation_evidence:
+        multivalued: true
+        description: References to validation artifacts (test cases, SHACL reports) once the requirement is checked. Populated in later workflow stages.
+      validation_status:
+        range: ValidationStatus
+        description: Machine validation result, separate from human review status.
+      requirement_scope:
+        range: RequirementScope
+        description: RQ1 classification of what kind of profile-design decision the requirement supports.
+      provenance:
+        range: ExtractionProvenance
+        description: How the candidate was produced and corrected.
+      status:
+        range: ReviewStatus
+      review_notes:
+        description: Free-text notes from the expert reviewer.
+      merged_from:
+        multivalued: true
+        description: IDs of requirements merged into this record.
+      support_level:
+        range: EvidenceSupportLevel
+      origin_kind:
+        range: RequirementOriginKind
+      origin_agent_role: {}
+      contributing_agent_roles:
+        multivalued: true
+      agent_contributions:
+        range: AgentContribution
+        multivalued: true
+      consolidated_from:
+        multivalued: true
+        description: Raw machine-panel candidate IDs consolidated into this candidate.
+      critique_finding_ids:
+        multivalued: true
+      machine_output_frozen:
+        range: boolean
+      machine_original_statement: {}
+      formal_consensus_decision:
+        range: ConsensusDecisionKind
+      confidence:
+        range: float
+
+  SourceEvidence:
+    description: A verbatim span of source material supporting a requirement.
+    attributes:
+      evidence_unit_id:
+        required: true
+      source_id: {}
+      artifact_name:
+        required: true
+      artifact_kind: {}
+      locator:
+        description: Machine-checkable location, e.g. chars:120-240, sentence:3, JSON path, or IFC line reference.
+      evidence_text:
+        required: true
+        description: Exact text span; programmatically verified to occur verbatim in the artifact for LLM extraction.
+      extracted_facts:
+        multivalued: true
+
+  NormalizedIntent:
+    description: Comparable normalized core of the requirement.
+    attributes:
+      resource_type:
+        range: ResourceType
+      metadata_need: {}
+      value_kind:
+        range: ValueKind
+      obligation_hint:
+        range: ObligationHint
+
+  CandidateMetadataAction:
+    description: >-
+      A proposed profile-design action derived from the requirement - the
+      primary RQ1 -> RQ2 handoff object consumed by profile generation
+      (see profile_change.linkml.yaml).
+    attributes:
+      action:
+        range: MetadataActionKind
+      target_class:
+        description: Profiled base class, e.g. dcat:Dataset, dcat:Distribution, dcat:Catalog, dcat:DataService.
+      candidate_terms:
+        multivalued: true
+        description: "Prefixed candidate terms in reuse-priority order (dcterms:, dcat:, prov:, skos:, then cx: extensions)."
+      rationale: {}
+      constraint_hint:
+        range: ConstraintHint
+        description: Optional structured constraint hint for RQ2 (cardinality, value kind, datatype, obligation).
+      source_requirement_id:
+        description: Backlink to the owning requirement once actions are transformed into RQ2 proposals.
+
+  ConstraintHint:
+    description: Structured constraint hint derived from the normalized intent or supplied by the extractor/reviewer.
+    attributes:
+      cardinality:
+        description: Cardinality expression such as 0..n, 1..1, 0..1, 1..n.
+      value_kind:
+        range: ValueKind
+      datatype_or_class:
+        description: Optional explicit datatype or class for the slot range.
+      obligation:
+        range: ObligationHint
+
+  ExtractionProvenance:
+    description: Reproducibility and effort-measurement record (PROV-O-style, simplified).
+    attributes:
+      strategy:
+        range: ExtractionStrategy
+      extractor:
+        description: Identifier of the producing component, e.g. rule-based-v1 or llm-extractor/rrs-extract-v1.
+      model_id:
+        description: LLM model identifier when strategy is llm or hybrid.
+      prompt_version:
+        description: Version tag of the extraction prompt.
+      created_at:
+        range: datetime
+      evidence_verified:
+        range: boolean
+        description: Whether all evidence quotes were verified verbatim against the sources.
+      notes:
+        multivalued: true
+      editor_history:
+        multivalued: true
+        description: Expert corrections (field, old value, new value, timestamp) used to measure human editing effort (H1).
+      workflow_id: {}
+      workflow_version: {}
+      agent_run_id: {}
+      agent_role: {}
+      agent_phase: {}
+      input_hash: {}
+      source_candidate_ids:
+        multivalued: true
+
+  AgentRoleConfig:
+    description: Versioned analytical-role configuration; the role grants perspective, not authority.
+    slots: [id]
+    attributes:
+      label: {}
+      phase:
+        range: AgentPhase
+      panel_order:
+        range: integer
+      purpose: {}
+      focus_questions:
+        multivalued: true
+      include:
+        multivalued: true
+      exclude:
+        multivalued: true
+      prompt_version: {}
+      enabled:
+        range: boolean
+
+  AgentRunRecord:
+    slots: [id]
+    attributes:
+      role_id: {}
+      phase:
+        range: AgentPhase
+      status:
+        range: AgentRunStatus
+      model_id: {}
+      prompt_version: {}
+      started_at:
+        range: datetime
+      completed_at:
+        range: datetime
+      candidate_requirement_ids:
+        multivalued: true
+      warnings:
+        multivalued: true
+      cache_hit:
+        range: boolean
+      dependency_role_ids:
+        multivalued: true
+      input_artifact_ids:
+        multivalued: true
+      output_artifact_ids:
+        multivalued: true
+      context_trace:
+        range: AgentContextTrace
+
+  AgentContextInput:
+    description: Coordinator-supplied background and retrieval settings for one role.
+    attributes:
+      role_id: {}
+      background: {}
+      rag_queries:
+        multivalued: true
+      rag_artifact_names:
+        multivalued: true
+      rag_material: {}
+      rag_top_k:
+        range: integer
+
+  RetrievedContextItem:
+    description: One traceable item selected from the role-specific retrieval pool.
+    slots: [id]
+    attributes:
+      source_kind: {}
+      source_ref: {}
+      content: {}
+      content_hash: {}
+      score:
+        range: float
+      evidence_unit_id: {}
+      eligible_as_evidence:
+        range: boolean
+
+  AgentContextTrace:
+    description: Exact background and retrieved context assembled for one agent invocation.
+    attributes:
+      role_id: {}
+      context_hash: {}
+      background: {}
+      background_hash: {}
+      rag_queries:
+        multivalued: true
+      requested_rag_artifact_names:
+        multivalued: true
+      shared_evidence_unit_ids:
+        multivalued: true
+      retrieved_items:
+        range: RetrievedContextItem
+        multivalued: true
+      boundary_notice: {}
+
+  WorkflowTraceEvent:
+    description: Ordered, exportable context-assembly or agent-run event with explicit dependencies and I/O identifiers.
+    slots: [id]
+    attributes:
+      sequence:
+        range: integer
+      event_type: {}
+      phase: {}
+      role_id: {}
+      agent_run_id: {}
+      timestamp:
+        range: datetime
+      dependency_role_ids:
+        multivalued: true
+      input_artifact_ids:
+        multivalued: true
+      output_artifact_ids:
+        multivalued: true
+      context_hash: {}
+      details: {}
+
+  AgentContribution:
+    attributes:
+      agent_run_id: {}
+      role_id: {}
+      source_candidate_id: {}
+      contribution_kind:
+        range: AgentContributionKind
+      statement: {}
+      evidence_unit_ids:
+        multivalued: true
+      notes:
+        multivalued: true
+
+  ConsolidationEvent:
+    slots: [id, created_at]
+    attributes:
+      source_candidate_ids:
+        multivalued: true
+      consolidated_requirement_id: {}
+      action:
+        range: ConsolidationAction
+      rationale: {}
+      performed_by: {}
+
+  CritiqueFinding:
+    slots: [id]
+    attributes:
+      requirement_id: {}
+      critic_role_id: {}
+      category:
+        range: CritiqueCategory
+      severity:
+        range: CritiqueSeverity
+      message: {}
+      evidence_unit_ids:
+        multivalued: true
+      suggested_action: {}
+
+  EvaluationPackage:
+    description: Immutable, versioned package containing the original machine output for independent review.
+    slots: [id, created_at]
+    attributes:
+      schema_version: {}
+      target_reviewer_count:
+        range: integer
+      study_phase:
+        range: StudyPhase
+      source_corpus_id: {}
+      input_hash: {}
+      workflow_version: {}
+      strategy_used: {}
+      role_configuration:
+        range: AgentRoleConfig
+        multivalued: true
+      agent_runs:
+        range: AgentRunRecord
+        multivalued: true
+      agent_contexts:
+        range: AgentContextTrace
+        multivalued: true
+      workflow_trace:
+        range: WorkflowTraceEvent
+        multivalued: true
+      evidence_units:
+        range: EvidenceUnit
+        multivalued: true
+      user_tasks:
+        range: UserTask
+        multivalued: true
+      raw_agent_requirements:
+        range: CandidateRequirement
+        multivalued: true
+      machine_requirements:
+        range: CandidateRequirement
+        multivalued: true
+      consolidation_events:
+        range: ConsolidationEvent
+        multivalued: true
+      critique_findings:
+        range: CritiqueFinding
+        multivalued: true
+      warnings:
+        multivalued: true
+      package_hash: {}
+
+  ExpertCriterionRatings:
+    attributes:
+      evidence_fidelity: {range: integer}
+      correctness: {range: integer}
+      relevance: {range: integer}
+      necessity: {range: integer}
+      clarity: {range: integer}
+      atomicity: {range: integer}
+      reuse_potential: {range: integer}
+      extension_necessity: {range: integer}
+
+  ExpertRequirementReview:
+    attributes:
+      requirement_id: {}
+      decision:
+        range: ReviewDecision
+      ratings:
+        range: ExpertCriterionRatings
+      comment: {}
+      proposed_statement: {}
+      feedback_categories:
+        multivalued: true
+      proposed_merge_with:
+        multivalued: true
+      proposed_split_statements:
+        multivalued: true
+
+  MissingRequirementProposal:
+    slots: [id]
+    attributes:
+      statement: {}
+      rationale: {}
+      evidence_unit_ids:
+        multivalued: true
+      requirement_type: {}
+
+  ExpertReviewSubmission:
+    slots: [id]
+    attributes:
+      schema_version: {}
+      evaluation_package_id: {}
+      evaluation_package_hash: {}
+      reviewer_id: {}
+      started_at:
+        range: datetime
+      completed_at:
+        range: datetime
+      reviews:
+        range: ExpertRequirementReview
+        multivalued: true
+      missing_requirements:
+        range: MissingRequirementProposal
+        multivalued: true
+      submission_hash: {}
+
+  ReviewAggregation:
+    attributes:
+      schema_version: {}
+      evaluation_package_id: {}
+      evaluation_package_hash: {}
+      reviewer_ids:
+        multivalued: true
+      expected_reviewer_count:
+        range: integer
+      complete:
+        range: boolean
+      missing_requirement_proposals:
+        range: MissingRequirementProposal
+        multivalued: true
+
+  RevisionRecord:
+    slots: [id, created_at]
+    attributes:
+      requirement_id: {}
+      original_statement: {}
+      proposed_statement: {}
+      feedback_categories:
+        multivalued: true
+      source_review_submission_ids:
+        multivalued: true
+      expert_comments:
+        multivalued: true
+        description: Pseudonymous reviewer comments selected as revision input.
+      performed_by: {}
+
+  ConsensusDecision:
+    attributes:
+      requirement_id: {}
+      decision:
+        range: ConsensusDecisionKind
+      final_statement: {}
+      rationale: {}
+      participant_reviewer_ids:
+        multivalued: true
+      revision_record_id: {}
+      decided_at:
+        range: datetime
+
+slots:
+  id:
+    identifier: true
+  name: {}
+  description: {}
+  created_at:
+    range: datetime
+  strategy:
+    range: ExtractionStrategy
+
+enums:
+  RequirementType:
+    permissible_values:
+      descriptive_metadata: {}
+      semantic_anchor: {}
+      technical_metadata: {}
+      access_policy: {}
+      quality_provenance: {}
+      lifecycle_context: {}
+      controlled_vocabulary: {}
+      validation_constraint: {}
+      competency_question: {}
+      unknown: {}
+  ResourceType:
+    permissible_values: {Catalog: {}, Dataset: {}, Distribution: {}, DataService: {}, Agent: {}, Concept: {}, Unknown: {}}
+  ValueKind:
+    permissible_values: {literal: {}, uri: {}, controlled_concept: {}, class_reference: {}, date: {}, agent: {}, distribution: {}, unknown: {}}
+  ObligationHint:
+    permissible_values: {mandatory: {}, recommended: {}, optional: {}, unknown: {}}
+  ReviewStatus:
+    permissible_values: {candidate: {}, approved: {}, rejected: {}, merged: {}, needs_review: {}}
+  ValidationStatus:
+    permissible_values:
+      valid: {}
+      missing_evidence: {}
+      invalid_schema: {}
+      unknown_term: {}
+      resource_mismatch: {}
+      needs_review: {}
+  RequirementScope:
+    permissible_values:
+      profile_element: {}
+      obligation_level: {}
+      controlled_vocabulary: {}
+      validation_constraint: {}
+      documentation_guidance: {}
+      example_requirement: {}
+      unknown: {}
+  FairDimension:
+    permissible_values: {F: {}, A: {}, I: {}, R: {}}
+  ExtractionStrategy:
+    permissible_values: {rules: {}, llm: {}, hybrid: {}, multi_agent: {}}
+  StudyMode:
+    permissible_values: {formative: {}, summative: {}}
+  StudyPhase:
+    permissible_values:
+      development: {}
+      formative_review: {}
+      workflow_frozen: {}
+      summative_review_open: {}
+      summative_review_closed: {}
+      post_evaluation_revision: {}
+      consensus_validation: {}
+      validated: {}
+  EvidenceSupportLevel:
+    permissible_values: {explicit: {}, evidence_supported_inference: {}, unsupported: {}}
+  RequirementOriginKind:
+    permissible_values:
+      rule_extracted: {}
+      single_llm_extracted: {}
+      agent_extracted: {}
+      agent_consolidated: {}
+      expert_added: {}
+      human_guided_revision: {}
+  AgentPhase:
+    permissible_values: {extraction: {}, consolidation: {}, criticism: {}, revision: {}}
+  AgentRunStatus:
+    permissible_values: {pending: {}, running: {}, completed: {}, failed: {}, skipped: {}}
+  AgentContributionKind:
+    permissible_values: {originated: {}, supported: {}, merged: {}, challenged: {}, revised: {}}
+  ConsolidationAction:
+    permissible_values: {merge: {}, keep_separate: {}, discard_unsupported: {}, flag_conflict: {}}
+  CritiqueCategory:
+    permissible_values:
+      grounding: {}
+      scope: {}
+      atomicity: {}
+      obligation: {}
+      duplicate: {}
+      conflict: {}
+      reuse: {}
+      minimality: {}
+      resource_compatibility: {}
+      other: {}
+  CritiqueSeverity:
+    permissible_values: {info: {}, warning: {}, blocking: {}}
+  ReviewDecision:
+    permissible_values: {accept: {}, accept_with_revision: {}, reject: {}, out_of_scope: {}, cannot_assess: {}}
+  ConsensusDecisionKind:
+    permissible_values: {accepted: {}, accepted_with_revision: {}, rejected: {}, out_of_scope: {}, merged: {}, split: {}}
+  UserTaskKind:
+    permissible_values: {competency_question: {}, user_task: {}, stakeholder_need: {}}
+  MetadataActionKind:
+    permissible_values:
+      reuse_existing_term: {}
+      specialize_existing_term: {}
+      create_extension: {}
+      add_constraint: {}
+      add_usage_note: {}
+      no_action: {}

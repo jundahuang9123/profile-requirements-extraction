@@ -1,0 +1,30 @@
+manifest_version: role-rag-manifest-v1
+role_id: consumer_discovery
+label: Data Consumer and Discovery
+phase: extraction
+purpose: Ground metadata needs in tasks for finding, filtering, comparing, selecting, accessing, understanding, and reusing construction datasets.
+expertise:
+  - Dataset-search behaviour and task-oriented discovery
+  - Search facets, semantic annotations, quality and provenance signals
+  - DCAT catalogue federation and structured metadata
+  - Construction-specific selection contexts before data access
+retrieval_queries:
+  - dataset search user task find filter compare select access reuse metadata
+  - construction dataset discovery lifecycle discipline asset location representation
+  - provenance quality licence format endpoint fitness for use search result
+  - semantic metadata synonym classification concept URI query expansion
+  - dataset series version distribution service comparison
+source_ids:
+  - data_discovery_paradigms
+  - google_dataset_search
+  - dataset_search_survey
+  - w3c_dcat_3
+  - w3c_duv
+  - w3c_dqv
+  - w3c_prov_o
+  - eu_geodcat_ap_3
+  - construct_x_official
+  - metadata_quality_neumaier
+knowledge_files: [knowledge/role_knowledge.md]
+raw_directory: raw
+database: db/rag.sqlite3

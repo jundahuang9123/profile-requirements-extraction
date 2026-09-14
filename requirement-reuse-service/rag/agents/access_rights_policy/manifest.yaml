@@ -1,0 +1,29 @@
+manifest_version: role-rag-manifest-v1
+role_id: access_rights_policy
+label: Access, Rights, Policy, and Usage
+phase: extraction
+purpose: Model declared licences, access rights, usage policies, sensitivity, and service conditions at the correct resource without offering legal advice.
+expertise:
+  - DCAT and DCAT-AP rights, licence, access-rights, and distribution placement
+  - ODRL offers, agreements, permissions, prohibitions, duties, and constraints
+  - Dataspace catalog visibility, policy, and contract-negotiation semantics
+  - Privacy-context descriptors and EU data-space interoperability requirements
+retrieval_queries:
+  - DCAT dataset access rights distribution licence rights resource placement
+  - ODRL offer agreement permission prohibition duty constraint assigner assignee
+  - Dataspace Protocol catalog policy target data service contract negotiation
+  - privacy purpose personal data legal basis risk metadata descriptor
+  - Data Act use restriction licence access terms quality uncertainty
+source_ids:
+  - w3c_dcat_3
+  - eu_dcat_ap_3
+  - dcmi_metadata_terms
+  - w3c_odrl
+  - idsa_dataspace_protocol
+  - idsa_catalog_protocol
+  - w3c_dpv_2
+  - eu_data_act
+  - gaia_x_trust_framework
+knowledge_files: [knowledge/role_knowledge.md]
+raw_directory: raw
+database: db/rag.sqlite3

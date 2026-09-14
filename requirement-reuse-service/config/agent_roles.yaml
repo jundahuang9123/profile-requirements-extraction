@@ -1,0 +1,259 @@
+workflow_version: rrs-multi-agent-v1
+defaults:
+  max_output_tokens: 5000
+  concurrency_limit: 4
+  max_stage_passes: 1
+
+roles:
+  - id: standards_conformance
+    label: Standards and Normative Conformance
+    phase: extraction
+    panel_order: 1
+    purpose: Identify corpus-stated normative and compatibility requirements.
+    focus_questions:
+      - What obligation or cardinality is explicitly supported by normative wording?
+      - Which DCAT or DCAT-AP class and property semantics constrain the requirement?
+    include: [standards, specifications, conformance, cardinality, base-profile compatibility]
+    exclude: [invented obligations, unevidenced construction needs, implementation architecture]
+    prompt_version: rrs-role-standards-v1
+    enabled: true
+
+  - id: dcat_reuse
+    label: DCAT and DCAT-AP Reuse
+    phase: extraction
+    panel_order: 2
+    purpose: Identify reuse-oriented requirements and evidence that extensions are unnecessary.
+    focus_questions:
+      - Can DCAT, DCAT-AP, DCTERMS, PROV, SKOS, or FOAF represent the evidenced need?
+      - Which resource type owns the metadata?
+    include: [reuse candidates, resource distinctions, specialisation rationale]
+    exclude: [automatic mapping approval, premature extensions, source-field mirroring]
+    prompt_version: rrs-role-dcat-reuse-v1
+    enabled: true
+
+  - id: construction_domain
+    label: Construction Domain Semantics
+    phase: extraction
+    panel_order: 3
+    purpose: Identify evidenced construction distinctions needed for dataset discovery and interpretation.
+    focus_questions:
+      - Which asset, spatial, lifecycle, discipline, project, or representation distinctions affect discovery?
+      - Which ambiguities require a semantic anchor?
+    include: [dataset-level construction context, semantic anchors, discovery ambiguity]
+    exclude: [domain model mirroring, instance engineering data, unsupported construction knowledge]
+    prompt_version: rrs-role-construction-domain-v1
+    enabled: true
+
+  - id: aas_idta
+    label: AAS and IDTA Semantics
+    phase: extraction
+    panel_order: 4
+    purpose: Identify dataset-level requirements for discovering or interpreting AAS-related resources.
+    focus_questions:
+      - Are AAS identifiers, semantic IDs, concept descriptions, or templates needed for discovery?
+      - Is the requirement conditional on an AAS-related dataset?
+    include: [AAS identifiers, submodel references, semantic IDs, dataset-level AAS links]
+    exclude: [submodel-element mirroring, live instance values, universal AAS assumptions]
+    prompt_version: rrs-role-aas-idta-v1
+    enabled: true
+
+  - id: ifc_bim
+    label: IFC and BIM Semantics
+    phase: extraction
+    panel_order: 5
+    purpose: Identify evidenced IFC or BIM representation context needed at catalogue level.
+    focus_questions:
+      - Is schema version, model view, discipline, project, spatial, or element-type context required for discovery?
+      - Can the context be linked without copying IFC content into the profile?
+    include: [IFC version, BIM scope, exchange context, semantic links]
+    exclude: [IFC entity mirroring, geometry, calculations, instance attributes]
+    prompt_version: rrs-role-ifc-bim-v1
+    enabled: true
+
+  - id: dataspace_interoperability
+    label: Dataspace and Connector Interoperability
+    phase: extraction
+    panel_order: 6
+    purpose: Identify portable catalogue and service metadata supported by declared infrastructures.
+    focus_questions:
+      - Which participant, connector, endpoint, policy, contract, or federation context is evidenced?
+      - What metadata must remain portable across systems?
+    include: [federation, participant context, service endpoints, policy references, portable identifiers]
+    exclude: [unevidenced architecture choices, protocol-semantic conflation, platform field mirroring]
+    prompt_version: rrs-role-dataspace-interoperability-v1
+    enabled: true
+
+  - id: publisher_feasibility
+    label: Data Publisher Feasibility
+    phase: extraction
+    panel_order: 7
+    purpose: Extract corpus-supported requirements while identifying publisher burden and maintainability risks.
+    focus_questions:
+      - Can a publisher supply and maintain this value at publication time?
+      - Does the evidence support mandatory, conditional, recommended, or optional treatment?
+    include: [onboarding burden, value availability, maintenance, obligation feasibility]
+    exclude: [unsupported feasibility assumptions, deletion of evidenced needs]
+    prompt_version: rrs-role-publisher-feasibility-v1
+    enabled: true
+
+  - id: consumer_discovery
+    label: Data Consumer and Discovery
+    phase: extraction
+    panel_order: 8
+    purpose: Identify metadata needed to find, compare, select, access, understand, and reuse datasets.
+    focus_questions:
+      - What is needed to answer the predefined tasks before opening the data?
+      - What distinctions make search results interpretable?
+    include: [finding, filtering, comparison, selection, access, reuse, predefined-task coverage]
+    exclude: [internal application behaviour, non-discovery content modelling]
+    prompt_version: rrs-role-consumer-discovery-v1
+    enabled: true
+
+  - id: stewardship_governance
+    label: Data Stewardship and Governance
+    phase: extraction
+    panel_order: 9
+    purpose: Identify evidenced responsibility, lifecycle, provenance, and governance metadata.
+    focus_questions:
+      - What ownership, contact, version, status, or maintenance context supports trustworthy use?
+      - What controlled-vocabulary governance is required by the corpus?
+    include: [responsibility, contact, versioning, status, provenance, vocabulary governance]
+    exclude: [unconnected organisational policy, unsupported workflow requirements, unevidenced frameworks]
+    prompt_version: rrs-role-stewardship-governance-v1
+    enabled: true
+
+  - id: access_rights_policy
+    label: Access, Rights, Policy, and Usage
+    phase: extraction
+    panel_order: 10
+    purpose: Identify evidenced metadata needed to assess permitted access and reuse.
+    focus_questions:
+      - Which licence, access-right, policy, sensitivity, service, or distribution condition is stated?
+      - Which resource should carry it?
+    include: [licences, access rights, usage constraints, policy references, sensitivity, access services]
+    exclude: [legal advice, invented policy language, unnecessary extensions]
+    prompt_version: rrs-role-access-rights-policy-v1
+    enabled: true
+
+  - id: fair_quality_provenance
+    label: FAIR, Quality, and Provenance
+    phase: extraction
+    panel_order: 11
+    purpose: Identify actionable evidence-backed metadata for fitness, traceability, and FAIR-oriented use.
+    focus_questions:
+      - Which provenance, source, date, completeness, quality, or trust signal affects fitness for use?
+      - Which predefined task does it support?
+    include: [FAIR implications, provenance, source, quality, completeness, trust, task traceability]
+    exclude: [generic FAIR commentary, unsupported scores, automatic FAIR compliance claims]
+    prompt_version: rrs-role-fair-quality-provenance-v1
+    enabled: true
+
+  - id: minimality_scope
+    label: Minimality and Scope Control
+    phase: extraction
+    panel_order: 12
+    purpose: Extract the smallest corpus-supported dataset-level requirement set and explicit do-not-include findings.
+    focus_questions:
+      - Is the need genuinely necessary for discovery or interpretation?
+      - Is it metadata, or merely an example, implementation detail, or internal content?
+    include: [minimal dataset-level requirements, redundancy signals, scope boundaries]
+    exclude: [deleting other outputs, final decisions, omission of evidenced domain distinctions]
+    prompt_version: rrs-role-minimality-scope-v1
+    enabled: true
+
+  - id: consolidation_conflict
+    label: Consolidation and Conflict Resolution
+    phase: consolidation
+    panel_order: 13
+    purpose: Canonicalise verified raw candidates while preserving provenance and disagreements.
+    focus_questions:
+      - Which candidates are equivalent, distinct, unsupported, or in conflict?
+      - Does each output retain source candidate and evidence links?
+    include: [merge, keep separate, discard unsupported, flag conflict, merged provenance]
+    exclude: [new evidence, frequency-as-proof, erased raw candidates, approval]
+    prompt_version: rrs-consolidation-conflict-v1
+    enabled: true
+
+  - id: grounding_scope_critic
+    label: Grounding, Scope, Obligation, and Atomicity Critic
+    phase: criticism
+    panel_order: 14
+    purpose: Produce structured findings about evidence fidelity, scope, obligation, and atomicity.
+    focus_questions:
+      - Does the statement exceed or contradict the cited evidence?
+      - Is it atomic and at catalogue/profile scope with justified obligation language?
+    include: [grounding, scope, atomicity, obligation, resource ambiguity, contradiction]
+    exclude: [silent mutation, deletion, approval]
+    prompt_version: rrs-grounding-scope-critic-v1
+    enabled: true
+
+  - id: reuse_minimality_critic
+    label: Reuse, Minimality, and Validation Critic
+    phase: criticism
+    panel_order: 15
+    purpose: Produce structured findings about reuse, representability, and minimal-profile fit.
+    focus_questions:
+      - Has a registered term been overlooked or misapplied?
+      - Is the candidate over-modelled, overly constrained, or incompatible downstream?
+    include: [reuse, extension necessity, resource compatibility, minimality, downstream readiness]
+    exclude: [silent mutation, deletion, approval]
+    prompt_version: rrs-reuse-minimality-critic-v1
+    enabled: true
+
+  - id: post_evaluation_revision
+    label: Controlled Post-Evaluation Revision
+    phase: revision
+    panel_order: 16
+    purpose: Propose bounded revisions from selected expert feedback after summative review closes.
+    focus_questions:
+      - What minimal revision addresses the selected feedback while preserving the original machine statement?
+    include: [selected expert feedback, traceable proposed wording]
+    exclude: [pre-closure revision, automatic approval, overwritten machine output]
+    prompt_version: rrs-revision-v1
+    enabled: true
+
+presets:
+  full_15:
+    description: Formal fifteen-agent research condition.
+    role_ids:
+      - standards_conformance
+      - dcat_reuse
+      - construction_domain
+      - aas_idta
+      - ifc_bim
+      - dataspace_interoperability
+      - publisher_feasibility
+      - consumer_discovery
+      - stewardship_governance
+      - access_rights_policy
+      - fair_quality_provenance
+      - minimality_scope
+      - consolidation_conflict
+      - grounding_scope_critic
+      - reuse_minimality_critic
+  extraction_12:
+    description: Twelve independent extraction roles without synthesis.
+    role_ids:
+      - standards_conformance
+      - dcat_reuse
+      - construction_domain
+      - aas_idta
+      - ifc_bim
+      - dataspace_interoperability
+      - publisher_feasibility
+      - consumer_discovery
+      - stewardship_governance
+      - access_rights_policy
+      - fair_quality_provenance
+      - minimality_scope
+  pilot_core:
+    description: Reduced-cost development preset; never report as the full-panel condition.
+    role_ids:
+      - standards_conformance
+      - dcat_reuse
+      - construction_domain
+      - consumer_discovery
+      - minimality_scope
+      - consolidation_conflict
+      - grounding_scope_critic
+      - reuse_minimality_critic

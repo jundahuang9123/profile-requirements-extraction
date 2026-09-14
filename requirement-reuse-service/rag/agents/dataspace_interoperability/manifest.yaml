@@ -1,0 +1,29 @@
+manifest_version: role-rag-manifest-v1
+role_id: dataspace_interoperability
+label: Dataspace and Connector Interoperability
+phase: extraction
+purpose: Identify portable participant, offering, catalogue, endpoint, policy, contract, and federation metadata without copying connector internals.
+expertise:
+  - Dataspace Protocol catalogue and contract semantics
+  - DCAT/ODRL mapping for offers, distributions, and data services
+  - Eclipse EDC asset, catalogue, policy, and negotiation implementation concepts
+  - DSSC, Gaia-X, Construct-X, and cross-data-space interoperability
+retrieval_queries:
+  - Dataspace Protocol DCAT catalog dataset distribution data service ODRL offer
+  - connector participant identifier endpoint contract negotiation transfer process
+  - federated catalog broker crawler lifecycle metadata portability
+  - DSSC data model semantic annotation offering description publication discovery
+  - Construct-X federated construction dataspace open standards sovereignty
+source_ids:
+  - idsa_dataspace_protocol
+  - idsa_catalog_protocol
+  - dssc_blueprint
+  - eclipse_edc_autodoc
+  - gaia_x_trust_framework
+  - construct_x_official
+  - w3c_dcat_3
+  - w3c_odrl
+  - eu_data_act
+knowledge_files: [knowledge/role_knowledge.md]
+raw_directory: raw
+database: db/rag.sqlite3

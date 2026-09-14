@@ -1,0 +1,28 @@
+manifest_version: role-rag-manifest-v1
+role_id: consolidation_conflict
+label: Consolidation and Conflict Resolution
+phase: consolidation
+purpose: Canonicalise equivalent candidates, retain distinct intents, discard unsupported candidates, and preserve every source, evidence link, and disagreement.
+expertise:
+  - Requirements deduplication, consistency, conflict, and traceability
+  - W3C use-case-to-requirement derivation and consensus method
+  - Semantic equivalence versus lexical similarity
+  - Provenance-preserving synthesis and bounded decision records
+retrieval_queries:
+  - duplicate requirement equivalent intent different wording merge provenance
+  - conflicting requirements obligation resource scope evidence preserve disagreement
+  - W3C use case requirement deduplication consensus traceability
+  - ISO 29148 requirement consistency traceability atomic verifiable
+  - PROV derivation attribution source candidate consolidation activity
+source_ids:
+  - w3c_dcat_ucr
+  - iso_29148_2018
+  - requirements_quality_roadmap
+  - w3c_prov_o
+  - w3c_dcat_3
+  - lot_methodology
+  - neon_methodology
+  - w3c_shacl
+knowledge_files: [knowledge/role_knowledge.md]
+raw_directory: raw
+database: db/rag.sqlite3

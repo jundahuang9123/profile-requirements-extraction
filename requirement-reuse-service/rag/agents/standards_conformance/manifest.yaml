@@ -1,0 +1,28 @@
+manifest_version: role-rag-manifest-v1
+role_id: standards_conformance
+label: Standards and Normative Conformance
+phase: extraction
+purpose: Interpret normative wording, resource semantics, cardinalities, and compatibility boundaries without inventing obligations.
+expertise:
+  - W3C DCAT and RDF vocabulary conformance
+  - DCAT-AP application-profile constraints and controlled vocabularies
+  - SHACL validation and normative-language interpretation
+  - Application-profile documentation and release artefacts
+retrieval_queries:
+  - DCAT 3 conformance profile cardinality subclass property constraints
+  - DCAT-AP 3 dataset distribution data service mandatory recommended optional
+  - SHACL validation result severity target property shape cardinality
+  - application profile functional requirements domain model usage guideline
+  - DCAT requirement evidence stakeholder use case traceability
+source_ids:
+  - w3c_dcat_3
+  - eu_dcat_ap_3
+  - w3c_shacl
+  - w3c_dcat_ucr
+  - w3c_profiles_vocabulary
+  - dcmi_singapore_framework
+  - eu_dcat_ap_reuse_guidelines
+  - dcmi_metadata_terms
+knowledge_files: [knowledge/role_knowledge.md]
+raw_directory: raw
+database: db/rag.sqlite3

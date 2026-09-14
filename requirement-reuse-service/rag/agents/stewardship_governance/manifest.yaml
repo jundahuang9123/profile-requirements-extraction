@@ -1,0 +1,29 @@
+manifest_version: role-rag-manifest-v1
+role_id: stewardship_governance
+label: Data Stewardship and Governance
+phase: extraction
+purpose: Identify responsibility, provenance, version, status, maintenance, vocabulary governance, and lifecycle metadata needed for trustworthy use.
+expertise:
+  - DCAT versioning, catalog records, attribution, and provenance
+  - PROV-O entity/activity/agent responsibility patterns
+  - Construction dictionary and information-management governance
+  - Ontology/profile publication, maintenance, and change control
+retrieval_queries:
+  - dataset steward publisher creator contact point qualified attribution responsibility
+  - DCAT version version notes previous version current version catalog record modified
+  - PROV entity activity agent generation derivation attribution source
+  - bSDD dictionary owner status preview active inactive immutable URI governance
+  - ontology profile maintenance release persistent identifier deprecation
+source_ids:
+  - w3c_dcat_3
+  - w3c_prov_o
+  - dcmi_metadata_terms
+  - iso_23386_2020
+  - buildingsmart_bsdd
+  - uk_bim_guidance_part_3
+  - lot_methodology
+  - w3c_profiles_vocabulary
+  - eu_dcat_ap_3
+knowledge_files: [knowledge/role_knowledge.md]
+raw_directory: raw
+database: db/rag.sqlite3

@@ -1,0 +1,14 @@
+services:
+  rq1:
+    build:
+      context: .
+      dockerfile: Dockerfile.rq1
+    ports:
+      - "127.0.0.1:8011:8011"
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - rq1-data:/data
+volumes:
+  rq1-data:

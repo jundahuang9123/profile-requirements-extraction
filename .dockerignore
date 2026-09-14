@@ -1,0 +1,9 @@
+.git
+**/node_modules
+**/__pycache__
+**/.venv
+.env
+**/.env
+.rrs-agent-cache
+requirement-sets
+frontend/dist

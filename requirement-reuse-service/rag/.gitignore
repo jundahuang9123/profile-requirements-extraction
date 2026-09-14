@@ -1,0 +1,8 @@
+# Generated local retrieval indexes.
+agents/*/db/*.sqlite3
+agents/*/db/*.sqlite3-*
+
+# Raw source snapshots may have redistribution or size restrictions. Keep only
+# the placeholder; add a file deliberately after checking its licence.
+agents/*/raw/*
+!agents/*/raw/.gitkeep

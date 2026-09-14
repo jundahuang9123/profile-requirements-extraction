@@ -1,0 +1,475 @@
+{
+  "source_repository": "https://github.com/jundahuang9123/visual-profile-editor",
+  "source_commit": "dc216b0e410594b7fb22eef3f823a17dd57a46e2",
+  "source_branch": "feature/role-conditioned-15-agent-workflow",
+  "source_kind": "working_tree_including_uncommitted_files",
+  "captured_on": "2026-09-14",
+  "files": [
+    {
+      "source_path": "requirement-reuse-service/Dockerfile",
+      "sha256": "68911729b73b7c26443134b8582592be64f56d808205edbfc4d063af8b88b2be"
+    },
+    {
+      "source_path": "requirement-reuse-service/config/agent_roles.yaml",
+      "sha256": "f726b5cecb258fd6a3570c30f372cb3bfddbf098c07b73c7138490dffda96d9e"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/.gitignore",
+      "sha256": "c131d80b929d8e4e12a5e77c4d3174be399dfea289d0a1fe8d1c9c9685b43795"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/README.md",
+      "sha256": "f0e9580dc45405610d0a667efcf29ab5c55b385338ab87a162666b4941410f1a"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/aas_idta/knowledge/role_knowledge.md",
+      "sha256": "284e32e422e5d0771a2ef3eb6a7651e0f6f9d21caf421e36b90d4a9f41bf31a8"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/aas_idta/manifest.yaml",
+      "sha256": "3dfc036078c4b4792ff866cedf5cc752abbbaf0d1618418424b324e1772a9615"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/access_rights_policy/knowledge/role_knowledge.md",
+      "sha256": "ab0d19089c65cafeaef180f96af8a21abf7c1a9808bd96330b02e94d7efcf0a1"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/access_rights_policy/manifest.yaml",
+      "sha256": "a22b1d8c8a98b0dbd21715bb20041a8d5e1ac4b9abfb92b29722d19a713a7603"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/consolidation_conflict/knowledge/role_knowledge.md",
+      "sha256": "4da1867605018e457e325102cf00a702ef71beedccd4d26d876a3e507dc9d9df"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/consolidation_conflict/manifest.yaml",
+      "sha256": "a54adbe34981a2802f31dbfb0b7873ff131b3db9e5837774c0e9510aab808b27"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/construction_domain/knowledge/role_knowledge.md",
+      "sha256": "7bc0008915cee02e18ed2df4dd7b60ee08a450533e945c56f7216b20a70782b8"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/construction_domain/manifest.yaml",
+      "sha256": "eae8ac293d2cd0484b902559eb9da9e467f058743ce38342477db91323b06a5d"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/consumer_discovery/knowledge/role_knowledge.md",
+      "sha256": "8e149ffe50d9958c6e79d32c995feb8aa66596e664854ebb3cfa6b305217aa26"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/consumer_discovery/manifest.yaml",
+      "sha256": "1c14d4be66f37d40a6f9a5f5b5129536fb82c978add65d45de49ad1251594b15"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/dataspace_interoperability/knowledge/role_knowledge.md",
+      "sha256": "9b47636c848138a2b6849b0812b9169354665254e599f0019b0ce52f6bc2f707"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/dataspace_interoperability/manifest.yaml",
+      "sha256": "bb8415ee9ddf8f6f5037505c30468cbdbe12232896893bc560d793a2e347dbaa"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/dcat_reuse/knowledge/role_knowledge.md",
+      "sha256": "333fb05f08f51681211c8d03d6c5cef83ff28b51d44064437ef6142479b9919f"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/dcat_reuse/manifest.yaml",
+      "sha256": "7c361866ac262769b76ba8ad6e00ab97636815b401ac6bcc4f2d1ad38903a3b4"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/fair_quality_provenance/knowledge/role_knowledge.md",
+      "sha256": "1165f4e00ee5883f48f9a28d944c7e98c807d4a340c262ea5ae77ff79192b378"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/fair_quality_provenance/manifest.yaml",
+      "sha256": "c1c4c5ca00e9eba13e65bc808c9513fd5ff48a9f26289b35a611be9e4162b47f"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/grounding_scope_critic/knowledge/role_knowledge.md",
+      "sha256": "eb310d6d81c4a7910b9b4770bafe2a105678e57680a370b429e1d67a47b5b2e8"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/grounding_scope_critic/manifest.yaml",
+      "sha256": "38c38b017d548335b7f3e5360d2303e242e062dc7c706b3fe01e288de08a4de4"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/ifc_bim/knowledge/role_knowledge.md",
+      "sha256": "a1aefcc0ef357ad9adf450af53a1a6c70aff9345d4fd0c16c8c45e15a99c9f60"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/ifc_bim/manifest.yaml",
+      "sha256": "3e3e179688c2b7e7ee2c963b3ca9abd6bc501c6584d66743f1fb686b050967bc"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/minimality_scope/knowledge/role_knowledge.md",
+      "sha256": "9a803897323f99b7090b908f33a46f196dbc9e0e06d61786e69ce9c3c8c9f003"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/minimality_scope/manifest.yaml",
+      "sha256": "7818199c416349c96cef88ac237766246cc79ef547b9a5df73f4e3037ccf5221"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/publisher_feasibility/knowledge/role_knowledge.md",
+      "sha256": "6c1f6425acfa683b55ebd4bd7893ecaf30bc086dc346c5121e468aafb7b9e848"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/publisher_feasibility/manifest.yaml",
+      "sha256": "337e4cf41959d25b9d342a8cc8076e96777261b6d12650f05e0e9a4d7c72f29b"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/reuse_minimality_critic/knowledge/role_knowledge.md",
+      "sha256": "0a25f95f1e8aac9053d8ba14be5f45ac0a9f0ebef9854b2e8e9a7e1db555a58a"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/reuse_minimality_critic/manifest.yaml",
+      "sha256": "b72d3fed0ad2d65e8ddeac3ff26e7e003ea7540d177e796a8be079fc58d7142a"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/standards_conformance/knowledge/role_knowledge.md",
+      "sha256": "e76430399a02c883bb74d8b2eddf6b67fedc939c750189d4ee672bbb7fc861d3"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/standards_conformance/manifest.yaml",
+      "sha256": "e736218182b906842f3d9ec94d64e4297feffd5266d52f09f8c5928f5cbcc5cd"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/stewardship_governance/knowledge/role_knowledge.md",
+      "sha256": "3c7a190f2e798a5050d58039306661419efb7de3ebb017b383627f35d5298d29"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/stewardship_governance/manifest.yaml",
+      "sha256": "c9c69bd7c803bed103e07f4483fb139533f54e6030f131c72b8ccce2b542050e"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/build_databases.py",
+      "sha256": "5b5e9c7fe52877733cec3e3baa70cd05afc3cc8122aa02a52c7d03ad4bb449e2"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/query_database.py",
+      "sha256": "0ff8b2fdd348ee201ae2d7ec500f64627bb7c777a3144267b147e8c93e28a5a8"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/research/method.md",
+      "sha256": "5e85f4f635011ff8e4c6ead6fc3d0d47ef04d53a420930ab0e4b736b7778d87c"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/research/role_selection.md",
+      "sha256": "ba42a6e4b40d0e42804b1f5771c0d78b00aa7ba1ea3e151be2010925d60d1a4e"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/source_catalog.yaml",
+      "sha256": "fc33189aec25ea71c8ccacc8add3b757a1a6278a74b95cf702aeedc4c00685b8"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/__init__.py",
+      "sha256": "a5f3ed5baf58af2f6929b69e0be37ee0c9ae442f94fdfda95cb8adc0371e8997"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/agents/__init__.py",
+      "sha256": "2fd8e3dcbbd580ebbbbac512a0bd9ea14afa9d70ff89e3bfe72cc34b1aba2fae"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/agents/consolidation.py",
+      "sha256": "746e63737e76246ee474f9d33f951a265ee825bb71900f478af19e3c60384755"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/agents/context.py",
+      "sha256": "2fe751a566547cd1767824eccc695964caf43f3987b591bf31c984802cc63885"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/agents/critics.py",
+      "sha256": "82b0202d05f1e197b5883ddbe77968c032d80c62c5daccbbfa15b26dcd4463d6"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/agents/orchestrator.py",
+      "sha256": "172e5d61fd2b25f1570b5aff41e0e99f01250ca5f3bf3245a8011264b05cc820"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/agents/prompts.py",
+      "sha256": "67eb869378fae1959458d270c276972c2ed00e21fb2f1a2899b218bc32960206"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/agents/revision.py",
+      "sha256": "6d17d88800e616bea9856a6514c4e45239fbde41547be654e9939147bd163183"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/agents/roles.py",
+      "sha256": "f8c56b19175e5ea19daa42ccbcf94da4d4338df28f040ff1b97bae5a3ba2376d"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/evaluation.py",
+      "sha256": "103d07211bd5883bf8208adf8022b6e87bf83c96f69e5a47b33c445f60e3eeac"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/llm/__init__.py",
+      "sha256": "e929a5f5a6a288b2467774f000cb6acb040953264c80484a58eefd00daf67823"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/llm/client.py",
+      "sha256": "fd92bff391104cca458d60d9665ba7d4f85f830a5dc35123eb364378cdf06601"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/llm/config.py",
+      "sha256": "026735e5faf637d418a300a3bdc10b809ac6966fc1520a3882fa2180b39ca872"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/llm/extractor.py",
+      "sha256": "a32c7bb7748dbdfdd9623a9f89248ffda9d03991d15a67481426ec8cdb1f46c1"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/main.py",
+      "sha256": "cbf2bf8d9250cb1faaae69b197a8220f41101e32b9df7444c6b6364ee4b8b00c"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/models.py",
+      "sha256": "40fc4b01f325cc1583f8737246a4b6e6194a193f99bf089ae0ee73a858e2eb3d"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/registry.py",
+      "sha256": "659ec8b53e46366de9cf20e843eb4425a4dd9a40bcfaf1fa8e8ff356877450d5"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/rq1_codebook.py",
+      "sha256": "edd605a95886e237b700996d667d74d6fb7dabd101c7ec9eb9e632f3ceb9c176"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/service.py",
+      "sha256": "af7483ca471dae134482143477845b245ef67a5224f15c8d96adc5d59a65d329"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirement_reuse_service/term_registry.py",
+      "sha256": "3912f5d890e987de4060241dc77f6c610397db9dee526d5cd72f42848b04020f"
+    },
+    {
+      "source_path": "requirement-reuse-service/requirements.txt",
+      "sha256": "596a903b2b58dadb575b910e34c447bd977834010df757716b2f1cb6b46c902a"
+    },
+    {
+      "source_path": "requirement-reuse-service/schema/requirement_record.linkml.yaml",
+      "sha256": "a5d3a9beb2cd388371b5bae6448b9d172d6c66606aa2b8145abd4d1b2f8a0e42"
+    },
+    {
+      "source_path": "requirement-reuse-service/schema/rq1_codebook.yaml",
+      "sha256": "3e3ad00fa67ee05924f67443cb0bf0e3e93fadd369b2d767e0ecea5ec52aa7cf"
+    },
+    {
+      "source_path": "frontend/src/components/requirements/AgentContributionView.tsx",
+      "sha256": "b142ab44f770e88e29c5ed2571569d51a9f2d434373130b0911b3875c7587302"
+    },
+    {
+      "source_path": "frontend/src/components/requirements/AgentProcessGraph.tsx",
+      "sha256": "11a293326913ccac34695432bd92e2d6c391884e3aa4f372166ade7871f1c82a"
+    },
+    {
+      "source_path": "frontend/src/components/requirements/AgentRunSummary.tsx",
+      "sha256": "d3871eea08ffd9ccafe74176401c148ee5048d98e9b72f3a55a8027a8b12cb91"
+    },
+    {
+      "source_path": "frontend/src/components/requirements/EvaluationWorkflowPanel.tsx",
+      "sha256": "a58d9fdac329a2f2244632869f80bf2733d3d73be49aad390fa8ea93701dec5f"
+    },
+    {
+      "source_path": "frontend/src/components/requirements/MultiAgentSetupPanel.tsx",
+      "sha256": "d6f0b4c522ae061448705bd98e0e084c58066cdfc42238b1fb1da1f3f96469c8"
+    },
+    {
+      "source_path": "frontend/src/components/requirements/agentRoles.ts",
+      "sha256": "e6202a5cb02a6149336ce098d5c6bb145c1ff48083adbb5e31b0b08091f8d88c"
+    },
+    {
+      "source_path": "frontend/src/components/RequirementWorkbench.tsx",
+      "sha256": "991fd40f52e24910b755be91eb880b98c969455827be55231f35538aeecbbb25"
+    },
+    {
+      "source_path": "frontend/src/lib/requirementApi.ts",
+      "sha256": "e85e89264042a7ba626c75333344303ec00cf787a1df3a1f3a2480e876c9e4b8"
+    },
+    {
+      "source_path": "frontend/src/styles.css",
+      "sha256": "733af890473ed8c56608a019cf3ff7f5db5419b6217f3623eef6213b276e8bb4"
+    },
+    {
+      "source_path": "frontend/tsconfig.json",
+      "sha256": "26062638e9cdc893713fd16be94a008195011c268fa7c7d330ccbd78c53ea272"
+    },
+    {
+      "source_path": "frontend/tsconfig.node.json",
+      "sha256": "a891e0073edc58d58015bcad3c590ee2de5b785448dff7df3f2a4cabad1934a7"
+    },
+    {
+      "source_path": "frontend/package.json",
+      "sha256": "e65e01506a4dbf2b35eef8070bd4651ee26ba13b7d3d97facba5ca6eac5c7df0"
+    },
+    {
+      "source_path": "frontend/package-lock.json",
+      "sha256": "b76b35a531ca675799105aab209ebd0ed5c2e4a6f00ad763dd42e597a4dabdd5"
+    },
+    {
+      "source_path": "frontend/index.html",
+      "sha256": "dacca4aff12bd5063acb762aaa7881a840f2168e69939fd025ccbc24681407cd"
+    },
+    {
+      "source_path": "scripts/extract_requirements.py",
+      "sha256": "f70f0cc19a751bd0702df04754c191681e415752d06cb7b7feb48a7325448891"
+    },
+    {
+      "source_path": "scripts/evaluate_rq1.py",
+      "sha256": "c9bdc9c99d08a2669233e6c90099f3c10ef4a6c6dad2ee2705a7d2dca7e6bb2f"
+    },
+    {
+      "source_path": "tests/test_llm_extraction.py",
+      "sha256": "94aaefd631663d19b86a7ea246513c578ce20c4c7b39e7f8717333ce5413e354"
+    },
+    {
+      "source_path": "tests/test_multi_agent_extraction.py",
+      "sha256": "bac959ac91a0632279674a848cc62509c4c5532b830b3ee53c5cd153a032495e"
+    },
+    {
+      "source_path": "tests/test_expert_evaluation.py",
+      "sha256": "158a6089ca4fe928c804083a4f9c79edba0735a07bbc413e99e58ffe52f613f3"
+    },
+    {
+      "source_path": "tests/test_rq1_export.py",
+      "sha256": "d9443c59f6073e981de662347331d5919c4aec0b76ba947be374534de43f09f7"
+    },
+    {
+      "source_path": "tests/test_requirement_reuse_service.py",
+      "sha256": "24dba3013353efc127149df8bad646d6838b4e12f4f0dc3041fc585fdbdbe8cd"
+    },
+    {
+      "source_path": "LICENSE",
+      "sha256": "b3b341839dbbbbbe32a8664d9aac72a78270a8986d40f7065082b37bbce4b301"
+    }
+  ],
+  "excluded_generated_directory_placeholders": [
+    {
+      "source_path": "requirement-reuse-service/rag/agents/aas_idta/db/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/aas_idta/db/rag.sqlite3",
+      "sha256": "68b8dc8852f77af102a63aba79f6832e645e690b2ad32206aa6c431b3b2ce100"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/access_rights_policy/db/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/access_rights_policy/db/rag.sqlite3",
+      "sha256": "28d90de6aadca3ec05489d754db0327de8f7178a3befcf685db1e1da6b65a197"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/consolidation_conflict/db/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/consolidation_conflict/db/rag.sqlite3",
+      "sha256": "f910c48de1367e180d7a4aa76a3f5c0db2ebc28eb008d4d787dc7728033e2e8d"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/construction_domain/db/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/construction_domain/db/rag.sqlite3",
+      "sha256": "a7eb3d713956d45cb752f0f52e49f74e24af4fee43c2727ff195133b6cef4ee9"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/consumer_discovery/db/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/consumer_discovery/db/rag.sqlite3",
+      "sha256": "4307af1a3eca3af33ccd8dad30b7167295360b9bd2589701a5d3410b4476737d"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/dataspace_interoperability/db/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/dataspace_interoperability/db/rag.sqlite3",
+      "sha256": "75ca49d4ffa98f2547ae0a3be1832ebb01cbd65ae87f0930064178aecd7e610e"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/dcat_reuse/db/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/dcat_reuse/db/rag.sqlite3",
+      "sha256": "3434dd4c9475239b93e8b141343116d6dbbe985a3ff134979179ea5616a52385"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/fair_quality_provenance/db/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/fair_quality_provenance/db/rag.sqlite3",
+      "sha256": "6f2b2b0a3bc27cb37b8beaee1073ee5565754a999612b40bc6e045bd3d9ae923"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/grounding_scope_critic/db/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/grounding_scope_critic/db/rag.sqlite3",
+      "sha256": "e01c3f30392bfc8a310000686cadf11e60c336e7d247b40f3e2642fec37b1872"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/ifc_bim/db/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/ifc_bim/db/rag.sqlite3",
+      "sha256": "27860f9f87d846efcccfe3e5d2d3cf4cd8dfe58577a565e22aa94ae269c0cf48"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/ifc_bim/db/rag.sqlite3-shm",
+      "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/ifc_bim/db/rag.sqlite3-wal",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/minimality_scope/db/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/minimality_scope/db/rag.sqlite3",
+      "sha256": "73a155eaaf24e77a58701c9836b60b2959e0311ebc1df0700461fd95df6c0fab"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/publisher_feasibility/db/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/publisher_feasibility/db/rag.sqlite3",
+      "sha256": "5767d13b5d65e60e4a992086493c435983f155cde1965465fa7b38d73bdb381a"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/reuse_minimality_critic/db/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/reuse_minimality_critic/db/rag.sqlite3",
+      "sha256": "e1b80f9f0c4147162c1a9d79a22963c03e7ca6cedd1a7c949a02a37793d52dfd"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/standards_conformance/db/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/standards_conformance/db/rag.sqlite3",
+      "sha256": "d2164387134043c9b334df10dcd6c87e70fe8de145bdcc8c7c3e89008c620583"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/stewardship_governance/db/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "source_path": "requirement-reuse-service/rag/agents/stewardship_governance/db/rag.sqlite3",
+      "sha256": "8a8cddd7cc3675e86c0ca45aef61f1a661f735996091f4b799305ae1d401d39d"
+    }
+  ]
+}

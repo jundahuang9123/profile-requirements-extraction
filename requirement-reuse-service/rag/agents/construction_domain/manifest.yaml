@@ -1,0 +1,33 @@
+manifest_version: role-rag-manifest-v1
+role_id: construction_domain
+label: Construction Domain Semantics
+phase: extraction
+purpose: Identify construction lifecycle, asset, spatial, discipline, classification, and representation distinctions that materially affect dataset discovery.
+expertise:
+  - Built-asset lifecycle and ISO 19650 information management
+  - Construction classification, properties, data templates, and dictionaries
+  - Linked Building Data and lightweight topology semantics
+  - BIM-GIS and geospatial catalogue context
+retrieval_queries:
+  - construction dataset discovery asset lifecycle phase discipline project context
+  - ISO 12006 classification construction object system space lifecycle
+  - ISO 23386 property data dictionary governance mapping immutable identifier
+  - BOT site building storey space element lightweight ontology
+  - GeoDCAT reference system spatial coverage BIM GIS metadata
+  - Construct-X construction dataspace heterogeneous value network use case
+source_ids:
+  - iso_12006_2_2015
+  - iso_23386_2020
+  - iso_23387_2025
+  - bot_ontology_paper
+  - buildingsmart_bsdd
+  - uk_bim_guidance_part_b
+  - uk_bim_guidance_part_3
+  - eu_geodcat_ap_3
+  - ogc_geosparql_1_1
+  - inspire_metadata_guidance
+  - construct_x_official
+  - lot_methodology
+knowledge_files: [knowledge/role_knowledge.md]
+raw_directory: raw
+database: db/rag.sqlite3

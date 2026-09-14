@@ -1,0 +1,30 @@
+manifest_version: role-rag-manifest-v1
+role_id: dcat_reuse
+label: DCAT and DCAT-AP Reuse
+phase: extraction
+purpose: Find the smallest correct combination of existing DCAT and complementary vocabulary terms before proposing an extension.
+expertise:
+  - DCAT class and property ownership
+  - DCTERMS, SKOS, PROV-O, DQV, DUV, and ODRL reuse
+  - RDF range, domain, qualified relation, and controlled-value patterns
+  - Profile specialization and semantic compatibility
+retrieval_queries:
+  - existing DCAT DCTERMS term for dataset distribution service catalog record
+  - DCAT qualified relation provenance quality policy concept scheme reuse
+  - SKOS concept scheme mapping construction classification metadata
+  - profile extension necessity reuse existing vocabulary representability
+  - DQV PROV ODRL DUV complementary vocabulary DCAT dataset
+source_ids:
+  - w3c_dcat_3
+  - eu_dcat_ap_3
+  - dcmi_metadata_terms
+  - w3c_skos
+  - w3c_prov_o
+  - w3c_dqv
+  - w3c_duv
+  - w3c_odrl
+  - w3c_profiles_vocabulary
+  - dcat_version_2_rationale
+knowledge_files: [knowledge/role_knowledge.md]
+raw_directory: raw
+database: db/rag.sqlite3

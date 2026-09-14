@@ -1,0 +1,29 @@
+manifest_version: role-rag-manifest-v1
+role_id: aas_idta
+label: AAS and IDTA Semantics
+phase: extraction
+purpose: Interpret AAS identifiers, submodels, semantic references, concept descriptions, templates, registries, and service access at catalogue scope.
+expertise:
+  - IDTA AAS metamodel and serialization artefacts
+  - semanticId, supplementalSemanticIds, ConceptDescription, and IEC 61360
+  - AAS service, repository, registry, and discovery APIs
+  - Mapping AAS resources to DCAT datasets, distributions, and services
+retrieval_queries:
+  - AAS semanticId ConceptDescription global reference supplemental semantic identifier
+  - AAS submodel template identifier version semantic discoverability dataset
+  - AAS repository registry discovery API endpoint service profile
+  - IEC 61360 concept description preferred name definition unit datatype
+  - RDF representation semantic Asset Administration Shell mapping
+source_ids:
+  - idta_aas_part_1_3_1_2
+  - idta_aas_part_2_3_1_1
+  - idta_aas_part_3a_3_1_1
+  - idta_aas_schema_releases
+  - semantic_aas_paper
+  - w3c_dcat_3
+  - dcmi_metadata_terms
+  - w3c_skos
+  - idsa_catalog_protocol
+knowledge_files: [knowledge/role_knowledge.md]
+raw_directory: raw
+database: db/rag.sqlite3

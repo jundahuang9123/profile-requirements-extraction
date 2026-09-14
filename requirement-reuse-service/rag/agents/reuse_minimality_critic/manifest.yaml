@@ -1,0 +1,31 @@
+manifest_version: role-rag-manifest-v1
+role_id: reuse_minimality_critic
+label: Reuse, Minimality, and Validation Critic
+phase: criticism
+purpose: Find overlooked registered terms, unnecessary extensions, invalid resource placement, overconstraint, redundancy, and downstream validation risks.
+expertise:
+  - DCAT/DCAT-AP and complementary-vocabulary reuse audit
+  - Application-profile compatibility and extension justification
+  - SHACL representability and constraint burden
+  - Minimal modelling for construction semantic anchors
+retrieval_queries:
+  - existing DCAT DCTERMS SKOS PROV DQV ODRL term overlooked
+  - custom property extension necessity equivalent registered vocabulary
+  - resource domain range dataset distribution service catalog record mismatch
+  - SHACL overconstraint cardinality controlled vocabulary publisher burden
+  - minimal semantic anchor construction classification IFC AAS URI
+source_ids:
+  - w3c_dcat_3
+  - eu_dcat_ap_3
+  - eu_dcat_ap_reuse_guidelines
+  - dcmi_metadata_terms
+  - w3c_skos
+  - w3c_prov_o
+  - w3c_dqv
+  - w3c_odrl
+  - w3c_shacl
+  - dcmi_singapore_framework
+  - dcat_version_2_rationale
+knowledge_files: [knowledge/role_knowledge.md]
+raw_directory: raw
+database: db/rag.sqlite3

@@ -1,0 +1,640 @@
+catalog_version: construction-dcat-rag-sources-v1
+reviewed_on: '2026-07-15'
+default_ingest_policy: link_and_synthesis_only
+
+sources:
+  - id: w3c_dcat_3
+    title: Data Catalog Vocabulary (DCAT) - Version 3
+    publisher: W3C
+    year: 2024
+    url: https://www.w3.org/TR/vocab-dcat-3/
+    source_type: normative_specification
+    authority: W3C Recommendation
+    ingest_policy: official_web_document
+    license_note: W3C document terms apply.
+    summary: Defines the DCAT resource model, conformance, profile extension points, dataset series, versioning, qualified relations, quality guidance, and resource ownership needed to judge reuse before extension.
+    topics: [DCAT, catalog, dataset, distribution, data-service, profile, versioning]
+
+  - id: w3c_dcat_ucr
+    title: Dataset Exchange Use Cases and Requirements
+    publisher: W3C
+    year: 2019
+    url: https://www.w3.org/TR/dcat-ucr/
+    source_type: working_group_note
+    authority: W3C Working Group Note
+    ingest_policy: official_web_document
+    license_note: W3C document terms apply.
+    summary: Records the stakeholder-use-case method behind DCAT evolution, including traceable requirement derivation, deduplication, consensus, profiles, fine-grained semantics, provenance, quality, access, and service-based distribution needs.
+    topics: [requirements, stakeholders, traceability, DCAT, profiles, consensus]
+
+  - id: eu_dcat_ap_3
+    title: DCAT Application Profile for Data Portals in Europe 3.0
+    publisher: European Commission SEMIC
+    year: 2024
+    url: https://interoperable-europe.ec.europa.eu/collection/semic-support-centre/dcat-ap
+    source_type: application_profile
+    authority: European Commission specification
+    ingest_policy: official_web_document
+    license_note: Check the release repository licence for downloadable artefacts.
+    summary: Constrains DCAT for cross-border and cross-sector catalogue exchange and provides the baseline cardinalities, controlled vocabularies, SHACL shapes, and resource usage that a compatible construction profile must preserve.
+    topics: [DCAT-AP, application-profile, cardinality, controlled-vocabulary, SHACL]
+
+  - id: eu_dcat_ap_reuse_guidelines
+    title: 'DCAT-AP Reuse Guidelines: Building Profiles the Right Way'
+    publisher: European Commission SEMIC
+    year: 2026
+    url: https://interoperable-europe.ec.europa.eu/collection/semic-support-centre/dcat-ap-reuse-guidelines-building-profiles-right-way
+    source_type: implementation_guidance
+    authority: European Commission guidance
+    ingest_policy: official_web_document
+    license_note: Interoperable Europe portal terms apply.
+    summary: Guides profile authors to reuse existing terms, publish stable specifications and SHACL, use persistent identifiers, and preserve interoperability with the wider DCAT-AP ecosystem.
+    topics: [profile-reuse, extension, SHACL, persistent-IRI, publication]
+
+  - id: eu_geodcat_ap_3
+    title: GeoDCAT-AP 3.0.0
+    publisher: European Commission SEMIC and JRC
+    year: 2024
+    url: https://interoperable-europe.ec.europa.eu/collection/semic-support-centre/solution/geodcat-application-profile-data-portals-europe/release/300
+    source_type: application_profile
+    authority: European Commission specification
+    ingest_policy: official_web_document
+    license_note: Check the release repository licence for downloadable artefacts.
+    summary: Extends DCAT-AP for geospatial datasets, series, services, reference systems, and INSPIRE/ISO metadata mappings without replacing the underlying geospatial standards.
+    topics: [GeoDCAT-AP, spatial, reference-system, INSPIRE, ISO-19115]
+
+  - id: w3c_profiles_vocabulary
+    title: The Profiles Vocabulary
+    publisher: W3C
+    year: 2019
+    url: https://www.w3.org/TR/dx-prof/
+    source_type: working_group_note
+    authority: W3C Working Group Note
+    ingest_policy: official_web_document
+    license_note: W3C document terms apply.
+    summary: Defines machine-readable descriptions and relations among profiles and their resources, supporting discovery and reuse of application-profile specifications, constraints, guidance, and representations.
+    topics: [profile, conformance, resource-descriptor, content-negotiation]
+
+  - id: dcmi_singapore_framework
+    title: The Singapore Framework for Dublin Core Application Profiles
+    publisher: Dublin Core Metadata Initiative
+    year: 2008
+    url: https://www.dublincore.org/specifications/dublin-core/singapore-framework/
+    source_type: methodology
+    authority: DCMI specification
+    ingest_policy: official_web_document
+    license_note: DCMI document terms apply.
+    summary: Structures an application profile as functional requirements, a domain model, description-set profile, usage guidelines, and encoding guidance, helping separate semantic requirements from implementation artefacts.
+    topics: [application-profile, requirements, domain-model, constraints, documentation]
+
+  - id: dcmi_metadata_terms
+    title: DCMI Metadata Terms
+    publisher: Dublin Core Metadata Initiative
+    year: 2020
+    url: https://www.dublincore.org/specifications/dublin-core/dcmi-terms/
+    source_type: vocabulary_specification
+    authority: DCMI Recommendation
+    ingest_policy: official_web_document
+    license_note: DCMI document terms apply.
+    summary: Authoritative definitions for the DCTERMS properties and classes heavily reused by DCAT, including title, description, publisher, creator, rights, licence, provenance, spatial, temporal, format, relation, and conformance.
+    topics: [DCTERMS, metadata, vocabulary-reuse, provenance, rights]
+
+  - id: w3c_skos
+    title: SKOS Simple Knowledge Organization System Reference
+    publisher: W3C
+    year: 2009
+    url: https://www.w3.org/TR/skos-reference/
+    source_type: normative_specification
+    authority: W3C Recommendation
+    ingest_policy: official_web_document
+    license_note: W3C document terms apply.
+    summary: Defines concepts, concept schemes, multilingual labels, notes, hierarchies, associations, and mapping relations for publishing and linking construction classifications and controlled vocabularies.
+    topics: [SKOS, taxonomy, classification, concept-scheme, mapping]
+
+  - id: w3c_shacl
+    title: Shapes Constraint Language (SHACL)
+    publisher: W3C
+    year: 2017
+    url: https://www.w3.org/TR/shacl/
+    source_type: normative_specification
+    authority: W3C Recommendation
+    ingest_policy: official_web_document
+    license_note: W3C document terms apply.
+    summary: Defines RDF graph constraints, validation results, severity, targets, paths, and reusable constraint components used to turn profile obligations into testable machine-readable shapes.
+    topics: [SHACL, RDF, validation, constraints, conformance]
+
+  - id: w3c_prov_o
+    title: 'PROV-O: The PROV Ontology'
+    publisher: W3C
+    year: 2013
+    url: https://www.w3.org/TR/prov-o/
+    source_type: normative_specification
+    authority: W3C Recommendation
+    ingest_policy: official_web_document
+    license_note: W3C document terms apply.
+    summary: Provides an incremental RDF vocabulary for entities, activities, agents, derivation, generation, attribution, and qualified relations, supporting dataset provenance and workflow traceability.
+    topics: [PROV-O, provenance, agent, activity, derivation, attribution]
+
+  - id: w3c_dqv
+    title: 'Data on the Web Best Practices: Data Quality Vocabulary'
+    publisher: W3C
+    year: 2016
+    url: https://www.w3.org/TR/vocab-dqv/
+    source_type: working_group_note
+    authority: W3C Working Group Note
+    ingest_policy: official_web_document
+    license_note: W3C document terms apply.
+    summary: Models quality dimensions, metrics, measurements, annotations, certificates, standards, and policies while allowing communities to define the concrete quality framework appropriate to their data.
+    topics: [DQV, data-quality, metric, measurement, annotation, certificate]
+
+  - id: w3c_duv
+    title: 'Data on the Web Best Practices: Dataset Usage Vocabulary'
+    publisher: W3C
+    year: 2016
+    url: https://www.w3.org/TR/vocab-duv/
+    source_type: working_group_note
+    authority: W3C Working Group Note
+    ingest_policy: official_web_document
+    license_note: W3C document terms apply.
+    summary: Extends DCAT-oriented descriptions with dataset citation, usage guidance, tools, ratings, and user feedback, informing consumer-oriented discovery and post-publication stewardship.
+    topics: [DUV, usage, feedback, citation, consumer]
+
+  - id: w3c_odrl
+    title: ODRL Information Model 2.2
+    publisher: W3C
+    year: 2018
+    url: https://www.w3.org/TR/odrl-model/
+    source_type: normative_specification
+    authority: W3C Recommendation
+    ingest_policy: official_web_document
+    license_note: W3C document terms apply.
+    summary: Defines policies composed of permissions, prohibitions, duties, parties, assets, actions, constraints, offers, agreements, profiles, and conflict strategies for machine-readable usage control.
+    topics: [ODRL, policy, permission, prohibition, duty, licence]
+
+  - id: w3c_dpv_2
+    title: Data Privacy Vocabulary Version 2
+    publisher: W3C Data Privacy Vocabularies and Controls Community Group
+    year: 2024
+    url: https://www.w3.org/community/reports/dpvcg/CG-FINAL-dpv-20240801/
+    source_type: community_specification
+    authority: W3C Community Final Specification
+    ingest_policy: official_web_document
+    license_note: W3C Community Final Specification Agreement applies.
+    summary: Supplies machine-readable taxonomies for data, purposes, processing, entities, roles, legal bases, risks, measures, technologies, and jurisdictions; useful for describing privacy context without making legal determinations.
+    topics: [DPV, privacy, personal-data, purpose, processing, legal-basis]
+
+  - id: w3c_dwbp
+    title: Data on the Web Best Practices
+    publisher: W3C
+    year: 2017
+    url: https://www.w3.org/TR/dwbp/
+    source_type: working_group_note
+    authority: W3C Working Group Note
+    ingest_policy: official_web_document
+    license_note: W3C document terms apply.
+    summary: Gives publisher-oriented practices for metadata, licences, provenance, quality, versioning, identifiers, formats, access, preservation, feedback, and enrichment of Web data.
+    topics: [publishing, metadata, access, licence, provenance, quality]
+
+  - id: iso_29148_2018
+    title: 'ISO/IEC/IEEE 29148:2018 Requirements engineering'
+    publisher: ISO
+    year: 2018
+    url: https://www.iso.org/standard/72089.html
+    source_type: standard_catalogue_record
+    authority: International Standard; confirmed 2024
+    ingest_policy: abstract_only_without_licensed_copy
+    license_note: ISO full text is copyrighted and must not be redistributed without a licence.
+    summary: Specifies requirements-engineering processes, information items, content, and format guidance across the life cycle; it anchors atomic, traceable, verifiable, and well-scoped requirement review.
+    topics: [requirements-engineering, traceability, quality, validation]
+
+  - id: lot_methodology
+    title: LOT - Linked Open Terms Methodology
+    publisher: Ontology Engineering Group, Universidad Politecnica de Madrid
+    year: 2022
+    url: https://lot.linkeddata.es/
+    source_type: methodology_and_peer_reviewed_research
+    authority: Open methodology with peer-reviewed framework
+    ingest_policy: official_web_document
+    license_note: Check linked artefact licences individually.
+    summary: Defines iterative ontology requirements, implementation, publication, and maintenance activities; requires domain experts and users to validate competency questions and supports reuse and traceability.
+    topics: [ontology-engineering, competency-question, domain-expert, reuse, maintenance]
+
+  - id: neon_methodology
+    title: The NeOn Methodology framework
+    publisher: Ontology Engineering Group and Semantic Web journal
+    year: 2015
+    url: https://doi.org/10.3233/AO-150145
+    source_type: peer_reviewed_research
+    authority: Peer-reviewed methodology
+    ingest_policy: link_and_synthesis_only
+    license_note: Publisher terms apply; use an authorised or open copy for full-text ingestion.
+    summary: Provides scenarios and guidelines for developing ontology networks through reuse, re-engineering, collaboration, and evolution of ontological and non-ontological resources.
+    topics: [ontology-network, reuse, reengineering, collaboration, evolution]
+
+  - id: ontology_development_101
+    title: Ontology Development 101
+    publisher: Stanford Knowledge Systems Laboratory
+    year: 2001
+    url: https://protege.stanford.edu/publications/ontology_development/ontology101-noy-mcguinness.html
+    source_type: methodology
+    authority: Widely used primary guide
+    ingest_policy: official_web_document
+    license_note: Stanford publication terms apply.
+    summary: Emphasises domain and scope, intended uses, competency questions, reuse, expert review, maintainability, and iterative evaluation as controls against over-modeling.
+    topics: [scope, competency-question, ontology-reuse, expert-review, iteration]
+
+  - id: iso_12006_2_2015
+    title: 'ISO 12006-2:2015 Framework for classification of construction information'
+    publisher: ISO
+    year: 2015
+    url: https://www.iso.org/standard/61753.html
+    source_type: standard_catalogue_record
+    authority: International Standard; revision in progress
+    ingest_policy: abstract_only_without_licensed_copy
+    license_note: ISO full text is copyrighted and must not be redistributed without a licence.
+    summary: Defines a lifecycle-wide framework of construction information object classes and recommended classification-table perspectives while allowing local systems to vary in detail.
+    topics: [construction, classification, lifecycle, object-class, harmonisation]
+
+  - id: iso_23386_2020
+    title: 'ISO 23386:2020 Methodology for properties in interconnected construction data dictionaries'
+    publisher: ISO
+    year: 2020
+    url: https://www.iso.org/standard/75401.html
+    source_type: standard_catalogue_record
+    authority: International Standard; confirmed 2025
+    ingest_policy: abstract_only_without_licensed_copy
+    license_note: ISO full text is copyrighted and must not be redistributed without a licence.
+    summary: Defines construction-property attributes, applicant and expert roles, governance, maintenance, and mapping rules for confident sharing across interconnected data dictionaries.
+    topics: [construction-property, data-dictionary, governance, mapping, expert-role]
+
+  - id: iso_23387_2025
+    title: 'ISO 23387:2025 Data templates for objects used in the life cycle of assets'
+    publisher: ISO
+    year: 2025
+    url: https://www.iso.org/standard/85391.html
+    source_type: standard_catalogue_record
+    authority: International Standard
+    ingest_policy: abstract_only_without_licensed_copy
+    license_note: ISO full text is copyrighted and must not be redistributed without a licence.
+    summary: Defines machine-interpretable construction data templates, their maintenance, and links to classification systems using ISO 12006-3-based data models.
+    topics: [data-template, construction-object, machine-interpretability, classification]
+
+  - id: iso_16739_1_2024
+    title: 'ISO 16739-1:2024 Industry Foundation Classes (IFC) data schema'
+    publisher: ISO
+    year: 2024
+    url: https://www.iso.org/standard/84123.html
+    source_type: standard_catalogue_record
+    authority: International Standard
+    ingest_policy: abstract_only_without_licensed_copy
+    license_note: ISO full text is copyrighted and must not be redistributed without a licence.
+    summary: Defines the open BIM exchange schema for buildings and infrastructure, lifecycle and discipline coverage, exchange formats, property sets, and Model View Definitions.
+    topics: [IFC, BIM, MVD, exchange, building, infrastructure, lifecycle]
+
+  - id: buildingsmart_ids_1
+    title: Information Delivery Specification 1.0
+    publisher: buildingSMART International
+    year: 2024
+    url: https://www.buildingsmart.org/standards/bsi-standards/information-delivery-specification-ids/
+    source_type: industry_standard
+    authority: buildingSMART Final Standard
+    ingest_policy: official_web_document
+    license_note: buildingSMART intellectual-property terms apply.
+    summary: Defines computer-interpretable information requirements for IFC models and automated checking of objects, classifications, materials, properties, and values.
+    topics: [IDS, IFC, information-requirement, compliance-checking]
+
+  - id: buildingsmart_bsdd
+    title: buildingSMART Data Dictionary
+    publisher: buildingSMART International
+    year: 2026
+    url: https://www.buildingsmart.org/users/services/buildingsmart-data-dictionary/
+    source_type: official_service_documentation
+    authority: buildingSMART service
+    ingest_policy: official_web_document_and_api_metadata
+    license_note: Content is governed by its publishing organisations; verify per-dictionary terms.
+    summary: Provides governed, versioned, interconnected construction dictionaries with reusable class and property URIs, mappings, status, ownership, and links to IFC and IDS.
+    topics: [bSDD, classification, property, data-dictionary, URI, mapping, governance]
+
+  - id: bot_ontology_paper
+    title: 'BOT: The building topology ontology of the W3C Linked Building Data group'
+    publisher: Semantic Web journal
+    year: 2021
+    url: https://doi.org/10.3233/SW-200385
+    source_type: peer_reviewed_research
+    authority: Peer-reviewed primary ontology paper
+    ingest_policy: open_article_when_licence_confirmed
+    license_note: Check the open article licence before storing the PDF.
+    summary: Defines a deliberately lightweight core vocabulary for sites, buildings, storeys, spaces, elements, interfaces, and links to geometry and other domain ontologies, demonstrated on real BIM models.
+    topics: [BOT, linked-building-data, topology, building, space, element, minimality]
+
+  - id: uk_bim_guidance_part_b
+    title: 'UK BIM Framework Guidance Part B: Open data, buildingSMART and COBie'
+    publisher: UK BIM Framework
+    year: 2020
+    url: https://ukbimframework.org/wp-content/uploads/2020/09/Guidance-Part-B_Open-data-buildingSMART-and-COBie_Edition-1.pdf
+    source_type: official_implementation_guidance
+    authority: UK implementation guidance for ISO 19650
+    ingest_policy: link_and_synthesis_only
+    license_note: UK BIM Framework document terms apply.
+    summary: Explains construction information management, open standards, structured information, buildingSMART and COBie in the ISO 19650 ecosystem.
+    topics: [ISO-19650, openBIM, information-management, COBie, interoperability]
+
+  - id: uk_bim_guidance_part_3
+    title: 'UK BIM Framework Guidance Part 3: Operational phase of the asset life cycle'
+    publisher: UK BIM Framework
+    year: 2021
+    url: https://www.ukbimframework.org/wp-content/uploads/2021/02/Guidance-Part-3_Operational-phase-of-the-asset-life-cycle_Edition-2.pdf
+    source_type: official_implementation_guidance
+    authority: UK implementation guidance for ISO 19650-3
+    ingest_policy: link_and_synthesis_only
+    license_note: UK BIM Framework document terms apply.
+    summary: Describes information-management processes, organisational roles, trigger events, information-system incorporation, and lifecycle responsibilities during asset operation.
+    topics: [ISO-19650, operations, lifecycle, responsibility, information-management]
+
+  - id: ogc_geosparql_1_1
+    title: OGC GeoSPARQL 1.1
+    publisher: Open Geospatial Consortium
+    year: 2024
+    url: https://www.ogc.org/standards/geosparql/
+    source_type: normative_specification
+    authority: OGC International Standard
+    ingest_policy: official_web_document
+    license_note: OGC document and model-file terms apply.
+    summary: Defines an RDF vocabulary and SPARQL extension for spatial objects, geometry, coordinate reference systems, topological relations, and quantitative or qualitative spatial queries.
+    topics: [GeoSPARQL, geometry, spatial-relation, CRS, RDF]
+
+  - id: inspire_metadata_guidance
+    title: INSPIRE Metadata Technical Guidelines
+    publisher: European Commission INSPIRE Knowledge Base
+    year: 2024
+    url: https://knowledge-base.inspire.ec.europa.eu/metadata-technical-guidelines_en
+    source_type: official_implementation_guidance
+    authority: European Commission INSPIRE guidance
+    ingest_policy: official_web_document
+    license_note: European Commission reuse terms apply unless otherwise stated.
+    summary: Guides creation and maintenance of ISO-based spatial dataset and service metadata required under INSPIRE, providing a reference for geospatial-to-DCAT mappings.
+    topics: [INSPIRE, ISO-19115, ISO-19119, spatial-metadata, service]
+
+  - id: idta_aas_part_1_3_1_2
+    title: 'Asset Administration Shell Specification Part 1: Metamodel 3.1.2'
+    publisher: Industrial Digital Twin Association
+    year: 2025
+    url: https://industrialdigitaltwin.org/wp-content/uploads/2025/11/IDTA-01001-3-1-2_AAS-Specification_Part1_Metamodel.pdf
+    source_type: industry_specification
+    authority: IDTA specification
+    ingest_policy: link_and_synthesis_only
+    license_note: IDTA publication terms apply.
+    summary: Defines AAS, AssetInformation, Submodel, SubmodelElement, identifiers, semanticId, supplementalSemanticIds, ConceptDescription, references, administration, and template identification.
+    topics: [AAS, metamodel, semanticId, ConceptDescription, Submodel, identifier]
+
+  - id: idta_aas_part_2_3_1_1
+    title: 'Asset Administration Shell Specification Part 2: APIs 3.1.1'
+    publisher: Industrial Digital Twin Association
+    year: 2025
+    url: https://industrialdigitaltwin.org/wp-content/uploads/2025/08/IDTA-01002-3-1-1_AAS-Specification_Part2_API.pdf
+    source_type: industry_specification
+    authority: IDTA specification
+    ingest_policy: link_and_synthesis_only
+    license_note: IDTA publication terms apply.
+    summary: Defines AAS and submodel services, repositories, registry and discovery interfaces, profiles, identifiers, serialization modifiers, and HTTP/REST bindings relevant to catalogued service access.
+    topics: [AAS, API, repository, registry, discovery, service-profile]
+
+  - id: idta_aas_part_3a_3_1_1
+    title: 'Asset Administration Shell Specification Part 3a: Data Specification IEC 61360 3.1.1'
+    publisher: Industrial Digital Twin Association
+    year: 2025
+    url: https://industrialdigitaltwin.org/wp-content/uploads/2025/08/IDTA-01003-a-3-1-1_AAS-Specification_Part3a_DataSpecification.pdf
+    source_type: industry_specification
+    authority: IDTA specification
+    ingest_policy: link_and_synthesis_only
+    license_note: IDTA publication terms apply.
+    summary: Defines the IEC 61360 data specification used for structured concept semantics, names, definitions, units, value formats, and data types in AAS ConceptDescriptions.
+    topics: [AAS, IEC-61360, ConceptDescription, property, unit, datatype]
+
+  - id: idta_aas_schema_releases
+    title: AAS metamodel schema releases
+    publisher: Industrial Digital Twin Association
+    year: 2026
+    url: https://github.com/admin-shell-io/aas-specs-metamodel/releases
+    source_type: normative_schema_repository
+    authority: IDTA-maintained GitHub repository
+    ingest_policy: official_repository_metadata
+    license_note: Repository licence and release artefact terms apply.
+    summary: Publishes versioned normative and derived JSON, XML, RDF, XMI, and YAML schema artefacts and examples for concrete AAS serializations.
+    topics: [AAS, JSON, XML, RDF, schema, release]
+
+  - id: semantic_aas_paper
+    title: The Semantic Asset Administration Shell
+    publisher: Springer / SEMANTiCS
+    year: 2019
+    url: https://doi.org/10.1007/978-3-030-33220-4_12
+    source_type: peer_reviewed_research
+    authority: Peer-reviewed primary research
+    ingest_policy: link_and_synthesis_only
+    license_note: Publisher terms apply; use an authorised open version for full-text ingestion.
+    summary: Examines an RDF representation of AAS, mappings, validation and reasoning, and explains the semantic role and trade-offs of semantic identifiers and concept descriptions.
+    topics: [AAS, RDF, ontology, semanticId, ConceptDescription, mapping]
+
+  - id: idsa_dataspace_protocol
+    title: Dataspace Protocol
+    publisher: International Data Spaces Association
+    year: 2024
+    url: https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol
+    source_type: protocol_specification
+    authority: IDSA specification
+    ingest_policy: official_web_document
+    license_note: IDSA specification terms apply.
+    summary: Defines interoperable publication of DCAT catalogues with ODRL policies, contract negotiation, agreements, and transfer-process control among autonomous participants.
+    topics: [dataspace, DSP, DCAT, ODRL, negotiation, transfer]
+
+  - id: idsa_catalog_protocol
+    title: Dataspace Protocol Catalog Protocol Specification
+    publisher: International Data Spaces Association
+    year: 2024
+    url: https://docs.internationaldataspaces.org/ids-knowledgebase/v/dataspace-protocol/catalog/catalog.protocol
+    source_type: protocol_specification
+    authority: IDSA specification
+    ingest_policy: official_web_document
+    license_note: IDSA specification terms apply.
+    summary: Maps protocol datasets, distributions, data services, participant identifiers, policy offers, endpoints, filters, access control, and brokers to constrained DCAT and ODRL structures.
+    topics: [DSP, catalog, DCAT, distribution, data-service, participant, policy]
+
+  - id: dssc_blueprint
+    title: Data Spaces Support Centre Blueprint
+    publisher: Data Spaces Support Centre
+    year: 2026
+    url: https://blueprint.dssc.eu/
+    source_type: official_reference_blueprint
+    authority: EU Data Spaces Support Centre
+    ingest_policy: official_web_document
+    license_note: DSSC portal terms apply.
+    summary: Defines data-space technical and organisational building blocks, semantic interoperability, data-model governance, offering descriptions, publication/discovery, exchange, and cross-data-space interoperability.
+    topics: [dataspace, blueprint, semantic-interoperability, data-model, catalog, governance]
+
+  - id: eclipse_edc_autodoc
+    title: Eclipse Dataspace Components Connector autodocumentation
+    publisher: Eclipse Foundation
+    year: 2026
+    url: https://eclipse-edc.github.io/Connector/autodoc/
+    source_type: official_implementation_documentation
+    authority: Eclipse open-source project documentation
+    ingest_policy: official_web_document
+    license_note: Eclipse project and repository licences apply.
+    summary: Documents concrete EDC modules and extension points for assets, catalogues, federation, policies, contract negotiation, participant context, identity, control plane, and data plane.
+    topics: [EDC, connector, catalog, federation, policy, contract, control-plane]
+
+  - id: gaia_x_trust_framework
+    title: Gaia-X Trust Framework
+    publisher: Gaia-X European Association for Data and Cloud
+    year: 2026
+    url: https://docs.gaia-x.eu/policy-rules-committee/trust-framework/latest/pdf/document.pdf
+    source_type: official_trust_framework
+    authority: Gaia-X specification
+    ingest_policy: link_and_synthesis_only
+    license_note: Gaia-X document terms apply.
+    summary: Specifies trust and compliance claims for participants, services, and data products, including data licences, ODRL usage policy, conformity, authorization evidence, and verifiable descriptions.
+    topics: [Gaia-X, trust, compliance, participant, data-product, ODRL]
+
+  - id: eu_data_act
+    title: 'Regulation (EU) 2023/2854 (Data Act)'
+    publisher: European Union
+    year: 2023
+    url: https://eur-lex.europa.eu/eli/reg/2023/2854
+    source_type: primary_legislation
+    authority: EU Regulation
+    ingest_policy: official_legal_text
+    license_note: EUR-Lex reuse notice applies; preserve authoritative references.
+    summary: Article 33 requires sufficient machine-readable descriptions of content, restrictions, licences, collection method, quality, uncertainty, structures, formats, vocabularies, classifications, code lists, access means, and terms for data-space interoperability.
+    topics: [Data-Act, interoperability, licence, quality, vocabulary, API, data-space]
+
+  - id: construct_x_official
+    title: Construct-X project overview
+    publisher: Construct-X consortium
+    year: 2026
+    url: https://construct-x.org/en/
+    source_type: official_project_documentation
+    authority: Construct-X consortium
+    ingest_policy: official_web_document
+    license_note: Construct-X website terms apply.
+    summary: Defines the construction-sector context of open federated data spaces, secure and trusted collaboration, heterogeneous value networks, cloud-edge processing, interoperability, data sovereignty, and lifecycle use cases.
+    topics: [Construct-X, construction, dataspace, federation, data-sovereignty, lifecycle]
+
+  - id: fair_guiding_principles
+    title: The FAIR Guiding Principles for scientific data management and stewardship
+    publisher: Scientific Data
+    year: 2016
+    url: https://doi.org/10.1038/sdata.2016.18
+    source_type: peer_reviewed_research
+    authority: Original FAIR principles paper
+    ingest_policy: open_article
+    license_note: Open-access article; verify the displayed Creative Commons licence.
+    summary: Defines the Findable, Accessible, Interoperable, and Reusable principles for machine-actionable data and metadata without equating FAIR with openness or a single compliance score.
+    topics: [FAIR, findable, accessible, interoperable, reusable, machine-actionable]
+
+  - id: rda_fair_maturity_model
+    title: FAIR Data Maturity Model - Specification and Guidelines
+    publisher: Research Data Alliance
+    year: 2020
+    url: https://doi.org/10.15497/rda00050
+    source_type: community_recommendation
+    authority: RDA Recommendation
+    ingest_policy: open_document
+    license_note: Creative Commons Attribution 4.0.
+    summary: Defines FAIR assessment indicators, priorities, maturity levels, examples, and evaluation guidance intended as a common language across assessment methods.
+    topics: [FAIR, indicator, assessment, maturity, evaluation]
+
+  - id: data_discovery_paradigms
+    title: 'Data Discovery Paradigms: User Requirements and Recommendations for Data Repositories'
+    publisher: Data Science Journal
+    year: 2019
+    url: https://doi.org/10.5334/dsj-2019-003
+    source_type: peer_reviewed_research
+    authority: Peer-reviewed empirical study
+    ingest_policy: open_article
+    license_note: Check the journal page for the applicable Creative Commons licence.
+    summary: Derives repository requirements and recommendations from 79 real data-discovery use cases, grounding metadata and search features in user tasks rather than field accumulation.
+    topics: [dataset-discovery, user-requirement, repository, search, metadata]
+
+  - id: google_dataset_search
+    title: Google Dataset Search - Building a search engine for datasets in an open Web ecosystem
+    publisher: The Web Conference / Google Research
+    year: 2019
+    url: https://research.google/pubs/google-dataset-search-building-a-search-engine-for-datasets-in-an-open-web-ecosystem/
+    source_type: peer_reviewed_research
+    authority: Primary system paper
+    ingest_policy: open_author_copy
+    license_note: Check the linked paper terms before storing full text.
+    summary: Describes aggregation, normalization, reconciliation, and search over publisher-supplied semantic metadata and identifies social and technical challenges of open-Web dataset discovery.
+    topics: [dataset-search, schema.org, metadata, aggregation, reconciliation]
+
+  - id: dataset_search_survey
+    title: 'Dataset search: a survey'
+    publisher: The VLDB Journal
+    year: 2020
+    url: https://doi.org/10.1007/s00778-019-00564-x
+    source_type: peer_reviewed_survey
+    authority: Peer-reviewed survey
+    ingest_policy: link_and_synthesis_only
+    license_note: Publisher terms apply; use an authorised open version for full-text ingestion.
+    summary: Surveys dataset discovery, retrieval, profiling, quality, provenance, interfaces, and task dependence, showing why dataset search needs richer context than document search.
+    topics: [dataset-search, retrieval, metadata-quality, provenance, user-task]
+
+  - id: metadata_quality_neumaier
+    title: Automated Quality Assessment of Metadata across Open Data Portals
+    publisher: ACM Journal of Data and Information Quality
+    year: 2016
+    url: https://aic.ai.wu.ac.at/~polleres/publications/neum-etal-2016JDIQ.pdf
+    source_type: peer_reviewed_research
+    authority: Peer-reviewed empirical framework
+    ingest_policy: open_author_copy
+    license_note: Author-copy and publisher terms apply.
+    summary: Maps heterogeneous portal metadata to DCAT and evaluates completeness, accuracy, openness, retrievability, and related quality dimensions across hundreds of portals.
+    topics: [metadata-quality, DCAT, completeness, accuracy, portal, assessment]
+
+  - id: dcat_ap_quality_framework
+    title: An Extensive Methodology and Framework for Quality Assessment of DCAT-AP Datasets
+    publisher: Springer / Fraunhofer
+    year: 2023
+    url: https://doi.org/10.1007/978-3-031-47243-5_14
+    source_type: peer_reviewed_research
+    authority: Peer-reviewed production framework
+    ingest_policy: link_and_synthesis_only
+    license_note: Publisher terms apply; use an authorised open version for full-text ingestion.
+    summary: Presents a large-scale DCAT-AP metadata-quality methodology used in production on data.europa.eu, connecting validation and quality reporting to publisher improvement.
+    topics: [DCAT-AP, metadata-quality, validation, production, data.europa.eu]
+
+  - id: dcat_version_2_rationale
+    title: 'The W3C Data Catalog Vocabulary, Version 2: Rationale, Design Principles, and Uptake'
+    publisher: Data Intelligence
+    year: 2024
+    url: https://doi.org/10.1162/dint_a_00252
+    source_type: peer_reviewed_research
+    authority: Paper by DCAT editors and contributors
+    ingest_policy: open_article_when_licence_confirmed
+    license_note: Check the journal page for the applicable open licence.
+    summary: Explains DCAT design rationale, extension and reuse principles, profile uptake, related vocabularies, and community adoption across domains.
+    topics: [DCAT, design-principle, profile, reuse, adoption]
+
+  - id: requirements_quality_roadmap
+    title: 'Requirements quality research: a harmonized theory, evaluation, and roadmap'
+    publisher: Requirements Engineering
+    year: 2023
+    url: https://doi.org/10.1007/s00766-023-00405-y
+    source_type: peer_reviewed_research
+    authority: Peer-reviewed synthesis
+    ingest_policy: link_and_synthesis_only
+    license_note: Publisher terms apply; use an authorised open version for full-text ingestion.
+    summary: Distinguishes quality of requirement texts from quality of activities and interpretations, warning against context-free checklists and grounding ambiguity in reader interpretations and task effects.
+    topics: [requirements-quality, ambiguity, evaluation, activity, interpretation]
+
+  - id: metadata_catalogue_quality_comparison
+    title: Comparison of metadata quality in open data portals using the Analytic Hierarchy Process
+    publisher: Government Information Quarterly
+    year: 2018
+    url: https://doi.org/10.1016/j.giq.2017.11.003
+    source_type: peer_reviewed_research
+    authority: Peer-reviewed multi-stakeholder quality study
+    ingest_policy: link_and_synthesis_only
+    license_note: Publisher terms apply; use an authorised copy for full-text ingestion.
+    summary: Shows that portal-quality dimensions carry different importance for different stakeholders and demonstrates a DCAT-derived multi-criteria assessment over more than 250 portals.
+    topics: [metadata-quality, stakeholder, DCAT, portal, multi-criteria]

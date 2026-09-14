@@ -1,0 +1,29 @@
+manifest_version: role-rag-manifest-v1
+role_id: fair_quality_provenance
+label: FAIR, Quality, and Provenance
+phase: extraction
+purpose: Identify actionable metadata for fitness, traceability, and FAIR-oriented use while preventing unsupported scores or compliance claims.
+expertise:
+  - FAIR principle interpretation and maturity indicators
+  - DQV quality dimensions, metrics, measurements, and annotations
+  - PROV-O lineage, attribution, generation, and derivation
+  - DCAT quality guidance and empirical metadata-quality assessment
+retrieval_queries:
+  - FAIR metadata persistent identifier access protocol vocabulary provenance licence
+  - RDA FAIR maturity indicator essential important useful evaluation
+  - DQV quality dimension metric measurement annotation certificate policy
+  - PROV entity activity agent derivation generation attribution dataset
+  - metadata quality completeness accuracy timeliness retrievability DCAT-AP
+source_ids:
+  - fair_guiding_principles
+  - rda_fair_maturity_model
+  - w3c_dqv
+  - w3c_prov_o
+  - w3c_dcat_3
+  - w3c_dwbp
+  - metadata_quality_neumaier
+  - dcat_ap_quality_framework
+  - metadata_catalogue_quality_comparison
+knowledge_files: [knowledge/role_knowledge.md]
+raw_directory: raw
+database: db/rag.sqlite3

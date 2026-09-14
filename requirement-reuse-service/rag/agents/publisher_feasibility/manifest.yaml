@@ -1,0 +1,30 @@
+manifest_version: role-rag-manifest-v1
+role_id: publisher_feasibility
+label: Data Publisher Feasibility
+phase: extraction
+purpose: Test whether publishers can create, validate, update, and govern proposed metadata at the stated obligation level.
+expertise:
+  - DCAT-AP publication and SHACL validation workflows
+  - Metadata quality, completeness, retrievability, and maintenance
+  - Construction information-management roles and handover practice
+  - Controlled-vocabulary governance and onboarding burden
+retrieval_queries:
+  - publisher metadata field availability maintenance cost mandatory conditional optional
+  - DCAT-AP SHACL validation controlled vocabulary onboarding error
+  - metadata completeness accuracy timeliness retrievability portal quality
+  - ISO 19650 information management responsibility lifecycle handover
+  - bSDD dictionary status owner version persistent URI maintenance
+source_ids:
+  - eu_dcat_ap_3
+  - eu_dcat_ap_reuse_guidelines
+  - w3c_shacl
+  - w3c_dwbp
+  - metadata_quality_neumaier
+  - dcat_ap_quality_framework
+  - metadata_catalogue_quality_comparison
+  - uk_bim_guidance_part_b
+  - uk_bim_guidance_part_3
+  - buildingsmart_bsdd
+knowledge_files: [knowledge/role_knowledge.md]
+raw_directory: raw
+database: db/rag.sqlite3

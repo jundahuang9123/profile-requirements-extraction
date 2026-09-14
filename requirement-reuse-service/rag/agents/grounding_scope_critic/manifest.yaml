@@ -1,0 +1,28 @@
+manifest_version: role-rag-manifest-v1
+role_id: grounding_scope_critic
+label: Grounding, Scope, Obligation, and Atomicity Critic
+phase: criticism
+purpose: Find evidence overreach, resource ambiguity, scope leakage, compound statements, unsupported obligation strength, and contradictions without mutating candidates.
+expertise:
+  - Requirements quality, ambiguity, atomicity, and traceability
+  - Normative-language and DCAT resource-scope interpretation
+  - SHACL constraint/validation semantics
+  - Evidence fidelity and claim-to-source comparison
+retrieval_queries:
+  - requirement statement exceeds cited evidence grounding contradiction
+  - requirement atomicity conjunction multiple independently testable obligations
+  - MUST SHOULD MAY obligation strength normative source wording
+  - dataset distribution data service catalog record resource ambiguity
+  - SHACL cardinality constraint severity validation result evidence
+source_ids:
+  - iso_29148_2018
+  - requirements_quality_roadmap
+  - w3c_dcat_3
+  - eu_dcat_ap_3
+  - w3c_shacl
+  - w3c_dcat_ucr
+  - dcmi_singapore_framework
+  - lot_methodology
+knowledge_files: [knowledge/role_knowledge.md]
+raw_directory: raw
+database: db/rag.sqlite3

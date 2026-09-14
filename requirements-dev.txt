@@ -1,0 +1,2 @@
+-r requirement-reuse-service/requirements.txt
+pytest>=8,<9

@@ -1,0 +1,29 @@
+manifest_version: role-rag-manifest-v1
+role_id: ifc_bim
+label: IFC and BIM Semantics
+phase: extraction
+purpose: Identify catalogue-level IFC and BIM exchange context without mirroring model entities, geometry, or instance properties.
+expertise:
+  - IFC schema releases, lifecycle scope, disciplines, and Model View Definitions
+  - Information Delivery Specification and automated IFC checking
+  - bSDD classifications, properties, mappings, status, and persistent identifiers
+  - openBIM information management and Linked Building Data
+retrieval_queries:
+  - IFC schema version model view definition exchange requirement metadata
+  - IDS information delivery specification facet applicability requirement
+  - bSDD dictionary class property URI status mapping IFC IDS
+  - BIM dataset discipline lifecycle project spatial scope discovery
+  - link IFC model to BOT bSDD concept without entity mirroring
+source_ids:
+  - iso_16739_1_2024
+  - buildingsmart_ids_1
+  - buildingsmart_bsdd
+  - uk_bim_guidance_part_b
+  - uk_bim_guidance_part_3
+  - bot_ontology_paper
+  - iso_12006_2_2015
+  - iso_23386_2020
+  - w3c_dcat_3
+knowledge_files: [knowledge/role_knowledge.md]
+raw_directory: raw
+database: db/rag.sqlite3
