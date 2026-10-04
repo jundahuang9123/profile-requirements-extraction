@@ -11,6 +11,6 @@ COPY requirement-reuse-service/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 COPY requirement-reuse-service/ /app/requirement-reuse-service/
 COPY --from=ui /ui/dist /app/frontend/dist
-ENV RRS_LLM_PROVIDER=disabled RRS_REQUIREMENT_STORE=/data/requirement-sets RRS_AGENT_CACHE=/data/agent-cache
+ENV RRS_LLM_PROVIDER=disabled RRS_REQUIREMENT_STORE=/data/requirement-sets RRS_AGENT_CACHE=/data/agent-cache RQ1_WORKFLOW_STORE=/data/workflow.sqlite3
 EXPOSE 8011
 CMD ["uvicorn", "requirement_reuse_service.main:app", "--app-dir", "requirement-reuse-service", "--host", "0.0.0.0", "--port", "8011"]

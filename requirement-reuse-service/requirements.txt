@@ -5,4 +5,8 @@ rdflib==7.1.4
 python-multipart==0.0.20
 httpx==0.28.1
 PyYAML==6.0.2
+defusedxml==0.7.1
+PyLD==2.0.4
+ifcopenshell==0.8.5
+pdfplumber==0.11.7
 anthropic>=0.50.0

@@ -1,6 +1,6 @@
 # RQ1 requirement-extraction workflow: implementation guide
 
-Status: proposed design and implementation plan; this document does not implement the changes below.
+Status: original design and implementation plan. The persistent nine-stage v2 workflow now lives in `requirement_reuse_service/workflow/` and the default workbench. See [current operating behavior and limitations](WORKFLOW_V2.md); prospective extensions below are not claims of completed functionality. The repository is now named `profile-requirements-extraction`.
 
 Repository inspected: `jundahuang9123/rq1-blackboard`, commit `8d512b9071750d300f08d5c87fa0612a1c65bea2` on `main`, 4 October 2026. “Current” refers to that snapshot. New types, services, routes, thresholds, and filenames are proposals unless explicitly identified as existing. Repository links are relative to this document.
 

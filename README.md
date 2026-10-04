@@ -1,36 +1,25 @@
-# RQ1 Blackboard
+# Profile Requirements Extraction
 
-A standalone research workbench for extracting and reviewing traceable
-DCAT-compatible metadata requirements from domain materials and user tasks.
+A local research workbench for extracting, inspecting, and validating traceable
+metadata requirements from heterogeneous domain materials. Formerly `rq1-blackboard`.
 
-Derived from [Sebastian's SimpleLLM & SAST Blackboard](https://github.com/U0iS112/654321),
-with the existing RQ1 service and interface migrated from
-[Visual Profile Editor](https://github.com/jundahuang9123/visual-profile-editor).
+The default interface implements the persistent **nine-stage RQ1 workflow**:
 
-See the [visual UI and operating guide](docs/UI_GUIDE.md) for the interface layout,
-a first run, review controls, multi-agent setup, expert evaluation and exports.
+1. Acquire versioned source artifacts and record their authority.
+2. Decompose them into stable, addressable evidence units.
+3. Elicit candidates independently from selected perspectives.
+4. Normalize atomic, typed, implementation-neutral requirement records.
+5. Verify original-source provenance before assessing semantic support and quality.
+6. Consolidate exact equivalents while retaining conflicting alternatives.
+7. Deliberate selectively on grounded issues within explicit budgets.
+8. Obtain revision-specific human adjudication.
+9. Publish an immutable, traceable validated requirement baseline for RQ2.
 
-## Current implementation
-
-- Domain evidence ingestion: text, AAS JSON/AASX, DCAT/RDF, and lightweight IFC.
-- Rules, verified LLM, hybrid, and bounded role-conditioned multi-agent extraction.
-- The existing 15-role study process: 12 extractors, one consolidator, two critics.
-- Requirement/source inspection, contributions and critiques, validation flags,
-  editing, approval/rejection, merge/split, and reviewed dataset export.
-- Frozen evaluation packages, independent expert review, aggregation, controlled
-  revision, and validated requirement baseline export.
-- Standalone API and UI; no VPE server or editor state is required.
-
-The original blackboard implementation is preserved as the upstream foundation.
-The migrated RQ1 workflow currently uses the VPE bounded orchestration; it does
-not yet call Sebastian's discussion engine. The interactive, persistent discussion
-board and RQ1-specific deliberation adapter are the next integration milestone.
-The current trace ledger is not a threaded debate. See [migration and board plan](docs/VPE_MIGRATION.md).
-
-RQ1 ends with reviewed, evidence-linked requirements. VPE owns downstream
-vocabulary/profile decisions, LinkML/SHACL generation, and visual profile editing.
-Candidate metadata actions in an RQ1 export remain suggestions. Original VPE
-files have not been removed or changed by this migration.
+See [the operating guide](docs/WORKFLOW_V2.md) for formats, review gates, APIs,
+persistence, evaluation and limitations, and [the implementation design](docs/RQ1_IMPLEMENTATION_GUIDE.md)
+for the architectural rationale. The **Original study workbench** tab
+preserves the earlier v1 extraction/expert-evaluation workflow for comparisons;
+[its UI guide](docs/UI_GUIDE.md) applies to that tab.
 
 ## Run locally
 
@@ -43,68 +32,93 @@ cd frontend
 npm ci
 npm run build
 cd ..
-./scripts/run-rq1.sh
+RRS_LLM_PROVIDER=disabled ./scripts/run-rq1.sh
 ```
 
-Open http://127.0.0.1:8011. This single local server serves the built UI and API.
-Interactive API documentation is at http://127.0.0.1:8011/docs.
+Open http://127.0.0.1:8011. The server serves the built UI and API; interactive
+API documentation is at http://127.0.0.1:8011/docs.
 
-The default has no model credentials and works with the rules baseline. To
-configure live LLM extraction, copy `.env.example` to `.env` and set the provider,
-model, and provider credentials locally. Existing `RRS_*` environment names are
-retained for compatibility. `mock` is an explicit test/demo provider, never a live
-model result. Live provider execution has not been validated in the migration.
+**Rules** and **offline mock perspectives** use no model service. Rules are a
+conservative text baseline, and mock proposals are explicitly labelled demos.
+Their authentic citations still require a human semantic/quality assessment.
+No model credentials are needed for either strategy.
 
-For UI development, run the API above and `npm run dev` from `frontend` in another
-terminal. The development UI uses http://127.0.0.1:5174 and proxies to port 8011.
-These ports are separate from VPE's usual ports.
+Live independent elicitation and deliberation use the existing provider client
+and role configuration. Copy `.env.example` to `.env`, configure a provider and
+model locally, then explicitly opt in to live calls in the new workbench. V2
+rejects an unavailable provider instead of silently falling back. A ChatGPT/Codex
+subscription does not supply a model endpoint to this application. Development
+and tests for this implementation made no paid model requests; live provider
+execution has not been exercised.
 
-Alternatively, `docker compose up --build` builds and serves the complete app on
-127.0.0.1:8011, with a named volume for requirement sets and agent cache. The
-Docker configuration is supplied but has not been run during migration.
+For frontend development, keep the API running and use `npm run dev` from
+`frontend`. Port 5174 proxies `/api` to port 8011. Alternatively,
+`docker compose up --build` builds the app with a named data volume; that
+configuration has not been exercised in this implementation.
 
-## Outputs and persistence
+## Persistence and exports
 
-The review screen exports `rq1-requirement-dataset-v1` with reviewed requirements,
-rejected/unresolved items, evidence, editor history, and merge/split history.
-Expert evaluation exports frozen packages and
-`rq1-validated-requirement-baseline-v1` for the formal handoff to RQ2.
+V2 saves sources, evidence, runs, review decisions, discussion threads and
+baselines in SQLite, by default `.rq1-workflow/workflow.sqlite3`. Override
+`RQ1_WORKFLOW_STORE` to choose a location. Docker uses `/data/workflow.sqlite3`.
+Reloading the UI restores saved runs from the server. The browser only remembers
+the selected run ID. Back up the database while the application is stopped, or
+use SQLite's backup API while running; exports are portable audit artifacts,
+not database restore files.
 
-The `/api/requirements/export-rq1-dataset` API runs a reproducible extraction;
-it does not export unsaved browser edits. Use the UI's **Export RQ1 Dataset** for
-reviewed browser state. The UI has no full-session save/restore, so export before
-reloading. Some reviewer draft fields use browser-local storage; this does not
-back up the complete evaluation session. The API also offers explicit requirement
-set save/load endpoints, backed by local YAML files; these are not automatic UI
-session persistence.
+**Export saved review** downloads `rq1-requirement-dataset-v2` without rerunning
+extraction. **Publish accepted requirements** creates
+`rq1-validated-requirement-baseline-v2`, with exact accepted revisions, original
+source bytes, resolvable evidence, assessments, human decisions, derivation history,
+frozen machine output and an excluded/unresolved appendix. Edits after publication
+create new unaccepted revisions; previously published baselines remain unchanged.
+RQ1 does not generate LinkML/SHACL profile decisions as an acceptance side effect.
 
-Requirement sets, model keys, role caches, generated retrieval databases, and
-research run outputs are ignored by Git. Only source and curated configuration
-are versioned. See `requirement-reuse-service/rag/README.md` for building the
-optional, role-specific retrieval stores.
+The legacy v1 tab and endpoints retain their original export/persistence semantics.
+Do not relabel a v1 frozen evaluation package as v2.
 
-## Validate
+## Validate and evaluate offline
 
 ```sh
 .venv/bin/python -m pytest tests -q
-cd frontend && npm run build
+.venv/bin/python scripts/export_workflow_schema.py --check
+cd frontend
+npm run build
 ```
 
-The migrated suite covers evidence verification, model fallback, role isolation,
-consolidation, failure handling, cached role reruns, frozen review and consensus,
-exports, and the standalone HTTP API. Tests use offline fixtures or mocks.
+Tests block outbound sockets and use fixtures or mocks. They cover original
+source resolution, structured selectors, tampering, role isolation, partial failure,
+bounded dissent, conflict preservation, stale/idempotent commands, revision gates,
+human-added needs, restart/retry, frozen machine metrics and baseline provenance.
 
-## Repository layout
+Download the new workbench's review or baseline JSON, then summarize it without
+calling a model:
 
-- `requirement-reuse-service/`: independent RQ1 API, extraction, evaluation,
-  schemas, role configuration, and curated retrieval resources. The original
-  Python package name is retained to minimize compatibility changes.
-- `frontend/`: RQ1 React workbench and agent/evaluation interfaces.
-- `scripts/`: extraction/evaluation tools and local application launcher.
-- `tests/`: migrated RQ1 tests and standalone API checks.
+```sh
+.venv/bin/python scripts/evaluate_workflow.py rq1-saved-workflow.json --out metrics.json
+```
+
+Machine, current review and accepted results are reported separately. Task-link
+presence is not evidence of successful task coverage. Precision/recall needs an
+independently adjudicated reference set; the new metrics do not infer it from
+lexical similarity. `scripts/evaluate_rq1.py` remains the v1 strategy and
+expert-evaluation harness.
+
+## Repository structure and attribution
+
+- `requirement-reuse-service/requirement_reuse_service/workflow/`: v2 contracts,
+  adapters, source verification, orchestration, storage, evaluation and API.
+- `frontend/`: persistent v2 React workbench plus the original v1 study interface.
+- `requirement-reuse-service/schema/rq1_workflow_v2.schema.json`: generated v2
+  runtime contracts. The original LinkML schema describes v1.
+- `scripts/`, `tests/`, `docs/`: launchers, offline evaluation, fixtures and guides.
 - `blackboard/`, `simplellm/`, `datacorpus/`, root `main.py` and `requirements.txt`:
-  original Sebastian prototype; not the RQ1 app's runtime/dependencies.
-- `docs/`: source provenance, licenses, and the next integration steps.
+  Sebastian's original prototype, separate from the RQ1 app's dependencies.
 
-See [source attribution](THIRD_PARTY_NOTICES.md) and
-[source snapshot manifest](docs/VPE_SOURCE_MANIFEST.json).
+Derived from [Sebastian's SimpleLLM & SAST Blackboard](https://github.com/U0iS112/654321),
+with the earlier RQ1 service/interface migrated from
+[Visual Profile Editor](https://github.com/jundahuang9123/visual-profile-editor).
+V2 adapts bounded turns, selective routing, frozen context and durable messages to
+requirement review. It does not invoke upstream semantic-mapping commands or
+treat agent agreement as human acceptance. See [attribution](THIRD_PARTY_NOTICES.md)
+and [the source snapshot manifest](docs/VPE_SOURCE_MANIFEST.json).
