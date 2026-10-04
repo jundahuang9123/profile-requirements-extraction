@@ -1,0 +1,1690 @@
+{
+  "$defs": {
+    "AdditionRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "draft": {
+          "$ref": "#/$defs/RevisionDraft"
+        },
+        "expected_version": {
+          "title": "Expected Version",
+          "type": "integer"
+        },
+        "idempotency_key": {
+          "minLength": 1,
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "rationale": {
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "expected_version",
+        "idempotency_key",
+        "draft",
+        "rationale"
+      ],
+      "title": "AdditionRequest",
+      "type": "object"
+    },
+    "ArtifactPayload": {
+      "properties": {
+        "content": {
+          "title": "Content",
+          "type": "string"
+        },
+        "content_encoding": {
+          "default": "text",
+          "enum": [
+            "text",
+            "base64"
+          ],
+          "title": "Content Encoding",
+          "type": "string"
+        },
+        "media_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Media Type"
+        },
+        "name": {
+          "default": "artifact",
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "title": "ArtifactPayload",
+      "type": "object"
+    },
+    "AssessmentRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_version": {
+          "title": "Expected Version",
+          "type": "integer"
+        },
+        "idempotency_key": {
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "qualification": {
+          "$ref": "#/$defs/Qualification"
+        },
+        "revision_id": {
+          "title": "Revision Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "expected_version",
+        "idempotency_key",
+        "revision_id",
+        "qualification"
+      ],
+      "title": "AssessmentRequest",
+      "type": "object"
+    },
+    "BaselineRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_version": {
+          "title": "Expected Version",
+          "type": "integer"
+        },
+        "idempotency_key": {
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "name": {
+          "default": "Validated RQ1 baseline",
+          "title": "Name",
+          "type": "string"
+        },
+        "revision_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Revision Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "expected_version",
+        "idempotency_key",
+        "revision_ids"
+      ],
+      "title": "BaselineRequest",
+      "type": "object"
+    },
+    "ConflictRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "conflict_id": {
+          "title": "Conflict Id",
+          "type": "string"
+        },
+        "decision_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Decision Id"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "revision_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Revision Ids",
+          "type": "array"
+        },
+        "status": {
+          "default": "open",
+          "enum": [
+            "open",
+            "resolved",
+            "deferred"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "conflict_id",
+        "revision_ids",
+        "kind",
+        "rationale"
+      ],
+      "title": "ConflictRecord",
+      "type": "object"
+    },
+    "CorpusSnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "exclusions": {
+          "items": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "title": "Exclusions",
+          "type": "array"
+        },
+        "manifest_hash": {
+          "title": "Manifest Hash",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "snapshot_id": {
+          "title": "Snapshot Id",
+          "type": "string"
+        },
+        "source_version_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Version Ids",
+          "type": "array"
+        },
+        "user_tasks": {
+          "items": {
+            "$ref": "#/$defs/UserTask"
+          },
+          "title": "User Tasks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "snapshot_id",
+        "name",
+        "source_version_ids",
+        "evidence_ids",
+        "user_tasks",
+        "manifest_hash",
+        "created_at"
+      ],
+      "title": "CorpusSnapshot",
+      "type": "object"
+    },
+    "DecisionRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": [
+            "accept",
+            "reject",
+            "defer",
+            "out_of_scope",
+            "edit",
+            "split",
+            "merge"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "conflict_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Conflict Ids",
+          "type": "array"
+        },
+        "drafts": {
+          "items": {
+            "$ref": "#/$defs/RevisionDraft"
+          },
+          "title": "Drafts",
+          "type": "array"
+        },
+        "expected_version": {
+          "title": "Expected Version",
+          "type": "integer"
+        },
+        "idempotency_key": {
+          "minLength": 1,
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "rationale": {
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "revision_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Revision Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "expected_version",
+        "idempotency_key",
+        "revision_ids",
+        "action",
+        "rationale"
+      ],
+      "title": "DecisionRequest",
+      "type": "object"
+    },
+    "DeliberationCase": {
+      "additionalProperties": false,
+      "properties": {
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "context_hash": {
+          "title": "Context Hash",
+          "type": "string"
+        },
+        "frozen_requirements": {
+          "items": {
+            "type": "object"
+          },
+          "title": "Frozen Requirements",
+          "type": "array"
+        },
+        "max_calls": {
+          "default": 12,
+          "title": "Max Calls",
+          "type": "integer"
+        },
+        "max_output_tokens": {
+          "default": 1000,
+          "title": "Max Output Tokens",
+          "type": "integer"
+        },
+        "max_rounds": {
+          "default": 3,
+          "title": "Max Rounds",
+          "type": "integer"
+        },
+        "max_seconds": {
+          "default": 300,
+          "title": "Max Seconds",
+          "type": "integer"
+        },
+        "messages": {
+          "items": {
+            "type": "object"
+          },
+          "title": "Messages",
+          "type": "array"
+        },
+        "output_tokens_reserved": {
+          "default": 0,
+          "title": "Output Tokens Reserved",
+          "type": "integer"
+        },
+        "participants": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Participants",
+          "type": "array"
+        },
+        "policy_version": {
+          "default": "rq1-selective-v2",
+          "title": "Policy Version",
+          "type": "string"
+        },
+        "revision_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Revision Ids",
+          "type": "array"
+        },
+        "status": {
+          "default": "queued",
+          "title": "Status",
+          "type": "string"
+        },
+        "stop_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stop Reason"
+        },
+        "total_output_budget": {
+          "default": 12000,
+          "title": "Total Output Budget",
+          "type": "integer"
+        },
+        "triggers": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Triggers",
+          "type": "array"
+        }
+      },
+      "required": [
+        "case_id",
+        "revision_ids",
+        "triggers",
+        "context_hash",
+        "participants"
+      ],
+      "title": "DeliberationCase",
+      "type": "object"
+    },
+    "EvidenceLink": {
+      "additionalProperties": false,
+      "properties": {
+        "component": {
+          "default": "statement",
+          "enum": [
+            "statement",
+            "obligation",
+            "scope",
+            "condition",
+            "value_kind"
+          ],
+          "title": "Component",
+          "type": "string"
+        },
+        "evidence_id": {
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "quote": {
+          "title": "Quote",
+          "type": "string"
+        },
+        "quote_start": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote Start"
+        },
+        "relation": {
+          "default": "supports",
+          "enum": [
+            "supports",
+            "contradicts",
+            "contextualizes"
+          ],
+          "title": "Relation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "quote"
+      ],
+      "title": "EvidenceLink",
+      "type": "object"
+    },
+    "EvidenceUnit": {
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "title": "Content",
+          "type": "string"
+        },
+        "content_hash": {
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "evidence_id": {
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "parser_version": {
+          "title": "Parser Version",
+          "type": "string"
+        },
+        "selector": {
+          "discriminator": {
+            "mapping": {
+              "ifc": "#/$defs/IFCSelector",
+              "json": "#/$defs/JSONSelector",
+              "rdf": "#/$defs/RDFSelector",
+              "text": "#/$defs/TextSelector",
+              "xml": "#/$defs/XMLSelector"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/TextSelector"
+            },
+            {
+              "$ref": "#/$defs/JSONSelector"
+            },
+            {
+              "$ref": "#/$defs/XMLSelector"
+            },
+            {
+              "$ref": "#/$defs/RDFSelector"
+            },
+            {
+              "$ref": "#/$defs/IFCSelector"
+            }
+          ],
+          "title": "Selector"
+        },
+        "source_claim_kind": {
+          "title": "Source Claim Kind",
+          "type": "string"
+        },
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_version_id": {
+          "title": "Source Version Id",
+          "type": "string"
+        },
+        "structural_context": {
+          "title": "Structural Context",
+          "type": "object"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "source_id",
+        "source_version_id",
+        "kind",
+        "selector",
+        "content",
+        "content_hash",
+        "source_claim_kind",
+        "parser_version"
+      ],
+      "title": "EvidenceUnit",
+      "type": "object"
+    },
+    "Finding": {
+      "additionalProperties": false,
+      "properties": {
+        "criterion": {
+          "title": "Criterion",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "blocking",
+            "review",
+            "info"
+          ],
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "criterion",
+        "severity",
+        "message"
+      ],
+      "title": "Finding",
+      "type": "object"
+    },
+    "IFCSelector": {
+      "additionalProperties": false,
+      "properties": {
+        "attribute": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Attribute"
+        },
+        "entity_type": {
+          "title": "Entity Type",
+          "type": "string"
+        },
+        "global_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Global Id"
+        },
+        "kind": {
+          "const": "ifc",
+          "default": "ifc",
+          "title": "Kind",
+          "type": "string"
+        },
+        "property_step_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Property Step Id"
+        },
+        "relationship_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Relationship Ids",
+          "type": "array"
+        },
+        "step_id": {
+          "title": "Step Id",
+          "type": "integer"
+        },
+        "value_hash": {
+          "title": "Value Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "step_id",
+        "entity_type",
+        "value_hash"
+      ],
+      "title": "IFCSelector",
+      "type": "object"
+    },
+    "JSONSelector": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "json",
+          "default": "json",
+          "title": "Kind",
+          "type": "string"
+        },
+        "pointer": {
+          "title": "Pointer",
+          "type": "string"
+        },
+        "value_hash": {
+          "title": "Value Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pointer",
+        "value_hash"
+      ],
+      "title": "JSONSelector",
+      "type": "object"
+    },
+    "NormalizedIntent": {
+      "additionalProperties": false,
+      "description": "V2 never supplies an unstated Dataset scope or discovery need.",
+      "properties": {
+        "metadata_need": {
+          "default": "",
+          "title": "Metadata Need",
+          "type": "string"
+        },
+        "obligation_hint": {
+          "default": "unknown",
+          "enum": [
+            "mandatory",
+            "recommended",
+            "optional",
+            "unknown"
+          ],
+          "title": "Obligation Hint",
+          "type": "string"
+        },
+        "resource_type": {
+          "default": "Unknown",
+          "enum": [
+            "Catalog",
+            "Dataset",
+            "Distribution",
+            "DataService",
+            "Agent",
+            "Concept",
+            "Unknown"
+          ],
+          "title": "Resource Type",
+          "type": "string"
+        },
+        "value_kind": {
+          "default": "unknown",
+          "enum": [
+            "literal",
+            "uri",
+            "controlled_concept",
+            "class_reference",
+            "date",
+            "agent",
+            "distribution",
+            "unknown"
+          ],
+          "title": "Value Kind",
+          "type": "string"
+        }
+      },
+      "title": "NormalizedIntent",
+      "type": "object"
+    },
+    "Observation": {
+      "additionalProperties": false,
+      "properties": {
+        "assumptions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "evidence_links": {
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          },
+          "title": "Evidence Links",
+          "type": "array"
+        },
+        "intent": {
+          "$ref": "#/$defs/NormalizedIntent"
+        },
+        "observation_id": {
+          "title": "Observation Id",
+          "type": "string"
+        },
+        "rationale": {
+          "default": "",
+          "title": "Rationale",
+          "type": "string"
+        },
+        "requirement_type": {
+          "default": "unknown",
+          "enum": [
+            "descriptive_metadata",
+            "semantic_anchor",
+            "technical_metadata",
+            "access_policy",
+            "quality_provenance",
+            "lifecycle_context",
+            "controlled_vocabulary",
+            "validation_constraint",
+            "competency_question",
+            "unknown"
+          ],
+          "title": "Requirement Type",
+          "type": "string"
+        },
+        "role_id": {
+          "title": "Role Id",
+          "type": "string"
+        },
+        "scope": {
+          "default": "Unspecified",
+          "title": "Scope",
+          "type": "string"
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        },
+        "support_level": {
+          "default": "evidence_supported_inference",
+          "enum": [
+            "explicit",
+            "evidence_supported_inference",
+            "unsupported"
+          ],
+          "title": "Support Level",
+          "type": "string"
+        },
+        "supports_user_tasks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supports User Tasks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "observation_id",
+        "role_id",
+        "statement",
+        "evidence_links"
+      ],
+      "title": "Observation",
+      "type": "object"
+    },
+    "Qualification": {
+      "additionalProperties": false,
+      "properties": {
+        "assessor": {
+          "title": "Assessor",
+          "type": "string"
+        },
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/Finding"
+          },
+          "title": "Findings",
+          "type": "array"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "revision_hash": {
+          "default": "",
+          "title": "Revision Hash",
+          "type": "string"
+        },
+        "support": {
+          "enum": [
+            "explicit",
+            "inferred",
+            "unsupported",
+            "contradicted",
+            "uncertain"
+          ],
+          "title": "Support",
+          "type": "string"
+        }
+      },
+      "required": [
+        "support",
+        "rationale",
+        "assessor"
+      ],
+      "title": "Qualification",
+      "type": "object"
+    },
+    "RDFSelector": {
+      "additionalProperties": false,
+      "properties": {
+        "canonicalization": {
+          "const": "URDNA2015",
+          "default": "URDNA2015",
+          "title": "Canonicalization",
+          "type": "string"
+        },
+        "kind": {
+          "const": "rdf",
+          "default": "rdf",
+          "title": "Kind",
+          "type": "string"
+        },
+        "quads": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Quads",
+          "type": "array"
+        }
+      },
+      "required": [
+        "quads"
+      ],
+      "title": "RDFSelector",
+      "type": "object"
+    },
+    "RequirementRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "assumptions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "conflict_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Conflict Ids",
+          "type": "array"
+        },
+        "content_hash": {
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "contributing_roles": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Contributing Roles",
+          "type": "array"
+        },
+        "decision_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Decision Id"
+        },
+        "evidence_links": {
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          },
+          "title": "Evidence Links",
+          "type": "array"
+        },
+        "lifecycle_state": {
+          "default": "verification_pending",
+          "title": "Lifecycle State",
+          "type": "string"
+        },
+        "normalized_intent": {
+          "$ref": "#/$defs/NormalizedIntent"
+        },
+        "normalized_statement": {
+          "title": "Normalized Statement",
+          "type": "string"
+        },
+        "observation_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Observation Ids",
+          "type": "array"
+        },
+        "parent_revision_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Parent Revision Ids",
+          "type": "array"
+        },
+        "qualification": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Qualification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "rationale": {
+          "default": "",
+          "title": "Rationale",
+          "type": "string"
+        },
+        "raw_statement": {
+          "title": "Raw Statement",
+          "type": "string"
+        },
+        "requirement_id": {
+          "title": "Requirement Id",
+          "type": "string"
+        },
+        "requirement_type": {
+          "enum": [
+            "descriptive_metadata",
+            "semantic_anchor",
+            "technical_metadata",
+            "access_policy",
+            "quality_provenance",
+            "lifecycle_context",
+            "controlled_vocabulary",
+            "validation_constraint",
+            "competency_question",
+            "unknown"
+          ],
+          "title": "Requirement Type",
+          "type": "string"
+        },
+        "revision_id": {
+          "title": "Revision Id",
+          "type": "string"
+        },
+        "revision_number": {
+          "title": "Revision Number",
+          "type": "integer"
+        },
+        "rq2_hints": {
+          "items": {
+            "type": "object"
+          },
+          "title": "Rq2 Hints",
+          "type": "array"
+        },
+        "scope": {
+          "title": "Scope",
+          "type": "string"
+        },
+        "support_level": {
+          "title": "Support Level",
+          "type": "string"
+        },
+        "supports_user_tasks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supports User Tasks",
+          "type": "array"
+        },
+        "verification": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verification"
+        }
+      },
+      "required": [
+        "requirement_id",
+        "revision_id",
+        "revision_number",
+        "content_hash",
+        "raw_statement",
+        "normalized_statement",
+        "requirement_type",
+        "normalized_intent",
+        "scope",
+        "evidence_links",
+        "support_level"
+      ],
+      "title": "RequirementRecord",
+      "type": "object"
+    },
+    "RevisionDraft": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_links": {
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          },
+          "title": "Evidence Links",
+          "type": "array"
+        },
+        "intent": {
+          "$ref": "#/$defs/NormalizedIntent"
+        },
+        "rationale": {
+          "default": "",
+          "title": "Rationale",
+          "type": "string"
+        },
+        "requirement_type": {
+          "default": "unknown",
+          "enum": [
+            "descriptive_metadata",
+            "semantic_anchor",
+            "technical_metadata",
+            "access_policy",
+            "quality_provenance",
+            "lifecycle_context",
+            "controlled_vocabulary",
+            "validation_constraint",
+            "competency_question",
+            "unknown"
+          ],
+          "title": "Requirement Type",
+          "type": "string"
+        },
+        "scope": {
+          "default": "Unspecified",
+          "title": "Scope",
+          "type": "string"
+        },
+        "statement": {
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "statement",
+        "evidence_links"
+      ],
+      "title": "RevisionDraft",
+      "type": "object"
+    },
+    "RunRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_live_provider": {
+          "default": false,
+          "title": "Allow Live Provider",
+          "type": "boolean"
+        },
+        "name": {
+          "default": "RQ1 workflow",
+          "title": "Name",
+          "type": "string"
+        },
+        "role_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Role Ids",
+          "type": "array"
+        },
+        "snapshot_id": {
+          "title": "Snapshot Id",
+          "type": "string"
+        },
+        "strategy": {
+          "default": "rules",
+          "enum": [
+            "rules",
+            "mock",
+            "multi_agent"
+          ],
+          "title": "Strategy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "snapshot_id"
+      ],
+      "title": "RunRequest",
+      "type": "object"
+    },
+    "SourceArtifact": {
+      "additionalProperties": false,
+      "properties": {
+        "acquired_at": {
+          "title": "Acquired At",
+          "type": "string"
+        },
+        "artifact_kind": {
+          "title": "Artifact Kind",
+          "type": "string"
+        },
+        "authority": {
+          "default": "",
+          "title": "Authority",
+          "type": "string"
+        },
+        "byte_length": {
+          "title": "Byte Length",
+          "type": "integer"
+        },
+        "child_source_version_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Child Source Version Ids",
+          "type": "array"
+        },
+        "diagnostics": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Diagnostics",
+          "type": "array"
+        },
+        "media_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Media Type"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "origin_uri": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Origin Uri"
+        },
+        "package_entry_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Package Entry Path"
+        },
+        "parent_source_version_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Source Version Id"
+        },
+        "parse_status": {
+          "enum": [
+            "parsed",
+            "failed",
+            "unsupported"
+          ],
+          "title": "Parse Status",
+          "type": "string"
+        },
+        "parser_dependencies": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Parser Dependencies",
+          "type": "object"
+        },
+        "parser_version": {
+          "title": "Parser Version",
+          "type": "string"
+        },
+        "raw_base64": {
+          "title": "Raw Base64",
+          "type": "string"
+        },
+        "raw_sha256": {
+          "title": "Raw Sha256",
+          "type": "string"
+        },
+        "representation": {
+          "default": "",
+          "title": "Representation",
+          "type": "string"
+        },
+        "representation_hash": {
+          "default": "",
+          "title": "Representation Hash",
+          "type": "string"
+        },
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_role": {
+          "title": "Source Role",
+          "type": "string"
+        },
+        "source_version_id": {
+          "title": "Source Version Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "source_version_id",
+        "name",
+        "source_role",
+        "raw_sha256",
+        "byte_length",
+        "raw_base64",
+        "artifact_kind",
+        "parser_version",
+        "parse_status",
+        "acquired_at"
+      ],
+      "title": "SourceArtifact",
+      "type": "object"
+    },
+    "SourceRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact": {
+          "$ref": "#/$defs/ArtifactPayload"
+        },
+        "authority": {
+          "default": "",
+          "title": "Authority",
+          "type": "string"
+        },
+        "origin_uri": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Origin Uri"
+        },
+        "source_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Id"
+        },
+        "source_role": {
+          "default": "observation",
+          "enum": [
+            "normative_spec",
+            "stakeholder_need",
+            "example",
+            "observation",
+            "background"
+          ],
+          "title": "Source Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact"
+      ],
+      "title": "SourceRequest",
+      "type": "object"
+    },
+    "TextSelector": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "minimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "kind": {
+          "const": "text",
+          "default": "text",
+          "title": "Kind",
+          "type": "string"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page"
+        },
+        "representation_hash": {
+          "title": "Representation Hash",
+          "type": "string"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "representation_hash"
+      ],
+      "title": "TextSelector",
+      "type": "object"
+    },
+    "UserTask": {
+      "description": "A predefined competency question, corpus-derived task, or declared need.\n\nRequirements link back to user tasks via ``supports_user_tasks`` so that\ncompetency-question coverage can be computed during evaluation (RQ1).",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "default": "competency_question",
+          "enum": [
+            "competency_question",
+            "user_task",
+            "stakeholder_need"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "source": {
+          "default": "predefined input corpus",
+          "title": "Source",
+          "type": "string"
+        },
+        "stakeholder": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stakeholder"
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "statement"
+      ],
+      "title": "UserTask",
+      "type": "object"
+    },
+    "WorkflowRun": {
+      "additionalProperties": false,
+      "properties": {
+        "active_revision_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Active Revision Ids",
+          "type": "array"
+        },
+        "assessment_history": {
+          "items": {
+            "type": "object"
+          },
+          "title": "Assessment History",
+          "type": "array"
+        },
+        "attempt_history": {
+          "items": {
+            "type": "object"
+          },
+          "title": "Attempt History",
+          "type": "array"
+        },
+        "baselines": {
+          "items": {
+            "type": "object"
+          },
+          "title": "Baselines",
+          "type": "array"
+        },
+        "conflicts": {
+          "items": {
+            "$ref": "#/$defs/ConflictRecord"
+          },
+          "title": "Conflicts",
+          "type": "array"
+        },
+        "consolidation_events": {
+          "items": {
+            "type": "object"
+          },
+          "title": "Consolidation Events",
+          "type": "array"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "decisions": {
+          "items": {
+            "type": "object"
+          },
+          "title": "Decisions",
+          "type": "array"
+        },
+        "deliberations": {
+          "items": {
+            "$ref": "#/$defs/DeliberationCase"
+          },
+          "title": "Deliberations",
+          "type": "array"
+        },
+        "diagnostics": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Diagnostics",
+          "type": "array"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "implementation_hash": {
+          "default": "",
+          "title": "Implementation Hash",
+          "type": "string"
+        },
+        "job_lease_until": {
+          "default": 0,
+          "title": "Job Lease Until",
+          "type": "number"
+        },
+        "machine_snapshot": {
+          "title": "Machine Snapshot",
+          "type": "object"
+        },
+        "metrics": {
+          "title": "Metrics",
+          "type": "object"
+        },
+        "model_calls": {
+          "items": {
+            "type": "object"
+          },
+          "title": "Model Calls",
+          "type": "array"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "observations": {
+          "items": {
+            "$ref": "#/$defs/Observation"
+          },
+          "title": "Observations",
+          "type": "array"
+        },
+        "request": {
+          "$ref": "#/$defs/RunRequest"
+        },
+        "requirements": {
+          "items": {
+            "$ref": "#/$defs/RequirementRecord"
+          },
+          "title": "Requirements",
+          "type": "array"
+        },
+        "role_runs": {
+          "items": {
+            "type": "object"
+          },
+          "title": "Role Runs",
+          "type": "array"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "rq1-requirement-dataset-v2",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "snapshot_id": {
+          "title": "Snapshot Id",
+          "type": "string"
+        },
+        "stages": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Stages",
+          "type": "object"
+        },
+        "status": {
+          "default": "created",
+          "title": "Status",
+          "type": "string"
+        },
+        "strategy": {
+          "title": "Strategy",
+          "type": "string"
+        },
+        "version": {
+          "default": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "worker_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Worker Id"
+        },
+        "workflow_version": {
+          "default": "rq1-nine-stage-v2",
+          "title": "Workflow Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "name",
+        "snapshot_id",
+        "strategy",
+        "request",
+        "created_at"
+      ],
+      "title": "WorkflowRun",
+      "type": "object"
+    },
+    "XMLSelector": {
+      "additionalProperties": false,
+      "properties": {
+        "child_indices": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Child Indices",
+          "type": "array"
+        },
+        "kind": {
+          "const": "xml",
+          "default": "xml",
+          "title": "Kind",
+          "type": "string"
+        },
+        "tag": {
+          "title": "Tag",
+          "type": "string"
+        },
+        "value_hash": {
+          "title": "Value Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "child_indices",
+        "tag",
+        "value_hash"
+      ],
+      "title": "XMLSelector",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RQ1 persistent workflow v2 contracts"
+}

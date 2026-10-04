@@ -26,7 +26,7 @@ from .registry import list_requirement_sets, load_requirement_set, save_requirem
 from .service import analyze_payload, export_rq1_dataset, extract_requirements
 
 app = FastAPI(
-    title='RQ1 Blackboard Requirement Service',
+    title='Profile Requirements Extraction',
     version='0.4.0',
     description=(
         'RQ1: semi-automated, reuse-first requirement extraction for DCAT/DCAT-AP profile '
@@ -154,6 +154,9 @@ def load_set(payload: RequirementSetLoadRequest):
 
 app.include_router(router, prefix="/api/requirements")
 app.include_router(router, include_in_schema=False)
+
+from .workflow.api import router as workflow_router
+app.include_router(workflow_router)
 
 # Serve the standalone UI after npm run build; APIs remain registered first.
 from pathlib import Path

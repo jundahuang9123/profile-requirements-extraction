@@ -11,6 +11,7 @@ blackboard/exports/
 *.py[cod]
 .pytest_cache/
 .rrs-agent-cache/
+.rq1-workflow/
 requirement-sets/
 frontend/node_modules/
 frontend/dist/
