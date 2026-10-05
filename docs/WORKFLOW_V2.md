@@ -49,9 +49,13 @@ the same `source_id` to group logical source versions; citations are never retar
 
 Resolution regenerates evidence from stored original bytes and compares selector,
 content hash and structural context. Quotes must be exact spans. Repeated quotes need
-`quote_start` within the unit, in Unicode code points. Known obligation claims need a
-separate supportive `component: obligation` citation. Every material citation must
-resolve; one good citation cannot hide a fabricated premise.
+`quote_start` within the unit, in Unicode code points. If an elicitation model reports
+an invalid offset but its exact quote occurs once in that cited unit, normalization
+replaces the offset with that unique unit-local position and records the correction on
+the role report. No match or multiple matches remain unresolved and fail verification.
+Known obligation claims need a separate supportive `component: obligation` citation.
+Every material citation must resolve; one good citation cannot hide a fabricated
+premise.
 
 ## Models, transitions and acceptance
 
@@ -89,6 +93,9 @@ The 12 existing extraction perspectives come from `config/agent_roles.yaml`. Eac
 receives frozen corpus/task/role context and bounded batches, without peer candidates.
 Up to four run concurrently. Raw structured outputs, prompt/context hashes, partial
 failures and completed roles are retained. Retry skips completed perspectives.
+Only declared task identifiers are retained on observations; unknown identifiers
+from model output are dropped and listed on the role report. The original structured
+output remains in the call audit.
 Held-out expert evaluation inputs are excluded. V1 role retrieval stores are not
 yet connected to the v2 context builder.
 

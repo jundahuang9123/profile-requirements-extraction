@@ -89,6 +89,7 @@ class OpenAICompatibleClient:
         self.api_key = config.api_key
         self.model_id = config.resolved_model()
         self.max_tokens = config.max_tokens
+        self.reasoning_effort = config.reasoning_effort
         self.timeout = config.timeout
         self.extra_headers = dict(config.extra_headers)
 
@@ -111,6 +112,8 @@ class OpenAICompatibleClient:
             ],
             'response_format': {'type': 'json_object'},
         }
+        if self.reasoning_effort:
+            body['reasoning_effort'] = self.reasoning_effort
         text = self._post_chat(body, headers)
         return validate_json_payload(text, output_model)
 

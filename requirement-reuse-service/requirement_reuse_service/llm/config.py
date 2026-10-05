@@ -27,6 +27,9 @@ class LLMConfig:
       RRS_LLM_BASE_URL   base URL for openai-compatible endpoints
                          (e.g. http://localhost:11434/v1 for Ollama)
       RRS_LLM_API_KEY    API key for openai-compatible endpoints
+      RRS_LLM_REASONING_EFFORT optional OpenAI-compatible reasoning control.
+                                For Ollama thinking models, use none to return
+                                structured content without a long reasoning trace.
       ANTHROPIC_API_KEY  key for the anthropic provider (standard SDK variable)
       RRS_LLM_MAX_TOKENS response token cap (default 16000)
       RRS_LLM_TIMEOUT    request timeout in seconds (default 240)
@@ -36,6 +39,7 @@ class LLMConfig:
     model: str | None = None
     base_url: str | None = None
     api_key: str | None = None
+    reasoning_effort: str | None = None
     max_tokens: int = 16000
     timeout: float = 240.0
     extra_headers: dict[str, str] = field(default_factory=dict)
@@ -55,6 +59,7 @@ class LLMConfig:
             model=os.environ.get('RRS_LLM_MODEL') or None,
             base_url=os.environ.get('RRS_LLM_BASE_URL') or None,
             api_key=os.environ.get('RRS_LLM_API_KEY') or None,
+            reasoning_effort=os.environ.get('RRS_LLM_REASONING_EFFORT') or None,
             max_tokens=int(os.environ.get('RRS_LLM_MAX_TOKENS', '16000')),
             timeout=float(os.environ.get('RRS_LLM_TIMEOUT', '240')),
         )

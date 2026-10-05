@@ -48,8 +48,9 @@ and role configuration. Copy `.env.example` to `.env`, configure a provider and
 model locally, then explicitly opt in to live calls in the new workbench. V2
 rejects an unavailable provider instead of silently falling back. A ChatGPT/Codex
 subscription does not supply a model endpoint to this application. Development
-and tests for this implementation made no paid model requests; live provider
-execution has not been exercised.
+and tests for this implementation made no paid model requests. A small synthetic,
+local-only Qwen3.5 27B run exercised the persistent workflow; its simulated
+human decisions are demonstration data, not validated research requirements.
 
 For frontend development, keep the API running and use `npm run dev` from
 `frontend`. Port 5174 proxies `/api` to port 8011. Alternatively,
