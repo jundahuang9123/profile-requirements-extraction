@@ -4,8 +4,9 @@ import logging
 
 class ReasoningAgent:
 
-    def __init__(self, api_key: str, gpt_model="gpt-5"):
-        self.client = OpenAI(api_key=api_key)
+    def __init__(self, api_key: str, gpt_model="gpt-5", llm_session=None, ontology_context=None, sample_id=""):
+        self.client = llm_session.client if llm_session else OpenAI(api_key=api_key)
+        self.llm_session, self.ontology_context, self.sample_id = llm_session, ontology_context, sample_id
         self.gpt_model = gpt_model
 
     def determine_discussions(self, attribute_map: dict, original_json_data=None, documentation : str = "", historical_references = None, amount_turns = 3) -> dict:
@@ -80,10 +81,12 @@ Historical References (subset, not all)::
 {json.dumps(historical_references, indent=4)}
 """
         logging.info("Reasoning Agent started.")
-        response = self.client.chat.completions.create(
-            model=self.gpt_model,
-            messages=[{"role": "user", "content": user_prompt}]
-        )
+        messages = [{"role": "user", "content": user_prompt}]
+        if self.llm_session:
+            response = self.llm_session.complete(model=self.gpt_model, messages=messages,
+                context=self.ontology_context, sample_id=self.sample_id, stage="council_planning")
+        else:
+            response = self.client.chat.completions.create(model=self.gpt_model, messages=messages)
         response_clean = response.choices[0].message.content
         json.loads(response_clean)
         try:

@@ -8,6 +8,8 @@ This repository contains a **scientific programming prototype** used to explore 
 
 The goal of this project is to provide a clean and modifiable structure for testing, benchmarking, and extending LLM-driven analysis workflows.
 
+The Blackboard pipeline also supports an opt-in [shared ontology context](docs/SHARED_ONTOLOGY_CONTEXT.md), with local ontology bundles, labelled sample scope and request timing. Existing callers retain the legacy prompt layout by default.
+
 ---
 
 ## Project Structure

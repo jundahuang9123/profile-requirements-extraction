@@ -11,13 +11,16 @@ logger = logging.getLogger(__name__)
 
 class AttributeMapper:
 
-    def __init__(self, attribute: str, input_data, gpt_model: str = "gpt-5", api_key: str = None , candidate_amount = 3, first_split_amount = 0):
+    def __init__(self, attribute: str, input_data, gpt_model: str = "gpt-5", api_key: str = None , candidate_amount = 3, first_split_amount = 0, llm_session=None, ontology_context=None, sample_id=""):
         logger.info(f"Initializing AttributeMapper with attribute: {attribute}")
         self.name = attribute
         self.gpt_model = gpt_model
         if not api_key:
             raise NotImplementedError
-        self.client  = OpenAI(api_key=api_key)
+        self.client = llm_session.client if llm_session else OpenAI(api_key=api_key)
+        self.llm_session = llm_session
+        self.ontology_context = ontology_context
+        self.sample_id = sample_id
         self.input_data = input_data
 
 
@@ -125,7 +128,7 @@ class AttributeMapper:
         {json.dumps(self.input_data["historical_references"], indent=4)}
 
         Ontology:
-        {self.input_data["ontology"]}
+        {self._ontology_prompt()}
 
         Attribute to map:
         {self.name}
@@ -179,7 +182,7 @@ class AttributeMapper:
                {json.dumps(self.input_data["historical_references"], indent=4)}
 
                Ontology:
-               {self.input_data["ontology"]}
+               {self._ontology_prompt()}
 
                Attribute to map:
                {self.name}
@@ -191,6 +194,7 @@ class AttributeMapper:
 
 
         raw_llm = self._call_llm_as_json(
+            stage="generation",
             user_prompt=user_prompt,
         )
 
@@ -273,7 +277,10 @@ class AttributeMapper:
                 continue
 
             try:
-                subj, pred, obj = self._split_triple(candidate_str)
+                if self.llm_session and self.llm_session.context_mode == "shared":
+                    subj, pred, obj = self.ontology_context.candidate_terms(candidate_str, self.name)
+                else:
+                    subj, pred, obj = self._split_triple(candidate_str)
             except ValueError:
 
                 debug_info["per_candidate"].append(cand_log)
@@ -281,8 +288,9 @@ class AttributeMapper:
 
             cand_log["rdf_syntax_ok"] = True
 
-            subj_s = subj.split(":")[-1]
-            pred_s = pred.split(":")[-1]
+            shared = self.llm_session and self.llm_session.context_mode == "shared"
+            subj_s = subj if shared else subj.split(":")[-1]
+            pred_s = pred if shared else pred.split(":")[-1]
 
 
             if subj_s in classes:
@@ -328,7 +336,7 @@ class AttributeMapper:
                 cand_log["predicate_in_ontology"] = False
 
 
-            range_ok = cand_log.get("range_check", {}).get("ok", False)
+            range_ok = (cand_log.get("range_check") or {}).get("ok", False)
 
             accepted = (
                     cand_log["rdf_syntax_ok"]
@@ -399,7 +407,7 @@ Here is the documentation:
 {self.input_data["documentation"]}
 
 Here is the ontology:
-{self.input_data["ontology"]}
+{self._ontology_prompt()}
 
 Your attribute:
 {self.name}
@@ -409,6 +417,7 @@ The current state of the matrix / array:
 """
 
         raw_llm = self._call_llm_as_json(
+            stage="documentation",
             user_prompt=user_prompt,
         )
         debug_info["raw_llm_response"] = raw_llm or []
@@ -473,6 +482,7 @@ The current state of the matrix / array:
 """
 
         raw_llm = self._call_llm_as_json(
+            stage="history",
             user_prompt=user_prompt,
         )
         debug_info["raw_llm_response"] = raw_llm or []
@@ -536,6 +546,7 @@ The current state of the matrix / array:
 """
 
         raw_llm = self._call_llm_as_json(
+            stage="name_proximity",
             user_prompt=user_prompt,
         )
         debug_info["raw_llm_response"] = raw_llm or []
@@ -605,6 +616,7 @@ The current state of the matrix / array:
 """
 
         raw_llm = self._call_llm_as_json(
+            stage="examples",
             user_prompt=user_prompt,
         )
         debug_info["raw_llm_response"] = raw_llm or []
@@ -696,6 +708,7 @@ The current state of the matrix / array:
     """
 
         raw_llm = self._call_llm_as_json(
+            stage="selection",
             user_prompt=user_prompt,
         )
         debug_info["raw_llm_response"] = raw_llm
@@ -766,6 +779,7 @@ The current state of the matrix / array:
             user_prompt: str = None,
             messages_to_send_in=None,
             expected_description: str = "",
+            stage: str = "mapping",
     ) -> Any:
 
 
@@ -779,10 +793,11 @@ The current state of the matrix / array:
                 messages.append({"role": "user", "content": user_prompt})
 
         # API call
-        response = self.client.chat.completions.create(
-            model=self.gpt_model,
-            messages=messages
-        )
+        if self.llm_session:
+            response = self.llm_session.complete(model=self.gpt_model, messages=messages,
+                context=self.ontology_context, sample_id=self.sample_id, stage=stage, attribute=self.name)
+        else:
+            response = self.client.chat.completions.create(model=self.gpt_model, messages=messages)
 
         content = response.choices[0].message.content
 
@@ -810,7 +825,15 @@ The current state of the matrix / array:
 
         return m.group("subject"), m.group("predicate"), m.group("object")
 
+    def _ontology_prompt(self):
+        if self.llm_session and self.llm_session.context_mode == "shared":
+            return "[Use the shared ontology in the first message.]"
+        return self.input_data["ontology"]
+
     def _parse_ontology(self,ontology_text: str):
+        if self.llm_session and self.llm_session.context_mode == "shared":
+            return self.ontology_context.classes, self.ontology_context.properties
+
 
 
         g = Graph()

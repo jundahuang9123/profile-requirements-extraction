@@ -1,3 +1,5 @@
 env/.env
 simplellm/exports/
 blackboard/exports/
+__pycache__/
+.venv/

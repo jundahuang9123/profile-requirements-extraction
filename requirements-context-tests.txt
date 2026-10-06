@@ -1,0 +1,7 @@
+openai~=2.9.0
+colorlog~=6.10.1
+rdflib~=7.5.0
+python-dotenv~=1.2.1
+python-dateutil~=2.9.0.post0
+matplotlib~=3.10.7
+pandas~=2.3.3

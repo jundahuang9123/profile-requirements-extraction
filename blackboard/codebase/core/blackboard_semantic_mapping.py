@@ -3,6 +3,8 @@ import json
 import datetime
 import logging
 from pathlib import Path
+from openai import OpenAI
+from blackboard.codebase.components.ontology_context import OntologyContext, LLMSession, PROMPT_VERSION
 from dotenv import load_dotenv
 from blackboard.codebase.config.logging_config import setup_root_logger
 from blackboard.codebase.components.attribute_mapper import AttributeMapper
@@ -183,6 +185,10 @@ def run_pipeline(
     historical_ids: list[str],
     export_root: str,
     run_evaluation: bool,
+    *,
+    context_mode: str = "legacy",
+    ontology_paths=None,
+    sample_ontology_paths=None,
 ):
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     base_output_dir = Path(export_root) / timestamp
@@ -195,7 +201,20 @@ def run_pipeline(
     api_key = env["openai_key"]
     base_dir = env["base_dir"]
 
-    ontology_str = env["ontology_path"].read_text(encoding="utf-8")
+    # Preflight every selected bundle before any inference; no remote owl:imports.
+    selections = sample_ontology_paths or {}
+    if set(selections) - set(sample_ids):
+        raise ValueError("sample_ontology_paths names an unselected sample.")
+    contexts, sample_contexts = {}, {}
+    for sid in sample_ids:
+        paths = selections.get(sid, ontology_paths if ontology_paths is not None else [env["ontology_path"]])
+        if isinstance(paths, (str, Path)):
+            paths = [paths]
+        key = tuple(sorted({str(Path(p).resolve()) for p in paths}))
+        if key not in contexts:
+            contexts[key] = OntologyContext.from_files(key)
+        sample_contexts[sid] = contexts[key]
+    session = LLMSession(OpenAI(api_key=api_key), context_mode=context_mode)
 
 
     historical = []
@@ -212,6 +231,9 @@ def run_pipeline(
         logger.info(f"\nProcessing {sid}")
 
         json_data, documentation, unmapped, ref = load_sample(base_dir, sid)
+        ontology_context = sample_contexts[sid]
+        ontology_str = ontology_context.text
+        first_request = len(session.requests)
         filtered_hist = [h for h in historical if h["sid"] != sid]
 
         attributes = extract_leaf_paths(json_data)
@@ -240,7 +262,10 @@ def run_pipeline(
                     "historical_references": filtered_hist,
                     "ontology": ontology_str
                 },
-                gpt_model=gptmodel
+                gpt_model=gptmodel,
+                llm_session=session,
+                ontology_context=ontology_context,
+                sample_id=sid,
             )
 
             mapper.generate_mappings()
@@ -284,7 +309,7 @@ def run_pipeline(
             to_evaluate=eval_json_before
         )
 
-        reasoning = ReasoningAgent(api_key=api_key, gpt_model=gptmodel)
+        reasoning = ReasoningAgent(api_key=api_key, gpt_model=gptmodel, llm_session=session, ontology_context=ontology_context, sample_id=sid)
 
         attribute_map_for_reasoning = {
             attr: {
@@ -296,7 +321,7 @@ def run_pipeline(
 
         discussions = reasoning.determine_discussions(attribute_map=attribute_map_for_reasoning, original_json_data=json_data, documentation=documentation, historical_references=filtered_hist)
 
-        engine = DiscussionEngine(api_key=api_key, gpt_model=gptmodel)
+        engine = DiscussionEngine(api_key=api_key, gpt_model=gptmodel, llm_session=session, ontology_context=ontology_context, sample_id=sid)
 
         for disc_id, disc in discussions.items():
             discussions[disc_id] = engine.run_discussion(disc, mappers)
@@ -337,6 +362,9 @@ def run_pipeline(
             to_evaluate=eval_json_after
         )
 
+        results["llm_context"] = {"mode": context_mode,
+            "prompt_version": PROMPT_VERSION if context_mode == "shared" else "legacy",
+            "ontology": ontology_context.manifest(), "requests": session.requests[first_request:]}
         output_file = sample_output_dir / f"{sid}_mapping_results.json"
         output_file.write_text(json.dumps(results, indent=4), encoding="utf-8")
 

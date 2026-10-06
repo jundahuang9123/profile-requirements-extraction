@@ -6,9 +6,10 @@ import logging
 
 class DiscussionEngine:
 
-    def __init__(self, api_key, gpt_model="gpt-5"):
+    def __init__(self, api_key, gpt_model="gpt-5", llm_session=None, ontology_context=None, sample_id=""):
         from openai import OpenAI
-        self.client = OpenAI(api_key=api_key)
+        self.client = llm_session.client if llm_session else OpenAI(api_key=api_key)
+        self.llm_session, self.ontology_context, self.sample_id = llm_session, ontology_context, sample_id
         self.gpt_model = gpt_model
 
 
@@ -78,7 +79,7 @@ class DiscussionEngine:
                     historical_mappings=historical_references
                 )
 
-                response = self._call_llm_as_json(prompt)
+                response = self._call_llm_as_json(prompt, attribute=attr_name)
                 if not isinstance(response, dict):
 
                     logging.warning(f"DiscussionEngine: non-dict response for {attr_name}: {response}")
@@ -127,12 +128,14 @@ class DiscussionEngine:
             short[attr] = vc[:3]
         return short
 
-    def _call_llm_as_json(self, prompt):
+    def _call_llm_as_json(self, prompt, attribute=None):
 
-        response = self.client.chat.completions.create(
-            model=self.gpt_model,
-            messages=[{"role": "user", "content": prompt}]
-        )
+        messages = [{"role": "user", "content": prompt}]
+        if self.llm_session:
+            response = self.llm_session.complete(model=self.gpt_model, messages=messages,
+                context=self.ontology_context, sample_id=self.sample_id, stage="council", attribute=attribute)
+        else:
+            response = self.client.chat.completions.create(model=self.gpt_model, messages=messages)
 
         content = response.choices[0].message.content
         try:
