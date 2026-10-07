@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from blackboard.codebase.components.ontology_context import OntologyContext, LLMSession
+from blackboard.codebase.components.ontology_context import OntologyContext, LLMSession, PROMPT_VERSION
 from blackboard.codebase.components.attribute_mapper import AttributeMapper
 
 ONTOLOGY = '''@prefix vcslam: <https://example.org/schema#> .
@@ -69,13 +69,35 @@ class ContextTests(unittest.TestCase):
             sent.append(kwargs['messages']);return response([])
         session=LLMSession(NS(chat=NS(completions=NS(create=create))),'shared')
         original=[{'role':'user','content':'Different task content'}]
-        for sid,stage in [('0001','generation'),('0001','documentation'),('0002','selection')]:
+        for sid,stage in [('0001','generation'),('0001','documentation'),('0002','generation')]:
             session.complete(model='offline',messages=original,context=self.context,sample_id=sid,stage=stage)
         self.assertEqual(sent[0][0],sent[1][0]);self.assertEqual(sent[0][0],sent[2][0])
         self.assertNotEqual(sent[0][1],sent[2][1])
         self.assertEqual(1,len(original))
         self.assertEqual(42,session.requests[0]['cached_tokens'])
         self.assertNotIn('messages',session.requests[0])
+
+    def test_only_original_ontology_stages_receive_full_context(self):
+        sent=[]
+        def create(**kwargs):
+            sent.append(kwargs);return response([])
+        session=LLMSession(NS(chat=NS(completions=NS(create=create))),'shared')
+        messages=[{'role':'user','content':'Candidate votes and column values'}]
+        for stage in ('generation','documentation','history','examples',
+                      'name_proximity','selection','council_planning','council','mapping','unknown'):
+            with self.subTest(stage=stage):
+                session.complete(model='unchanged-model',messages=messages,context=self.context,
+                                 sample_id='0001',stage=stage,attribute='name')
+                call=sent[-1]
+                full=stage in {'generation','documentation'}
+                self.assertEqual('unchanged-model',call['model'])
+                self.assertEqual(messages,call['messages'][-len(messages):])
+                self.assertEqual(1 if full else 0,
+                                 sum(m['content'].count(ONTOLOGY) for m in call['messages']))
+                scope=call['messages'][1 if full else 0]['content']
+                self.assertEqual(f'Dataset ID: 0001\nColumn ID: name\nStage: {stage}',scope)
+                self.assertEqual(full,session.requests[-1]['ontology_prefix_attached'])
+        self.assertEqual([{'role':'user','content':'Candidate votes and column values'}],messages)
 
     def test_legacy_messages_are_unchanged_and_missing_cache_usage_is_unknown(self):
         sent=[]
@@ -140,6 +162,10 @@ class PipelineTests(unittest.TestCase):
                     (folder/f'{sid}.txt').write_text('Name of the shop')
                     (folder/f'{sid}_mapped.json').write_text(json.dumps({'prefix':ONTOLOGY.split('vcslam:Shop')[0],
                         'mappings':{'name':{'mapping':'vcslam:Shop vcslam:name "name".'}}}))
+                history=base/'0000';history.mkdir()
+                (history/'0000_samples.json').write_text(json.dumps([{'name':'Historical Shop'}]))
+                (history/'0000_mapped.json').write_text(json.dumps({'mappings':{
+                    'name':{'mapping':'vcslam:Shop vcslam:name "name".'}}}))
                 calls=[]
                 def create(**kwargs):
                     messages=kwargs['messages'];calls.append(messages)
@@ -157,7 +183,7 @@ class PipelineTests(unittest.TestCase):
                     return response(result)
                 client=NS(chat=NS(completions=NS(create=create)))
                 with patch.dict(os.environ,{'OPENAIKEY':'offline'}),patch.object(pipeline,'OpenAI',return_value=client),patch.object(OntologyContext,'from_files',wraps=OntologyContext.from_files) as load:
-                    pipeline.run_pipeline(str(base),['0001','0002'],[],str(base/'out'),False,context_mode=mode,sample_ontology_paths={'0002':[alternate]} if separate else None)
+                    pipeline.run_pipeline(str(base),['0001','0002'],['0000'],str(base/'out'),False,context_mode=mode,sample_ontology_paths={'0002':[alternate]} if separate else None)
                 self.assertEqual(2 if separate else 1,load.call_count)
                 outputs=sorted((base/'out').glob('*/*/*_mapping_results.json'))
                 self.assertEqual(2,len(outputs))
@@ -166,13 +192,23 @@ class PipelineTests(unittest.TestCase):
                     self.assertEqual(1,raw['evaluation']['after_reasoning']['hits@1'])
                     self.assertEqual('Acceptance',raw['discussions']['d1']['conclusion'])
                     records=raw['llm_context']['requests']
-                    self.assertEqual({'generation','documentation','examples','name_proximity','selection','council_planning','council'},set(r['stage'] for r in records))
+                    self.assertEqual({'generation','documentation','history','examples','name_proximity','selection','council_planning','council'},set(r['stage'] for r in records))
                     self.assertEqual({path.parent.name},set(r['sample_id'] for r in records))
+                    if mode=='shared':
+                        self.assertEqual(PROMPT_VERSION,raw['llm_context']['prompt_version'])
+                        for record in records:
+                            self.assertEqual(record['stage'] in {'generation','documentation'},
+                                             record['ontology_prefix_attached'])
                 if mode=='shared':
                     column_calls=[c for c in calls if c[0]['role']=='system']
-                    council_calls=[c for c in calls if c[0]['role']!='system']
+                    compact_calls=[c for c in calls if c[0]['role']!='system']
+                    council_calls=[c for c in compact_calls if c[0]['content'].splitlines()[-1]
+                                   in {'Stage: council_planning','Stage: council'}]
                     self.assertTrue(council_calls)
-                    self.assertTrue(all(ONTOLOGY not in m['content'] for c in council_calls for m in c))
+                    self.assertEqual({'Stage: history','Stage: examples','Stage: name_proximity',
+                                      'Stage: selection','Stage: council_planning','Stage: council'},
+                                     {c[0]['content'].splitlines()[-1] for c in compact_calls})
+                    self.assertTrue(all(ONTOLOGY not in m['content'] for c in compact_calls for m in c))
                     if separate:
                         by_sample={sid:[c[0] for c in column_calls if c[1]['content'].startswith('Dataset ID: '+sid)] for sid in ('0001','0002')}
                         self.assertNotEqual(by_sample['0001'][0],by_sample['0002'][0])

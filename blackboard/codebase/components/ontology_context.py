@@ -15,8 +15,10 @@ from rdflib.compare import to_canonical_graph
 from rdflib.namespace import RDF, RDFS, OWL, XSD
 
 logger = logging.getLogger(__name__)
-PROMPT_VERSION = "sast-shared-ontology-v1"
-FULL_CONTEXT_STAGES = frozenset({"generation", "documentation", "history", "examples", "name_proximity", "selection", "mapping"})
+PROMPT_VERSION = "sast-shared-ontology-v2-compact-signals"
+# Match the original workflow's ontology use. Adding the full ontology to
+# compact signals makes each request expensive when server-side reuse fails.
+FULL_CONTEXT_STAGES = frozenset({"generation", "documentation"})
 
 
 @dataclass(frozen=True)
@@ -114,8 +116,8 @@ class LLMSession:
         attach = self.context_mode == "shared" and stage in FULL_CONTEXT_STAGES
         if self.context_mode == "shared":
             scope = {"role": "user", "content": f"Dataset ID: {sample_id}\nColumn ID: {attribute or '(dataset-level)'}\nStage: {stage}"}
-            # Council matrices can exceed the remaining context window when the
-            # full ontology is prepended. Retain their original compact context.
+            # Signals, selection and councils retain their original compact
+            # context. Only generation/documentation need the full ontology.
             sent = ([context.prefix] if attach else []) + [scope] + sent
         started = perf_counter()
         record = {"sample_id": sample_id, "attribute": attribute, "stage": stage,
