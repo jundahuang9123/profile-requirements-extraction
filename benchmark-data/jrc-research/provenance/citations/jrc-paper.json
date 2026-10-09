@@ -1,0 +1,19 @@
+{
+  "id": "jrc-paper",
+  "title": "Using DCAT-AP for research data (Perego, Friis-Christensen, Vaccari, Tsinaraki)",
+  "original_url": "https://www.w3.org/2016/11/sdsvoc/SDSVoc16_paper_27",
+  "publication_date": "2016-11",
+  "version": null,
+  "retrieved_on": "2026-10-07",
+  "local_filename": "provenance/citations/jrc-paper.json",
+  "role": "reference_requirement",
+  "explicitly_documented_as_input": false,
+  "input_documentation": null,
+  "completeness": "partial",
+  "confidence": "high",
+  "representation": "citation_only",
+  "license": "Citation only; redistribution rights not established",
+  "runtime_modes": [],
+  "notes": "Author workshop paper; contains five explicit core requirements plus additional issues and modelling resolutions. Full workshop-paper redistribution permission not assumed from W3C hosting. Five-row factual paraphrase is provided separately.",
+  "availability": "Citation record only; not a runtime document."
+}

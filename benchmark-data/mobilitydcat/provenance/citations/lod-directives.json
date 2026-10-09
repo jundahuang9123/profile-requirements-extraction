@@ -1,0 +1,19 @@
+{
+  "id": "lod-directives",
+  "title": "LOD-RoadTran18: Analysis of the implementation of the PSI and ITS Directives",
+  "original_url": "https://cef.uv.es/lodroadtran18/index.php/en/implementation",
+  "publication_date": null,
+  "version": null,
+  "retrieved_on": "2026-10-07",
+  "local_filename": "provenance/citations/lod-directives.json",
+  "role": "raw_input",
+  "explicitly_documented_as_input": true,
+  "input_documentation": "NAPCORE Annex 2 §2.15",
+  "completeness": "partial",
+  "confidence": "high",
+  "representation": "citation_only",
+  "license": "Citation only; redistribution rights not established",
+  "runtime_modes": [],
+  "notes": "Official results page lists title; original report cited as available to reviewer January 2022, not its publication date; individual bytes not acquired.",
+  "availability": "Citation record only; not a runtime document."
+}

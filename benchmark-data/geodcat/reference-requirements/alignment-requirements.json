@@ -1,0 +1,55 @@
+{
+  "reference_kind": "source_explicit_curator_paraphrase",
+  "requirements": [
+    {
+      "id": "G-1",
+      "statement": "Provide RDF representations of spatial metadata that conform to DCAT-AP, retain meaning as far as practical and support cross-domain reuse.",
+      "source_locator": "GeoDCAT-AP 1.0 §1.1;4.1",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "G-2",
+      "statement": "Include every mandatory baseline DCAT-AP element.",
+      "source_locator": "GeoDCAT-AP 1.0 §4.1",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "G-3",
+      "statement": "Use other vocabularies for geospatial information only where the baseline does not cover it.",
+      "source_locator": "GeoDCAT-AP 1.0 §4.1",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "G-4",
+      "statement": "Base alignments on established practice and working-group implementation experience.",
+      "source_locator": "GeoDCAT-AP 1.0 §4.1",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "G-5",
+      "statement": "Assess any new terms carefully and avoid conflicting with ongoing standardisation.",
+      "source_locator": "GeoDCAT-AP 1.0 §4.1",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "G-6",
+      "statement": "Cover the ISO core and common INSPIRE metadata elements; exclude only optional material where necessary, with theme-specific extensions outside the common scope.",
+      "source_locator": "GeoDCAT-AP 1.0 §4.2",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "G-7",
+      "statement": "Offer an additional RDF publication route while retaining the existing INSPIRE metadata obligations and implementations.",
+      "source_locator": "GeoDCAT-AP 1.0 §1.1",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    }
+  ],
+  "note": "Seven scoped architectural/alignment constraints, not a complete domain-content gold. Keep architectural and metadata-content scores separate."
+}

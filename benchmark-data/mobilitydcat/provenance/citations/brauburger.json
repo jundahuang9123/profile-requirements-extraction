@@ -1,0 +1,19 @@
+{
+  "id": "brauburger",
+  "title": "Brauburger: Datenmarktplätze, Masterarbeit, TU Clausthal",
+  "original_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+  "publication_date": "2021",
+  "version": null,
+  "retrieved_on": "2026-10-07",
+  "local_filename": "provenance/citations/brauburger.json",
+  "role": "raw_input",
+  "explicitly_documented_as_input": true,
+  "input_documentation": "NAPCORE Table 1 footnote 4 and Annex 1 DE-01",
+  "completeness": "partial",
+  "confidence": "medium",
+  "representation": "citation_only",
+  "license": "Citation only; redistribution rights not established",
+  "runtime_modes": [],
+  "notes": "Citation identified in report; exact original publication URL not resolved. original_url points to the authoritative citing report, not an invented download.",
+  "availability": "Citation record only; not a runtime document."
+}

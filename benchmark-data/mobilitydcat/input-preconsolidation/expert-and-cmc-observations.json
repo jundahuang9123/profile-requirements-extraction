@@ -1,0 +1,55 @@
+{
+  "observations": [
+    {
+      "id": "EX-1",
+      "source_locator": "Annex 3 §3.1, SEMIC discussion 2022-03-01",
+      "observation": "NAP operators wanted compatibility with general data portals; a substantial part of mobility data requires authentication or agreement, so metadata should describe the conditions rather than assuming open data."
+    },
+    {
+      "id": "EX-2",
+      "source_locator": "Annex 3 §3.1",
+      "observation": "SEMIC experts described collaborative governance, documented obligation levels, value vocabularies, identifiers and extension rules; existing definitions should be reused and additions reviewed."
+    },
+    {
+      "id": "EX-3",
+      "source_locator": "Annex 3 §4.3, transportation mode",
+      "observation": "Operators observed that some datasets, such as weather, cannot be tied to a transport mode; multiple selections and absence of a mode need consideration."
+    },
+    {
+      "id": "EX-4",
+      "source_locator": "Annex 3 §4.3, dataset type category",
+      "observation": "A single GTFS or NeTEx package can carry several categories, including operational and fare information; one category may be insufficient."
+    },
+    {
+      "id": "EX-5",
+      "source_locator": "Annex 3 §4.3, network coverage",
+      "observation": "Operators questioned whether coverage should refer to the infrastructure or the service using it and requested clearer semantics and consistency with transport-mode choices."
+    },
+    {
+      "id": "EX-6",
+      "source_locator": "Annex 3 §4.3, valid from/to",
+      "observation": "Feedback distinguished the period a feed is delivered from the time interval represented by its content, such as a timetable."
+    },
+    {
+      "id": "EX-7",
+      "source_locator": "Annex 3 §4.3, update frequency",
+      "observation": "Feedback distinguished update intervals at the original provider from refresh intervals exposed by the NAP."
+    },
+    {
+      "id": "EX-8",
+      "source_locator": "Annex 3 §4.3, contract/licence",
+      "observation": "Operators found the existing licence/contract choices insufficient to represent common licences and proposed richer access-condition distinctions."
+    },
+    {
+      "id": "EX-9",
+      "source_locator": "Annex 3 §4.4",
+      "observation": "Stakeholders sought a DCAT-AP-compatible successor to CMC, with broader engagement and sustained maintenance beyond an individual project."
+    },
+    {
+      "id": "EX-10",
+      "source_locator": "Annex 3 §§5–5.4",
+      "observation": "SPRINT prototype experience stressed assurance, handling data/metadata versions, conditions on asset access and spatial or temporal granularity."
+    }
+  ],
+  "note": "Partial factual synopsis of published annex; not unpublished recordings, interviews or a verbatim minutes copy."
+}

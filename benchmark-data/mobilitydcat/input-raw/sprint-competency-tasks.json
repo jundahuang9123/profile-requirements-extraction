@@ -1,0 +1,54 @@
+{
+  "source_locator": "SPRINT D2.3 revision 3, PDF pages 26–27",
+  "representation": "Task paraphrases preserving the 12 published question meanings. Not generated from Table 1.",
+  "tasks": [
+    {
+      "id": "CQ-1",
+      "task": "Identify the providers of datasets about public-transport modes."
+    },
+    {
+      "id": "CQ-2",
+      "task": "Identify the owners of datasets describing public-transport modes."
+    },
+    {
+      "id": "CQ-3",
+      "task": "Find operational datasets containing vehicle details under categories A-1.1.d.viii and A-1.2.c.ii."
+    },
+    {
+      "id": "CQ-4",
+      "task": "Find special-fare-product datasets under category A-1.3.a.iii."
+    },
+    {
+      "id": "CQ-5",
+      "task": "Find dataset titles for records published by CRTM."
+    },
+    {
+      "id": "CQ-6",
+      "task": "Find datasets covering Madrid and bus transport together."
+    },
+    {
+      "id": "CQ-7",
+      "task": "Order dataset publishers using their website addresses."
+    },
+    {
+      "id": "CQ-8",
+      "task": "Retrieve metadata and national-body assessment status for a selected dataset."
+    },
+    {
+      "id": "CQ-9",
+      "task": "Retrieve the beginning and end of a dataset validity interval."
+    },
+    {
+      "id": "CQ-10",
+      "task": "Identify the transport modes represented by a dataset."
+    },
+    {
+      "id": "CQ-11",
+      "task": "Determine the licence governing use of a dataset."
+    },
+    {
+      "id": "CQ-12",
+      "task": "Determine the available access format for a dataset."
+    }
+  ]
+}

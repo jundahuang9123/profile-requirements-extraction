@@ -1,0 +1,42 @@
+{
+  "corpus_snapshot": "2026-10-07",
+  "runtime_file_counts": {
+    "healthdcat": {
+      "raw": 5,
+      "consolidation": 1,
+      "reference_entries": 16
+    },
+    "geodcat": {
+      "raw": 5,
+      "consolidation": 0,
+      "reference_entries": 7
+    },
+    "epos": {
+      "raw": 0,
+      "consolidation": 0
+    },
+    "statdcat": {
+      "raw": 2,
+      "consolidation": 0,
+      "reference_entries": 7
+    },
+    "mobilitydcat": {
+      "raw": 17,
+      "consolidation": 3,
+      "reference_entries": 40
+    },
+    "jrc-research": {
+      "raw": 3,
+      "consolidation": 0,
+      "reference_entries": 5
+    }
+  },
+  "example_reference_ids": [
+    "Req-22",
+    "Req-27",
+    "Req-20"
+  ],
+  "link_status": "illustrative_curator_interpretation_not_adjudicated",
+  "text_width_checks": 75,
+  "text_overflow": []
+}

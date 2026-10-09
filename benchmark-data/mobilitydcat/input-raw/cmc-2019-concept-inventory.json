@@ -1,0 +1,134 @@
+{
+  "source_locator": "CMC v2.0 §2.2; PDF pp.13–33",
+  "representation": "Concept inventory, not an original CMC document or a complete metadata specification.",
+  "concepts": [
+    {
+      "id": "CMC-1",
+      "concept": "record date"
+    },
+    {
+      "id": "CMC-2",
+      "concept": "description language"
+    },
+    {
+      "id": "CMC-3",
+      "concept": "metadata contact"
+    },
+    {
+      "id": "CMC-4",
+      "concept": "dataset title"
+    },
+    {
+      "id": "CMC-5",
+      "concept": "dataset synopsis"
+    },
+    {
+      "id": "CMC-6",
+      "concept": "resource kind"
+    },
+    {
+      "id": "CMC-7",
+      "concept": "dataset category"
+    },
+    {
+      "id": "CMC-8",
+      "concept": "detailed dataset classification"
+    },
+    {
+      "id": "CMC-9",
+      "concept": "service category"
+    },
+    {
+      "id": "CMC-10",
+      "concept": "data language"
+    },
+    {
+      "id": "CMC-11",
+      "concept": "payload location referencing"
+    },
+    {
+      "id": "CMC-12",
+      "concept": "validity beginning"
+    },
+    {
+      "id": "CMC-13",
+      "concept": "validity end"
+    },
+    {
+      "id": "CMC-14",
+      "concept": "publication footprint"
+    },
+    {
+      "id": "CMC-15",
+      "concept": "network categories"
+    },
+    {
+      "id": "CMC-16",
+      "concept": "network description"
+    },
+    {
+      "id": "CMC-17",
+      "concept": "transport modes"
+    },
+    {
+      "id": "CMC-18",
+      "concept": "publishing party"
+    },
+    {
+      "id": "CMC-19",
+      "concept": "owning party"
+    },
+    {
+      "id": "CMC-20",
+      "concept": "licence or contract category"
+    },
+    {
+      "id": "CMC-21",
+      "concept": "additional use conditions"
+    },
+    {
+      "id": "CMC-22",
+      "concept": "encoding"
+    },
+    {
+      "id": "CMC-23",
+      "concept": "syntax"
+    },
+    {
+      "id": "CMC-24",
+      "concept": "grammar"
+    },
+    {
+      "id": "CMC-25",
+      "concept": "data-model identification"
+    },
+    {
+      "id": "CMC-26",
+      "concept": "format explanation"
+    },
+    {
+      "id": "CMC-27",
+      "concept": "access protocol"
+    },
+    {
+      "id": "CMC-28",
+      "concept": "communication method"
+    },
+    {
+      "id": "CMC-29",
+      "concept": "access address"
+    },
+    {
+      "id": "CMC-30",
+      "concept": "update cadence"
+    },
+    {
+      "id": "CMC-31",
+      "concept": "quality narrative"
+    },
+    {
+      "id": "CMC-32",
+      "concept": "national-body compliance-assessment status"
+    }
+  ]
+}

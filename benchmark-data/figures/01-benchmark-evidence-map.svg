@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="720" height="615" preserveAspectRatio="xMinYMin meet" viewBox="0 0 720 615" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="720" height="615"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-615)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="0" y="0" width="720" height="615" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="18" y="586.4" style="font-family: Helvetica-Bold; font-size: 17px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,1172) scale(1,-1)">DCAT extension benchmarks: evidence and reference layers</text>
+			<text x="18" y="567.0" style="font-family: Helvetica; font-size: 10px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,1134) scale(1,-1)">Historical snapshot: 7 October 2026  |  All six reconstructed corpora are partial</text>
+			<text x="18" y="540.4" style="font-family: Helvetica-Bold; font-size: 12px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,1080) scale(1,-1)">a</text>
+			<text x="36" y="540.4" style="font-family: Helvetica-Bold; font-size: 12px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,1080) scale(1,-1)">Two evaluation entry points</text>
+			<rect x="18" y="461" width="172" height="67" rx="5" ry="5" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,96%,98%); fill-rule: evenodd;"/>
+			<rect x="18" y="461" width="3" height="67" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(12%,38%,54%); fill-rule: evenodd;"/>
+			<text x="30" y="508.2" style="font-family: Helvetica-Bold; font-size: 11px;fill: rgb(12%,38%,54%); stroke:none;" transform="translate(0,1016) scale(1,-1)">A  Raw evidence</text>
+			<text x="30" y="490.0" style="font-family: Helvetica; font-size: 10px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,980) scale(1,-1)">Standards, policy, landscape</text>
+			<text x="30" y="477.0" style="font-family: Helvetica; font-size: 10px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,954) scale(1,-1)">reports and source synopses</text>
+			<rect x="18" y="384" width="172" height="67" rx="5" ry="5" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,96%,95%); fill-rule: evenodd;"/>
+			<rect x="18" y="384" width="3" height="67" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(8%,45%,42%); fill-rule: evenodd;"/>
+			<text x="30" y="431.2" style="font-family: Helvetica-Bold; font-size: 11px;fill: rgb(8%,45%,42%); stroke:none;" transform="translate(0,862) scale(1,-1)">B  Preconsolidation</text>
+			<text x="30" y="413.0" style="font-family: Helvetica; font-size: 10px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,826) scale(1,-1)">Partner requirements and</text>
+			<text x="30" y="400.0" style="font-family: Helvetica; font-size: 10px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,800) scale(1,-1)">curated workshop observations</text>
+			<rect x="230" y="461" width="166" height="67" rx="5" ry="5" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(95%,96%,97%); fill-rule: evenodd;"/>
+			<rect x="230" y="461" width="3" height="67" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(12%,38%,54%); fill-rule: evenodd;"/>
+			<text x="242" y="508.2" style="font-family: Helvetica-Bold; font-size: 11px;fill: rgb(12%,38%,54%); stroke:none;" transform="translate(0,1016) scale(1,-1)">Full workflow</text>
+			<text x="242" y="490.0" style="font-family: Helvetica; font-size: 10px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,980) scale(1,-1)">Extract, normalize, consolidate</text>
+			<text x="242" y="477.0" style="font-family: Helvetica; font-size: 10px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,954) scale(1,-1)">and review requirements</text>
+			<rect x="230" y="384" width="166" height="67" rx="5" ry="5" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(95%,96%,97%); fill-rule: evenodd;"/>
+			<rect x="230" y="384" width="3" height="67" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(8%,45%,42%); fill-rule: evenodd;"/>
+			<text x="242" y="431.2" style="font-family: Helvetica-Bold; font-size: 11px;fill: rgb(8%,45%,42%); stroke:none;" transform="translate(0,862) scale(1,-1)">Later workflow stages</text>
+			<text x="242" y="413.0" style="font-family: Helvetica; font-size: 10px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,826) scale(1,-1)">Normalize, consolidate</text>
+			<text x="242" y="400.0" style="font-family: Helvetica; font-size: 10px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,800) scale(1,-1)">and review requirements</text>
+			<path d="M 191,495 L 228,495 Z" style="stroke: rgb(12%,38%,54%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="228 495, 223 497.3, 223 492.7" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(12%,38%,54%); fill-rule: evenodd;"/>
+			<path d="M 191,418 L 228,418 Z" style="stroke: rgb(8%,45%,42%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="228 418, 223 420.3, 223 415.7" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(8%,45%,42%); fill-rule: evenodd;"/>
+			<rect x="427" y="396" width="109" height="123" rx="5" ry="5" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(95%,96%,97%); fill-rule: evenodd;"/>
+			<text x="439" y="495.2" style="font-family: Helvetica-Bold; font-size: 11px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,990) scale(1,-1)">Predicted</text>
+			<text x="439" y="481.12" style="font-family: Helvetica-Bold; font-size: 11px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,962) scale(1,-1)">requirements</text>
+			<text x="439" y="457.32" style="font-family: Helvetica; font-size: 9.6px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,914) scale(1,-1)">Separate outputs</text>
+			<text x="439" y="445.032" style="font-family: Helvetica; font-size: 9.6px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,890) scale(1,-1)">for A and B runs</text>
+			<path d="M 398,495 L 425,495 Z" style="stroke: rgb(12%,38%,54%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="425 495, 420 497.3, 420 492.7" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(12%,38%,54%); fill-rule: evenodd;"/>
+			<path d="M 398,418 L 425,418 Z" style="stroke: rgb(8%,45%,42%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="425 418, 420 420.3, 420 415.7" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(8%,45%,42%); fill-rule: evenodd;"/>
+			<path d="M 553,529 L 553,369 Z" style="stroke: rgb(58%,38%,7%); stroke-linecap: butt; stroke-width: 0.8; stroke-dasharray: 3, 3;"/>
+			<rect x="574" y="461" width="128" height="67" rx="5" ry="5" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(98%,96%,90%); fill-rule: evenodd;"/>
+			<rect x="574" y="461" width="3" height="67" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(58%,38%,7%); fill-rule: evenodd;"/>
+			<text x="586" y="508.2" style="font-family: Helvetica-Bold; font-size: 11px;fill: rgb(58%,38%,7%); stroke:none;" transform="translate(0,1016) scale(1,-1)">C  References</text>
+			<text x="586" y="490.0" style="font-family: Helvetica; font-size: 10px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,980) scale(1,-1)">Published requirement</text>
+			<text x="586" y="477.0" style="font-family: Helvetica; font-size: 10px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,954) scale(1,-1)">rows / curated subsets</text>
+			<rect x="574" y="371" width="128" height="61" rx="5" ry="5" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(98%,96%,90%); fill-rule: evenodd;"/>
+			<rect x="574" y="371" width="3" height="61" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(58%,38%,7%); fill-rule: evenodd;"/>
+			<text x="586" y="412.2" style="font-family: Helvetica-Bold; font-size: 11px;fill: rgb(58%,38%,7%); stroke:none;" transform="translate(0,824) scale(1,-1)">Semantic matching</text>
+			<text x="586" y="394.0" style="font-family: Helvetica; font-size: 10px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,788) scale(1,-1)">Coverage, meaning,</text>
+			<text x="586" y="381.0" style="font-family: Helvetica; font-size: 10px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,762) scale(1,-1)">novel supported needs</text>
+			<path d="M 638,460 L 638,434 Z" style="stroke: rgb(58%,38%,7%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="638 434, 640.3 439, 635.7 439" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(58%,38%,7%); fill-rule: evenodd;"/>
+			<path d="M 538,404 L 572,404 Z" style="stroke: rgb(9%,17%,24%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="572 404, 567 406.3, 567 401.7" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(9%,17%,24%); fill-rule: evenodd;"/>
+			<text x="571.3592" y="444.96" style="font-family: Helvetica-Bold; font-size: 8.8px;fill: rgb(58%,38%,7%); stroke:none;" transform="translate(0,889) scale(1,-1)">Evaluator only</text>
+			<text x="18" y="362.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,724) scale(1,-1)">A and B are separate runs; reference requirements and target profiles never enter runtime inputs.</text>
+			<text x="18" y="332.4" style="font-family: Helvetica-Bold; font-size: 12px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,664) scale(1,-1)">b</text>
+			<text x="36" y="332.4" style="font-family: Helvetica-Bold; font-size: 12px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,664) scale(1,-1)">What is available in this snapshot</text>
+			<rect x="18" y="289" width="684" height="30" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(9%,17%,24%); fill-rule: evenodd;"/>
+			<text x="27" y="302.0" style="font-family: Helvetica-Bold; font-size: 10px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,604) scale(1,-1)">Benchmark</text>
+			<text x="156" y="302.0" style="font-family: Helvetica-Bold; font-size: 10px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,604) scale(1,-1)">A  Raw inputs</text>
+			<text x="355" y="302.0" style="font-family: Helvetica-Bold; font-size: 10px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,604) scale(1,-1)">B  Preconsolidation</text>
+			<text x="517" y="302.0" style="font-family: Helvetica-Bold; font-size: 10px;fill: rgb(100%,100%,100%); stroke:none;" transform="translate(0,604) scale(1,-1)">C  Reference scope</text>
+			<rect x="18" y="251" width="684" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<rect x="147" y="251" width="199" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,96%,98%); fill-rule: evenodd;"/>
+			<rect x="346" y="251" width="162" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,96%,95%); fill-rule: evenodd;"/>
+			<rect x="508" y="251" width="194" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(98%,96%,90%); fill-rule: evenodd;"/>
+			<text x="27" y="274.84" style="font-family: Helvetica-Bold; font-size: 10.2px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,549) scale(1,-1)">mobilityDCAT-AP</text>
+			<text x="27" y="260.64" style="font-family: Helvetica; font-size: 9.2px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,521) scale(1,-1)">Primary case</text>
+			<text x="156" y="275.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,550) scale(1,-1)">17 files: policy, DCAT/INSPIRE,</text>
+			<text x="156" y="262.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,524) scale(1,-1)">FAIR, SPRINT and CMC</text>
+			<text x="355" y="275.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,550) scale(1,-1)">3 files: 60 partner rows</text>
+			<text x="355" y="262.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,524) scale(1,-1)">+ review / expert observations</text>
+			<text x="517" y="275.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,550) scale(1,-1)">40 published Table 1 rows</text>
+			<text x="517" y="262.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,524) scale(1,-1)">All IDs; curator paraphrases</text>
+			<path d="M 18,251 L 702,251 Z" style="stroke: rgb(87%,89%,90%); stroke-linecap: butt; stroke-width: 0.5;"/>
+			<rect x="18" y="213" width="684" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(95%,96%,97%); fill-rule: evenodd;"/>
+			<rect x="147" y="213" width="199" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,96%,98%); fill-rule: evenodd;"/>
+			<rect x="346" y="213" width="162" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,96%,95%); fill-rule: evenodd;"/>
+			<rect x="508" y="213" width="194" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(98%,96%,90%); fill-rule: evenodd;"/>
+			<text x="27" y="236.84" style="font-family: Helvetica-Bold; font-size: 10.2px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,473) scale(1,-1)">HealthDCAT-AP</text>
+			<text x="27" y="222.64" style="font-family: Helvetica; font-size: 9.2px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,445) scale(1,-1)">Heterogeneous sources</text>
+			<text x="156" y="237.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,474) scale(1,-1)">5 files: landscape analysis,</text>
+			<text x="156" y="224.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,448) scale(1,-1)">EHDS proposal, GDPR, DCAT</text>
+			<text x="355" y="237.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,474) scale(1,-1)">1 file: 8 curated TWG</text>
+			<text x="355" y="224.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,448) scale(1,-1)">observations; partial subset</text>
+			<text x="517" y="237.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,474) scale(1,-1)">16 curated rationale entries</text>
+			<text x="517" y="224.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,448) scale(1,-1)">Original D6.2 also retained</text>
+			<path d="M 18,213 L 702,213 Z" style="stroke: rgb(87%,89%,90%); stroke-linecap: butt; stroke-width: 0.5;"/>
+			<rect x="18" y="175" width="684" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<rect x="147" y="175" width="199" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,96%,98%); fill-rule: evenodd;"/>
+			<rect x="346" y="175" width="162" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(95%,96%,97%); fill-rule: evenodd;"/>
+			<rect x="508" y="175" width="194" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(98%,96%,90%); fill-rule: evenodd;"/>
+			<text x="27" y="198.84" style="font-family: Helvetica-Bold; font-size: 10.2px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,397) scale(1,-1)">StatDCAT-AP</text>
+			<text x="27" y="184.64" style="font-family: Helvetica; font-size: 9.2px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,369) scale(1,-1)">Standards-derived</text>
+			<text x="156" y="199.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,398) scale(1,-1)">2 files: DCAT and Data Cube</text>
+			<text x="156" y="186.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,372) scale(1,-1)">Use-case reconstruction excluded*</text>
+			<text x="355" y="199.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,398) scale(1,-1)">Unavailable</text>
+			<text x="517" y="199.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,398) scale(1,-1)">7 requirement / resolution pairs</text>
+			<text x="517" y="186.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,372) scale(1,-1)">Scoped selection from 2016 report</text>
+			<path d="M 18,175 L 702,175 Z" style="stroke: rgb(87%,89%,90%); stroke-linecap: butt; stroke-width: 0.5;"/>
+			<rect x="18" y="137" width="684" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(95%,96%,97%); fill-rule: evenodd;"/>
+			<rect x="147" y="137" width="199" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,96%,98%); fill-rule: evenodd;"/>
+			<rect x="346" y="137" width="162" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(95%,96%,97%); fill-rule: evenodd;"/>
+			<rect x="508" y="137" width="194" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(98%,96%,90%); fill-rule: evenodd;"/>
+			<text x="27" y="160.84" style="font-family: Helvetica-Bold; font-size: 10.2px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,321) scale(1,-1)">GeoDCAT-AP</text>
+			<text x="27" y="146.64" style="font-family: Helvetica; font-size: 9.2px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,293) scale(1,-1)">Standards alignment</text>
+			<text x="156" y="161.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,322) scale(1,-1)">5 files: INSPIRE legislation,</text>
+			<text x="156" y="148.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,296) scale(1,-1)">public guidance and DCAT</text>
+			<text x="355" y="161.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,322) scale(1,-1)">Unavailable</text>
+			<text x="517" y="161.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,322) scale(1,-1)">7 curated alignment constraints</text>
+			<text x="517" y="148.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,296) scale(1,-1)">ISO standards are citation-only</text>
+			<path d="M 18,137 L 702,137 Z" style="stroke: rgb(87%,89%,90%); stroke-linecap: butt; stroke-width: 0.5;"/>
+			<rect x="18" y="99" width="684" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<rect x="147" y="99" width="199" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,96%,98%); fill-rule: evenodd;"/>
+			<rect x="346" y="99" width="162" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(95%,96%,97%); fill-rule: evenodd;"/>
+			<rect x="508" y="99" width="194" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(98%,96%,90%); fill-rule: evenodd;"/>
+			<text x="27" y="122.84" style="font-family: Helvetica-Bold; font-size: 10.2px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,245) scale(1,-1)">JRC research</text>
+			<text x="27" y="108.64" style="font-family: Helvetica; font-size: 9.2px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,217) scale(1,-1)">Small sanity case</text>
+			<text x="156" y="123.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,246) scale(1,-1)">3 files: data policy, DCAT,</text>
+			<text x="156" y="110.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,220) scale(1,-1)">DataCite field synopsis</text>
+			<text x="355" y="123.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,246) scale(1,-1)">Unavailable</text>
+			<text x="517" y="123.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,246) scale(1,-1)">5 enumerated core needs</text>
+			<text x="517" y="110.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,220) scale(1,-1)">Curator paraphrases</text>
+			<path d="M 18,99 L 702,99 Z" style="stroke: rgb(87%,89%,90%); stroke-linecap: butt; stroke-width: 0.5;"/>
+			<rect x="18" y="61" width="684" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(95%,96%,97%); fill-rule: evenodd;"/>
+			<rect x="147" y="61" width="199" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,96%,98%); fill-rule: evenodd;"/>
+			<rect x="346" y="61" width="162" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(95%,96%,97%); fill-rule: evenodd;"/>
+			<rect x="508" y="61" width="194" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(95%,96%,97%); fill-rule: evenodd;"/>
+			<text x="27" y="84.84" style="font-family: Helvetica-Bold; font-size: 10.2px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,169) scale(1,-1)">EPOS-DCAT-AP</text>
+			<text x="27" y="70.64" style="font-family: Helvetica; font-size: 9.2px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,141) scale(1,-1)">Exploratory only</text>
+			<text x="156" y="85.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,170) scale(1,-1)">No scored raw run enabled</text>
+			<text x="156" y="72.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,144) scale(1,-1)">Public context is available</text>
+			<text x="355" y="85.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,170) scale(1,-1)">Unavailable</text>
+			<text x="517" y="85.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,170) scale(1,-1)">No reconstructed requirement set</text>
+			<text x="517" y="72.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,144) scale(1,-1)">Frozen specification + context</text>
+			<path d="M 18,61 L 702,61 Z" style="stroke: rgb(87%,89%,90%); stroke-linecap: butt; stroke-width: 0.5;"/>
+			<text x="18" y="41.56" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,83) scale(1,-1)">Counts refer to allowlisted files in A/B and reference entries in C; they are not directly comparable.</text>
+			<text x="18" y="28.56" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,57) scale(1,-1)">*StatDCAT use cases are available as a separate retrospective variant. Curated entries await independent review.</text>
+			<text x="18" y="15.559999999999999" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,31) scale(1,-1)">Source: frozen corpus manifests, runtime allowlists and reference inventories. No workflow results are shown.</text>
+		</g>
+	</g>
+</svg>

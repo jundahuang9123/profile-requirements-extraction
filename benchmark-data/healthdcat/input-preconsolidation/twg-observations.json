@@ -1,0 +1,45 @@
+{
+  "observations": [
+    {
+      "id": "TWG-1",
+      "source_locator": "M6.2 PDF p.5, workshop session 1",
+      "observation": "Combine metadata from several health catalogues while retaining a consistent interpretation of records."
+    },
+    {
+      "id": "TWG-2",
+      "source_locator": "M6.2 PDF p.6, workshop session 2",
+      "observation": "Resolve ambiguity in whether biobank resources should be described as individual datasets or catalogues."
+    },
+    {
+      "id": "TWG-3",
+      "source_locator": "M6.2 PDF pp.6–7, 2023-07-14 survey",
+      "observation": "Make dataset identities stable and distinguishable across portals and consider a consistent description of data sources."
+    },
+    {
+      "id": "TWG-4",
+      "source_locator": "M6.2 PDF p.4, 2023-09-29 session agenda",
+      "observation": "Enable users to narrow searches using multiple descriptive attributes."
+    },
+    {
+      "id": "TWG-5",
+      "source_locator": "M6.2 PDF p.4, 2023-10-13 session agenda",
+      "observation": "Make it feasible for holders to produce rich descriptions without excessive administrative work."
+    },
+    {
+      "id": "TWG-6",
+      "source_locator": "M6.2 PDF p.4, 2023-10-27 session agenda",
+      "observation": "Provide non-sensitive proxy or subset data so users can explore restricted holdings."
+    },
+    {
+      "id": "TWG-7",
+      "source_locator": "M6.2 PDF p.4, 2023-11-17 session agenda",
+      "observation": "Provide descriptive dataset metrics."
+    },
+    {
+      "id": "TWG-8",
+      "source_locator": "M6.2 PDF p.4, 2023-11-24 session agenda",
+      "observation": "Describe provenance, population and collection purpose in metadata that can support AI-assisted discovery."
+    }
+  ],
+  "note": "Eight curator summaries of needs and discussion topics. Not a verbatim candidate list or complete survey-response export. Excludes property resolutions, final draft and December mockups. Use only as a partial consolidation experiment."
+}

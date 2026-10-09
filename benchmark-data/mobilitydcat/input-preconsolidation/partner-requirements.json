@@ -1,0 +1,496 @@
+{
+  "schema_version": "rq1-candidates-1",
+  "count": 60,
+  "report_body_count": 53,
+  "country_counts": {
+    "DE": 17,
+    "BE": 4,
+    "CY": 1,
+    "CZ": 5,
+    "IT": 27,
+    "GR": 6
+  },
+  "note": "Curator paraphrases of each preserved labelled row; duplicates retained, including DE-00 and DE-06. Country-qualified IDs disambiguate Italian Req-* from final Table 1 Req-*. Original annex contains 60 rows; do not assume 53 or fabricate missing interviews. Contact details omitted. No final-row mapping included.",
+  "candidates": [
+    {
+      "id": "DE-00",
+      "original_id": "DE-00",
+      "statement": "Provide a reusable foundation for a NAP metadata database.",
+      "source_locator": "Annex 1, country section DE, original row 0",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "DE-01",
+      "original_id": "DE-01",
+      "statement": "Use expressive and context-aware, modular descriptions with clear structure, type rules, stable entity identities and persistent identifiers; describe actual data accurately and facilitate access.",
+      "source_locator": "Annex 1, country section DE, original row 1",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "DE-02",
+      "original_id": "DE-02",
+      "statement": "Make descriptions understandable to machines and pan-European service providers using consistent meanings.",
+      "source_locator": "Annex 1, country section DE, original row 2",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "DE-03",
+      "original_id": "DE-03",
+      "statement": "Give enough mobility-specific detail to differentiate datasets as their number and diversity grow.",
+      "source_locator": "Annex 1, country section DE, original row 3",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "DE-04",
+      "original_id": "DE-04",
+      "statement": "Explain exchange with general-purpose portals even when those portals do not interpret mobility-specific elements.",
+      "source_locator": "Annex 1, country section DE, original row 4",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "DE-05",
+      "original_id": "DE-05",
+      "statement": "Clarify obligation levels and relate them to database storage, manual entry, import and export, consistently with DCAT-AP.",
+      "source_locator": "Annex 1, country section DE, original row 5",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "DE-06",
+      "original_id": "DE-06",
+      "statement": "Provide a reusable foundation for a NAP metadata database.",
+      "source_locator": "Annex 1, country section DE, original row 6",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "DE-07",
+      "original_id": "DE-07",
+      "statement": "Harmonise an essential common core and allow additional national metadata fields.",
+      "source_locator": "Annex 1, country section DE, original row 7",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "DE-08",
+      "original_id": "DE-08",
+      "statement": "Provide descriptions that work with RDF.",
+      "source_locator": "Annex 1, country section DE, original row 8",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "DE-09",
+      "original_id": "DE-09",
+      "statement": "Define supported functions: describe registries, datasets and delivery services; exchange metadata; express licences and access rights; enable theme-based faceted search and automated data processing.",
+      "source_locator": "Annex 1, country section DE, original row 9",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "DE-10",
+      "original_id": "DE-10",
+      "statement": "Reuse the baseline DCAT-AP terms and apply its rules when introducing additions.",
+      "source_locator": "Annex 1, country section DE, original row 10",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "DE-11",
+      "original_id": "DE-11",
+      "statement": "Publish downloadable explanations of element meanings and their use in NAP operations.",
+      "source_locator": "Annex 1, country section DE, original row 11",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "DE-12",
+      "original_id": "DE-12",
+      "statement": "Establish stewardship and change procedures in which authors resolve proposals for possible incorporation into later versions.",
+      "source_locator": "Annex 1, country section DE, original row 12",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "DE-13",
+      "original_id": "DE-13",
+      "statement": "Account for existing national code lists and provide mappings when harmonised and deployed vocabularies differ.",
+      "source_locator": "Annex 1, country section DE, original row 13",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "DE-14",
+      "original_id": "DE-14",
+      "statement": "Apply the official DCAT-AP extension guidance.",
+      "source_locator": "Annex 1, country section DE, original row 14",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "DE-15",
+      "original_id": "DE-15",
+      "statement": "Provide digitally annotated Web documentation, potentially using an HTML site.",
+      "source_locator": "Annex 1, country section DE, original row 15",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "DE-16",
+      "original_id": "DE-16",
+      "statement": "Account for ongoing revisions of DCAT-AP.",
+      "source_locator": "Annex 1, country section DE, original row 16",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "BE-01",
+      "original_id": "BE-01",
+      "statement": "Explain how to divide descriptions between a dataset or service and several associated resources rather than requiring near-identical repeated uploads.",
+      "source_locator": "Annex 1, country section BE, original row 1",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "BE-02",
+      "original_id": "BE-02",
+      "statement": "Record one or more applicable NAP regulatory categories, covering multimodal travel, real-time traffic, safety information and truck parking.",
+      "source_locator": "Annex 1, country section BE, original row 2",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "BE-03",
+      "original_id": "BE-03",
+      "statement": "Accompany the profile with mappings from other metadata systems, including INSPIRE.",
+      "source_locator": "Annex 1, country section BE, original row 3",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "BE-04",
+      "original_id": "BE-04",
+      "statement": "Expand georeferencing options so providers can express their methods rather than routinely selecting an unspecified other value.",
+      "source_locator": "Annex 1, country section BE, original row 4",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "CY-01",
+      "original_id": "CY-01",
+      "statement": "Take INSPIRE rules into account when harmonising existing spatial metadata with a national DCAT-AP profile.",
+      "source_locator": "Annex 1, country section CY, original row 1",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "CZ-01",
+      "original_id": "CZ 01",
+      "statement": "Expose schema information and sample data so prospective consumers can inspect the payload before subscribing.",
+      "source_locator": "Annex 1, country section CZ, original row 1",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "CZ-02",
+      "original_id": "CZ 02",
+      "statement": "Identify precise data model versions, publication types and extensions to improve discovery.",
+      "source_locator": "Annex 1, country section CZ, original row 2",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "CZ-03",
+      "original_id": "CZ 03",
+      "statement": "Support public development comments, issues and planned releases.",
+      "source_locator": "Annex 1, country section CZ, original row 3",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "CZ-04",
+      "original_id": "CZ 04",
+      "statement": "Describe location-reference techniques and coordinate reference systems used in payloads.",
+      "source_locator": "Annex 1, country section CZ, original row 4",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "CZ-05",
+      "original_id": "CZ 05",
+      "statement": "Coordinate and host maintainable, extensible content vocabularies, with multilingual labels and identifier-based values.",
+      "source_locator": "Annex 1, country section CZ, original row 5",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-01",
+      "original_id": "Req-1",
+      "statement": "Supply sufficiently informative descriptions to support discovery and reuse.",
+      "source_locator": "Annex 1, country section IT, original row Req-1",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-02",
+      "original_id": "Req-2",
+      "statement": "Support both human and software consumption of descriptions.",
+      "source_locator": "Annex 1, country section IT, original row Req-2",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-03",
+      "original_id": "Req-3",
+      "statement": "Support several description languages.",
+      "source_locator": "Annex 1, country section IT, original row Req-3",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-04",
+      "original_id": "Req-4",
+      "statement": "Use shared semantic vocabularies.",
+      "source_locator": "Annex 1, country section IT, original row Req-4",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-05",
+      "original_id": "Req-5",
+      "statement": "Use a common exchange serialization suitable for software agents.",
+      "source_locator": "Annex 1, country section IT, original row Req-5",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-06",
+      "original_id": "Req-6",
+      "statement": "Define an assurance process for incoming metadata quality.",
+      "source_locator": "Annex 1, country section IT, original row Req-6",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-07",
+      "original_id": "Req-7",
+      "statement": "Handle metadata revisions and version history.",
+      "source_locator": "Annex 1, country section IT, original row Req-7",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-08",
+      "original_id": "Req-8",
+      "statement": "Make the schema documentation publicly accessible without proprietary licensing.",
+      "source_locator": "Annex 1, country section IT, original row Req-8",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-09",
+      "original_id": "Req-9",
+      "statement": "Organise ongoing maintenance through issues, discussion and releases.",
+      "source_locator": "Annex 1, country section IT, original row Req-9",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-10",
+      "original_id": "Req-10",
+      "statement": "Consider DCAT-AP as the well-established cross-domain catalogue baseline.",
+      "source_locator": "Annex 1, country section IT, original row Req-10",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-11",
+      "original_id": "Req-11",
+      "statement": "Consider CMC for requirements specific to NAP descriptions.",
+      "source_locator": "Annex 1, country section IT, original row Req-11",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-12",
+      "original_id": "Req-12",
+      "statement": "Consider spatial profiles and INSPIRE requirements.",
+      "source_locator": "Annex 1, country section IT, original row Req-12",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-13",
+      "original_id": "Req-13",
+      "statement": "Examine CMC/DCAT-AP correspondences to identify information not accommodated by the baseline.",
+      "source_locator": "Annex 1, country section IT, original row Req-13",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-14",
+      "original_id": "Req-14",
+      "statement": "Record when descriptions were created or changed, their language and maintenance responsibility.",
+      "source_locator": "Annex 1, country section IT, original row Req-14",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-15",
+      "original_id": "Req-15",
+      "statement": "State conditions on reuse of the metadata itself.",
+      "source_locator": "Annex 1, country section IT, original row Req-15",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-16",
+      "original_id": "Req-16",
+      "statement": "Describe resource titles, synopses, dataset/service kinds, domain and regulation-based categories, languages and payload georeferencing.",
+      "source_locator": "Annex 1, country section IT, original row Req-16",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-17",
+      "original_id": "Req-17",
+      "statement": "Describe the interval in which published data remain valid.",
+      "source_locator": "Annex 1, country section IT, original row Req-17",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-18",
+      "original_id": "Req-18",
+      "statement": "Describe the dataset footprint, applicable regions and transport networks.",
+      "source_locator": "Annex 1, country section IT, original row Req-18",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-19",
+      "original_id": "Req-19",
+      "statement": "Describe transport modes and operators represented in the data.",
+      "source_locator": "Annex 1, country section IT, original row Req-19",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-20",
+      "original_id": "Req-20",
+      "statement": "Identify publishing and owning parties.",
+      "source_locator": "Annex 1, country section IT, original row Req-20",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-21",
+      "original_id": "Req-21",
+      "statement": "Describe contracts, licences and other use conditions.",
+      "source_locator": "Annex 1, country section IT, original row Req-21",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-22",
+      "original_id": "Req-22",
+      "statement": "Describe encoding, syntax, grammar and payload model.",
+      "source_locator": "Annex 1, country section IT, original row Req-22",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-23",
+      "original_id": "Req-23",
+      "statement": "Describe update cadence, quality criteria and compliance-assessment history and status.",
+      "source_locator": "Annex 1, country section IT, original row Req-23",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-24",
+      "original_id": "Req-24",
+      "statement": "Assign occurrence limits and mandatory, recommended or optional status to elements.",
+      "source_locator": "Annex 1, country section IT, original row Req-24",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-25",
+      "original_id": "Req-25",
+      "statement": "Develop recommendations for resource identifiers.",
+      "source_locator": "Annex 1, country section IT, original row Req-25",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-26",
+      "original_id": "Req-26",
+      "statement": "Define permitted property values and recommend appropriate controlled vocabularies.",
+      "source_locator": "Annex 1, country section IT, original row Req-26",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "IT-27",
+      "original_id": "Req-27",
+      "statement": "Consider shape-based automated metadata validation.",
+      "source_locator": "Annex 1, country section IT, original row Req-27",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "GR-01",
+      "original_id": "GR-01",
+      "statement": "Associate datasets with applicable ITS delegated regulations.",
+      "source_locator": "Annex 1, country section GR, original row 1",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "GR-02",
+      "original_id": "GR-02",
+      "statement": "Use broadly adopted functional classifications for roadways and other parts of multimodal networks.",
+      "source_locator": "Annex 1, country section GR, original row 2",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "GR-03",
+      "original_id": "GR-03",
+      "statement": "Distinguish essential metadata from optional enrichment in the extension.",
+      "source_locator": "Annex 1, country section GR, original row 3",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "GR-04",
+      "original_id": "GR-04",
+      "statement": "Help users understand heterogeneous mobility content, including material outside MMTIS scope.",
+      "source_locator": "Annex 1, country section GR, original row 4",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "GR-05",
+      "original_id": "GR-05",
+      "statement": "Describe shared-mobility operating models, such as station-based or free-floating services.",
+      "source_locator": "Annex 1, country section GR, original row 5",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    },
+    {
+      "id": "GR-06",
+      "original_id": "GR-06",
+      "statement": "Add ITS quality information such as availability, timeliness, latency, errors, positioning accuracy and event coverage.",
+      "source_locator": "Annex 1, country section GR, original row 6",
+      "statement_kind": "curator_paraphrase",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf"
+    }
+  ]
+}

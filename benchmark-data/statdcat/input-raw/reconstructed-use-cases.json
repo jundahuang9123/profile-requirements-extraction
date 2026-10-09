@@ -1,0 +1,15 @@
+{
+  "representation": "Retrospective factual synopsis of final report §5; not independently recovered pre-profile use-case submission.",
+  "use_cases": [
+    {
+      "id": "UC-1",
+      "source_locator": "§5.1",
+      "scenario": "Statistical datasets account for a large share of general open-data portal holdings; users need better descriptions to discover and assess them across sectors."
+    },
+    {
+      "id": "UC-2",
+      "source_locator": "§5.2",
+      "scenario": "Statistical institutions and general open-data portals exchange descriptions using different frameworks. Federated discovery should preserve useful meaning and provenance across these systems; observations themselves remain outside the metadata-catalogue scope."
+    }
+  ]
+}

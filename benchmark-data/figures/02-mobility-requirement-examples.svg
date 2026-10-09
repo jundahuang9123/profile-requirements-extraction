@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="720" height="542" preserveAspectRatio="xMinYMin meet" viewBox="0 0 720 542" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="720" height="542"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-542)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="0" y="0" width="720" height="542" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<text x="18" y="514.2" style="font-family: Helvetica-Bold; font-size: 16px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,1028) scale(1,-1)">Inside mobilityDCAT-AP: from source content to requirements</text>
+			<text x="18" y="494.0" style="font-family: Helvetica; font-size: 10px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,988) scale(1,-1)">Selected corpus paraphrases; connectors show illustrative semantic correspondence</text>
+			<rect x="18" y="430" width="218" height="45" rx="4" ry="4" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,96%,98%); fill-rule: evenodd;"/>
+			<text x="28" y="456.2" style="font-family: Helvetica-Bold; font-size: 11px;fill: rgb(12%,38%,54%); stroke:none;" transform="translate(0,912) scale(1,-1)">A  Raw-source content</text>
+			<text x="28" y="438.96" style="font-family: Helvetica; font-size: 8.8px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,877) scale(1,-1)">SPRINT / CMC task and concept synopses</text>
+			<rect x="262" y="430" width="218" height="45" rx="4" ry="4" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,96%,95%); fill-rule: evenodd;"/>
+			<text x="272" y="456.2" style="font-family: Helvetica-Bold; font-size: 11px;fill: rgb(8%,45%,42%); stroke:none;" transform="translate(0,912) scale(1,-1)">B  Partner requirements</text>
+			<text x="272" y="438.96" style="font-family: Helvetica; font-size: 8.8px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,877) scale(1,-1)">NAPCORE Annex 1; national submissions</text>
+			<rect x="506" y="430" width="196" height="45" rx="4" ry="4" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(98%,96%,90%); fill-rule: evenodd;"/>
+			<text x="516" y="456.2" style="font-family: Helvetica-Bold; font-size: 11px;fill: rgb(58%,38%,7%); stroke:none;" transform="translate(0,912) scale(1,-1)">C  Consolidated references</text>
+			<text x="516" y="438.96" style="font-family: Helvetica; font-size: 8.8px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,877) scale(1,-1)">NAPCORE Table 1</text>
+			<rect x="18" y="296" width="218" height="121" rx="4" ry="4" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,96%,98%); fill-rule: evenodd;"/>
+			<rect x="262" y="296" width="218" height="121" rx="4" ry="4" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,96%,95%); fill-rule: evenodd;"/>
+			<rect x="506" y="296" width="196" height="121" rx="4" ry="4" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(98%,96%,90%); fill-rule: evenodd;"/>
+			<text x="28" y="398.8" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(12%,38%,54%); stroke:none;" transform="translate(0,797) scale(1,-1)">VALIDITY PERIOD</text>
+			<text x="28" y="378.0" style="font-family: Helvetica-Bold; font-size: 10px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,756) scale(1,-1)">SPRINT CQ-9</text>
+			<text x="28" y="361.84" style="font-family: Helvetica; font-size: 10.2px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,723) scale(1,-1)">Retrieve the beginning and end</text>
+			<text x="28" y="348.78399999999993" style="font-family: Helvetica; font-size: 10.2px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,697) scale(1,-1)">of a dataset validity interval.</text>
+			<text x="28" y="329.16" style="font-family: Helvetica; font-size: 9.8px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,658) scale(1,-1)">CMC-12 / CMC-13</text>
+			<text x="28" y="315.16" style="font-family: Helvetica; font-size: 9.8px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,630) scale(1,-1)">Validity beginning / validity end</text>
+			<text x="272" y="398.0" style="font-family: Helvetica-Bold; font-size: 10px;fill: rgb(8%,45%,42%); stroke:none;" transform="translate(0,796) scale(1,-1)">IT-17</text>
+			<text x="272" y="373.6" style="font-family: Helvetica; font-size: 10.5px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,747) scale(1,-1)">Describe the interval in which</text>
+			<text x="272" y="360.16" style="font-family: Helvetica; font-size: 10.5px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,720) scale(1,-1)">published data remain valid.</text>
+			<text x="272" y="314.64" style="font-family: Helvetica; font-size: 9.2px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,629) scale(1,-1)">Original Italian row: Req-17</text>
+			<text x="516" y="398.0" style="font-family: Helvetica-Bold; font-size: 10px;fill: rgb(58%,38%,7%); stroke:none;" transform="translate(0,796) scale(1,-1)">Req-22  |  mandatory</text>
+			<text x="516" y="373.6" style="font-family: Helvetica; font-size: 10.5px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,747) scale(1,-1)">Represent the interval over</text>
+			<text x="516" y="360.16" style="font-family: Helvetica; font-size: 10.5px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,720) scale(1,-1)">which the published data</text>
+			<text x="516" y="346.72" style="font-family: Helvetica; font-size: 10.5px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,693) scale(1,-1)">remain valid.</text>
+			<rect x="18" y="160" width="218" height="121" rx="4" ry="4" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,96%,98%); fill-rule: evenodd;"/>
+			<rect x="262" y="160" width="218" height="121" rx="4" ry="4" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(92%,96%,95%); fill-rule: evenodd;"/>
+			<rect x="506" y="160" width="196" height="121" rx="4" ry="4" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(98%,96%,90%); fill-rule: evenodd;"/>
+			<text x="28" y="262.8" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(12%,38%,54%); stroke:none;" transform="translate(0,525) scale(1,-1)">LICENSING AND CONDITIONS</text>
+			<text x="28" y="242.0" style="font-family: Helvetica-Bold; font-size: 10px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,484) scale(1,-1)">SPRINT CQ-11</text>
+			<text x="28" y="225.84" style="font-family: Helvetica; font-size: 10.2px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,451) scale(1,-1)">Determine the licence governing</text>
+			<text x="28" y="212.78400000000002" style="font-family: Helvetica; font-size: 10.2px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,425) scale(1,-1)">use of a dataset.</text>
+			<text x="28" y="193.16" style="font-family: Helvetica; font-size: 9.8px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,386) scale(1,-1)">CMC-20 / CMC-21</text>
+			<text x="28" y="179.16" style="font-family: Helvetica; font-size: 9.8px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,358) scale(1,-1)">Licence/contract; other use conditions</text>
+			<text x="272" y="262.0" style="font-family: Helvetica-Bold; font-size: 10px;fill: rgb(8%,45%,42%); stroke:none;" transform="translate(0,524) scale(1,-1)">IT-21</text>
+			<text x="272" y="237.6" style="font-family: Helvetica; font-size: 10.5px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,475) scale(1,-1)">Describe contracts, licences</text>
+			<text x="272" y="224.16" style="font-family: Helvetica; font-size: 10.5px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,448) scale(1,-1)">and other use conditions.</text>
+			<text x="272" y="178.64" style="font-family: Helvetica; font-size: 9.2px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,357) scale(1,-1)">Original Italian row: Req-21</text>
+			<text x="516" y="262.0" style="font-family: Helvetica-Bold; font-size: 10px;fill: rgb(58%,38%,7%); stroke:none;" transform="translate(0,524) scale(1,-1)">Req-27  |  mandatory</text>
+			<text x="516" y="237.6" style="font-family: Helvetica; font-size: 10.5px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,475) scale(1,-1)">Describe contractual, licensing</text>
+			<text x="516" y="224.16" style="font-family: Helvetica; font-size: 10.5px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,448) scale(1,-1)">and other conditions on</text>
+			<text x="516" y="210.72" style="font-family: Helvetica; font-size: 10.5px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,421) scale(1,-1)">data use.</text>
+			<path d="M 238,356 L 260,356 Z" style="stroke: rgb(32%,38%,44%); stroke-linecap: butt; stroke-width: 1.2; stroke-dasharray: 2, 3;"/>
+			<path d="M 482,356 L 504,356 Z" style="stroke: rgb(32%,38%,44%); stroke-linecap: butt; stroke-width: 1.2; stroke-dasharray: 2, 3;"/>
+			<path d="M 238,221 L 260,221 Z" style="stroke: rgb(32%,38%,44%); stroke-linecap: butt; stroke-width: 1.2; stroke-dasharray: 2, 3;"/>
+			<path d="M 482,221 L 504,221 Z" style="stroke: rgb(32%,38%,44%); stroke-linecap: butt; stroke-width: 1.2; stroke-dasharray: 2, 3;"/>
+			<rect x="18" y="55" width="684" height="90" rx="4" ry="4" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(95%,96%,97%); fill-rule: evenodd;"/>
+			<text x="28" y="127.8" style="font-family: Helvetica-Bold; font-size: 9px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,255) scale(1,-1)">ILLUSTRATIVE MANY-TO-ONE MATCH</text>
+			<text x="28" y="105.92" style="font-family: Helvetica; font-size: 10.1px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,211) scale(1,-1)">BE-02: record applicable NAP regulatory categories.</text>
+			<text x="28" y="87.92" style="font-family: Helvetica; font-size: 10.1px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,175) scale(1,-1)">GR-01: associate datasets with ITS delegated regulations.</text>
+			<path d="M 389,96 L 452,96 Z" style="stroke: rgb(32%,38%,44%); stroke-linecap: butt; stroke-width: 1.2; stroke-dasharray: 2, 3;"/>
+			<text x="462" y="109.0" style="font-family: Helvetica-Bold; font-size: 10px;fill: rgb(58%,38%,7%); stroke:none;" transform="translate(0,218) scale(1,-1)">Req-20  |  mandatory</text>
+			<text x="462" y="90.92" style="font-family: Helvetica; font-size: 10.1px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,181) scale(1,-1)">Indicate which ITS delegated regulations</text>
+			<text x="462" y="77.992" style="font-family: Helvetica; font-size: 10.1px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,155) scale(1,-1)">apply to a resource.</text>
+			<text x="18" y="34.48" style="font-family: Helvetica; font-size: 9.4px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,68) scale(1,-1)">These are source and reference excerpts, not predictions or measured workflow results. Wording is paraphrased.</text>
+			<text x="18" y="20.48" style="font-family: Helvetica; font-size: 9.4px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,40) scale(1,-1)">The thematic links are curator interpretations, not verified historical derivations or adjudicated evaluation labels.</text>
+		</g>
+	</g>
+</svg>

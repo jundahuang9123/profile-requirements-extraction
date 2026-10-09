@@ -1,0 +1,158 @@
+{
+  "created": "2025-03-27T11:16:00.735692+00:00",
+  "modified": "2025-03-27T11:16:01.118535+00:00",
+  "id": 15095515,
+  "conceptrecid": "15095514",
+  "doi": "10.5281/zenodo.15095515",
+  "conceptdoi": "10.5281/zenodo.15095514",
+  "doi_url": "https://doi.org/10.5281/zenodo.15095515",
+  "metadata": {
+    "title": "HealthData@EU Pilot - Milestone 6.2 Technical working group on the transition from existing metadata templates to HealthDCAT-AP",
+    "doi": "10.5281/zenodo.15095515",
+    "publication_date": "2025-03-27",
+    "description": "<p>Milestone 6.2 of the HealthData@EU pilot project, titled&nbsp;<em>Technical Working Group (TWG) on the Transition from Existing Metadata Templates to HealthDCAT-AP</em>, falls under Work Package 6, which is dedicated to designing the HealthDCAT Application Profile. This milestone primarily comprises the minutes and outcomes of the Technical Working Group discussions, which aimed to define key metadata properties essential for improving the description of health data and ensuring interoperability of metadata catalogues within the HealthData@EU infrastructure.</p>\n<h3><strong>Objectives and Scope</strong></h3>\n<p>The TWG was established to provide technical and strategic support for the transition from existing metadata templates to the HealthDCAT-AP standard. The group brought together approximately 80 participants, including representatives from the HealthData@EU pilot project consortium and external stakeholders in the health sector. The primary goal was to refine and validate the application profile&rsquo;s specifications, ensuring alignment with interoperability requirements at both national and European levels.</p>\n<p>From June to December 2023, the TWG organized 12 sessions, each dedicated to discussing specific aspects of metadata standardization and alignment with HealthDCAT-AP. These sessions facilitated expert input, stakeholder engagement, and iterative improvements to the application profile.</p>\n<h3><strong>Structure and Process</strong></h3>\n<p>The TWG commenced its activities with a foundational workshop consisting of two sessions, led by the&nbsp;<em>Unit B2 Interoperability and Digital Government</em> of the European Commission&rsquo;s Directorate-General for Informatics (EC DIGIT). These initial sessions set the groundwork for the discussions by introducing core concepts and methodologies.</p>\n<p>Following this, Sciensano, the Federal Belgian Institute of Public Health, took the lead in organizing and facilitating an additional 10 sessions. Each session was structured around a dedicated EU Survey form, which was used to collect input from participants on key metadata properties. To ensure broad participation and thorough consultation, the EU Survey forms remained open for 10 days after each session. The responses were systematically reviewed, analyzed, and subsequently discussed in the next TWG session, allowing for a structured and data-driven decision-making process.</p>\n<h3><strong>Key Outcomes</strong></h3>\n<ol>\n<li>\n<p><strong>Metadata property fefinitions:</strong> The TWG sessions contributed to defining and refining the essential metadata properties required for interoperability within HealthData@EU. These properties ensure that health data can be effectively catalogued, discovered, and accessed across different national and European platforms.</p>\n</li>\n<li>\n<p><strong>Stakeholder engagement:</strong> The participation of a diverse group of stakeholders, including metadata experts, health data custodians, and policymakers, enriched the discussions and ensured that the proposed metadata model met real-world needs.</p>\n</li>\n<li>\n<p><strong>Iterative validation process:</strong> The structured approach of using EU Survey forms enabled a systematic review of metadata elements, ensuring that feedback was incorporated into the evolving application profile.</p>\n</li>\n<li>\n<p><strong>Transparency and accessibility:</strong> To support knowledge sharing and maintain continuity, all TWG sessions were recorded and made accessible to members of the project consortium.</p>\n</li>\n</ol>",
+    "access_right": "open",
+    "creators": [
+      {
+        "name": "Health Data Hub",
+        "affiliation": null
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Sciensano (Belgium)",
+        "affiliation": null,
+        "type": "ProjectMember"
+      },
+      {
+        "name": "Norwegian Institute of Public Health",
+        "affiliation": null,
+        "type": "ProjectMember"
+      },
+      {
+        "name": "Derycke, Pascal",
+        "affiliation": "Sciensano (Belgium)",
+        "type": "ProjectMember",
+        "orcid": "0000-0002-4658-5185"
+      },
+      {
+        "name": "Vande Catsyne, Charles-Andrew",
+        "affiliation": "Sciensano (Belgium)",
+        "type": "ProjectMember",
+        "orcid": "0000-0001-6283-9029"
+      },
+      {
+        "name": "Korsgaard, Truls",
+        "affiliation": "Norwegian Institute of Public Health",
+        "type": "ProjectMember"
+      },
+      {
+        "name": "Huru, Hans",
+        "affiliation": "Norwegian Institute of Public Health",
+        "type": "ProjectMember"
+      }
+    ],
+    "dates": [
+      {
+        "type": "accepted"
+      }
+    ],
+    "language": "eng",
+    "resource_type": {
+      "title": "Project milestone",
+      "type": "publication",
+      "subtype": "milestone"
+    },
+    "license": {
+      "id": "cc-by-4.0"
+    },
+    "relations": {
+      "version": [
+        {
+          "index": 0,
+          "is_last": true,
+          "parent": {
+            "pid_type": "recid",
+            "pid_value": "15095514"
+          }
+        }
+      ]
+    }
+  },
+  "title": "HealthData@EU Pilot - Milestone 6.2 Technical working group on the transition from existing metadata templates to HealthDCAT-AP",
+  "links": {
+    "self": "https://zenodo.org/api/records/15095515",
+    "self_html": "https://zenodo.org/records/15095515",
+    "preview_html": "https://zenodo.org/records/15095515?preview=1",
+    "doi": "https://doi.org/10.5281/zenodo.15095515",
+    "self_doi": "https://doi.org/10.5281/zenodo.15095515",
+    "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.15095515",
+    "reserve_doi": "https://zenodo.org/api/records/15095515/draft/pids/doi",
+    "parent": "https://zenodo.org/api/records/15095514",
+    "parent_html": "https://zenodo.org/records/15095514",
+    "parent_doi": "https://doi.org/10.5281/zenodo.15095514",
+    "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.15095514",
+    "self_iiif_manifest": "https://zenodo.org/api/iiif/record:15095515/manifest",
+    "self_iiif_sequence": "https://zenodo.org/api/iiif/record:15095515/sequence/default",
+    "files": "https://zenodo.org/api/records/15095515/files",
+    "media_files": "https://zenodo.org/api/records/15095515/media-files",
+    "thumbnails": {
+      "10": "https://zenodo.org/api/iiif/record:15095515:HealthData@EU-Pilot_MS6.2_Technical-working-group-on-the-transition-from-existing-metadata-templates-to-HealthDCAT_FIN-1.pdf/full/%5E10,/0/default.jpg",
+      "50": "https://zenodo.org/api/iiif/record:15095515:HealthData@EU-Pilot_MS6.2_Technical-working-group-on-the-transition-from-existing-metadata-templates-to-HealthDCAT_FIN-1.pdf/full/%5E50,/0/default.jpg",
+      "100": "https://zenodo.org/api/iiif/record:15095515:HealthData@EU-Pilot_MS6.2_Technical-working-group-on-the-transition-from-existing-metadata-templates-to-HealthDCAT_FIN-1.pdf/full/%5E100,/0/default.jpg",
+      "250": "https://zenodo.org/api/iiif/record:15095515:HealthData@EU-Pilot_MS6.2_Technical-working-group-on-the-transition-from-existing-metadata-templates-to-HealthDCAT_FIN-1.pdf/full/%5E250,/0/default.jpg",
+      "750": "https://zenodo.org/api/iiif/record:15095515:HealthData@EU-Pilot_MS6.2_Technical-working-group-on-the-transition-from-existing-metadata-templates-to-HealthDCAT_FIN-1.pdf/full/%5E750,/0/default.jpg",
+      "1200": "https://zenodo.org/api/iiif/record:15095515:HealthData@EU-Pilot_MS6.2_Technical-working-group-on-the-transition-from-existing-metadata-templates-to-HealthDCAT_FIN-1.pdf/full/%5E1200,/0/default.jpg"
+    },
+    "archive": "https://zenodo.org/api/records/15095515/files-archive",
+    "archive_media": "https://zenodo.org/api/records/15095515/media-files-archive",
+    "latest": "https://zenodo.org/api/records/15095515/versions/latest",
+    "latest_html": "https://zenodo.org/records/15095515/latest",
+    "versions": "https://zenodo.org/api/records/15095515/versions",
+    "draft": "https://zenodo.org/api/records/15095515/draft",
+    "access_links": "https://zenodo.org/api/records/15095515/access/links",
+    "access_grants": "https://zenodo.org/api/records/15095515/access/grants",
+    "access_users": "https://zenodo.org/api/records/15095515/access/users",
+    "access_request": "https://zenodo.org/api/records/15095515/access/request",
+    "access": "https://zenodo.org/api/records/15095515/access",
+    "communities": "https://zenodo.org/api/records/15095515/communities",
+    "communities-suggestions": "https://zenodo.org/api/records/15095515/communities-suggestions",
+    "request_deletion": "https://zenodo.org/api/records/15095515/request-deletion",
+    "file_modification": "https://zenodo.org/api/records/15095515/file-modification",
+    "quota_increase": "https://zenodo.org/api/records/15095515/quota-increase",
+    "requests": "https://zenodo.org/api/records/15095515/requests"
+  },
+  "updated": "2025-03-27T11:16:01.118535+00:00",
+  "recid": "15095515",
+  "revision": 3,
+  "files": [
+    {
+      "id": "da567366-b45b-4aae-8af4-ae67f907827b",
+      "key": "HealthData@EU-Pilot_MS6.2_Technical-working-group-on-the-transition-from-existing-metadata-templates-to-HealthDCAT_FIN-1.pdf",
+      "size": 12116950,
+      "checksum": "md5:8ddc54917ec98993f99a4364634d64ec",
+      "links": {
+        "self": "https://zenodo.org/api/records/15095515/files/HealthData@EU-Pilot_MS6.2_Technical-working-group-on-the-transition-from-existing-metadata-templates-to-HealthDCAT_FIN-1.pdf/content"
+      }
+    }
+  ],
+  "swh": {},
+  "owners": [
+    {
+      "id": "1284821"
+    }
+  ],
+  "status": "published",
+  "stats": {
+    "downloads": 265,
+    "unique_downloads": 208,
+    "views": 249,
+    "unique_views": 239,
+    "version_downloads": 265,
+    "version_unique_downloads": 208,
+    "version_unique_views": 239,
+    "version_views": 249
+  },
+  "state": "done",
+  "submitted": true
+}

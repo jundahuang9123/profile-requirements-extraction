@@ -1,0 +1,19 @@
+{
+  "id": "epos-core",
+  "title": "Establishing Core Concepts for Information-Powered Collaborations (Trani et al., 2018)",
+  "original_url": "https://doi.org/10.1016/j.future.2018.07.005",
+  "publication_date": "2018",
+  "version": null,
+  "retrieved_on": "2026-10-07",
+  "local_filename": "provenance/citations/epos-core.json",
+  "role": "context_only",
+  "explicitly_documented_as_input": false,
+  "input_documentation": null,
+  "completeness": "partial",
+  "confidence": "high",
+  "representation": "citation_only",
+  "license": "Citation only; redistribution rights not established",
+  "runtime_modes": [],
+  "notes": "Project README citation. Later explanatory work, not proven pre-v1 elicitation evidence. Publisher copyright not redistributed.",
+  "availability": "Citation record only; not a runtime document."
+}

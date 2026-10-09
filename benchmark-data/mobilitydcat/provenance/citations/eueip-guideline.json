@@ -1,0 +1,19 @@
+{
+  "id": "eueip-guideline",
+  "title": "EU EIP Metadata Guideline, 2018",
+  "original_url": "https://www.its-platform.eu/achievement/monitoring-harmonisation-of-naps/",
+  "publication_date": "2018",
+  "version": null,
+  "retrieved_on": "2026-10-07",
+  "local_filename": "provenance/citations/eueip-guideline.json",
+  "role": "raw_input",
+  "explicitly_documented_as_input": true,
+  "input_documentation": "NAPCORE Annex 2 §2.6",
+  "completeness": "partial",
+  "confidence": "high",
+  "representation": "citation_only",
+  "license": "Citation only; redistribution rights not established",
+  "runtime_modes": [],
+  "notes": "Historical guideline citation; individual download/version not frozen.",
+  "availability": "Citation record only; not a runtime document."
+}

@@ -1,0 +1,19 @@
+{
+  "id": "esms",
+  "title": "Euro SDMX Metadata Structure (ESMS)",
+  "original_url": "https://ec.europa.eu/eurostat/web/metadata/reference-metadata",
+  "publication_date": null,
+  "version": null,
+  "retrieved_on": "2026-10-07",
+  "local_filename": "provenance/citations/esms.json",
+  "role": "raw_input",
+  "explicitly_documented_as_input": true,
+  "input_documentation": "StatDCAT-AP 1.0 §§4.1.2–4.1.3",
+  "completeness": "partial",
+  "confidence": "high",
+  "representation": "citation_only",
+  "license": "Citation only; redistribution rights not established",
+  "runtime_modes": [],
+  "notes": "Authoritative landing citation, not frozen historical full artifact. SDMX and ISO normative standards are not copied without verified reuse rights.",
+  "availability": "Citation record only; not a runtime document."
+}

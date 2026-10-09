@@ -1,0 +1,19 @@
+{
+  "id": "sprint-d23",
+  "title": "SPRINT D2.3 Requirements for an IF architectural design (F-REL)",
+  "original_url": "https://projects.shift2rail.org/download.aspx?id=e74711aa-0c2c-4dc9-b5d3-16081145b2fd",
+  "publication_date": "2020-06-17",
+  "version": null,
+  "retrieved_on": "2026-10-07",
+  "local_filename": "provenance/citations/sprint-d23.json",
+  "role": "raw_input",
+  "explicitly_documented_as_input": true,
+  "input_documentation": "NAPCORE Annex 2 §2.13",
+  "completeness": "partial",
+  "confidence": "high",
+  "representation": "citation_only",
+  "license": "Citation only; redistribution rights not established",
+  "runtime_modes": [],
+  "notes": "Public dissemination PDF inspected (54 pages), revision 3; no reuse licence found. Twelve CQ facts paraphrased below from PDF pp.26–27.",
+  "availability": "Citation record only; not a runtime document."
+}

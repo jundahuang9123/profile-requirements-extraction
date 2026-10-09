@@ -1,0 +1,19 @@
+{
+  "id": "transportdcat",
+  "title": "O1.2 TransportDCAT-AP and Controlled Vocs",
+  "original_url": "https://github.com/cef-oasis/DCAT-AP/blob/750857f7b1e35d4b5c7680f8654071587c3ccbc6/TransportDCAT-AP/O1.2%20TransportDCAT-AP%20and%20Controlled%20Vocs.pdf",
+  "publication_date": "2017",
+  "version": null,
+  "retrieved_on": "2026-10-07",
+  "local_filename": "provenance/citations/transportdcat.json",
+  "role": "raw_input",
+  "explicitly_documented_as_input": true,
+  "input_documentation": "NAPCORE Annex 2 §2.17",
+  "completeness": "partial",
+  "confidence": "high",
+  "representation": "citation_only",
+  "license": "Citation only; redistribution rights not established",
+  "runtime_modes": [],
+  "notes": "Original project repository identified; reuse licence not established, so citation only.",
+  "availability": "Citation record only; not a runtime document."
+}

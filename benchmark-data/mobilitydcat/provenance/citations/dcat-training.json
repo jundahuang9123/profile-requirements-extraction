@@ -1,0 +1,19 @@
+{
+  "id": "dcat-training",
+  "title": "DCAT and DCAT-AP training webinars, 2021",
+  "original_url": "https://academy.europa.eu/courses/dcat-and-dcat-ap-training-advanced-user",
+  "publication_date": "2021",
+  "version": null,
+  "retrieved_on": "2026-10-07",
+  "local_filename": "provenance/citations/dcat-training.json",
+  "role": "raw_input",
+  "explicitly_documented_as_input": true,
+  "input_documentation": "NAPCORE Annex 2 §2.7",
+  "completeness": "partial",
+  "confidence": "high",
+  "representation": "citation_only",
+  "license": "Citation only; redistribution rights not established",
+  "runtime_modes": [],
+  "notes": "Three webinars documented; complete original decks/recordings not frozen.",
+  "availability": "Citation record only; not a runtime document."
+}

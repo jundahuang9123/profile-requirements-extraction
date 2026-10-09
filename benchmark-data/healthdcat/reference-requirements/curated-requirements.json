@@ -1,0 +1,119 @@
+{
+  "reference_kind": "curator_derived_subset",
+  "independent_adjudication_required": true,
+  "requirements": [
+    {
+      "id": "H-1",
+      "statement": "Use stable, resolvable identifiers so metadata records and their relationships remain reliably identifiable across catalogues.",
+      "source_locator": "D6.2 §5.2.1.1",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "H-2",
+      "statement": "Represent catalogue relationships as machine-interpretable links that support a health-data knowledge graph.",
+      "source_locator": "D6.2 §5.2.1.2",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "H-3",
+      "statement": "Define review responsibilities for metadata received by harvesting or direct publishing.",
+      "source_locator": "D6.2 §5.2.1.3",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "H-4",
+      "statement": "Make metadata sufficiently interpretable and informative to support machine-assisted search, including semantic and generative-AI use.",
+      "source_locator": "D6.2 §5.2.2",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "H-5",
+      "statement": "Allow dataset discovery to be refined using health categories, access bodies, holder types, personal-data categories, age ranges, population size, quality labels and coding information.",
+      "source_locator": "D6.2 §5.2.3",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "H-6",
+      "statement": "Adapt displayed filters to whether the catalogue query concerns personal or non-personal data.",
+      "source_locator": "D6.2 §5.2.3",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "H-7",
+      "statement": "Use semantic annotations and shared coding vocabularies to make health descriptions interoperable and searchable.",
+      "source_locator": "D6.2 §5.2.5",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "H-8",
+      "statement": "Describe at least one safe sample distribution for non-public datasets so users can prepare analyses without accessing sensitive records.",
+      "source_locator": "D6.2 §5.2.6",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "H-9",
+      "statement": "Accompany sample data with definitions of its variables in a data dictionary.",
+      "source_locator": "D6.2 §5.2.6",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "H-10",
+      "statement": "Allow applicants to identify the variables they need, supporting data minimisation.",
+      "source_locator": "D6.2 §5.2.6.1",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "H-11",
+      "statement": "Provide usable descriptions of data structures and coding so datasets can be understood and processed consistently.",
+      "source_locator": "D6.2 §5.2.6.1",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "H-12",
+      "statement": "Describe logical dataset subdivisions and their relationships where large holdings need to be partitioned.",
+      "source_locator": "D6.2 §5.2.6.2",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "H-13",
+      "statement": "State intellectual-property and reuse conditions, including those on sample distributions.",
+      "source_locator": "D6.2 §5.2.6.3",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "H-14",
+      "statement": "Link to descriptive analytics that help prospective users assess a dataset.",
+      "source_locator": "D6.2 §5.2.7",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "H-15",
+      "statement": "Expose quality annotations or labels that help assess fitness for reuse.",
+      "source_locator": "D6.2 §5.2.8",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "H-16",
+      "statement": "Describe the purpose of data collection and the legal basis for processing personal data.",
+      "source_locator": "D6.2 §5.2.9",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    }
+  ],
+  "note": "Sixteen scoped requirements, not an official enumerated complete gold list. Original report retained for evaluator review. Do not infer all requirements from property names."
+}

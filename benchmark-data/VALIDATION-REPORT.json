@@ -1,0 +1,858 @@
+{
+  "snapshot_date": "2026-10-07",
+  "status": "passed",
+  "deep_pdf_parsing": true,
+  "artifact_records_checked": 95,
+  "total_artifact_bytes": 51145035,
+  "by_benchmark": {
+    "mobilitydcat": {
+      "artifacts_and_citations": 46,
+      "original_copies": 16,
+      "citation_only": 23,
+      "raw_documents": 17,
+      "consolidation_documents": 3
+    },
+    "healthdcat": {
+      "artifacts_and_citations": 17,
+      "original_copies": 10,
+      "citation_only": 0,
+      "raw_documents": 5,
+      "consolidation_documents": 1
+    },
+    "statdcat": {
+      "artifacts_and_citations": 8,
+      "original_copies": 4,
+      "citation_only": 2,
+      "raw_documents": 2,
+      "consolidation_documents": 0
+    },
+    "geodcat": {
+      "artifacts_and_citations": 11,
+      "original_copies": 7,
+      "citation_only": 3,
+      "raw_documents": 5,
+      "consolidation_documents": 0
+    },
+    "jrc-research": {
+      "artifacts_and_citations": 7,
+      "original_copies": 3,
+      "citation_only": 2,
+      "raw_documents": 3,
+      "consolidation_documents": 0
+    },
+    "epos": {
+      "artifacts_and_citations": 6,
+      "original_copies": 4,
+      "citation_only": 2,
+      "raw_documents": 0,
+      "consolidation_documents": 0
+    }
+  },
+  "reference_counts": {
+    "mobilitydcat/reference-requirements/consolidated-requirements.json": 40,
+    "healthdcat/reference-requirements/curated-requirements.json": 16,
+    "statdcat/reference-requirements/requirements-and-resolutions.json": 7,
+    "geodcat/reference-requirements/alignment-requirements.json": 7,
+    "jrc-research/reference-requirements/core-requirements.json": 5
+  },
+  "artifacts": [
+    {
+      "path": "mobilitydcat/input-raw/open-data-directive.html",
+      "bytes": 256783,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "html_text_parsed",
+      "visible_characters": 185050
+    },
+    {
+      "path": "mobilitydcat/input-raw/inspire-directive.html",
+      "bytes": 143717,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "html_text_parsed",
+      "visible_characters": 100400
+    },
+    {
+      "path": "mobilitydcat/input-raw/inspire-metadata.html",
+      "bytes": 133710,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "html_text_parsed",
+      "visible_characters": 85499
+    },
+    {
+      "path": "mobilitydcat/input-raw/dga-proposal.html",
+      "bytes": 209361,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "html_text_parsed",
+      "visible_characters": 162981
+    },
+    {
+      "path": "mobilitydcat/input-raw/data-strategy.html",
+      "bytes": 163664,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "html_text_parsed",
+      "visible_characters": 122878
+    },
+    {
+      "path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html",
+      "bytes": 467431,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "html_text_parsed",
+      "visible_characters": 228522
+    },
+    {
+      "path": "mobilitydcat/input-raw/dcat-ap-2.0.0.pdf",
+      "bytes": 1040475,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 40,
+      "extracted_characters": 93436
+    },
+    {
+      "path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf",
+      "bytes": 2650600,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 78,
+      "extracted_characters": 290789
+    },
+    {
+      "path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf",
+      "bytes": 590975,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 7,
+      "extracted_characters": 17402
+    },
+    {
+      "path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf",
+      "bytes": 1647254,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 49,
+      "extracted_characters": 105593
+    },
+    {
+      "path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+      "bytes": 1952897,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "original_pdf_parser_warnings": [
+        "Ignoring wrong pointing object 18 0 (offset 0)",
+        "Ignoring wrong pointing object 40 0 (offset 0)",
+        "Ignoring wrong pointing object 42 0 (offset 0)",
+        "Ignoring wrong pointing object 45 0 (offset 0)",
+        "Ignoring wrong pointing object 46 0 (offset 0)",
+        "Ignoring wrong pointing object 48 0 (offset 0)",
+        "Ignoring wrong pointing object 49 0 (offset 0)",
+        "Ignoring wrong pointing object 51 0 (offset 0)",
+        "Ignoring wrong pointing object 52 0 (offset 0)",
+        "Ignoring wrong pointing object 54 0 (offset 0)",
+        "Ignoring wrong pointing object 55 0 (offset 0)",
+        "Ignoring wrong pointing object 57 0 (offset 0)",
+        "Ignoring wrong pointing object 58 0 (offset 0)",
+        "Ignoring wrong pointing object 60 0 (offset 0)",
+        "Ignoring wrong pointing object 61 0 (offset 0)",
+        "Ignoring wrong pointing object 63 0 (offset 0)",
+        "Ignoring wrong pointing object 64 0 (offset 0)",
+        "Ignoring wrong pointing object 66 0 (offset 0)",
+        "Ignoring wrong pointing object 67 0 (offset 0)",
+        "Ignoring wrong pointing object 69 0 (offset 0)",
+        "Ignoring wrong pointing object 70 0 (offset 0)",
+        "Ignoring wrong pointing object 72 0 (offset 0)",
+        "Ignoring wrong pointing object 73 0 (offset 0)",
+        "Ignoring wrong pointing object 75 0 (offset 0)",
+        "Ignoring wrong pointing object 76 0 (offset 0)",
+        "Ignoring wrong pointing object 78 0 (offset 0)",
+        "Ignoring wrong pointing object 79 0 (offset 0)",
+        "Ignoring wrong pointing object 80 0 (offset 0)"
+      ],
+      "pages": 99,
+      "extracted_characters": 293105
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/inspire-tg2017.json",
+      "bytes": 1061,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/napcore-report.json",
+      "bytes": 1122,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/cmc2019.json",
+      "bytes": 865,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/sprint-d23.json",
+      "bytes": 874,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/eueip-guideline.json",
+      "bytes": 766,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/eueip-annual.json",
+      "bytes": 748,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/dcat-training.json",
+      "bytes": 774,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/input-raw/fair-cost-benefit-2018.pdf",
+      "bytes": 1034891,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 41,
+      "extracted_characters": 110734
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/baca.json",
+      "bytes": 800,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/lod-models.json",
+      "bytes": 918,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/lod-directives.json",
+      "bytes": 876,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/transportdcat.json",
+      "bytes": 871,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/get-ready.json",
+      "bytes": 915,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/dcat-it.json",
+      "bytes": 812,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/dcat-dk.json",
+      "bytes": 811,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/dcat-no.json",
+      "bytes": 822,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/dcat-se.json",
+      "bytes": 811,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/extensions-guidelines.json",
+      "bytes": 886,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/grey-literature.json",
+      "bytes": 925,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/eml-owl.json",
+      "bytes": 968,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/brauburger.json",
+      "bytes": 912,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/reference-requirements/mob-final.html",
+      "bytes": 438529,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "html_text_parsed",
+      "visible_characters": 169092
+    },
+    {
+      "path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf",
+      "bytes": 1451117,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 87,
+      "extracted_characters": 166352
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/iso19115.json",
+      "bytes": 850,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/iso19119.json",
+      "bytes": 850,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/citations/iso19139.json",
+      "bytes": 883,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/reference-requirements/consolidated-requirements.json",
+      "bytes": 20881,
+      "status": "readable",
+      "representation": "curated_paraphrase",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/input-preconsolidation/partner-requirements.json",
+      "bytes": 24811,
+      "status": "readable",
+      "representation": "curated_paraphrase",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/input-raw/sprint-competency-tasks.json",
+      "bytes": 1549,
+      "status": "readable",
+      "representation": "curated_paraphrase",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json",
+      "bytes": 2809,
+      "status": "readable",
+      "representation": "curated_paraphrase",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/input-preconsolidation/literature-review-observations.json",
+      "bytes": 3411,
+      "status": "readable",
+      "representation": "curated_paraphrase",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json",
+      "bytes": 2500,
+      "status": "readable",
+      "representation": "curated_paraphrase",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/provenance/napcore-retrieval-audit.json",
+      "bytes": 826,
+      "status": "readable",
+      "representation": "curated_paraphrase",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf",
+      "bytes": 998524,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 42,
+      "extracted_characters": 96392
+    },
+    {
+      "path": "mobilitydcat/input-raw/dcat-ap-webinar-1-2021.pdf",
+      "bytes": 1633488,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 70,
+      "extracted_characters": 25216
+    },
+    {
+      "path": "healthdcat/input-raw/ehds-proposal.html",
+      "bytes": 730428,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "html_text_parsed",
+      "visible_characters": 524996
+    },
+    {
+      "path": "healthdcat/input-raw/gdpr.html",
+      "bytes": 808516,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "html_text_parsed",
+      "visible_characters": 628021
+    },
+    {
+      "path": "healthdcat/input-raw/w3c-dcat-2-2020.html",
+      "bytes": 467431,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "html_text_parsed",
+      "visible_characters": 228522
+    },
+    {
+      "path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf",
+      "bytes": 999040,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 42,
+      "extracted_characters": 96407
+    },
+    {
+      "path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf",
+      "bytes": 969968,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 29,
+      "extracted_characters": 63735
+    },
+    {
+      "path": "healthdcat/provenance/health-ms61-deposit.json",
+      "bytes": 10162,
+      "status": "readable",
+      "representation": "metadata_copy",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "healthdcat/provenance/twg-ms6.2-mixed-minutes.pdf",
+      "bytes": 12116950,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 166,
+      "extracted_characters": 63600
+    },
+    {
+      "path": "healthdcat/provenance/health-ms62-deposit.json",
+      "bytes": 10400,
+      "status": "readable",
+      "representation": "metadata_copy",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "healthdcat/reference-requirements/d6.1-profile-delivery.pdf",
+      "bytes": 460325,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 3,
+      "extracted_characters": 3296
+    },
+    {
+      "path": "healthdcat/provenance/health-d61-deposit.json",
+      "bytes": 8947,
+      "status": "readable",
+      "representation": "metadata_copy",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "bytes": 3650175,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 98,
+      "extracted_characters": 243869
+    },
+    {
+      "path": "healthdcat/provenance/health-d62-deposit.json",
+      "bytes": 10072,
+      "status": "readable",
+      "representation": "metadata_copy",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "healthdcat/provenance/d6.2-annex-functional-analysis.pdf",
+      "bytes": 769300,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 103,
+      "extracted_characters": 104961
+    },
+    {
+      "path": "healthdcat/provenance/health-usecases-deposit.json",
+      "bytes": 6186,
+      "status": "readable",
+      "representation": "metadata_copy",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "healthdcat/provenance/ehds-adopted-2025.html",
+      "bytes": 886068,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "html_text_parsed",
+      "visible_characters": 691726
+    },
+    {
+      "path": "healthdcat/reference-requirements/curated-requirements.json",
+      "bytes": 5250,
+      "status": "readable",
+      "representation": "curated_paraphrase",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "healthdcat/input-preconsolidation/twg-observations.json",
+      "bytes": 1977,
+      "status": "readable",
+      "representation": "curated_paraphrase",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "statdcat/input-raw/w3c-dcat-2014.html",
+      "bytes": 89699,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "html_text_parsed",
+      "visible_characters": 42125
+    },
+    {
+      "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+      "bytes": 174074,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "html_text_parsed",
+      "visible_characters": 111859
+    },
+    {
+      "path": "statdcat/provenance/dcat-ap-1.1-later-snapshot.pdf",
+      "bytes": 1045470,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 30,
+      "extracted_characters": 74661
+    },
+    {
+      "path": "statdcat/reference-requirements/stat-final.pdf",
+      "bytes": 3898420,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 94,
+      "extracted_characters": 203582
+    },
+    {
+      "path": "statdcat/provenance/citations/sdmx.json",
+      "bytes": 807,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "statdcat/provenance/citations/esms.json",
+      "bytes": 823,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "statdcat/reference-requirements/requirements-and-resolutions.json",
+      "bytes": 2748,
+      "status": "readable",
+      "representation": "curated_paraphrase",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "statdcat/input-raw/reconstructed-use-cases.json",
+      "bytes": 754,
+      "status": "readable",
+      "representation": "retrospective_reconstruction",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "geodcat/input-raw/inspire-directive.html",
+      "bytes": 143717,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "html_text_parsed",
+      "visible_characters": 100400
+    },
+    {
+      "path": "geodcat/input-raw/inspire-metadata.html",
+      "bytes": 133710,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "html_text_parsed",
+      "visible_characters": 85499
+    },
+    {
+      "path": "geodcat/input-raw/inspire-interoperability.html",
+      "bytes": 869695,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "html_text_parsed",
+      "visible_characters": 533120
+    },
+    {
+      "path": "geodcat/input-raw/w3c-dcat-2014.html",
+      "bytes": 89699,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "html_text_parsed",
+      "visible_characters": 42125
+    },
+    {
+      "path": "geodcat/provenance/dcat-ap-1.1-later-snapshot.pdf",
+      "bytes": 1045470,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 30,
+      "extracted_characters": 74661
+    },
+    {
+      "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+      "bytes": 1952897,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "original_pdf_parser_warnings": [
+        "Ignoring wrong pointing object 18 0 (offset 0)",
+        "Ignoring wrong pointing object 40 0 (offset 0)",
+        "Ignoring wrong pointing object 42 0 (offset 0)",
+        "Ignoring wrong pointing object 45 0 (offset 0)",
+        "Ignoring wrong pointing object 46 0 (offset 0)",
+        "Ignoring wrong pointing object 48 0 (offset 0)",
+        "Ignoring wrong pointing object 49 0 (offset 0)",
+        "Ignoring wrong pointing object 51 0 (offset 0)",
+        "Ignoring wrong pointing object 52 0 (offset 0)",
+        "Ignoring wrong pointing object 54 0 (offset 0)",
+        "Ignoring wrong pointing object 55 0 (offset 0)",
+        "Ignoring wrong pointing object 57 0 (offset 0)",
+        "Ignoring wrong pointing object 58 0 (offset 0)",
+        "Ignoring wrong pointing object 60 0 (offset 0)",
+        "Ignoring wrong pointing object 61 0 (offset 0)",
+        "Ignoring wrong pointing object 63 0 (offset 0)",
+        "Ignoring wrong pointing object 64 0 (offset 0)",
+        "Ignoring wrong pointing object 66 0 (offset 0)",
+        "Ignoring wrong pointing object 67 0 (offset 0)",
+        "Ignoring wrong pointing object 69 0 (offset 0)",
+        "Ignoring wrong pointing object 70 0 (offset 0)",
+        "Ignoring wrong pointing object 72 0 (offset 0)",
+        "Ignoring wrong pointing object 73 0 (offset 0)",
+        "Ignoring wrong pointing object 75 0 (offset 0)",
+        "Ignoring wrong pointing object 76 0 (offset 0)",
+        "Ignoring wrong pointing object 78 0 (offset 0)",
+        "Ignoring wrong pointing object 79 0 (offset 0)",
+        "Ignoring wrong pointing object 80 0 (offset 0)"
+      ],
+      "pages": 99,
+      "extracted_characters": 293105
+    },
+    {
+      "path": "geodcat/reference-requirements/geo-final.pdf",
+      "bytes": 1325152,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 87,
+      "extracted_characters": 165438
+    },
+    {
+      "path": "geodcat/provenance/citations/iso19115.json",
+      "bytes": 773,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "geodcat/provenance/citations/iso19119.json",
+      "bytes": 773,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "geodcat/provenance/citations/iso19139.json",
+      "bytes": 806,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "geodcat/reference-requirements/alignment-requirements.json",
+      "bytes": 2442,
+      "status": "readable",
+      "representation": "curated_paraphrase",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "jrc-research/input-raw/w3c-dcat-2014.html",
+      "bytes": 89699,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "html_text_parsed",
+      "visible_characters": 42125
+    },
+    {
+      "path": "jrc-research/provenance/dcat-ap-1.1-later-snapshot.pdf",
+      "bytes": 1045470,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 30,
+      "extracted_characters": 74661
+    },
+    {
+      "path": "jrc-research/input-raw/jrc-data-policy-2015.pdf",
+      "bytes": 1085782,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 14,
+      "extracted_characters": 27942
+    },
+    {
+      "path": "jrc-research/provenance/citations/datacite31.json",
+      "bytes": 989,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "jrc-research/provenance/citations/jrc-paper.json",
+      "bytes": 948,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "jrc-research/reference-requirements/core-requirements.json",
+      "bytes": 1819,
+      "status": "readable",
+      "representation": "curated_paraphrase",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "jrc-research/input-raw/datacite-3.1-field-context.json",
+      "bytes": 1494,
+      "status": "readable",
+      "representation": "curated_paraphrase",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "epos/exploratory/w3c-dcat-2014.html",
+      "bytes": 89699,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "html_text_parsed",
+      "visible_characters": 42125
+    },
+    {
+      "path": "epos/reference-requirements/epos-final.pdf",
+      "bytes": 1243889,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "all_pages_parsed",
+      "pages": 32,
+      "extracted_characters": 74292
+    },
+    {
+      "path": "epos/provenance/EPOS-LICENSE.txt",
+      "bytes": 1064,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "utf8_text"
+    },
+    {
+      "path": "epos/exploratory/project-scope-and-references.md",
+      "bytes": 3051,
+      "status": "readable",
+      "representation": "original_copy",
+      "readability_check": "utf8_text"
+    },
+    {
+      "path": "epos/provenance/citations/epos-core.json",
+      "bytes": 822,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    },
+    {
+      "path": "epos/provenance/citations/epos-egu2019.json",
+      "bytes": 862,
+      "status": "readable",
+      "representation": "citation_only",
+      "readability_check": "json_parsed"
+    }
+  ],
+  "errors": [],
+  "limitations": [
+    "Integrity/readability is not semantic adjudication.",
+    "Citation-only URLs are not full local source artifacts.",
+    "No claim of complete historical reconstruction or evaluation performance.",
+    "External resources required by ReSpec HTML are not bundled.",
+    "Some original PDFs have recoverable cross-reference warnings, retained per artifact; source bytes were not repaired."
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "observations": [
+    {
+      "source_locator": "Annex 2 §2.2",
+      "observation": "FAIR guidance addresses federation, standards and discoverable, reusable data."
+    },
+    {
+      "source_locator": "Annex 2 §2.3",
+      "observation": "Open Data Directive supplies reuse, licensing and high-value data context including transport."
+    },
+    {
+      "source_locator": "Annex 2 §2.4",
+      "observation": "INSPIRE supplies discovery criteria and metadata definitions, including services, spatial and temporal context, licences and conformance."
+    },
+    {
+      "source_locator": "Annex 2 §2.5",
+      "observation": "DCAT-AP supplies the extension baseline, multilingual representation and mandatory/optional catalogue concepts."
+    },
+    {
+      "source_locator": "Annex 2 §2.6",
+      "observation": "EU EIP CMC supplies 32 minimum metadata elements; its guideline and 2020 annual report discuss deployment variation and harmonisation obstacles."
+    },
+    {
+      "source_locator": "Annex 2 §2.7",
+      "observation": "The reviewed training introduces DCAT concepts, controlled vocabularies, obligations and extension conformance."
+    },
+    {
+      "source_locator": "Annex 2 §2.8",
+      "observation": "Reviewers considered the proposed DGA of limited direct relevance to the NAP scope at that time."
+    },
+    {
+      "source_locator": "Annex 2 §2.9",
+      "observation": "Reviewers considered the European data strategy of limited direct metadata relevance."
+    },
+    {
+      "source_locator": "Annex 2 §2.10",
+      "observation": "The FAIR-cost study discusses missing persistent identifiers, incomplete descriptions, interoperable standards and machine-readable metadata."
+    },
+    {
+      "source_locator": "Annex 2 §2.11",
+      "observation": "Riley and Baca provide general metadata and interoperability background."
+    },
+    {
+      "source_locator": "Annex 2 §2.12",
+      "observation": "SPRINT federation maps Belgian, Dutch and French NAP descriptions into a common catalogue."
+    },
+    {
+      "source_locator": "Annex 2 §2.13",
+      "observation": "SPRINT D2.3 examines NAP/CMC descriptions and formulates metadata competency questions."
+    },
+    {
+      "source_locator": "Annex 2 §2.14",
+      "observation": "The first LOD-RoadTran18 report reviews road-traffic models, ontologies and tooling."
+    },
+    {
+      "source_locator": "Annex 2 §2.15",
+      "observation": "The second LOD-RoadTran18 report compares ITS/PSI implementation and metadata approaches, including harvesting and conversion."
+    },
+    {
+      "source_locator": "Annex 2 §2.16",
+      "observation": "National and geospatial profiles illustrate extension structure and publication artifacts; their exact historical versions were not fully recorded."
+    },
+    {
+      "source_locator": "Annex 2 §2.17",
+      "observation": "TransportDCAT-AP supplies an earlier public-transport profile and constraints considered by reviewers."
+    },
+    {
+      "source_locator": "Annex 2 §2.18",
+      "observation": "Get ready for data presents questions about project strategy, collection/use, ethics and engagement."
+    }
+  ],
+  "note": "17 named numbered groups after §2.1 methodology. Report says 18 summaries/50 resources, but the private reference folder is not a complete one-to-one bibliography. These are review observations, not originals of reviewed sources."
+}

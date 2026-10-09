@@ -1,0 +1,62 @@
+{
+  "reference_kind": "source_explicit_curator_paraphrase",
+  "requirements": [
+    {
+      "id": "S-1",
+      "statement": "Expose the dimensions that distinguish observations, including time and demographic or regional dimensions.",
+      "source_locator": "StatDCAT-AP 1.0 §7.2.1",
+      "adopted_resolution": "stat:dimension",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "S-2",
+      "statement": "Expose attributes needed to interpret observations, such as scaling and observation status.",
+      "source_locator": "StatDCAT-AP 1.0 §7.2.1",
+      "adopted_resolution": "stat:attribute",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "S-3",
+      "statement": "Associate statistical datasets with descriptive quality information.",
+      "source_locator": "StatDCAT-AP 1.0 §7.2.2",
+      "adopted_resolution": "dqv:hasQualityAnnotation",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "S-4",
+      "statement": "Identify delivery resources that present dataset visualisations.",
+      "source_locator": "StatDCAT-AP 1.0 §7.2.3",
+      "adopted_resolution": "dct:type on Distribution; VISUALIZATION authority concept",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "S-5",
+      "statement": "Indicate the actual number of statistical series represented in a dataset.",
+      "source_locator": "StatDCAT-AP 1.0 §7.2.4",
+      "adopted_resolution": "stat:numSeries",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "S-6",
+      "statement": "Identify the unit in which dataset observations are measured.",
+      "source_locator": "StatDCAT-AP 1.0 §7.2.5",
+      "adopted_resolution": "stat:statUnitMeasure",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "S-7",
+      "statement": "Represent time-series coverage and periodicity without relying on an ambiguous shorthand.",
+      "source_locator": "StatDCAT-AP 1.0 §7.2.6",
+      "adopted_resolution": "dct:temporal with schema:startDate/schema:endDate; dct:accrualPeriodicity",
+      "statement_kind": "curator_paraphrase",
+      "adjudication_status": "not_independently_adjudicated"
+    }
+  ],
+  "note": "Seven scoped entries for §7.2, not all obligations of the finished profile. The last is representation guidance, not an explicitly stated new property requirement."
+}

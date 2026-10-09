@@ -1,0 +1,19 @@
+{
+  "id": "get-ready",
+  "title": "Get ready for data! (Bernard van Leer Foundation and Open Data Institute)",
+  "original_url": "https://vanleerfoundation.org/wp-content/uploads/2018/10/BvLF-and-ODI-%E2%80%93-Get-Ready-for-Data-%E2%80%93-Final-Proof-V4.pdf",
+  "publication_date": "2018",
+  "version": null,
+  "retrieved_on": "2026-10-07",
+  "local_filename": "provenance/citations/get-ready.json",
+  "role": "raw_input",
+  "explicitly_documented_as_input": true,
+  "input_documentation": "NAPCORE Annex 2 §2.18",
+  "completeness": "partial",
+  "confidence": "high",
+  "representation": "citation_only",
+  "license": "Citation only; redistribution rights not established",
+  "runtime_modes": [],
+  "notes": "Readable 42-page public tool inspected; explicit redistribution licence not established. Compact version not separately reconstructed.",
+  "availability": "Citation record only; not a runtime document."
+}

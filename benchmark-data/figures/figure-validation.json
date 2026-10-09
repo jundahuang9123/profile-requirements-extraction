@@ -1,0 +1,55 @@
+{
+  "status": "passed",
+  "created_on": "2026-10-08",
+  "checks": [
+    {
+      "file": "01-benchmark-evidence-map.pdf",
+      "bytes": 5349,
+      "sha256": "82a97873dac0c578d94229f29280089044a86c2b25ac06b8858af063ef9a0841",
+      "pages": 1,
+      "extractable_characters": 2194
+    },
+    {
+      "file": "01-benchmark-evidence-map.svg",
+      "bytes": 24546,
+      "sha256": "af378d31e23c756e6a51f7af91ff02ddf3d8effd3bfbf43c75ec043b829fe03d",
+      "xml_readable": true
+    },
+    {
+      "file": "01-benchmark-evidence-map.png",
+      "bytes": 601857,
+      "sha256": "9e0b4ac4b377e5a2d6b088b1867fd4b28539c522d366c18c23d50160655fe7a2",
+      "pixels": [
+        3000,
+        2563
+      ]
+    },
+    {
+      "file": "02-mobility-requirement-examples.pdf",
+      "bytes": 4294,
+      "sha256": "c0ede0ed26c3f4b483cd4ffb4141403571b3f2852eb853f8d7db7ddac2a97273",
+      "pages": 1,
+      "extractable_characters": 1405
+    },
+    {
+      "file": "02-mobility-requirement-examples.svg",
+      "bytes": 11709,
+      "sha256": "14f918dd088de2c83249ddd93d1def44deaec051007903293d2e5130b31ad50f",
+      "xml_readable": true
+    },
+    {
+      "file": "02-mobility-requirement-examples.png",
+      "bytes": 370567,
+      "sha256": "601873936e1479c03988182d4c9423effb5bbac6c0ce880ead9052bafb07661b",
+      "pixels": [
+        3000,
+        2259
+      ]
+    }
+  ],
+  "notes": [
+    "Visual review performed on rendered PNGs.",
+    "Source counts checked by build_figures.py.",
+    "No workflow evaluation or historical traceability adjudication performed."
+  ]
+}

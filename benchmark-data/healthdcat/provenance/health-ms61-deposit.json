@@ -1,0 +1,154 @@
+{
+  "created": "2025-03-27T11:33:37.357909+00:00",
+  "modified": "2025-03-27T11:33:37.757941+00:00",
+  "id": 15089787,
+  "conceptrecid": "15089786",
+  "doi": "10.5281/zenodo.15089787",
+  "conceptdoi": "10.5281/zenodo.15089786",
+  "doi_url": "https://doi.org/10.5281/zenodo.15089787",
+  "metadata": {
+    "title": "HealthData@EU pilot project - Milestone 6.1 Report on the landscape analysis of available metadata catalogues and the metadata standards in use",
+    "doi": "10.5281/zenodo.15089787",
+    "publication_date": "2025-03-26",
+    "description": "<p>Multiple studies have shown that one of the main barriers to the re-use of health data is the lack of findability. The absence of an inventory listing datasets available for secondary use prevents researchers and policymakers from accessing valuable health data. A metadata catalogue serves as such an inventory, consisting of metadata records&mdash;one per dataset&mdash;describing the dataset without granting direct access to the data itself.</p>\n<p>Recognizing this challenge,the European Health Data Space (EHDS) regulation, emphasizes the need for a common metadata catalogue at the European level. This catalogue would facilitate the discovery and secondary use of health-related data across Europe. As part of the HealthData@EU pilot project, WP6 was responsible for developing a standardized metadata template and an online tool to support the creation of local, national, and European metadata catalogues, ensuring seamless interconnectivity. To design this standardized template, an initial step involved analyzing existing metadata standards and catalogues.</p>\n<p>A study conducted by the Joint Action TEHDAS revealed the widespread use of various metadata standards, including:</p>\n<ul>\n<li>\n<p>MIABIS (Minimal Information About Biobank Data Sharing)</p>\n</li>\n<li>\n<p>DCAT-AP (Data Catalogue Vocabulary - Application Profile)</p>\n</li>\n<li>\n<p>CESSDA CMM (Consortium of European Social Science Data Archives - Core Metadata Model)</p>\n</li>\n<li>\n<p>DDI (Data Documentation Initiative)</p>\n</li>\n</ul>\n<p>Among these, DCAT-AP is the standard used by<a href=\"https://data.europa.eu/\"> data.europa.eu</a>, which aggregates metadata from multiple sectors, including health, environment, education, justice, and transport. To ensure compatibility and enable harvesting of national health-related metadata catalogues by<a href=\"https://data.europa.eu/\"> data.europa.eu</a>, the DCAT-AP standard was chosen as the baseline for HealthData@EU.</p>\n<h3><strong>Need for a Health-Specific DCAT-AP Extension</strong></h3>\n<p>While DCAT-AP is widely used, it does not fully address the specific needs of health data. Existing metadata records describing health-related datasets lack granularity and essential properties, limiting findability and reusability.</p>\n<p>Key missing elements include:</p>\n<ul>\n<li>\n<p>Granularity of data (aggregated vs. individual-level data)</p>\n</li>\n<li>\n<p>Health topic classification (e.g., disease type)</p>\n</li>\n<li>\n<p>Demographic attributes (age range, sex)</p>\n</li>\n<li>\n<p>Data quality indicators (e.g., adherence to semantic standards)</p>\n</li>\n</ul>\n<p>To address these gaps, WP6 of the HealthData@EU pilot project has designed HealthDCAT-AP, an extension of DCAT-AP tailored for health-related datasets.</p>\n<h3><strong>Methodology and Approach</strong></h3>\n<p>To support the development of HealthDCAT-AP, WP6 launched a sandbox environment in January 2023. This online tool, based on FAIR Data Point technology, allowed metadata collection and validation through:</p>\n<ul>\n<li>\n<p>A web-based interface for health data providers to create metadata records.</p>\n</li>\n<li>\n<p>A back-end server supporting metadata integration and interconnectivity.</p>\n</li>\n</ul>\n<p>Additionally, WP6 collected metadata information through three structured forms distributed to:</p>\n<ul>\n<li>\n<p>HealthData@EU consortium nodes</p>\n</li>\n<li>\n<p>Use case leaders, who then shared them with their respective networks</p>\n</li>\n</ul>\n<p>The collected data was analyzed to assess catalogue structure, metadata properties, and health domain coverage.</p>\n<h3><strong>Conclusion</strong></h3>\n<p>The landscape analysis revealed significant gaps in existing metadata catalogues regarding health-related datasets. To enhance findability, interoperability, and reusability, WP6 has designed HealthDCAT-AP as a specialized solution for the EHDS framework.</p>\n<p>This report provides a foundation for further development and implementation of metadata standards in health data governance, ensuring seamless data discovery across European platforms.</p>",
+    "access_right": "open",
+    "creators": [
+      {
+        "name": "Health Data Hub",
+        "affiliation": null
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Derycke, Pascal",
+        "affiliation": "Sciensano (Belgium)",
+        "type": "ProjectMember",
+        "orcid": "0000-0002-4658-5185"
+      },
+      {
+        "name": "Vande Catsyne, Charles-Andrew",
+        "affiliation": "Sciensano (Belgium)",
+        "type": "ProjectMember",
+        "orcid": "0000-0001-6283-9029"
+      },
+      {
+        "name": "Kessissoglou, Irini",
+        "affiliation": null,
+        "type": "ProjectMember",
+        "orcid": "0000-0001-9061-7335"
+      },
+      {
+        "name": "Korsgaard, Truls",
+        "affiliation": "Norwegian Institute of Public Health",
+        "type": "ProjectMember"
+      },
+      {
+        "name": "Huru, Hans",
+        "affiliation": "Norwegian Institute of Public Health",
+        "type": "ProjectMember"
+      }
+    ],
+    "dates": [
+      {
+        "type": "accepted"
+      }
+    ],
+    "language": "eng",
+    "resource_type": {
+      "title": "Project milestone",
+      "type": "publication",
+      "subtype": "milestone"
+    },
+    "license": {
+      "id": "cc-by-4.0"
+    },
+    "relations": {
+      "version": [
+        {
+          "index": 0,
+          "is_last": true,
+          "parent": {
+            "pid_type": "recid",
+            "pid_value": "15089786"
+          }
+        }
+      ]
+    }
+  },
+  "title": "HealthData@EU pilot project - Milestone 6.1 Report on the landscape analysis of available metadata catalogues and the metadata standards in use",
+  "links": {
+    "self": "https://zenodo.org/api/records/15089787",
+    "self_html": "https://zenodo.org/records/15089787",
+    "preview_html": "https://zenodo.org/records/15089787?preview=1",
+    "doi": "https://doi.org/10.5281/zenodo.15089787",
+    "self_doi": "https://doi.org/10.5281/zenodo.15089787",
+    "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.15089787",
+    "reserve_doi": "https://zenodo.org/api/records/15089787/draft/pids/doi",
+    "parent": "https://zenodo.org/api/records/15089786",
+    "parent_html": "https://zenodo.org/records/15089786",
+    "parent_doi": "https://doi.org/10.5281/zenodo.15089786",
+    "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.15089786",
+    "self_iiif_manifest": "https://zenodo.org/api/iiif/record:15089787/manifest",
+    "self_iiif_sequence": "https://zenodo.org/api/iiif/record:15089787/sequence/default",
+    "files": "https://zenodo.org/api/records/15089787/files",
+    "media_files": "https://zenodo.org/api/records/15089787/media-files",
+    "thumbnails": {
+      "10": "https://zenodo.org/api/iiif/record:15089787:HealthData@EU-Pilot_MS6.1_FIN.pdf/full/%5E10,/0/default.jpg",
+      "50": "https://zenodo.org/api/iiif/record:15089787:HealthData@EU-Pilot_MS6.1_FIN.pdf/full/%5E50,/0/default.jpg",
+      "100": "https://zenodo.org/api/iiif/record:15089787:HealthData@EU-Pilot_MS6.1_FIN.pdf/full/%5E100,/0/default.jpg",
+      "250": "https://zenodo.org/api/iiif/record:15089787:HealthData@EU-Pilot_MS6.1_FIN.pdf/full/%5E250,/0/default.jpg",
+      "750": "https://zenodo.org/api/iiif/record:15089787:HealthData@EU-Pilot_MS6.1_FIN.pdf/full/%5E750,/0/default.jpg",
+      "1200": "https://zenodo.org/api/iiif/record:15089787:HealthData@EU-Pilot_MS6.1_FIN.pdf/full/%5E1200,/0/default.jpg"
+    },
+    "archive": "https://zenodo.org/api/records/15089787/files-archive",
+    "archive_media": "https://zenodo.org/api/records/15089787/media-files-archive",
+    "latest": "https://zenodo.org/api/records/15089787/versions/latest",
+    "latest_html": "https://zenodo.org/records/15089787/latest",
+    "versions": "https://zenodo.org/api/records/15089787/versions",
+    "draft": "https://zenodo.org/api/records/15089787/draft",
+    "access_links": "https://zenodo.org/api/records/15089787/access/links",
+    "access_grants": "https://zenodo.org/api/records/15089787/access/grants",
+    "access_users": "https://zenodo.org/api/records/15089787/access/users",
+    "access_request": "https://zenodo.org/api/records/15089787/access/request",
+    "access": "https://zenodo.org/api/records/15089787/access",
+    "communities": "https://zenodo.org/api/records/15089787/communities",
+    "communities-suggestions": "https://zenodo.org/api/records/15089787/communities-suggestions",
+    "request_deletion": "https://zenodo.org/api/records/15089787/request-deletion",
+    "file_modification": "https://zenodo.org/api/records/15089787/file-modification",
+    "quota_increase": "https://zenodo.org/api/records/15089787/quota-increase",
+    "requests": "https://zenodo.org/api/records/15089787/requests"
+  },
+  "updated": "2025-03-27T11:33:37.757941+00:00",
+  "recid": "15089787",
+  "revision": 3,
+  "files": [
+    {
+      "id": "e486337c-9f60-43cc-bafd-169a7614aa8c",
+      "key": "HealthData@EU-Pilot_MS6.1_FIN.pdf",
+      "size": 969968,
+      "checksum": "md5:0aa396ced48ed8a30006fa30dd397f3b",
+      "links": {
+        "self": "https://zenodo.org/api/records/15089787/files/HealthData@EU-Pilot_MS6.1_FIN.pdf/content"
+      }
+    }
+  ],
+  "swh": {},
+  "owners": [
+    {
+      "id": "1284821"
+    }
+  ],
+  "status": "published",
+  "stats": {
+    "downloads": 348,
+    "unique_downloads": 268,
+    "views": 373,
+    "unique_views": 355,
+    "version_downloads": 348,
+    "version_unique_downloads": 268,
+    "version_unique_views": 355,
+    "version_views": 373
+  },
+  "state": "done",
+  "submitted": true
+}

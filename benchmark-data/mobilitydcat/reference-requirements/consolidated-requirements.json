@@ -1,0 +1,410 @@
+{
+  "schema_version": "rq1-reference-set-1",
+  "reference_kind": "published_rows_curator_paraphrase",
+  "source_version": "1.0",
+  "count": 40,
+  "preserve_compound_rows": true,
+  "requirements": [
+    {
+      "id": "Req-1",
+      "statement": "Use sufficiently expressive, context-aware and modular descriptions with explicit structure, types and rules; distinguish entity identities, preserve references, and support persistent identifiers.",
+      "statement_kind": "curator_paraphrase",
+      "type": "General",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-1, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-2",
+      "statement": "Make data findable and reusable; provide a basis for NAP metadata databases, describe catalogues, data and their delivery options, and support metadata federation.",
+      "statement_kind": "curator_paraphrase",
+      "type": "General",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-2, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-3",
+      "statement": "Expose descriptions in forms suitable for people and software.",
+      "statement_kind": "curator_paraphrase",
+      "type": "General",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-3, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-4",
+      "statement": "Accommodate descriptions in several languages.",
+      "statement_kind": "curator_paraphrase",
+      "type": "General",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-4, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-5",
+      "statement": "Use shared vocabularies so participants interpret metadata consistently.",
+      "statement_kind": "curator_paraphrase",
+      "type": "General",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-5, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-6",
+      "statement": "Use a common serialization that software agents can process automatically.",
+      "statement_kind": "curator_paraphrase",
+      "type": "General",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-6, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-7",
+      "statement": "Publish freely accessible documentation on the Web and, where feasible, provide digitally annotated repository documentation.",
+      "statement_kind": "curator_paraphrase",
+      "type": "General",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-7, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-8",
+      "statement": "Establish governance and revision procedures, public issue discussion and release planning, and incorporate resolved changes in later versions.",
+      "statement_kind": "curator_paraphrase",
+      "type": "General",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-8, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-9",
+      "statement": "Build on DCAT-AP terms when suitable and follow its extension rules for additions.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Existing Vocabularies",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-9, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-10",
+      "statement": "Account for subsequent changes to the DCAT-AP baseline.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Existing Vocabularies",
+      "importance": "optional",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-10, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-11",
+      "statement": "Review the complete CMC element set against mobility catalogue needs.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Existing Vocabularies",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-11, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-12",
+      "statement": "Account for other DCAT-AP profiles and INSPIRE metadata practice.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Existing Vocabularies",
+      "importance": "optional",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-12, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-13",
+      "statement": "Preserve interoperability with code lists already deployed by NAP operators.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Existing Vocabularies",
+      "importance": "optional",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-13, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-14",
+      "statement": "Describe the varied mobility domain in enough detail to distinguish its growing dataset inventory.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-14, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-15",
+      "statement": "Define a common essential element set while permitting deployment-specific additions.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-15, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-16",
+      "statement": "Examine the established CMC/DCAT-AP correspondences to identify unrepresented information.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-16, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-17",
+      "statement": "Record creation and revision times, description language, and responsibility for maintaining a metadata record.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-17, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-18",
+      "statement": "State how the metadata record itself may be reused.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-18, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-19",
+      "statement": "Characterise the data using a title and synopsis, resource kind, dataset and service classifications including MMTIS service categories, language and payload georeferencing.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-19, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-20",
+      "statement": "Indicate which ITS delegated regulations apply to a resource.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-20, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-21",
+      "statement": "Coordinate, host, maintain and extend multilingual code lists for describing dataset and service content.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-21, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-22",
+      "statement": "Represent the interval over which the published data remain valid.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-22, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-23",
+      "statement": "Describe spatial extent, applicable regions and network coverage using established functional classifications.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-23, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-24",
+      "statement": "Identify payload location-reference methods and coordinate reference systems.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-24, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-25",
+      "statement": "Identify the transport modes and operators represented by the data.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-25, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-26",
+      "statement": "Identify the publishing and owning parties for a dataset.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-26, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-27",
+      "statement": "Describe contractual, licensing and other conditions on data use.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-27, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-28",
+      "statement": "Describe the encoding, syntax, grammar and underlying data model used for access.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-28, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-29",
+      "statement": "Offer schema information and example data so consumers can assess suitability before integration.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-29, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-30",
+      "statement": "Distinguish precise data-model versions, publication types and extensions, such as those used in DATEX II, for discovery.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-30, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-31",
+      "statement": "Record update cadence, quality criteria and the history and status of ITS-regulation compliance assessments.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-31, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-32",
+      "statement": "Define occurrence limits and obligation levels and explain their consequences for database storage, user interfaces and harvesting, consistently with DCAT-AP.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-32, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-33",
+      "statement": "Provide identifier guidance.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "optional",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-33, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-34",
+      "statement": "Define permitted values for metadata elements, using suitable controlled vocabularies.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-34, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-35",
+      "statement": "Track revisions and versions of catalogue metadata.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Content",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-35, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-36",
+      "statement": "Enable automated conformance checking of metadata.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Implementation",
+      "importance": "optional",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-36, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-37",
+      "statement": "Explain element meanings and how to apply them within NAP operations.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Implementation",
+      "importance": "mandatory",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-37, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-38",
+      "statement": "Explain allocation of metadata between a dataset or service and its multiple delivery resources.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Implementation",
+      "importance": "optional",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-38, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-39",
+      "statement": "Explain exchange of mobility-specific descriptions with other-domain portals, including handling extensions during harvesting.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Implementation",
+      "importance": "optional",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-39, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "Req-40",
+      "statement": "Give guidance for assuring the quality of metadata received by a NAP.",
+      "statement_kind": "curator_paraphrase",
+      "type": "Implementation",
+      "importance": "optional",
+      "source_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+      "source_locator": "Main report Table 1, original Req-40, PDF pages 15–19",
+      "adjudication_status": "not_independently_adjudicated"
+    }
+  ],
+  "note": "All 40 original IDs retained. This representation is not a verbatim transcription or independently validated atomic gold. Consult source Table 1 for exact text."
+}

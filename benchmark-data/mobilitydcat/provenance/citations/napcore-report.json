@@ -1,0 +1,19 @@
+{
+  "id": "napcore-report",
+  "title": "NAPCORE Requirements Analysis for a new Metadata Specification (Bureš, Lubrich et al.)",
+  "original_url": "https://napcore.eu/wp-content/uploads/2022/08/NAPCORE-4.4.2.1-Requirement-analysis_v1.0.pdf",
+  "publication_date": "2022-06-14",
+  "version": "1.0",
+  "retrieved_on": "2026-10-07",
+  "local_filename": "provenance/citations/napcore-report.json",
+  "role": "reference_requirement",
+  "explicitly_documented_as_input": false,
+  "input_documentation": null,
+  "completeness": "partial",
+  "confidence": "high",
+  "representation": "citation_only",
+  "license": "Citation only; redistribution rights not established",
+  "runtime_modes": [],
+  "notes": "Readable official PDF: 57 physical pages, main report plus annexes. Cover date June 14; document history final release June 20, 2022. No explicit redistribution licence located, so original full PDF is not committed. Table 1 and annex facts are curator paraphrases below. Retrieval SHA256 8d02da91380cd3bdad95df6a9f076968e0bcad0ab1f1b6bd5b1d95544e71f603",
+  "availability": "Citation record only; not a runtime document."
+}

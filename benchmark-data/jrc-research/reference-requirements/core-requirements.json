@@ -1,0 +1,41 @@
+{
+  "reference_kind": "five_published_core_rows_curator_paraphrase",
+  "requirements": [
+    {
+      "id": "JRC-1",
+      "statement": "Identify the people who created a dataset.",
+      "source_locator": "Metadata elements relevant for scientific data, numbered item 1",
+      "adopted_resolution": "dct:creator",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "JRC-2",
+      "statement": "Describe the origin and processing history of data.",
+      "source_locator": "Metadata elements relevant for scientific data, numbered item 2",
+      "adopted_resolution": "dct:provenance",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "JRC-3",
+      "statement": "Give prospective users practical guidance on using a dataset.",
+      "source_locator": "Metadata elements relevant for scientific data, numbered item 3",
+      "adopted_resolution": "vann:usageNote",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "JRC-4",
+      "statement": "Connect datasets to associated scientific publications.",
+      "source_locator": "Metadata elements relevant for scientific data, numbered item 4",
+      "adopted_resolution": "dct:isReferencedBy",
+      "adjudication_status": "not_independently_adjudicated"
+    },
+    {
+      "id": "JRC-5",
+      "statement": "Identify source datasets used in producing a dataset.",
+      "source_locator": "Metadata elements relevant for scientific data, numbered item 5",
+      "adopted_resolution": "dct:source",
+      "adjudication_status": "not_independently_adjudicated"
+    }
+  ],
+  "note": "Only the five explicitly enumerated core requirements are in this sanity set; identifiers, agent roles, APIs and additional open issues are separate future reference extensions."
+}

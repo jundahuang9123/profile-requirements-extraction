@@ -1,0 +1,19 @@
+{
+  "id": "datacite31",
+  "title": "DataCite Metadata Schema Documentation version 3.1",
+  "original_url": "https://schema.datacite.org/meta/kernel-3.1/doc/DataCite-MetadataKernel_v3.1.pdf",
+  "publication_date": "2015-08",
+  "version": "3.1; DOI 10.5438/0010",
+  "retrieved_on": "2026-10-07",
+  "local_filename": "provenance/citations/datacite31.json",
+  "role": "raw_input",
+  "explicitly_documented_as_input": false,
+  "input_documentation": "JRC paper Data citation section names DataCite; exact minor schema version not specified.",
+  "completeness": "partial",
+  "confidence": "high",
+  "representation": "citation_only",
+  "license": "Citation only; redistribution rights not established",
+  "runtime_modes": [],
+  "notes": "Public PDF inspected, readable 38 pages; reuse licence not established from historical PDF. Citation only; 3.1 is a curator-selected historical candidate, not proven exact project input.",
+  "availability": "Citation record only; not a runtime document."
+}

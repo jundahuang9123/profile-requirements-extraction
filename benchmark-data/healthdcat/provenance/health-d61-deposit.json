@@ -1,0 +1,173 @@
+{
+  "created": "2025-03-27T08:55:57.441036+00:00",
+  "modified": "2025-03-27T08:55:58.022563+00:00",
+  "id": 15088611,
+  "conceptrecid": "15088610",
+  "doi": "10.5281/zenodo.15088611",
+  "conceptdoi": "10.5281/zenodo.15088610",
+  "doi_url": "https://doi.org/10.5281/zenodo.15088611",
+  "metadata": {
+    "title": "HealthData@EU pilot project - Deliverable 6.1 Extension of DCAT-AP: Health DCAT-AP",
+    "doi": "10.5281/zenodo.15088611",
+    "publication_date": "2025-03-26",
+    "description": "<p>HealthDCAT-AP is a health-related extension of the DCAT application profile for sharing information about Catalogues containing Datasets and Data Services descriptions in Europe (DCAT-AP) [<a title=\"DCAT Application Profile for data portals in Europe. Version 3.0.0\" href=\"https://healthdcat-ap.github.io/#bib-dcat-ap-v3\">DCAT-AP</a>].</p>\n<p>DCAT-AP is maintained by the SEMIC action, Interoperable Europe. While DCAT-AP provides a minimal common basis within Europe to share Datasets and Data Services cross-border and cross-domain, HealthDCAT-AP introduces a refined RDF vocabulary to accommodate the unique requirements of electronic health data.</p>\n<p>The Regulation on the European Health Data Space [<a title=\"REGULATION OF THE EUROPEAN PARLIAMENT AND OF THE COUNCIL on the European Health Data Space and amending Directive 2011/24/EU and Regulation (EU) 2024/2847\" href=\"https://healthdcat-ap.github.io/#bib-OJ_L_2025-327_5_3_2025\">OJ L, 2025/327, 5.3.2025</a>], aims to establish a unified framework to facilitate the sharing and exchange of electronic health data across Europe. It aligns with European standards for data privacy and security and specifically addresses the challenges and obstacles for the secondary use of health data&mdash;data repurposed from its original collection for research, innovation, or policymaking &ndash; in Europe by outlining specific rules and processes for data availability, usage conditions, and supporting these efforts through a common European infrastructure, healthdata@EU. Key articles within the Regulation detail operational mandates: Article 51 identifies the types of health data that must be made available for secondary use; Article 79 tasks the European Commission to develop an EU dataset catalogue, federating the catalogues of Member states and other authorised participants into HealthData@EU; and Article 77 commissions health data access bodies to provide metadata about available datasets, detailing their source, scope, main characteristics, data nature, and access conditions. The development of a healthDCAT application profile, as an extension of the DCAT application profile, aims to standardise health metadata within the scope of EHDS, fostering greater interoperability, findability and accessibility of electronic health data across the EU.</p>",
+    "access_right": "open",
+    "creators": [
+      {
+        "name": "Health Data Hub",
+        "affiliation": null
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Sciensano (Belgium)",
+        "affiliation": null,
+        "type": "ProjectMember"
+      },
+      {
+        "name": "Norwegian Institute of Public Health",
+        "affiliation": null,
+        "type": "ProjectMember"
+      },
+      {
+        "name": "Derycke, Pascal",
+        "affiliation": "Sciensano",
+        "type": "ProjectMember",
+        "orcid": "0000-0002-4658-5185"
+      },
+      {
+        "name": "Vande Catsyne, Charles-Andrew",
+        "affiliation": "Sciensano (Belgium)",
+        "type": "ProjectMember",
+        "orcid": "0000-0001-6283-9029"
+      },
+      {
+        "name": "Kessissoglou, Irini",
+        "affiliation": null,
+        "type": "ProjectMember",
+        "orcid": "0000-0001-9061-7335"
+      },
+      {
+        "name": "Schutte, Nienke",
+        "affiliation": "Sciensano (Belgium)",
+        "type": "ProjectMember",
+        "orcid": "0000-0002-8064-2569"
+      },
+      {
+        "name": "Korsgaard, Truls",
+        "affiliation": "Norwegian Institute of Public Health",
+        "type": "ProjectMember"
+      },
+      {
+        "name": "Huru, Hans",
+        "affiliation": "Norwegian Institute of Public Health",
+        "type": "ProjectMember"
+      }
+    ],
+    "dates": [
+      {
+        "type": "accepted"
+      }
+    ],
+    "language": "eng",
+    "custom": {
+      "code:codeRepository": "https://healthdcat-ap.github.io/"
+    },
+    "resource_type": {
+      "title": "Project deliverable",
+      "type": "publication",
+      "subtype": "deliverable"
+    },
+    "license": {
+      "id": "cc-by-4.0"
+    },
+    "relations": {
+      "version": [
+        {
+          "index": 0,
+          "is_last": true,
+          "parent": {
+            "pid_type": "recid",
+            "pid_value": "15088610"
+          }
+        }
+      ]
+    }
+  },
+  "title": "HealthData@EU pilot project - Deliverable 6.1 Extension of DCAT-AP: Health DCAT-AP",
+  "links": {
+    "self": "https://zenodo.org/api/records/15088611",
+    "self_html": "https://zenodo.org/records/15088611",
+    "preview_html": "https://zenodo.org/records/15088611?preview=1",
+    "doi": "https://doi.org/10.5281/zenodo.15088611",
+    "self_doi": "https://doi.org/10.5281/zenodo.15088611",
+    "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.15088611",
+    "reserve_doi": "https://zenodo.org/api/records/15088611/draft/pids/doi",
+    "parent": "https://zenodo.org/api/records/15088610",
+    "parent_html": "https://zenodo.org/records/15088610",
+    "parent_doi": "https://doi.org/10.5281/zenodo.15088610",
+    "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.15088610",
+    "self_iiif_manifest": "https://zenodo.org/api/iiif/record:15088611/manifest",
+    "self_iiif_sequence": "https://zenodo.org/api/iiif/record:15088611/sequence/default",
+    "files": "https://zenodo.org/api/records/15088611/files",
+    "media_files": "https://zenodo.org/api/records/15088611/media-files",
+    "thumbnails": {
+      "10": "https://zenodo.org/api/iiif/record:15088611:D6.1%20Extension%20of%20DCAT-AP_%20Health%20DCAT-AP%20(1).pdf/full/%5E10,/0/default.jpg",
+      "50": "https://zenodo.org/api/iiif/record:15088611:D6.1%20Extension%20of%20DCAT-AP_%20Health%20DCAT-AP%20(1).pdf/full/%5E50,/0/default.jpg",
+      "100": "https://zenodo.org/api/iiif/record:15088611:D6.1%20Extension%20of%20DCAT-AP_%20Health%20DCAT-AP%20(1).pdf/full/%5E100,/0/default.jpg",
+      "250": "https://zenodo.org/api/iiif/record:15088611:D6.1%20Extension%20of%20DCAT-AP_%20Health%20DCAT-AP%20(1).pdf/full/%5E250,/0/default.jpg",
+      "750": "https://zenodo.org/api/iiif/record:15088611:D6.1%20Extension%20of%20DCAT-AP_%20Health%20DCAT-AP%20(1).pdf/full/%5E750,/0/default.jpg",
+      "1200": "https://zenodo.org/api/iiif/record:15088611:D6.1%20Extension%20of%20DCAT-AP_%20Health%20DCAT-AP%20(1).pdf/full/%5E1200,/0/default.jpg"
+    },
+    "archive": "https://zenodo.org/api/records/15088611/files-archive",
+    "archive_media": "https://zenodo.org/api/records/15088611/media-files-archive",
+    "latest": "https://zenodo.org/api/records/15088611/versions/latest",
+    "latest_html": "https://zenodo.org/records/15088611/latest",
+    "versions": "https://zenodo.org/api/records/15088611/versions",
+    "draft": "https://zenodo.org/api/records/15088611/draft",
+    "access_links": "https://zenodo.org/api/records/15088611/access/links",
+    "access_grants": "https://zenodo.org/api/records/15088611/access/grants",
+    "access_users": "https://zenodo.org/api/records/15088611/access/users",
+    "access_request": "https://zenodo.org/api/records/15088611/access/request",
+    "access": "https://zenodo.org/api/records/15088611/access",
+    "communities": "https://zenodo.org/api/records/15088611/communities",
+    "communities-suggestions": "https://zenodo.org/api/records/15088611/communities-suggestions",
+    "request_deletion": "https://zenodo.org/api/records/15088611/request-deletion",
+    "file_modification": "https://zenodo.org/api/records/15088611/file-modification",
+    "quota_increase": "https://zenodo.org/api/records/15088611/quota-increase",
+    "requests": "https://zenodo.org/api/records/15088611/requests"
+  },
+  "updated": "2025-03-27T08:55:58.022563+00:00",
+  "recid": "15088611",
+  "revision": 3,
+  "files": [
+    {
+      "id": "4ce603c0-b95d-4144-8d8b-7b9c915703ee",
+      "key": "D6.1 Extension of DCAT-AP_ Health DCAT-AP (1).pdf",
+      "size": 460325,
+      "checksum": "md5:6e233204680f8db15e5360f23b5a65b4",
+      "links": {
+        "self": "https://zenodo.org/api/records/15088611/files/D6.1%20Extension%20of%20DCAT-AP_%20Health%20DCAT-AP%20(1).pdf/content"
+      }
+    }
+  ],
+  "swh": {},
+  "owners": [
+    {
+      "id": "1284821"
+    }
+  ],
+  "status": "published",
+  "stats": {
+    "downloads": 305,
+    "unique_downloads": 244,
+    "views": 369,
+    "unique_views": 351,
+    "version_downloads": 305,
+    "version_unique_downloads": 244,
+    "version_unique_views": 351,
+    "version_views": 369
+  },
+  "state": "done",
+  "submitted": true
+}

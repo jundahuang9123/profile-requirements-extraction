@@ -1,0 +1,47 @@
+{
+  "source_version": "3.1, August 2015 document",
+  "source_locator": "Documentation property tables and appendices",
+  "representation": "Curator factual synopsis; original PDF not redistributed.",
+  "field_context": [
+    {
+      "field": "Identifier",
+      "fact": "The registered resource identifier is a DOI."
+    },
+    {
+      "field": "Creator",
+      "fact": "The schema records resource creators and can associate them with names and identifier schemes."
+    },
+    {
+      "field": "Publisher",
+      "fact": "A publisher makes the resource available."
+    },
+    {
+      "field": "PublicationYear",
+      "fact": "The schema distinguishes the year of public release."
+    },
+    {
+      "field": "ResourceType",
+      "fact": "A broad type and a more specific description characterise the resource."
+    },
+    {
+      "field": "Contributor",
+      "fact": "Contributors are associated with role types, including contact and curation roles."
+    },
+    {
+      "field": "AlternateIdentifier",
+      "fact": "Identifiers outside the primary DOI can be given with their types."
+    },
+    {
+      "field": "RelatedIdentifier",
+      "fact": "Typed relationships connect the resource to related objects."
+    },
+    {
+      "field": "Rights",
+      "fact": "Rights statements and licence links describe conditions of reuse."
+    },
+    {
+      "field": "Description",
+      "fact": "Narrative descriptions may explain the resource, its methods or technical information."
+    }
+  ]
+}

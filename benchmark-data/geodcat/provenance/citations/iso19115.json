@@ -1,0 +1,19 @@
+{
+  "id": "iso19115",
+  "title": "ISO 19115:2003 Geographic information — Metadata",
+  "original_url": "https://www.iso.org/standard/26020.html",
+  "publication_date": "2003",
+  "version": null,
+  "retrieved_on": "2026-10-07",
+  "local_filename": "provenance/citations/iso19115.json",
+  "role": "raw_input",
+  "explicitly_documented_as_input": true,
+  "input_documentation": "GeoDCAT-AP §2.1",
+  "completeness": "partial",
+  "confidence": "high",
+  "representation": "citation_only",
+  "license": "ISO copyright; no standards text redistributed",
+  "runtime_modes": [],
+  "notes": "Citation only. Public EC/INSPIRE guidance may describe implementation, but is not a licence to redistribute ISO text.",
+  "availability": "Citation record only; not a runtime document."
+}

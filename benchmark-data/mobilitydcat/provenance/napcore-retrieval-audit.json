@@ -1,0 +1,24 @@
+{
+  "original_bytes": 1259053,
+  "original_sha256": "8d02da91380cd3bdad95df6a9f076968e0bcad0ab1f1b6bd5b1d95544e71f603",
+  "physical_pages": 57,
+  "source_cover_date": "2022-06-14",
+  "source_document_history_final_date": "2022-06-20",
+  "final_table_ids": 40,
+  "partner_body_count": 53,
+  "labelled_annex_rows": 60,
+  "country_counts": {
+    "DE": 17,
+    "BE": 4,
+    "CY": 1,
+    "CZ": 5,
+    "IT": 27,
+    "GR": 6
+  },
+  "observations": [
+    "DE-00 and DE-06 carry the same need; kept as separate published rows.",
+    "Italian Req-* IDs belong to preconsolidation Annex 1, not final Table 1.",
+    "Main text says 50 resources and 18 summaries; Annex 2 exposes 17 numbered source groups after methodology, not a full original SharePoint inventory.",
+    "No complete private interview/recording corpus recovered."
+  ]
+}

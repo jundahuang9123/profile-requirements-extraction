@@ -1,0 +1,19 @@
+{
+  "id": "dcat-se",
+  "title": "DCAT-AP-SE",
+  "original_url": "https://docs.dataportal.se/dcat/en/",
+  "publication_date": null,
+  "version": null,
+  "retrieved_on": "2026-10-07",
+  "local_filename": "provenance/citations/dcat-se.json",
+  "role": "raw_input",
+  "explicitly_documented_as_input": true,
+  "input_documentation": "NAPCORE Annex 2 §2.16; DE-14 for extension guidelines",
+  "completeness": "partial",
+  "confidence": "medium",
+  "representation": "citation_only",
+  "license": "Citation only; redistribution rights not established",
+  "runtime_modes": [],
+  "notes": "Named historical input family; precise 2021/2022 revision not recovered. Current landing URL is a locator, not historical evidence. Do not enable in runtime.",
+  "availability": "Citation record only; not a runtime document."
+}

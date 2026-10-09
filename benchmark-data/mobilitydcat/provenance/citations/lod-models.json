@@ -1,0 +1,19 @@
+{
+  "id": "lod-models",
+  "title": "LOD-RoadTran18: Analysis and revision of the models used for road traffic and travel information in Europe",
+  "original_url": "https://cef.uv.es/lodroadtran18/index.php/en/implementation",
+  "publication_date": null,
+  "version": null,
+  "retrieved_on": "2026-10-07",
+  "local_filename": "provenance/citations/lod-models.json",
+  "role": "raw_input",
+  "explicitly_documented_as_input": true,
+  "input_documentation": "NAPCORE Annex 2 §2.14",
+  "completeness": "partial",
+  "confidence": "high",
+  "representation": "citation_only",
+  "license": "Citation only; redistribution rights not established",
+  "runtime_modes": [],
+  "notes": "Official results page lists title; individual report bytes not acquired. HTTPS certificate chain failed locally; Exa verified page. Do not substitute 2024 derivative paper.",
+  "availability": "Citation record only; not a runtime document."
+}

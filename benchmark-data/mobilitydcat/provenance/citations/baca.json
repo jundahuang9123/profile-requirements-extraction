@@ -1,0 +1,19 @@
+{
+  "id": "baca",
+  "title": "Baca et al.: Introduction to Metadata, Getty Research Institute (2008)",
+  "original_url": "https://www.getty.edu/publications/intrometadata/",
+  "publication_date": "2008",
+  "version": null,
+  "retrieved_on": "2026-10-07",
+  "local_filename": "provenance/citations/baca.json",
+  "role": "raw_input",
+  "explicitly_documented_as_input": true,
+  "input_documentation": "NAPCORE Annex 2 §2.11",
+  "completeness": "partial",
+  "confidence": "high",
+  "representation": "citation_only",
+  "license": "Citation only; redistribution rights not established",
+  "runtime_modes": [],
+  "notes": "Current landing page is a later edition. Do not substitute its contents for 2008. Historical bytes not frozen.",
+  "availability": "Citation record only; not a runtime document."
+}

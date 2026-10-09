@@ -1,0 +1,73 @@
+{
+  "schema_version": "rq1-runtime-allowlist-1",
+  "note": "Exact local document paths relative to benchmark-data. Run raw and consolidation separately. Never supply evaluator manifests, reference sets or provenance to the extraction model.",
+  "benchmarks": {
+    "healthdcat": {
+      "raw": [
+        "healthdcat/input-raw/ehds-proposal.html",
+        "healthdcat/input-raw/gdpr.html",
+        "healthdcat/input-raw/w3c-dcat-2-2020.html",
+        "healthdcat/input-raw/dcat-ap-2.1.1.pdf",
+        "healthdcat/input-raw/landscape-analysis-ms6.1.pdf"
+      ],
+      "consolidation": [
+        "healthdcat/input-preconsolidation/twg-observations.json"
+      ]
+    },
+    "geodcat": {
+      "raw": [
+        "geodcat/input-raw/inspire-directive.html",
+        "geodcat/input-raw/inspire-metadata.html",
+        "geodcat/input-raw/inspire-interoperability.html",
+        "geodcat/input-raw/w3c-dcat-2014.html",
+        "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf"
+      ],
+      "consolidation": []
+    },
+    "epos": {
+      "raw": [],
+      "consolidation": []
+    },
+    "statdcat": {
+      "raw": [
+        "statdcat/input-raw/w3c-dcat-2014.html",
+        "statdcat/input-raw/w3c-data-cube-2014.html"
+      ],
+      "consolidation": []
+    },
+    "mobilitydcat": {
+      "raw": [
+        "mobilitydcat/input-raw/open-data-directive.html",
+        "mobilitydcat/input-raw/inspire-directive.html",
+        "mobilitydcat/input-raw/inspire-metadata.html",
+        "mobilitydcat/input-raw/dga-proposal.html",
+        "mobilitydcat/input-raw/data-strategy.html",
+        "mobilitydcat/input-raw/w3c-dcat-2-2020.html",
+        "mobilitydcat/input-raw/dcat-ap-2.0.0.pdf",
+        "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf",
+        "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf",
+        "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf",
+        "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+        "mobilitydcat/input-raw/fair-cost-benefit-2018.pdf",
+        "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf",
+        "mobilitydcat/input-raw/sprint-competency-tasks.json",
+        "mobilitydcat/input-raw/cmc-2019-concept-inventory.json",
+        "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf",
+        "mobilitydcat/input-raw/dcat-ap-webinar-1-2021.pdf"
+      ],
+      "consolidation": [
+        "mobilitydcat/input-preconsolidation/partner-requirements.json",
+        "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json",
+        "mobilitydcat/input-preconsolidation/literature-review-observations.json"
+      ]
+    },
+    "jrc-research": {
+      "raw": [
+        "jrc-research/input-raw/w3c-dcat-2014.html",
+        "jrc-research/input-raw/jrc-data-policy-2015.pdf",
+        "jrc-research/input-raw/datacite-3.1-field-context.json"
+      ],
+      "consolidation": []
+    }
+  }
+}

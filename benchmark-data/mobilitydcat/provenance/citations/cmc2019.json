@@ -1,0 +1,19 @@
+{
+  "id": "cmc2019",
+  "title": "EU EIP Coordinated Metadata Catalogue v2.0",
+  "original_url": "https://www.its-platform.eu/wp-content/uploads/ITS-Platform/AchievementsDocuments/NAP/EU%20EIP_Coord.%20Metadata%20Catalogue_v2.0_191115.pdf",
+  "publication_date": "2019-11-15",
+  "version": null,
+  "retrieved_on": "2026-10-07",
+  "local_filename": "provenance/citations/cmc2019.json",
+  "role": "raw_input",
+  "explicitly_documented_as_input": true,
+  "input_documentation": "NAPCORE Annex 2 §2.6",
+  "completeness": "partial",
+  "confidence": "high",
+  "representation": "citation_only",
+  "license": "Citation only; redistribution rights not established",
+  "runtime_modes": [],
+  "notes": "Official PDF inspected (42 pages); no redistribution licence located. Factual overview derived below.",
+  "availability": "Citation record only; not a runtime document."
+}

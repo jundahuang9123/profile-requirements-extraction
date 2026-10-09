@@ -1,0 +1,170 @@
+{
+  "created": "2025-03-27T09:35:17.856889+00:00",
+  "modified": "2025-03-27T09:35:18.236772+00:00",
+  "id": 15085025,
+  "conceptrecid": "15085024",
+  "doi": "10.5281/zenodo.15085025",
+  "conceptdoi": "10.5281/zenodo.15085024",
+  "doi_url": "https://doi.org/10.5281/zenodo.15085025",
+  "metadata": {
+    "title": "HealthData@EU Pilot - Deliverable 6.2 HealthDCAT-AP \"Recommendations on further development and deployment for possible EU-wide uptake\"",
+    "doi": "10.5281/zenodo.15085025",
+    "publication_date": "2025-03-25",
+    "description": "<p>This document presents recommendations for the further development and potential EU-wide adoption of HealthDCAT-AP, an extension of the DCAT Application Profile for dataset catalogues in Europe. HealthDCAT-AP is specifically designed to describe health datasets and dataset access services, ensuring they are consistently represented and easily discoverable across various platforms.</p>\n<p>The principal objective of the Health Data Catalog Application Profile (HealthDCAT-AP) is to establish a standardized, interoperable metadata schema tailored to the health domain. This schema is intended to facilitate the discovery, sharing, and reuse of health datasets across the European Union. By aligning with the broader DCAT-AP (Data Catalog Vocabulary Application Profile) standard, HealthDCAT-AP ensures that health-related datasets are uniformly described, promoting interoperability and enabling seamless data exchange among researchers, public health institutions, policymakers, and other stakeholders.</p>\n<p>HealthDCAT-AP introduces specific extensions to the DCAT-AP model to meet the unique requirements of the health sector. This standardization is crucial for the European Health Data Space (EHDS) framework, enabling effective health data sharing across Europe. By enhancing the accessibility and availability of health data, HealthDCAT-AP plays an essential role in helping the EHDS achieve its objectives of improving public health outcomes, advancing research, and informing policy-making across the EU, all while upholding stringent data protection and privacy standards.</p>\n<p>This document is the second and final deliverable of Work Package 6 of the HealthData@EU pilot project. The first deliverable, the draft specification of HealthDCAT-AP, is available at <a href=\"https://healthdcat-ap.github.io/\">HealthDCAT-AP Draft Specification</a>.</p>\n<p>The development of HealthDCAT-AP will continue transparently and publicly within the framework of the Second Joint Action Towards the European Health Data Space (TEHDAS2).&nbsp;</p>",
+    "access_right": "open",
+    "creators": [
+      {
+        "name": "Health Data Hub",
+        "affiliation": null
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Derycke, Pascal",
+        "affiliation": "Sciensano",
+        "type": "ProjectMember",
+        "orcid": "0000-0002-4658-5185"
+      },
+      {
+        "name": "Vande Catsyne, Charles-Andrew",
+        "affiliation": "Sciensano",
+        "type": "ProjectMember",
+        "orcid": "0000-0001-6283-9029"
+      },
+      {
+        "name": "Kessissoglou, Irini",
+        "affiliation": null,
+        "type": "ProjectMember",
+        "orcid": "0000-0001-9061-7335"
+      },
+      {
+        "name": "Schutte, Nienke",
+        "affiliation": "Sciensano",
+        "type": "ProjectMember",
+        "orcid": "0000-0002-8064-2569"
+      },
+      {
+        "name": "Norwegian Institute of Public Health",
+        "affiliation": null,
+        "type": "ProjectMember"
+      },
+      {
+        "name": "Korsgaard, Truls",
+        "affiliation": "Norwegian Institute of Public Health",
+        "type": "ProjectMember"
+      },
+      {
+        "name": "Huru, Hans",
+        "affiliation": "Norwegian Institute of Public Health",
+        "type": "ProjectMember"
+      },
+      {
+        "name": "Sciensano (Belgium)",
+        "affiliation": null,
+        "type": "ProjectMember"
+      }
+    ],
+    "dates": [
+      {
+        "type": "accepted"
+      }
+    ],
+    "language": "eng",
+    "resource_type": {
+      "title": "Project deliverable",
+      "type": "publication",
+      "subtype": "deliverable"
+    },
+    "license": {
+      "id": "cc-by-4.0"
+    },
+    "relations": {
+      "version": [
+        {
+          "index": 0,
+          "is_last": true,
+          "parent": {
+            "pid_type": "recid",
+            "pid_value": "15085024"
+          }
+        }
+      ]
+    }
+  },
+  "title": "HealthData@EU Pilot - Deliverable 6.2 HealthDCAT-AP \"Recommendations on further development and deployment for possible EU-wide uptake\"",
+  "links": {
+    "self": "https://zenodo.org/api/records/15085025",
+    "self_html": "https://zenodo.org/records/15085025",
+    "preview_html": "https://zenodo.org/records/15085025?preview=1",
+    "doi": "https://doi.org/10.5281/zenodo.15085025",
+    "self_doi": "https://doi.org/10.5281/zenodo.15085025",
+    "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.15085025",
+    "reserve_doi": "https://zenodo.org/api/records/15085025/draft/pids/doi",
+    "parent": "https://zenodo.org/api/records/15085024",
+    "parent_html": "https://zenodo.org/records/15085024",
+    "parent_doi": "https://doi.org/10.5281/zenodo.15085024",
+    "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.15085024",
+    "self_iiif_manifest": "https://zenodo.org/api/iiif/record:15085025/manifest",
+    "self_iiif_sequence": "https://zenodo.org/api/iiif/record:15085025/sequence/default",
+    "files": "https://zenodo.org/api/records/15085025/files",
+    "media_files": "https://zenodo.org/api/records/15085025/media-files",
+    "thumbnails": {
+      "10": "https://zenodo.org/api/iiif/record:15085025:D6.2%20HealthDCAT-AP%20%E2%80%93%20A%20DCAT%20Application%20Profile%20for%20the%20description%20of%20health%20datasets%20%E2%80%9CRecommendations%20on%20further%20development%20and%20deployment%20for%20possible%20EU-wide%20uptake%E2%80%9D.pdf/full/%5E10,/0/default.jpg",
+      "50": "https://zenodo.org/api/iiif/record:15085025:D6.2%20HealthDCAT-AP%20%E2%80%93%20A%20DCAT%20Application%20Profile%20for%20the%20description%20of%20health%20datasets%20%E2%80%9CRecommendations%20on%20further%20development%20and%20deployment%20for%20possible%20EU-wide%20uptake%E2%80%9D.pdf/full/%5E50,/0/default.jpg",
+      "100": "https://zenodo.org/api/iiif/record:15085025:D6.2%20HealthDCAT-AP%20%E2%80%93%20A%20DCAT%20Application%20Profile%20for%20the%20description%20of%20health%20datasets%20%E2%80%9CRecommendations%20on%20further%20development%20and%20deployment%20for%20possible%20EU-wide%20uptake%E2%80%9D.pdf/full/%5E100,/0/default.jpg",
+      "250": "https://zenodo.org/api/iiif/record:15085025:D6.2%20HealthDCAT-AP%20%E2%80%93%20A%20DCAT%20Application%20Profile%20for%20the%20description%20of%20health%20datasets%20%E2%80%9CRecommendations%20on%20further%20development%20and%20deployment%20for%20possible%20EU-wide%20uptake%E2%80%9D.pdf/full/%5E250,/0/default.jpg",
+      "750": "https://zenodo.org/api/iiif/record:15085025:D6.2%20HealthDCAT-AP%20%E2%80%93%20A%20DCAT%20Application%20Profile%20for%20the%20description%20of%20health%20datasets%20%E2%80%9CRecommendations%20on%20further%20development%20and%20deployment%20for%20possible%20EU-wide%20uptake%E2%80%9D.pdf/full/%5E750,/0/default.jpg",
+      "1200": "https://zenodo.org/api/iiif/record:15085025:D6.2%20HealthDCAT-AP%20%E2%80%93%20A%20DCAT%20Application%20Profile%20for%20the%20description%20of%20health%20datasets%20%E2%80%9CRecommendations%20on%20further%20development%20and%20deployment%20for%20possible%20EU-wide%20uptake%E2%80%9D.pdf/full/%5E1200,/0/default.jpg"
+    },
+    "archive": "https://zenodo.org/api/records/15085025/files-archive",
+    "archive_media": "https://zenodo.org/api/records/15085025/media-files-archive",
+    "latest": "https://zenodo.org/api/records/15085025/versions/latest",
+    "latest_html": "https://zenodo.org/records/15085025/latest",
+    "versions": "https://zenodo.org/api/records/15085025/versions",
+    "draft": "https://zenodo.org/api/records/15085025/draft",
+    "access_links": "https://zenodo.org/api/records/15085025/access/links",
+    "access_grants": "https://zenodo.org/api/records/15085025/access/grants",
+    "access_users": "https://zenodo.org/api/records/15085025/access/users",
+    "access_request": "https://zenodo.org/api/records/15085025/access/request",
+    "access": "https://zenodo.org/api/records/15085025/access",
+    "communities": "https://zenodo.org/api/records/15085025/communities",
+    "communities-suggestions": "https://zenodo.org/api/records/15085025/communities-suggestions",
+    "request_deletion": "https://zenodo.org/api/records/15085025/request-deletion",
+    "file_modification": "https://zenodo.org/api/records/15085025/file-modification",
+    "quota_increase": "https://zenodo.org/api/records/15085025/quota-increase",
+    "requests": "https://zenodo.org/api/records/15085025/requests"
+  },
+  "updated": "2025-03-27T09:35:18.236772+00:00",
+  "recid": "15085025",
+  "revision": 3,
+  "files": [
+    {
+      "id": "b4989390-bee2-479a-8ee1-e3b082ab5aed",
+      "key": "D6.2 HealthDCAT-AP – A DCAT Application Profile for the description of health datasets “Recommendations on further development and deployment for possible EU-wide uptake”.pdf",
+      "size": 3650175,
+      "checksum": "md5:b8538762ef3bc99ce0978170dbe8fb5b",
+      "links": {
+        "self": "https://zenodo.org/api/records/15085025/files/D6.2%20HealthDCAT-AP%20%E2%80%93%20A%20DCAT%20Application%20Profile%20for%20the%20description%20of%20health%20datasets%20%E2%80%9CRecommendations%20on%20further%20development%20and%20deployment%20for%20possible%20EU-wide%20uptake%E2%80%9D.pdf/content"
+      }
+    }
+  ],
+  "swh": {},
+  "owners": [
+    {
+      "id": "1284821"
+    }
+  ],
+  "status": "published",
+  "stats": {
+    "downloads": 368,
+    "unique_downloads": 281,
+    "views": 430,
+    "unique_views": 404,
+    "version_downloads": 368,
+    "version_unique_downloads": 281,
+    "version_unique_views": 404,
+    "version_views": 430
+  },
+  "state": "done",
+  "submitted": true
+}

@@ -1,0 +1,19 @@
+{
+  "id": "epos-egu2019",
+  "title": "EPOS-DCAT-AP a representation for enabling cross-disciplinary collaboration in solid Earth sciences",
+  "original_url": "https://meetingorganizer.copernicus.org/EGU2019/EGU2019-15933.pdf",
+  "publication_date": "2019",
+  "version": null,
+  "retrieved_on": "2026-10-07",
+  "local_filename": "provenance/citations/epos-egu2019.json",
+  "role": "context_only",
+  "explicitly_documented_as_input": false,
+  "input_documentation": null,
+  "completeness": "partial",
+  "confidence": "high",
+  "representation": "citation_only",
+  "license": "Citation only; redistribution rights not established",
+  "runtime_modes": [],
+  "notes": "Project README citation. Later explanatory work, not proven pre-v1 elicitation evidence. Publisher copyright not redistributed.",
+  "availability": "Citation record only; not a runtime document."
+}

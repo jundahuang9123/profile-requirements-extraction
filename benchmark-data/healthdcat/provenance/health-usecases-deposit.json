@@ -1,0 +1,132 @@
+{
+  "created": "2025-03-27T08:53:41.634145+00:00",
+  "modified": "2025-03-27T08:53:42.004540+00:00",
+  "id": 15089825,
+  "conceptrecid": "15089824",
+  "doi": "10.5281/zenodo.15089825",
+  "conceptdoi": "10.5281/zenodo.15089824",
+  "doi_url": "https://doi.org/10.5281/zenodo.15089825",
+  "metadata": {
+    "title": "HealthData@EU pilot project - Deliverable 6.2 Annex 1 Functional Analysis for the integration of HealthDCAT-AP into the HealthData@EU Central Platform",
+    "doi": "10.5281/zenodo.15089825",
+    "publication_date": "2025-03-26",
+    "description": "<p>Annex to the HealthData@EU pilot project Deliverable 6.2 \"HealthDCAT-AP &ndash; A DCAT Application Profile for the description of health datasets (Recommendations on further development and deployment for possible EU-wide uptake)&rdquo;</p>",
+    "access_right": "open",
+    "creators": [
+      {
+        "name": "Health Data Hub",
+        "affiliation": null
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Derycke, Pascal",
+        "affiliation": "Sciensano (Belgium)",
+        "type": "ProjectMember",
+        "orcid": "0000-0002-4658-5185"
+      }
+    ],
+    "dates": [
+      {
+        "type": "accepted"
+      }
+    ],
+    "language": "eng",
+    "resource_type": {
+      "title": "Project deliverable",
+      "type": "publication",
+      "subtype": "deliverable"
+    },
+    "license": {
+      "id": "cc-by-4.0"
+    },
+    "relations": {
+      "version": [
+        {
+          "index": 0,
+          "is_last": true,
+          "parent": {
+            "pid_type": "recid",
+            "pid_value": "15089824"
+          }
+        }
+      ]
+    }
+  },
+  "title": "HealthData@EU pilot project - Deliverable 6.2 Annex 1 Functional Analysis for the integration of HealthDCAT-AP into the HealthData@EU Central Platform",
+  "links": {
+    "self": "https://zenodo.org/api/records/15089825",
+    "self_html": "https://zenodo.org/records/15089825",
+    "preview_html": "https://zenodo.org/records/15089825?preview=1",
+    "doi": "https://doi.org/10.5281/zenodo.15089825",
+    "self_doi": "https://doi.org/10.5281/zenodo.15089825",
+    "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.15089825",
+    "reserve_doi": "https://zenodo.org/api/records/15089825/draft/pids/doi",
+    "parent": "https://zenodo.org/api/records/15089824",
+    "parent_html": "https://zenodo.org/records/15089824",
+    "parent_doi": "https://doi.org/10.5281/zenodo.15089824",
+    "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.15089824",
+    "self_iiif_manifest": "https://zenodo.org/api/iiif/record:15089825/manifest",
+    "self_iiif_sequence": "https://zenodo.org/api/iiif/record:15089825/sequence/default",
+    "files": "https://zenodo.org/api/records/15089825/files",
+    "media_files": "https://zenodo.org/api/records/15089825/media-files",
+    "thumbnails": {
+      "10": "https://zenodo.org/api/iiif/record:15089825:Annex-1-Functional-Analysis-implementation-of-HealthDCAT-AP-in-EU-Datasets-catalogue-FINAL%20(1).pdf/full/%5E10,/0/default.jpg",
+      "50": "https://zenodo.org/api/iiif/record:15089825:Annex-1-Functional-Analysis-implementation-of-HealthDCAT-AP-in-EU-Datasets-catalogue-FINAL%20(1).pdf/full/%5E50,/0/default.jpg",
+      "100": "https://zenodo.org/api/iiif/record:15089825:Annex-1-Functional-Analysis-implementation-of-HealthDCAT-AP-in-EU-Datasets-catalogue-FINAL%20(1).pdf/full/%5E100,/0/default.jpg",
+      "250": "https://zenodo.org/api/iiif/record:15089825:Annex-1-Functional-Analysis-implementation-of-HealthDCAT-AP-in-EU-Datasets-catalogue-FINAL%20(1).pdf/full/%5E250,/0/default.jpg",
+      "750": "https://zenodo.org/api/iiif/record:15089825:Annex-1-Functional-Analysis-implementation-of-HealthDCAT-AP-in-EU-Datasets-catalogue-FINAL%20(1).pdf/full/%5E750,/0/default.jpg",
+      "1200": "https://zenodo.org/api/iiif/record:15089825:Annex-1-Functional-Analysis-implementation-of-HealthDCAT-AP-in-EU-Datasets-catalogue-FINAL%20(1).pdf/full/%5E1200,/0/default.jpg"
+    },
+    "archive": "https://zenodo.org/api/records/15089825/files-archive",
+    "archive_media": "https://zenodo.org/api/records/15089825/media-files-archive",
+    "latest": "https://zenodo.org/api/records/15089825/versions/latest",
+    "latest_html": "https://zenodo.org/records/15089825/latest",
+    "versions": "https://zenodo.org/api/records/15089825/versions",
+    "draft": "https://zenodo.org/api/records/15089825/draft",
+    "access_links": "https://zenodo.org/api/records/15089825/access/links",
+    "access_grants": "https://zenodo.org/api/records/15089825/access/grants",
+    "access_users": "https://zenodo.org/api/records/15089825/access/users",
+    "access_request": "https://zenodo.org/api/records/15089825/access/request",
+    "access": "https://zenodo.org/api/records/15089825/access",
+    "communities": "https://zenodo.org/api/records/15089825/communities",
+    "communities-suggestions": "https://zenodo.org/api/records/15089825/communities-suggestions",
+    "request_deletion": "https://zenodo.org/api/records/15089825/request-deletion",
+    "file_modification": "https://zenodo.org/api/records/15089825/file-modification",
+    "quota_increase": "https://zenodo.org/api/records/15089825/quota-increase",
+    "requests": "https://zenodo.org/api/records/15089825/requests"
+  },
+  "updated": "2025-03-27T08:53:42.004540+00:00",
+  "recid": "15089825",
+  "revision": 3,
+  "files": [
+    {
+      "id": "0bded925-64b8-4259-9ad4-5403987ca531",
+      "key": "Annex-1-Functional-Analysis-implementation-of-HealthDCAT-AP-in-EU-Datasets-catalogue-FINAL (1).pdf",
+      "size": 769300,
+      "checksum": "md5:8d5a4f60fef121071187863074659ad8",
+      "links": {
+        "self": "https://zenodo.org/api/records/15089825/files/Annex-1-Functional-Analysis-implementation-of-HealthDCAT-AP-in-EU-Datasets-catalogue-FINAL%20(1).pdf/content"
+      }
+    }
+  ],
+  "swh": {},
+  "owners": [
+    {
+      "id": "1284821"
+    }
+  ],
+  "status": "published",
+  "stats": {
+    "downloads": 226,
+    "unique_downloads": 189,
+    "views": 205,
+    "unique_views": 196,
+    "version_downloads": 226,
+    "version_unique_downloads": 189,
+    "version_unique_views": 196,
+    "version_views": 205
+  },
+  "state": "done",
+  "submitted": true
+}
