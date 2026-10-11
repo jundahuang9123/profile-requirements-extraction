@@ -353,6 +353,14 @@ marked failed while later units are processed. Each role report counts processed
 against total evidence units, and the extraction page shows that count. Only
 transport, authentication and unexpected errors stop a role before its last unit.
 
+Extraction policy v2.11 and role-selection policy v6 change what an excerpt is.
+Consecutive lines of one evidence unit are offered as one block of at most 400
+characters instead of one excerpt per physical line. Quotations and offsets remain
+exact slices of the unit, and source verification is unchanged. A requirement needs
+fewer links, requests carry less wrapper text, and the same corpus needs fewer
+extraction batches. Excerpt IDs from earlier policies do not match the new
+catalogue, so both policies require a new run.
+
 Semantic assessment also checkpoints each completed exact-revision result.
 Resuming rechecks original-source resolution and reuses completed matching
 assessments. Stale revision hashes are reassessed. The failed stage is marked

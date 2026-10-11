@@ -1709,7 +1709,7 @@
           "type": "array"
         },
         "elicitation_policy_version": {
-          "default": "rq1-independent-elicitation-v2.10",
+          "default": "rq1-independent-elicitation-v2.11",
           "title": "Elicitation Policy Version",
           "type": "string"
         },

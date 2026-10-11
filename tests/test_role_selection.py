@@ -452,13 +452,19 @@ def test_source_span_catalogue_preserves_raw_text_offsets_and_full_coverage():
     content = 'Germany is split as Ger-\nmany. Same actor. Same actor.\n' + ('x' * 805)
     spans = selector.source_spans_for([{'evidence_id': 'unit-a', 'content': content}])
     assert len({span['span_id'] for span in spans}) == len(spans)
+    position = 0
     for span in spans:
         start = span['quote_start']
         assert content[start:start + len(span['quote'])] == span['quote']
         assert 0 < len(span['quote']) <= 400
         assert span['evidence_id'] == 'unit-a'
-    assert ''.join(span['quote'] for span in spans) == content.replace('\n', '')
-    assert spans[0]['quote'].endswith('Ger-')
+        # Excerpts are ordered and only line breaks lie between them: no source text is hidden.
+        assert start >= position and not content[position:start].strip()
+        position = start + len(span['quote'])
+    assert not content[position:].strip()
+    # The two short lines form one excerpt that keeps the hyphenated line break as written.
+    assert spans[0]['quote'] == 'Germany is split as Ger-\nmany. Same actor. Same actor.'
+    assert [len(span['quote']) for span in spans[1:]] == [400, 400, 5]
 
 
 def test_unresolved_span_selection_stays_failed_without_generic_fallback(corpus):

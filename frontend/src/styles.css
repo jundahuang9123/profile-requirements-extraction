@@ -2789,6 +2789,7 @@ button.danger {
 .workflow-workbench pre,.workflow-workbench code { white-space:pre-wrap; overflow-wrap:anywhere; font-size:12px; line-height:1.6; }
 .workflow-workbench pre { background:var(--panel-strong); padding:12px; border-radius:6px; max-height:380px; overflow:auto; }
 .workflow-workbench blockquote { margin:12px 0; border-left:3px solid var(--accent); padding:10px 14px; background:var(--panel-strong); font-size:13px; }
+.workflow-quote { white-space:pre-wrap; overflow-wrap:anywhere; }
 .workflow-error { border-left:3px solid var(--danger); background:#fff0f0; padding:12px; margin:12px 0; color:var(--danger); font-size:13px; }
 .workflow-conflict { padding:12px; border:1px solid #e8ba7e; border-radius:8px; margin:12px 0; background:#fffbf5; font-size:13px; }
 .workflow-case { border-top:1px solid var(--border); padding:12px 0; }.workflow-case h3 { font-size:15px; }

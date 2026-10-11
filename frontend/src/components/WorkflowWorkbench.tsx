@@ -262,7 +262,7 @@ function RequirementEditor({ record, run, busy, submit, inspect }: { record: Req
   const applicable = run.conflicts.filter(c => c.revision_ids.includes(record.revision_id) && c.status !== 'resolved');
   const draft = () => ({ statement, evidence_links: links, requirement_type: type, intent: { ...record.normalized_intent, metadata_need: metadataNeed, value_kind: valueKind, resource_type: resource, obligation_hint: obligation }, scope, rationale });
   return <section className="workflow-panel"><h2>8 · Inspect and adjudicate</h2><p>{record.normalized_statement}</p><div className="workflow-tags"><span>Source {record.verification?.status}</span><span>Support {record.qualification?.support}</span><span>{humanLabel(record.lifecycle_state)}</span></div>
-    {record.evidence_links.map((link, i) => <blockquote key={i}><p>{link.quote}</p><button onClick={() => inspect(link.evidence_id)}>{link.relation} · {link.component} · inspect original evidence</button></blockquote>)}
+    {record.evidence_links.map((link, i) => <blockquote key={i}><p className="workflow-quote">{link.quote}</p><button onClick={() => inspect(link.evidence_id)}>{link.relation} · {link.component} · inspect original evidence</button></blockquote>)}
     {record.verification?.links.filter(link => link.status !== 'pass').map((link, i) => <p className="workflow-error" key={i}>{link.message}</p>)}
     <p>{record.qualification?.rationale}</p>{record.qualification?.findings.map((finding, i) => <p key={i}><strong>{finding.criterion}:</strong> {finding.message}</p>)}
     <label>Decision / assessment rationale<textarea value={rationale} onChange={event => setRationale(event.target.value)} /></label>

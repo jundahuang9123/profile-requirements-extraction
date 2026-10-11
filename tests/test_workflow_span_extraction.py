@@ -27,7 +27,7 @@ def corpus(tmp_path, monkeypatch):
     import pdfplumber
     monkeypatch.setenv('RRS_LLM_PROVIDER', 'mock')
     monkeypatch.setenv('RQ1_WORKFLOW_STORE', str(tmp_path / 'workflow.sqlite3'))
-    text = 'Each Na-\ntional Access Point must provide metadata.\nThe same actor. The same actor.'
+    text = PAGE
     @contextmanager
     def fake_pdf(_):
         yield SimpleNamespace(pages=[SimpleNamespace(extract_text=lambda: text)])
@@ -42,13 +42,16 @@ def corpus(tmp_path, monkeypatch):
     return store, run
 
 
+PAGE = 'Each Na-\ntional Access Point must provide metadata.\nThe same actor. The same actor.'
+
+
 def payload(data, *, obligation=True, unknown=False, unsupported=False):
+    # The page's three short lines form one excerpt; statement and obligation both cite it.
     spans = data['evidence_units'][0]['source_spans']
     links = [] if unsupported else [
-        {'source_span_id': 'outside-this-batch' if unknown else spans[0]['span_id'], 'component': 'statement'},
-        {'source_span_id': spans[1]['span_id'], 'component': 'statement'}]
+        {'source_span_id': 'outside-this-batch' if unknown else spans[0]['span_id'], 'component': 'statement'}]
     if obligation and not unsupported:
-        links.append({'source_span_id': spans[1]['span_id'], 'component': 'obligation'})
+        links.append({'source_span_id': spans[0]['span_id'], 'component': 'obligation'})
     return {'observations': [{'observation_id': 'model-id', 'role_id': 'untrusted-role',
         'statement': 'Describe National Access Point metadata.', 'evidence_links': links,
         'requirement_type': 'descriptive_metadata',
@@ -63,9 +66,9 @@ def test_multiline_pdf_citations_and_obligation_are_materialized_and_audited(cor
     observations, reports = elicit(store, run, TrackedClient(client, store, run['run_id']))
     assert len(observations) == 1 and reports[0]['status'] == 'completed'
     observation = observations[0]
-    assert [link.quote for link in observation.evidence_links] == [
-        'Each Na-', 'tional Access Point must provide metadata.', 'tional Access Point must provide metadata.']
-    assert observation.evidence_links[1].quote_start == len('Each Na-\n')
+    # One excerpt spans the hyphenated line break; its text and offset are the source's own.
+    assert [(link.component, link.quote, link.quote_start) for link in observation.evidence_links] == [
+        ('statement', PAGE, 0), ('obligation', PAGE, 0)]
     assert observation.role_id == 'consumer_discovery'
     record = record_from_observation(run['run_id'], observation)
     assert verify(store, record, run['evidence_ids'])['status'] == 'pass'
@@ -119,7 +122,7 @@ def test_citation_slip_recovers_on_the_single_retry_without_accepting_the_first_
     client = MockLLMClient(respond)
     observations, reports = elicit(store, run, client)
     assert len(client.calls) == 2 and reports[0]['status'] == 'completed'
-    assert len(observations) == 1 and len(observations[0].evidence_links) == 3
+    assert len(observations) == 1 and len(observations[0].evidence_links) == 2
     assert [s['status'] for s in reports[0]['citation_selections']] == ['invalid', 'materialized']
     expected = 'outside this batch' if slip == 'unknown' else 'Duplicate source excerpt link'
     assert expected in reports[0]['citation_selections'][0]['error']
@@ -161,13 +164,85 @@ def test_excerpt_batch_includes_all_units_without_silent_truncation():
               'kind': 'text_span'} for i in range(3)]
     payload_units, catalogue = elicitation_batch(units)
     assert len(payload_units) == 3
+    assert [s['span_id'] for s in catalogue] == [f's{i}' for i in range(9)]
     for unit in units:
         spans = [s for s in catalogue if s['evidence_id'] == unit['evidence_id']]
-        assert ''.join(s['quote'] for s in spans) == unit['content'].replace('\n', '')
+        # The over-long line is cut at 400 characters; its last piece joins the next line.
+        assert [len(s['quote']) for s in spans] == [400, 400, len('xxxxx\nlast line')]
+        assert ''.join(s['quote'] for s in spans) == unit['content']
         proposal = SpanObservation(observation_id='x', role_id='x', statement='Need.',
             evidence_links=[{'source_span_id': spans[-1]['span_id']}])
         link = materialize_observation(proposal, catalogue).evidence_links[0]
-        assert link.evidence_id == unit['evidence_id'] and link.quote == 'last line'
+        assert link.evidence_id == unit['evidence_id'] and link.quote == 'xxxxx\nlast line'
+        assert link.quote_start == 800
+
+
+def test_excerpts_join_neighbouring_lines_up_to_the_limit_and_stop_at_blank_lines():
+    from requirement_reuse_service.workflow.citations import EXCERPT_MAX_CHARS, excerpt_bounds
+    definition = ('Property: language\n| RDF Property: | dct:language\n| Definition: | The language of the dataset.\n'
+                  '| Range: | dct:LinguisticSystem')
+    def quotes(content):
+        return [content[start:end] for start, end in excerpt_bounds(content)]
+    # A property definition of four short lines is one citable block instead of four fragments.
+    assert quotes(definition) == [definition]
+    # A blank line, or one holding only spaces, always starts a new excerpt.
+    assert quotes('First paragraph.\n\nSecond paragraph.\n   \nThird.') == [
+        'First paragraph.', 'Second paragraph.', 'Third.']
+    assert quotes('Windows line one.\r\nWindows line two.') == ['Windows line one.\r\nWindows line two.']
+    # Lines are added only while the whole excerpt stays within the limit.
+    lines = [f'{i:02d} ' + 'word ' * 19 for i in range(12)]          # 98 characters each
+    content = '\n'.join(lines)
+    parts = quotes(content)
+    assert [part.count('\n') + 1 for part in parts] == [4, 4, 4]
+    assert all(len(part) <= EXCERPT_MAX_CHARS for part in parts)
+    assert '\n'.join(parts) == content
+    assert quotes('') == [] and quotes(' \n\t\n') == []
+    # Units keep separate excerpts and one running numbering in source order.
+    _, catalogue = elicitation_batch([{'evidence_id': 'a', 'content': 'one\ntwo'}, {'evidence_id': 'b', 'content': 'three'}])
+    assert [(s['span_id'], s['evidence_id'], s['quote'], s['quote_start']) for s in catalogue] == [
+        ('s0', 'a', 'one\ntwo', 0), ('s1', 'b', 'three', 0)]
+
+
+def test_later_excerpt_of_a_long_page_keeps_its_offset_and_passes_source_verification(tmp_path, monkeypatch):
+    import pdfplumber
+    monkeypatch.setenv('RRS_LLM_PROVIDER', 'mock')
+    monkeypatch.setenv('RQ1_WORKFLOW_STORE', str(tmp_path / 'workflow.sqlite3'))
+    background = [f'Background line {i} describes the catalogue in general terms only.' for i in range(7)]
+    need = 'Each access point must publish a contact\npoint for every dataset.'
+    text = '\n'.join(background) + '\n' + need
+    assert len(text) > 400
+    @contextmanager
+    def fake_pdf(_):
+        yield SimpleNamespace(pages=[SimpleNamespace(extract_text=lambda: text)])
+    monkeypatch.setattr(pdfplumber, 'open', fake_pdf)
+    store = Store()
+    source = register_source(store, SourceRequest(artifact=ArtifactPayload(name='long.pdf',
+        content=base64.b64encode(b'%PDF-long-fixture-bytes').decode(), content_encoding='base64'),
+        source_role='stakeholder_need'))
+    snapshot = freeze_snapshot(store, SnapshotRequest(source_version_ids=[source['source_version_id']]))
+    run = new_run(store, RunRequest(snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
+                                   role_ids=['consumer_discovery']))
+    assert len(run['evidence_ids']) == 1
+    def respond(system, user):
+        spans = json.loads(user)['evidence_units'][0]['source_spans']
+        assert len(spans) == 2 and all(len(span['quote']) <= 400 for span in spans)
+        cited = next(span for span in spans if 'must publish' in span['quote'])
+        assert cited['span_id'] == 's1'
+        return {'observations': [{'observation_id': 'x', 'role_id': 'x', 'statement': 'Publish a contact point.',
+            'requirement_type': 'descriptive_metadata',
+            'intent': {'resource_type': 'Dataset', 'metadata_need': 'contact point', 'obligation_hint': 'mandatory'},
+            'evidence_links': [{'source_span_id': cited['span_id'], 'component': 'statement'},
+                               {'source_span_id': cited['span_id'], 'component': 'obligation'}],
+            'support_level': 'explicit'}]}
+    observations, reports = elicit(store, run, MockLLMClient(respond))
+    assert reports[0]['status'] == 'completed'
+    link = observations[0].evidence_links[0]
+    unit = store.get('evidence', run['evidence_ids'][0])
+    assert link.quote.endswith(need) and link.quote_start > 0
+    assert unit['content'][link.quote_start:link.quote_start + len(link.quote)] == link.quote
+    verification = verify(store, record_from_observation(run['run_id'], observations[0]), run['evidence_ids'])
+    assert verification['status'] == 'pass'
+    assert verification['links'][0]['quote_start'] == link.quote_start
 
 
 def test_catalog_record_survives_extraction_and_materialization(corpus):

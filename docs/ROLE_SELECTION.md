@@ -58,9 +58,12 @@ Each discovery response is preserved before validation. The audit distinguishes
 `quote_absent`, `quote_ambiguous`, `invalid_offset`, `outside_batch`, `unknown_task`
 and `source_unresolved` per candidate and citation. Citation errors get at most one
 targeted correction call per batch. In policy v3 and later, that call selects numbered source
-excerpts instead of generating quotation text or offsets. Each excerpt is a raw
-physical line (split at 400 characters when needed), with its original unit and
-offset saved in the audit. The software materializes the chosen exact quotation;
+excerpts instead of generating quotation text or offsets. Up to policy v5 each
+excerpt was a raw physical line (split at 400 characters when needed). From v6 an
+excerpt is a block of consecutive lines of one unit, at most 400 characters long and
+never crossing a blank line, as described in
+[EXTRACTION_CITATIONS.md](EXTRACTION_CITATIONS.md). Its original unit and offset are
+saved in the audit. The software materializes the chosen exact quotation;
 it does not fuzzy-match a paraphrase. An empty selection with an explanation, an
 unknown ID or duplicate IDs stops selection visibly. Choosing an authentic excerpt
 does not establish semantic support: the excerpt may still be irrelevant.
@@ -82,7 +85,7 @@ reserves a slot for the grounding/scope critic even when many roles contributed.
 
 ## Bounded selection and restart
 
-The versioned policy is `rq1-stakeholder-selection-v5`:
+The versioned policy is `rq1-stakeholder-selection-v6`:
 
 1. Read all snapshot evidence in deterministic source/selector order. Discovery batches
    have at most 40,000 serialized characters, and the policy allows at most 32 batches.

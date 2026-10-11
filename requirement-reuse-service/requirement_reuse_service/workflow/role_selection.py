@@ -15,7 +15,7 @@ from .models import (EvidenceUnit, RoleCandidates, RoleCitation, RoleCitationCor
                      RoleProposal, RunRequest, SelectedRole)
 from .storage import ConflictError, Store, canonical, digest, now, uid
 
-POLICY_VERSION = 'rq1-stakeholder-selection-v5'
+POLICY_VERSION = 'rq1-stakeholder-selection-v6'
 DISCOVERY_OUTPUT_TOKENS = 8000
 BATCH_CHARS = 40000
 MAX_BATCHES = 32

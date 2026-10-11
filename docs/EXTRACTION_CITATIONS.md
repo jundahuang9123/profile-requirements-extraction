@@ -1,6 +1,6 @@
 # Exact excerpts and bounded provider requests
 
-The persistent RQ1 workflow uses `rq1-independent-elicitation-v2.10` for new agent
+The persistent RQ1 workflow uses `rq1-independent-elicitation-v2.11` for new agent
 runs. Agents select source excerpt IDs for each requirement premise. The server
 supplies the original quotation and its character offset; agents no longer generate
 quotation text. The saved public requirement format remains `EvidenceLink` with
@@ -9,10 +9,21 @@ quotation text. The saved public requirement format remains `EvidenceLink` with
 ## From source to requirement
 
 Each evidence unit is exposed as its metadata and an ordered catalogue of exact
-source excerpts. Excerpts retain the extracted text, spaces and hyphenation. Each
-nonblank physical line is an excerpt, split at 400 characters when necessary.
-Adjacent excerpts provide context; agents can cite several when a premise crosses
-lines. Up to 12 premise links can be returned per observation. Batches include the
+source excerpts. Excerpts retain the extracted text, spaces, line breaks and
+hyphenation. From policy v2.11 an excerpt is a block of consecutive lines of one
+unit: lines are joined, line breaks included, for as long as the block stays within
+400 characters, and a blank line always ends a block. A single line longer than 400
+characters is cut every 400 characters; its last piece can be joined by the lines
+after it. Every excerpt is one contiguous slice of the unit, so its quotation and
+character offset stay exact, and only line breaks and blank lines lie outside the
+excerpts. Earlier policies offered every physical line as its own excerpt. That
+spread one definition or sentence over many links and made the 12-link limit easy
+to exceed: the two StatDCAT allowlist sources yield 2,902 line excerpts with a
+median length of 34 characters, against 404 block excerpts with a median of 367.
+A block can contain neighbouring lines that the cited premise does not need, so an
+authentic excerpt says even less about relevance than a single line did.
+Adjacent excerpts provide context; agents can cite several when a premise spans
+them. Up to 12 premise links can be returned per observation. Batches include the
 catalogue and role/task context with a 16,000-character target and at most four
 evidence units. A single larger unit may use the 45,000-character hard limit. An oversized unit
 fails explicitly rather than losing input. Character limits are not model-specific
@@ -146,7 +157,8 @@ unknown HTTP attempt counts. Reported token usage is recorded; monetary cost rem
 
 ## Validation
 
-Offline tests cover exact multiline quotations and offsets, separate obligation
+Offline tests cover exact multiline quotations and offsets, block excerpts that
+join neighbouring lines up to the limit and stop at blank lines, separate obligation
 premises, unknown IDs, unsupported hypotheses, schema rejection of generated quotes,
 policy compatibility, shared endpoint concurrency, finite 429 retries, `Retry-After`,
 long cooldown rejection, authentication failure, and response-format fallback.
