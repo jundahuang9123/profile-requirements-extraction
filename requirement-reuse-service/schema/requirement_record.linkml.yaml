@@ -620,7 +620,7 @@ enums:
       competency_question: {}
       unknown: {}
   ResourceType:
-    permissible_values: {Catalog: {}, Dataset: {}, Distribution: {}, DataService: {}, Agent: {}, Concept: {}, Unknown: {}}
+    permissible_values: {Catalog: {}, CatalogRecord: {}, Dataset: {}, Distribution: {}, DataService: {}, Agent: {}, Concept: {}, Unknown: {}}
   ValueKind:
     permissible_values: {literal: {}, uri: {}, controlled_concept: {}, class_reference: {}, date: {}, agent: {}, distribution: {}, unknown: {}}
   ObligationHint:

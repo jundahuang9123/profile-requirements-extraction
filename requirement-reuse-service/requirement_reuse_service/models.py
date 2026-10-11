@@ -30,7 +30,7 @@ RequirementType = Literal[
     'unknown',
 ]
 
-ResourceType = Literal['Catalog', 'Dataset', 'Distribution', 'DataService', 'Agent', 'Concept', 'Unknown']
+ResourceType = Literal['Catalog', 'CatalogRecord', 'Dataset', 'Distribution', 'DataService', 'Agent', 'Concept', 'Unknown']
 ValueKind = Literal['literal', 'uri', 'controlled_concept', 'class_reference', 'date', 'agent', 'distribution', 'unknown']
 ObligationHint = Literal['mandatory', 'recommended', 'optional', 'unknown']
 ReviewStatus = Literal['candidate', 'approved', 'rejected', 'merged', 'needs_review']

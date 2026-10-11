@@ -36,7 +36,7 @@ REQUIREMENT_TYPES = [
     'competency_question',
 ]
 
-RESOURCE_TYPES = {'Catalog', 'Dataset', 'Distribution', 'DataService', 'Agent', 'Concept'}
+RESOURCE_TYPES = {'Catalog', 'CatalogRecord', 'Dataset', 'Distribution', 'DataService', 'Agent', 'Concept'}
 VALUE_KINDS = {'literal', 'uri', 'controlled_concept', 'class_reference', 'date', 'agent', 'distribution'}
 OBLIGATIONS = {'mandatory', 'recommended', 'optional'}
 ACTIONS = {'reuse_existing_term', 'specialize_existing_term', 'create_extension', 'add_constraint', 'add_usage_note', 'no_action'}
@@ -105,7 +105,7 @@ class LLMRequirement(BaseModel):
     statement: str = Field(description='Normalized profile-design statement')
     requirement_type: str = Field(description='One of the allowed requirement types')
     requirement_scope: str = Field(description='One of the allowed requirement scopes')
-    resource_type: str = Field(description='Dataset | Distribution | Catalog | DataService | Agent | Concept')
+    resource_type: str = Field(description='Dataset | Distribution | Catalog | CatalogRecord | DataService | Agent | Concept')
     metadata_need: str = Field(description='Short phrase naming the metadata need')
     value_kind: str = Field(description='literal | uri | controlled_concept | class_reference | date | agent | distribution')
     obligation: str = Field(description='mandatory | recommended | optional')

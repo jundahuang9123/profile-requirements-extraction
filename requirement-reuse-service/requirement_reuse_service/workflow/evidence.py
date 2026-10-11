@@ -9,17 +9,101 @@ import uuid
 import zipfile
 from importlib.metadata import version as package_version
 from typing import Any
+from html.parser import HTMLParser
 
 from .models import EvidenceUnit, SourceArtifact, SourceRequest
 from .storage import Store, canonical, digest, now, uid
 
-PARSER_VERSION = 'rq1-adapters-v2.2'
+PARSER_VERSION = 'rq1-adapters-v2.4'
+SUPPORTED_PARSER_VERSIONS = {'rq1-adapters-v2.2', 'rq1-adapters-v2.3', PARSER_VERSION}
 MAX_BYTES = 20_000_000
 MAX_UNITS = 10000
+PDF_PASSAGE_MAX_CHARS = 2400
+
+
+def html_representation(raw: bytes) -> str:
+    """Deterministic body-text view regenerated from retained original HTML bytes."""
+    class BodyText(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.parts, self.hidden = [], []
+
+        def handle_starttag(self, tag, attrs):
+            if tag in {'head', 'script', 'style', 'template'}:
+                self.hidden.append(tag)
+            if self.hidden:
+                return
+            if tag in {'p', 'div', 'section', 'article', 'li', 'tr', 'dt', 'dd', 'pre',
+                       'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'br'}:
+                self.parts.append('\n')
+            if tag in {'th', 'td'}:
+                self.parts.append(' | ')
+
+        def handle_endtag(self, tag):
+            if self.hidden:
+                if tag == self.hidden[-1]:
+                    self.hidden.pop()
+                return
+            if tag in {'p', 'div', 'section', 'article', 'li', 'tr', 'dt', 'dd', 'pre',
+                       'h1', 'h2', 'h3', 'h4', 'h5', 'h6'}:
+                self.parts.append('\n')
+
+        def handle_data(self, text):
+            if not self.hidden:
+                self.parts.append(text)
+
+    parser = BodyText()
+    parser.feed(raw.decode('utf-8-sig'))
+    parser.close()
+    return '\n'.join(line for part in ''.join(parser.parts).split('\n')
+                     if (line := ' '.join(part.split())))
+
+
+def pdf_passage_spans(page: str):
+    """Yield bounded, contiguous spans without rewriting extracted PDF text.
+
+    PDF physical lines are layout artifacts, often splitting sentences and even
+    words. Keep adjacent lines together, but never cross an explicit blank-line
+    block. Prefer sentence boundaries near the size limit, then a line/word
+    boundary. An unusually long token is split only to enforce the hard cap.
+    """
+    block_start = 0
+    boundaries = [match.start() for match in re.finditer(r'\n[ \t]*\n', page)] + [len(page)]
+    for block_end in boundaries:
+        start = block_start
+        while start < block_end:
+            while start < block_end and page[start].isspace():
+                start += 1
+            if start >= block_end:
+                break
+            end = min(start + PDF_PASSAGE_MAX_CHARS, block_end)
+            if end < block_end:
+                # Avoid tiny passages merely because an early sentence ended.
+                lower = start + PDF_PASSAGE_MAX_CHARS // 2
+                sentences = list(re.finditer(r'[.!?][\"\u201d\u2019\)\]]*(?=\s|$)', page[lower:end]))
+                if sentences:
+                    end = lower + sentences[-1].end()
+                else:
+                    newline = page.rfind('\n', lower, end)
+                    if newline >= lower:
+                        end = newline
+                    else:
+                        whitespace = list(re.finditer(r'\s+', page[lower:end]))
+                        if whitespace:
+                            end = lower + whitespace[-1].start()
+            trimmed_end = end
+            while trimmed_end > start and page[trimmed_end - 1].isspace():
+                trimmed_end -= 1
+            if trimmed_end > start:
+                yield start, trimmed_end
+            start = end
+        block_start = block_end
 
 
 def kind_for(name: str, media_type: str | None, raw: bytes) -> str:
     suffix = name.lower().rsplit('.', 1)[-1]
+    if suffix in {'html', 'htm'} or (media_type or '').split(';')[0] == 'text/html':
+        return 'html'
     if suffix == 'aasx':
         return 'aasx'
     if suffix == 'pdf':
@@ -107,6 +191,9 @@ def register_source(store: Store, request: SourceRequest, *, parent: SourceArtif
             source.diagnostics.extend(diagnostics)
             if source.artifact_kind == 'unsupported':
                 source.parse_status = 'unsupported'
+            elif not units:
+                source.parse_status = 'failed'
+                source.diagnostics.append('No addressable evidence extracted; this source cannot enter a run.')
         except Exception as exc:
             units = []
             source.parse_status = 'failed'
@@ -124,6 +211,8 @@ def source_model(body: dict) -> SourceArtifact:
 
 
 def decompose(source: SourceArtifact) -> tuple[list[EvidenceUnit], str, list[str]]:
+    if source.parser_version not in SUPPORTED_PARSER_VERSIONS:
+        raise ValueError('Parser version mismatch; redecompose explicitly.')
     raw = base64.b64decode(source.raw_base64, validate=True)
     if digest(raw) != source.raw_sha256:
         raise ValueError('Original source hash mismatch.')
@@ -133,11 +222,11 @@ def decompose(source: SourceArtifact) -> tuple[list[EvidenceUnit], str, list[str
     def emit(kind: str, selector: dict, content: str, context: dict | None = None):
         if len(units) >= MAX_UNITS:
             raise ValueError('Evidence decomposition limit exceeded; no partial corpus will be reported as complete.')
-        unit = EvidenceUnit(evidence_id=uid('eu', source.source_version_id, selector, PARSER_VERSION, content),
+        unit = EvidenceUnit(evidence_id=uid('eu', source.source_version_id, selector, source.parser_version, content),
                             source_id=source.source_id, source_version_id=source.source_version_id,
                             kind=kind, selector=selector, content=content, content_hash=digest(content.encode()),
                             structural_context=context or {}, source_claim_kind=source.source_role,
-                            parser_version=PARSER_VERSION)
+                            parser_version=source.parser_version)
         units.append(unit)
 
     kind = source.artifact_kind
@@ -145,19 +234,56 @@ def decompose(source: SourceArtifact) -> tuple[list[EvidenceUnit], str, list[str
         return [], '', ['Unsupported source format; original bytes retained.']
     if kind == 'aasx':
         return [], '', []
+    if kind == 'html':
+        representation = html_representation(raw)
+        rep_hash = digest(representation.encode())
+        for start, end in pdf_passage_spans(representation):
+            emit('text_span', {'kind': 'text', 'start': start, 'end': end,
+                 'representation_hash': rep_hash}, representation[start:end],
+                 {'segmentation': 'html-body-passages', 'headings': []})
+        diagnostics.append('HTML body text is derived from retained original bytes: entities decoded, '
+                           'whitespace normalized, block/table boundaries preserved as text; head, script, '
+                           'style and template content excluded. No linked documents fetched. '
+                           'CSS visibility, complex table layout and images require human assessment.')
+        return units, representation, diagnostics
     if kind in {'text', 'pdf'}:
         if kind == 'pdf':
             import pdfplumber
             with pdfplumber.open(io.BytesIO(raw)) as pdf:
                 pages = [page.extract_text() or '' for page in pdf.pages]
+                image_only = [i + 1 for i, page in enumerate(pdf.pages)
+                              if not pages[i].strip() and page.images]
+                empty = [i + 1 for i, text in enumerate(pages) if not text.strip()]
             if not any(pages):
                 raise ValueError('PDF has no extractable text; supply an OCR transcript as a separately attributed source.')
             representation = '\n\f\n'.join(pages)
             diagnostics.append('PDF text extraction: visual fidelity and table structure require human assessment; no OCR performed.')
+            if image_only:
+                diagnostics.append('INCOMPLETE_SOURCE: PDF pages with images but no extracted text: '
+                                   + ', '.join(map(str, image_only)) + '. Supply an attributed OCR transcript or assess these pages before a full-corpus run.')
+            elif empty:
+                diagnostics.append('PDF pages with no extracted text: ' + ', '.join(map(str, empty))
+                                   + '; check whether these are blank or contain non-text content.')
         else:
             representation = raw.decode('utf-8-sig')
         rep_hash = digest(representation.encode())
+        if kind == 'pdf' and source.parser_version != 'rq1-adapters-v2.2':
+            page_offset = 0
+            for page_number, page_text in enumerate(pages, start=1):
+                for start_in_page, end_in_page in pdf_passage_spans(page_text):
+                    start, end = page_offset + start_in_page, page_offset + end_in_page
+                    emit('text_span', {'kind': 'text', 'start': start, 'end': end,
+                         'representation_hash': rep_hash, 'page': page_number}, representation[start:end],
+                         {'line': representation[:start].count('\n') + 1,
+                          'line_end': representation[:end].count('\n') + 1,
+                          'segmentation': 'page-block-passages', 'headings': []})
+                page_offset += len(page_text) + len('\n\f\n')
+            diagnostics.append('PDF passages preserve extracted newlines, spaces and hyphenation; '
+                               f'each passage stays within one page and is at most {PDF_PASSAGE_MAX_CHARS} characters. '
+                               'Page reading order and tables still depend on PDF text extraction.')
+            return units, representation, diagnostics
         # Preserve offsets and all nonempty spans, without keyword-based exclusion.
+        # Keep v2.2 PDF segmentation available to resolve existing immutable runs.
         heading_context = []
         table_header = None
         for match in re.finditer(r'[^\n\f]+', representation):
@@ -310,7 +436,7 @@ def resolve_evidence(store: Store, unit: EvidenceUnit, cache: dict | None = None
     cache = cache if cache is not None else {}
     try:
         source = source_model(store.get('source', unit.source_version_id))
-        if source.parser_version != unit.parser_version or unit.parser_version != PARSER_VERSION:
+        if source.parser_version != unit.parser_version or unit.parser_version not in SUPPORTED_PARSER_VERSIONS:
             raise ValueError('Parser version mismatch; redecompose explicitly.')
         if source.parser_dependencies != dependencies(source.artifact_kind):
             raise ValueError('Parser dependency versions changed; redecompose explicitly.')
@@ -338,6 +464,6 @@ def resolve_evidence(store: Store, unit: EvidenceUnit, cache: dict | None = None
         if original is None or original.model_dump() != unit.model_dump():
             raise ValueError('Selector or cited structured fact does not match the original source.')
         return {'status': 'pass', 'method': unit.selector.kind, 'source_hash': source.raw_sha256,
-                'parser_version': PARSER_VERSION, 'content': original.content}
+                'parser_version': source.parser_version, 'content': original.content}
     except Exception as exc:
         return {'status': 'fail', 'method': unit.selector.kind, 'message': str(exc)}

@@ -61,6 +61,7 @@ def test_end_to_end_review_baseline_restores_and_exports_without_rerun(context):
     assert baseline['requirements'][0]['lifecycle_state'] == 'accepted'
     assert baseline['sources'][0]['raw_base64'] and baseline['evidence_units']
     assert baseline['provenance']['observations'] and baseline['provenance']['decisions']
+    assert baseline['provenance']['role_manifest'] == run['role_manifest']
     restored = TestClient(app).get(f'/api/rq1/v2/runs/{run["run_id"]}').json()
     assert restored['baselines'][0] == baseline
     exported = client.get(f'/api/rq1/v2/runs/{run["run_id"]}/export').json()
@@ -213,7 +214,7 @@ def test_model_role_contexts_contain_no_peer_outputs_and_failures_are_visible(co
             raise RuntimeError('role failed')
         unit = context_data['evidence_units'][0]
         return {'observations': [{'observation_id': 'model-id', 'role_id': 'model-role', 'statement': sentinel,
-                                 'evidence_links': [{'evidence_id': unit['evidence_id'], 'quote': unit['content']}]}]}
+                                 'evidence_links': [{'source_span_id': unit['source_spans'][0]['span_id']}]}]}
     observations, reports = elicit(store, run, MockLLMClient(output))
     assert len(observations) == 1
     assert any(report['status'] == 'failed' for report in reports)
@@ -228,12 +229,63 @@ def test_deliberation_is_bounded_preserves_dissent_and_cannot_accept(context):
     updated = store.get('run', run['run_id'])
     case = updated['deliberations'][0]
     assert len(mock.calls) <= case['max_calls']
-    assert case['status'] == 'budget_exhausted'
+    assert case['status'] == 'unresolved'
+    assert case['stop_reason'] == 'no_new_contributions'
+    assert len(mock.calls) == 2 * len(case['participants'])
+    assert any(message['repeated_contribution'] for message in case['messages'])
     assert case['messages'] and all('Dissent' in message['body'] for message in case['messages'])
     assert not updated['decisions']
     assert all(record['lifecycle_state'] != 'accepted' for record in updated['requirements'])
     assert len(updated['model_calls']) == len(mock.calls)
     assert all(c['system_hash'] and c['context_hash'] and c['token_usage'] is None for c in updated['model_calls'])
+
+
+def test_discussion_finished_dissent_stops_after_one_round(context):
+    store, _ = context
+    run = setup_run(context, 'Each dataset must publish its title.\nEach dataset should publish its title.')
+    case = run['deliberations'][0]
+    mock = MockLLMClient({'body': 'Human choice is needed on obligation.', 'finished': True})
+    execute_case(store, run['run_id'], case['case_id'], mock)
+    updated = store.get('run', run['run_id'])
+    assert updated['deliberations'][0]['status'] == 'unresolved'
+    assert updated['deliberations'][0]['stop_reason'] == 'participants_finished'
+    assert len(mock.calls) == len(case['participants'])
+    assert not updated['decisions']
+
+
+def test_discussion_schema_rejects_outside_evidence(context):
+    store, _ = context
+    run = setup_run(context, 'Each dataset must publish its title.\nEach dataset should publish its title.')
+    case = run['deliberations'][0]
+    class OutsideCitation(MockLLMClient):
+        def generate_structured(self, **kwargs):
+            allowed = json.loads(kwargs['user'])['allowed_evidence_ids']
+            assert allowed
+            schema = kwargs['output_model'].model_json_schema()
+            items = schema['properties']['evidence_ids']['items']
+            assert set(items.get('enum', [items.get('const')])) == set(allowed)
+            return super().generate_structured(**kwargs)
+    mock = OutsideCitation({'body': 'Invented citation', 'evidence_ids': ['outside-corpus'], 'finished': True})
+    execute_case(store, run['run_id'], case['case_id'], mock)
+    updated = store.get('run', run['run_id'])
+    assert updated['deliberations'][0]['status'] == 'failed'
+    assert 'Mock payload does not match Turn' in updated['deliberations'][0]['stop_reason']
+    assert not updated['deliberations'][0]['messages']
+    assert not updated['decisions']
+
+
+def test_discussion_changing_contributions_still_obey_round_budget(context):
+    store, _ = context
+    run = setup_run(context, 'Each dataset must publish its title.\nEach dataset should publish its title.')
+    case = run['deliberations'][0]
+    def changing(system, user):
+        payload = json.loads(user)
+        return {'body': f'Dissent round {payload["round"]}', 'finished': False}
+    mock = MockLLMClient(changing)
+    execute_case(store, run['run_id'], case['case_id'], mock)
+    updated = store.get('run', run['run_id'])
+    assert updated['deliberations'][0]['status'] == 'budget_exhausted'
+    assert len(mock.calls) == case['max_rounds'] * len(case['participants'])
 
 def test_live_provider_is_never_called_without_explicit_opt_in(context, monkeypatch):
     store, client = context
@@ -322,3 +374,26 @@ def test_baseline_rechecks_source_and_never_adopts_changed_bytes(context):
         'expected_version': run['version'], 'idempotency_key': 'bad-baseline', 'revision_ids': [record['revision_id']]})
     assert response.status_code == 422 and 'changed' in response.text
     assert not store.get('run', run['run_id'])['baselines']
+
+
+def test_new_discussion_response_space_and_reserved_budget_remain_bounded(context):
+    store, _ = context
+    run = setup_run(context, 'Each dataset must publish its title.\nEach dataset should publish its title.')
+    case = run['deliberations'][0]
+    assert case['policy_version'] == 'rq1-selective-v5'
+    assert case['max_output_tokens'] == 4000
+    assert case['max_retry_output_tokens'] == 8000
+    assert case['total_output_budget'] == case['max_calls'] * case['max_output_tokens'] == 48000
+    assert case['max_rounds'] == 3 and case['max_seconds'] == 300
+    class ResponseBudget(MockLLMClient):
+        def generate_structured(self, **kwargs):
+            assert kwargs['max_tokens'] == 4000
+            assert 'under 120 words' in kwargs['system']
+            return super().generate_structured(**kwargs)
+    execute_case(store, run['run_id'], case['case_id'], ResponseBudget({'body': 'Missing evidence requires human review.', 'finished': True}))
+    result = store.get('run', run['run_id'])
+    completed = next(c for c in result['deliberations'] if c['case_id'] == case['case_id'])
+    assert completed['status'] == 'unresolved'
+    assert completed['output_tokens_reserved'] == 4000 * len(case['participants'])
+    assert completed['model_attempts'] == len(case['participants'])
+    assert not result['decisions']

@@ -67,7 +67,7 @@ const REQUIREMENT_SCOPE_OPTIONS: RequirementScope[] = [
   'example_requirement',
   'unknown',
 ];
-const RESOURCE_TYPES: NormalizedIntent['resource_type'][] = ['Dataset', 'Distribution', 'Catalog', 'DataService', 'Agent', 'Concept', 'Unknown'];
+const RESOURCE_TYPES: NormalizedIntent['resource_type'][] = ['Dataset', 'Distribution', 'Catalog', 'CatalogRecord', 'DataService', 'Agent', 'Concept', 'Unknown'];
 const VALUE_KINDS: NormalizedIntent['value_kind'][] = ['literal', 'uri', 'controlled_concept', 'class_reference', 'date', 'agent', 'distribution', 'unknown'];
 const OBLIGATION_HINTS: NormalizedIntent['obligation_hint'][] = ['mandatory', 'recommended', 'optional', 'unknown'];
 const METADATA_ACTIONS: CandidateMetadataAction['action'][] = [

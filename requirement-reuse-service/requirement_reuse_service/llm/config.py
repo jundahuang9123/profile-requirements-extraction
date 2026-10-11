@@ -1,10 +1,50 @@
 from __future__ import annotations
 
 import os
+import math
+import threading
 from dataclasses import dataclass, field
 
 
 DEFAULT_ANTHROPIC_MODEL = 'claude-opus-4-8'
+_runtime_lock = threading.Lock()
+_runtime_config: dict | None = None
+
+
+def set_runtime_config(*, provider: str, model: str, base_url: str | None = None,
+                       api_key: str | None = None, clear_api_key: bool = False,
+                       preset: str | None = None) -> None:
+    """Set process-local provider settings; credentials are never written to disk."""
+    global _runtime_config
+    provider = provider.strip().lower()
+    if provider not in {'disabled', 'openai-compatible', 'anthropic'}:
+        raise ValueError('Choose OpenAI-compatible, Anthropic, or disabled.')
+    if provider != 'disabled' and not model.strip():
+        raise ValueError('Choose or enter a model identifier.')
+    with _runtime_lock:
+        previous = _runtime_config or {}
+        same_provider = (previous.get('provider') == provider and
+                         (provider == 'anthropic' or previous.get('base_url') == (base_url or '').strip().rstrip('/')))
+        environment = LLMConfig._environment_values() if not _runtime_config else {}
+        same_environment = (environment.get('provider') == provider and
+                            (provider == 'anthropic' or (environment.get('base_url') or '').rstrip('/') == (base_url or '').strip().rstrip('/')))
+        key = None if clear_api_key else (api_key or (previous.get('api_key') if same_provider else None) or
+                                          (environment.get('api_key') if same_environment else None))
+        _runtime_config = {
+            'provider': provider, 'model': model.strip() or None,
+            'base_url': (base_url or '').strip().rstrip('/') or None,
+            'api_key': key,
+            'preset': preset or provider,
+        }
+
+
+def runtime_config_status() -> dict:
+    """Safe status for the UI; this deliberately never returns credential data."""
+    config = LLMConfig.from_env()
+    return {'provider': config.provider, 'model': config.resolved_model() if config.provider != 'disabled' else 'disabled',
+            'base_url': config.base_url, 'credential_configured': bool(config.api_key),
+            'source': 'session' if _runtime_config is not None else 'environment',
+            'preset': _runtime_config.get('preset') if _runtime_config is not None else config.provider}
 
 
 @dataclass
@@ -33,6 +73,10 @@ class LLMConfig:
       ANTHROPIC_API_KEY  key for the anthropic provider (standard SDK variable)
       RRS_LLM_MAX_TOKENS response token cap (default 16000)
       RRS_LLM_TIMEOUT    request timeout in seconds (default 240)
+      RRS_LLM_MAX_CONCURRENCY endpoint-wide in-process request limit (default 1)
+      RRS_LLM_RATE_LIMIT_RETRIES extra attempts after HTTP 429 (default 2)
+      RRS_LLM_RETRY_BACKOFF initial fallback delay in seconds (default 2)
+      RRS_LLM_RETRY_WAIT_BUDGET total retry wait in seconds (default 30)
     """
 
     provider: str = 'disabled'
@@ -43,9 +87,35 @@ class LLMConfig:
     max_tokens: int = 16000
     timeout: float = 240.0
     extra_headers: dict[str, str] = field(default_factory=dict)
+    max_concurrency: int = 1
+    rate_limit_retries: int = 2
+    retry_backoff: float = 2.0
+    retry_wait_budget: float = 30.0
+
+    def __post_init__(self):
+        if not 1 <= self.max_concurrency <= 4:
+            raise ValueError('RRS_LLM_MAX_CONCURRENCY must be between 1 and 4.')
+        if not 0 <= self.rate_limit_retries <= 3:
+            raise ValueError('RRS_LLM_RATE_LIMIT_RETRIES must be between 0 and 3.')
+        if not math.isfinite(self.retry_backoff) or not 0 < self.retry_backoff <= 60:
+            raise ValueError('RRS_LLM_RETRY_BACKOFF must be positive and at most 60 seconds.')
+        if not math.isfinite(self.retry_wait_budget) or not 0 <= self.retry_wait_budget <= 60:
+            raise ValueError('RRS_LLM_RETRY_WAIT_BUDGET must be between 0 and 60 seconds.')
 
     @classmethod
     def from_env(cls) -> 'LLMConfig':
+        with _runtime_lock:
+            runtime = dict(_runtime_config) if _runtime_config is not None else None
+        if runtime is not None:
+            env = cls._environment_values()
+            return cls(provider=runtime['provider'], model=runtime['model'], base_url=runtime['base_url'],
+                       api_key=runtime['api_key'], **env['options'])
+        values = cls._environment_values()
+        options = values.pop('options')
+        return cls(**values, **options)
+
+    @classmethod
+    def _environment_values(cls) -> dict:
         provider = os.environ.get('RRS_LLM_PROVIDER', '').strip().lower()
         if not provider:
             if os.environ.get('ANTHROPIC_API_KEY'):
@@ -54,15 +124,21 @@ class LLMConfig:
                 provider = 'openai-compatible'
             else:
                 provider = 'disabled'
-        return cls(
-            provider=provider,
-            model=os.environ.get('RRS_LLM_MODEL') or None,
-            base_url=os.environ.get('RRS_LLM_BASE_URL') or None,
-            api_key=os.environ.get('RRS_LLM_API_KEY') or None,
-            reasoning_effort=os.environ.get('RRS_LLM_REASONING_EFFORT') or None,
-            max_tokens=int(os.environ.get('RRS_LLM_MAX_TOKENS', '16000')),
-            timeout=float(os.environ.get('RRS_LLM_TIMEOUT', '240')),
-        )
+        return {
+            'provider': provider,
+            'model': os.environ.get('RRS_LLM_MODEL') or None,
+            'base_url': os.environ.get('RRS_LLM_BASE_URL') or None,
+            'api_key': (os.environ.get('ANTHROPIC_API_KEY') or os.environ.get('RRS_LLM_API_KEY')) if provider == 'anthropic' else os.environ.get('RRS_LLM_API_KEY') or None,
+            'options': {
+                'reasoning_effort': os.environ.get('RRS_LLM_REASONING_EFFORT') or None,
+                'max_tokens': int(os.environ.get('RRS_LLM_MAX_TOKENS', '16000')),
+                'timeout': float(os.environ.get('RRS_LLM_TIMEOUT', '240')),
+                'max_concurrency': int(os.environ.get('RRS_LLM_MAX_CONCURRENCY', '1')),
+                'rate_limit_retries': int(os.environ.get('RRS_LLM_RATE_LIMIT_RETRIES', '2')),
+                'retry_backoff': float(os.environ.get('RRS_LLM_RETRY_BACKOFF', '2')),
+                'retry_wait_budget': float(os.environ.get('RRS_LLM_RETRY_WAIT_BUDGET', '30')),
+            },
+        }
 
     def resolved_model(self) -> str:
         if self.model:

@@ -4,11 +4,12 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from ..models import ArtifactPayload, NormalizedIntent as LegacyIntent, RequirementType, UserTask
+from ..models import ArtifactPayload, NormalizedIntent as LegacyIntent, RequirementType, ResourceType, UserTask
 
 WORKFLOW_VERSION = 'rq1-nine-stage-v2'
 SCHEMA_VERSION = 'rq1-requirement-dataset-v2'
-STAGES = ['acquisition', 'decomposition', 'elicitation', 'normalization',
+ELICITATION_POLICY_VERSION = 'rq1-independent-elicitation-v2.9'
+STAGES = ['acquisition', 'decomposition', 'role_selection', 'elicitation', 'normalization',
           'verification', 'consolidation', 'deliberation', 'adjudication', 'baseline']
 
 
@@ -19,7 +20,7 @@ class Contract(BaseModel):
 class NormalizedIntent(LegacyIntent):
     """V2 never supplies an unstated Dataset scope or discovery need."""
     model_config = ConfigDict(extra='forbid')
-    resource_type: Literal['Catalog', 'Dataset', 'Distribution', 'DataService', 'Agent', 'Concept', 'Unknown'] = 'Unknown'
+    resource_type: ResourceType = 'Unknown'
     metadata_need: str = ''
 
 
@@ -68,7 +69,7 @@ Selector = Annotated[TextSelector | JSONSelector | XMLSelector | RDFSelector | I
 class SourceRequest(Contract):
     artifact: ArtifactPayload
     source_id: str | None = None
-    source_role: Literal['normative_spec', 'stakeholder_need', 'example', 'observation', 'background'] = 'observation'
+    source_role: Literal['normative_spec', 'stakeholder_need', 'example', 'observation', 'background', 'evaluation_reference'] = 'observation'
     authority: str = ''
     origin_uri: str | None = None
 
@@ -153,6 +154,21 @@ class ElicitationResult(Contract):
     observations: list[Observation] = Field(default_factory=list)
 
 
+class SourceSpanLink(Contract):
+    source_span_id: str = Field(min_length=1)
+    relation: Literal['supports', 'contradicts', 'contextualizes'] = 'supports'
+    component: Literal['statement', 'obligation', 'scope', 'condition', 'value_kind'] = 'statement'
+
+
+class SpanObservation(Observation):
+    """Provider-only contract; original quotations are materialized by the server."""
+    evidence_links: list[SourceSpanLink] = Field(default_factory=list, max_length=12)
+
+
+class SpanElicitationResult(Contract):
+    observations: list[SpanObservation] = Field(default_factory=list)
+
+
 class Finding(Contract):
     criterion: str
     severity: Literal['blocking', 'review', 'info']
@@ -208,25 +224,116 @@ class DeliberationCase(Contract):
     triggers: list[str]
     context_hash: str
     participants: list[str]
-    policy_version: str = 'rq1-selective-v2'
+    policy_version: str = 'rq1-selective-v5'
     status: str = 'queued'
     messages: list[dict[str, Any]] = Field(default_factory=list)
     stop_reason: str | None = None
     max_rounds: int = 3
     max_calls: int = 12
-    max_output_tokens: int = 1000
-    total_output_budget: int = 12000
+    max_output_tokens: int = 4000
+    max_retry_output_tokens: int = 8000
+    total_output_budget: int = 48000
     max_seconds: int = 300
     output_tokens_reserved: int = 0
+    model_attempts: int = 0
     frozen_requirements: list[dict[str, Any]] = Field(default_factory=list)
+
+
+ShortRoleText = Annotated[str, Field(min_length=1, max_length=240)]
+
+
+class RoleCitation(Contract):
+    evidence_id: str
+    quote: str = Field(min_length=1, max_length=400, description=(
+        'Literal contiguous substring of this evidence unit content. Copy all spaces, line breaks '
+        'and hyphens exactly; never join text from separate units.'))
+    quote_start: int | None = Field(default=None, ge=0, description=(
+        'Zero-based character offset inside the cited unit content. Omit/null for a unique quote; '
+        'required only when that exact quote appears more than once.'))
+
+
+class RoleCitationCorrection(Contract):
+    candidate_index: int = Field(ge=0, le=7)
+    source_span_ids: list[str] = Field(max_length=2, description='Choose exact IDs from the supplied source_spans. Empty if no supporting excerpt exists.')
+    unresolved_reason: str = Field(default='', max_length=600)
+
+
+class RoleCitationCorrections(Contract):
+    corrections: list[RoleCitationCorrection] = Field(min_length=1, max_length=8)
+
+
+class RoleProposal(Contract):
+    label: str = Field(min_length=1, max_length=120)
+    stakeholders: list[ShortRoleText] = Field(min_length=1, max_length=4)
+    basis: Literal['documented', 'inferred', 'proposed']
+    rationale: str = Field(min_length=1, max_length=600)
+    purpose: str = Field(min_length=1, max_length=600)
+    focus_questions: list[ShortRoleText] = Field(min_length=1, max_length=3)
+    evidence_links: list[RoleCitation] = Field(default_factory=list, max_length=2)
+    task_ids: list[str] = Field(default_factory=list, max_length=8)
+
+    @model_validator(mode='after')
+    def grounded_basis(self) -> 'RoleProposal':
+        if self.basis == 'documented' and not self.evidence_links:
+            raise ValueError('Documented stakeholders require source citations.')
+        if self.basis == 'inferred' and not (self.evidence_links or self.task_ids):
+            raise ValueError('Inferred perspectives require source citations or declared task IDs.')
+        if any(not value.strip() for value in [self.label, self.purpose, self.rationale, *self.stakeholders, *self.focus_questions]):
+            raise ValueError('Role descriptions cannot be blank.')
+        return self
+
+
+class SelectedRole(RoleProposal):
+    role_id: str
+    candidate_ids: list[str] = Field(default_factory=list)
+    selection_rationale: str = ''
+
+
+class RoleCandidates(Contract):
+    candidates: list[RoleProposal] = Field(default_factory=list, max_length=8)
+
+
+class RoleGroup(Contract):
+    representative_id: str
+    member_ids: list[str] = Field(min_length=1, max_length=16)
+    rationale: str = Field(min_length=1, max_length=600)
+
+
+class OmittedRole(Contract):
+    candidate_id: str
+    reason: str = Field(min_length=1, max_length=600)
+
+
+class RolePanel(Contract):
+    groups: list[RoleGroup] = Field(min_length=1, max_length=8)
+    omitted: list[OmittedRole] = Field(default_factory=list, max_length=16)
 
 
 class RunRequest(Contract):
     snapshot_id: str
     strategy: Literal['rules', 'mock', 'multi_agent'] = 'rules'
     role_ids: list[str] = Field(default_factory=lambda: ['consumer_discovery', 'construction_domain'])
+    role_selection: Literal['manual', 'automatic', 'override'] = 'manual'
+    max_roles: int = Field(default=4, ge=1, le=8)
+    role_overrides: list[RoleProposal] = Field(default_factory=list, max_length=8)
+    based_on_run_id: str | None = None
+    override_rationale: str = Field(default='', max_length=2000)
+    execution_mode: Literal['automatic', 'stepwise'] = 'automatic'
     allow_live_provider: bool = False
     name: str = 'RQ1 workflow'
+
+    @model_validator(mode='after')
+    def panel_mode(self) -> 'RunRequest':
+        if self.strategy == 'rules' and self.role_selection != 'manual':
+            raise ValueError('Rules baseline does not use role selection.')
+        if self.role_selection == 'override':
+            if not self.role_overrides or not self.based_on_run_id or not self.override_rationale.strip():
+                raise ValueError('A panel override needs roles, its original run and a rationale.')
+            if len(self.role_overrides) > self.max_roles:
+                raise ValueError('Override exceeds the configured panel limit.')
+        elif self.role_overrides or self.based_on_run_id or self.override_rationale:
+            raise ValueError('Override fields require override mode.')
+        return self
 
 
 class WorkflowRun(Contract):
@@ -234,17 +341,20 @@ class WorkflowRun(Contract):
     name: str
     snapshot_id: str
     workflow_version: str = WORKFLOW_VERSION
+    elicitation_policy_version: str = ELICITATION_POLICY_VERSION
     schema_version: str = SCHEMA_VERSION
     strategy: str
     request: RunRequest
     status: str = 'created'
     version: int = 1
+    stage_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
     stages: dict[str, str] = Field(default_factory=lambda: {stage: 'pending' for stage in STAGES})
     evidence_ids: list[str] = Field(default_factory=list)
     observations: list[Observation] = Field(default_factory=list)
     requirements: list[RequirementRecord] = Field(default_factory=list)
     active_revision_ids: list[str] = Field(default_factory=list)
     role_runs: list[dict[str, Any]] = Field(default_factory=list)
+    role_manifest: dict[str, Any] | None = None
     consolidation_events: list[dict[str, Any]] = Field(default_factory=list)
     conflicts: list[ConflictRecord] = Field(default_factory=list)
     deliberations: list[DeliberationCase] = Field(default_factory=list)

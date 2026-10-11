@@ -10,7 +10,7 @@ including prospective research extensions; this document states current behavior
 2. Choose the source role and authority, paste text or upload files, and save them.
    Parsing diagnostics stay visible.
 3. Select evidence sources and enter competency questions, one per line. Background
-   material is excluded from the evidence snapshot.
+   material and sources labelled `evaluation_reference` are excluded from the evidence snapshot.
 4. Choose rules or offline mock perspectives and start the saved workflow. Rules
    generate normative-looking text proposals only. Empty output is distinct from failure.
 5. Inspect a candidate and its original evidence. Source `pass` establishes citation
@@ -80,7 +80,7 @@ Edit/split/merge retain parents, observations, assessments and decisions, but cr
 new hashes and require fresh review. Human additions have separate provenance and
 an `add` event. Their evidence must be in the frozen corpus; new sources need a new run.
 
-States are `created → eliciting → normalizing → verifying → consolidating → routing
+States are `created → selecting_roles → eliciting → normalizing → verifying → consolidating → routing
 → awaiting_human → completed`, with `failed` and `cancelled` outcomes. Stage indicators
 are independent. Partial baselines can be published while other records await review.
 Publication completes the run when all active records are accepted/rejected/out of
@@ -89,7 +89,12 @@ without changing an already published baseline.
 
 ## Agent responsibilities and selective discussion
 
-The 12 existing extraction perspectives come from `config/agent_roles.yaml`. Each
+Stage 3a can automatically select stakeholder perspectives from the frozen sources
+and CQs; stage 3b uses the resulting immutable panel. The UI defaults to automatic
+selection for agent/demo runs. See [role selection and overrides](ROLE_SELECTION.md)
+for the documented/inferred/proposed distinction, bounded scan, provenance and limits.
+The manual mode preserves the 12 configured extraction perspectives from
+`config/agent_roles.yaml` for existing callers and controlled comparisons. Each
 receives frozen corpus/task/role context and bounded batches, without peer candidates.
 Up to four run concurrently. Raw structured outputs, prompt/context hashes, partial
 failures and completed roles are retained. Retry skips completed perspectives.
@@ -120,11 +125,22 @@ request follow-up cases, bounded to two cases involving a given revision.
 
 Cases freeze exact revisions and evidence. Up to four participants, including a
 grounding/scope critic, challenge claims and retain proposals and dissent. Defaults
-are three rounds, 12 calls, 1,000 output tokens per call, 12,000 reserved output
-tokens and 300 seconds for scheduling new calls. An in-flight provider request uses
+are three rounds, 12 generation attempts, 4,000 output tokens initially with one
+8,000-token recovery attempt, 48,000 reserved output tokens and 300 seconds for
+scheduling new calls. An in-flight provider request uses
 its configured timeout and may finish after that scheduling window. Actual token
-usage/cost are unavailable in the provider abstraction and are never reported as zero.
-Cases stop on finished participants, budgets, provider failure or cancellation.
+usage is recorded when supplied by the provider; missing counts and unpriced cost
+remain unknown and are never reported as zero.
+New cases record discussion policy `rq1-selective-v5`. Role-selection quotations
+are omitted from discussion perspective descriptions: only evidence frozen for the
+case is admissible. Allowed evidence IDs appear explicitly in the prompt and in
+the response schema; invalid IDs are rejected, never silently removed or repaired.
+Agents are instructed to finish when they have no new evidence-based contribution,
+including unresolved dissent. An exact whitespace-normalized repeat of a role's
+body, proposal and citation set finishes that role early; this is a repetition
+check, not a semantic convergence test. The repeated message remains in the audit.
+Cases stop on finished participants, no new contributions, budgets, provider failure or cancellation.
+Finished/repeated discussions remain `unresolved` for human review, not resolved.
 Agreement cannot accept or mutate requirements; proposed changes require human
 revision, requalification and a later acceptance decision.
 
@@ -134,6 +150,25 @@ assessment, metadata-neutral normalization, disagreement and human acceptance.
 Upstream mutable mapping state and mapping commands are not invoked.
 
 ## API, persistence and retry
+
+Before running a new benchmark, run `scripts/preflight_benchmarks.py --output
+<directory-outside-repository>` using the project's Python environment. It checks
+every strict raw allowlist without reading reference requirements or calling a
+model: parsing, original-source resolution, empty/missing artifacts, complete
+snapshot eligibility, role-selection limits and estimated extraction payload sizes.
+Reports and its isolated database remain outside the repository. Readiness does not
+prove historical corpus completeness, table interpretation or semantic quality.
+
+Parser v2.4 handles HTML/HTM directly as deterministic body-text passages, retaining
+original bytes and hashes. Citation selectors address a regenerated representation,
+not raw HTML character offsets. Entities and whitespace are normalized; scripts,
+styles, document head and templates are excluded. Text in the body remains in order;
+linked files are not fetched. Tables retain textual row/cell boundaries but complex
+layout, CSS visibility and image content require assessment. Earlier parser versions
+remain resolvable for saved runs. Legacy HTML ingested as raw markup must be
+re-ingested before entering a new snapshot. Empty extraction fails, and PDF pages
+containing images with no extracted text block a complete snapshot pending OCR or
+source assessment. A blank page without images produces a diagnostic instead.
 
 New endpoints use `/api/rq1/v2`; `/docs` exposes complete request contracts.
 
@@ -204,3 +239,116 @@ commands, restart, human revisions/additions, frozen metrics and baseline proven
 The frontend TypeScript/production build is checked. Browser checks use disposable
 offline fixtures. Live provider runs, Docker and formal research evaluation require
 separate validation.
+
+## Catalogue record resource types
+
+`CatalogRecord` is a supported resource type for requirements about catalogue
+entries. It remains distinct from `Dataset`: describing an entry and describing
+the dataset represented by that entry can involve different needs. The shared
+backend contracts, extraction validation, exported workflow schema and UI resource
+selectors preserve this distinction. This is a structural validation fix, not an
+assertion that every model proposal mentioning a catalogue entry is correct.
+
+Extraction policy v2.7 includes this contract change and bounded output-cutoff recovery. Start a new extraction run
+to use it; historical runs and their failures remain unchanged, and resuming a
+run created under an older extraction policy is rejected.
+
+## Bounded extraction output recovery
+
+The v2.7 extractor targets at most four evidence units and 16,000 input characters
+per batch. A single larger unit remains intact under the existing 45,000-character
+hard limit; no source text is silently discarded. These are character budgets,
+not guarantees about provider tokenization or output size.
+
+Each initial response reserves 8,000 tokens. When an OpenAI-compatible provider
+explicitly reports `finish_reason=length`, the partial response remains rejected.
+A multi-unit batch is split in half and retried as smaller independent batches.
+For a single unit there is one retry at 12,000 tokens. Continued truncation fails
+the role visibly. Authentication, schema and other errors do not trigger this
+recovery. Completed smaller-batch observations are retained if a later batch fails.
+Every request is recorded, and citation selections identify cutoff attempts,
+recovery choices, input evidence IDs and response caps. Smaller batches/recovery
+can increase calls, latency and cost; improved live completion is not yet measured.
+
+New v5 discussion cases start with 4,000 response tokens per turn. A response
+explicitly cut off at the output limit, or rejected by the JSON/schema contract,
+can receive one new generation on the same frozen context with an 8,000-token
+cap. The retry includes a concise recovery instruction; it cannot broaden the
+allowed citations or approve a requirement. Internal schema repair is disabled
+for these calls so every generation is visible in case accounting.
+Every attempt consumes one of twelve calls and reserves its full response cap
+against the unchanged 48,000-token case budget. The three-round limit and
+300-second window for scheduling new calls also apply to retries. Reserved
+tokens are not actual consumption. Exhausted budgets and repeated unusable
+output remain visible unresolved/failed outcomes, never agreement. Historical
+v4 cases retain their original no-retry policy; create a new case for new defaults.
+
+## Bounded semantic assessment recovery
+
+Assessment policy `rq1-support-quality-v2.2` starts at 4,000 response tokens and
+allows one 8,000-token retry only after explicit output truncation or typed
+JSON/schema validation failure. This accounts for reasoning tokens consuming
+the response allowance even when little or no final JSON is returned. It does
+not imply an input context-window error. Both attempts and measured usage are
+audited; partial/invalid output is never accepted. Authentication, transport and
+exhausted rate-limit failures still stop the job without this generation retry.
+
+Repeated references to one evidence unit send that unit once to the assessor;
+all component links and the full source passage remain available. If both
+generations fail, the draft retains its source check and becomes `uncertain`
+with a blocking `assessment_unavailable` finding. It goes directly to human
+review rather than treating a model-output failure as a substantive disagreement.
+The finding prevents acceptance until a reviewer supplies a valid semantic
+assessment. Other records continue processing. This preserves drafts, not a
+successful assessment or a positive benchmark outcome.
+
+Resume reuses completed qualifications for the exact content hash, including
+those from v2.1; it does not relabel or re-request them under v2.2. Remaining
+assessments use v2.2, recorded in each assessor field. Such a resumed run has
+mixed assessment conditions and must be reported as a recovery trial. A fresh
+run is necessary for a comparison using one assessment policy throughout.
+
+## Step pages, human progression and checkpoints
+
+The UI now opens only the persistent workflow; the v1 study interface is no longer
+an option. Historical backend endpoints remain available for compatibility.
+Each step has its own hash route, previous/next navigation and saved-step JSON
+download. Reloading restores the selected run and route. Browser setup choices
+are stored locally; uploaded sources and completed results are saved in SQLite.
+Review edits are saved when submitted, not merely when visiting a page.
+
+Human use defaults to **Step by step** in the UI. A run with
+`execution_mode=stepwise` saves and pauses after stakeholder selection, extraction,
+normalization, verification and consolidation. Continue advances one processing
+stage, then pauses again. Discussion runs within its existing bounds and hands
+control to human review. Changing pages does not trigger processing. **Automatic**
+mode is intended for tests and retains continuous execution. The API defaults to
+automatic for compatibility with existing clients and historical runs.
+
+Completed stage payloads are saved separately from later review state. In new
+runs, normalization/verification/consolidation pages and downloads use those
+checkpoints. Human decisions cannot rewrite the earlier stage results. Older runs
+without stage checkpoints expose their current saved state and label exports
+accordingly; historical stage snapshots cannot be reconstructed reliably.
+
+Extraction policy v2.9 checkpoints every successfully materialized batch and its
+observations, response and source selection audit. After interruption, only
+unfinished evidence units are requested again. A completed response without any
+observations still counts as processed input. Parallel roles checkpoint separately.
+A call interrupted before its checkpoint may need to be repeated; no exact-once
+remote-inference guarantee is made. Earlier policy versions require a new run.
+For OpenAI-compatible providers, role selection and extraction now allow one
+schema correction generation per request. Unrecoverable extraction batches split
+into smaller source batches; a failed singleton stays visible while other sources
+are processed. A role with unresolved units stays incomplete. Source verification
+is unchanged. See [EXTRACTION_CITATIONS.md](EXTRACTION_CITATIONS.md) for recovery,
+provenance and finite request bounds.
+
+Semantic assessment also checkpoints each completed exact-revision result.
+Resuming rechecks original-source resolution and reuses completed matching
+assessments. Stale revision hashes are reassessed. The failed stage is marked
+explicitly. Resuming failed extraction invalidates downstream stages/checkpoints
+so new observations are normalized and assessed rather than mixed with old results.
+In-flight calls cannot be recovered as completed, and an active worker lease can
+prevent resumption until release/expiry. Some operations inside consolidation or
+a discussion case may need an explicit repeat/follow-up after interruption.

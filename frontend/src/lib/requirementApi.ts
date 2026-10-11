@@ -209,7 +209,7 @@ export type SourceEvidence = {
 };
 
 export type NormalizedIntent = {
-  resource_type: 'Catalog' | 'Dataset' | 'Distribution' | 'DataService' | 'Agent' | 'Concept' | 'Unknown';
+  resource_type: 'Catalog' | 'CatalogRecord' | 'Dataset' | 'Distribution' | 'DataService' | 'Agent' | 'Concept' | 'Unknown';
   metadata_need: string;
   value_kind: 'literal' | 'uri' | 'controlled_concept' | 'class_reference' | 'date' | 'agent' | 'distribution' | 'unknown';
   obligation_hint: 'mandatory' | 'recommended' | 'optional' | 'unknown';

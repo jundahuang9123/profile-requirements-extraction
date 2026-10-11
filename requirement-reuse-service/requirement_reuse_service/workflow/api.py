@@ -3,20 +3,92 @@ from __future__ import annotations
 import os
 import uuid
 import time
+from copy import deepcopy
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from .engine import (active_records, configured_client, decide, execute_case, execute_run,
-                     freeze_snapshot, lexical_relation, make_case, new_run, publish_baseline,
+                     freeze_snapshot, lexical_relation, make_case, new_run, publish_baseline, ensure_elicitation_resumable,
                      qualify_record, record_from_observation, verify)
 from .evidence import register_source, resolve_evidence
 from .models import (AdditionRequest, AssessmentRequest, BaselineRequest, DecisionRequest, EvidenceUnit,
                      MessageRequest, Observation, RunRequest, SnapshotRequest, SourceRequest)
 from .storage import ConflictError, Store, now, uid
+from ..llm.config import runtime_config_status, set_runtime_config
+from .role_selection import ensure_selection_resumable
 
 router = APIRouter(prefix='/api/rq1/v2', tags=['Persistent RQ1 workflow'])
+
+
+class ProviderSettingsRequest(BaseModel):
+    provider: str
+    model: str = ''
+    base_url: str = ''
+    api_key: str = ''
+    clear_api_key: bool = False
+
+
+def ollama_default_url() -> str:
+    # The service normally runs directly on the Mac. Docker needs the host alias.
+    return 'http://host.docker.internal:11434/v1' if os.path.exists('/.dockerenv') else 'http://localhost:11434/v1'
+
+
+@router.get('/provider-settings')
+def get_provider_settings():
+    return runtime_config_status()
+
+
+@router.post('/provider-settings')
+def save_provider_settings(request: ProviderSettingsRequest):
+    presets = {
+        'openai': ('openai-compatible', 'https://api.openai.com/v1'),
+        'kiconnect': ('openai-compatible', 'https://chat.kiconnect.nrw/api/v1'),
+        'ollama': ('openai-compatible', ollama_default_url()),
+        'anthropic': ('anthropic', ''),
+        'custom': ('openai-compatible', request.base_url.strip()),
+        'disabled': ('disabled', ''),
+    }
+    preset = request.provider.strip().lower()
+    if preset not in presets:
+        raise HTTPException(422, 'Choose OpenAI, KI:connect, Ollama, Anthropic, a custom compatible endpoint, or disable live calls.')
+    provider, default_url = presets[preset]
+    base_url = request.base_url.strip() or default_url
+    if provider == 'openai-compatible' and not base_url:
+        raise HTTPException(422, 'Enter the compatible endpoint base URL.')
+    try:
+        set_runtime_config(provider=provider, model=request.model, base_url=base_url,
+                           api_key=request.api_key or None, clear_api_key=request.clear_api_key, preset=preset)
+        return runtime_config_status()
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+
+
+@router.post('/provider-models')
+def discover_provider_models():
+    """Fetch model IDs on explicit user request; never return request headers or keys."""
+    import httpx
+    from ..llm.config import LLMConfig
+
+    config = LLMConfig.from_env()
+    if config.provider == 'disabled':
+        raise HTTPException(422, 'Select and save a model provider first.')
+    if config.provider == 'anthropic':
+        url = 'https://api.anthropic.com/v1/models'
+        headers = {'x-api-key': config.api_key or '', 'anthropic-version': '2023-06-01'}
+    else:
+        url = f"{(config.base_url or '').rstrip('/')}/models"
+        headers = {'Authorization': f'Bearer {config.api_key}'} if config.api_key else {}
+    try:
+        response = httpx.get(url, headers=headers, timeout=8.0)
+        response.raise_for_status()
+        payload = response.json()
+        rows = payload.get('data', []) if isinstance(payload, dict) else []
+        models = sorted({str(row.get('id')) for row in rows if isinstance(row, dict) and row.get('id')})
+        return {'connected': True, 'models': models, 'selected_model': config.resolved_model()}
+    except (httpx.HTTPError, ValueError, TypeError) as exc:
+        raise HTTPException(502, f'Could not load model list: {exc.__class__.__name__}. Check endpoint, key, and provider availability.') from exc
 
 
 def actor() -> str:
@@ -56,6 +128,23 @@ def get_source(source_version_id: str):
     return translate(lambda: Store().get('source', source_version_id))
 
 
+@router.get('/sources/{source_version_id}/evidence')
+def source_evidence(source_version_id: str):
+    def read():
+        store = Store()
+        source = store.get('source', source_version_id)
+        identifiers = {source_version_id, *source.get('child_source_version_ids', [])}
+        return [{'evidence_id': unit['evidence_id'], 'kind': unit['kind'],
+                 'source_version_id': unit['source_version_id'], 'preview': unit['content'][:240]}
+                for unit in store.list('evidence') if unit['source_version_id'] in identifiers]
+    return translate(read)
+
+
+@router.get('/snapshots/{snapshot_id}')
+def read_snapshot(snapshot_id: str):
+    return translate(lambda: Store().get('snapshot', snapshot_id))
+
+
 @router.post('/snapshots')
 def add_snapshot(request: SnapshotRequest):
     return translate(lambda: freeze_snapshot(Store(), request))
@@ -78,7 +167,7 @@ def list_runs():
 @router.post('/runs', status_code=202)
 def create_run(request: RunRequest, background: BackgroundTasks):
     store = Store()
-    run = translate(lambda: new_run(store, request))
+    run = translate(lambda: new_run(store, request, actor()))
     background.add_task(execute_run, store, run['run_id'])
     return run
 
@@ -121,6 +210,10 @@ def cancel_run(run_id: str, request: VersionRequest):
     def cancel(run):
         # Cancelling discussion after review must not strand already saved human decisions.
         run['status'] = 'awaiting_human' if run['decisions'] else 'cancelled'
+        manifest = run.get('role_manifest')
+        if manifest and manifest.get('status') not in {'completed', 'not_applicable'}:
+            manifest['status'] = 'cancelled'
+            run['stages']['role_selection'] = 'cancelled'
         for case in run['deliberations']:
             if case['status'] in {'queued', 'running'}:
                 case.update(status='cancelled', stop_reason='human_cancelled')
@@ -129,23 +222,79 @@ def cancel_run(run_id: str, request: VersionRequest):
     return translate(lambda: Store().mutate(run_id, request.expected_version, 'run_cancelled', cancel))
 
 
+@router.get('/runs/{run_id}/stages/{stage}')
+def export_stage(run_id: str, stage: str, download: bool = False):
+    def read():
+        store = Store()
+        run = store.get('run', run_id)
+        from .engine import STAGE_RESULT_FIELDS
+        fields = STAGE_RESULT_FIELDS
+        if stage not in fields:
+            raise ValueError('Unknown workflow step.')
+        checkpoint = run.get('stage_results', {}).get(stage) if stage not in {'adjudication', 'baseline'} else None
+        results = checkpoint if checkpoint is not None else {key: run.get(key) for key in fields[stage]}
+        snapshot_kind = 'stage_checkpoint' if checkpoint is not None else 'current_saved_state'
+        if stage in {'acquisition', 'decomposition'}:
+            results['snapshot'] = store.get('snapshot', run['snapshot_id'])
+        status = run['stages'][stage]
+        if stage == 'elicitation' and status == 'completed' and any(r['status'] == 'failed' for r in run['role_runs']):
+            status = 'partial'
+        return downloadable({'run_id': run_id, 'snapshot_id': run['snapshot_id'], 'stage': stage,
+                             'status': status, 'snapshot_kind': snapshot_kind, 'saved_version': run['version'], 'results': results},
+                            download, f'{run_id}-{stage}.json')
+    return translate(read)
+
+
+@router.post('/runs/{run_id}/continue', status_code=202)
+def continue_run(run_id: str, request: VersionRequest, background: BackgroundTasks):
+    store = Store()
+    def proceed(run):
+        if run['status'] != 'paused' or run['request'].get('execution_mode') != 'stepwise':
+            raise ValueError('Continue is only available at a saved stepwise pause.')
+        if run.get('worker_id') and run.get('job_lease_until', 0) > time.time():
+            raise ConflictError('The previous worker is still finishing. Refresh and retry.')
+        ensure_elicitation_resumable(run)
+        if run.get('role_manifest'):
+            ensure_selection_resumable(run['role_manifest'])
+        configured_client(RunRequest.model_validate(run['request']))
+        run.update(status='created', worker_id=None, job_lease_until=0)
+    result = translate(lambda: store.mutate(run_id, request.expected_version, 'run_continued', proceed))
+    background.add_task(execute_run, store, run_id)
+    return result
+
+
 @router.post('/runs/{run_id}/resume', status_code=202)
 def resume_run(run_id: str, request: VersionRequest, background: BackgroundTasks):
     store = Store()
     def resume(run):
         if run.get('worker_id') and run.get('job_lease_until', 0) > time.time():
             raise ConflictError('A worker lease is active. Retry after it finishes or after the 15-minute restart lease expires.')
-        if run['status'] not in {'failed', 'cancelled', 'awaiting_human', 'created', 'eliciting', 'normalizing', 'verifying', 'consolidating', 'routing'} or run['decisions']:
+        if run['status'] not in {'failed', 'cancelled', 'awaiting_human', 'created', 'selecting_roles', 'eliciting', 'normalizing', 'verifying', 'consolidating', 'routing'} or run['decisions']:
             raise ValueError('Resume only an interrupted/partial unreviewed run; create a new run after adjudication.')
         if run['status'] == 'awaiting_human' and not run['metrics'].get('failed_role_count'):
             raise ValueError('This run completed. Create a new run for another trial.')
+        if run.get('role_manifest'):
+            ensure_selection_resumable(run['role_manifest'])
+        ensure_elicitation_resumable(run)
         configured_client(RunRequest.model_validate(run['request']))
-        run.setdefault('attempt_history', []).append({key: run[key] for key in ('status', 'requirements', 'observations', 'role_runs', 'diagnostics')})
+        run.setdefault('attempt_history', []).append(deepcopy({key: run.get(key) for key in
+            ('status', 'requirements', 'observations', 'role_runs', 'diagnostics', 'role_manifest', 'stages')}))
+        run['diagnostics'] = []
         run['status'] = 'created'
         run['worker_id'] = None
         run['job_lease_until'] = 0
+        manifest = run.get('role_manifest')
+        if manifest and manifest.get('status') not in {'completed', 'not_applicable'}:
+            manifest['status'] = 'pending'
+            manifest.pop('last_error', None)
+            run['stages']['role_selection'] = 'pending'
         if any(r['status'] == 'failed' for r in run['role_runs']):
             run['stages']['elicitation'] = 'pending'
+            for stage in ('normalization', 'verification', 'consolidation', 'deliberation'):
+                run['stages'][stage] = 'pending'
+            run['machine_snapshot'] = {}
+            for stage in ('elicitation', 'normalization', 'verification', 'consolidation', 'deliberation'):
+                run.get('stage_results', {}).pop(stage, None)
     result = translate(lambda: store.mutate(run_id, request.expected_version, 'run_resumed', resume))
     background.add_task(execute_run, store, run_id)
     return result

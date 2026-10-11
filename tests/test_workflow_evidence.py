@@ -40,6 +40,34 @@ def test_source_versions_stability_and_name_collisions(store):
         assert first['representation'][unit.selector.start:unit.selector.end] == unit.content
         assert resolve_evidence(store, unit)['status'] == 'pass'
 
+
+def test_html_body_passages_resolve_from_original_bytes_without_markup(store):
+    raw = '<html><head><title>Hidden title</title><style>secret style</style></head><body>'
+    raw += '<h1>Requirements</h1><p>Each <b>dataset</b> should have a title &amp; owner.</p>'
+    raw += '<script>secret script</script><table><tr><th>Field</th><th>Need</th></tr>'
+    raw += '<tr><td>Title</td><td>Human-readable label</td></tr></table>'
+    raw += '<p>' + ('Additional source context. ' * 300) + '</p></body></html>'
+    source = register(store, 'standard.html', raw)
+    evidence = units(store, source)
+    assert source['artifact_kind'] == 'html'
+    assert 'Each dataset should have a title & owner.' in source['representation']
+    assert 'Field | Need' in source['representation']
+    assert not any(text in source['representation'] for text in ['secret', '<p>', 'Hidden title'])
+    assert source['raw_base64'] == base64.b64encode(raw.encode()).decode()
+    assert all(len(unit.content) <= 2400 for unit in evidence)
+    assert all(resolve_evidence(store, unit)['status'] == 'pass' for unit in evidence)
+    assert len(evidence) < 10
+
+
+def test_html_mime_detection_and_empty_text_sources_fail_visibly(store):
+    source = register_source(store, SourceRequest(artifact=ArtifactPayload(
+        name='download', content='<p>Source text</p>', media_type='text/html; charset=utf-8')))
+    assert source['artifact_kind'] == 'html'
+    for name, content in [('empty.txt', '  \n '), ('empty.html', '<script>only code</script>')]:
+        empty = register(store, name, content)
+        assert empty['parse_status'] == 'failed'
+        assert not units(store, empty)
+
 def test_selector_and_source_tampering_fail_original_resolution(store):
     source = register(store, 'needs.md', 'Datasets shall carry titles.')
     unit = units(store, source)[0]

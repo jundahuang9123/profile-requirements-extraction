@@ -7,7 +7,7 @@ The default interface implements the persistent **nine-stage RQ1 workflow**:
 
 1. Acquire versioned source artifacts and record their authority.
 2. Decompose them into stable, addressable evidence units.
-3. Elicit candidates independently from selected perspectives.
+3. Select source-grounded stakeholder perspectives, then elicit candidates independently.
 4. Normalize atomic, typed, implementation-neutral requirement records.
 5. Verify original-source provenance before assessing semantic support and quality.
 6. Consolidate exact equivalents while retaining conflicting alternatives.
@@ -17,9 +17,17 @@ The default interface implements the persistent **nine-stage RQ1 workflow**:
 
 See [the operating guide](docs/WORKFLOW_V2.md) for formats, review gates, APIs,
 persistence, evaluation and limitations, and [the implementation design](docs/RQ1_IMPLEMENTATION_GUIDE.md)
-for the architectural rationale. The **Original study workbench** tab
-preserves the earlier v1 extraction/expert-evaluation workflow for comparisons;
-[its UI guide](docs/UI_GUIDE.md) applies to that tab.
+for the architectural rationale. The UI opens the persistent workflow; the v1
+tab has been removed. Historical backend endpoints remain for compatibility,
+and [the old UI guide](docs/UI_GUIDE.md) describes that earlier interface.
+See [current validation status and known issues](docs/CURRENT_VALIDATION_STATUS.md)
+before interpreting saved trials as research results.
+
+The [stakeholder role-selection guide](docs/ROLE_SELECTION.md) explains automatic
+panel selection, documented/inferred/proposed roles, citation checks, bounded processing,
+saved manifests and optional human overrides. Fixed panels remain available for comparisons.
+The [source preparation guide](docs/SOURCE_PREPARATION.md) explains what to skim,
+what the software prepares, and which evidence still needs human review.
 
 ## Run locally
 
@@ -51,6 +59,14 @@ subscription does not supply a model endpoint to this application. Development
 and tests for this implementation made no paid model requests. A small synthetic,
 local-only Qwen3.5 27B run exercised the persistent workflow; its simulated
 human decisions are demonstration data, not validated research requirements.
+
+The RQ1 UI also has a **Model provider** panel for OpenAI, KI:connect, Ollama,
+Anthropic, and other OpenAI-compatible endpoints. You can enter a model ID or
+load IDs from the selected endpoint. Credentials entered in the panel stay in
+the running service's memory and are never placed in browser storage or run
+exports; restarting the service clears them. Ollama defaults to localhost for
+the local Mac service and to `host.docker.internal` in Docker. Confirm the
+model is present in Ollama before running a live workflow.
 
 For frontend development, keep the API running and use `npm run dev` from
 `frontend`. Port 5174 proxies `/api` to port 8011. Alternatively,
@@ -123,3 +139,14 @@ V2 adapts bounded turns, selective routing, frozen context and durable messages 
 requirement review. It does not invoke upstream semantic-mapping commands or
 treat agent agreement as human acceptance. See [attribution](THIRD_PARTY_NOTICES.md)
 and [the source snapshot manifest](docs/VPE_SOURCE_MANIFEST.json).
+
+See [exact extraction citations and provider request limits](docs/EXTRACTION_CITATIONS.md) for the current citation policy and KI:connect configuration.
+
+### Workflow pages and progression
+
+The application now opens only the persistent workflow. Each step has its own page
+and saved-result download. Choose **Step by step** for human use: processing saves
+and pauses after each stage, until Continue is clicked. Choose **Automatic** for a
+test run. Opening or changing pages never starts a model call. Completed extraction
+batches and matching semantic assessments are checkpointed for interruption recovery.
+See [WORKFLOW_V2.md](docs/WORKFLOW_V2.md) for recovery limits and historical-run behaviour.

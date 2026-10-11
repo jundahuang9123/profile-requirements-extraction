@@ -334,8 +334,13 @@
           "type": "integer"
         },
         "max_output_tokens": {
-          "default": 1000,
+          "default": 4000,
           "title": "Max Output Tokens",
+          "type": "integer"
+        },
+        "max_retry_output_tokens": {
+          "default": 8000,
+          "title": "Max Retry Output Tokens",
           "type": "integer"
         },
         "max_rounds": {
@@ -355,6 +360,11 @@
           "title": "Messages",
           "type": "array"
         },
+        "model_attempts": {
+          "default": 0,
+          "title": "Model Attempts",
+          "type": "integer"
+        },
         "output_tokens_reserved": {
           "default": 0,
           "title": "Output Tokens Reserved",
@@ -368,7 +378,7 @@
           "type": "array"
         },
         "policy_version": {
-          "default": "rq1-selective-v2",
+          "default": "rq1-selective-v5",
           "title": "Policy Version",
           "type": "string"
         },
@@ -397,7 +407,7 @@
           "title": "Stop Reason"
         },
         "total_output_budget": {
-          "default": 12000,
+          "default": 48000,
           "title": "Total Output Budget",
           "type": "integer"
         },
@@ -708,6 +718,7 @@
           "default": "Unknown",
           "enum": [
             "Catalog",
+            "CatalogRecord",
             "Dataset",
             "Distribution",
             "DataService",
@@ -1120,6 +1131,122 @@
       "title": "RevisionDraft",
       "type": "object"
     },
+    "RoleCitation": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "quote": {
+          "description": "Literal contiguous substring of this evidence unit content. Copy all spaces, line breaks and hyphens exactly; never join text from separate units.",
+          "maxLength": 400,
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        },
+        "quote_start": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Zero-based character offset inside the cited unit content. Omit/null for a unique quote; required only when that exact quote appears more than once.",
+          "title": "Quote Start"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "quote"
+      ],
+      "title": "RoleCitation",
+      "type": "object"
+    },
+    "RoleProposal": {
+      "additionalProperties": false,
+      "properties": {
+        "basis": {
+          "enum": [
+            "documented",
+            "inferred",
+            "proposed"
+          ],
+          "title": "Basis",
+          "type": "string"
+        },
+        "evidence_links": {
+          "items": {
+            "$ref": "#/$defs/RoleCitation"
+          },
+          "maxItems": 2,
+          "title": "Evidence Links",
+          "type": "array"
+        },
+        "focus_questions": {
+          "items": {
+            "maxLength": 240,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Focus Questions",
+          "type": "array"
+        },
+        "label": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "purpose": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Purpose",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "stakeholders": {
+          "items": {
+            "maxLength": 240,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Stakeholders",
+          "type": "array"
+        },
+        "task_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 8,
+          "title": "Task Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "label",
+        "stakeholders",
+        "basis",
+        "rationale",
+        "purpose",
+        "focus_questions"
+      ],
+      "title": "RoleProposal",
+      "type": "object"
+    },
     "RunRequest": {
       "additionalProperties": false,
       "properties": {
@@ -1128,9 +1255,43 @@
           "title": "Allow Live Provider",
           "type": "boolean"
         },
+        "based_on_run_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Based On Run Id"
+        },
+        "execution_mode": {
+          "default": "automatic",
+          "enum": [
+            "automatic",
+            "stepwise"
+          ],
+          "title": "Execution Mode",
+          "type": "string"
+        },
+        "max_roles": {
+          "default": 4,
+          "maximum": 8,
+          "minimum": 1,
+          "title": "Max Roles",
+          "type": "integer"
+        },
         "name": {
           "default": "RQ1 workflow",
           "title": "Name",
+          "type": "string"
+        },
+        "override_rationale": {
+          "default": "",
+          "maxLength": 2000,
+          "title": "Override Rationale",
           "type": "string"
         },
         "role_ids": {
@@ -1139,6 +1300,24 @@
           },
           "title": "Role Ids",
           "type": "array"
+        },
+        "role_overrides": {
+          "items": {
+            "$ref": "#/$defs/RoleProposal"
+          },
+          "maxItems": 8,
+          "title": "Role Overrides",
+          "type": "array"
+        },
+        "role_selection": {
+          "default": "manual",
+          "enum": [
+            "manual",
+            "automatic",
+            "override"
+          ],
+          "title": "Role Selection",
+          "type": "string"
         },
         "snapshot_id": {
           "title": "Snapshot Id",
@@ -1356,7 +1535,8 @@
             "stakeholder_need",
             "example",
             "observation",
-            "background"
+            "background",
+            "evaluation_reference"
           ],
           "title": "Source Role",
           "type": "string"
@@ -1528,6 +1708,11 @@
           "title": "Diagnostics",
           "type": "array"
         },
+        "elicitation_policy_version": {
+          "default": "rq1-independent-elicitation-v2.9",
+          "title": "Elicitation Policy Version",
+          "type": "string"
+        },
         "evidence_ids": {
           "items": {
             "type": "string"
@@ -1581,6 +1766,18 @@
           "title": "Requirements",
           "type": "array"
         },
+        "role_manifest": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Role Manifest"
+        },
         "role_runs": {
           "items": {
             "type": "object"
@@ -1600,6 +1797,13 @@
         "snapshot_id": {
           "title": "Snapshot Id",
           "type": "string"
+        },
+        "stage_results": {
+          "additionalProperties": {
+            "type": "object"
+          },
+          "title": "Stage Results",
+          "type": "object"
         },
         "stages": {
           "additionalProperties": {
