@@ -80,20 +80,46 @@ Changing the limit requires restarting the process. Multiple server processes or
 machines have separate limits; configure a shared gateway for a global deployment.
 The optional limit is 1–4.
 
-Only HTTP `429` responses receive rate-limit retries. Defaults are two additional
-attempts, fallback waits of 2 then 4 seconds, and a total retry-wait budget of 30
-seconds. A valid `Retry-After` delay (seconds or HTTP date) takes precedence. If it
-exceeds the remaining wait budget, the call fails explicitly rather than retrying
-too early or sleeping indefinitely. The endpoint request slot stays occupied during
-cooldown. Authentication errors and other HTTP failures are not retried by this
-policy. Schema correction above is separate from transport retries. The existing one-time response-format fallback remains
-bounded and is recorded separately.
+Two kinds of HTTP failure are retried. Each has its own attempt limit; both draw
+on one retry-wait budget per request.
 
-Set `RRS_LLM_RATE_LIMIT_RETRIES` (0–3), `RRS_LLM_RETRY_BACKOFF` (positive, at most
-60 seconds) and `RRS_LLM_RETRY_WAIT_BUDGET` (0–60 seconds) to tune these bounds.
-Retries cannot guarantee success under exhausted quota or persistent throttling.
-The existing `RRS_LLM_TIMEOUT` applies to each HTTP attempt; retry-wait budget
-bounds waiting, not total provider duration or queue time.
+- **Rate limit** (HTTP `429`): by default five additional attempts with fallback
+  waits of 2, 4, 8, 16 and 32 seconds, which outlasts a one-minute rate window
+  that sends no `Retry-After` header.
+- **Transient failure** (a timed-out attempt, a refused or dropped connection, or
+  HTTP `500`, `502`, `503`, `504`): by default two additional attempts with
+  fallback waits of 2 then 4 seconds.
+
+The retry-wait budget defaults to 120 seconds. A valid `Retry-After` delay (seconds
+or HTTP date) takes precedence over the fallback wait for both kinds. If it exceeds
+the remaining wait budget, the call fails explicitly rather than retrying too early
+or sleeping indefinitely. The endpoint request slot stays occupied during cooldown.
+Authentication errors and other `4xx` responses are never retried. Schema correction
+above is separate from transport retries. The existing one-time response-format
+fallback remains bounded and is recorded separately.
+
+Set `RRS_LLM_RATE_LIMIT_RETRIES` (0–8), `RRS_LLM_TRANSIENT_RETRIES` (0–3),
+`RRS_LLM_RETRY_BACKOFF` (positive, at most 60 seconds) and
+`RRS_LLM_RETRY_WAIT_BUDGET` (0–600 seconds) to tune these bounds. A local `.env`
+copied from an earlier `.env.example` pins the previous values (two rate-limit
+retries, 30 seconds) and overrides the new defaults until it is edited.
+Retries cannot guarantee success under exhausted quota, persistent throttling or an
+endpoint that stays unavailable; the role or stage then fails visibly and can be resumed.
+
+`RRS_LLM_TIMEOUT` applies to each HTTP attempt; the retry-wait budget bounds waiting,
+not total provider duration or queue time. A response that needs longer than the
+timeout to generate will time out again on every retry: for a slow endpoint or a
+large response cap, raise `RRS_LLM_TIMEOUT` rather than the retry count. With the
+defaults one generation stays below the 15-minute worker lease (three 240-second
+attempts plus waits). A larger timeout, or a schema correction that follows retried
+timeouts, can outlast the lease; do not resume such a run while its request is in flight.
+
+`RRS_LLM_REASONING_EFFORT` is sent as `reasoning_effort` when set and omitted
+otherwise, which leaves the provider's default. For a reasoning model the response
+cap covers reasoning as well as the JSON answer, so a lower effort leaves more of the
+cap for the answer. Whether an endpoint honours the parameter has to be checked in
+the recorded reasoning-token counts. The value is part of every call's recorded
+provider description, so runs with different settings remain distinguishable.
 
 Run model-call audits record HTTP status/attempts, retry waits and queue time.
 They contain no API key or HTTP headers. Evaluation exports distinguish logical
@@ -106,6 +132,8 @@ Offline tests cover exact multiline quotations and offsets, separate obligation
 premises, unknown IDs, unsupported hypotheses, schema rejection of generated quotes,
 policy compatibility, shared endpoint concurrency, finite 429 retries, `Retry-After`,
 long cooldown rejection, authentication failure, and response-format fallback.
+Transport tests cover retried timeouts, dropped connections and `5xx` responses,
+their exhaustion, the shared wait budget, disabled retries and unretried `4xx` errors.
 Recovery tests replay excess stakeholder names, 13 citations, invalid `mixed`
 value types and malformed JSON through the real client with fake HTTP responses.
 They cover exhausted correction, unknown citations after correction, complete

@@ -16,6 +16,10 @@ from .config import LLMConfig
 
 T = TypeVar('T', bound=BaseModel)
 
+# Gateway answers for a backend that is restarting, overloaded or slow. They are
+# retried within the same bounds as timeouts; any other 4xx/5xx fails at once.
+TRANSIENT_STATUS_CODES = frozenset({500, 502, 503, 504})
+
 # All clients targeting one endpoint share its request slots, across roles/runs.
 _endpoint_lock = threading.Lock()
 _endpoint_limiters = {}
@@ -184,6 +188,7 @@ class OpenAICompatibleClient:
         self.extra_headers = dict(config.extra_headers)
         self.max_concurrency, self._limiter = endpoint_limiter(self.base_url, config.max_concurrency)
         self.rate_limit_retries = config.rate_limit_retries
+        self.transient_retries = config.transient_retries
         self.retry_backoff = config.retry_backoff
         self.retry_wait_budget = config.retry_wait_budget
         self._call_local = threading.local()
@@ -260,32 +265,64 @@ class OpenAICompatibleClient:
         audit = {'http_attempts': [], 'retry_wait_seconds': 0.0, 'queue_seconds': 0.0}
         self._call_local.metadata = audit
         queued = time.monotonic()
+        # Failures that say nothing about the request itself: the attempt timed out,
+        # the connection dropped, or the gateway answered for an unavailable backend.
+        transient_errors = (self._httpx.TimeoutException, self._httpx.NetworkError, self._httpx.RemoteProtocolError)
         with self._limiter:
             audit['queue_seconds'] = round(time.monotonic() - queued, 4)
-            retry_count, active_body = 0, body
+            rate_limit_count, transient_count, active_body = 0, 0, body
+
+            def wait_and_retry(attempt, action, used, allowed, delay):
+                """Sleep inside the shared wait budget; False leaves the failure to the caller."""
+                if used >= allowed or audit['retry_wait_seconds'] + delay > self.retry_wait_budget:
+                    return False
+                attempt.update(action=action, wait_seconds=delay)
+                audit['retry_wait_seconds'] += delay
+                # Hold the endpoint slot during cooldown to prevent
+                # queued roles from immediately hitting the same limit.
+                time.sleep(delay)
+                return True
+
             while True:
                 attempt = {'attempt': len(audit['http_attempts']) + 1,
                            'response_format': 'response_format' in active_body}
                 audit['http_attempts'].append(attempt)
                 try:
                     response = self._httpx.post(url, json=active_body, headers=headers, timeout=self.timeout)
-                    attempt['status_code'] = response.status_code
-                    if response.status_code == 400 and 'response_format' in active_body:
-                        attempt['action'] = 'response_format_fallback'
-                        active_body = {key: value for key, value in active_body.items() if key != 'response_format'}
+                except transient_errors as exc:
+                    # Only the exception class is audited; messages can repeat request details.
+                    attempt['error'] = type(exc).__name__
+                    if wait_and_retry(attempt, 'transient_retry', transient_count, self.transient_retries,
+                                      self.retry_backoff * (2 ** transient_count)):
+                        transient_count += 1
                         continue
-                    if response.status_code == 429:
-                        delay = retry_after_seconds(response.headers.get('Retry-After'))
-                        delay = self.retry_backoff * (2 ** retry_count) if delay is None else delay
-                        if retry_count < self.rate_limit_retries and audit['retry_wait_seconds'] + delay <= self.retry_wait_budget:
-                            attempt.update(action='rate_limit_retry', wait_seconds=delay)
-                            retry_count += 1
-                            audit['retry_wait_seconds'] += delay
-                            # Hold the endpoint slot during cooldown to prevent
-                            # queued roles from immediately hitting the same limit.
-                            time.sleep(delay)
-                            continue
-                        attempt['action'] = 'rate_limit_budget_exhausted'
+                    attempt['action'] = 'transient_retries_exhausted' if transient_count else 'request_failed'
+                    raise LLMError(f'OpenAI-compatible request to {url} failed after '
+                                   f'{len(audit["http_attempts"])} attempt(s): {type(exc).__name__}: {exc}') from exc
+                except self._httpx.HTTPError as exc:
+                    attempt.update(error=type(exc).__name__, action='request_failed')
+                    raise LLMError(f'OpenAI-compatible request to {url} failed: {exc}') from exc
+                attempt['status_code'] = response.status_code
+                if response.status_code == 400 and 'response_format' in active_body:
+                    attempt['action'] = 'response_format_fallback'
+                    active_body = {key: value for key, value in active_body.items() if key != 'response_format'}
+                    continue
+                if response.status_code == 429:
+                    delay = retry_after_seconds(response.headers.get('Retry-After'))
+                    delay = self.retry_backoff * (2 ** rate_limit_count) if delay is None else delay
+                    if wait_and_retry(attempt, 'rate_limit_retry', rate_limit_count, self.rate_limit_retries, delay):
+                        rate_limit_count += 1
+                        continue
+                    attempt['action'] = 'rate_limit_budget_exhausted'
+                elif response.status_code in TRANSIENT_STATUS_CODES:
+                    delay = retry_after_seconds(response.headers.get('Retry-After'))
+                    delay = self.retry_backoff * (2 ** transient_count) if delay is None else delay
+                    if wait_and_retry(attempt, 'transient_retry', transient_count, self.transient_retries, delay):
+                        transient_count += 1
+                        continue
+                    if transient_count:
+                        attempt['action'] = 'transient_retries_exhausted'
+                try:
                     response.raise_for_status()
                 except self._httpx.HTTPError as exc:
                     attempt.setdefault('action', 'request_failed')
@@ -309,10 +346,15 @@ class OpenAICompatibleClient:
         return content
 
     def describe(self) -> dict[str, str]:
+        # reasoning_effort changes what the model does with its response allowance, so it
+        # belongs to the recorded model configuration; None means the provider's default.
         return {'provider': 'openai-compatible', 'model': self.model_id, 'base_url': self.base_url,
+                'reasoning_effort': self.reasoning_effort,
                 'max_concurrency': self.max_concurrency, 'rate_limit_retries': self.rate_limit_retries,
+                'transient_retries': self.transient_retries,
                 'retry_backoff_seconds': self.retry_backoff,
-                'retry_wait_budget_seconds': self.retry_wait_budget}
+                'retry_wait_budget_seconds': self.retry_wait_budget,
+                'timeout_seconds': self.timeout}
 
     def last_call_metadata(self):
         return getattr(self._call_local, 'metadata', {})

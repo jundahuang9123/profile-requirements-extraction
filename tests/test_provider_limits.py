@@ -65,9 +65,121 @@ def test_exhausted_rate_limit_is_bounded(config, monkeypatch):
     client = OpenAICompatibleClient(config)
     with pytest.raises(LLMError, match='429'):
         invoke(client)
-    assert len(attempts) == 3
-    assert waits == [2.0, 4.0]
+    # Default patience covers a one-minute rate window without a Retry-After header.
+    assert len(attempts) == 6
+    assert waits == [2.0, 4.0, 8.0, 16.0, 32.0]
     assert client.last_call_metadata()['http_attempts'][-1]['action'] == 'rate_limit_budget_exhausted'
+
+
+def test_rate_limit_patience_is_configurable_and_never_exceeds_wait_budget(config, monkeypatch):
+    waits = []
+    monkeypatch.setattr(httpx, 'post', lambda *a, **kw: response(429))
+    monkeypatch.setattr(module.time, 'sleep', waits.append)
+    config.rate_limit_retries, config.retry_wait_budget = 8, 10
+    client = OpenAICompatibleClient(config)
+    with pytest.raises(LLMError, match='429'):
+        invoke(client)
+    # 2 + 4 fit the 10-second budget; the next 8-second wait would exceed it.
+    assert waits == [2.0, 4.0]
+    assert client.last_call_metadata()['retry_wait_seconds'] == 6
+
+
+def test_timeout_dropped_connection_and_gateway_errors_are_retried(config, monkeypatch):
+    request = httpx.Request('POST', 'https://provider.invalid/v1/chat/completions')
+    outcomes = iter([httpx.ReadTimeout('secret-bearing detail must not be audited', request=request),
+                     response(503), response(200)])
+    waits = []
+    def post(*a, **kw):
+        outcome = next(outcomes)
+        if isinstance(outcome, Exception):
+            raise outcome
+        return outcome
+    monkeypatch.setattr(httpx, 'post', post)
+    monkeypatch.setattr(module.time, 'sleep', waits.append)
+    client = OpenAICompatibleClient(config)
+    assert invoke(client).value == 'ok'
+    audit = client.last_call_metadata()
+    assert waits == [2.0, 4.0]
+    assert [a.get('action') for a in audit['http_attempts']] == ['transient_retry', 'transient_retry', None]
+    assert audit['http_attempts'][0]['error'] == 'ReadTimeout' and 'status_code' not in audit['http_attempts'][0]
+    assert [a.get('status_code') for a in audit['http_attempts'][1:]] == [503, 200]
+    assert audit['retry_wait_seconds'] == 6
+    assert 'secret-bearing' not in json.dumps(audit)
+
+
+@pytest.mark.parametrize('failure', ['timeout', 'connection', 'protocol', 500, 502, 503, 504])
+def test_transient_retries_are_bounded_then_fail_visibly(config, monkeypatch, failure):
+    request = httpx.Request('POST', 'https://provider.invalid/v1/chat/completions')
+    errors = {'timeout': httpx.ConnectTimeout('slow', request=request),
+              'connection': httpx.ConnectError('refused', request=request),
+              'protocol': httpx.RemoteProtocolError('closed', request=request)}
+    count, waits = [], []
+    def post(*a, **kw):
+        count.append(1)
+        if failure in errors:
+            raise errors[failure]
+        return response(failure)
+    monkeypatch.setattr(httpx, 'post', post)
+    monkeypatch.setattr(module.time, 'sleep', waits.append)
+    client = OpenAICompatibleClient(config)
+    with pytest.raises(LLMError, match=str(failure) if isinstance(failure, int) else type(errors[failure]).__name__):
+        invoke(client)
+    assert len(count) == 3 and waits == [2.0, 4.0]
+    last = client.last_call_metadata()['http_attempts'][-1]
+    assert last['action'] == 'transient_retries_exhausted'
+
+
+def test_transient_retries_can_be_disabled_and_honor_retry_after(config, monkeypatch):
+    request = httpx.Request('POST', 'https://provider.invalid/v1/chat/completions')
+    count = []
+    def timeout(*a, **kw):
+        count.append(1)
+        raise httpx.ReadTimeout('slow', request=request)
+    monkeypatch.setattr(httpx, 'post', timeout)
+    monkeypatch.setattr(module.time, 'sleep', lambda _: pytest.fail('Disabled retries must not wait'))
+    config.transient_retries = 0
+    client = OpenAICompatibleClient(config)
+    with pytest.raises(LLMError, match='ReadTimeout'):
+        invoke(client)
+    assert len(count) == 1
+    assert client.last_call_metadata()['http_attempts'][0]['action'] == 'request_failed'
+    # A gateway's own Retry-After is used instead of the fallback backoff, inside the budget.
+    config.transient_retries = 2
+    responses = iter([response(503, {'Retry-After': '7'}), response(200)])
+    waits = []
+    monkeypatch.setattr(httpx, 'post', lambda *a, **kw: next(responses))
+    monkeypatch.setattr(module.time, 'sleep', waits.append)
+    assert invoke(OpenAICompatibleClient(config)).value == 'ok'
+    assert waits == [7.0]
+
+
+@pytest.mark.parametrize('status', [400, 403, 404, 422, 501])
+def test_request_and_permission_errors_are_never_retried(config, monkeypatch, status):
+    count = []
+    def post(*a, **kw):
+        count.append(kw['json'])
+        return response(status)
+    monkeypatch.setattr(httpx, 'post', post)
+    monkeypatch.setattr(module.time, 'sleep', lambda _: pytest.fail('Must not wait for a non-transient failure'))
+    client = OpenAICompatibleClient(config)
+    with pytest.raises(LLMError, match=str(status)):
+        invoke(client)
+    # HTTP 400 gets the existing single response_format fallback, nothing else repeats.
+    assert len(count) == (2 if status == 400 else 1)
+    assert client.last_call_metadata()['http_attempts'][-1]['action'] == 'request_failed'
+
+
+def test_rate_limit_and_transient_retries_share_one_wait_budget(config, monkeypatch):
+    responses = iter([response(429, {'Retry-After': '100'}), response(503, {'Retry-After': '30'})])
+    waits = []
+    monkeypatch.setattr(httpx, 'post', lambda *a, **kw: next(responses))
+    monkeypatch.setattr(module.time, 'sleep', waits.append)
+    client = OpenAICompatibleClient(config)
+    with pytest.raises(LLMError, match='503'):
+        invoke(client)
+    # 100 seconds were already spent on the rate limit; 30 more would pass the 120-second budget.
+    assert waits == [100.0]
+    assert len(client.last_call_metadata()['http_attempts']) == 2
 
 
 def test_long_retry_after_is_not_ignored_or_slept_past_budget(config, monkeypatch):
@@ -144,8 +256,29 @@ def test_retry_after_http_date_and_bad_values():
 def test_invalid_limits_fail_before_network():
     with pytest.raises(ValueError, match='CONCURRENCY'):
         LLMConfig(max_concurrency=0)
-    with pytest.raises(ValueError, match='RETRIES'):
+    with pytest.raises(ValueError, match='RATE_LIMIT_RETRIES'):
         LLMConfig(rate_limit_retries=100)
+    with pytest.raises(ValueError, match='TRANSIENT_RETRIES'):
+        LLMConfig(transient_retries=4)
+    with pytest.raises(ValueError, match='WAIT_BUDGET'):
+        LLMConfig(retry_wait_budget=601)
+    assert LLMConfig(rate_limit_retries=8, transient_retries=3, retry_wait_budget=600).retry_wait_budget == 600
+
+
+def test_environment_sets_retry_bounds_and_provenance_records_reasoning_effort(monkeypatch):
+    for name, value in {'RRS_LLM_PROVIDER': 'openai-compatible', 'RRS_LLM_MODEL': 'test',
+                        'RRS_LLM_BASE_URL': 'https://env-bounds.invalid/v1', 'RRS_LLM_REASONING_EFFORT': 'low',
+                        'RRS_LLM_RATE_LIMIT_RETRIES': '7', 'RRS_LLM_TRANSIENT_RETRIES': '1',
+                        'RRS_LLM_RETRY_WAIT_BUDGET': '300'}.items():
+        monkeypatch.setenv(name, value)
+    monkeypatch.setattr('requirement_reuse_service.llm.config._runtime_config', None)
+    description = OpenAICompatibleClient(LLMConfig.from_env()).describe()
+    assert description['reasoning_effort'] == 'low'
+    assert (description['rate_limit_retries'], description['transient_retries'],
+            description['retry_wait_budget_seconds'], description['timeout_seconds']) == (7, 1, 300.0, 240.0)
+    monkeypatch.delenv('RRS_LLM_REASONING_EFFORT')
+    monkeypatch.setenv('RRS_LLM_BASE_URL', 'https://env-default.invalid/v1')
+    assert OpenAICompatibleClient(LLMConfig.from_env()).describe()['reasoning_effort'] is None
 
 
 @pytest.mark.parametrize('content', ['{"value":"unfinished', '{"value":"valid but cutoff"}'])
