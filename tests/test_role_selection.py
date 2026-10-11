@@ -202,6 +202,68 @@ def test_oversized_scan_is_not_silently_partial(corpus, monkeypatch):
     assert not client.calls
 
 
+def two_batch_corpus(corpus, monkeypatch):
+    from requirement_reuse_service.workflow.storage import canonical
+    store, snapshot, _ = corpus
+    units = [store.get('evidence', eid) for eid in snapshot['evidence_ids']]
+    monkeypatch.setattr(selector, 'BATCH_CHARS', max(len(canonical(unit)) for unit in units) + 10)
+    assert len(units) == 2
+
+
+def test_scan_beyond_the_batch_limit_fails_before_any_call_and_names_the_needed_limit(corpus, monkeypatch):
+    store, _, _ = corpus
+    two_batch_corpus(corpus, monkeypatch)
+    monkeypatch.setenv('RQ1_ROLE_SELECTION_MAX_BATCHES', '1')
+    run = auto_run(corpus)
+    assert run['role_manifest']['max_batches'] == 1
+    client = SelectorClient()
+    with pytest.raises(ValueError, match=r'exceeds 1 source batches \(2 needed\).*at least 2'):
+        selector.select_roles(store, run, client)
+    assert not client.calls
+
+
+def test_batch_limit_is_recorded_with_the_run_and_kept_when_the_setting_changes(corpus, monkeypatch):
+    store, snapshot, _ = corpus
+    two_batch_corpus(corpus, monkeypatch)
+    monkeypatch.setenv('RQ1_ROLE_SELECTION_MAX_BATCHES', '2')
+    run = auto_run(corpus, max_roles=1)
+    # The run keeps the limit it was created with, so a later, lower setting cannot strand it.
+    monkeypatch.setenv('RQ1_ROLE_SELECTION_MAX_BATCHES', '1')
+    manifest = selector.select_roles(store, run, SelectorClient())
+    assert manifest['status'] == 'completed' and manifest['max_batches'] == 2 and manifest['total_batches'] == 2
+    assert set(manifest['processed_evidence_ids']) == set(snapshot['evidence_ids'])
+    selector.verify_manifest(manifest)
+    # A manifest saved before the limit was recorded is scanned under the default.
+    legacy = auto_run(corpus, max_roles=1)
+    assert legacy['role_manifest']['max_batches'] == 1
+    del legacy['role_manifest']['max_batches']
+    assert selector.select_roles(store, legacy, SelectorClient())['total_batches'] == 2
+
+
+@pytest.mark.parametrize('value', ['0', '129', 'many', '-3', '2.5'])
+def test_invalid_batch_limit_is_rejected_when_an_automatic_run_is_created(corpus, monkeypatch, value):
+    store, snapshot, _ = corpus
+    monkeypatch.setenv('RQ1_ROLE_SELECTION_MAX_BATCHES', value)
+    with pytest.raises(ValueError, match='RQ1_ROLE_SELECTION_MAX_BATCHES'):
+        auto_run(corpus)
+    # Runs without a source scan do not read the setting.
+    manual = new_run(store, RunRequest(snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
+                                      role_ids=['consumer_discovery']))
+    assert 'max_batches' not in manual['role_manifest']
+
+
+def test_default_batch_limit_is_unchanged(monkeypatch):
+    monkeypatch.delenv('RQ1_ROLE_SELECTION_MAX_BATCHES', raising=False)
+    monkeypatch.setattr(selector, 'BATCH_CHARS', 100)          # one 61-character unit per batch
+    assert selector.selection_batch_limit() == 32
+    units = [{'evidence_id': f'u{i:02d}', 'content': 'x' * 30} for i in range(33)]
+    assert len(selector.batches_for(units[:32])) == 32
+    with pytest.raises(ValueError, match=r'exceeds 32 source batches \(33 needed\)'):
+        selector.batches_for(units)
+    monkeypatch.setenv('RQ1_ROLE_SELECTION_MAX_BATCHES', '64')
+    assert len(selector.batches_for(units)) == 33
+
+
 def test_mock_automatic_and_override_api_keep_original_run_and_record_actor(corpus, monkeypatch):
     store, snapshot, _ = corpus
     api = TestClient(app)
