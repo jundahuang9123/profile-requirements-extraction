@@ -240,7 +240,7 @@ def test_batch_limit_is_recorded_with_the_run_and_kept_when_the_setting_changes(
     assert selector.select_roles(store, legacy, SelectorClient())['total_batches'] == 2
 
 
-@pytest.mark.parametrize('value', ['0', '129', 'many', '-3', '2.5'])
+@pytest.mark.parametrize('value', ['0', '129', 'many', '-3', '2.5', '\u00b2'])
 def test_invalid_batch_limit_is_rejected_when_an_automatic_run_is_created(corpus, monkeypatch, value):
     store, snapshot, _ = corpus
     monkeypatch.setenv('RQ1_ROLE_SELECTION_MAX_BATCHES', value)

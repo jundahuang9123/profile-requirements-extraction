@@ -197,7 +197,7 @@ def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') ->
             raise ValueError('Ingestion preflight failed original-source resolution; re-ingest the source.')
         if request.strategy == 'multi_agent':
             payload, _ = elicitation_batch([unit])
-            if len(canonical({'evidence_units': payload})) + 5000 > 45000:
+            if len(canonical({'evidence_units': payload})) + 5000 > EXTRACTION_UNIT_CHARS:
                 raise ValueError('An evidence unit exceeds the reserved extraction input budget; redecompose before running.')
     if request.role_selection == 'manual':
         roles_for(request)

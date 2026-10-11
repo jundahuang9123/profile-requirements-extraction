@@ -103,7 +103,7 @@ def selection_batch_limit() -> int:
     raw = os.environ.get('RQ1_ROLE_SELECTION_MAX_BATCHES', '').strip()
     if not raw:
         return MAX_BATCHES
-    if not raw.isdigit() or not 1 <= int(raw) <= MAX_BATCHES_CEILING:
+    if not (raw.isascii() and raw.isdigit()) or not 1 <= int(raw) <= MAX_BATCHES_CEILING:
         raise ValueError(f'RQ1_ROLE_SELECTION_MAX_BATCHES must be a whole number from 1 to {MAX_BATCHES_CEILING}.')
     return int(raw)
 
