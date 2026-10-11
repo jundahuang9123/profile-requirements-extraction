@@ -8,7 +8,7 @@ from ..models import ArtifactPayload, NormalizedIntent as LegacyIntent, Requirem
 
 WORKFLOW_VERSION = 'rq1-nine-stage-v2'
 SCHEMA_VERSION = 'rq1-requirement-dataset-v2'
-ELICITATION_POLICY_VERSION = 'rq1-independent-elicitation-v2.9'
+ELICITATION_POLICY_VERSION = 'rq1-independent-elicitation-v2.10'
 STAGES = ['acquisition', 'decomposition', 'role_selection', 'elicitation', 'normalization',
           'verification', 'consolidation', 'deliberation', 'adjudication', 'baseline']
 

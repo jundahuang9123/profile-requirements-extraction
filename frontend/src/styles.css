@@ -2804,6 +2804,7 @@ button.danger {
 .workflow-role-editor legend { padding:0 8px; font-weight:600; }
 .workflow-notice { padding:12px; border-left:3px solid var(--accent); background:var(--panel); }
 .workflow-role-list article { min-width:0; overflow-wrap:anywhere; }
+.workflow-role-run > span,.workflow-role-run > small { margin-left:8px; }.workflow-role-run > small { color:var(--muted); }
 .workflow-panel pre { max-height:420px; overflow:auto; }
 
 /* Individual workflow step pages */

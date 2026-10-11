@@ -87,15 +87,44 @@ def test_missing_obligation_premise_is_still_blocked(corpus):
     assert verification['component_checks'] == {'statement_premise': True, 'obligation_premise': False}
 
 
-def test_unknown_excerpt_stops_role_preserves_raw_response_and_cannot_fallback(corpus):
+def test_unknown_excerpt_gets_one_retry_then_fails_unit_and_preserves_raw_responses(corpus):
+    from requirement_reuse_service.workflow.engine import CITATION_RETRY_NOTE
     store, run = corpus
     client = MockLLMClient(lambda system, user: payload(json.loads(user), unknown=True))
     observations, reports = elicit(store, run, client)
     assert observations == []
     assert reports[0]['status'] == 'failed'
     assert 'outside this batch' in reports[0]['error']
-    assert reports[0]['raw_outputs'][0]['observations']
-    assert reports[0]['citation_selections'][0]['status'] == 'invalid'
+    # Both rejected answers stay in the audit; neither becomes an observation or a fallback.
+    assert len(reports[0]['raw_outputs']) == 2 and all(o['observations'] for o in reports[0]['raw_outputs'])
+    selections = reports[0]['citation_selections']
+    assert [s['status'] for s in selections] == ['invalid', 'invalid']
+    assert [s['recovery'] for s in selections] == ['single_unit_citation_retry_once', 'exhausted_continue_remaining']
+    assert 'citation_retry' not in selections[0] and selections[1]['citation_retry'] is True
+    assert [CITATION_RETRY_NOTE in call['system'] for call in client.calls] == [False, True]
+    assert reports[0]['failed_batches'] == [{'batch_index': '0:0', 'kind': 'citation_invalid',
+        'error': selections[1]['error'], 'evidence_ids': run['evidence_ids']}]
+    assert (reports[0]['processed_unit_count'], reports[0]['evidence_unit_count']) == (0, 1)
+
+
+@pytest.mark.parametrize('slip', ['unknown', 'duplicate'])
+def test_citation_slip_recovers_on_the_single_retry_without_accepting_the_first_answer(corpus, slip):
+    store, run = corpus
+    def respond(system, user):
+        result = payload(json.loads(user), unknown=slip == 'unknown' and len(client.calls) == 1)
+        if slip == 'duplicate' and len(client.calls) == 1:
+            links = result['observations'][0]['evidence_links']
+            links.append(dict(links[0]))
+        return result
+    client = MockLLMClient(respond)
+    observations, reports = elicit(store, run, client)
+    assert len(client.calls) == 2 and reports[0]['status'] == 'completed'
+    assert len(observations) == 1 and len(observations[0].evidence_links) == 3
+    assert [s['status'] for s in reports[0]['citation_selections']] == ['invalid', 'materialized']
+    expected = 'outside this batch' if slip == 'unknown' else 'Duplicate source excerpt link'
+    assert expected in reports[0]['citation_selections'][0]['error']
+    assert (reports[0]['processed_unit_count'], reports[0]['evidence_unit_count']) == (1, 1)
+    assert verify(store, record_from_observation(run['run_id'], observations[0]), run['evidence_ids'])['status'] == 'pass'
 
 
 def test_unsupported_hypothesis_retains_empty_evidence_and_fails_gate(corpus):
@@ -218,7 +247,10 @@ def test_single_unit_output_cutoff_has_one_bounded_larger_retry(corpus):
     observations, reports = elicit(store, run, Cutoff())
     assert budgets == [8000, 12000]
     assert observations == [] and reports[0]['status'] == 'failed'
-    assert reports[0]['citation_selections'][-1]['recovery'] == 'exhausted'
+    assert [s['recovery'] for s in reports[0]['citation_selections']] == [
+        'single_unit_larger_response_once', 'exhausted_continue_remaining']
+    assert reports[0]['failed_batches'][0]['kind'] == 'output_cutoff'
+    assert 'output_cutoff' in reports[0]['error'] and 'simulated length cutoff' in reports[0]['error']
 
 
 def test_schema_failure_does_not_trigger_token_recovery(corpus):
@@ -247,6 +279,74 @@ def test_recovery_retains_completed_split_when_later_leaf_fails(corpus):
     assert reports[0]['status'] == 'failed'
     assert len(observations) == 1 and observations[0].evidence_links[0].evidence_id == run['evidence_ids'][0]
     assert reports[0]['observation_ids'] == [observations[0].observation_id]
+
+
+@pytest.mark.parametrize('failure', ['output_cutoff', 'citation_invalid', 'duplicate_link'])
+def test_unprocessable_unit_is_skipped_while_remaining_units_continue_then_resume_retries_only_it(corpus, failure):
+    from requirement_reuse_service.llm.client import OutputTokenLimitError
+    store, run = multiunit_run(corpus)
+    failed_id = run['evidence_ids'][1]          # inside the first batch, so later units must still be reached
+    seen = []
+    class OneBadUnit(MockLLMClient):
+        def generate_structured(self, **kwargs):
+            data = json.loads(kwargs['user'])
+            ids = [unit['evidence_id'] for unit in data['evidence_units']]
+            seen.append((ids, kwargs['max_tokens']))
+            response = unit_response(data)
+            if failed_id in ids:
+                if failure == 'output_cutoff':
+                    raise OutputTokenLimitError('simulated length cutoff')
+                bad = response['observations'][ids.index(failed_id)]['evidence_links']
+                if failure == 'citation_invalid':
+                    bad[0]['source_span_id'] = 's999'
+                else:
+                    bad.append(dict(bad[0]))
+            return kwargs['output_model'].model_validate(response)
+    partial, reports = elicit(store, run, TrackedClient(OneBadUnit(), store, run['run_id']))
+    report = reports[0]
+    assert report['status'] == 'failed'
+    assert {o.evidence_links[0].evidence_id for o in partial} == set(run['evidence_ids']) - {failed_id}
+    assert (report['processed_unit_count'], report['evidence_unit_count']) == (4, 5)
+    expected_kind = 'output_cutoff' if failure == 'output_cutoff' else 'citation_invalid'
+    assert [(f['kind'], f['evidence_ids']) for f in report['failed_batches']] == [(expected_kind, [failed_id])]
+    assert '1 evidence unit(s) could not be processed' in report['error'] and expected_kind in report['error']
+    # Four-unit batch, two halves, the failing half's two leaves, one bounded retry of the bad leaf, the last unit.
+    assert [len(ids) for ids, _ in seen] == [4, 2, 1, 1, 1, 2, 1]
+    retry_budgets = [budget for ids, budget in seen if ids == [failed_id]]
+    assert retry_budgets == ([8000, 12000] if failure == 'output_cutoff' else [8000, 8000])
+    assert seen[-1][0] == [run['evidence_ids'][4]]          # the role went on after the failed unit
+    # Nothing from a rejected answer was accepted, and the saved state matches the returned one.
+    restored = Store(store.path).get('run', run['run_id'])
+    assert restored['role_runs'][0]['status'] == 'failed' and len(restored['observations']) == 4
+    replayed = []
+    def recover(system, user):
+        data = json.loads(user)
+        replayed.extend(unit['evidence_id'] for unit in data['evidence_units'])
+        return unit_response(data)
+    completed, reports = elicit(store, restored, MockLLMClient(recover))
+    assert reports[0]['status'] == 'completed' and len(completed) == 5
+    assert replayed == [failed_id]
+    assert (reports[0]['processed_unit_count'], reports[0]['evidence_unit_count']) == (5, 5)
+    assert {o.observation_id for o in partial} <= {o.observation_id for o in completed}
+
+
+def test_transport_failure_still_stops_the_role_and_keeps_saved_batches(corpus):
+    """A provider that cannot be reached is not asked again for every remaining unit."""
+    from requirement_reuse_service.llm.client import LLMError
+    store, run = multiunit_run(corpus, count=9)
+    seen = []
+    class Unreachable(MockLLMClient):
+        def generate_structured(self, **kwargs):
+            seen.append(len(json.loads(kwargs['user'])['evidence_units']))
+            if len(seen) == 2:
+                raise LLMError('OpenAI-compatible request failed after 3 attempt(s): ReadTimeout')
+            return kwargs['output_model'].model_validate(unit_response(json.loads(kwargs['user'])))
+    observations, reports = elicit(store, run, Unreachable())
+    assert seen == [4, 4]          # the third batch is not requested
+    assert reports[0]['status'] == 'failed' and 'ReadTimeout' in reports[0]['error']
+    assert len(observations) == 4
+    assert (reports[0]['processed_unit_count'], reports[0]['evidence_unit_count']) == (4, 9)
+    assert 'failed_batches' not in reports[0] and reports[0]['citation_selections'][-1]['status'] == 'failed'
 
 
 def test_restart_only_calls_unfinished_evidence_batches(corpus):
@@ -312,6 +412,7 @@ def test_real_client_correction_is_audited_and_still_passes_source_gate(corpus, 
     import uuid
     from requirement_reuse_service.llm.client import OpenAICompatibleClient
     from requirement_reuse_service.llm.config import LLMConfig
+    from requirement_reuse_service.workflow.engine import CITATION_RETRY_NOTE
     from requirement_reuse_service.workflow.evaluation import workflow_metrics
     store, run = corpus
     sent = []
@@ -319,7 +420,7 @@ def test_real_client_correction_is_audited_and_still_passes_source_gate(corpus, 
         body = kwargs['json']
         sent.append(body)
         data = json.loads(body['messages'][1]['content'])
-        proposal = payload(data, unknown=invented_span and len(sent) == 2)
+        proposal = payload(data, unknown=invented_span and len(sent) >= 2)
         proposal['observations'][0]['intent']['value_kind'] = 'mixed' if len(sent) == 1 else 'unknown'
         return httpx.Response(200, json={'choices': [{'finish_reason': 'stop', 'message': {'content': json.dumps(proposal)}}],
             'usage': {'prompt_tokens': 10, 'completion_tokens': 20, 'total_tokens': 30}},
@@ -328,11 +429,14 @@ def test_real_client_correction_is_audited_and_still_passes_source_gate(corpus, 
     client = OpenAICompatibleClient(LLMConfig(provider='openai-compatible', model='test',
         base_url=f'https://{uuid.uuid4().hex}.invalid/v1'))
     observations, reports = elicit(store, run, TrackedClient(client, store, run['run_id']))
-    assert len(sent) == 2
+    # An invented excerpt after schema correction gets the one citation retry as a second logical call.
+    assert len(sent) == (3 if invented_span else 2)
     assert reports[0]['status'] == ('failed' if invented_span else 'completed')
     if invented_span:
         assert observations == []
         assert 'outside this batch' in reports[0]['error']
+        assert CITATION_RETRY_NOTE in sent[2]['messages'][0]['content']
+        assert CITATION_RETRY_NOTE not in sent[0]['messages'][0]['content']
     else:
         assert len(observations) == 1
         record = record_from_observation(run['run_id'], observations[0])
@@ -343,7 +447,7 @@ def test_real_client_correction_is_audited_and_still_passes_source_gate(corpus, 
     assert call['token_usage']['total_tokens'] == 60
     assert call['output_tokens_reserved'] == 16000
     metrics = workflow_metrics(saved)['model_calls']
-    assert metrics['count'] == 1 and metrics['http_attempts'] == 2
+    assert metrics['count'] == (2 if invented_span else 1) and metrics['http_attempts'] == (3 if invented_span else 2)
     assert metrics['schema_correction_generations'] == 1
-    assert metrics['actual_token_usage']['total_tokens'] == 60
-    assert metrics['max_output_tokens_reserved_sum'] == 16000
+    assert metrics['actual_token_usage']['total_tokens'] == (90 if invented_span else 60)
+    assert metrics['max_output_tokens_reserved_sum'] == (24000 if invented_span else 16000)

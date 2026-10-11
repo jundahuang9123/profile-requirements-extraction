@@ -1,6 +1,6 @@
 # Exact excerpts and bounded provider requests
 
-The persistent RQ1 workflow uses `rq1-independent-elicitation-v2.9` for new agent
+The persistent RQ1 workflow uses `rq1-independent-elicitation-v2.10` for new agent
 runs. Agents select source excerpt IDs for each requirement premise. The server
 supplies the original quotation and its character offset; agents no longer generate
 quotation text. The saved public requirement format remains `EvidenceLink` with
@@ -21,9 +21,9 @@ token limits; the provider also receives a schema and system prompt.
 The provider-only `SpanElicitationResult` contains `source_span_id` selections,
 with a relation (`supports`, `contradicts`, `contextualizes`) and component
 (`statement`, `obligation`, `scope`, `condition`, `value_kind`). Selecting the same
-excerpt for different components is allowed; duplicate identical links and unknown
-IDs fail that extraction role visibly. The raw provider output, batch catalogue,
-catalogue hash and transformation outcome remain in the contribution audit.
+excerpt for different components is allowed; a duplicate identical link or an
+unknown ID rejects the whole answer (see recovery below). The raw provider output,
+batch catalogue, catalogue hash and transformation outcome remain in the contribution audit.
 
 Authentic excerpts do not establish entailment. The ordinary original-source
 verification, separate obligation-premise requirement and semantic assessment
@@ -50,15 +50,33 @@ Native Anthropic structured parsing does not use this additional correction path
 Qualification and discussion requests retain their existing generation budgets.
 
 If extraction still fails its schema, split a multi-unit batch in half and process
-both halves. A single evidence unit that still fails remains explicitly failed,
-while the role attempts the remaining units. A role with any such unresolved unit
-is incomplete, even when it retains valid proposals from other units. Resume skips
-successfully materialized units and retries only unfinished units. Split attempts,
-failed units, accepted outputs and exact source catalogues remain in the audit.
-Each generation retains the existing response cap; schema failures do not increase
-it. With four units per initial batch, schema-only recovery has at most seven batch
-requests and fourteen generations for that batch, excluding transport retries.
-The separate token-cutoff recovery has its own existing bounds.
+both halves. A single evidence unit that still fails is marked failed, and the role
+goes on to the remaining units.
+
+A schema-valid answer can still cite an excerpt ID that is not in the supplied
+catalogue, or repeat an identical link. No observation from such an answer is
+accepted, and the application neither drops nor deduplicates links. A multi-unit
+batch is split in half. A single unit is requested once more with a short note
+naming the two rules; if that answer is rejected too, the unit is marked failed and
+the role goes on. Rejected raw answers stay in the contribution audit.
+
+Output cutoffs follow the same pattern: a multi-unit batch is split, a single unit
+gets one retry at 12,000 tokens, and a unit that is cut off again is marked failed
+while the role goes on.
+
+A role with any failed unit is incomplete, even when it retains valid proposals
+from other units. Its report lists every failed unit with the kind of failure
+(`schema_invalid`, `citation_invalid` or `output_cutoff`) and counts processed
+against total evidence units. Resume skips successfully materialized units and
+retries only unfinished units. Split attempts, failed units, accepted outputs and
+exact source catalogues remain in the audit. Schema and citation failures do not
+increase the response cap. For one initial batch of four units all recovery kinds
+together are bounded by fifteen requests of at most two generations each,
+excluding transport retries.
+
+Transport, authentication and unexpected errors are handled differently: they
+stop the role at once, because the next request would most likely fail the same
+way. Saved batches are kept, and resume continues with the unfinished units.
 
 Extraction prompts spell out the 12-link limit and all value-kind enum values.
 Compound needs should be split into atomic observations instead of inventing a
@@ -138,6 +156,8 @@ Recovery tests replay excess stakeholder names, 13 citations, invalid `mixed`
 value types and malformed JSON through the real client with fake HTTP responses.
 They cover exhausted correction, unknown citations after correction, complete
 measured usage versus missing usage, continued source coverage after a singleton
-failure and resume without repeating successful sources.
+failure and resume without repeating successful sources. Extraction tests cover the
+single citation retry, duplicate links, units skipped after a cutoff or a citation
+failure while later units are still processed, and an unreachable provider stopping the role.
 A live KI:connect pilot is a separate validation step after restarting the service;
 offline success does not imply requirement quality or benchmark accuracy.
