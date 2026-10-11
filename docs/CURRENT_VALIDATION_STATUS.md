@@ -54,3 +54,43 @@ fixes. Local live-run data and credentials are not included in the repository.
 The next useful validation is a bounded end-to-end run with an explicitly checked
 source manifest and scope, followed by review of the resulting requirements.
 Preserve machine proposals, human decisions and final baseline as separate outputs.
+
+## Addendum: changes made after this record (offline validation only)
+
+The changes below were made after the trials above. None has been exercised against
+a live provider. They change how failures are handled and how source text is offered
+for citation; they do not show that a full run now completes.
+
+- **Transport.** Timed-out attempts, dropped connections and HTTP 500/502/503/504 are
+  retried up to two more times. Rate-limit patience defaults to five retries inside a
+  120-second wait budget shared by both kinds of retry. A local `.env` copied from the
+  earlier example still pins the old values (two retries, 30 seconds).
+- **Extraction policy v2.10.** An answer with an unknown or repeated excerpt link, and
+  a single unit cut off again after its larger retry, no longer stop a role. The unit
+  is marked failed, later units are processed, and each role reports processed against
+  total evidence units. Transport and authentication errors still stop a role.
+- **Extraction policy v2.11, role-selection policy v6.** Consecutive lines of a unit
+  form one excerpt of at most 400 characters instead of one excerpt per line. By the
+  preflight rule the extraction batches per role fall from 16 to 15 (JRC), from 29 to
+  20 (StatDCAT) and from 129 to 81 (GeoDCAT).
+- **Role selection.** `RQ1_ROLE_SELECTION_MAX_BATCHES` raises the 32-batch scan limit
+  for new runs. HealthDCAT-AP needs 36 batches and mobilityDCAT-AP 63.
+- **Provenance.** The provider description saved with every call now includes the
+  reasoning effort, the transport retry limits and the timeout.
+- Offline validation after these changes: 218 tests passed, the exported workflow
+  schema matches the runtime contracts, and the frontend build passed.
+
+Still open after these changes:
+
+- No live run has been made with them. How often the new recovery paths fire, and
+  whether block excerpts change the quality of the cited evidence, is unmeasured.
+- mobilityDCAT-AP cannot be frozen as a corpus. Page 19 of
+  `dcat-ap-webinar-1-2021.pdf` is an image without extractable text (the DCAT-AP UML
+  figure), and the snapshot check rejects a source with such a page. This needs a
+  corpus decision: an attributed transcript, a recorded assessment, or removal.
+- The assessment and discussion workload described above is unchanged. Every
+  candidate still gets its own assessment call, exact-only consolidation still keeps
+  paraphrases, and every flagged pair still becomes a discussion case.
+- Reasoning effort stays at the provider's default unless `RRS_LLM_REASONING_EFFORT`
+  is set. For a reasoning model this decides how much of each response cap is left
+  for the answer; the trial above spent 1,997 of 2,000 completion tokens on reasoning.
