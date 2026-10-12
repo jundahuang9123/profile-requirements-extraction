@@ -13,7 +13,7 @@ from requirement_reuse_service.workflow.evidence import register_source, resolve
 from requirement_reuse_service.workflow.models import SourceRequest, EvidenceUnit, SnapshotRequest
 from requirement_reuse_service.workflow.engine import (freeze_snapshot, EXTRACTION_BATCH_CHARS,
     EXTRACTION_BATCH_UNITS, EXTRACTION_UNIT_CHARS)
-from requirement_reuse_service.workflow.role_selection import batches_for
+from requirement_reuse_service.workflow.role_selection import scan_batches
 from requirement_reuse_service.workflow.citations import elicitation_batch
 from requirement_reuse_service.workflow.storage import Store, canonical, digest
 
@@ -60,7 +60,8 @@ def audit(output: Path):
             try:
                 snapshot = freeze_snapshot(store, SnapshotRequest(source_version_ids=sources, name='Preflight ' + name))
                 units = [store.get('evidence', i) for i in snapshot['evidence_ids']]
-                selection_batches = batches_for(units)
+                # As a new run: the whole corpus in scan order, refused beyond the ceiling or cap.
+                selection_batches = scan_batches(store, snapshot)
                 # Same bounds as the extractor. The size estimate conservatively reserves
                 # 5,000 chars for each selected role/task payload, so a run can need fewer batches.
                 reserve = 5000
@@ -78,7 +79,7 @@ def audit(output: Path):
                         current.append(unit)
                 if current:
                     extraction_batches.append(current)
-                stats = {'evidence_units': len(units), 'selection_batches': len(selection_batches),
+                stats = {'evidence_units': len(units), 'selection_batches': selection_batches,
                          'estimated_extraction_batches_per_role': len(extraction_batches),
                          'snapshot_id': snapshot['snapshot_id']}
             except Exception as exc:

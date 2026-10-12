@@ -32,6 +32,7 @@ export function RoleManifestView({ run, busy, inspect, override }: Props) {
     {selectionStatus === 'failed' && <p className="workflow-error">Role selection stopped before the panel was completed. Check the source citations and recorded attempts below.</p>}
     {run.strategy === 'mock' && <p className="workflow-notice">Offline demonstration: requirements use mock proposals. No model is called for this run.</p>}
     {manifest.mode === 'automatic' && <p>{manifest.processed_evidence_ids.length} of {run.evidence_ids.length} evidence units processed · {manifest.selection_rounds.length} of {manifest.total_batches ?? '?'} batches assembled.</p>}
+    {manifest.mode === 'automatic' && manifest.total_batches != null && <p>The scan reads the whole corpus in {manifest.total_batches} source {manifest.total_batches === 1 ? 'batch' : 'batches'}, with up to {manifest.total_batches * 3} selector calls.</p>}
     <p>Documented and inferred labels are selection judgements. Exact quotations can be checked; they do not establish stakeholder endorsement. Every extracted requirement still needs its own evidence.</p>
     {manifest.fallback_reason && <p className="workflow-notice">{manifest.fallback_reason}</p>}
     {manifest.override && <p>Human override by {manifest.override.actor}: {manifest.override.rationale}. Based on run {manifest.override.based_on_run_id}.</p>}

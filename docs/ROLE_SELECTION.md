@@ -88,13 +88,15 @@ reserves a slot for the grounding/scope critic even when many roles contributed.
 The versioned policy is `rq1-stakeholder-selection-v6`:
 
 1. Read all snapshot evidence in deterministic source/selector order. Discovery batches
-   have at most 40,000 serialized characters, and a scan has at most 32 batches by default.
-   An oversized unit/corpus fails explicitly; it is not silently truncated. The error
-   names the number of batches the corpus needs. `RQ1_ROLE_SELECTION_MAX_BATCHES`
-   (1–128) sets the limit for new automatic runs; each run saves the limit it started
-   with as `max_batches` in its manifest and keeps it on resume. Of the benchmark
-   corpora, HealthDCAT-AP needs 36 batches and mobilityDCAT-AP 61, so both need a
-   raised limit; the other three fit the default.
+   have at most 40,000 serialized characters. A new automatic run scans its whole
+   corpus: when the run is created, it counts the batches its snapshot needs, saves that
+   number as `max_batches` (shown on the role-selection step) and keeps it on resume.
+   Each batch costs up to three selector calls; of the benchmark corpora, HealthDCAT-AP
+   needs 36 batches and mobilityDCAT-AP 61. One scan reads at most 128 batches. An
+   oversized unit or corpus is refused when the run is created, before any model call;
+   it is never silently truncated. `RQ1_ROLE_SELECTION_MAX_BATCHES` (1–128) is an
+   optional cap: a run whose corpus needs more batches is refused. Runs created before
+   whole-corpus scans keep the limit they recorded (32 if none).
 2. One logical selector uses the configured provider to discover at most the requested
    panel size per batch (1–8). CQs accompany each batch. Only selected snapshot evidence is loaded;
    there is no filesystem search, external retrieval or reference-set access.

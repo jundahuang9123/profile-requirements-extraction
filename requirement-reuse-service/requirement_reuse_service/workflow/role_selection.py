@@ -19,9 +19,10 @@ from .storage import ConflictError, Store, canonical, digest, now, uid
 POLICY_VERSION = 'rq1-stakeholder-selection-v6'
 DISCOVERY_OUTPUT_TOKENS = 8000
 BATCH_CHARS = 40000
-# Default and highest permitted number of source batches in one selection scan.
-MAX_BATCHES = 32
+# Highest number of source batches one selection scan may read; each costs up to three selector calls.
 MAX_BATCHES_CEILING = 128
+# Limit of runs created before a scan covered the whole corpus and that recorded none.
+MAX_BATCHES = 32
 MAX_REQUEST_CHARS = 60000
 
 IDENTIFY_PROMPT = '''Identify stakeholder perspectives for DCAT profile requirement extraction.
@@ -93,23 +94,43 @@ def discovery_contract(max_candidates: int):
                         candidates=(list[ConciseRoleProposal], Field(default_factory=list, max_length=max_candidates)))
 
 
-def selection_batch_limit() -> int:
-    """Source-batch limit for a new selection scan.
+def selection_batch_limit() -> int | None:
+    """Optional operator cap on the source batches of a new selection scan.
 
-    Every batch costs up to three selector calls, so scanning a corpus beyond the
-    default is an explicit operator decision (RQ1_ROLE_SELECTION_MAX_BATCHES). The
-    limit a run started with is saved in its manifest and kept on resume.
+    A new automatic run scans its whole corpus, up to MAX_BATCHES_CEILING batches.
+    Every batch costs up to three selector calls; RQ1_ROLE_SELECTION_MAX_BATCHES lets an
+    operator refuse larger scans. Unset, there is no cap below the ceiling.
     """
     raw = os.environ.get('RQ1_ROLE_SELECTION_MAX_BATCHES', '').strip()
     if not raw:
-        return MAX_BATCHES
+        return None
     if not (raw.isascii() and raw.isdigit()) or not 1 <= int(raw) <= MAX_BATCHES_CEILING:
         raise ValueError(f'RQ1_ROLE_SELECTION_MAX_BATCHES must be a whole number from 1 to {MAX_BATCHES_CEILING}.')
     return int(raw)
 
 
-def batches_for(units: list[dict], max_batches: int | None = None) -> list[list[dict]]:
-    limit = selection_batch_limit() if max_batches is None else max_batches
+def selection_units(store: Store, snapshot: dict) -> list[dict]:
+    """Snapshot evidence in scan order: text in source order, structural selectors in a stable order."""
+    units = [store.get('evidence', eid) for eid in snapshot['evidence_ids']]
+    units.sort(key=lambda unit: (unit['source_version_id'], unit['selector'].get('start', 0), canonical(unit['selector'])))
+    return units
+
+
+def scan_batches(store: Store, snapshot: dict) -> int:
+    """Number of source batches a scan of this snapshot needs, checked against the ceiling and cap."""
+    needed = len(pack_batches(selection_units(store, snapshot)))
+    if needed > MAX_BATCHES_CEILING:
+        raise ValueError(f'This corpus needs {needed} role-selection batches, more than the {MAX_BATCHES_CEILING} '
+                         'one scan may read; no partial scan is called complete. Reduce the corpus.')
+    cap = selection_batch_limit()
+    if cap is not None and needed > cap:
+        raise ValueError(f'This corpus needs {needed} role-selection batches, more than '
+                         f'RQ1_ROLE_SELECTION_MAX_BATCHES={cap}. Raise or remove that setting, or reduce the corpus.')
+    return needed
+
+
+def pack_batches(units: list[dict]) -> list[list[dict]]:
+    """Source batches of at most BATCH_CHARS serialized characters, in scan order."""
     batches, size = [[]], 0
     for unit in units:
         length = len(canonical(unit))
@@ -120,10 +141,17 @@ def batches_for(units: list[dict], max_batches: int | None = None) -> list[list[
             size = 0
         batches[-1].append(unit)
         size += length
+    return batches
+
+
+def batches_for(units: list[dict], max_batches: int | None = None) -> list[list[dict]]:
+    """Source batches for a scan; beyond the limit (by default the operator cap, else the
+    ceiling) the corpus fails as a whole instead of being scanned in part."""
+    limit = max_batches or selection_batch_limit() or MAX_BATCHES_CEILING
+    batches = pack_batches(units)
     if len(batches) > limit:
-        raise ValueError(f'Role selection exceeds {limit} source batches ({len(batches)} needed); no partial scan is '
-                         f'called complete. Set RQ1_ROLE_SELECTION_MAX_BATCHES to at least {len(batches)} for a new '
-                         'run, or reduce the corpus.')
+        raise ValueError(f'Role selection needs {len(batches)} source batches, more than the limit of {limit}; '
+                         'no partial scan is called complete.')
     return batches
 
 
@@ -244,7 +272,9 @@ def initial_manifest(store: Store, request: RunRequest, actor: str) -> dict:
                        'Discovery candidates are capped to the requested panel size per batch; this narrows candidate breadth compared with the previous eight-candidate policy.',
                        'Character budgets are not model-specific token budgets.']}
     if request.strategy != 'rules' and request.role_selection == 'automatic':
-        manifest['max_batches'] = selection_batch_limit()
+        # The scan covers the whole corpus; the run keeps this number on resume.
+        needed = scan_batches(store, snapshot)
+        manifest.update(max_batches=needed, total_batches=needed)
     if request.strategy == 'rules':
         manifest.update(status='not_applicable', mode='rules')
     elif request.role_selection == 'manual':
@@ -305,12 +335,14 @@ def select_roles(store: Store, run: dict, client) -> dict:
     snapshot = store.get('snapshot', run['snapshot_id'])
     if snapshot['manifest_hash'] != manifest['snapshot_hash']:
         raise ValueError('Role-selection source snapshot changed.')
-    units = [store.get('evidence', eid) for eid in snapshot['evidence_ids']]
-    # Keep text in source order; structural selectors use a stable lexical order.
-    units.sort(key=lambda unit: (unit['source_version_id'], unit['selector'].get('start', 0), canonical(unit['selector'])))
-    # A resumed scan keeps the limit it started with; manifests saved before the limit
-    # was recorded used the default.
-    batches = batches_for(units, manifest.get('max_batches', MAX_BATCHES))
+    units = selection_units(store, snapshot)
+    # A run keeps the limit it was created with; manifests that recorded none used 32.
+    limit = manifest.get('max_batches', MAX_BATCHES)
+    batches = pack_batches(units)
+    if len(batches) > limit:
+        raise ValueError(f'Role selection needs {len(batches)} source batches, more than the {limit} this run was '
+                         'created with; no partial scan is called complete. Start a new run: new runs scan the '
+                         'whole corpus.')
     tasks = snapshot['user_tasks']
     cache = {}
 
