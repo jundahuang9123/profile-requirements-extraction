@@ -93,7 +93,7 @@ The versioned policy is `rq1-stakeholder-selection-v6`:
    names the number of batches the corpus needs. `RQ1_ROLE_SELECTION_MAX_BATCHES`
    (1–128) sets the limit for new automatic runs; each run saves the limit it started
    with as `max_batches` in its manifest and keeps it on resume. Of the benchmark
-   corpora, HealthDCAT-AP needs 36 batches and mobilityDCAT-AP 63, so both need a
+   corpora, HealthDCAT-AP needs 36 batches and mobilityDCAT-AP 61, so both need a
    raised limit; the other three fit the default.
 2. One logical selector uses the configured provider to discover at most the requested
    panel size per batch (1–8). CQs accompany each batch. Only selected snapshot evidence is loaded;

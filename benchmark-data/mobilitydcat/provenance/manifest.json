@@ -957,10 +957,8 @@
       "confidence": "high",
       "representation": "original_copy",
       "license": "CC BY 4.0 as declared by the pinned SEMIC/DCAT-AP repository LICENSE; original copyright/rights notices retained.",
-      "runtime_modes": [
-        "raw"
-      ],
-      "notes": "A documented-family training artifact. Identity with the Academy three-webinar series is not proven; preserve that distinction rather than claiming all three recordings were recovered.",
+      "runtime_modes": [],
+      "notes": "A documented-family training artifact. Identity with the Academy three-webinar series is not proven; preserve that distinction rather than claiming all three recordings were recovered. Not a runtime input since 12 October 2026: page 19, the DCAT-AP UML figure, is an image without extractable text, which the corpus freeze rejects. The figure's content is stated normatively in dcat-ap-2.0.0.pdf and dcat-ap-2.1.0.pdf, which remain runtime inputs.",
       "sha256": "ca1aa39105d6bacf48dc155360e49af1b287ef71f58ef5aeb65060ce23ed0ff8",
       "bytes": 1633488
     }
