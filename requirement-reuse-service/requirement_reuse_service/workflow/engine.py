@@ -601,6 +601,7 @@ def consolidate(store: Store, run: dict, records: list[RequirementRecord], clien
     of this run to their records: an identical merged revision keeps its completed
     assessment, as normalization does for single candidates."""
     previous = previous or {}
+    cache = {}      # each source is parsed once for all merged candidates, as in verification
     groups: dict[str, list[RequirementRecord]] = {}
     for record in records:
         key = digest({'statement': record.normalized_statement, 'type': record.requirement_type,
@@ -633,11 +634,11 @@ def consolidate(store: Store, run: dict, records: list[RequirementRecord], clien
         reusable = (earlier and earlier.get('content_hash') == merged.content_hash and earlier.get('qualification')
                     and earlier['qualification'].get('revision_hash') == merged.content_hash)
         if reusable:
-            merged.verification = verify(store, merged, run['evidence_ids'])
+            merged.verification = verify(store, merged, run['evidence_ids'], cache)
             merged.qualification = Qualification.model_validate(earlier['qualification'])
             merged.lifecycle_state = 'blocked_evidence' if merged.verification['status'] != 'pass' else 'awaiting_human'
         else:
-            qualify_record(store, merged, run['evidence_ids'], client)
+            qualify_record(store, merged, run['evidence_ids'], client, cache)
         active.append(merged)
         events.append({'action': 'equivalent_merge', 'inputs': merged.parent_revision_ids, 'outputs': [merged.revision_id],
                        'rationale': 'Identical typed statement, intent, scope and assumptions; evidence preserved and reassessed.'})
