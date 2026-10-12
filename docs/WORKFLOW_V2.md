@@ -381,3 +381,23 @@ so new observations are normalized and assessed rather than mixed with old resul
 In-flight calls cannot be recovered as completed, and an active worker lease can
 prevent resumption until release/expiry. Some operations inside consolidation or
 a discussion case may need an explicit repeat/follow-up after interruption.
+
+Resume repeats a discussion only when its input is new, changed or unfinished.
+Each routed case is compared with the cases of the earlier attempt by its
+discussion input: triggers, participants, policy, and for every frozen candidate
+its revision, content hash, contributing roles, assessment and source-check
+outcome, ignoring check timestamps. A finished case (`unresolved` or
+`budget_exhausted`) with the same input is kept with its messages and outcome; a
+case that failed, was cancelled or was interrupted is run again. An earlier case
+whose candidate changed is replaced and stays in the attempt history, which now
+records the discussions of each attempt. Cases a reviewer requested are carried
+over unchanged and never repeated by resume. A run awaiting review can therefore
+be resumed when a role failed or a routed discussion did not finish; the UI then
+offers **Retry unfinished work**. The run metrics count reused discussions as
+`deliberation_reused`.
+
+Two details keep unchanged candidates identical across attempts. Extraction
+restores panel order after a resume, so consolidation merges the same observations
+in the same order and the merged revision keeps its identifier. Consolidation reuses
+the completed assessment of an identical merged revision from the earlier attempt,
+as normalization already does for single candidates.
