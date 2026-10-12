@@ -202,7 +202,9 @@ New endpoints use `/api/rq1/v2`; `/docs` exposes complete request contracts.
 
 Review/baseline commands carry expected versions and idempotency keys. Changed
 payload under the same key or stale versions yield 409; invalid transitions/citations
-yield 422; missing objects yield 404. Source/snapshot IDs are content-based.
+yield 422; missing objects yield 404. Repeating a command with the same key and payload
+does not apply it again and returns its first response, with the run as it was then.
+Source/snapshot IDs are content-based.
 Decisions, events and aggregate updates commit together in SQLite. Immutable source
 bytes/evidence and all candidate revisions remain available.
 
@@ -213,6 +215,8 @@ call appends one row and extends the worker lease in a small state row; it no lo
 rewrites the run. Reading a run assembles the document and its parts in one
 transaction. Runs saved by earlier versions are read as before, and their next update
 moves the parts to rows. Do not open the database with an earlier version afterwards.
+A part row that a saved command response includes is kept when a later update
+replaces or removes it, so that repeating the command returns that response.
 
 Workers have a persisted 15-minute lease refreshed at stages and provider call starts.
 Restart does not silently restart work; resume after the lease expires. Resume skips

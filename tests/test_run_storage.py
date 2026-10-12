@@ -46,6 +46,16 @@ def part_rows(store, run_id):
         return dict(db.execute('SELECT part, count(*) FROM run_parts WHERE run_id=? GROUP BY part', (run_id,)).fetchall())
 
 
+def write_earlier_layout(store, run_id, legacy, commands=None):
+    """Store a run, and command responses saved for it, the way the version before run parts did."""
+    with sqlite3.connect(store.path) as db:
+        db.execute('UPDATE objects SET body=? WHERE kind="run" AND id=?', (canonical(legacy), run_id))
+        db.execute('DELETE FROM run_parts WHERE run_id=?', (run_id,))
+        db.execute('DELETE FROM run_state WHERE run_id=?', (run_id,))
+        for key, response in (commands or {}).items():
+            db.execute('INSERT INTO commands VALUES(?,?,?,?)', (run_id, key, digest(None), canonical(response)))
+
+
 def test_parts_live_outside_the_run_document_but_readers_see_the_full_run(setup):
     store, run, client = setup
     execute_run(store, run['run_id'], client)
@@ -151,12 +161,7 @@ def test_runs_saved_by_earlier_versions_are_read_and_moved_on_their_next_update(
     legacy = {**store.get('run', run['run_id']), 'model_calls': [{'call_id': 'old-1'}, {'call_id': 'old-2'}],
               'stage_results': {'normalization': {'requirements': ['old']}}, 'machine_snapshot': {'requirements': ['old']},
               'attempt_history': [{'status': 'failed'}], 'baselines': []}
-    with sqlite3.connect(store.path) as db:      # the layout an earlier version wrote
-        db.execute('UPDATE objects SET body=? WHERE kind="run" AND id=?', (canonical(legacy), run['run_id']))
-        db.execute('DELETE FROM run_parts WHERE run_id=?', (run['run_id'],))
-        db.execute('DELETE FROM run_state WHERE run_id=?', (run['run_id'],))
-        db.execute('INSERT INTO commands VALUES(?,?,?,?)', (run['run_id'], 'old-command', digest(None),
-                                                            canonical({'run': legacy, 'result': {'ok': True}})))
+    write_earlier_layout(store, run['run_id'], legacy)
     assert store.get('run', run['run_id']) == legacy
     # A model call recorded before the first update is appended after the inline calls.
     store.append_run_part(run['run_id'], 'model_calls', {'call_id': 'new-1'})
@@ -168,10 +173,6 @@ def test_runs_saved_by_earlier_versions_are_read_and_moved_on_their_next_update(
     assert [c['call_id'] for c in migrated['model_calls']] == ['old-1', 'old-2', 'new-1', 'new-2']
     assert migrated['stage_results'] == legacy['stage_results'] and migrated['machine_snapshot'] == legacy['machine_snapshot']
     assert migrated['attempt_history'] == legacy['attempt_history']
-    # An idempotent replay of a command saved by an earlier version shows the parts once.
-    replay = store.mutate(run['run_id'], None, 'replayed', lambda r: None, key='old-command', payload=None, hydrate=True)
-    assert replay['result'] == {'ok': True}
-    assert [c['call_id'] for c in replay['run']['model_calls']] == ['old-1', 'old-2', 'new-1', 'new-2']
 
 
 def test_api_responses_include_the_parts(setup):
@@ -202,6 +203,11 @@ def test_each_excerpt_catalogue_is_stored_once_and_referenced_by_hash(setup):
     assert part_rows(store, run['run_id'])['catalogues'] == 1
     step = TestClient(app).get(f'/api/rq1/v2/runs/{run["run_id"]}/stages/elicitation').json()
     assert step['results']['catalogues'] == saved['catalogues']
+    # A catalogue's key is its hash: a different catalogue under it is refused, the same one kept.
+    store.set_run_part_entry(run['run_id'], 'catalogues', next(iter(hashes)), catalogue)
+    with pytest.raises(ConflictError):
+        store.set_run_part_entry(run['run_id'], 'catalogues', next(iter(hashes)), [{'quote': 'other'}])
+    assert store.get('run', run['run_id'])['catalogues'] == saved['catalogues']
 
 
 def test_source_check_reports_keep_the_outcome_without_copying_the_passage(setup):
@@ -224,3 +230,109 @@ def test_workbench_view_leaves_out_audit_parts_only(setup):
     assert full['model_calls'] and full['machine_snapshot'] and full['catalogues']
     assert view == {key: value for key, value in full.items() if key not in api.AUDIT_PARTS}
     assert view['stage_results'] and 'attempt_history' in view and 'baselines' in view
+
+
+# A command repeated under its idempotency key returns its first response unchanged.
+
+def test_a_retried_command_returns_its_first_response_after_the_run_changed(setup):
+    store, run, client = setup
+    execute_run(store, run['run_id'], client)
+    saved = store.get('run', run['run_id'])
+    record = next(r for r in saved['requirements'] if r['revision_id'] in saved['active_revision_ids'])
+    http = TestClient(app)
+    command = {'expected_version': saved['version'], 'idempotency_key': 'defer-once', 'action': 'defer',
+               'revision_ids': [record['revision_id']], 'rationale': 'Needs a second look.'}
+    first = http.post(f'/api/rq1/v2/runs/{run["run_id"]}/decisions', json=command)
+    assert first.status_code == 200, first.text
+
+    # Later work restates a candidate, replaces and removes stage copies, and logs more.
+    def later_attempt(r):
+        r['requirements'][0]['rationale'] = 'Restated by a later attempt.'
+        r['stage_results']['verification'] = {'requirements': ['later']}
+        r['stage_results'].pop('consolidation', None)
+        r['machine_snapshot'] = {'requirements': ['later']}
+        r['attempt_history'].append({'status': 'resumed'})
+    store.mutate(run['run_id'], None, 'later_attempt', later_attempt)
+    store.append_run_part(run['run_id'], 'model_calls', {'call_id': 'later'})
+    now = store.get('run', run['run_id'])
+    assert now['stage_results'] != first.json()['run']['stage_results']
+
+    retried = http.post(f'/api/rq1/v2/runs/{run["run_id"]}/decisions', json=command)
+    assert retried.status_code == 200
+    # Candidates, stage copies and logs all as the first response showed them.
+    assert retried.json() == first.json()
+    assert store.get('run', run['run_id']) == now        # nothing applied twice
+
+
+def test_a_retried_command_of_a_run_saved_by_an_earlier_version_returns_its_saved_response(setup):
+    store, run, _ = setup
+    legacy = {**store.get('run', run['run_id']), 'model_calls': [{'call_id': 'old-1'}],
+              'stage_results': {'normalization': {'requirements': ['old']}}, 'machine_snapshot': {'requirements': ['old']},
+              'attempt_history': [{'status': 'failed'}], 'baselines': []}
+    saved = {'run': legacy, 'result': {'decision_id': 'decision-1'}}
+    write_earlier_layout(store, run['run_id'], legacy, commands={'old-command': saved})
+
+    def retry(hydrate=True):
+        return store.mutate(run['run_id'], None, 'retried', lambda r: None, key='old-command', payload=None, hydrate=hydrate)
+    # Before the run's parts are moved to rows: the saved response, logs and stage copies included.
+    assert retry() == saved and retry(hydrate=False) == saved
+    assert document(store, run['run_id']) == legacy         # a retry changes nothing
+    # After the next update has moved them and more calls were logged: still the saved response.
+    store.mutate(run['run_id'], None, 'first_update', lambda r: r['model_calls'].append({'call_id': 'new-1'}))
+    assert not set(RUN_PARTS) & document(store, run['run_id']).keys()
+    assert retry() == saved
+
+
+def test_replaced_parts_are_kept_only_while_a_saved_response_includes_them(setup):
+    store, run, _ = setup
+    run_id = run['run_id']
+
+    def kept():
+        with sqlite3.connect(store.path) as db:
+            return db.execute('SELECT count(*) FROM run_part_history WHERE run_id=?', (run_id,)).fetchone()[0]
+    store.mutate(run_id, None, 'seed', lambda r: (r['model_calls'].append({'n': 1}), r.update(machine_snapshot={'m': 1}),
+                                                  r['stage_results'].update(a={'x': 1}, b={'x': 1})))
+    store.mutate(run_id, None, 'replace', lambda r: r['stage_results'].update(a={'x': 2}))
+    assert kept() == 0                    # no saved response includes the replaced row
+    first = store.mutate(run_id, None, 'command', lambda r: 'done', key='k', payload={'p': 1}, hydrate=True)
+    # Afterwards: a list rewritten, an entry replaced and one removed, the snapshot cleared, more rows.
+    store.mutate(run_id, None, 'edit', lambda r: r['model_calls'][0].update(n=100), parts=True)
+    store.mutate(run_id, None, 'later', lambda r: (r['stage_results'].update(a={'x': 3}), r['stage_results'].pop('b', None),
+                                                   r.update(machine_snapshot={}), r['attempt_history'].append({'s': 1})))
+    store.append_run_part(run_id, 'model_calls', {'n': 2})
+    assert kept() == 4                    # model call 1, entries a and b, the snapshot
+    assert store.mutate(run_id, None, 'command', lambda r: 'again', key='k', payload={'p': 1}, hydrate=True) == first
+    plain = store.mutate(run_id, None, 'command', lambda r: 'again', key='k', payload={'p': 1})
+    assert plain == {'run': {k: v for k, v in first['run'].items() if k not in RUN_PARTS}, 'result': 'done'}
+    # A later command does not see the rows replaced before it, and its own rows are kept for it.
+    second = store.mutate(run_id, None, 'command', lambda r: 'second', key='k2', payload={'p': 2}, hydrate=True)
+    store.mutate(run_id, None, 'again', lambda r: r['stage_results'].update(a={'x': 4}))
+    assert kept() == 5
+    assert store.mutate(run_id, None, 'command', lambda r: None, key='k2', payload={'p': 2}, hydrate=True) == second
+    assert store.mutate(run_id, None, 'command', lambda r: None, key='k', payload={'p': 1}, hydrate=True) == first
+    # Rows saved after the last command can be replaced without keeping a copy.
+    store.mutate(run_id, None, 'again', lambda r: r['stage_results'].update(a={'x': 5}))
+    assert kept() == 5
+
+
+def test_a_retried_command_saved_without_its_part_position_returns_the_current_run(setup):
+    store, run, _ = setup
+    run_id = run['run_id']
+    store.mutate(run_id, None, 'seed', lambda r: r['stage_results'].update(a={'x': 1}))
+    document_only = {'run': store.get_run(run_id, parts=False), 'result': 'done'}
+    with sqlite3.connect(store.path) as db:   # as this layout saved responses before recording positions
+        db.execute('INSERT INTO commands VALUES(?,?,?,?)', (run_id, 'k', digest(None), canonical(document_only)))
+    store.mutate(run_id, None, 'later', lambda r: r['stage_results'].update(a={'x': 2}))
+    # The document and the parts come from the same moment, not one from each.
+    assert store.mutate(run_id, None, 'x', lambda r: None, key='k', payload=None, hydrate=True) == {
+        'run': store.get('run', run_id), 'result': 'done'}
+
+
+def test_a_database_written_before_saved_responses_recorded_their_parts_is_upgraded(tmp_path):
+    path = tmp_path / 'earlier.sqlite3'
+    with sqlite3.connect(path) as db:        # the state table as this layout first created it
+        db.execute('CREATE TABLE run_state (run_id TEXT PRIMARY KEY, status TEXT NOT NULL, lease_until REAL NOT NULL)')
+        db.execute("INSERT INTO run_state VALUES ('run-1', 'awaiting_human', 0)")
+    Store(str(path))
+    with sqlite3.connect(path) as db:
+        assert db.execute("SELECT replay_sequence FROM run_state WHERE run_id='run-1'").fetchone() == (0,)

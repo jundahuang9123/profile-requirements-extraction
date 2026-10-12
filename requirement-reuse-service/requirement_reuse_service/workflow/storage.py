@@ -9,6 +9,11 @@ small state row, so that extending the lease before each model call writes only 
 ``get`` / ``get_run`` and ``mutate(..., hydrate=True)`` assemble the complete run, so
 readers see the same structure as before. Runs saved by earlier versions keep their parts
 inline until their next update, which moves the parts to rows.
+
+A command repeated under its idempotency key returns its first response unchanged: the run
+document saved with the command and the parts as they were at that moment. To make that
+possible, a part row that a saved response included is kept in ``run_part_history`` when a
+later update replaces or removes it.
 """
 from __future__ import annotations
 
@@ -124,8 +129,20 @@ class Store:
                   part TEXT NOT NULL, key TEXT NOT NULL, body TEXT NOT NULL,
                   UNIQUE (run_id, part, key));
                 CREATE TABLE IF NOT EXISTS run_state (
-                  run_id TEXT PRIMARY KEY, status TEXT NOT NULL, lease_until REAL NOT NULL);
+                  run_id TEXT PRIMARY KEY, status TEXT NOT NULL, lease_until REAL NOT NULL,
+                  replay_sequence INTEGER NOT NULL DEFAULT 0);
+                CREATE TABLE IF NOT EXISTS run_part_history (
+                  sequence INTEGER NOT NULL, run_id TEXT NOT NULL, part TEXT NOT NULL,
+                  key TEXT NOT NULL, body TEXT NOT NULL, retired_at INTEGER NOT NULL);
+                CREATE INDEX IF NOT EXISTS run_part_history_by_run ON run_part_history (run_id, sequence);
             ''')
+            # Databases written by this layout before saved responses recorded their parts.
+            if 'replay_sequence' not in {row[1] for row in db.execute('PRAGMA table_info(run_state)')}:
+                try:
+                    db.execute('ALTER TABLE run_state ADD COLUMN replay_sequence INTEGER NOT NULL DEFAULT 0')
+                except sqlite3.OperationalError as exc:     # another process added it meanwhile
+                    if 'duplicate column' not in str(exc):
+                        raise
 
     @contextmanager
     def connect(self):
@@ -187,6 +204,9 @@ class Store:
         part are saved without loading the part. With ``parts=True`` the parts are loaded
         and any change to them is saved. With ``hydrate=True`` the returned run includes
         the parts, as API responses need.
+
+        A command repeated with the same ``key`` and payload is not applied again; it returns
+        the response of its first application (see ``_replayed``).
         """
         with self.connect() as db:
             db.execute('BEGIN IMMEDIATE')
@@ -195,11 +215,7 @@ class Store:
                 if old:
                     if old[0] != digest(payload):
                         raise ConflictError('Idempotency key reused with a different command.')
-                    response = json.loads(old[1])
-                    if hydrate:
-                        # Responses saved by earlier versions hold parts inline; show the stored ones.
-                        response['run'] = self._attach_parts(db, run_id, self._without_parts(response['run']))
-                    return response
+                    return self._replayed(db, run_id, json.loads(old[1]), hydrate)
             run = self._load_run(db, run_id)
             self._move_inline_parts(db, run_id, run)
             if expected_version is not None and expected_version != run['version']:
@@ -220,7 +236,12 @@ class Store:
                        (run_id, event_type, canonical({'payload': payload, 'result': result, 'version': run['version']}), now()))
             response = {'run': run, 'result': result}
             if key:
-                db.execute('INSERT INTO commands VALUES(?,?,?,?)', (run_id, key, digest(payload), canonical(response)))
+                # The response includes the part rows saved so far; record that position, and
+                # keep the rows it includes when later updates replace or remove them.
+                position = self._high_water(db)
+                db.execute('INSERT INTO commands VALUES(?,?,?,?)',
+                           (run_id, key, digest(payload), canonical({**response, 'parts_sequence': position})))
+                db.execute('UPDATE run_state SET replay_sequence=? WHERE run_id=?', (position, run_id))
             if hydrate:
                 response = {'run': self._attach_parts(db, run_id, dict(run)), 'result': result}
             return response
@@ -240,14 +261,24 @@ class Store:
                            (run_id, event_type, canonical({'payload': None, 'result': {'part': part, 'key': key}, 'version': None}), now()))
 
     def set_run_part_entry(self, run_id: str, part: str, key: str, value: Any) -> None:
-        """Set one entry of a keyed part without rewriting the run document."""
+        """Add one entry of a keyed part without rewriting the run document.
+
+        For entries whose key identifies their content (a catalogue under its hash): an
+        existing entry is kept, and a different value under the same key is refused.
+        """
         if part in _LISTS or part in _VALUES or part not in RUN_PARTS:
             raise ValueError(f'{part} is not a keyed part of a run.')
         with self.connect() as db:
             db.execute('BEGIN IMMEDIATE')
             if not db.execute('SELECT 1 FROM objects WHERE kind="run" AND id=?', (run_id,)).fetchone():
                 raise KeyError(run_id)
-            self._set_row(db, run_id, part, key, value)
+            body = canonical(value)
+            existing = db.execute('SELECT body FROM run_parts WHERE run_id=? AND part=? AND key=?',
+                                  (run_id, part, key)).fetchone()
+            if existing is None:
+                db.execute('INSERT INTO run_parts(run_id,part,key,body) VALUES(?,?,?,?)', (run_id, part, key, body))
+            elif existing[0] != body:
+                raise ConflictError(f'{part} entry {key} already exists with different content.')
 
     def touch_run(self, run_id: str, lease_until: float) -> None:
         """Extend the worker lease before a model call, refusing a cancelled run.
@@ -303,7 +334,8 @@ class Store:
 
     @staticmethod
     def _write_state(db, run_id: str, run: dict):
-        db.execute('INSERT OR REPLACE INTO run_state(run_id,status,lease_until) VALUES(?,?,?)',
+        db.execute('INSERT INTO run_state(run_id,status,lease_until) VALUES(?,?,?) ON CONFLICT(run_id) '
+                   'DO UPDATE SET status=excluded.status, lease_until=excluded.lease_until',
                    (run_id, run['status'], float(run.get('job_lease_until') or 0)))
 
     def _move_inline_parts(self, db, run_id: str, run: dict):
@@ -330,9 +362,14 @@ class Store:
 
     def _read_parts(self, db, run_id: str, *, with_bodies: bool = False, omit: tuple[str, ...] = ()):
         """Stored parts; with ``with_bodies`` also their serialized rows, to detect changes."""
+        rows = db.execute('SELECT part,key,body FROM run_parts WHERE run_id=? ORDER BY sequence', (run_id,))
+        return self._collect_parts(rows, with_bodies=with_bodies, omit=omit)
+
+    @staticmethod
+    def _collect_parts(rows, *, with_bodies: bool = False, omit: tuple[str, ...] = ()):
+        """Assemble parts from (part, key, body) rows in saving order."""
         parts = {name: shape() for name, shape in RUN_PARTS.items()}
         bodies = {name: [] if name in _LISTS else None if name in _VALUES else {} for name in RUN_PARTS}
-        rows = db.execute('SELECT part,key,body FROM run_parts WHERE run_id=? ORDER BY sequence', (run_id,))
         for name, key, body in rows:
             if name not in RUN_PARTS or name in omit:
                 continue
@@ -361,13 +398,59 @@ class Store:
                 run[name] = {**inline, **stored[name]}
         return run
 
+    # Repeated commands -------------------------------------------------------------------
+
+    def _replayed(self, db, run_id: str, saved: dict, hydrate: bool) -> dict:
+        """The response a command returned when it was first applied.
+
+        Its run document was saved with the command; its parts are the rows saved up to the
+        recorded position that had not yet been replaced or removed at the command's version.
+        """
+        position = saved.pop('parts_sequence', None)
+        if position is not None:
+            if hydrate:
+                parts = self._parts_as_of(db, run_id, position, saved['run']['version'])
+                saved['run'] = {**saved['run'], **parts}
+            return saved
+        if set(RUN_PARTS) & saved['run'].keys():
+            return saved     # saved by an earlier version with the parts inline, as it was returned
+        # Saved by this layout before responses recorded their position: the run as it is now,
+        # document and parts read together.
+        run = self._load_run(db, run_id)
+        return {'run': self._attach_parts(db, run_id, run) if hydrate else self._without_parts(run),
+                'result': saved['result']}
+
+    def _parts_as_of(self, db, run_id: str, position: int, version: int) -> dict:
+        rows = db.execute(
+            'SELECT part,key,body FROM ('
+            ' SELECT sequence,part,key,body FROM run_parts WHERE run_id=? AND sequence<=?'
+            ' UNION ALL'
+            ' SELECT sequence,part,key,body FROM run_part_history WHERE run_id=? AND sequence<=? AND retired_at>?'
+            ') ORDER BY sequence', (run_id, position, run_id, position, version))
+        return self._collect_parts(rows)
+
+    @staticmethod
+    def _high_water(db) -> int:
+        """The position of the last part row saved, in any run."""
+        row = db.execute("SELECT seq FROM sqlite_sequence WHERE name='run_parts'").fetchone()
+        return row[0] if row else 0
+
+    @staticmethod
+    def _replay_mark(db, run_id: str) -> int:
+        """Rows up to this position are included in a saved response of the run."""
+        row = db.execute('SELECT replay_sequence FROM run_state WHERE run_id=?', (run_id,)).fetchone()
+        return row[0] if row else 0
+
+    # Saving parts --------------------------------------------------------------------------
+
     def _save_parts(self, db, run_id: str, run: dict, before: dict | None):
         """Save part changes and remove the parts from the document.
 
-        ``before`` holds the serialized rows that were loaded (``mutate(parts=True)``):
-        unchanged rows stay, a grown list is appended to, and anything else is rewritten.
-        Without it, a part the change function assigned replaces the stored one.
+        ``before`` holds the serialized rows that ``mutate(parts=True)`` loaded; a part the
+        change function assigned without loading is compared with its stored rows. Unchanged
+        rows stay, a grown list is appended to, and anything else is replaced.
         """
+        version, keep = run['version'], self._replay_mark(db, run_id)
         for name in RUN_PARTS:
             value = run.pop(name, _MISSING)
             if value is _MISSING:
@@ -377,41 +460,65 @@ class Store:
                     if operation == 'append':
                         self._append_rows(db, run_id, name, [item])
                     elif operation == 'set':
-                        self._set_row(db, run_id, name, key, item)
+                        self._set_row(db, run_id, name, key, item, version, keep)
                     else:
-                        db.execute('DELETE FROM run_parts WHERE run_id=? AND part=? AND key=?', (run_id, name, key))
+                        self._retire(db, run_id, name, version, keep, key)
                 continue
-            old = before[name] if before is not None else _MISSING
+            old = before[name] if before is not None else self._stored_bodies(db, run_id, name)
             if name in _LISTS:
                 items = list(value or [])
-                kept = (old is not _MISSING and len(items) >= len(old)
-                        and all(canonical(item) == body for item, body in zip(items, old)))
+                kept = len(items) >= len(old) and all(canonical(item) == body for item, body in zip(items, old))
                 if not kept:
-                    db.execute('DELETE FROM run_parts WHERE run_id=? AND part=?', (run_id, name))
+                    self._retire(db, run_id, name, version, keep)
                 self._append_rows(db, run_id, name, items[len(old):] if kept else items)
             elif name in _VALUES:
-                body = canonical(value) if value else None
-                if old is _MISSING or body != old:
-                    db.execute('DELETE FROM run_parts WHERE run_id=? AND part=?', (run_id, name))
-                    if body is not None:
-                        self._set_row(db, run_id, name, '', value)
+                if value:
+                    self._set_row(db, run_id, name, '', value, version, keep)
+                else:
+                    self._retire(db, run_id, name, version, keep)
             else:
                 entries = dict(value or {})
-                if old is _MISSING:
-                    db.execute('DELETE FROM run_parts WHERE run_id=? AND part=?', (run_id, name))
-                    old = {}
                 for key, item in entries.items():
                     if old.get(key) != canonical(item):
-                        self._set_row(db, run_id, name, key, item)
+                        self._set_row(db, run_id, name, key, item, version, keep)
                 for key in old.keys() - entries.keys():
-                    db.execute('DELETE FROM run_parts WHERE run_id=? AND part=? AND key=?', (run_id, name, key))
+                    self._retire(db, run_id, name, version, keep, key)
+
+    @staticmethod
+    def _stored_bodies(db, run_id: str, name: str):
+        rows = db.execute('SELECT key,body FROM run_parts WHERE run_id=? AND part=? ORDER BY sequence',
+                          (run_id, name)).fetchall()
+        if name in _LISTS:
+            return [body for _, body in rows]
+        if name in _VALUES:
+            return rows[0][1] if rows else None
+        return dict(rows)
 
     @staticmethod
     def _append_rows(db, run_id: str, name: str, items):
         db.executemany('INSERT INTO run_parts(run_id,part,key,body) VALUES(?,?,?,?)',
                        [(run_id, name, uuid.uuid4().hex, canonical(item)) for item in items])
 
+    @classmethod
+    def _set_row(cls, db, run_id: str, name: str, key: str, value, version: int, keep: int):
+        body = canonical(value)
+        existing = db.execute('SELECT body FROM run_parts WHERE run_id=? AND part=? AND key=?',
+                              (run_id, name, key)).fetchone()
+        if existing is not None:
+            if existing[0] == body:
+                return
+            cls._retire(db, run_id, name, version, keep, key)
+        db.execute('INSERT INTO run_parts(run_id,part,key,body) VALUES(?,?,?,?)', (run_id, name, key, body))
+
     @staticmethod
-    def _set_row(db, run_id: str, name: str, key: str, value):
-        db.execute('INSERT OR REPLACE INTO run_parts(run_id,part,key,body) VALUES(?,?,?,?)',
-                   (run_id, name, key, canonical(value)))
+    def _retire(db, run_id: str, name: str, version: int, keep: int, key: str | None = None):
+        """Remove a part's rows (or one entry) at ``version``. Rows up to position ``keep``
+        are included in a saved command response and move to the history instead."""
+        where, params = 'run_id=? AND part=?', [run_id, name]
+        if key is not None:
+            where, params = where + ' AND key=?', [*params, key]
+        if keep:
+            db.execute('INSERT INTO run_part_history(sequence,run_id,part,key,body,retired_at) '
+                       f'SELECT sequence,run_id,part,key,body,? FROM run_parts WHERE {where} AND sequence<=?',
+                       [version, *params, keep])
+        db.execute(f'DELETE FROM run_parts WHERE {where}', params)
