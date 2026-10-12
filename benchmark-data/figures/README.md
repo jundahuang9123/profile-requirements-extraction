@@ -1,8 +1,10 @@
 # Paper figures: benchmark evidence and requirements
 
 Two original vector figures derived from the frozen 7 October 2026 corpus. Figure
-creation date: 8 October 2026. Both use the same labelled blue/green/ochre A/B/C
-encoding; meaning does not depend on colour alone.
+creation date: 8 October 2026. Figure 1 was rebuilt on 12 October 2026 after the
+SEMIC webinar deck left the mobilityDCAT-AP raw inputs (17 to 16 files). Both use
+the same labelled blue/green/ochre A/B/C encoding; meaning does not depend on colour
+alone.
 
 ## Figure 1: benchmark evidence map
 

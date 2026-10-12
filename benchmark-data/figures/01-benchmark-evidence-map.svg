@@ -78,7 +78,7 @@
 			<rect x="508" y="251" width="194" height="38" style="stroke: none; stroke-linecap: butt; stroke-width: 0.7; fill: rgb(98%,96%,90%); fill-rule: evenodd;"/>
 			<text x="27" y="274.84" style="font-family: Helvetica-Bold; font-size: 10.2px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,549) scale(1,-1)">mobilityDCAT-AP</text>
 			<text x="27" y="260.64" style="font-family: Helvetica; font-size: 9.2px;fill: rgb(32%,38%,44%); stroke:none;" transform="translate(0,521) scale(1,-1)">Primary case</text>
-			<text x="156" y="275.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,550) scale(1,-1)">17 files: policy, DCAT/INSPIRE,</text>
+			<text x="156" y="275.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,550) scale(1,-1)">16 files: policy, DCAT/INSPIRE,</text>
 			<text x="156" y="262.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,524) scale(1,-1)">FAIR, SPRINT and CMC</text>
 			<text x="355" y="275.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,550) scale(1,-1)">3 files: 60 partner rows</text>
 			<text x="355" y="262.24" style="font-family: Helvetica; font-size: 9.7px;fill: rgb(9%,17%,24%); stroke:none;" transform="translate(0,524) scale(1,-1)">+ review / expert observations</text>

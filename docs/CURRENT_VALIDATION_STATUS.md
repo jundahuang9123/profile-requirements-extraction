@@ -74,7 +74,8 @@ for citation; they do not show that a full run now completes.
   preflight rule the extraction batches per role fall from 16 to 15 (JRC), from 29 to
   20 (StatDCAT) and from 129 to 81 (GeoDCAT).
 - **Role selection.** `RQ1_ROLE_SELECTION_MAX_BATCHES` raises the 32-batch scan limit
-  for new runs. HealthDCAT-AP needs 36 batches and mobilityDCAT-AP 63.
+  for new runs. HealthDCAT-AP needs 36 batches and mobilityDCAT-AP 61 (63 before the
+  webinar deck was removed from its inputs).
 - **Provenance.** The provider description saved with every call now includes the
   reasoning effort, the transport retry limits and the timeout.
 - Offline validation after these changes: 218 tests passed, the exported workflow
@@ -84,10 +85,12 @@ Still open after these changes:
 
 - No live run has been made with them. How often the new recovery paths fire, and
   whether block excerpts change the quality of the cited evidence, is unmeasured.
-- mobilityDCAT-AP cannot be frozen as a corpus. Page 19 of
-  `dcat-ap-webinar-1-2021.pdf` is an image without extractable text (the DCAT-AP UML
-  figure), and the snapshot check rejects a source with such a page. This needs a
-  corpus decision: an attributed transcript, a recorded assessment, or removal.
+- Resolved on 12 October 2026: mobilityDCAT-AP could not be frozen as a corpus,
+  because page 19 of `dcat-ap-webinar-1-2021.pdf` is an image without extractable
+  text (the DCAT-AP UML figure). The deck was removed from the runtime inputs; its
+  figure's content is stated in the DCAT-AP 2.0.0 and 2.1.0 specifications, which
+  remain inputs. The corpus now freezes: 16 files, 1,030 evidence units (1,099
+  before), 279 extraction batches per role.
 - The assessment and discussion workload described above is unchanged. Every
   candidate still gets its own assessment call, exact-only consolidation still keeps
   paraphrases, and every flagged pair still becomes a discussion case.

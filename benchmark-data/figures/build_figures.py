@@ -54,7 +54,7 @@ refs={
  'jrc-research':('reference-requirements/core-requirements.json','requirements')}
 for c,(f,k) in refs.items():
  data=json.loads((ROOT/c/f).read_text()); counts[c]['reference_entries']=len(data[k])
-assert [counts[c]['raw'] for c in ['mobilitydcat','healthdcat','statdcat','geodcat','jrc-research','epos']]==[17,5,2,5,3,0]
+assert [counts[c]['raw'] for c in ['mobilitydcat','healthdcat','statdcat','geodcat','jrc-research','epos']]==[16,5,2,5,3,0]
 assert [counts[c]['reference_entries'] for c in ['mobilitydcat','healthdcat','statdcat','geodcat','jrc-research']]==[40,16,7,7,5]
 assert len(json.loads((ROOT/'healthdcat/input-preconsolidation/twg-observations.json').read_text())['observations'])==8
 assert len(json.loads((ROOT/'mobilitydcat/input-preconsolidation/partner-requirements.json').read_text())['candidates'])==60
@@ -86,7 +86,7 @@ cols=[18,147,346,508,702]
 rect(d,18,296,684,30,INK)
 for x,s in [(27,'Benchmark'),(156,'A  Raw inputs'),(355,'B  Preconsolidation'),(517,'C  Reference scope')]:txt(d,x,305,s,10,'#FFFFFF',True)
 rows=[
-('mobilityDCAT-AP','Primary case',['17 files: policy, DCAT/INSPIRE,','FAIR, SPRINT and CMC'],['3 files: 60 partner rows','+ review / expert observations'],['40 published Table 1 rows','All IDs; curator paraphrases']),
+('mobilityDCAT-AP','Primary case',['16 files: policy, DCAT/INSPIRE,','FAIR, SPRINT and CMC'],['3 files: 60 partner rows','+ review / expert observations'],['40 published Table 1 rows','All IDs; curator paraphrases']),
 ('HealthDCAT-AP','Heterogeneous sources',['5 files: landscape analysis,','EHDS proposal, GDPR, DCAT'],['1 file: 8 curated TWG','observations; partial subset'],['16 curated rationale entries','Original D6.2 also retained']),
 ('StatDCAT-AP','Standards-derived',['2 files: DCAT and Data Cube','Use-case reconstruction excluded*'],['Unavailable'],['7 requirement / resolution pairs','Scoped selection from 2016 report']),
 ('GeoDCAT-AP','Standards alignment',['5 files: INSPIRE legislation,','public guidance and DCAT'],['Unavailable'],['7 curated alignment constraints','ISO standards are citation-only']),

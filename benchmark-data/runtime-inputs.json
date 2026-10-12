@@ -52,8 +52,7 @@
         "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf",
         "mobilitydcat/input-raw/sprint-competency-tasks.json",
         "mobilitydcat/input-raw/cmc-2019-concept-inventory.json",
-        "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf",
-        "mobilitydcat/input-raw/dcat-ap-webinar-1-2021.pdf"
+        "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf"
       ],
       "consolidation": [
         "mobilitydcat/input-preconsolidation/partner-requirements.json",

@@ -40,7 +40,9 @@ source groups after its methodology, not a complete copy of the private source f
 The manifest inventories the named groups and unresolved variants; no claim is made that
 all 50 resources were acquired. Exact national-profile versions, all training recordings,
 LOD-RoadTran reports, the 2017 INSPIRE version, and private interviews remain gaps. One official SEMIC 2021 training deck is saved; it is
-not claimed to reconstruct the full Academy webinar series. The served DCAT-AP 2.1.0
+not claimed to reconstruct the full Academy webinar series. The deck is not a runtime
+input: its page 19, the DCAT-AP UML figure, has no extractable text, and the figure's
+content is stated in the DCAT-AP 2.0.0 and 2.1.0 specifications, which are. The served DCAT-AP 2.1.0
 release-path PDF is also saved, with its internal draft-status metadata discrepancy
 recorded in the manifest.
 
