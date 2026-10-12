@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { downloadWorkflow, RoleProposal, Run } from '../lib/workflowApi';
+import { downloadWorkflow, RoleProposal, RoleTaskCorrection, Run } from '../lib/workflowApi';
 
 type Props = {
   run: Run;
@@ -32,7 +32,7 @@ export function RoleManifestView({ run, busy, inspect, override }: Props) {
     {selectionStatus === 'failed' && <p className="workflow-error">Role selection stopped before the panel was completed. Check the source citations and recorded attempts below.</p>}
     {run.strategy === 'mock' && <p className="workflow-notice">Offline demonstration: requirements use mock proposals. No model is called for this run.</p>}
     {manifest.mode === 'automatic' && <p>{manifest.processed_evidence_ids.length} of {run.evidence_ids.length} evidence units processed · {manifest.selection_rounds.length} of {manifest.total_batches ?? '?'} batches assembled.</p>}
-    {manifest.mode === 'automatic' && manifest.total_batches != null && <p>The scan reads the whole corpus in {manifest.total_batches} source {manifest.total_batches === 1 ? 'batch' : 'batches'}, with up to {manifest.total_batches * 3} selector calls.</p>}
+    {manifest.mode === 'automatic' && manifest.total_batches != null && <p>The scan reads the whole corpus in {manifest.total_batches} source {manifest.total_batches === 1 ? 'batch' : 'batches'}, with up to {manifest.total_batches * (manifest.max_calls_per_batch ?? 3)} selector calls per uninterrupted scan. Corrections are included; provider retries may add requests.</p>}
     <p>Documented and inferred labels are selection judgements. Exact quotations can be checked; they do not establish stakeholder endorsement. Every extracted requirement still needs its own evidence.</p>
     {manifest.fallback_reason && <p className="workflow-notice">{manifest.fallback_reason}</p>}
     {manifest.override && <p>Human override by {manifest.override.actor}: {manifest.override.rationale}. Based on run {manifest.override.based_on_run_id}.</p>}
@@ -45,18 +45,28 @@ export function RoleManifestView({ run, busy, inspect, override }: Props) {
       {!!role.task_ids.length && <small>CQs / tasks: {role.task_ids.join(', ')}</small>}
     </article>)}</div>
     <p className="workflow-muted">Source verification, support/scope assessment and the grounding critic remain procedural responsibilities. Automatic selection changes the stakeholder perspectives.</p>
-    {!!manifest.validation_attempts?.length && <details open={selectionStatus === 'failed'}><summary>Citation checks and corrections</summary>
+    {!!manifest.validation_attempts?.length && <details open={selectionStatus === 'failed'}><summary>Source and task checks and corrections</summary>
+      <p>Initial errors remain saved after correction. The panel status above shows whether selection completed.</p>
       {manifest.validation_attempts.map((attempt, index) => <article key={index}>
-        <strong>Batch {attempt.batch_index + 1} · {attempt.phase === 'citation_repair' ? 'Citation correction' : 'Initial proposals'} · {attempt.status}</strong>
+        <strong>Batch {attempt.batch_index + 1} · {attempt.phase === 'citation_repair' ? 'Citation correction' : attempt.phase === 'task_reference_normalization' ? 'Undeclared task links removed' : 'Initial proposals'} · {attempt.status}</strong>
         {attempt.error && <p className="workflow-error">{attempt.error}</p>}
+        {attempt.phase === 'task_reference_normalization' && (attempt.corrections as RoleTaskCorrection[] | undefined)?.map(correction => <p key={correction.candidate_index}>
+          {correction.label}: removed undeclared task IDs {correction.removed_task_ids.join(', ')}. Retained tasks: {correction.retained_task_ids.join(', ') || 'none'}.
+          {correction.original_basis !== correction.resulting_basis && ' This perspective is now proposed for human review.'} No replacement task link was guessed.
+        </p>)}
+        {attempt.unresolved_candidates?.map(candidate => <p className="workflow-notice" key={candidate.candidate_index}>{candidate.label}: retained as a proposed perspective without a source citation. {candidate.reason}</p>)}
         {attempt.validation_report?.filter(candidate => candidate.status === 'invalid').map(candidate => <div key={candidate.candidate_index}>
           <p>{candidate.label}</p>{candidate.errors.map((error, i) => <p key={i}>{error.message} {error.evidence_id && run.evidence_ids.includes(error.evidence_id) && <button onClick={() => inspect(error.evidence_id!)}>Inspect cited passage</button>}</p>)}
         </div>)}
       </article>)}
     </details>}
+    {!!manifest.panel_accounting_repairs?.length && <details><summary>Panel grouping corrections</summary>
+      {manifest.panel_accounting_repairs.map(attempt => <p key={attempt.batch_index}>Batch {attempt.batch_index + 1} · {attempt.status}{attempt.error && ` · ${attempt.error}`}. One correction attempt is allowed per batch; the full audit is saved below.</p>)}
+    </details>}
     <details><summary>Selection audit and omitted perspectives</summary>
       <p>Policy: {manifest.policy_version}</p><code>{manifest.manifest_hash ?? (['failed', 'cancelled'].includes(selectionStatus) ? 'No completed panel manifest.' : 'Manifest is still being assembled.')}</code>
-      <pre>{JSON.stringify({ candidates: manifest.candidates, validation_attempts: manifest.validation_attempts, rounds: manifest.selection_rounds, omissions: manifest.omissions, limitations: manifest.limitations }, null, 2)}</pre>
+      {manifest.migration_notes?.map((note, index) => <p key={index}>{note}</p>)}
+      <pre>{JSON.stringify({ candidates: manifest.candidates, validation_attempts: manifest.validation_attempts, panel_accounting_repairs: manifest.panel_accounting_repairs, unresolved_role_candidates: manifest.unresolved_role_candidates, rounds: manifest.selection_rounds, omissions: manifest.omissions, limitations: manifest.limitations }, null, 2)}</pre>
     </details>
     {complete && <div className="workflow-toolbar">
       <button onClick={() => downloadWorkflow('rq1-role-manifest.json', manifest)}>Download role manifest</button>

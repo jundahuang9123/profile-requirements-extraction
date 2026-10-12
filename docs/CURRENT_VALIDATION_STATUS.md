@@ -1,4 +1,4 @@
-# Validation status and known issues — 11 October 2026
+# Validation status and known issues — updated 12 October 2026
 
 This records the evidence available when committing the workflow and provider
 fixes. Local live-run data and credentials are not included in the repository.
@@ -135,3 +135,60 @@ Still open after these changes:
   assessment and 1.1 s per discussion turn, against about 7 s per provider call.
 - While a run is active the workbench reloads all stage copies (about 20 MB on
   HealthDCAT-AP) on every refresh, although it shows only the current step's copy.
+
+## Addendum: full Mobility trial and role-selection recovery — 12 October 2026
+
+The full MobilityDCAT trial used 16 files, 1,030 evidence units and 12 declared
+competency questions, with KI:connect `inferenz-gpt-oss-120b`, automatic role
+selection and automatic discussion enabled. It stopped during role selection:
+31 of 60 batches and 583 evidence units were checkpointed. The 97 recorded model
+calls returned successfully as provider requests; local output validation stopped
+the workflow. Extraction and discussion never began, and no requirement candidates
+or human-accepted requirements were produced. This is an incomplete workflow trial,
+not a requirements benchmark or evidence of effort saving.
+
+Three failure paths motivated the role-selection changes in this commit:
+
+- Historical candidate lineage was confused with the current panel IDs. Lineage
+  now stays internal to saved state, and invalid panel accounting receives one
+  bounded, recorded correction. Failed/interrupted corrections cannot be silently
+  repeated; a saved valid correction is reusable.
+- A citation repair explicitly returned no supporting excerpt. Such a candidate
+  is retained as a **proposed** perspective without source citations and with a
+  human-review disclaimer. Its original claim and the repair explanation remain
+  visible. Invalid span IDs and source integrity failures still stop selection.
+- In batch 32, “Competent Authority” cited `CQ-13`, which was absent from the
+  frozen task registry. Automatic discovery now removes undeclared task links,
+  preserves valid ones and audits the disposition. If that removes an inferred
+  role's only support, its basis becomes **proposed**. Human overrides remain strict.
+
+Policy v9 allows narrowly defined recovery from these saved v6/v7/v8 failures.
+Migration notes record the changed conditions; resume history preserves the original
+failed policy/manifest before migration, and original discoveries and completed
+rounds are reused. New runs use v9 throughout. The UI exposes task-link and
+unsupported-role dispositions, panel corrections, and the four-call-per-batch
+logical scan bound. See [ROLE_SELECTION.md](ROLE_SELECTION.md) for the exact bounds
+and recovery rules.
+
+Validation for this change:
+
+- 276 offline RQ1 tests passed (`python -m pytest tests -q`), with five existing
+  dependency deprecation warnings. TypeScript and the production frontend build passed.
+- A read-only backup of the real failed Mobility database was replayed in a
+  disposable copy with inference blocked. `CQ-13` was removed while `CQ-8` and
+  `CQ-9` were retained; all 31 rounds, 583 processed units, prior candidates and
+  the original failed discovery were preserved. The next operation was citation
+  correction for the three other invalid quotations, rather than another discovery.
+  No provider generation occurred and the production run was unchanged.
+- The documented RQ1 test suite is under `tests/`. Unrestricted repository-wide
+  pytest collection also picks up an inherited Blackboard evaluation script that
+  needs `matplotlib`, which is not installed in this RQ1 environment.
+
+Still unvalidated: live completion under v9, semantic correctness of the selected
+roles, downstream extraction coverage/quality, and full-workflow latency. Remaining
+quotation errors still need the bounded repair to return valid excerpts or explicit
+no-support dispositions; malformed responses, exhausted correction budgets, source
+integrity errors and provider failures can still stop a run. Exact quotations do
+not prove that a stakeholder classification or a generated requirement is correct.
+The live benchmark remains paused. No credentials, source exports or run databases
+are included in the code commit.

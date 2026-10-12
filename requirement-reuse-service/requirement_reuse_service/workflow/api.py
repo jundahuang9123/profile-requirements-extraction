@@ -289,13 +289,16 @@ def resume_run(run_id: str, request: VersionRequest, background: BackgroundTasks
                                     for case in run['deliberations'])
         if run['status'] == 'awaiting_human' and not run['metrics'].get('failed_role_count') and not unfinished_discussion:
             raise ValueError('This run completed. Create a new run for another trial.')
+        # Compatibility checks can migrate the working manifest. Preserve the
+        # actual failed attempt and its original policy before those changes.
+        previous_attempt = deepcopy({key: run.get(key) for key in
+            ('status', 'requirements', 'observations', 'role_runs', 'diagnostics', 'role_manifest', 'stages',
+             'deliberations')})
         if run.get('role_manifest'):
             ensure_selection_resumable(run['role_manifest'])
         ensure_elicitation_resumable(run)
         configured_client(RunRequest.model_validate(run['request']))
-        run.setdefault('attempt_history', []).append(deepcopy({key: run.get(key) for key in
-            ('status', 'requirements', 'observations', 'role_runs', 'diagnostics', 'role_manifest', 'stages',
-             'deliberations')}))
+        run.setdefault('attempt_history', []).append(previous_attempt)
         run['diagnostics'] = []
         run['status'] = 'created'
         run['worker_id'] = None

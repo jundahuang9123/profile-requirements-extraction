@@ -64,16 +64,29 @@ excerpt is a block of consecutive lines of one unit, at most 400 characters long
 never crossing a blank line, as described in
 [EXTRACTION_CITATIONS.md](EXTRACTION_CITATIONS.md). Its original unit and offset are
 saved in the audit. The software materializes the chosen exact quotation;
-it does not fuzzy-match a paraphrase. An empty selection with an explanation, an
-unknown ID or duplicate IDs stops selection visibly. Choosing an authentic excerpt
+it does not fuzzy-match a paraphrase. An empty selection with a nonblank explanation
+retains the candidate as **proposed**, removes its source citations and replaces its
+documentary rationale with an explicit human-review disclaimer. The original proposal
+and the model's explanation remain in the audit; no source support is invented.
+An unknown span ID, duplicate IDs or a missing explanation still stops selection.
+Choosing an authentic excerpt
 does not establish semantic support: the excerpt may still be irrelevant.
-The correction may change only the invalid candidates'
-citations: their labels, basis, stakeholder identities and remit stay unchanged,
-and valid candidates cannot be replaced. Original responses, corrections and both
+For nonempty excerpt selections the correction changes only invalid candidates'
+citations: their labels, basis, stakeholder identities and remit stay unchanged.
+Valid candidates cannot be replaced. Original responses, corrections and both
 validation reports remain in `role_manifest.validation_attempts`. A failed correction
-stops selection visibly; it never drops unsupported candidates, silently changes
-documented roles to proposed roles, or triggers generic fallback. Task/source
-resolution errors and unrelated provider errors do not trigger citation repair.
+stops selection visibly; it never silently drops candidates or triggers generic
+fallback. The UI exposes proposed dispositions and panel correction attempts.
+Source resolution errors and unrelated provider errors do not trigger citation repair.
+
+In automatic discovery, an undeclared task ID is discarded rather than guessed or
+remapped. Valid task IDs and all source citations are retained. If an inferred role
+loses its only support, it becomes an explicitly **proposed** perspective for human
+review. `task_reference_normalization` records removed/retained IDs and any basis
+change, alongside the unchanged raw response and its original validation errors.
+This deterministic operation uses no model call. It does not repair quotations,
+certify semantic relevance or bypass source integrity. Human panel overrides still
+reject undeclared task IDs instead of correcting them automatically.
 
 Quote authenticity is deterministic; semantic correctness of a documented/inferred
 classification is still a model or author judgement. The UI states this distinction.
@@ -85,14 +98,15 @@ reserves a slot for the grounding/scope critic even when many roles contributed.
 
 ## Bounded selection and restart
 
-The versioned policy is `rq1-stakeholder-selection-v6`:
+The versioned policy is `rq1-stakeholder-selection-v9`:
 
 1. Read all snapshot evidence in deterministic source/selector order. Discovery batches
    have at most 40,000 serialized characters. A new automatic run scans its whole
    corpus: when the run is created, it counts the batches its snapshot needs, saves that
    number as `max_batches` (shown on the role-selection step) and keeps it on resume.
-   Each batch costs up to three selector calls; of the benchmark corpora, HealthDCAT-AP
-   needs 36 batches and mobilityDCAT-AP 61. One scan reads at most 128 batches. An
+   Each batch costs up to four logical selector calls; of the benchmark corpora, HealthDCAT-AP
+   needs 36 batches and mobilityDCAT-AP about 60–61 depending on snapshot metadata.
+   Each run counts its exact scan size. One scan reads at most 128 batches. An
    oversized unit or corpus is refused when the run is created, before any model call;
    it is never silently truncated. `RQ1_ROLE_SELECTION_MAX_BATCHES` (1–128) is an
    optional cap: a run whose corpus needs more batches is refused. Runs created before
@@ -104,14 +118,24 @@ The versioned policy is `rq1-stakeholder-selection-v6`:
    described above before accepting any candidates from that batch.
 3. After each batch, consolidate its candidates with the retained panel. The reducer
    can choose existing IDs and group equivalent perspectives; it cannot invent new
-   evidence or rewrite their remits. Every input candidate must appear exactly once
+   evidence or rewrite their remits. Historical candidate lineage is saved internally
+   and excluded from the model's current identifier registry. Every input candidate must appear exactly once
    in a group or an explicit omission. The representative's description and basis are
-   preserved unchanged; grouping lineage is retained.
+   preserved unchanged; grouping lineage is retained. Invalid accounting receives at
+   most one targeted correction per batch. Both dispositions and validation reports
+   are saved. Failed or interrupted corrections cannot be retried silently on resume.
 4. Save each discovery batch before consolidation, and save each resulting panel.
    Resume skips completed work. A failed reducer can reuse that batch's discovery.
    Completed panels are hash-bound and stored as immutable artifacts. Incomplete
-   manifests from an older selection policy require a new run; completed historical
-   manifests remain readable. The correction attempt is recorded before calling the
+   manifests from an older selection policy generally require a new run; completed historical
+   manifests remain readable. Three narrow failure migrations reuse saved work:
+   v6 panel-accounting failures, v7 complete repair responses explicitly reporting no
+   supporting excerpt, and v8 undeclared-task failures in the unfinished discovery
+   batch (without other non-repairable source errors). Migration notes are recorded;
+   completed rounds and saved discoveries are retained. Resume history keeps the
+   original failed policy/manifest before migration, and exhausted correction
+   budgets still apply. This changes the experimental condition and must be reported.
+   The correction attempt is recorded before calling the
    provider, so an interrupted or unsuccessful correction cannot be silently repeated
    by Resume. Inspect the saved validation report and create a new run instead.
 5. If a successful full scan yields no candidates, use explicitly **proposed** generic
@@ -122,13 +146,15 @@ This is incremental consolidation: previously omitted candidates remain in the a
 but are not all reconsidered in a final global optimization. Selection may depend on
 source order. The manifest records coverage, candidate lineage, provider identity per
 batch/round and omissions. Per-call outputs, hashes and timings are in the run audit.
-There are at most three logical selector calls per batch (discovery, optional citation
-correction, consolidation; 96 for a single uninterrupted pass at the default limit of
-32 batches, and three times the limit otherwise). An
-explicit retry of failed discovery/consolidation can add calls; citation correction
-remains limited to one attempt per batch across resumes. Provider-level retries may
+There are at most four logical selector calls per batch in one uninterrupted pass
+(discovery, optional citation correction, consolidation, optional panel accounting
+correction). The manifest saves `max_calls_per_batch` and the UI shows the resulting
+scan bound; historical manifests without that field retain their old three-call
+estimate. An explicit retry of failed discovery/consolidation can add calls; citation
+and panel accounting corrections each remain limited to one attempt per batch across
+resumes. Provider-level retries may
 also add HTTP requests. Discovery reserves at most 8,000 output tokens; correction
-and consolidation reserve at most 5,000 each per generation. V5 allows one
+and consolidation/panel correction reserve at most 5,000 each per generation. V5 allows one
 additional schema correction generation per logical OpenAI-compatible call, so
 these reservations can double when correction is used. Citation correction remains
 a separate semantic operation with its existing across-resume bound. User payloads
