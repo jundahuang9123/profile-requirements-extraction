@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'requirement-reuse-
 from requirement_reuse_service.llm.client import OpenAICompatibleClient, OutputValidationError, OutputTokenLimitError, LLMError
 from requirement_reuse_service.llm.config import LLMConfig
 from requirement_reuse_service.workflow.models import SpanElicitationResult
-from requirement_reuse_service.workflow.role_selection import discovery_contract
+from requirement_reuse_service.workflow.role_selection import discovery_contract, span_discovery_contract, materialize_roles
 
 
 class Reply(BaseModel):
@@ -143,3 +143,28 @@ def test_schema_correction_is_opt_in_and_invalid_retry_count_fails_before_http(m
     with pytest.raises(OutputValidationError):
         invoke(client(), repair=0)
     assert len(sent) == 1
+
+
+def test_role_excerpt_ids_get_one_correction_and_materialize_exact_bounded_source_text(monkeypatch):
+    catalogue = [{'span_id': 's0', 'evidence_id': 'u0', 'quote': 'Actor ' * 60, 'quote_start': 401},
+                 {'span_id': 's1', 'evidence_id': 'u1', 'quote': 'Another actor.', 'quote_start': 0}]
+    contract = span_discovery_contract(4, catalogue)
+    role = {'label': 'Operators', 'stakeholders': ['Operators'], 'basis': 'documented',
+            'purpose': 'Examine operational needs.', 'rationale': 'The excerpt identifies operators.',
+            'focus_questions': ['What operational metadata is needed?'], 'source_span_ids': ['s0']}
+    unaffected = {**role, 'label': 'Another actor', 'source_span_ids': ['s1']}
+    bad = {'candidates': [{**role, 'source_span_ids': ['invented-id']}, unaffected]}
+    good = {'candidates': [role, unaffected]}
+    replies, sent = iter([response(bad), response(good)]), []
+    def post(*args, **kwargs):
+        sent.append(deepcopy(kwargs['json']))
+        return next(replies)
+    monkeypatch.setattr(httpx, 'post', post)
+    result = invoke(client(), contract)
+    assert len(sent) == 2
+    assert result.model_dump(mode='json')['candidates'][1]['label'] == unaffected['label']
+    roles = materialize_roles(result, catalogue)
+    assert len(roles) == 2 and roles[0].evidence_links[0].quote == catalogue[0]['quote']
+    assert roles[0].evidence_links[0].quote_start == 401
+    assert all(len(r.evidence_links[0].quote) <= 400 for r in roles)
+    assert 'evidence_links' not in contract.model_json_schema()['$defs']['SourceSpanRoleProposal']['properties']

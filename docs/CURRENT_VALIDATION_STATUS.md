@@ -192,3 +192,49 @@ integrity errors and provider failures can still stop a run. Exact quotations do
 not prove that a stakeholder classification or a generated requirement is correct.
 The live benchmark remains paused. No credentials, source exports or run databases
 are included in the code commit.
+
+## Mobility role discovery: exact excerpt IDs (12 October 2026, later recovery)
+
+After the v9 restart, the same KI:connect GPT-OSS run reached 40/60 completed
+role-selection batches and 719/1,030 processed evidence units. Discovery for batch
+41 failed its schema: one quotation exceeded 400 characters in both the initial
+generation and its one allowed schema correction. Both provider responses finished
+with `stop`; this was neither output truncation nor a reported context-window error.
+The audit records hashes, character counts and validation paths, but does not store
+the invalid response bodies, so their exact quotation lengths cannot be inspected.
+The run has 125 logical model calls; extraction and discussion still have not begun.
+
+Policy v10 removes model-written quotations and offsets from discovery. The model
+selects source excerpt IDs, restricted by a batch-specific enum. The application
+attaches exact text and offsets from the existing 400-character source catalogue.
+No quote is arbitrarily shortened, no invalid candidate is partially accepted, and
+source integrity and task-link checks remain in place. Authentic excerpts still
+require assessment of whether they support the proposed role's meaning.
+
+The v9-to-v10 migration is limited to this complete, too-long-quotation discovery
+failure before any result was accepted for the unfinished batch. It retains completed
+rounds, candidates, coverage and earlier audits. Batch 41 needs a new generation
+under the new contract. Resume history and migration notes distinguish the mixed
+experimental conditions; this is not a fresh uniform-v10 benchmark.
+
+Validation:
+
+- All 286 offline RQ1 tests passed, with five existing dependency deprecation
+  warnings. No frontend contract changed; stored role citations and the UI retain
+  their existing text/offset format.
+- Offline tests cover literal excerpt materialization, repeated text with exact
+  offsets, unknown/duplicate IDs, forbidden generated text, empty catalogues,
+  bounded schema correction, legacy citation repairs, and narrowly scoped recovery.
+- A read-only backup of the actual failed database was replayed in a disposable
+  copy with inference blocked. All 40 rounds and 719 processed units were preserved;
+  the first requested operation was new excerpt-ID discovery for batch 41.
+- All 60 original source batches were catalogued offline: all 1,030 units remain
+  covered, with no nonblank text omitted. The largest discovery user payload was
+  45,234 characters, below the existing 60,000-character limit. The schema adds its
+  own prompt text; this character check is not a measurement of provider tokens.
+
+No model inference was performed while implementing or checking this fix. Live
+completion, role semantic quality, extraction coverage and discussion outcomes
+remain unvalidated. This fix prevents the quotation-generation failure class; other
+malformed model fields, provider failures and invalid panel accounting can still
+stop a run visibly. The full workflow remains incomplete with zero requirements.

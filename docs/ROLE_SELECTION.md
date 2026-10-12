@@ -45,12 +45,23 @@ Each role records:
   no claim of actual stakeholder consultation.
 - Source citations, task IDs, selection rationale and candidate lineage.
 
-All supplied role citations must resolve inside the permitted corpus. At discovery,
-only the current batch's IDs are accepted. Each quotation must be one literal,
+All supplied role citations must resolve inside the permitted corpus. From policy v10,
+discovery selects up to two `source_span_ids` from an ordered excerpt catalogue; it
+does not generate quotation text or character offsets. Each excerpt is at most 400
+characters. All nonblank source text is exposed in order, with unit metadata and
+without a duplicate full-content copy. Only this batch's excerpt IDs are accepted:
+the discovery schema lists those IDs as an enum, rejects duplicates and forbids
+generated quotation fields. The software attaches the original evidence ID, text
+and offset, then performs the usual source-byte and task-link checks. Raw selected
+IDs, materialized candidates, catalogue hash/count and validation reports are saved.
+The same catalogue can be reconstructed from the frozen batch.
+
+Each stored quotation must be one literal,
 contiguous substring of the cited evidence unit's `content`, preserving spaces,
 line breaks and hyphens. A short actor/responsibility phrase is sufficient; agents
 must use separate links for separate passages rather than reconstruct a sentence.
-The validator derives a character offset when the quote is unique. A repeated quote
+For historical responses and manual overrides, the validator derives a character
+offset when the quote is unique. A repeated quote
 requires its zero-based offset within that unit or a longer unique quote. An absent
 quote requires corrected text or a corrected evidence ID; an offset cannot fix it.
 
@@ -98,7 +109,7 @@ reserves a slot for the grounding/scope critic even when many roles contributed.
 
 ## Bounded selection and restart
 
-The versioned policy is `rq1-stakeholder-selection-v9`:
+The versioned policy is `rq1-stakeholder-selection-v10`:
 
 1. Read all snapshot evidence in deterministic source/selector order. Discovery batches
    have at most 40,000 serialized characters. A new automatic run scans its whole
@@ -128,10 +139,15 @@ The versioned policy is `rq1-stakeholder-selection-v9`:
    Resume skips completed work. A failed reducer can reuse that batch's discovery.
    Completed panels are hash-bound and stored as immutable artifacts. Incomplete
    manifests from an older selection policy generally require a new run; completed historical
-   manifests remain readable. Three narrow failure migrations reuse saved work:
+   manifests remain readable. Four narrow failure migrations reuse saved work:
    v6 panel-accounting failures, v7 complete repair responses explicitly reporting no
    supporting excerpt, and v8 undeclared-task failures in the unfinished discovery
-   batch (without other non-repairable source errors). Migration notes are recorded;
+   batch (without other non-repairable source errors), and v9 discovery stopped
+   solely by a too-long quotation with provider finish reason `stop`, before any
+   discovery result or batch report was accepted for the unfinished batch.
+   That v9 batch requires a new discovery under the excerpt-ID contract: the two
+   invalid responses cannot be reused because they were not stored as accepted
+   output. Other v9 failures require a new run. Migration notes are recorded;
    completed rounds and saved discoveries are retained. Resume history keeps the
    original failed policy/manifest before migration, and exhausted correction
    budgets still apply. This changes the experimental condition and must be reported.
@@ -161,11 +177,11 @@ a separate semantic operation with its existing across-resume bound. User payloa
 over 60,000 characters are rejected. These are character/output bounds, not a claim
 that every provider context limit is supported. The provider adds its schema prompt.
 
-V5 retains the V4 bound on each discovery response to the requested panel size (default four,
+V10 retains the V4 bound on each discovery response to the requested panel size (default four,
 maximum eight), with concise role descriptions, up to two stakeholder names/two
-focus questions, and at most two literal quotations. Quotations preferably stay
-under 160 characters, but the shared citation schema allows up to 400 characters
-to preserve necessary context. Exact-source matching remains mandatory. The schema
+focus questions, and at most two selected source excerpts. The stored citation schema
+still allows up to 400 characters to preserve necessary context; the application
+materializes that text from its catalogue. Exact-source matching remains mandatory. The schema
 enforces the remaining limits. All source batches are still scanned, but the smaller
 candidate pool changes discovery breadth compared with the previous eight-candidate
 policy; it is a new experimental condition, not an equivalent replay. Human role

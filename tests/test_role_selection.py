@@ -56,7 +56,7 @@ class SelectorClient:
                 'label': 'Catalogue operator', 'stakeholders': ['Catalogue operators'], 'basis': 'documented',
                 'purpose': 'Examine catalogue maintenance needs.', 'rationale': 'The source states an operational responsibility.',
                 'focus_questions': ['What metadata must be maintained?'],
-                'evidence_links': [{'evidence_id': unit['evidence_id'], 'quote': 'invented quote' if self.bad_quote else unit['content']}],
+                'source_span_ids': ['missing-span' if self.bad_quote else unit['source_spans'][0]['span_id']],
                 'task_ids': ['CQ-1']}]}
         elif output_model.__name__ == 'RoleCitationCorrections':
             response = {'corrections': [{'candidate_index': item['candidate_index'],
@@ -407,22 +407,35 @@ def test_overlapping_quote_occurrences_are_ambiguous(corpus):
         selector.validate_proposal(store, proposal, [unit['evidence_id']], [])
 
 
+def legacy_repair_run(corpus, unknown_tasks=False):
+    """A saved pre-v10 discovery still receives its bounded citation correction."""
+    store, snapshot, _ = corpus
+    run = auto_run(corpus)
+    unit = selector.pack_batches(selector.selection_units(store, snapshot))[0][0]
+    good = {'label': 'Catalogue operator', 'stakeholders': ['Catalogue operators'], 'basis': 'documented',
+        'purpose': 'Examine catalogue maintenance needs.', 'rationale': 'The source states an operational responsibility.',
+        'focus_questions': ['What metadata must be maintained?'],
+        'evidence_links': [{'evidence_id': unit['evidence_id'], 'quote': unit['content']}],
+        'task_ids': ['invented-CQ' if unknown_tasks else 'CQ-1']}
+    bad = deepcopy(good)
+    bad['label'] = 'Data publisher'
+    bad['evidence_links'][0]['quote'] = 'Reconstructed text absent from the unit'
+    candidates = [RoleProposal.model_validate(good), RoleProposal.model_validate(bad)]
+    _, report = selector.validate_candidates(store, candidates, snapshot['evidence_ids'], snapshot['user_tasks'], {})
+    run['role_manifest']['validation_attempts'] = [{'batch_index': 0, 'phase': 'discovery',
+        'candidates': [c.model_dump(mode='json') for c in candidates], 'status': 'invalid', 'validation_report': report}]
+    store.mutate(run['run_id'], None, 'test_legacy_discovery',
+                 lambda current: current.update(role_manifest=deepcopy(run['role_manifest'])))
+    return run
+
+
 class RepairClient(SelectorClient):
     def __init__(self, repair='valid'):
         super().__init__()
         self.repair = repair
-        self.discovery = None
 
     def generate_structured(self, *, system, user, output_model, max_tokens=None, schema_repair_attempts=0):
         data = json.loads(user)
-        if output_model.__name__ == 'RoleCandidates':
-            result = super().generate_structured(system=system, user=user, output_model=output_model, max_tokens=max_tokens)
-            bad = result.candidates[0].model_copy(deep=True)
-            bad.label = 'Data publisher'
-            bad.evidence_links[0].quote = 'Reconstructed text absent from the unit'
-            result.candidates.append(bad)
-            self.discovery = result.model_dump(mode='json')
-            return result
         if output_model.__name__ == 'RoleCitationCorrections':
             self.calls.append((output_model.__name__, data))
             if self.repair == 'provider_failure':
@@ -439,12 +452,13 @@ class RepairClient(SelectorClient):
 
 def test_citation_repair_is_targeted_once_and_keeps_originals_and_valid_roles(corpus):
     store, _, _ = corpus
-    run = auto_run(corpus)
+    run = legacy_repair_run(corpus)
+    original = deepcopy(run['role_manifest']['validation_attempts'][0]['candidates'])
     client = RepairClient()
     manifest = selector.select_roles(store, run, TrackedClient(client, store, run['run_id']))
-    assert [name for name, _ in client.calls] == ['RoleCandidates', 'RoleCitationCorrections', 'RolePanel']
+    assert [name for name, _ in client.calls] == ['RoleCitationCorrections', 'RolePanel']
     discovery, repair = manifest['validation_attempts']
-    assert discovery['candidates'] == client.discovery['candidates']
+    assert discovery['candidates'] == original
     assert [item['status'] for item in discovery['validation_report']] == ['valid', 'invalid']
     assert discovery['validation_report'][1]['errors'][0]['code'] == 'quote_absent'
     assert discovery['candidates'][0]['evidence_links'][0]['quote_start'] is None
@@ -459,12 +473,12 @@ def test_citation_repair_is_targeted_once_and_keeps_originals_and_valid_roles(co
         assert candidate['basis'] == 'documented'
         assert candidate['evidence_links'][0]['quote_start'] == 0
     assert manifest['candidates'][0]['evidence_links'][0]['quote'] == discovery['candidates'][0]['evidence_links'][0]['quote']
-    assert len(store.get('run', run['run_id'])['model_calls']) == 3
+    assert len(store.get('run', run['run_id'])['model_calls']) == 2
 
 
 def test_unsupported_role_is_preserved_as_uncited_proposed_and_audited(corpus):
     store, _, _ = corpus
-    run = auto_run(corpus)
+    run = legacy_repair_run(corpus)
     client = RepairClient(repair='unsupported')
     manifest = selector.select_roles(store, run, TrackedClient(client, store, run['run_id']))
     proposed = next(candidate for candidate in manifest['candidates'] if candidate['label'] == 'Data publisher')
@@ -500,7 +514,7 @@ def test_v7_saved_unsupported_repair_resumes_without_repeating_inference(corpus)
         ])
     client = SelectorClient()
     manifest = selector.select_roles(store, run, client)
-    assert manifest['policy_version'] == selector.POLICY_VERSION == 'rq1-stakeholder-selection-v9'
+    assert manifest['policy_version'] == selector.POLICY_VERSION == 'rq1-stakeholder-selection-v10'
     assert not any(name in {'RoleCandidates', 'RoleCitationCorrections'} for name, _ in client.calls)
     assert any(f'Resumed under {selector.POLICY_VERSION}' in note for note in manifest['migration_notes'])
     assert manifest['status'] == 'completed'
@@ -511,7 +525,7 @@ def test_v7_saved_unsupported_repair_resumes_without_repeating_inference(corpus)
 @pytest.mark.parametrize('mode', ['invalid', 'wrong_target', 'provider_failure'])
 def test_failed_citation_repair_never_falls_back_or_repeats_on_resume(corpus, mode):
     store, _, _ = corpus
-    run = auto_run(corpus)
+    run = legacy_repair_run(corpus)
     client = RepairClient(repair=mode)
     execute_run(store, run['run_id'], client)
     failed = store.get('run', run['run_id'])
@@ -521,7 +535,7 @@ def test_failed_citation_repair_never_falls_back_or_repeats_on_resume(corpus, mo
     assert 'fallback_reason' not in manifest
     assert len(manifest['validation_attempts']) == 2
     assert len(manifest['validation_attempts'][0]['candidates']) == 2
-    assert [name for name, _ in client.calls] == ['RoleCandidates', 'RoleCitationCorrections']
+    assert [name for name, _ in client.calls] == ['RoleCitationCorrections']
     second_client = RepairClient()
     with pytest.raises(ValueError, match='already attempted or interrupted'):
         selector.select_roles(store, failed, second_client)
@@ -564,19 +578,10 @@ def test_generated_task_links_do_not_invent_support_or_mutate_originals(
 @pytest.mark.parametrize('repair_mode', ['valid', 'unsupported'])
 def test_unknown_task_and_bad_quote_are_independently_disposed_and_audited(corpus, repair_mode):
     store, _, _ = corpus
-    run = auto_run(corpus)
-
-    class UnknownTaskClient(RepairClient):
-        def generate_structured(self, **kwargs):
-            response = super().generate_structured(**kwargs)
-            if kwargs['output_model'].__name__ == 'RoleCandidates':
-                for proposal in response.candidates:
-                    proposal.task_ids = ['invented-CQ']
-            return response
-
-    client = UnknownTaskClient(repair=repair_mode)
+    run = legacy_repair_run(corpus, unknown_tasks=True)
+    client = RepairClient(repair=repair_mode)
     manifest = selector.select_roles(store, run, TrackedClient(client, store, run['run_id']))
-    assert [name for name, _ in client.calls] == ['RoleCandidates', 'RoleCitationCorrections', 'RolePanel']
+    assert [name for name, _ in client.calls] == ['RoleCitationCorrections', 'RolePanel']
     discovery, tasks, citation = manifest['validation_attempts']
     assert discovery['candidates'][0]['task_ids'] == ['invented-CQ']
     assert discovery['validation_report'][0]['errors'][0]['code'] == 'unknown_task'
@@ -766,7 +771,8 @@ def test_discovery_schema_bounds_output_to_requested_panel_without_losing_source
                 schema = kwargs['output_model'].model_json_schema()
                 assert schema['properties']['candidates']['maxItems'] == 2
                 assert json.loads(kwargs['user'])['max_candidates'] == 2
-                assert schema['$defs']['ConciseRoleProposal']['properties']['purpose']['maxLength'] == 180
+                assert schema['$defs']['SourceSpanRoleProposal']['properties']['purpose']['maxLength'] == 180
+                assert 'evidence_links' not in schema['$defs']['SourceSpanRoleProposal']['properties']
                 assert kwargs['max_tokens'] == 8000
             return super().generate_structured(**kwargs)
     store, snapshot, _ = corpus
@@ -793,6 +799,110 @@ def test_discovery_allows_longer_exact_citation_without_truncating_it(corpus):
     # Accepting the length does not accept unsupported text as source evidence.
     with pytest.raises(selector.RoleCitationError):
         selector.validate_proposal(store, parsed.candidates[0], snapshot['evidence_ids'], [])
+
+
+def test_discovery_selects_exact_excerpts_without_generating_quotes_or_offsets(corpus):
+    store, snapshot, _ = corpus
+    run = auto_run(corpus)
+    client = SelectorClient()
+    manifest = selector.select_roles(store, run, client)
+    data = next(data for name, data in client.calls if name == 'RoleCandidates')
+    assert all('content' not in unit and unit['source_spans'] for unit in data['evidence_units'])
+    audit = manifest['validation_attempts'][0]
+    assert audit['citation_policy'] == 'source-excerpt-ids-v1'
+    assert 'evidence_links' not in audit['generated_candidates'][0]
+    assert audit['generated_candidates'][0]['source_span_ids']
+    catalogue = selector.source_spans_for(selector.pack_batches(selector.selection_units(store, snapshot))[0])
+    assert audit['source_catalogue_hash'] == selector.digest(catalogue)
+    chosen = catalogue[0]
+    assert audit['candidates'][0]['evidence_links'] == [
+        {key: chosen[key] for key in ('evidence_id', 'quote', 'quote_start')}]
+    for candidate in manifest['candidates']:
+        selector.validate_proposal(store, RoleProposal.model_validate(
+            {key: candidate[key] for key in RoleProposal.model_fields}),
+            snapshot['evidence_ids'], snapshot['user_tasks'])
+
+
+def test_span_contract_rejects_unknown_duplicate_and_generated_text_without_discarding_roles():
+    catalogue = selector.source_spans_for([{'evidence_id': 'u', 'content': 'Actor. ' * 150}])
+    contract = selector.span_discovery_contract(4, catalogue)
+    body = {**selector.proposed_defaults()[0].model_dump(mode='json', exclude={'evidence_links'}),
+            'basis': 'documented', 'source_span_ids': [catalogue[1]['span_id']]}
+    parsed = contract.model_validate({'candidates': [body]})
+    original = parsed.model_dump(mode='json')
+    roles = selector.materialize_roles(parsed, catalogue)
+    assert roles[0].evidence_links[0].quote == catalogue[1]['quote']
+    assert roles[0].evidence_links[0].quote_start == catalogue[1]['quote_start']
+    assert parsed.model_dump(mode='json') == original
+    assert len(roles[0].evidence_links[0].quote) <= 400
+    for ids in (['absent'], [catalogue[0]['span_id']] * 2):
+        with pytest.raises(ValidationError):
+            contract.model_validate({'candidates': [{**body, 'source_span_ids': ids}]})
+    with pytest.raises(ValidationError, match='extra_forbidden'):
+        contract.model_validate({'candidates': [{**body, 'quote': 'x' * 401}]})
+    # Defensive validation also protects against a nonconforming custom client.
+    parsed.candidates[0].source_span_ids = ['outside-batch']
+    with pytest.raises(ValueError, match='outside this batch'):
+        selector.materialize_roles(parsed, catalogue)
+
+
+def test_empty_span_catalogue_permits_only_proposed_or_task_supported_roles():
+    contract = selector.span_discovery_contract(4, [])
+    body = selector.proposed_defaults()[0].model_dump(mode='json', exclude={'evidence_links'})
+    parsed = contract.model_validate({'candidates': [body]})
+    assert selector.materialize_roles(parsed, [])[0].basis == 'proposed'
+    with pytest.raises(ValidationError):
+        contract.model_validate({'candidates': [{**body, 'basis': 'documented'}]})
+    with pytest.raises(ValidationError):
+        contract.model_validate({'candidates': [{**body, 'source_span_ids': ['s0']}]})
+
+
+QUOTE_SCHEMA_FAILURE = ("LLM output failed schema validation for RoleCandidates: "
+    "['candidates', 0, 'evidence_links', 0, 'quote']: string_too_long (provider finish_reason=stop).")
+
+
+def test_v9_quote_schema_failure_preserves_completed_batches_and_rediscoveries_only_unfinished(corpus, monkeypatch):
+    store, snapshot, _ = corpus
+    two_batch_corpus(corpus, monkeypatch)
+    run = auto_run(corpus)
+    class FailsSecondDiscovery(SelectorClient):
+        def generate_structured(self, **kwargs):
+            if kwargs['output_model'].__name__ == 'RoleCandidates' and any(
+                    name == 'RoleCandidates' for name, _ in self.calls):
+                raise RuntimeError(QUOTE_SCHEMA_FAILURE)
+            return super().generate_structured(**kwargs)
+    execute_run(store, run['run_id'], FailsSecondDiscovery())
+    failed = store.get('run', run['run_id'])
+    failed['role_manifest']['policy_version'] = 'rq1-stakeholder-selection-v9'
+    before = deepcopy(failed['role_manifest'])
+    assert len(before['selection_rounds']) == len(before['batch_reports']) == 1
+    client = SelectorClient()
+    manifest = selector.select_roles(store, failed, client)
+    assert manifest['policy_version'] == selector.POLICY_VERSION
+    assert manifest['selection_rounds'][0] == before['selection_rounds'][0]
+    assert manifest['batch_reports'][0] == before['batch_reports'][0]
+    assert manifest['validation_attempts'][0] == before['validation_attempts'][0]
+    assert set(manifest['processed_evidence_ids']) == set(snapshot['evidence_ids'])
+    assert [name for name, _ in client.calls] == ['RoleCandidates', 'RolePanel']
+    assert 'needs a new discovery call' in manifest['migration_notes'][-1]
+
+
+@pytest.mark.parametrize('failure', ['mixed_schema', 'unknown_finish', 'saved_discovery', 'saved_report', 'provider'])
+def test_v9_quote_failure_migration_never_bypasses_other_failures(corpus, failure):
+    manifest = auto_run(corpus)['role_manifest']
+    manifest.update(policy_version='rq1-stakeholder-selection-v9', status='failed', last_error=QUOTE_SCHEMA_FAILURE)
+    if failure == 'mixed_schema':
+        manifest['last_error'] += '; another error: literal_error'
+    elif failure == 'unknown_finish':
+        manifest['last_error'] = QUOTE_SCHEMA_FAILURE.replace('finish_reason=stop', 'finish_reason=unknown')
+    elif failure == 'saved_discovery':
+        manifest['validation_attempts'] = [{'batch_index': 0, 'phase': 'discovery'}]
+    elif failure == 'saved_report':
+        manifest['batch_reports'] = [{'batch_index': 0}]
+    else:
+        manifest['last_error'] = 'Provider unavailable'
+    with pytest.raises(ValueError, match='new run'):
+        selector.ensure_selection_resumable(manifest)
 
 
 def test_cutoff_failure_records_provider_usage_without_proceeding_to_extraction(corpus, monkeypatch):
@@ -856,7 +966,7 @@ def test_unresolved_span_selection_is_kept_as_proposed_without_claiming_support(
                     {'candidate_index': 1, 'source_span_ids': [], 'unresolved_reason': 'No excerpt supports this stakeholder.'}]})
             return super().generate_structured(**kwargs)
     store, _, _ = corpus
-    run = auto_run(corpus)
+    run = legacy_repair_run(corpus)
     execute_run(store, run['run_id'], UnsupportedClient())
     saved = store.get('run', run['run_id'])
     assert saved['status'] == 'awaiting_human'
