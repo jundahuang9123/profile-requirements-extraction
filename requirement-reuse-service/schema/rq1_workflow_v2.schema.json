@@ -1678,6 +1678,17 @@
           "title": "Baselines",
           "type": "array"
         },
+        "catalogues": {
+          "additionalProperties": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "description": "Extraction excerpt catalogues by catalogue hash, as referenced by role reports.",
+          "title": "Catalogues",
+          "type": "object"
+        },
         "conflicts": {
           "items": {
             "$ref": "#/$defs/ConflictRecord"

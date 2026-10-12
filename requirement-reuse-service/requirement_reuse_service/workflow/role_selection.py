@@ -257,7 +257,7 @@ def initial_manifest(store: Store, request: RunRequest, actor: str) -> dict:
             for r in [by_id[rid] for rid in request.role_ids]]
         manifest.update(status='completed', max_roles=len(request.role_ids))
     elif request.role_selection == 'override':
-        original = store.get('run', request.based_on_run_id)
+        original = store.get_run(request.based_on_run_id, parts=False)
         parent = original.get('role_manifest')
         if original['snapshot_id'] != request.snapshot_id or not parent or parent['status'] != 'completed':
             raise ValueError('Panel override requires a completed manifest on the same frozen snapshot.')

@@ -35,6 +35,9 @@ with a relation (`supports`, `contradicts`, `contextualizes`) and component
 excerpt for different components is allowed; a duplicate identical link or an
 unknown ID rejects the whole answer (see recovery below). The raw provider output,
 batch catalogue, catalogue hash and transformation outcome remain in the contribution audit.
+Each catalogue is stored once per run, in the run's `catalogues` map under the hash that
+the role report records; roles that read the same batch share it. The run export and the
+extraction step's download include the catalogues.
 
 Authentic excerpts do not establish entailment. The ordinary original-source
 verification, separate obligation-premise requirement and semantic assessment

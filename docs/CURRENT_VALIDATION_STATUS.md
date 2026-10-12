@@ -94,3 +94,40 @@ Still open after these changes:
 - Reasoning effort stays at the provider's default unless `RRS_LLM_REASONING_EFFORT`
   is set. For a reasoning model this decides how much of each response cap is left
   for the answer; the trial above spent 1,997 of 2,000 completion tokens on reasoning.
+
+## Addendum: discussion setting, resume and run storage (offline validation only)
+
+These changes followed the addendum above. They were checked with tests and with
+scripted runs whose model answers instantly; none has been run against a live
+provider.
+
+- **Discussion setting.** A run created with `discussion: on_request` opens no
+  discussion by itself. Candidates that would have been discussed go to human review
+  with the same reasons, and a reviewer can still open a discussion. `automatic`
+  remains the default. This addresses the discussion part of the workload point
+  above; every candidate still gets its own assessment call.
+- **Resume.** Resume keeps finished discussions whose input is unchanged and runs
+  only new, changed or unfinished ones; an unchanged merged candidate keeps its
+  assessment. In a scripted JRC run with two roles and one unanswerable unit, resume
+  made 4 instead of 68 assessment requests and 3 instead of 196 discussion requests.
+- **Run storage.** Model-call logs, stage copies, the machine snapshot, attempt
+  history, baselines and excerpt catalogues are stored as rows next to the run, and
+  a model call no longer rewrites the run. A scripted four-role JRC run took 66 s
+  instead of 403 s, and its run document is 1.4 MB instead of 7.7 MB.
+- **Consolidation** parses each source once instead of once per merged candidate.
+- On HealthDCAT-AP (511 units, four roles, 2,554 candidates) the scripted run took
+  622 s with discussion on request, about 0.2 s of local work per model call. With
+  automatic discussion, each of the 2,040 discussion turns took about 1.1 s. For
+  comparison, a recent KI:connect trial made 66 provider calls in 462 s, about 7 s each.
+- Offline validation after these changes: 247 tests passed, the exported workflow
+  schema matches the runtime contracts, and the frontend build passed.
+
+Still open after these changes:
+
+- No live run has been made with them.
+- Each assessment and each discussion turn still rewrites the run document, which
+  reaches about 13 MB on HealthDCAT-AP. Storing candidates and discussion cases as
+  rows would remove this. It was not done: the measured cost is about 0.27 s per
+  assessment and 1.1 s per discussion turn, against about 7 s per provider call.
+- While a run is active the workbench reloads all stage copies (about 20 MB on
+  HealthDCAT-AP) on every refresh, although it shows only the current step's copy.

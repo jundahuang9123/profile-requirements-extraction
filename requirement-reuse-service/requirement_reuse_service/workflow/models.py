@@ -372,6 +372,8 @@ class WorkflowRun(Contract):
     baselines: list[dict[str, Any]] = Field(default_factory=list)
     machine_snapshot: dict[str, Any] = Field(default_factory=dict)
     model_calls: list[dict[str, Any]] = Field(default_factory=list)
+    catalogues: dict[str, list[dict[str, Any]]] = Field(default_factory=dict, description=(
+        'Extraction excerpt catalogues by catalogue hash, as referenced by role reports.'))
     worker_id: str | None = None
     job_lease_until: float = 0
 
