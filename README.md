@@ -81,9 +81,11 @@ V2 saves sources, evidence, runs, review decisions, discussion threads and
 baselines in SQLite, by default `.rq1-workflow/workflow.sqlite3`. Override
 `RQ1_WORKFLOW_STORE` to choose a location. Docker uses `/data/workflow.sqlite3`.
 Reloading the UI restores saved runs from the server. The browser only remembers
-the selected run ID. Back up the database while the application is stopped, or
-use SQLite's backup API while running; exports are portable audit artifacts,
-not database restore files.
+the selected run ID. Model-call logs, stage copies and other parts that only grow
+are stored as rows next to each run, so a model call no longer rewrites the run.
+Do not open a database written by this version with an earlier one. Back up the
+database while the application is stopped, or use SQLite's backup API while
+running; exports are portable audit artifacts, not database restore files.
 
 **Export saved review** downloads `rq1-requirement-dataset-v2` without rerunning
 extraction. **Publish accepted requirements** creates

@@ -94,11 +94,8 @@ class TrackedClient:
                 'system_hash': digest(system), 'context_hash': digest(user), 'output_contract': output_model.__name__,
                 'max_output_tokens': max_tokens, 'schema_repair_attempts': schema_repair_attempts,
                 'token_usage': None, 'cost': None}
-        def begin(run):
-            if run['status'] == 'cancelled':
-                raise ConflictError('Run cancelled before provider call.')
-            run['job_lease_until'] = time.time() + 900
-        self.store.mutate(self.run_id, None, 'model_call_started', begin)
+        # Lease and cancellation check touch a small state row, not the run document.
+        self.store.touch_run(self.run_id, time.time() + 900)
         try:
             options = {'schema_repair_attempts': schema_repair_attempts} if schema_repair_attempts else {}
             result = self.client.generate_structured(system=system, user=user, output_model=output_model,
@@ -117,7 +114,7 @@ class TrackedClient:
                 generations = call['transport'].get('generation_attempts', [])
                 call['output_tokens_reserved'] = (max_tokens or 0) * max(1, len(generations))
             call['latency_seconds'] = round(time.monotonic() - started, 4)
-            self.store.mutate(self.run_id, None, 'model_call_recorded', lambda run: run.setdefault('model_calls', []).append(call))
+            self.store.append_run_part(self.run_id, 'model_calls', call, event_type='model_call_recorded')
 
 
 def freeze_snapshot(store: Store, request: SnapshotRequest) -> dict:
@@ -229,7 +226,10 @@ def verify(store: Store, record: RequirementRecord, eligible_evidence_ids: list[
             if link.evidence_id not in eligible_evidence_ids:
                 raise ValueError('Citation is outside the frozen corpus.')
             unit = EvidenceUnit.model_validate(store.get('evidence', link.evidence_id))
-            result.update(resolve_evidence(store, unit, cache))
+            resolution = resolve_evidence(store, unit, cache)
+            # The passage is stored once, as the evidence unit; the report keeps the outcome.
+            resolution.pop('content', None)
+            result.update(resolution)
             quote = link.quote
             start = link.quote_start if link.quote_start is not None else unit.content.find(quote)
             if not quote or start < 0 or unit.content[start:start + len(quote)] != quote:
@@ -477,8 +477,10 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
                 batch_index, batch, response_budget, citation_retry = pending.pop(0)
                 batch_payload, catalogue = elicitation_batch(batch)
                 prompt = canonical({**role_context, 'evidence_units': batch_payload})
-                selection = {'batch_index': batch_index, 'catalogue': catalogue,
-                             'catalogue_hash': digest(catalogue), 'status': 'requested',
+                # Each catalogue is stored once per run under its hash; roles share batches.
+                catalogue_hash = digest(catalogue)
+                store.set_run_part_entry(run['run_id'], 'catalogues', catalogue_hash, catalogue)
+                selection = {'batch_index': batch_index, 'catalogue_hash': catalogue_hash, 'status': 'requested',
                              'evidence_ids': [unit['evidence_id'] for unit in batch],
                              'max_output_tokens': response_budget}
                 if citation_retry:
@@ -779,7 +781,7 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             r['status'] = status
         store.mutate(run_id, None, 'stage_started', apply)
     try:
-        run = store.get('run', run_id)
+        run = store.get_run(run_id, parts=False)
         if run['status'] in {'cancelled', 'awaiting_human', 'completed'}:
             return
         def claim(r):
@@ -910,7 +912,7 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
                     manifest.update(status='failed', last_error=str(exc))
         store.mutate(run_id, None, 'run_failed', fail)
     finally:
-        current = store.get('run', run_id)
+        current = store.get_run(run_id, parts=False)
         if current.get('worker_id') == worker_id:
             store.mutate(run_id, None, 'worker_released', lambda r: r.update(worker_id=None, job_lease_until=0))
 
@@ -927,7 +929,7 @@ def execute_case(store: Store, run_id: str, case_id: str, client: LLMClient):
 
     if not isinstance(client, TrackedClient):
         client = TrackedClient(client, store, run_id)
-    run = store.get('run', run_id)
+    run = store.get_run(run_id, parts=False)
     case = next(c for c in run['deliberations'] if c['case_id'] == case_id)
     if case['status'] == 'cancelled' or run['status'] == 'cancelled':
         return
@@ -978,7 +980,7 @@ def execute_case(store: Store, run_id: str, case_id: str, client: LLMClient):
             for role in case['participants']:
                 if role in finished:
                     continue
-                current = store.get('run', run_id)
+                current = store.get_run(run_id, parts=False)
                 if current['status'] == 'cancelled':
                     stop = 'cancelled'
                     break
@@ -1149,7 +1151,7 @@ def decide(store: Store, run_id: str, request: DecisionRequest, actor: str) -> d
             for r in run['requirements'] if r['revision_id'] in run['active_revision_ids']) else 'running'
         run['metrics']['accepted_count'] = sum(r['lifecycle_state'] == 'accepted' for r in run['requirements'] if r['revision_id'] in run['active_revision_ids'])
         return decision
-    return store.mutate(run_id, request.expected_version, 'human_decision', apply,
+    return store.mutate(run_id, request.expected_version, 'human_decision', apply, hydrate=True,
                         key=request.idempotency_key, payload=request.model_dump(mode='json'))
 
 
@@ -1194,5 +1196,6 @@ def publish_baseline(store: Store, run_id: str, request: BaselineRequest, actor:
         if run['stages']['adjudication'] == 'completed':
             run['status'] = 'completed'
         return payload
-    return store.mutate(run_id, request.expected_version, 'baseline_published', apply,
+    # The baseline copies the model calls, machine snapshot and attempt history: load the parts.
+    return store.mutate(run_id, request.expected_version, 'baseline_published', apply, parts=True, hydrate=True,
                         key=request.idempotency_key, payload=request.model_dump(mode='json'))

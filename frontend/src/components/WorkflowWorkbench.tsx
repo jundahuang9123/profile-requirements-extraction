@@ -55,7 +55,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     setSources(sourceList); setRuns(runList);
   };
   const loadRun = async (id: string) => {
-    const loaded = await workflowApi<Run>(`/runs/${id}`); setRun(loaded);
+    const loaded = await workflowApi<Run>(`/runs/${id}?audit=false`); setRun(loaded);
     setSnapshot(await workflowApi<Snapshot>(`/snapshots/${loaded.snapshot_id}`));
     setRuns(previous => previous.some(item => item.run_id === id)
       ? previous.map(item => item.run_id === id ? { ...item, status: loaded.status, version: loaded.version } : item)
@@ -77,8 +77,14 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
   useEffect(() => {
     if (!run || (!['created', 'selecting_roles', 'eliciting', 'normalizing', 'verifying', 'consolidating', 'routing'].includes(run.status)
       && !run.deliberations.some(item => item.status === 'running') && !run.worker_id)) return;
-    const timer = window.setInterval(() => { void loadRun(run.run_id).catch(cause => setError(String(cause))); }, 1500);
-    return () => window.clearInterval(timer);
+    // Poll again only after the previous response arrived, so slow responses never pile up.
+    let stopped = false; let timer: number | undefined;
+    const poll = async () => {
+      try { await loadRun(run.run_id); } catch (cause) { setError(String(cause)); }
+      if (!stopped) timer = window.setTimeout(() => void poll(), 1500);
+    };
+    timer = window.setTimeout(() => void poll(), 1500);
+    return () => { stopped = true; window.clearTimeout(timer); };
   }, [run?.run_id, run?.status, run?.deliberations.some(item => item.status === 'running'), run?.worker_id]);
 
   const navigate = (next: string, runId = run?.run_id ?? 'new') => {

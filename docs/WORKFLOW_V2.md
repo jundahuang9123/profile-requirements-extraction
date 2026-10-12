@@ -55,7 +55,8 @@ replaces the offset with that unique unit-local position and records the correct
 the role report. No match or multiple matches remain unresolved and fail verification.
 Known obligation claims need a separate supportive `component: obligation` citation.
 Every material citation must resolve; one good citation cannot hide a fabricated
-premise.
+premise. The stored check report records per link the outcome, method, source hash,
+parser version and quote offsets; the passage itself is stored once, as the evidence unit.
 
 ## Models, transitions and acceptance
 
@@ -190,7 +191,7 @@ New endpoints use `/api/rq1/v2`; `/docs` exposes complete request contracts.
 | `POST /snapshots` | Freeze sources, evidence and declared tasks |
 | `GET /evidence/{id}` | Inspect source resolution and selectors |
 | `POST /runs` | Return 202 and queue execution; `discussion` is `automatic` or `on_request` |
-| `GET /runs`, `GET /runs/{id}` | Restore run state/progress |
+| `GET /runs`, `GET /runs/{id}` | Restore run state/progress; `?audit=false` leaves out the model-call log, machine snapshot and excerpt catalogues |
 | `POST /runs/{id}/cancel`, `/resume` | Cancel or resume interrupted unreviewed work |
 | `GET /runs/{id}/events`, `/export`, `/evaluation` | Audit events, saved review and metrics |
 | `POST /runs/{id}/assessments`, `/decisions`, `/requirements` | Human assessment, decisions/revisions and additions |
@@ -204,6 +205,14 @@ payload under the same key or stale versions yield 409; invalid transitions/cita
 yield 422; missing objects yield 404. Source/snapshot IDs are content-based.
 Decisions, events and aggregate updates commit together in SQLite. Immutable source
 bytes/evidence and all candidate revisions remain available.
+
+A run is stored as one JSON document plus separate rows for the parts that only grow:
+the model-call log, stage copies, the frozen machine snapshot, attempt history,
+baselines and excerpt catalogues. Updating a run rewrites only the document. A model
+call appends one row and extends the worker lease in a small state row; it no longer
+rewrites the run. Reading a run assembles the document and its parts in one
+transaction. Runs saved by earlier versions are read as before, and their next update
+moves the parts to rows. Do not open the database with an earlier version afterwards.
 
 Workers have a persisted 15-minute lease refreshed at stages and provider call starts.
 Restart does not silently restart work; resume after the lease expires. Resume skips

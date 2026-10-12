@@ -108,9 +108,15 @@ def translate(call):
 
 
 def downloadable(value, enabled: bool, filename: str):
+    # Saved runs are plain JSON; encoding them directly is much faster than FastAPI's
+    # generic encoder for multi-megabyte runs.
     if enabled:
         return JSONResponse(value, headers={'Content-Disposition': f'attachment; filename="{filename}"'})
-    return value
+    return JSONResponse(value)
+
+
+# Audit parts the workbench does not display; the export always includes them.
+AUDIT_PARTS = ('model_calls', 'machine_snapshot', 'catalogues')
 
 
 @router.post('/sources')
@@ -173,8 +179,10 @@ def create_run(request: RunRequest, background: BackgroundTasks):
 
 
 @router.get('/runs/{run_id}')
-def get_run(run_id: str):
-    return translate(lambda: Store().get('run', run_id))
+def get_run(run_id: str, audit: bool = True):
+    """The saved run. ``audit=false`` leaves out the model-call log, the frozen machine
+    snapshot and the excerpt catalogues, which the workbench does not display."""
+    return translate(lambda: JSONResponse(Store().get_run(run_id, omit=() if audit else AUDIT_PARTS)))
 
 
 @router.get('/runs/{run_id}/events')
@@ -219,7 +227,7 @@ def cancel_run(run_id: str, request: VersionRequest):
                 case.update(status='cancelled', stop_reason='human_cancelled')
         if run['deliberations']:
             run['stages']['deliberation'] = 'completed'
-    return translate(lambda: Store().mutate(run_id, request.expected_version, 'run_cancelled', cancel))
+    return translate(lambda: Store().mutate(run_id, request.expected_version, 'run_cancelled', cancel, hydrate=True))
 
 
 @router.get('/runs/{run_id}/stages/{stage}')
@@ -236,6 +244,11 @@ def export_stage(run_id: str, stage: str, download: bool = False):
         snapshot_kind = 'stage_checkpoint' if checkpoint is not None else 'current_saved_state'
         if stage in {'acquisition', 'decomposition'}:
             results['snapshot'] = store.get('snapshot', run['snapshot_id'])
+        if stage == 'elicitation':
+            # The excerpt catalogues that the role reports reference by hash.
+            hashes = {s.get('catalogue_hash') for report in results.get('role_runs') or []
+                      for s in report.get('citation_selections', [])}
+            results['catalogues'] = {h: c for h, c in run.get('catalogues', {}).items() if h in hashes}
         status = run['stages'][stage]
         if stage == 'elicitation' and status == 'completed' and any(r['status'] == 'failed' for r in run['role_runs']):
             status = 'partial'
@@ -258,7 +271,7 @@ def continue_run(run_id: str, request: VersionRequest, background: BackgroundTas
             ensure_selection_resumable(run['role_manifest'])
         configured_client(RunRequest.model_validate(run['request']))
         run.update(status='created', worker_id=None, job_lease_until=0)
-    result = translate(lambda: store.mutate(run_id, request.expected_version, 'run_continued', proceed))
+    result = translate(lambda: store.mutate(run_id, request.expected_version, 'run_continued', proceed, hydrate=True))
     background.add_task(execute_run, store, run_id)
     return result
 
@@ -299,7 +312,7 @@ def resume_run(run_id: str, request: VersionRequest, background: BackgroundTasks
             run['machine_snapshot'] = {}
             for stage in ('elicitation', 'normalization', 'verification', 'consolidation', 'deliberation'):
                 run.get('stage_results', {}).pop(stage, None)
-    result = translate(lambda: store.mutate(run_id, request.expected_version, 'run_resumed', resume))
+    result = translate(lambda: store.mutate(run_id, request.expected_version, 'run_resumed', resume, hydrate=True))
     background.add_task(execute_run, store, run_id)
     return result
 
@@ -323,7 +336,7 @@ def assess_revision(run_id: str, request: AssessmentRequest):
                                                        'assessment': q.model_dump(mode='json'), 'created_at': now()})
         target.update(qualification=q.model_dump(mode='json'), verification=report)
         return {'revision_id': request.revision_id, 'assessor': actor()}
-    return translate(lambda: Store().mutate(run_id, request.expected_version, 'human_assessment', apply,
+    return translate(lambda: Store().mutate(run_id, request.expected_version, 'human_assessment', apply, hydrate=True,
         key=request.idempotency_key, payload=request.model_dump(mode='json')))
 
 
@@ -359,7 +372,7 @@ def add_requirement(run_id: str, request: AdditionRequest):
         run['status'] = 'awaiting_human'
         run['stages']['adjudication'] = 'running'
         return {'revision_id': record.revision_id}
-    return translate(lambda: store.mutate(run_id, request.expected_version, 'human_requirement_added', apply,
+    return translate(lambda: store.mutate(run_id, request.expected_version, 'human_requirement_added', apply, hydrate=True,
         key=request.idempotency_key, payload=request.model_dump(mode='json')))
 
 
@@ -387,7 +400,7 @@ def open_case(run_id: str, request: CaseRequest, background: BackgroundTasks):
         run['stages']['deliberation'] = 'running'
         return case
     store = Store()
-    response = translate(lambda: store.mutate(run_id, request.expected_version, 'case_opened', apply))
+    response = translate(lambda: store.mutate(run_id, request.expected_version, 'case_opened', apply, hydrate=True))
     if response['run']['strategy'] == 'multi_agent':
         client = translate(lambda: configured_client(RunRequest.model_validate(response['run']['request'])))
         if client:
@@ -407,7 +420,7 @@ def post_message(run_id: str, case_id: str, request: MessageRequest):
                    'body': request.body, 'evidence_ids': request.evidence_ids, 'created_at': now()}
         case['messages'].append(message)
         return message
-    return translate(lambda: Store().mutate(run_id, request.expected_version, 'human_message', apply,
+    return translate(lambda: Store().mutate(run_id, request.expected_version, 'human_message', apply, hydrate=True,
         key=request.idempotency_key, payload=request.model_dump(mode='json')))
 
 
@@ -423,7 +436,7 @@ def close_case(run_id: str, case_id: str, request: MessageRequest):
         if all(c['status'] not in {'queued', 'running'} for c in run['deliberations']):
             run['stages']['deliberation'] = 'completed'
         return {'case_id': case_id, 'actor': actor()}
-    return translate(lambda: Store().mutate(run_id, request.expected_version, 'case_closed', apply,
+    return translate(lambda: Store().mutate(run_id, request.expected_version, 'case_closed', apply, hydrate=True,
         key=request.idempotency_key, payload=request.model_dump(mode='json')))
 
 
