@@ -72,11 +72,14 @@ class LLMConfig:
                                 structured content without a long reasoning trace.
       ANTHROPIC_API_KEY  key for the anthropic provider (standard SDK variable)
       RRS_LLM_MAX_TOKENS response token cap (default 16000)
-      RRS_LLM_TIMEOUT    request timeout in seconds (default 240)
+      RRS_LLM_TIMEOUT    request timeout in seconds per HTTP attempt (default 240)
       RRS_LLM_MAX_CONCURRENCY endpoint-wide in-process request limit (default 1)
-      RRS_LLM_RATE_LIMIT_RETRIES extra attempts after HTTP 429 (default 2)
+      RRS_LLM_RATE_LIMIT_RETRIES extra attempts after HTTP 429 (default 5, 0-8)
+      RRS_LLM_TRANSIENT_RETRIES extra attempts after a timeout, a dropped
+                                connection or HTTP 500/502/503/504 (default 2, 0-3)
       RRS_LLM_RETRY_BACKOFF initial fallback delay in seconds (default 2)
-      RRS_LLM_RETRY_WAIT_BUDGET total retry wait in seconds (default 30)
+      RRS_LLM_RETRY_WAIT_BUDGET total retry wait per request in seconds
+                                (default 120, 0-600), shared by both retry kinds
     """
 
     provider: str = 'disabled'
@@ -88,19 +91,23 @@ class LLMConfig:
     timeout: float = 240.0
     extra_headers: dict[str, str] = field(default_factory=dict)
     max_concurrency: int = 1
-    rate_limit_retries: int = 2
+    rate_limit_retries: int = 5
+    transient_retries: int = 2
     retry_backoff: float = 2.0
-    retry_wait_budget: float = 30.0
+    retry_wait_budget: float = 120.0
 
     def __post_init__(self):
         if not 1 <= self.max_concurrency <= 4:
             raise ValueError('RRS_LLM_MAX_CONCURRENCY must be between 1 and 4.')
-        if not 0 <= self.rate_limit_retries <= 3:
-            raise ValueError('RRS_LLM_RATE_LIMIT_RETRIES must be between 0 and 3.')
+        if type(self.rate_limit_retries) is not int or not 0 <= self.rate_limit_retries <= 8:
+            raise ValueError('RRS_LLM_RATE_LIMIT_RETRIES must be between 0 and 8.')
+        # Each transient retry can last a full request timeout, so this stays small.
+        if type(self.transient_retries) is not int or not 0 <= self.transient_retries <= 3:
+            raise ValueError('RRS_LLM_TRANSIENT_RETRIES must be between 0 and 3.')
         if not math.isfinite(self.retry_backoff) or not 0 < self.retry_backoff <= 60:
             raise ValueError('RRS_LLM_RETRY_BACKOFF must be positive and at most 60 seconds.')
-        if not math.isfinite(self.retry_wait_budget) or not 0 <= self.retry_wait_budget <= 60:
-            raise ValueError('RRS_LLM_RETRY_WAIT_BUDGET must be between 0 and 60 seconds.')
+        if not math.isfinite(self.retry_wait_budget) or not 0 <= self.retry_wait_budget <= 600:
+            raise ValueError('RRS_LLM_RETRY_WAIT_BUDGET must be between 0 and 600 seconds.')
 
     @classmethod
     def from_env(cls) -> 'LLMConfig':
@@ -134,9 +141,10 @@ class LLMConfig:
                 'max_tokens': int(os.environ.get('RRS_LLM_MAX_TOKENS', '16000')),
                 'timeout': float(os.environ.get('RRS_LLM_TIMEOUT', '240')),
                 'max_concurrency': int(os.environ.get('RRS_LLM_MAX_CONCURRENCY', '1')),
-                'rate_limit_retries': int(os.environ.get('RRS_LLM_RATE_LIMIT_RETRIES', '2')),
+                'rate_limit_retries': int(os.environ.get('RRS_LLM_RATE_LIMIT_RETRIES', '5')),
+                'transient_retries': int(os.environ.get('RRS_LLM_TRANSIENT_RETRIES', '2')),
                 'retry_backoff': float(os.environ.get('RRS_LLM_RETRY_BACKOFF', '2')),
-                'retry_wait_budget': float(os.environ.get('RRS_LLM_RETRY_WAIT_BUDGET', '30')),
+                'retry_wait_budget': float(os.environ.get('RRS_LLM_RETRY_WAIT_BUDGET', '120')),
             },
         }
 

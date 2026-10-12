@@ -58,9 +58,12 @@ Each discovery response is preserved before validation. The audit distinguishes
 `quote_absent`, `quote_ambiguous`, `invalid_offset`, `outside_batch`, `unknown_task`
 and `source_unresolved` per candidate and citation. Citation errors get at most one
 targeted correction call per batch. In policy v3 and later, that call selects numbered source
-excerpts instead of generating quotation text or offsets. Each excerpt is a raw
-physical line (split at 400 characters when needed), with its original unit and
-offset saved in the audit. The software materializes the chosen exact quotation;
+excerpts instead of generating quotation text or offsets. Up to policy v5 each
+excerpt was a raw physical line (split at 400 characters when needed). From v6 an
+excerpt is a block of consecutive lines of one unit, at most 400 characters long and
+never crossing a blank line, as described in
+[EXTRACTION_CITATIONS.md](EXTRACTION_CITATIONS.md). Its original unit and offset are
+saved in the audit. The software materializes the chosen exact quotation;
 it does not fuzzy-match a paraphrase. An empty selection with an explanation, an
 unknown ID or duplicate IDs stops selection visibly. Choosing an authentic excerpt
 does not establish semantic support: the excerpt may still be irrelevant.
@@ -82,11 +85,16 @@ reserves a slot for the grounding/scope critic even when many roles contributed.
 
 ## Bounded selection and restart
 
-The versioned policy is `rq1-stakeholder-selection-v5`:
+The versioned policy is `rq1-stakeholder-selection-v6`:
 
 1. Read all snapshot evidence in deterministic source/selector order. Discovery batches
-   have at most 40,000 serialized characters, and the policy allows at most 32 batches.
-   An oversized unit/corpus fails explicitly; it is not silently truncated.
+   have at most 40,000 serialized characters, and a scan has at most 32 batches by default.
+   An oversized unit/corpus fails explicitly; it is not silently truncated. The error
+   names the number of batches the corpus needs. `RQ1_ROLE_SELECTION_MAX_BATCHES`
+   (1–128) sets the limit for new automatic runs; each run saves the limit it started
+   with as `max_batches` in its manifest and keeps it on resume. Of the benchmark
+   corpora, HealthDCAT-AP needs 36 batches and mobilityDCAT-AP 63, so both need a
+   raised limit; the other three fit the default.
 2. One logical selector uses the configured provider to discover at most the requested
    panel size per batch (1–8). CQs accompany each batch. Only selected snapshot evidence is loaded;
    there is no filesystem search, external retrieval or reference-set access.
@@ -113,7 +121,8 @@ but are not all reconsidered in a final global optimization. Selection may depen
 source order. The manifest records coverage, candidate lineage, provider identity per
 batch/round and omissions. Per-call outputs, hashes and timings are in the run audit.
 There are at most three logical selector calls per batch (discovery, optional citation
-correction, consolidation; 96 for a single uninterrupted maximum-size pass). An
+correction, consolidation; 96 for a single uninterrupted pass at the default limit of
+32 batches, and three times the limit otherwise). An
 explicit retry of failed discovery/consolidation can add calls; citation correction
 remains limited to one attempt per batch across resumes. Provider-level retries may
 also add HTTP requests. Discovery reserves at most 8,000 output tokens; correction

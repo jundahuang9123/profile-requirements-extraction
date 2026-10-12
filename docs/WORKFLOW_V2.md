@@ -263,9 +263,10 @@ not guarantees about provider tokenization or output size.
 Each initial response reserves 8,000 tokens. When an OpenAI-compatible provider
 explicitly reports `finish_reason=length`, the partial response remains rejected.
 A multi-unit batch is split in half and retried as smaller independent batches.
-For a single unit there is one retry at 12,000 tokens. Continued truncation fails
-the role visibly. Authentication, schema and other errors do not trigger this
-recovery. Completed smaller-batch observations are retained if a later batch fails.
+For a single unit there is one retry at 12,000 tokens. From policy v2.10 a unit that is
+cut off again is marked failed and the role continues with the remaining units; earlier
+policies stopped the role there. Authentication and other transport errors do not trigger
+this recovery and still stop the role. Completed smaller-batch observations are retained if a later batch fails.
 Every request is recorded, and citation selections identify cutoff attempts,
 recovery choices, input evidence IDs and response caps. Smaller batches/recovery
 can increase calls, latency and cost; improved live completion is not yet measured.
@@ -343,6 +344,22 @@ into smaller source batches; a failed singleton stays visible while other source
 are processed. A role with unresolved units stays incomplete. Source verification
 is unchanged. See [EXTRACTION_CITATIONS.md](EXTRACTION_CITATIONS.md) for recovery,
 provenance and finite request bounds.
+
+Extraction policy v2.10 applies the same rule to the two remaining per-unit failures.
+An answer that cites an unknown excerpt ID or repeats an identical link, and a single
+unit that is cut off again after its larger retry, no longer stop the role: the batch
+is split, a single unit gets one further request, and a unit that still fails is
+marked failed while later units are processed. Each role report counts processed
+against total evidence units, and the extraction page shows that count. Only
+transport, authentication and unexpected errors stop a role before its last unit.
+
+Extraction policy v2.11 and role-selection policy v6 change what an excerpt is.
+Consecutive lines of one evidence unit are offered as one block of at most 400
+characters instead of one excerpt per physical line. Quotations and offsets remain
+exact slices of the unit, and source verification is unchanged. A requirement needs
+fewer links, requests carry less wrapper text, and the same corpus needs fewer
+extraction batches. Excerpt IDs from earlier policies do not match the new
+catalogue, so both policies require a new run.
 
 Semantic assessment also checkpoints each completed exact-revision result.
 Resuming rechecks original-source resolution and reuses completed matching

@@ -40,7 +40,7 @@ export function RoleManifestView({ run, busy, inspect, override }: Props) {
       <p>Stakeholders: {role.stakeholders.join(', ')}</p><p>{role.purpose}</p>
       <ul>{role.focus_questions.map((question, i) => <li key={i}>{question}</li>)}</ul>
       <p>{role.rationale}</p><small>{role.selection_rationale}</small>
-      {role.evidence_links.map((link, i) => <blockquote key={i}><p>{link.quote}</p><button onClick={() => inspect(link.evidence_id)}>Inspect stakeholder evidence</button></blockquote>)}
+      {role.evidence_links.map((link, i) => <blockquote key={i}><p className="workflow-quote">{link.quote}</p><button onClick={() => inspect(link.evidence_id)}>Inspect stakeholder evidence</button></blockquote>)}
       {!!role.task_ids.length && <small>CQs / tasks: {role.task_ids.join(', ')}</small>}
     </article>)}</div>
     <p className="workflow-muted">Source verification, support/scope assessment and the grounding critic remain procedural responsibilities. Automatic selection changes the stakeholder perspectives.</p>

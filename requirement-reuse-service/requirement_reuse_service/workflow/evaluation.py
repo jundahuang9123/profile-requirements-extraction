@@ -52,6 +52,8 @@ def workflow_metrics(run: dict) -> dict:
             'calls_without_transport_audit': len(calls) - len(transport_calls),
             'rate_limit_retries': sum(a.get('action') == 'rate_limit_retry' for c in calls
                                      for a in c.get('transport', {}).get('http_attempts', [])),
+            'transient_retries': sum(a.get('action') == 'transient_retry' for c in calls
+                                    for a in c.get('transport', {}).get('http_attempts', [])),
             'schema_correction_generations': sum(a.get('purpose') == 'schema_correction' for c in calls
                                                 for a in c.get('transport', {}).get('generation_attempts', [])),
             'retry_wait_seconds': sum(c.get('transport', {}).get('retry_wait_seconds', 0) for c in calls),

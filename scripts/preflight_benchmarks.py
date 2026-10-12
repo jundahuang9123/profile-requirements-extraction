@@ -11,7 +11,8 @@ sys.path.insert(0, str(ROOT / 'requirement-reuse-service'))
 from requirement_reuse_service.models import ArtifactPayload
 from requirement_reuse_service.workflow.evidence import register_source, resolve_evidence, PARSER_VERSION
 from requirement_reuse_service.workflow.models import SourceRequest, EvidenceUnit, SnapshotRequest
-from requirement_reuse_service.workflow.engine import freeze_snapshot
+from requirement_reuse_service.workflow.engine import (freeze_snapshot, EXTRACTION_BATCH_CHARS,
+    EXTRACTION_BATCH_UNITS, EXTRACTION_UNIT_CHARS)
 from requirement_reuse_service.workflow.role_selection import batches_for
 from requirement_reuse_service.workflow.citations import elicitation_batch
 from requirement_reuse_service.workflow.storage import Store, canonical, digest
@@ -60,21 +61,19 @@ def audit(output: Path):
                 snapshot = freeze_snapshot(store, SnapshotRequest(source_version_ids=sources, name='Preflight ' + name))
                 units = [store.get('evidence', i) for i in snapshot['evidence_ids']]
                 selection_batches = batches_for(units)
-                # Conservative size estimate reserves 5,000 chars for each selected role/task payload.
+                # Same bounds as the extractor. The size estimate conservatively reserves
+                # 5,000 chars for each selected role/task payload, so a run can need fewer batches.
+                reserve = 5000
                 extraction_batches, current = [], []
                 for unit in units:
                     single, _ = elicitation_batch([unit])
-                    if len(canonical({'evidence_units': single})) + 5000 > 45000:
+                    if len(canonical({'evidence_units': single})) + reserve > EXTRACTION_UNIT_CHARS:
                         raise ValueError('Single evidence unit exceeds extraction payload allowance.')
                     trial, _ = elicitation_batch([*current, unit])
-                    if current and (len(current) >= 4 or len(canonical({'evidence_units': trial})) + 5000 > 16000):
-                        if not current:
-                            raise ValueError('Single evidence unit exceeds extraction payload allowance.')
+                    if current and (len(current) >= EXTRACTION_BATCH_UNITS or
+                                    len(canonical({'evidence_units': trial})) + reserve > EXTRACTION_BATCH_CHARS):
                         extraction_batches.append(current)
                         current = [unit]
-                        single, _ = elicitation_batch(current)
-                        if len(canonical({'evidence_units': single})) + 5000 > 45000:
-                            raise ValueError('Single evidence unit exceeds extraction payload allowance.')
                     else:
                         current.append(unit)
                 if current:
