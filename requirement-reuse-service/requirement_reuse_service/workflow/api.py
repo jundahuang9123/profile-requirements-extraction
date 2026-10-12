@@ -9,9 +9,9 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from .engine import (active_records, configured_client, decide, execute_case, execute_run,
-                     freeze_snapshot, lexical_relation, make_case, new_run, publish_baseline, ensure_elicitation_resumable,
-                     qualify_record, record_from_observation, verify)
+from .engine import (HUMAN_REQUEST_PREFIX, UNFINISHED_CASE_STATES, active_records, configured_client, decide,
+                     execute_case, execute_run, freeze_snapshot, is_human_request, lexical_relation, make_case, new_run,
+                     publish_baseline, ensure_elicitation_resumable, qualify_record, record_from_observation, verify)
 from .evidence import register_source, resolve_evidence
 from .models import (AdditionRequest, AssessmentRequest, BaselineRequest, DecisionRequest, EvidenceUnit,
                      MessageRequest, Observation, RunRequest, SnapshotRequest, SourceRequest)
@@ -271,14 +271,18 @@ def resume_run(run_id: str, request: VersionRequest, background: BackgroundTasks
             raise ConflictError('A worker lease is active. Retry after it finishes or after the 15-minute restart lease expires.')
         if run['status'] not in {'failed', 'cancelled', 'awaiting_human', 'created', 'selecting_roles', 'eliciting', 'normalizing', 'verifying', 'consolidating', 'routing'} or run['decisions']:
             raise ValueError('Resume only an interrupted/partial unreviewed run; create a new run after adjudication.')
-        if run['status'] == 'awaiting_human' and not run['metrics'].get('failed_role_count'):
+        # A run awaiting review can be resumed for failed roles or unfinished routed discussions.
+        unfinished_discussion = any(case['status'] in UNFINISHED_CASE_STATES and not is_human_request(case)
+                                    for case in run['deliberations'])
+        if run['status'] == 'awaiting_human' and not run['metrics'].get('failed_role_count') and not unfinished_discussion:
             raise ValueError('This run completed. Create a new run for another trial.')
         if run.get('role_manifest'):
             ensure_selection_resumable(run['role_manifest'])
         ensure_elicitation_resumable(run)
         configured_client(RunRequest.model_validate(run['request']))
         run.setdefault('attempt_history', []).append(deepcopy({key: run.get(key) for key in
-            ('status', 'requirements', 'observations', 'role_runs', 'diagnostics', 'role_manifest', 'stages')}))
+            ('status', 'requirements', 'observations', 'role_runs', 'diagnostics', 'role_manifest', 'stages',
+             'deliberations')}))
         run['diagnostics'] = []
         run['status'] = 'created'
         run['worker_id'] = None
@@ -377,7 +381,7 @@ def open_case(run_id: str, request: CaseRequest, background: BackgroundTasks):
             raise ValueError('A case is already pending for this revision.')
         if sum(bool(set(c['revision_ids']) & set(request.revision_ids)) for c in run['deliberations']) >= 2:
             raise ValueError('The bounded discussion allowance is exhausted; adjudicate the remaining issue directly.')
-        case = make_case(run, records, ['human_request: ' + request.question])
+        case = make_case(run, records, [HUMAN_REQUEST_PREFIX + request.question])
         case['case_id'] = uid('case', case['case_id'], uuid.uuid4().hex)
         run['deliberations'].append(case)
         run['stages']['deliberation'] = 'running'

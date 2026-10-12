@@ -567,6 +567,11 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
                 reports.append(report)
             except Exception as exc:
                 reports.append({'role_id': role.id, 'status': 'failed', 'error': str(exc)})
+    # Resume lists completed roles before re-run ones. Restore panel order, as in a first
+    # pass, so that consolidation forms unchanged merges with unchanged identities.
+    order = {role.id: index for index, role in enumerate(roles)}
+    observations.sort(key=lambda item: order.get(item.role_id, len(order)))
+    reports.sort(key=lambda item: order.get(item['role_id'], len(order)))
     return observations, reports
 
 
@@ -588,7 +593,12 @@ def lexical_relation(a: RequirementRecord, b: RequirementRecord) -> str | None:
     return None
 
 
-def consolidate(store: Store, run: dict, records: list[RequirementRecord], client=None) -> tuple[list, list, list]:
+def consolidate(store: Store, run: dict, records: list[RequirementRecord], client=None,
+                previous: dict[str, dict] | None = None) -> tuple[list, list, list]:
+    """Merge identical candidates. ``previous`` maps revision IDs of an earlier attempt
+    of this run to their records: an identical merged revision keeps its completed
+    assessment, as normalization does for single candidates."""
+    previous = previous or {}
     groups: dict[str, list[RequirementRecord]] = {}
     for record in records:
         key = digest({'statement': record.normalized_statement, 'type': record.requirement_type,
@@ -617,7 +627,15 @@ def consolidate(store: Store, run: dict, records: list[RequirementRecord], clien
         merged = record_from_observation(run['run_id'], obs, parents=[item.revision_id for item in group])
         merged.observation_ids = [oid for item in group for oid in item.observation_ids]
         merged.contributing_roles = sorted({role for item in group for role in item.contributing_roles})
-        qualify_record(store, merged, run['evidence_ids'], client)
+        earlier = previous.get(merged.revision_id)
+        reusable = (earlier and earlier.get('content_hash') == merged.content_hash and earlier.get('qualification')
+                    and earlier['qualification'].get('revision_hash') == merged.content_hash)
+        if reusable:
+            merged.verification = verify(store, merged, run['evidence_ids'])
+            merged.qualification = Qualification.model_validate(earlier['qualification'])
+            merged.lifecycle_state = 'blocked_evidence' if merged.verification['status'] != 'pass' else 'awaiting_human'
+        else:
+            qualify_record(store, merged, run['evidence_ids'], client)
         active.append(merged)
         events.append({'action': 'equivalent_merge', 'inputs': merged.parent_revision_ids, 'outputs': [merged.revision_id],
                        'rationale': 'Identical typed statement, intent, scope and assumptions; evidence preserved and reassessed.'})
@@ -676,6 +694,58 @@ def route_cases(run: dict, records: list[RequirementRecord], conflicts: list[dic
     return cases, routing
 
 
+HUMAN_REQUEST_PREFIX = 'human_request: '
+# A routed case in one of these states has its result; an identical case is not discussed again.
+FINISHED_CASE_STATES = frozenset({'unresolved', 'budget_exhausted'})
+UNFINISHED_CASE_STATES = frozenset({'queued', 'running', 'failed', 'cancelled'})
+
+
+def is_human_request(case: dict) -> bool:
+    return any(trigger.startswith(HUMAN_REQUEST_PREFIX) for trigger in case['triggers'])
+
+
+def discussion_key(case: dict) -> str:
+    """Everything a routed discussion depends on, without timestamps of a re-check.
+
+    Requirement content (statement, type, intent, scope, links, rationale, assumptions,
+    tasks) is covered by its content hash; the assessment and the outcome of the source
+    check are compared in full. Evidence units are immutable.
+    """
+    records = sorted(({'revision_id': r['revision_id'], 'content_hash': r['content_hash'],
+                       'contributing_roles': sorted(r.get('contributing_roles', [])),
+                       'source_check': {key: (r.get('verification') or {}).get(key)
+                                        for key in ('status', 'component_checks', 'revision_hash')},
+                       'qualification': r.get('qualification')}
+                      for r in case['frozen_requirements']), key=lambda item: item['revision_id'])
+    return digest({'triggers': sorted(case['triggers']), 'participants': sorted(case['participants']),
+                   'policy_version': case.get('policy_version'), 'records': records})
+
+
+def carry_over_cases(previous: list[dict], routed: list[dict]) -> tuple[list[dict], list[str], int]:
+    """Combine the cases of an earlier attempt with newly routed ones.
+
+    A finished routed case is kept, with its messages and outcome, when a newly routed
+    case has the same discussion key; only the remaining routed cases are run. Cases a
+    reviewer requested are carried over unchanged and never re-run. An earlier routed
+    case without a match is dropped from the current list; resume keeps it in the run's
+    attempt history.
+    """
+    finished = {}
+    for case in previous:
+        if not is_human_request(case) and case['status'] in FINISHED_CASE_STATES:
+            finished.setdefault(discussion_key(case), case)
+    cases, to_run, reused = [], [], 0
+    for case in routed:
+        earlier = finished.pop(discussion_key(case), None)
+        if earlier is not None:
+            cases.append(earlier)
+            reused += 1
+        else:
+            cases.append(case)
+            to_run.append(case['case_id'])
+    return cases + [case for case in previous if is_human_request(case)], to_run, reused
+
+
 def make_case(run: dict, records: list[RequirementRecord], triggers: list[str]) -> dict:
     contributors = list(dict.fromkeys(role for r in records for role in r.contributing_roles if role != 'grounding_scope_critic'))
     participants = contributors[:3] + ['grounding_scope_critic']
@@ -726,6 +796,8 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
         if not run.get('role_manifest'):
             # Resume old runs using their original explicit panel; never retroactively auto-select.
             run['role_manifest'] = initial_manifest(store, request, 'legacy-run')
+        # Candidates of an earlier attempt; consolidation reuses assessments of identical merges.
+        prior_records = {r['revision_id']: r for r in run['requirements']}
         def pause(stage):
             if request.execution_mode != 'stepwise':
                 return False
@@ -784,7 +856,7 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
         active_stage = 'consolidation'
         if run['stages']['consolidation'] != 'completed':
             start_stage('consolidation', 'consolidating')
-            active, events, conflicts = consolidate(store, run, records, client)
+            active, events, conflicts = consolidate(store, run, records, client, previous=prior_records)
             all_records = {r.revision_id: r.model_dump(mode='json') for r in [*records, *active]}
             run = patch('consolidation', {'requirements': list(all_records.values()),
                         'active_revision_ids': [r.revision_id for r in active], 'consolidation_events': events,
@@ -799,21 +871,27 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
         active = [RequirementRecord.model_validate(r) for r in run['requirements'] if r['revision_id'] in run['active_revision_ids']]
         conflicts = run['conflicts']
         active_stage = 'deliberation'
-        cases, routing = route_cases(run, active, conflicts, request.discussion)
+        routed, routing = route_cases(run, active, conflicts, request.discussion)
+        # On resume, finished discussions of unchanged candidates keep their results.
+        cases, to_run, reused = carry_over_cases(run.get('deliberations') or [], routed)
         failed_roles = sum(report['status'] == 'failed' for report in reports)
+        if any(case['status'] in {'queued', 'running'} for case in cases):
+            discussion_stage = 'running'
+        elif not cases and request.discussion == 'on_request':
+            discussion_stage = 'skipped'
+        else:
+            discussion_stage = 'completed'
         run = patch('deliberation', {'deliberations': cases, 'status': 'awaiting_human',
             'diagnostics': [f'{failed_roles} extraction role(s) failed; partial panel retained.'] if failed_roles else [],
             'metrics': {'evidence_count': len(run['evidence_ids']), 'raw_observation_count': len(observations),
                         'normalized_count': len(records), 'active_count': len(active),
                         'failed_role_count': failed_roles, 'conflict_count': len(conflicts), 'routing': routing,
                         'discussion_mode': request.discussion,
-                        'deliberation_selected': len(cases), 'accepted_count': 0}},
-            stage_status='skipped' if request.discussion == 'on_request' else 'completed')
-        if cases:
-            store.mutate(run_id, None, 'deliberation_routed', lambda r: r['stages'].update(deliberation='running'))
+                        'deliberation_selected': len(routed), 'deliberation_reused': reused, 'accepted_count': 0}},
+            stage_status=discussion_stage)
         if client:
-            for case in cases:
-                execute_case(store, run_id, case['case_id'], client)
+            for case_id in to_run:
+                execute_case(store, run_id, case_id, client)
             store.mutate(run_id, None, 'discussion_results_saved', lambda r: r.setdefault('stage_results', {}).update(deliberation={'deliberations': deepcopy(r['deliberations'])}))
     except ConflictError:
         # Cancellation or another worker's claim never overwrites a valid run.

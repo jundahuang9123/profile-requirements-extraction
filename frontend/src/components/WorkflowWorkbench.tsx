@@ -8,6 +8,12 @@ const stageNumbers = ['1', '2', '3a', '3b', '4', '5', '6', '7', '8', '9'];
 const perspectives = ['standards_conformance', 'dcat_reuse', 'construction_domain', 'aas_idta', 'ifc_bim', 'dataspace_interoperability', 'publisher_feasibility', 'consumer_discovery', 'stewardship_governance', 'access_rights_policy', 'fair_quality_provenance', 'minimality_scope'];
 const humanLabel = (value: string) => value.replace(/_/g, ' ');
 const roleLabel = (run: Run, id: string) => run.role_manifest?.selected_roles.find(role => role.role_id === id)?.label ?? humanLabel(id);
+// Routed discussions that resume runs again; reviewer-requested ones are never repeated.
+const unfinishedCase = (item: Case) => ['queued', 'running', 'failed', 'cancelled'].includes(item.status) && !item.triggers.some(trigger => trigger.startsWith('human_request: '));
+const leaseActive = (run: Run) => Boolean(run.worker_id) && (run.job_lease_until ?? 0) * 1000 > Date.now();
+const resumable = (run: Run) => ['failed', 'cancelled'].includes(run.status)
+  || (run.status === 'awaiting_human' && !run.decisions?.length && !leaseActive(run)
+      && (run.role_runs.some(role => role.status === 'failed') || run.deliberations.some(unfinishedCase)));
 const stageState = (run: Run, stage: string) => stage === 'elicitation' && run.stages[stage] === 'completed' && run.role_runs.some(role => role.status === 'failed') ? 'partial' : stage === 'role_selection' && run.stages[stage] !== 'completed' && ['failed', 'cancelled'].includes(run.status) ? run.status : run.stages[stage] ?? 'pending';
 
 function savedSetup() {
@@ -149,7 +155,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     <nav aria-label="Workflow steps"><ol className="workflow-stages">{stages.map((stage, index) => <li key={stage} data-state={run ? stageState(run, stage) : 'pending'} data-current={stage === page}><button aria-current={stage === page ? 'step' : undefined} onClick={() => navigate(stage)}><span>{stageNumbers[index]}</span><div><strong>{labels[index]}</strong><small>{run ? humanLabel(stageState(run, stage)) : 'setup'}</small></div></button></li>)}</ol></nav>
     {run && <div className="workflow-toolbar"><span className="workflow-pill">{humanLabel(run.status)} · saved revision {run.version}</span><span>{run.evidence_ids.length} evidence units · {currentRecords.length} candidates · {accepted.length} accepted</span>
       {(['created', 'selecting_roles', 'eliciting', 'normalizing', 'verifying', 'consolidating', 'routing'].includes(run.status) || run.deliberations.some(item => ['queued','running'].includes(item.status))) && <button disabled={busy} onClick={() => void act(() => command('/cancel', { expected_version: run.version }))}>Stop ongoing work</button>}
-      {['failed', 'cancelled'].includes(run.status) && <button disabled={busy} onClick={() => void act(async () => { await workflowApi(`/runs/${run.run_id}/resume`, { expected_version: run.version }); await loadRun(run.run_id); })}>Resume interrupted run</button>}
+      {resumable(run) && <button disabled={busy} title="Repeats only unfinished extraction units and discussions; finished results are kept." onClick={() => void act(async () => { await workflowApi(`/runs/${run.run_id}/resume`, { expected_version: run.version }); await loadRun(run.run_id); })}>{['failed', 'cancelled'].includes(run.status) ? 'Resume interrupted run' : 'Retry unfinished work'}</button>}
     </div>}
     {run?.status === 'paused' && <section className="workflow-panel"><h2>Results saved — ready for review</h2><p>Review the completed step, then continue. No processing runs while this workflow is paused.</p><button className="workflow-primary" disabled={busy || Boolean(run.worker_id)} onClick={() => void act(async () => { await workflowApi(`/runs/${run.run_id}/continue`, { expected_version: run.version }); const updated = await loadRun(run.run_id); navigate(stages.find(stage => !['completed', 'partial'].includes(updated.stages[stage])) ?? 'adjudication'); })}>Continue to next processing step</button></section>}
     {run?.diagnostics.map((message, i) => <p className="workflow-error" key={i}>{message}</p>)}
