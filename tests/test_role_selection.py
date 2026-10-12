@@ -210,34 +210,57 @@ def two_batch_corpus(corpus, monkeypatch):
     assert len(units) == 2
 
 
-def test_scan_beyond_the_batch_limit_fails_before_any_call_and_names_the_needed_limit(corpus, monkeypatch):
-    store, _, _ = corpus
-    two_batch_corpus(corpus, monkeypatch)
-    monkeypatch.setenv('RQ1_ROLE_SELECTION_MAX_BATCHES', '1')
-    run = auto_run(corpus)
-    assert run['role_manifest']['max_batches'] == 1
-    client = SelectorClient()
-    with pytest.raises(ValueError, match=r'exceeds 1 source batches \(2 needed\).*at least 2'):
-        selector.select_roles(store, run, client)
-    assert not client.calls
-
-
-def test_batch_limit_is_recorded_with_the_run_and_kept_when_the_setting_changes(corpus, monkeypatch):
+def test_a_new_run_scans_the_whole_corpus_without_a_setting(corpus, monkeypatch):
     store, snapshot, _ = corpus
     two_batch_corpus(corpus, monkeypatch)
-    monkeypatch.setenv('RQ1_ROLE_SELECTION_MAX_BATCHES', '2')
+    monkeypatch.delenv('RQ1_ROLE_SELECTION_MAX_BATCHES', raising=False)
     run = auto_run(corpus, max_roles=1)
-    # The run keeps the limit it was created with, so a later, lower setting cannot strand it.
+    # Known when the run is created, before any call, and shown in the workbench.
+    assert run['role_manifest']['max_batches'] == run['role_manifest']['total_batches'] == 2
+    manifest = selector.select_roles(store, run, SelectorClient())
+    assert manifest['status'] == 'completed' and manifest['total_batches'] == 2
+    assert set(manifest['processed_evidence_ids']) == set(snapshot['evidence_ids'])
+
+
+def test_a_corpus_beyond_the_cap_or_the_ceiling_is_refused_when_the_run_is_created(corpus, monkeypatch):
+    store, snapshot, _ = corpus
+    two_batch_corpus(corpus, monkeypatch)
+    monkeypatch.setenv('RQ1_ROLE_SELECTION_MAX_BATCHES', '1')
+    with pytest.raises(ValueError, match=r'needs 2 role-selection batches, more than RQ1_ROLE_SELECTION_MAX_BATCHES=1'):
+        auto_run(corpus)
+    # Through the API the refusal is a 422 with the reason, and no run is saved.
+    before = len(store.list('run'))
+    response = TestClient(app).post('/api/rq1/v2/runs', json={
+        'snapshot_id': snapshot['snapshot_id'], 'strategy': 'multi_agent', 'role_selection': 'automatic'})
+    assert response.status_code == 422 and 'RQ1_ROLE_SELECTION_MAX_BATCHES=1' in response.text
+    assert len(store.list('run')) == before
+    monkeypatch.delenv('RQ1_ROLE_SELECTION_MAX_BATCHES')
+    monkeypatch.setattr(selector, 'MAX_BATCHES_CEILING', 1)
+    with pytest.raises(ValueError, match=r'needs 2 role-selection batches, more than the 1 one scan may read'):
+        auto_run(corpus)
+
+
+def test_a_run_keeps_the_scan_size_it_was_created_with(corpus, monkeypatch):
+    store, snapshot, _ = corpus
+    two_batch_corpus(corpus, monkeypatch)
+    monkeypatch.delenv('RQ1_ROLE_SELECTION_MAX_BATCHES', raising=False)
+    run = auto_run(corpus, max_roles=1)
+    # A cap set later does not strand a run that was already created.
     monkeypatch.setenv('RQ1_ROLE_SELECTION_MAX_BATCHES', '1')
     manifest = selector.select_roles(store, run, SelectorClient())
-    assert manifest['status'] == 'completed' and manifest['max_batches'] == 2 and manifest['total_batches'] == 2
-    assert set(manifest['processed_evidence_ids']) == set(snapshot['evidence_ids'])
+    assert manifest['status'] == 'completed' and manifest['max_batches'] == 2
     selector.verify_manifest(manifest)
-    # A manifest saved before the limit was recorded is scanned under the default.
-    legacy = auto_run(corpus, max_roles=1)
-    assert legacy['role_manifest']['max_batches'] == 1
-    del legacy['role_manifest']['max_batches']
-    assert selector.select_roles(store, legacy, SelectorClient())['total_batches'] == 2
+    # A run created under an earlier, lower limit keeps it: the scan fails before any call.
+    monkeypatch.delenv('RQ1_ROLE_SELECTION_MAX_BATCHES')
+    earlier = auto_run(corpus, max_roles=1)
+    earlier['role_manifest']['max_batches'] = 1
+    client = SelectorClient()
+    with pytest.raises(ValueError, match=r'needs 2 source batches, more than the 1 this run was created with.*new run'):
+        selector.select_roles(store, earlier, client)
+    assert not client.calls
+    # A manifest that recorded no limit was scanned under the earlier default of 32.
+    del earlier['role_manifest']['max_batches']
+    assert selector.select_roles(store, earlier, SelectorClient())['total_batches'] == 2
 
 
 @pytest.mark.parametrize('value', ['0', '129', 'many', '-3', '2.5', '\u00b2'])
@@ -252,16 +275,17 @@ def test_invalid_batch_limit_is_rejected_when_an_automatic_run_is_created(corpus
     assert 'max_batches' not in manual['role_manifest']
 
 
-def test_default_batch_limit_is_unchanged(monkeypatch):
+def test_without_a_cap_a_scan_may_read_up_to_the_ceiling(monkeypatch):
     monkeypatch.delenv('RQ1_ROLE_SELECTION_MAX_BATCHES', raising=False)
-    monkeypatch.setattr(selector, 'BATCH_CHARS', 100)          # one 61-character unit per batch
-    assert selector.selection_batch_limit() == 32
-    units = [{'evidence_id': f'u{i:02d}', 'content': 'x' * 30} for i in range(33)]
-    assert len(selector.batches_for(units[:32])) == 32
-    with pytest.raises(ValueError, match=r'exceeds 32 source batches \(33 needed\)'):
+    monkeypatch.setattr(selector, 'BATCH_CHARS', 100)          # one unit per batch
+    assert selector.selection_batch_limit() is None
+    units = [{'evidence_id': f'u{i:03d}', 'content': 'x' * 30} for i in range(129)]
+    assert len(selector.batches_for(units[:128])) == 128
+    with pytest.raises(ValueError, match=r'needs 129 source batches, more than the limit of 128'):
         selector.batches_for(units)
-    monkeypatch.setenv('RQ1_ROLE_SELECTION_MAX_BATCHES', '64')
-    assert len(selector.batches_for(units)) == 33
+    monkeypatch.setenv('RQ1_ROLE_SELECTION_MAX_BATCHES', '32')
+    with pytest.raises(ValueError, match=r'needs 33 source batches, more than the limit of 32'):
+        selector.batches_for(units[:33])
 
 
 def test_mock_automatic_and_override_api_keep_original_run_and_record_actor(corpus, monkeypatch):

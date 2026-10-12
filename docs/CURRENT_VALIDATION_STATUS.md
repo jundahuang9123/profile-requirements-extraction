@@ -75,7 +75,8 @@ for citation; they do not show that a full run now completes.
   20 (StatDCAT) and from 129 to 81 (GeoDCAT).
 - **Role selection.** `RQ1_ROLE_SELECTION_MAX_BATCHES` raises the 32-batch scan limit
   for new runs. HealthDCAT-AP needs 36 batches and mobilityDCAT-AP 61 (63 before the
-  webinar deck was removed from its inputs).
+  webinar deck was removed from its inputs). Since 12 October new runs scan the whole
+  corpus without this setting (at most 128 batches); it is now an optional cap.
 - **Provenance.** The provider description saved with every call now includes the
   reasoning effort, the transport retry limits and the timeout.
 - Offline validation after these changes: 218 tests passed, the exported workflow
