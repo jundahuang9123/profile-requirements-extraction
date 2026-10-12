@@ -123,6 +123,18 @@ Live multi-agent runs also deliberate uncertain/unsupported/contradicted support
 or blocking/review findings. Clean candidates go to human review. Humans can
 request follow-up cases, bounded to two cases involving a given revision.
 
+The run setting `discussion` decides whether these cases open automatically.
+`automatic`, the API default, opens them as described above. `on_request` opens
+none: candidates that would be discussed go to human review with the same routing
+reasons, the discussion step is marked `skipped`, and a reviewer can still request
+a targeted case for a candidate. The review heuristics flag most candidates (an
+unknown obligation, type or scope, a compound statement, a vocabulary term), so
+automatic discussion usually adds several calls per candidate. Discussion runs
+after the machine output is frozen: the setting changes neither extraction,
+verification and assessment nor consolidation, only the number of model calls and
+what the reviewer finds already discussed. The run request saves the setting, and
+the run metrics and the evaluation export report it.
+
 Cases freeze exact revisions and evidence. Up to four participants, including a
 grounding/scope critic, challenge claims and retain proposals and dissent. Defaults
 are three rounds, 12 generation attempts, 4,000 output tokens initially with one
@@ -177,7 +189,7 @@ New endpoints use `/api/rq1/v2`; `/docs` exposes complete request contracts.
 | `POST /sources`, `GET /sources`, `GET /sources/{version}` | Acquire and inspect immutable sources/diagnostics |
 | `POST /snapshots` | Freeze sources, evidence and declared tasks |
 | `GET /evidence/{id}` | Inspect source resolution and selectors |
-| `POST /runs` | Return 202 and queue execution |
+| `POST /runs` | Return 202 and queue execution; `discussion` is `automatic` or `on_request` |
 | `GET /runs`, `GET /runs/{id}` | Restore run state/progress |
 | `POST /runs/{id}/cancel`, `/resume` | Cancel or resume interrupted unreviewed work |
 | `GET /runs/{id}/events`, `/export`, `/evaluation` | Audit events, saved review and metrics |

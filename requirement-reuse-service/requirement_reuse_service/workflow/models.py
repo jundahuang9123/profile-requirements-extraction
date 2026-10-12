@@ -319,6 +319,10 @@ class RunRequest(Contract):
     based_on_run_id: str | None = None
     override_rationale: str = Field(default='', max_length=2000)
     execution_mode: Literal['automatic', 'stepwise'] = 'automatic'
+    # automatic: every grounded candidate with a review finding, and every flagged pair,
+    # gets a bounded discussion after consolidation. on_request: these go straight to
+    # human review, and a reviewer can still open a targeted discussion per candidate.
+    discussion: Literal['automatic', 'on_request'] = 'automatic'
     allow_live_provider: bool = False
     name: str = 'RQ1 workflow'
 

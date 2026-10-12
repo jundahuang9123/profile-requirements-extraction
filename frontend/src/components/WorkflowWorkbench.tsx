@@ -38,6 +38,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
   const [roleSelection, setRoleSelection] = useState<string>(setup.roleSelection ?? 'automatic');
   const [maxRoles, setMaxRoles] = useState<number>(setup.maxRoles ?? 4);
   const [executionMode, setExecutionMode] = useState<string>(setup.executionMode ?? 'stepwise');
+  const [discussion, setDiscussion] = useState<string>(setup.discussion ?? 'automatic');
   const [allowLive, setAllowLive] = useState(false);
   const [selectedRevisions, setSelectedRevisions] = useState<string[]>([]);
   const [evidence, setEvidence] = useState<Evidence | null>(null);
@@ -88,7 +89,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     window.addEventListener('hashchange', change);
     return () => window.removeEventListener('hashchange', change);
   }, [run?.run_id]);
-  useEffect(() => { localStorage.setItem('rq1-workflow-setup', JSON.stringify({ selectedSources, tasks, strategy, roles, roleSelection, maxRoles, sourceRole, authority, executionMode })); }, [selectedSources, tasks, strategy, roles, roleSelection, maxRoles, sourceRole, authority, executionMode]);
+  useEffect(() => { localStorage.setItem('rq1-workflow-setup', JSON.stringify({ selectedSources, tasks, strategy, roles, roleSelection, maxRoles, sourceRole, authority, executionMode, discussion })); }, [selectedSources, tasks, strategy, roles, roleSelection, maxRoles, sourceRole, authority, executionMode, discussion]);
   useEffect(() => {
     if (page !== 'decomposition' || run) return;
     let active = true;
@@ -120,7 +121,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     const snapshot = await workflowApi<{ snapshot_id: string }>('/snapshots', {
       source_version_ids: selectedSources, user_tasks: tasks.split('\n').filter(line => line.trim()).map((statement, i) => ({ id: `CQ-${i + 1}`, statement, kind: 'competency_question' })), name: 'Workbench corpus',
     });
-    const created = await workflowApi<Run>('/runs', { snapshot_id: snapshot.snapshot_id, execution_mode: executionMode, strategy, role_ids: roles, role_selection: strategy === 'rules' ? 'manual' : roleSelection, max_roles: maxRoles, allow_live_provider: allowLive, name: 'Requirements extraction' });
+    const created = await workflowApi<Run>('/runs', { snapshot_id: snapshot.snapshot_id, execution_mode: executionMode, strategy, role_ids: roles, role_selection: strategy === 'rules' ? 'manual' : roleSelection, max_roles: maxRoles, discussion: strategy === 'multi_agent' ? discussion : 'automatic', allow_live_provider: allowLive, name: 'Requirements extraction' });
     setSelectedRevisions([]); setActiveRecord(null); await loadRun(created.run_id); await refreshLists(); navigate('role_selection', created.run_id); onStatus('Workflow saved. Results persist while you browse the steps.');
   });
   const command = async (path: string, payload: unknown) => {
@@ -175,7 +176,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     </section>}
     {page === 'role_selection' && (run ? <>
           <RoleManifestView key={`${run.run_id}-${run.role_manifest?.manifest_hash ?? 'pending'}`} run={run} busy={busy} inspect={id => void inspectEvidence(id)} override={(roleOverrides, rationale, limit, live) => act(async () => {
-            const created = await workflowApi<Run>('/runs', { snapshot_id: run.snapshot_id, execution_mode: run.request?.execution_mode ?? 'stepwise', strategy: run.strategy, role_selection: 'override', role_overrides: roleOverrides, based_on_run_id: run.run_id, override_rationale: rationale, max_roles: limit, allow_live_provider: live, name: 'Requirements extraction · edited panel' });
+            const created = await workflowApi<Run>('/runs', { snapshot_id: run.snapshot_id, execution_mode: run.request?.execution_mode ?? 'stepwise', discussion: run.request?.discussion ?? 'automatic', strategy: run.strategy, role_selection: 'override', role_overrides: roleOverrides, based_on_run_id: run.run_id, override_rationale: rationale, max_roles: limit, allow_live_provider: live, name: 'Requirements extraction · edited panel' });
             setActiveRecord(null); setSelectedRevisions([]); await loadRun(created.run_id); await refreshLists(); onStatus('New run saved with your panel override.');
           })} />
       {run.role_manifest?.status === 'not_applicable' && <section className="workflow-panel"><h2>Rules baseline</h2><p>This offline baseline does not select stakeholder agents. Continue to extract rule-based observations.</p></section>}
@@ -187,6 +188,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
         </select></label>
         {strategy !== 'rules' && <><label>Stakeholder panel<select value={roleSelection} onChange={event => setRoleSelection(event.target.value)}><option value="automatic">Select roles from sources and CQs</option><option value="manual">Use a fixed panel</option></select></label>{roleSelection === 'automatic' && <label>Maximum stakeholder roles<input type="number" min={1} max={8} value={maxRoles} onChange={event => setMaxRoles(Number(event.target.value))} /></label>}</>}
         {strategy !== 'rules' && roleSelection === 'manual' && <details><summary>{roles.length} selected perspectives</summary>{perspectives.map(role => <label key={role} className="workflow-check"><input type="checkbox" checked={roles.includes(role)} onChange={event => setRoles(previous => event.target.checked ? [...previous, role] : previous.filter(value => value !== role))} />{humanLabel(role)}</label>)}</details>}
+        {strategy === 'multi_agent' && <label>Discussion<select value={discussion} onChange={event => setDiscussion(event.target.value)}><option value="automatic">Discuss flagged candidates automatically</option><option value="on_request">Only when a reviewer asks · fewer model calls</option></select></label>}
         {strategy === 'multi_agent' && <label className="workflow-check"><input type="checkbox" checked={allowLive} onChange={event => setAllowLive(event.target.checked)} />Allow calls to the configured model provider for this run</label>}
         <p className="workflow-muted">Offline modes require human semantic and quality assessment. Agent mode sends the selected corpus to your configured provider.</p>
         <p className="workflow-muted">Upload original documents and describe your scope or tasks. Check parsing diagnostics and proposed stakeholder perspectives; you do not need to extract roles or retype PDF passages first.</p>
@@ -213,6 +215,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     </div>
     {run && page === 'deliberation' && <>
           <section className="workflow-panel"><h2>Discussion & disagreement</h2>
+            {run.request?.discussion === 'on_request' && <p className="workflow-notice">Automatic discussion is off for this run. Candidates with review findings and flagged pairs went straight to human review with their reasons. A reviewer can still request a targeted discussion for a candidate.</p>}
             {!run.conflicts.length && <p>No potential conflicts detected by the current policy.</p>}
             {run.conflicts.map(conflict => <article className="workflow-conflict" key={conflict.conflict_id}><strong>{humanLabel(conflict.kind)} · {conflict.status}</strong><p>{conflict.rationale}</p>{conflict.revision_ids.map(id => <p key={id}>{run.requirements.find(r => r.revision_id === id)?.normalized_statement}</p>)}</article>)}
             {run.deliberations.map(item => <CaseView key={item.case_id} item={item} run={run} busy={busy} inspect={id => void inspectEvidence(id)} submit={(path, payload) => act(() => command(path, payload))} />)}
