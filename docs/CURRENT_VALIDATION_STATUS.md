@@ -135,3 +135,23 @@ Still open after these changes:
   assessment and 1.1 s per discussion turn, against about 7 s per provider call.
 - While a run is active the workbench reloads all stage copies (about 20 MB on
   HealthDCAT-AP) on every refresh, although it shows only the current step's copy.
+
+## Addendum: first live trial after the fixes (12 October 2026, role selection only)
+
+mobilityDCAT-AP with KI:connect `inferenz-gpt-oss-120b`, reasoning effort low, automatic
+role selection with four roles, run `run-23e6df696aca4dbe9f5649cc4cbbf855`:
+
+- Role selection stopped seven times at the panel step, the last time in batch 17 of 60.
+  The selector was offered each retained role's absorbed candidate IDs and listed those
+  instead of the role's own ID (7 of 24 panel calls). Resume repeated the failed round:
+  four rounds passed on the second call, batch 17 failed four times. Role-selection
+  policy v7 no longer offers those IDs and allows one correction per panel call; it has
+  been checked with tests only.
+- All 54 calls finished normally (`finish_reason=stop`). With reasoning effort low,
+  reasoning used about 280 to 350 tokens per call.
+- Calls took 24 to 38 seconds on average by type (discovery 27, citation correction 24,
+  panel 38), not the 7 seconds per call of the 10 October JRC tryout. 13 of 17 discovery
+  batches needed the single citation correction; all 13 succeeded.
+- At this speed a full mobilityDCAT-AP run is long: up to 240 role-selection calls,
+  about 1,100 extraction calls and one assessment call per candidate, roughly 20 to 30
+  hours of model time, plus several turns per flagged candidate with automatic discussion.

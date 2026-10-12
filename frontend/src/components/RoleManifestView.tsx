@@ -32,7 +32,7 @@ export function RoleManifestView({ run, busy, inspect, override }: Props) {
     {selectionStatus === 'failed' && <p className="workflow-error">Role selection stopped before the panel was completed. Check the source citations and recorded attempts below.</p>}
     {run.strategy === 'mock' && <p className="workflow-notice">Offline demonstration: requirements use mock proposals. No model is called for this run.</p>}
     {manifest.mode === 'automatic' && <p>{manifest.processed_evidence_ids.length} of {run.evidence_ids.length} evidence units processed · {manifest.selection_rounds.length} of {manifest.total_batches ?? '?'} batches assembled.</p>}
-    {manifest.mode === 'automatic' && manifest.total_batches != null && <p>The scan reads the whole corpus in {manifest.total_batches} source {manifest.total_batches === 1 ? 'batch' : 'batches'}, with up to {manifest.total_batches * 3} selector calls.</p>}
+    {manifest.mode === 'automatic' && manifest.total_batches != null && <p>The scan reads the whole corpus in {manifest.total_batches} source {manifest.total_batches === 1 ? 'batch' : 'batches'}, with up to {manifest.total_batches * 4} selector calls.</p>}
     <p>Documented and inferred labels are selection judgements. Exact quotations can be checked; they do not establish stakeholder endorsement. Every extracted requirement still needs its own evidence.</p>
     {manifest.fallback_reason && <p className="workflow-notice">{manifest.fallback_reason}</p>}
     {manifest.override && <p>Human override by {manifest.override.actor}: {manifest.override.rationale}. Based on run {manifest.override.based_on_run_id}.</p>}
@@ -45,10 +45,11 @@ export function RoleManifestView({ run, busy, inspect, override }: Props) {
       {!!role.task_ids.length && <small>CQs / tasks: {role.task_ids.join(', ')}</small>}
     </article>)}</div>
     <p className="workflow-muted">Source verification, support/scope assessment and the grounding critic remain procedural responsibilities. Automatic selection changes the stakeholder perspectives.</p>
-    {!!manifest.validation_attempts?.length && <details open={selectionStatus === 'failed'}><summary>Citation checks and corrections</summary>
+    {!!manifest.validation_attempts?.length && <details open={selectionStatus === 'failed'}><summary>Citation and panel checks and corrections</summary>
       {manifest.validation_attempts.map((attempt, index) => <article key={index}>
-        <strong>Batch {attempt.batch_index + 1} · {attempt.phase === 'citation_repair' ? 'Citation correction' : 'Initial proposals'} · {attempt.status}</strong>
+        <strong>Batch {attempt.batch_index + 1} · {attempt.phase === 'citation_repair' ? 'Citation correction' : attempt.phase === 'panel_correction' ? 'Panel correction' : 'Initial proposals'} · {attempt.status}</strong>
         {attempt.error && <p className="workflow-error">{attempt.error}</p>}
+        {(attempt.remaining_problems?.length ? attempt.remaining_problems : attempt.problems)?.map((problem, i) => <p key={i}>{problem}</p>)}
         {attempt.validation_report?.filter(candidate => candidate.status === 'invalid').map(candidate => <div key={candidate.candidate_index}>
           <p>{candidate.label}</p>{candidate.errors.map((error, i) => <p key={i}>{error.message} {error.evidence_id && run.evidence_ids.includes(error.evidence_id) && <button onClick={() => inspect(error.evidence_id!)}>Inspect cited passage</button>}</p>)}
         </div>)}

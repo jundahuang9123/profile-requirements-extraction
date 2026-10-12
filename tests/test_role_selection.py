@@ -571,3 +571,76 @@ def test_unresolved_span_selection_stays_failed_without_generic_fallback(corpus)
     assert attempt['source_spans']
     assert attempt['validation_report'][0]['errors'][0]['message'] == 'No excerpt supports this stakeholder.'
     assert not saved['role_runs']
+
+
+class PanelClient(SelectorClient):
+    """Scripted panel answers per call: 'valid' accounts for every offered candidate,
+    'missing' leaves the newest candidate out."""
+
+    def __init__(self, panel_script):
+        super().__init__()
+        self.panel_script = list(panel_script)
+
+    def generate_structured(self, *, system, user, output_model, max_tokens=None, schema_repair_attempts=0):
+        if output_model.__name__ != 'RolePanel':
+            return super().generate_structured(system=system, user=user, output_model=output_model, max_tokens=max_tokens)
+        data = json.loads(user)
+        self.calls.append(('RolePanel', data))
+        ids = [c['candidate_id'] for c in data['candidates']]
+        members = ids[:-1] if self.panel_script and self.panel_script.pop(0) == 'missing' and len(ids) > 1 else ids
+        return output_model.model_validate({'groups': [{'representative_id': members[0], 'member_ids': members,
+                                                        'rationale': 'Shared operational perspective.'}], 'omitted': []})
+
+
+def panel_calls(client):
+    return [data for name, data in client.calls if name == 'RolePanel']
+
+
+def test_the_panel_selector_sees_each_candidate_under_one_id(corpus, monkeypatch):
+    store, _, _ = corpus
+    two_batch_corpus(corpus, monkeypatch)
+    run = auto_run(corpus, max_roles=1)
+    client = PanelClient([])
+    manifest = selector.select_roles(store, run, client)
+    first, second = panel_calls(client)
+    # The retained role is offered under its role ID only; the candidates it absorbed are not offered.
+    assert all('candidate_ids' not in candidate for call in (first, second) for candidate in call['candidates'])
+    role = manifest['selected_roles'][0]
+    assert second['candidates'][0]['candidate_id'] == role['role_id']
+    # The program still records the full lineage: the first batch's candidate and the second's.
+    assert role['candidate_ids'] == [first['candidates'][0]['candidate_id'], second['candidates'][1]['candidate_id']]
+    assert manifest['status'] == 'completed'
+
+
+def test_an_invalid_panel_answer_gets_one_correction_that_names_the_problem(corpus, monkeypatch):
+    store, _, _ = corpus
+    two_batch_corpus(corpus, monkeypatch)
+    run = auto_run(corpus, max_roles=1)
+    client = PanelClient(['valid', 'missing', 'valid'])
+    manifest = selector.select_roles(store, run, client)
+    assert manifest['status'] == 'completed'
+    _, rejected, correction = panel_calls(client)
+    newest = rejected['candidates'][-1]['candidate_id']
+    assert correction['problems'] == [f'Not accounted for: {newest}.']
+    assert correction['previous_answer']['groups'][0]['member_ids'] == [rejected['candidates'][0]['candidate_id']]
+    [attempt] = [a for a in manifest['validation_attempts'] if a['phase'] == 'panel_correction']
+    assert attempt['status'] == 'valid' and attempt['batch_index'] == 1 and attempt['problems'] == correction['problems']
+
+
+def test_a_panel_still_invalid_after_its_correction_stops_and_resume_retries_the_round(corpus, monkeypatch):
+    store, _, _ = corpus
+    two_batch_corpus(corpus, monkeypatch)
+    run = auto_run(corpus, max_roles=1)
+    client = PanelClient(['valid', 'missing', 'missing'])
+    with pytest.raises(ValueError, match=r'exactly once within the role limit: Not accounted for: role-candidate-'):
+        selector.select_roles(store, run, client)
+    assert len(panel_calls(client)) == 3                 # one correction, never more
+    saved = store.get('run', run['run_id'])
+    [attempt] = [a for a in saved['role_manifest']['validation_attempts'] if a['phase'] == 'panel_correction']
+    assert attempt['status'] == 'invalid' and attempt['remaining_problems']
+    # Unlike a citation repair, a failed panel correction may be retried: resume repeats only that round.
+    selector.ensure_selection_resumable(saved['role_manifest'])
+    retry = PanelClient(['valid'])
+    manifest = selector.select_roles(store, saved, retry)
+    assert manifest['status'] == 'completed' and len(panel_calls(retry)) == 1
+    assert [name for name, _ in retry.calls if name == 'RoleCandidates'] == []      # discovery is reused

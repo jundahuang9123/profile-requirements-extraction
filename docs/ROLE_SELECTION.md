@@ -85,13 +85,13 @@ reserves a slot for the grounding/scope critic even when many roles contributed.
 
 ## Bounded selection and restart
 
-The versioned policy is `rq1-stakeholder-selection-v6`:
+The versioned policy is `rq1-stakeholder-selection-v7`:
 
 1. Read all snapshot evidence in deterministic source/selector order. Discovery batches
    have at most 40,000 serialized characters. A new automatic run scans its whole
    corpus: when the run is created, it counts the batches its snapshot needs, saves that
    number as `max_batches` (shown on the role-selection step) and keeps it on resume.
-   Each batch costs up to three selector calls; of the benchmark corpora, HealthDCAT-AP
+   Each batch costs up to four selector calls; of the benchmark corpora, HealthDCAT-AP
    needs 36 batches and mobilityDCAT-AP 61. One scan reads at most 128 batches. An
    oversized unit or corpus is refused when the run is created, before any model call;
    it is never silently truncated. `RQ1_ROLE_SELECTION_MAX_BATCHES` (1–128) is an
@@ -106,14 +106,22 @@ The versioned policy is `rq1-stakeholder-selection-v6`:
    can choose existing IDs and group equivalent perspectives; it cannot invent new
    evidence or rewrite their remits. Every input candidate must appear exactly once
    in a group or an explicit omission. The representative's description and basis are
-   preserved unchanged; grouping lineage is retained.
+   preserved unchanged; grouping lineage is retained by the program and not offered to
+   the reducer, which sees each candidate under one ID. From v7, an answer that does not
+   account for every candidate exactly once gets one correction call that names the
+   problems (missing, unknown or repeated IDs, too many groups, a representative outside
+   its group); a correction that is still invalid stops the scan. In v6 the reducer was
+   also offered each retained role's lineage, and in a mobilityDCAT-AP trial with
+   KI:connect it listed those absorbed IDs instead of the role's own ID in 7 of 24 calls.
 4. Save each discovery batch before consolidation, and save each resulting panel.
    Resume skips completed work. A failed reducer can reuse that batch's discovery.
    Completed panels are hash-bound and stored as immutable artifacts. Incomplete
    manifests from an older selection policy require a new run; completed historical
-   manifests remain readable. The correction attempt is recorded before calling the
-   provider, so an interrupted or unsuccessful correction cannot be silently repeated
-   by Resume. Inspect the saved validation report and create a new run instead.
+   manifests remain readable. The citation correction attempt is recorded before calling
+   the provider, so an interrupted or unsuccessful citation correction cannot be silently
+   repeated by Resume. Inspect the saved validation report and create a new run instead.
+   A panel correction is recorded the same way, but it only regroups candidates whose
+   citations were already validated, so Resume may repeat a failed round.
 5. If a successful full scan yields no candidates, use explicitly **proposed** generic
    perspectives with a recorded fallback reason. Provider/validation failures never
    trigger that fallback and never proceed with a partial panel.
@@ -122,9 +130,9 @@ This is incremental consolidation: previously omitted candidates remain in the a
 but are not all reconsidered in a final global optimization. Selection may depend on
 source order. The manifest records coverage, candidate lineage, provider identity per
 batch/round and omissions. Per-call outputs, hashes and timings are in the run audit.
-There are at most three logical selector calls per batch (discovery, optional citation
-correction, consolidation; 96 for a single uninterrupted pass at the default limit of
-32 batches, and three times the limit otherwise). An
+There are at most four logical selector calls per batch (discovery, optional citation
+correction, consolidation, optional panel correction), so four times the number of
+batches in a single uninterrupted pass. An
 explicit retry of failed discovery/consolidation can add calls; citation correction
 remains limited to one attempt per batch across resumes. Provider-level retries may
 also add HTTP requests. Discovery reserves at most 8,000 output tokens; correction
