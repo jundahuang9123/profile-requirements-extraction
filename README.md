@@ -53,7 +53,9 @@ No model credentials are needed for either strategy.
 
 Live independent elicitation and deliberation use the existing provider client
 and role configuration. Copy `.env.example` to `.env`, configure a provider and
-model locally, then explicitly opt in to live calls in the new workbench. V2
+model locally, then explicitly opt in to live calls in the new workbench. For
+test and benchmark runs, choose **Discussion: only when a reviewer asks** to skip
+the automatic discussion step and its model calls. V2
 rejects an unavailable provider instead of silently falling back. A ChatGPT/Codex
 subscription does not supply a model endpoint to this application. Development
 and tests for this implementation made no paid model requests. A small synthetic,

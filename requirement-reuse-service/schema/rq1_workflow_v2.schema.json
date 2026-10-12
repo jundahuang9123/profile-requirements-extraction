@@ -1267,6 +1267,15 @@
           "default": null,
           "title": "Based On Run Id"
         },
+        "discussion": {
+          "default": "automatic",
+          "enum": [
+            "automatic",
+            "on_request"
+          ],
+          "title": "Discussion",
+          "type": "string"
+        },
         "execution_mode": {
           "default": "automatic",
           "enum": [

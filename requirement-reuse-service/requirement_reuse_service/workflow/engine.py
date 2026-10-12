@@ -635,7 +635,11 @@ def consolidate(store: Store, run: dict, records: list[RequirementRecord], clien
     return active, events, conflicts
 
 
-def route_cases(run: dict, records: list[RequirementRecord], conflicts: list[dict]) -> tuple[list[dict], list[dict]]:
+def route_cases(run: dict, records: list[RequirementRecord], conflicts: list[dict],
+                discussion: str = 'automatic') -> tuple[list[dict], list[dict]]:
+    """Route each active candidate. With discussion 'on_request' no case is opened:
+    candidates that would be discussed go to human review with the same reasons."""
+    automatic = discussion == 'automatic'
     cases = []
     routing = []
     def unavailable(record):
@@ -645,7 +649,8 @@ def route_cases(run: dict, records: list[RequirementRecord], conflicts: list[dic
     for conflict in conflicts:
         members = [r for r in records if r.revision_id in conflict['revision_ids']]
         if members and all(r.verification['status'] == 'pass' and not unavailable(r) for r in members):
-            cases.append(make_case(run, members, [conflict['kind']]))
+            if automatic:
+                cases.append(make_case(run, members, [conflict['kind']]))
             conflicted.update(r.revision_id for r in members)
     for record in records:
         triggers = []
@@ -656,12 +661,13 @@ def route_cases(run: dict, records: list[RequirementRecord], conflicts: list[dic
             routing.append({'revision_id': record.revision_id, 'route': 'human_review', 'reasons': ['assessment_unavailable']})
             continue
         if record.revision_id in conflicted:
-            routing.append({'revision_id': record.revision_id, 'route': 'deliberation', 'reasons': ['conflict']})
+            routing.append({'revision_id': record.revision_id, 'route': 'deliberation' if automatic else 'human_review',
+                            'reasons': ['conflict']})
             continue
         if record.qualification.support in {'uncertain', 'unsupported', 'contradicted'}:
             triggers.append('semantic_support_' + record.qualification.support)
         triggers.extend(f.criterion for f in record.qualification.findings if f.severity in {'blocking', 'review'})
-        if triggers and run['strategy'] == 'multi_agent':
+        if triggers and run['strategy'] == 'multi_agent' and automatic:
             cases.append(make_case(run, [record], sorted(set(triggers))))
             route = 'deliberation'
         else:
@@ -685,11 +691,11 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
     """Checkpoint each stage; provider failures retain completed independent artifacts."""
     worker_id = uuid.uuid4().hex
     active_stage = 'role_selection'
-    def patch(stage: str, updates: dict):
+    def patch(stage: str, updates: dict, stage_status: str = 'completed'):
         def apply(run):
             if run['status'] == 'cancelled':
                 raise ConflictError('Run cancelled.')
-            run['stages'][stage] = 'completed'
+            run['stages'][stage] = stage_status
             run.update(updates)
             run.setdefault('stage_results', {})[stage] = {key: deepcopy(run.get(key)) for key in STAGE_RESULT_FIELDS[stage]}
             run['job_lease_until'] = time.time() + 900
@@ -793,14 +799,16 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
         active = [RequirementRecord.model_validate(r) for r in run['requirements'] if r['revision_id'] in run['active_revision_ids']]
         conflicts = run['conflicts']
         active_stage = 'deliberation'
-        cases, routing = route_cases(run, active, conflicts)
+        cases, routing = route_cases(run, active, conflicts, request.discussion)
         failed_roles = sum(report['status'] == 'failed' for report in reports)
         run = patch('deliberation', {'deliberations': cases, 'status': 'awaiting_human',
             'diagnostics': [f'{failed_roles} extraction role(s) failed; partial panel retained.'] if failed_roles else [],
             'metrics': {'evidence_count': len(run['evidence_ids']), 'raw_observation_count': len(observations),
                         'normalized_count': len(records), 'active_count': len(active),
                         'failed_role_count': failed_roles, 'conflict_count': len(conflicts), 'routing': routing,
-                        'deliberation_selected': len(cases), 'accepted_count': 0}})
+                        'discussion_mode': request.discussion,
+                        'deliberation_selected': len(cases), 'accepted_count': 0}},
+            stage_status='skipped' if request.discussion == 'on_request' else 'completed')
         if cases:
             store.mutate(run_id, None, 'deliberation_routed', lambda r: r['stages'].update(deliberation='running'))
         if client:
