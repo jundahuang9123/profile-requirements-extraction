@@ -225,7 +225,8 @@ def representative(members):
 
 
 def semantic_consolidate(store, run, records, client=None, previous=None):
-    from .engine import qualify_record, record_from_observation, reusable_qualification, verify, assess, lexical_relation
+    from .engine import (qualify_record, record_from_observation, reusable_qualification, verify, assess, lexical_relation,
+                         inherit_base_checks, retain_base_findings)
     saved = store.get_run(run['run_id'], omit=('model_calls','catalogues','machine_snapshot','assessment_reuse'))['consolidation_chunks']
     policy = run.get('consolidation_policy_version') or LEGACY_SEMANTIC_POLICY
     blocks = {}
@@ -268,6 +269,7 @@ def semantic_consolidate(store, run, records, client=None, previous=None):
                         rationale=rep.rationale, assumptions=rep.assumptions, support_level=rep.support_level,
                         supports_user_tasks=sorted({t for r in parents for t in r.supports_user_tasks}))
                     result = record_from_observation(run['run_id'], observation,parents=[r.revision_id for r in parents])
+                    inherit_base_checks(result, parents)
                     result.observation_ids = list(dict.fromkeys(o for r in parents for o in r.observation_ids))
                     result.contributing_roles = sorted({role for r in parents for role in r.contributing_roles})
                     if not passing:
@@ -286,6 +288,7 @@ def semantic_consolidate(store, run, records, client=None, previous=None):
                             result.qualification = qualification
                             result.lifecycle_state = 'awaiting_human' if result.verification['status']=='pass' else 'blocked_evidence'
                         else: qualify_record(store,result,run['evidence_ids'],client,cache)
+                    retain_base_findings(result)
                     result.group_id = group_id
                     # Preserve completed merged assessments before a later grouping transport failure.
                     def checkpoint(r):

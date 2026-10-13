@@ -1047,6 +1047,25 @@
           "title": "Assumptions",
           "type": "array"
         },
+        "base_check": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Check"
+        },
+        "base_check_findings": {
+          "items": {
+            "$ref": "#/$defs/Finding"
+          },
+          "title": "Base Check Findings",
+          "type": "array"
+        },
         "conflict_ids": {
           "items": {
             "type": "string"
@@ -1555,13 +1574,29 @@
     "SetAside": {
       "additionalProperties": false,
       "properties": {
+        "base_check": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Check"
+        },
         "observation_id": {
           "title": "Observation Id",
           "type": "string"
         },
         "reason": {
-          "const": "no_source_link",
           "default": "no_source_link",
+          "enum": [
+            "no_source_link",
+            "inherited_from_base",
+            "declared_not_extension"
+          ],
           "title": "Reason",
           "type": "string"
         },
@@ -1905,6 +1940,25 @@
           },
           "title": "Attempt History",
           "type": "array"
+        },
+        "base_check_audit": {
+          "items": {
+            "type": "object"
+          },
+          "title": "Base Check Audit",
+          "type": "array"
+        },
+        "base_check_policy_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Check Policy Version"
         },
         "base_profile_id": {
           "anyOf": [

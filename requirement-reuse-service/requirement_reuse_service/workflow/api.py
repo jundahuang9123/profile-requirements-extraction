@@ -11,7 +11,8 @@ from pydantic import BaseModel
 
 from .engine import (HUMAN_REQUEST_PREFIX, UNFINISHED_CASE_STATES, active_records, configured_client, decide,
                      execute_case, execute_run, freeze_snapshot, is_human_request, lexical_relation, make_case, new_run,
-                     publish_baseline, ensure_elicitation_resumable, qualify_record, record_from_observation, verify, derive_run)
+                     publish_baseline, ensure_elicitation_resumable, qualify_record, record_from_observation, verify, derive_run,
+                     apply_base_check, retain_base_findings)
 from .evidence import register_source, resolve_evidence
 from .models import (AdditionRequest, AssessmentRequest, BaselineRequest, DecisionRequest, EvidenceUnit,
                      MessageRequest, Observation, RunRequest, DeriveRequest, SnapshotRequest, SourceRequest)
@@ -116,7 +117,7 @@ def downloadable(value, enabled: bool, filename: str):
 
 
 # Audit parts the workbench does not display; the export always includes them.
-AUDIT_PARTS = ('model_calls', 'machine_snapshot', 'catalogues', 'assessment_reuse', 'consolidation_chunks')
+AUDIT_PARTS = ('model_calls', 'machine_snapshot', 'catalogues', 'assessment_reuse', 'consolidation_chunks', 'base_check_audit')
 
 
 @router.post('/sources')
@@ -342,6 +343,9 @@ def assess_revision(run_id: str, request: AssessmentRequest):
         if report['status'] != 'pass':
             raise ValueError('Source verification failed; repair evidence before semantic assessment.')
         q = request.qualification.model_copy(update={'assessor': actor()})
+        record.qualification = q
+        retain_base_findings(record)
+        q = record.qualification
         target = next(r for r in run['requirements'] if r['revision_id'] == request.revision_id)
         run.setdefault('assessment_history', []).append({'revision_id': request.revision_id, 'previous': target['qualification'],
                                                        'assessment': q.model_dump(mode='json'), 'created_at': now()})
@@ -368,6 +372,7 @@ def add_requirement(run_id: str, request: AdditionRequest):
             statement=draft.statement, requirement_type=draft.requirement_type, intent=draft.intent,
             evidence_links=draft.evidence_links, scope=draft.scope, rationale=draft.rationale)
         record = record_from_observation(run_id, observation)
+        apply_base_check(store, run, record)
         qualify_record(store, record, run['evidence_ids'])
         for other in active_records(run, run['active_revision_ids']):
             relation = lexical_relation(record, other)

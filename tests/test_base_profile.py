@@ -1,0 +1,252 @@
+"""Offline base-profile classification; no references or model calls are used."""
+from copy import deepcopy
+import hashlib
+import json
+from pathlib import Path
+import sys
+
+import pytest
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'requirement-reuse-service'))
+
+from requirement_reuse_service.workflow import base_profile
+from requirement_reuse_service.workflow.base_profile import check_record, constraint_signals, load_profile
+
+
+@pytest.fixture
+def profile():
+    def prop(obligation='recommended', **changes):
+        return {'obligation': obligation, 'max': None, 'range': None,
+                'vocabulary': None, 'labels': [], **changes}
+    return {'id': 'dcat-ap-2.0.1', 'source': {'repo': 'SEMICeu/DCAT-AP', 'commit': 'pinned', 'files': {}},
+            'classes': {
+                'dcat:Dataset': {'dct:title': prop('mandatory'), 'dct:description': prop('mandatory'),
+                                 'dct:publisher': prop(range='foaf:Agent', labels=['publisher']), 'dcat:contactPoint': prop(),
+                                 'dcat:theme': prop(), 'dcat:distribution': prop(),
+                                 'dct:spatial': prop(), 'adms:versionNotes': prop('optional'),
+                                 'owl:versionInfo': prop('optional')},
+                'dcat:DataService': {'dct:title': prop('mandatory'), 'dct:description': prop('optional'),
+                                     'dcat:endpointURL': prop('mandatory'), 'dcat:endpointDescription': prop(),
+                                     'dcat:keyword': prop('recommended')},
+                'dcat:Distribution': {'dcat:accessURL': prop('mandatory'), 'dcat:downloadURL': prop(),
+                                      'dct:description': prop('optional'), 'adms:status': prop('optional'),
+                                      'dct:format': prop('optional')},
+                'dcat:CatalogRecord': {'dct:modified': prop('mandatory'), 'adms:status': prop('optional')},
+                'foaf:Agent': {'foaf:name': prop('mandatory')},
+                'dcat:Catalog': {}, 'skos:Concept': {},
+            }}
+
+
+def record(statement, *, resource='Dataset', metadata='', obligation='unknown', scope='Unspecified', **changes):
+    return {'raw_statement': statement, 'normalized_intent': {'resource_type': resource,
+        'metadata_need': metadata, 'obligation_hint': obligation}, 'scope': scope,
+        'evidence_links': [{'evidence_id': 'outside', 'quote': 'Supporting excerpt.', 'relation': 'supports'}],
+        **changes}
+
+
+def checked(row, profile, **kwargs):
+    return check_record(row, profile, evidence_by_id={
+        'base': {'source_version_id': 'base-spec'},
+        'outside': {'source_version_id': 'inspire'},
+    }, base_source_version_ids={'base-spec'}, **kwargs)
+
+
+def test_loader_records_actual_bytes_hash_and_rejects_paths(tmp_path, monkeypatch, profile):
+    monkeypatch.setattr(base_profile, 'PROFILE_DIRECTORY', tmp_path)
+    raw = json.dumps(profile, indent=2).encode()
+    (tmp_path / 'dcat-ap-2.0.1.json').write_bytes(raw)
+    registry, digest = load_profile('dcat-ap-2.0.1')
+    assert registry == profile and digest == hashlib.sha256(raw).hexdigest()
+    with pytest.raises(ValueError, match='Invalid base profile'):
+        load_profile('../dcat-ap-2.0.1')
+    changed = dict(profile, id='dcat-ap-2.1.1')
+    (tmp_path / 'dcat-ap-2.0.1.json').write_text(json.dumps(changed))
+    with pytest.raises(ValueError, match='invalid id'):
+        load_profile('dcat-ap-2.0.1')
+
+
+@pytest.mark.parametrize('statement,obligation', [
+    ('Datasets should include a dct:publisher.', 'recommended'),
+    ('A consumer must be able to process the Dataset title.', 'mandatory'),
+    ('A system must be able to retrieve dct:publisher.', 'mandatory'),
+    ('A system shall be able to interpret dct:publisher.', 'mandatory'),
+])
+def test_inherited_and_system_abilities(profile, statement, obligation):
+    result, findings = checked(record(statement, obligation=obligation), profile)
+    assert result['relation'] == 'inherited' and not findings
+
+
+def test_base_specification_cannot_self_tighten(profile):
+    row = record('Datasets must include dct:publisher.', obligation='mandatory',
+                 evidence_links=[{'evidence_id': 'base', 'relation': 'supports'}])
+    result, findings = checked(row, profile)
+    assert result['relation'] == 'inherited' and not findings
+    assert 'stricter label not supported outside the base specification' in result['notes']
+
+
+@pytest.mark.parametrize('relation', ['contextualizes', 'contradicts'])
+def test_nonbase_context_and_contradiction_do_not_support_tightening(profile, relation):
+    row = record('Datasets must include dct:publisher.', obligation='mandatory', evidence_links=[
+        {'evidence_id': 'base', 'relation': 'supports'},
+        {'evidence_id': 'outside', 'relation': relation}])
+    result, _ = checked(row, profile)
+    assert result['relation'] == 'inherited'
+
+
+def test_missing_evidence_is_not_outside_base_support(profile):
+    result, _ = checked(record('Datasets must include dct:publisher.', obligation='mandatory',
+        evidence_links=[{'evidence_id': 'not-found', 'relation': 'supports'}]), profile)
+    assert result['relation'] == 'inherited'
+
+
+def test_unclassified_base_sources_keep_a_stronger_claim_for_review(profile):
+    row = record('Datasets must include dct:publisher.', obligation='mandatory')
+    result, findings = check_record(row, profile,
+        evidence_by_id={'outside': {'source_version_id':'domain-source'}})
+    assert result['relation'] == 'inherited' and result['requires_review']
+    assert findings[0]['criterion'] == 'unresolved_base_source_classification'
+    assert findings[0]['severity'] == 'review'
+
+
+def test_tightening_with_nonbase_support(profile):
+    result, findings = checked(record('A mandatory contact point must include e-mail.',
+        metadata='contact point', obligation='mandatory'), profile)
+    assert result['relation'] == 'tightened' and result['property'] == 'dcat:contactPoint' and not findings
+
+
+def test_constrained_vocabulary_with_equal_or_unknown_obligation(profile):
+    row = record('Service metadata must include at least one keyword from the Regulation 1205/2008 vocabulary.',
+                 resource='DataService', metadata='keyword')
+    result, _ = checked(row, profile)
+    assert result['relation'] == 'constrained' and result['property'] == 'dcat:keyword'
+    assert any(signal.startswith('controlled_vocabulary:') for signal in result['constraint_signals'])
+
+
+def test_spatial_quality_is_new_without_a_base_property(profile):
+    result, _ = checked(record('Metadata shall contain information on the quality and validity of spatial data sets.',
+        metadata='quality and validity of spatial data sets'), profile)
+    assert result['relation'] == 'new' and result['property'] is None
+
+
+def test_relaxing_base_obligation_is_blocking(profile):
+    result, findings = checked(record('CatalogRecord should include dct:modified.',
+        resource='CatalogRecord', obligation='recommended'), profile)
+    assert result['relation'] == 'loosened' and result['base_obligation'] == 'mandatory'
+    assert findings[0]['criterion'] == 'conflicts_with_base' and findings[0]['severity'] == 'blocking'
+
+
+def test_unknown_class_is_kept_for_review(profile):
+    result, findings = checked(record('Record must contain a title.', resource='Unknown'), profile)
+    assert result['relation'] == 'unresolved_class' and result['class'] is None
+    assert findings[0]['severity'] == 'review'
+
+
+def test_explicit_property_precedes_text_and_lexicon(profile):
+    result, _ = checked(record('Publish dct:title and contact point.', metadata='contact point',
+        base_property='dcat:Dataset/dct:publisher'), profile)
+    assert result['property'] == 'dct:publisher' and result['resolved_via'] == 'base_property'
+
+
+def test_explicit_property_not_in_candidate_class_is_new(profile):
+    result, _ = checked(record('Publish a publisher.', resource='Distribution',
+        base_property='dcat:Dataset/dct:publisher'), profile)
+    assert result['relation'] == 'new' and result['property'] == 'dct:publisher'
+    assert result['notes']
+
+
+def test_prefix_alias_and_case_precede_metadata_lexicon(profile):
+    result, _ = checked(record('Publish DCTERMS:title.', metadata='publisher'), profile)
+    assert result['property'] == 'dct:title' and result['resolved_via'] == 'statement_curie'
+
+
+@pytest.mark.parametrize('resource,metadata,expected', [
+    ('DataService', 'endpoint description', 'dcat:endpointDescription'),
+    ('Distribution', 'access URL', 'dcat:accessURL'),
+    ('Distribution', 'download URL', 'dcat:downloadURL'),
+    ('Dataset', 'version notes', 'adms:versionNotes'),
+    ('Dataset', 'geographic extent', 'dct:spatial'),
+    ('Agent', 'name', 'foaf:name'),
+])
+def test_longest_synonym_and_class_lexicon(profile, resource, metadata, expected):
+    result, _ = checked(record('Description is published.', resource=resource, metadata=metadata), profile)
+    assert result['property'] == expected and result['resolved_via'] == 'metadata_need_lexicon'
+
+
+def test_category_is_not_a_theme_synonym(profile):
+    result, _ = checked(record('Publish licence or contract category.', metadata='category'), profile)
+    assert result['relation'] == 'new' and result['property'] is None
+
+
+def test_domain_acronyms_are_case_sensitive(profile):
+    innocent, _ = checked(record('A dataset publishes its title.', metadata='title'), profile)
+    assert innocent['relation'] == 'inherited' and not innocent['constraint_signals']
+    acronym, _ = checked(record('An ITS dataset publishes a title.', metadata='title'), profile)
+    assert acronym['relation'] == 'constrained' and 'domain_acronym: ITS' in acronym['constraint_signals']
+
+
+@pytest.mark.parametrize('statement,scope,kind', [
+    ('Title is published exactly one time.', 'Unspecified', 'cardinality:'),
+    ('Title is required if access is restricted.', 'Unspecified', 'condition:'),
+    ('Title is published.', 'transport discovery', 'domain_scope:'),
+    ('Title is published for traffic metadata.', 'Dataset', 'domain_term:'),
+])
+def test_constraint_signals_are_inspectable(profile, statement, scope, kind):
+    result, _ = checked(record(statement, scope=scope), profile)
+    assert result['relation'] == 'constrained' and any(s.startswith(kind) for s in result['constraint_signals'])
+
+
+def test_v3_declared_constraint_is_not_proof_and_hidden_scope_still_counts(profile):
+    declared, findings = checked(record('Dataset title is published.', metadata='title',
+        extension_kind='value_constraint', base_property='dcat:Dataset/dct:title'), profile)
+    assert declared['relation'] == 'inherited' and declared['requires_review']
+    assert findings[0]['criterion'] == 'unconfirmed_extension_constraint'
+    constrained, _ = checked(record('Dataset title is published for ITS discovery.', metadata='title',
+        extension_kind='not_an_extension', base_property='dcat:Dataset/dct:title'), profile)
+    assert constrained['relation'] == 'constrained'
+
+
+def test_unknown_statement_property_precedes_base_label(profile):
+    result, _ = checked(record('Title records ex:servicePurpose.', metadata='title'), profile)
+    assert result['relation'] == 'new' and result['property'] == 'ex:servicePurpose'
+    assert result['resolved_via'] == 'statement_curie'
+
+
+def test_range_curie_does_not_hide_a_known_property_label(profile):
+    result, _ = checked(record('Publisher is a foaf:Agent.', metadata='publisher'), profile)
+    assert result['property'] == 'dct:publisher' and result['relation'] == 'inherited'
+
+
+def test_named_regulation_after_from_is_a_value_constraint(profile):
+    result, _ = checked(record('Service metadata must include at least one keyword from Regulation 1205/2008.',
+        resource='DataService', metadata='keyword'), profile)
+    assert result['relation'] == 'constrained'
+    assert 'controlled_vocabulary: from Regulation 1205/2008' in result['constraint_signals']
+
+
+def test_unconfirmed_explicit_mapping_requires_review(profile):
+    result, findings = checked(record('The quality of spatial datasets is recorded.',
+        base_property='dcat:Dataset/dct:title'), profile)
+    assert result['relation'] == 'inherited' and result['requires_review']
+    assert findings[0]['criterion'] == 'unconfirmed_base_property'
+
+
+def test_saved_extraction_names_use_exact_casefolded_basenames(profile):
+    row = record('Dataset must include dct:publisher.', obligation='mandatory',
+        evidence_links=[{'evidence_id': 'base', 'relation': 'supports'}])
+    evidence = {'base': {'source_version_id': 'old-source'}}
+    base_names = ['mobilitydcat/input-raw/dcat-ap-2.0.0.pdf']
+    result, _ = check_record(row, profile, evidence_by_id=evidence,
+        source_name_by_version={'old-source': 'DCAT-AP-2.0.0.PDF'}, base_source_names=base_names)
+    assert result['relation'] == 'inherited'
+    nonbase, _ = check_record(row, profile, evidence_by_id=evidence,
+        source_name_by_version={'old-source': 'inspire-metadata.pdf'}, base_source_names=base_names)
+    assert nonbase['relation'] == 'tightened'
+    unknown, _ = check_record(row, profile, evidence_by_id=evidence, base_source_names=base_names)
+    assert unknown['relation'] == 'inherited'
+
+
+def test_check_is_read_only(profile):
+    row = record('Title is published for mobility data.', metadata='title')
+    before = deepcopy((row, profile))
+    check_record(row, profile)
+    assert (row, profile) == before

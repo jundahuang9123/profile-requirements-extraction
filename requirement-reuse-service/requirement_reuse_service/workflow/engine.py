@@ -17,9 +17,10 @@ from .citations import elicitation_batch, materialize_observation
 from .models import (BaselineRequest, CorpusSnapshot, DecisionRequest, DeliberationCase, DeriveRequest,
                      SpanElicitationResult, ELICITATION_POLICY_VERSION, NORMALIZATION_POLICY_VERSION, EvidenceLink, EvidenceUnit, Finding, Observation,
                      NormalizedIntent, Qualification, RequirementRecord, RunRequest, SnapshotRequest, WorkflowRun)
-from .storage import ConflictError, Store, canonical, digest, now, uid
+from .storage import ConflictError, RUN_PARTS, Store, canonical, digest, now, uid
 from .role_selection import initial_manifest, panel_roles, select_roles
 from .semantic_consolidation import EXACT_POLICY, SEMANTIC_POLICY, SEMANTIC_POLICIES
+from .base_profile import BASE_CHECK_POLICY_VERSION, check_record, load_profile
 
 PROMPT_VERSION = ELICITATION_POLICY_VERSION
 QUALIFICATION_VERSION = 'rq1-support-quality-v2.2'
@@ -75,7 +76,7 @@ class DiscussionBudgetStop(RuntimeError):
 STAGE_RESULT_FIELDS = {
     'acquisition': ['snapshot_id'], 'decomposition': ['evidence_ids'],
     'role_selection': ['role_manifest'], 'elicitation': ['observations', 'role_runs'],
-    'normalization': ['requirements', 'set_aside_observations', 'normalization_policy_version'], 'verification': ['requirements'],
+    'normalization': ['requirements', 'set_aside_observations', 'normalization_policy_version', 'base_check_audit', 'base_check_policy_version'], 'verification': ['requirements'],
     'consolidation': ['requirements', 'active_revision_ids', 'consolidation_events', 'conflicts', 'consolidation_policy_version'],
     'deliberation': ['deliberations'], 'adjudication': ['requirements', 'decisions', 'assessment_history'],
     'baseline': ['baselines'],
@@ -232,6 +233,7 @@ def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') ->
                       strategy=request.strategy, request=request, evidence_ids=snapshot['evidence_ids'], created_at=now(),
                       role_manifest=role_manifest,
                       **base_metadata,
+                      base_check_policy_version=BASE_CHECK_POLICY_VERSION if base_metadata and request.base_check else None,
                       normalization_policy_version=NORMALIZATION_POLICY_VERSION,
                       consolidation_policy_version=SEMANTIC_POLICY if request.consolidation == 'semantic' else EXACT_POLICY,
                       implementation_hash=digest({path.name: digest(path.read_bytes()) for path in Path(__file__).parent.glob('*.py')}))
@@ -239,7 +241,8 @@ def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') ->
     run.stages['decomposition'] = 'completed'
     if base_metadata:
         for stage in ('acquisition', 'decomposition'):
-            run.stage_results[stage] = {**{key: getattr(run, key) for key in STAGE_RESULT_FIELDS[stage]}, **base_metadata}
+            run.stage_results[stage] = {**{key: getattr(run, key) for key in STAGE_RESULT_FIELDS[stage]}, **base_metadata,
+                                       'base_check_policy_version': run.base_check_policy_version}
     store.put('run', run.run_id, run.model_dump(mode='json'))
     return run.model_dump(mode='json')
 
@@ -271,6 +274,7 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
         elicitation_policy_version=source.get('elicitation_policy_version', 'legacy-unknown'),
         normalization_policy_version=NORMALIZATION_POLICY_VERSION,
         **base_metadata,
+        base_check_policy_version=BASE_CHECK_POLICY_VERSION if base_metadata and settings.base_check else None,
         consolidation_policy_version=SEMANTIC_POLICY if settings.consolidation == 'semantic' else EXACT_POLICY,
         implementation_hash=digest({p.name: digest(p.read_bytes()) for p in Path(__file__).parent.glob('*.py')}),
         derived_from={'run_id': source_run_id, 'version': source['version'], 'stage': 'elicitation',
@@ -283,7 +287,11 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
             {k: source.get(k) for k in STAGE_RESULT_FIELDS[stage]})
     hashes = {c.get('catalogue_hash') for r in source['role_runs'] for c in r.get('citation_selections', [])}
     run.catalogues = {h: deepcopy(c) for h, c in source.get('catalogues', {}).items() if h in hashes}
-    if request.reuse_assessments:
+    compatible_base_assessment = (not source.get('base_check_policy_version') or
+        (source.get('base_check_policy_version') == run.base_check_policy_version
+         and source.get('base_profile_sha256') == run.base_profile_sha256))
+    run.derived_from['base_assessment_context_compatible'] = compatible_base_assessment
+    if request.reuse_assessments and compatible_base_assessment:
         run.assessment_reuse = {r['content_hash']: {'content_hash': r['content_hash'],
             'qualification': deepcopy(r['qualification'])} for r in source['requirements']
             if reusable_qualification(r, r['content_hash'])}
@@ -302,6 +310,110 @@ def reusable_qualification(record: dict, content_hash: str):
             and assessor.startswith(QUALIFICATION_VERSION + '/') and '/unavailable/' not in assessor):
         return Qualification.model_validate(qualification)
     return None
+
+
+def checked_base_profile(run: dict):
+    """Require the exact registry/policy selected when this run was created."""
+    policy = run.get('base_check_policy_version')
+    if policy is None:
+        return None
+    if policy != BASE_CHECK_POLICY_VERSION:
+        raise ValueError('Unsupported base-check policy; derive a new run instead of mixing policies.')
+    identifier = run.get('base_profile_id')
+    if not identifier or not run.get('base_profile_sha256'):
+        raise ValueError('Base profile provenance is incomplete; create a new run.')
+    profile, fingerprint = load_profile(identifier)
+    if fingerprint != run['base_profile_sha256']:
+        raise ValueError('Base profile registry changed since this run was created; create a new run.')
+    return profile
+
+
+def base_check_context(store: Store, run: dict, profile=None) -> dict:
+    profile = profile if profile is not None else checked_base_profile(run)
+    if profile is None:
+        return {}
+    evidence = {eid: store.get('evidence', eid) for eid in run['evidence_ids']}
+    source_ids = {unit['source_version_id'] for unit in evidence.values()}
+    snapshot = store.get('snapshot', run['snapshot_id'])
+    source_ids.update(item['source_version_id'] for item in snapshot.get('exclusions', []))
+    sources = {sid: store.get('source', sid) for sid in source_ids}
+    names = {sid: source['name'] for sid, source in sources.items()}
+    background = run['request'].get('background_source_names', [])
+    base_names = {str(name).replace('\\', '/').rsplit('/', 1)[-1].casefold() for name in background}
+    base_ids = {sid for sid, source in sources.items() if source.get('source_role') == 'background'
+                or str(source['name']).replace('\\', '/').rsplit('/', 1)[-1].casefold() in base_names}
+    return {'profile': profile, 'evidence_by_id': evidence, 'source_name_by_version': names,
+            'base_source_version_ids': base_ids, 'base_source_names': background}
+
+
+def evidence_source_group(record: RequirementRecord, context: dict) -> str:
+    names, versions = [], set()
+    for link in record.evidence_links:
+        unit = context['evidence_by_id'].get(link.evidence_id)
+        if unit:
+            versions.add(unit['source_version_id'])
+            names.append(context['source_name_by_version'].get(unit['source_version_id'], '').casefold())
+    if versions and versions <= context['base_source_version_ids']:
+        return 'base_only'
+    if any(re.search(r'(?<![a-z])(?:cmc|sprint)(?![a-z])', name) for name in names):
+        return 'mobility'
+    if any('inspire' in name or 'geodcat' in name for name in names):
+        return 'inspire_geodcat'
+    return 'other_generic'
+
+
+def apply_base_check(store: Store, run: dict, record: RequirementRecord, context=None):
+    context = context if context is not None else base_check_context(store, run)
+    if not context:
+        return
+    result, findings = check_record(record, **context)
+    result['evidence_source_group'] = evidence_source_group(record, context)
+    result['evidence_source_groups'] = [result['evidence_source_group']]
+    record.base_check = result
+    record.base_check_findings = [Finding.model_validate(finding) for finding in findings]
+
+
+def retain_base_findings(record: RequirementRecord):
+    """A model or human support assessment cannot override a base conflict."""
+    if record.qualification is None:
+        return
+    existing = {canonical(finding.model_dump(mode='json')) for finding in record.qualification.findings}
+    for finding in record.base_check_findings:
+        if canonical(finding.model_dump(mode='json')) not in existing:
+            record.qualification.findings.append(finding.model_copy(deep=True))
+
+
+def inherit_base_checks(record: RequirementRecord, parents: list[RequirementRecord]):
+    """Preserve member decisions rather than tightening from unioned citations."""
+    checked = [parent for parent in parents if parent.base_check]
+    if not checked:
+        return
+    representative = next((p for p in checked if p.raw_statement == record.raw_statement), checked[0])
+    record.base_check = deepcopy(representative.base_check)
+    keys = ('base_profile', 'class', 'property', 'base_obligation', 'candidate_obligation', 'relation')
+    variants = {canonical({key: parent.base_check.get(key) for key in keys}) for parent in checked}
+    record.base_check['constraint_signals'] = sorted({signal for parent in checked
+        for signal in parent.base_check.get('constraint_signals', [])})
+    groups = {group for parent in checked for group in parent.base_check.get(
+        'evidence_source_groups', [parent.base_check.get('evidence_source_group', 'other_generic')])}
+    record.base_check['evidence_source_groups'] = sorted(groups)
+    record.base_check['evidence_source_group'] = ('mobility' if 'mobility' in groups else
+        'inspire_geodcat' if 'inspire_geodcat' in groups else 'base_only' if groups == {'base_only'} else 'other_generic')
+    record.base_check['member_checks'] = {parent.revision_id: deepcopy(parent.base_check) for parent in checked}
+    if len(variants) > 1 or len(checked) != len(parents):
+        record.base_check['requires_review'] = True
+        if not any(f.criterion == 'merged_base_check_disagreement' for f in record.base_check_findings):
+            record.base_check_findings.append(Finding(criterion='merged_base_check_disagreement', severity='review',
+                message='Merged members have different base mappings or relations; inspect the saved member checks.'))
+    if any(parent.base_check.get('requires_review') for parent in checked):
+        record.base_check['requires_review'] = True
+    present = {canonical(f.model_dump(mode='json')) for f in record.base_check_findings}
+    for parent in checked:
+        for finding in parent.base_check_findings:
+            if canonical(finding.model_dump(mode='json')) not in present:
+                record.base_check_findings.append(finding.model_copy(deep=True))
+                present.add(canonical(finding.model_dump(mode='json')))
+    retain_base_findings(record)
 
 
 def verify(store: Store, record: RequirementRecord, eligible_evidence_ids: list[str], cache: dict | None = None) -> dict:
@@ -418,6 +530,7 @@ def record_from_observation(run_id: str, observation: Observation, number: int =
 def qualify_record(store: Store, record: RequirementRecord, evidence_ids: list[str], client=None, cache=None):
     record.verification = verify(store, record, evidence_ids, cache)
     record.qualification = assess(store, record, client)
+    retain_base_findings(record)
     record.lifecycle_state = 'blocked_evidence' if record.verification['status'] != 'pass' else 'awaiting_human'
 
 
@@ -703,7 +816,12 @@ def consolidate(store: Store, run: dict, records: list[RequirementRecord], clien
     assessment, as normalization does for single candidates."""
     if run.get('consolidation_policy_version') in SEMANTIC_POLICIES:
         from .semantic_consolidation import semantic_consolidate
-        return semantic_consolidate(store, run, records, client, previous)
+        active, events, conflicts = semantic_consolidate(store, run, records, client, previous)
+        by_id = {record.revision_id: record for record in records}
+        for record in active:
+            if record.parent_revision_ids:
+                inherit_base_checks(record, [by_id[rid] for rid in record.parent_revision_ids if rid in by_id])
+        return active, events, conflicts
     previous = previous or {}
     previous_by_hash = {r['content_hash']: r for r in previous.values()
                         if reusable_qualification(r, r['content_hash'])} if run.get('derived_from') else {}
@@ -734,6 +852,7 @@ def consolidate(store: Store, run: dict, records: list[RequirementRecord], clien
                           supports_user_tasks=sorted({task for item in group for task in item.supports_user_tasks}),
                           support_level='evidence_supported_inference')
         merged = record_from_observation(run['run_id'], obs, parents=[item.revision_id for item in group])
+        inherit_base_checks(merged, group)
         merged.observation_ids = [oid for item in group for oid in item.observation_ids]
         merged.contributing_roles = sorted({role for item in group for role in item.contributing_roles})
         earlier = previous.get(merged.revision_id) or previous_by_hash.get(merged.content_hash)
@@ -742,6 +861,7 @@ def consolidate(store: Store, run: dict, records: list[RequirementRecord], clien
         if reusable:
             merged.verification = verify(store, merged, run['evidence_ids'], cache)
             merged.qualification = Qualification.model_validate(earlier['qualification'])
+            retain_base_findings(merged)
             merged.lifecycle_state = 'blocked_evidence' if merged.verification['status'] != 'pass' else 'awaiting_human'
         else:
             qualify_record(store, merged, run['evidence_ids'], client, cache)
@@ -878,7 +998,7 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             run.update(updates)
             run.setdefault('stage_results', {})[stage] = {
                 **{key: deepcopy(run.get(key)) for key in STAGE_RESULT_FIELDS[stage]},
-                **{key: run.get(key) for key in ('base_profile_id', 'base_profile_sha256')}, **(result_extras or {})}
+                **{key: run.get(key) for key in ('base_profile_id', 'base_profile_sha256', 'base_check_policy_version')}, **(result_extras or {})}
             run['job_lease_until'] = time.time() + 900
             return {'stage': stage}
         return store.mutate(run_id, None, 'stage_completed', apply)['run']
@@ -893,6 +1013,10 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
         run = store.get_run(run_id, parts=False)
         if run['status'] in {'cancelled', 'awaiting_human', 'completed'}:
             return
+        if run.get('base_check_policy_version'):
+            active_stage = 'normalization'
+        selected_profile = checked_base_profile(run)
+        active_stage = 'role_selection'
         if run.get('derived_from'):
             ensure_elicitation_resumable(run)
             for field in ('observations', 'role_runs'):
@@ -951,6 +1075,25 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             aside_ids = {o['observation_id'] for o in set_aside}
             records = [record_from_observation(run_id, observation) for observation in observations
                        if observation.observation_id not in aside_ids]
+            base_audit = []
+            if selected_profile is not None:
+                context = base_check_context(store, run, selected_profile)
+                kept_records = []
+                by_observation = {o.observation_id: o for o in observations}
+                for record in records:
+                    apply_base_check(store, run, record, context)
+                    inherited = (record.base_check['relation'] == 'inherited'
+                                 and not record.base_check.get('requires_review'))
+                    observation = by_observation[record.observation_ids[0]]
+                    base_audit.append({'observation_id': observation.observation_id, 'role_id': observation.role_id,
+                        'revision_id': record.revision_id, 'base_check': deepcopy(record.base_check),
+                        'findings': [f.model_dump(mode='json') for f in record.base_check_findings], 'set_aside': inherited})
+                    if inherited:
+                        set_aside.append({'observation_id': observation.observation_id, 'role_id': observation.role_id,
+                            'reason': 'inherited_from_base', 'base_check': deepcopy(record.base_check)})
+                    else:
+                        kept_records.append(record)
+                records = kept_records
             source_assessments = {}
             lineage = run.get('derived_from') or {}
             if lineage.get('reuse_assessments'):
@@ -969,10 +1112,13 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
                 elif record.content_hash in source_assessments:
                     record.qualification = source_assessments[record.content_hash].model_copy(deep=True)
                     reused_assessments += 1
+                retain_base_findings(record)
             run = patch('normalization', {'requirements': [r.model_dump(mode='json') for r in records],
                 'set_aside_observations': set_aside,
+                'base_check_audit': base_audit,
                 'metrics': {**run['metrics'], 'assessments_reused': reused_assessments, 'set_aside_count': len(set_aside)}, 'status': 'verifying'},
-                result_extras={'assessments_reused': reused_assessments})
+                result_extras={'assessments_reused': reused_assessments,
+                    'base_check': {'policy_version': run.get('base_check_policy_version'), 'audit': base_audit}})
             if pause('normalization'):
                 return
         records = [RequirementRecord.model_validate(r) for r in run['requirements']]
@@ -984,6 +1130,7 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
                 record.verification = verify(store, record, run['evidence_ids'], cache)
                 if not record.qualification or record.qualification.revision_hash != record.content_hash:
                     record.qualification = assess(store, record, client)
+                retain_base_findings(record)
                 record.lifecycle_state = 'blocked_evidence' if record.verification['status'] != 'pass' else 'awaiting_human'
                 def checkpoint(r):
                     if r['status'] == 'cancelled':
@@ -1005,13 +1152,18 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             run = patch('consolidation', {'requirements': list(all_records.values()),
                         'active_revision_ids': [r.revision_id for r in active], 'consolidation_events': events,
                         'conflicts': conflicts, 'status': 'routing'})
+            frozen_base_audit = deepcopy(store.get_run(run_id,
+                omit=tuple(part for part in RUN_PARTS if part != 'base_check_audit'))['base_check_audit'])
             def freeze_machine(r):
                 r['machine_snapshot'] = {'requirements': r['requirements'], 'active_revision_ids': r['active_revision_ids'],
                     'observations': r['observations'], 'role_runs': r['role_runs'], 'conflicts': r['conflicts'],
                     'consolidation_events': r['consolidation_events'], 'role_manifest': r.get('role_manifest'), 'created_at': now()}
                 r['machine_snapshot'].update(set_aside_observations=r.get('set_aside_observations', []),
                     normalization_policy_version=r.get('normalization_policy_version'),
-                    consolidation_policy_version=r.get('consolidation_policy_version'))
+                    consolidation_policy_version=r.get('consolidation_policy_version'),
+                    base_check_policy_version=r.get('base_check_policy_version'),
+                    base_profile_id=r.get('base_profile_id'), base_profile_sha256=r.get('base_profile_sha256'),
+                    base_check_audit=frozen_base_audit)
             store.mutate(run_id, None, 'machine_output_frozen', freeze_machine)
             if pause('consolidation'):
                 return
@@ -1209,6 +1361,8 @@ def active_records(run: dict, identifiers: list[str]) -> list[RequirementRecord]
 
 
 def eligible(record: RequirementRecord):
+    if any(f.severity in {'blocking', 'review'} for f in record.base_check_findings):
+        raise ValueError('Resolve required base-profile findings before acceptance.')
     if not record.verification or record.verification['status'] != 'pass' or record.verification['revision_hash'] != record.content_hash:
         raise ValueError('Acceptance requires passed source verification for this exact revision.')
     q = record.qualification
@@ -1257,6 +1411,7 @@ def decide(store: Store, run_id: str, request: DecisionRequest, actor: str) -> d
                     number=max(r.revision_number for r in records) + 1,
                     requirement_id=records[0].requirement_id if request.action == 'edit' else None,
                     parents=[r.revision_id for r in records])
+                apply_base_check(store, run, new)
                 qualify_record(store, new, run['evidence_ids'])
                 new_records.append(new)
         state = {'accept': 'accepted', 'reject': 'rejected', 'defer': 'deferred',

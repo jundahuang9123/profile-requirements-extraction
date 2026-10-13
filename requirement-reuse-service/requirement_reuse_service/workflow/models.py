@@ -158,7 +158,8 @@ class ElicitationResult(Contract):
 class SetAside(Contract):
     observation_id: str
     role_id: str
-    reason: Literal['no_source_link'] = 'no_source_link'
+    reason: Literal['no_source_link', 'inherited_from_base', 'declared_not_extension'] = 'no_source_link'
+    base_check: dict[str, Any] | None = None
 
 
 class CandidateGroup(Contract):
@@ -206,6 +207,8 @@ class RequirementRecord(Contract):
     revision_number: int
     content_hash: str
     group_id: str | None = None
+    base_check: dict[str, Any] | None = None
+    base_check_findings: list[Finding] = Field(default_factory=list)
     raw_statement: str
     normalized_statement: str
     requirement_type: RequirementType
@@ -389,6 +392,8 @@ class WorkflowRun(Contract):
     consolidation_policy_version: str | None = None
     base_profile_id: str | None = None
     base_profile_sha256: str | None = None
+    base_check_policy_version: str | None = None
+    base_check_audit: list[dict[str, Any]] = Field(default_factory=list)
     schema_version: str = SCHEMA_VERSION
     strategy: str
     derived_from: dict[str, Any] | None = None
