@@ -190,8 +190,8 @@ def test_negation_cannot_be_grouped_by_bad_model_answer(setup):
 
 def test_default_semantic_rules_exact_and_legacy_exact(setup):
     store, run, records = inputs(setup)
-    assert RunRequest(snapshot_id=run['snapshot_id'],strategy='multi_agent').consolidation == 'semantic'
-    assert RunRequest(snapshot_id=run['snapshot_id'],strategy='rules').consolidation == 'exact'
+    assert RunRequest(output_form='candidates', snapshot_id=run['snapshot_id'],strategy='multi_agent').consolidation == 'semantic'
+    assert RunRequest(output_form='candidates', snapshot_id=run['snapshot_id'],strategy='rules').consolidation == 'exact'
     run['consolidation_policy_version'] = None
     client = GroupClient()
     active, _, _ = engine.consolidate(store,run,records,client)
@@ -227,7 +227,7 @@ def test_pipeline_resume_keeps_finished_groups_and_merged_assessments(setup):
     engine.execute_run(store,run['run_id'],source_client)
     source = store.get('run',run['run_id'])
     from requirement_reuse_service.workflow.models import DeriveRequest
-    derived = engine.derive_run(store,source['run_id'],DeriveRequest(expected_version=source['version'],
+    derived = engine.derive_run(store,source['run_id'],DeriveRequest(output_form='candidates', expected_version=source['version'],
         discussion='on_request',reuse_assessments=False,rationale='Offline resume check.'))
     client = GroupClient()
     client.transport_failure_at = 2  # coverage block is complete; title block stops
@@ -257,7 +257,7 @@ def test_invalid_grouping_fallback_completes_derived_pipeline(setup):
     engine.execute_run(store,run['run_id'],source_client)
     source=store.get('run',run['run_id'])
     from requirement_reuse_service.workflow.models import DeriveRequest
-    derived=engine.derive_run(store,source['run_id'],DeriveRequest(expected_version=source['version'],
+    derived=engine.derive_run(store,source['run_id'],DeriveRequest(output_form='candidates', expected_version=source['version'],
         discussion='on_request',rationale='Offline fallback check.'))
     engine.execute_run(store,derived['run_id'],GroupClient('missing'))
     saved=store.get('run',derived['run_id'])
@@ -270,7 +270,7 @@ def test_derived_assessment_snapshot_survives_source_changes(setup):
     engine.execute_run(store,run['run_id'],source_client)
     source=store.get('run',run['run_id'])
     from requirement_reuse_service.workflow.models import DeriveRequest
-    derived=engine.derive_run(store,source['run_id'],DeriveRequest(expected_version=source['version'],
+    derived=engine.derive_run(store,source['run_id'],DeriveRequest(output_form='candidates', expected_version=source['version'],
         consolidation='exact',rationale='Offline frozen assessment check.'))
     def change(r):
         for record in r['requirements']:

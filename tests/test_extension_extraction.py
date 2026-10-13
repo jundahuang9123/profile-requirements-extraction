@@ -47,7 +47,7 @@ def test_v3_provider_rejects_an_invented_extension_kind():
 
 def base_run(setup, **changes):
     store, initial, client = setup
-    request = RunRequest(snapshot_id=initial['snapshot_id'], strategy='multi_agent',
+    request = RunRequest(output_form='candidates', snapshot_id=initial['snapshot_id'], strategy='multi_agent',
         role_ids=ROLES, consolidation='exact', discussion='on_request', base_profile_id=BASE, **changes)
     return store, engine.new_run(store, request), client
 
@@ -92,7 +92,7 @@ def test_new_run_preflight_counts_base_context_before_provider_construction(setu
     calls = []
     monkeypatch.setattr(engine, 'configured_client', lambda request: calls.append(request))
     with pytest.raises(ValueError, match='reserved extraction input budget'):
-        engine.new_run(store, RunRequest(snapshot_id=initial['snapshot_id'], strategy='multi_agent',
+        engine.new_run(store, RunRequest(output_form='candidates', snapshot_id=initial['snapshot_id'], strategy='multi_agent',
             role_ids=ROLES, base_profile_id=BASE))
     assert calls == []
 
@@ -207,7 +207,7 @@ def test_legacy_absent_annotations_and_saved_extraction_audits_are_copied_byte_f
     store.mutate(run['run_id'], None, 'offline_legacy_annotations', legacy, parts=True)
     source = store.get('run', run['run_id'])
     before = deepcopy(source)
-    trial = engine.derive_run(store, source['run_id'], DeriveRequest(expected_version=source['version'],
+    trial = engine.derive_run(store, source['run_id'], DeriveRequest(output_form='candidates', expected_version=source['version'],
         consolidation='exact', discussion='on_request', base_profile_id=BASE,
         rationale='Offline legacy extension test.'))
     assert trial['observations'] == source['observations']
@@ -269,7 +269,7 @@ def test_generic_background_does_not_turn_normative_base_text_into_a_domain_tigh
         artifact=ArtifactPayload(name='DCAT-AP.pdf.txt', content='Each dataset must include dct:publisher.')))
     snapshot = engine.freeze_snapshot(store, SnapshotRequest(source_version_ids=[
         generic['source_version_id'], normative['source_version_id']]))
-    run = engine.new_run(store, RunRequest(snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
+    run = engine.new_run(store, RunRequest(output_form='candidates', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
         role_ids=ROLES, consolidation='exact', discussion='on_request', base_profile_id=BASE))
     context = engine.base_check_context(store, run)
     assert context['base_source_version_ids'] == set()

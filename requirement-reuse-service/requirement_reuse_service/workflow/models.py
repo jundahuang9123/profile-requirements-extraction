@@ -9,6 +9,8 @@ from ..models import ArtifactPayload, NormalizedIntent as LegacyIntent, Requirem
 WORKFLOW_VERSION = 'rq1-nine-stage-v2'
 SCHEMA_VERSION = 'rq1-requirement-dataset-v2'
 ELICITATION_POLICY_VERSION = 'rq1-independent-elicitation-v3.0'
+NEEDS_ELICITATION_POLICY = 'rq1-independent-elicitation-v3.1'
+NEEDS_NORMALIZATION_POLICY = 'rq1-need-normalization-v1'
 NORMALIZATION_POLICY_VERSION = 'rq1-normalization-v3'
 ExtensionKind = Literal['new_information_need', 'stricter_obligation', 'value_constraint',
                         'new_class_or_relation', 'not_an_extension']
@@ -143,6 +145,25 @@ class EvidenceLink(Contract):
     quote_start: int | None = Field(default=None, ge=0)
 
 
+class RQ2Hint(Contract):
+    term: str = Field(min_length=1)
+    kind: Literal['vocabulary_term', 'code_list', 'standard', 'other']
+    origin: Literal['proposal', 'evidence']
+    evidence_id: str | None = None
+    revision_id: str | None = None
+
+
+class TaskJustification(Contract):
+    task_id: str = Field(min_length=1)
+    justification: str = Field(min_length=1, max_length=600)
+
+
+class ObligationAlternative(Contract):
+    obligation: Literal['mandatory', 'recommended', 'optional', 'unknown']
+    count: int = Field(ge=1)
+    revision_ids: list[str] = Field(min_length=1)
+
+
 class Observation(Contract):
     observation_id: str
     role_id: str
@@ -155,6 +176,8 @@ class Observation(Contract):
     assumptions: list[str] = Field(default_factory=list)
     supports_user_tasks: list[str] = Field(default_factory=list)
     support_level: Literal['explicit', 'evidence_supported_inference', 'unsupported'] = 'evidence_supported_inference'
+    rq2_hints: list[RQ2Hint] = Field(default_factory=list)
+    task_justifications: list[TaskJustification] = Field(default_factory=list)
     # Older frozen extractions have neither field; their raw saved rows stay valid.
     extension_kind: ExtensionKind | None = None
     base_property: str | None = None
@@ -167,8 +190,13 @@ class ElicitationResult(Contract):
 class SetAside(Contract):
     observation_id: str
     role_id: str
-    reason: Literal['no_source_link', 'inherited_from_base', 'declared_not_extension'] = 'no_source_link'
+    reason: Literal['no_source_link', 'inherited_from_base', 'declared_not_extension', 'base_specification_only', 'generic_need_served_by_base', 'no_use_case'] = 'no_source_link'
     base_check: dict[str, Any] | None = None
+    revision_id: str | None = None
+    need_id: str | None = None
+    rationale: str = ''
+    matched_base_need_ids: list[str] = Field(default_factory=list)
+    restored: bool = False
 
 
 class CandidateGroup(Contract):
@@ -196,6 +224,27 @@ class SpanObservation(Observation):
 
 class SpanElicitationResult(Contract):
     observations: list[SpanObservation] = Field(default_factory=list)
+
+
+class NeedSpanObservation(Contract):
+    """Current provider contract: needs and citations, never extension solution labels."""
+    observation_id: str
+    role_id: str
+    statement: str
+    requirement_type: RequirementType = 'unknown'
+    intent: NormalizedIntent = Field(default_factory=NormalizedIntent)
+    scope: str = 'Unspecified'
+    evidence_links: list[SourceSpanLink] = Field(default_factory=list, max_length=12)
+    rationale: str = ''
+    assumptions: list[str] = Field(default_factory=list)
+    supports_user_tasks: list[str] = Field(default_factory=list)
+    task_justifications: list[TaskJustification] = Field(default_factory=list)
+    rq2_hints: list[RQ2Hint] = Field(default_factory=list)
+    support_level: Literal['explicit', 'evidence_supported_inference', 'unsupported'] = 'evidence_supported_inference'
+
+
+class NeedSpanElicitationResult(Contract):
+    observations: list[NeedSpanObservation] = Field(default_factory=list)
 
 
 class Finding(Contract):
@@ -240,7 +289,16 @@ class RequirementRecord(Contract):
     qualification: Qualification | None = None
     conflict_ids: list[str] = Field(default_factory=list)
     decision_id: str | None = None
-    rq2_hints: list[dict[str, Any]] = Field(default_factory=list)
+    rq2_hints: list[RQ2Hint] = Field(default_factory=list)
+    need_statement: str | None = None
+    obligation_alternatives: list[ObligationAlternative] = Field(default_factory=list)
+    task_justifications: list[TaskJustification] = Field(default_factory=list)
+    need_class: Literal['generic', 'domain_use_of_base', 'domain'] | None = None
+    matched_base_need_ids: list[str] = Field(default_factory=list)
+    base_need_matches: list[dict[str, Any]] = Field(default_factory=list)
+    need_condition: str = ''
+    rank: int | None = Field(default=None, ge=1)
+    rank_keys: dict[str, Any] = Field(default_factory=dict)
 
 
 class ConflictRecord(Contract):
@@ -344,6 +402,8 @@ class RolePanel(Contract):
 
 
 class RunRequest(Contract):
+    output_form: Literal['needs', 'candidates'] = 'needs'
+    scoping: Literal['use_cases', 'off'] | None = None
     snapshot_id: str
     base_profile_id: str | None = None
     base_check: bool = True
@@ -382,6 +442,8 @@ class RunRequest(Contract):
 
 
 class DeriveRequest(Contract):
+    output_form: Literal['needs', 'candidates'] = 'needs'
+    scoping: Literal['use_cases', 'off'] | None = None
     expected_version: int = Field(ge=1)
     name: str = Field(default='Reprocessed requirements', min_length=1)
     consolidation: Literal['exact', 'semantic'] = 'semantic'
@@ -401,6 +463,10 @@ class WorkflowRun(Contract):
     snapshot_id: str
     workflow_version: str = WORKFLOW_VERSION
     elicitation_policy_version: str = ELICITATION_POLICY_VERSION
+    needs_policies: dict[str, str] = Field(default_factory=dict)
+    need_steps: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    need_chunks: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    base_needs_catalogue: dict[str, Any] | None = None
     normalization_policy_version: str | None = None
     consolidation_policy_version: str | None = None
     base_profile_id: str | None = None

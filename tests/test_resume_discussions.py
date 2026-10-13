@@ -88,7 +88,7 @@ def setup(tmp_path, monkeypatch):
     # Background work started by the API uses the scripted client instead of a provider.
     monkeypatch.setattr(api, 'execute_run', lambda store, run_id: engine.execute_run(store, run_id, client))
     monkeypatch.setattr(api, 'configured_client', lambda request: client)
-    run = new_run(store, RunRequest(consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent', role_ids=ROLES))
+    run = new_run(store, RunRequest(output_form='candidates', consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent', role_ids=ROLES))
     return store, run, client
 
 

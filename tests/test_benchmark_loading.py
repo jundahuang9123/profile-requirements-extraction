@@ -136,7 +136,7 @@ def test_saved_export_keeps_background_provenance_outside_evidence(benchmark_sto
     from requirement_reuse_service.workflow.models import RunRequest
     store, _, _ = benchmark_store
     loaded = benchmarks.load_benchmark(store, 'mobilitydcat')
-    run = engine.new_run(store, RunRequest(snapshot_id=loaded['snapshot']['snapshot_id'], strategy='rules'))
+    run = engine.new_run(store, RunRequest(output_form='candidates', snapshot_id=loaded['snapshot']['snapshot_id'], strategy='rules'))
     monkeypatch.setattr(api, 'Store', lambda: store)
     response = TestClient(app).get(f'/api/rq1/v2/runs/{run["run_id"]}/export')
     assert response.status_code == 200

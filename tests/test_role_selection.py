@@ -86,7 +86,7 @@ class SelectorClient:
 
 def auto_run(corpus, **kwargs):
     store, snapshot, _ = corpus
-    return new_run(store, RunRequest(consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent', role_selection='automatic', **kwargs))
+    return new_run(store, RunRequest(output_form='candidates', consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent', role_selection='automatic', **kwargs))
 
 
 def test_full_auto_run_uses_frozen_roles_in_extraction_discussion_and_exports(corpus):
@@ -314,7 +314,7 @@ def test_invalid_batch_limit_is_rejected_when_an_automatic_run_is_created(corpus
     with pytest.raises(ValueError, match='RQ1_ROLE_SELECTION_MAX_BATCHES'):
         auto_run(corpus)
     # Runs without a source scan do not read the setting.
-    manual = new_run(store, RunRequest(consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
+    manual = new_run(store, RunRequest(output_form='candidates', consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
                                       role_ids=['consumer_discovery']))
     assert 'max_batches' not in manual['role_manifest']
 

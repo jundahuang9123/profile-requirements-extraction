@@ -37,7 +37,7 @@ def corpus(tmp_path, monkeypatch):
         content=base64.b64encode(b'%PDF-original-fixture-bytes').decode(), content_encoding='base64'),
         source_role='stakeholder_need'))
     snapshot = freeze_snapshot(store, SnapshotRequest(source_version_ids=[source['source_version_id']]))
-    run = new_run(store, RunRequest(consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
+    run = new_run(store, RunRequest(output_form='candidates', consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
                                    role_ids=['consumer_discovery']))
     return store, run
 
@@ -223,7 +223,7 @@ def test_later_excerpt_of_a_long_page_keeps_its_offset_and_passes_source_verific
         content=base64.b64encode(b'%PDF-long-fixture-bytes').decode(), content_encoding='base64'),
         source_role='stakeholder_need'))
     snapshot = freeze_snapshot(store, SnapshotRequest(source_version_ids=[source['source_version_id']]))
-    run = new_run(store, RunRequest(consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
+    run = new_run(store, RunRequest(output_form='candidates', consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
                                    role_ids=['consumer_discovery']))
     assert len(run['evidence_ids']) == 1
     def respond(system, user):
@@ -279,7 +279,7 @@ def multiunit_run(corpus, count=5):
     source = register_source(store, SourceRequest(artifact=ArtifactPayload(name='batch-needs.txt',
         content='\n'.join(f'Each dataset needs field {i}.' for i in range(count))), source_role='stakeholder_need'))
     snapshot = freeze_snapshot(store, SnapshotRequest(source_version_ids=[source['source_version_id']]))
-    run = new_run(store, RunRequest(consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
+    run = new_run(store, RunRequest(output_form='candidates', consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
                                   role_ids=['consumer_discovery']))
     assert len(run['evidence_ids']) == count
     return store, run

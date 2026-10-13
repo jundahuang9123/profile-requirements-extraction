@@ -31,7 +31,7 @@ what the software prepares, and which evidence still needs human review.
 
 ## Starting version and active branch
 
-`codex/extend-dcat-ap` is the default development branch. Historical branches are
+`main` is the default development branch. Historical branches are
 preserved as archive tags rather than active branches; see [repository maintenance](docs/REPOSITORY_MAINTENANCE.md).
 
 On **Sources & scope**, select the starting DCAT / DCAT-AP version for each run:

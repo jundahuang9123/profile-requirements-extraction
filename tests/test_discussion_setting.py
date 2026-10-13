@@ -72,7 +72,7 @@ def corpus(tmp_path, monkeypatch):
 def run_with(corpus, discussion, client=None):
     store, snapshot = corpus
     client = client or ScriptedClient()
-    run = new_run(store, RunRequest(consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
+    run = new_run(store, RunRequest(output_form='candidates', consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
                                    role_ids=['consumer_discovery'], discussion=discussion))
     execute_run(store, run['run_id'], client)
     return store.get('run', run['run_id']), client
@@ -151,7 +151,7 @@ def test_api_accepts_the_setting_and_rejects_unknown_values(corpus):
 
 def test_runs_saved_before_the_setting_existed_keep_automatic_discussion(corpus):
     store, snapshot = corpus
-    run = new_run(store, RunRequest(consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
+    run = new_run(store, RunRequest(output_form='candidates', consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
                                    role_ids=['consumer_discovery']))
     store.mutate(run['run_id'], None, 'legacy_fixture', lambda r: r['request'].pop('discussion'))
     client = ScriptedClient()

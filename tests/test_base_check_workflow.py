@@ -20,7 +20,7 @@ def with_base(setup, **settings):
     source_ids = store.get('snapshot', initial['snapshot_id'])['source_version_ids']
     snapshot = engine.freeze_snapshot(store, SnapshotRequest(
         source_version_ids=[*source_ids, conditional['source_version_id']]))
-    request = RunRequest(snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
+    request = RunRequest(output_form='candidates', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
         role_ids=ROLES, consolidation='exact', discussion='on_request',
         base_profile_id='dcat-ap-2.0.1', **settings)
     return store, engine.new_run(store, request), client
@@ -67,7 +67,7 @@ def test_saved_legacy_extraction_derives_without_extraction_or_assessment_calls(
         elicitation_policy_version='rq1-independent-elicitation-v2.11'))
     source = store.get('run', source['run_id'])
     before = deepcopy(source)
-    trial = engine.derive_run(store, source['run_id'], DeriveRequest(
+    trial = engine.derive_run(store, source['run_id'], DeriveRequest(output_form='candidates', 
         expected_version=source['version'], consolidation='exact', base_profile_id='dcat-ap-2.0.1',
         rationale='Apply a base check to frozen extraction.'))
     mark = len(client.calls)
@@ -88,7 +88,7 @@ def test_new_base_policy_does_not_reuse_assessments_from_v1(setup):
     store.mutate(source['run_id'], None, 'historical-v1-test', lambda run: run.update(
         base_check_policy_version='rq1-base-check-v1'))
     source = store.get('run', source['run_id'])
-    trial = engine.derive_run(store, source['run_id'], DeriveRequest(
+    trial = engine.derive_run(store, source['run_id'], DeriveRequest(output_form='candidates', 
         expected_version=source['version'], consolidation='exact',
         rationale='Reprocess a historical base check under the current policy.'))
     assert trial['base_check_policy_version'] == 'rq1-base-check-v2'
@@ -98,7 +98,7 @@ def test_new_base_policy_does_not_reuse_assessments_from_v1(setup):
 
 def test_weaker_plain_restatements_are_audited_and_make_no_assessment_calls(setup):
     store, source, client = setup
-    run = engine.new_run(store, RunRequest(snapshot_id=source['snapshot_id'], strategy='multi_agent',
+    run = engine.new_run(store, RunRequest(output_form='candidates', snapshot_id=source['snapshot_id'], strategy='multi_agent',
         role_ids=ROLES, consolidation='exact', discussion='on_request', base_profile_id='dcat-ap-2.0.1'))
     engine.execute_run(store, run['run_id'], client)
     saved = store.get('run', run['run_id'])
@@ -201,7 +201,7 @@ def test_custom_source_with_no_base_classification_keeps_stronger_rule_for_revie
     source = register_source(store, SourceRequest(source_role='stakeholder_need',
         artifact=ArtifactPayload(name='domain-needs.md', content='Each dataset must include dct:publisher.')))
     snapshot = engine.freeze_snapshot(store, SnapshotRequest(source_version_ids=[source['source_version_id']]))
-    run = engine.new_run(store, RunRequest(snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
+    run = engine.new_run(store, RunRequest(output_form='candidates', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
         role_ids=ROLES, consolidation='exact', discussion='on_request', base_profile_id='dcat-ap-2.0.1'))
     engine.execute_run(store, run['run_id'], client)
     saved = store.get('run', run['run_id'])
@@ -219,7 +219,7 @@ def test_mixed_inherited_and_new_property_clause_is_retained_without_fabricating
     source = register_source(store, SourceRequest(source_role='stakeholder_need',
         artifact=ArtifactPayload(name='domain-needs.md', content=text)))
     snapshot = engine.freeze_snapshot(store, SnapshotRequest(source_version_ids=[source['source_version_id']]))
-    run = engine.new_run(store, RunRequest(snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
+    run = engine.new_run(store, RunRequest(output_form='candidates', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
         role_ids=ROLES, consolidation='exact', discussion='on_request', base_profile_id='dcat-ap-2.0.1'))
     engine.execute_run(store, run['run_id'], client)
     saved = store.get('run', run['run_id'])
@@ -239,7 +239,7 @@ def test_negated_base_statement_stays_for_review_with_authentic_evidence(setup):
     source = register_source(store, SourceRequest(source_role='stakeholder_need',
         artifact=ArtifactPayload(name='domain-needs.md', content=text)))
     snapshot = engine.freeze_snapshot(store, SnapshotRequest(source_version_ids=[source['source_version_id']]))
-    run = engine.new_run(store, RunRequest(snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
+    run = engine.new_run(store, RunRequest(output_form='candidates', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
         role_ids=ROLES, consolidation='exact', discussion='on_request', base_profile_id='dcat-ap-2.0.1'))
     engine.execute_run(store, run['run_id'], client)
     saved = store.get('run', run['run_id'])
@@ -255,7 +255,7 @@ def test_base_context_change_does_not_reuse_stale_base_findings(setup):
     store, run, client = with_base(setup)
     engine.execute_run(store, run['run_id'], client)
     source = store.get('run', run['run_id'])
-    derived = engine.derive_run(store, source['run_id'], DeriveRequest(
+    derived = engine.derive_run(store, source['run_id'], DeriveRequest(output_form='candidates', 
         expected_version=source['version'], consolidation='exact', base_check=False,
         rationale='Compare the disabled base check.'))
     assert derived['assessment_reuse'] == {}
