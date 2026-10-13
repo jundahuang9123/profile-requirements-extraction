@@ -10,7 +10,7 @@ from requirement_reuse_service.llm.client import LLMError, OutputValidationError
 from requirement_reuse_service.workflow import engine
 from requirement_reuse_service.workflow.models import Observation, RequirementRecord, RunRequest
 from requirement_reuse_service.workflow.semantic_consolidation import (
-    SEMANTIC_POLICY, MAX_PAYLOAD, block_key, grouped_block, semantic_consolidate)
+    SEMANTIC_POLICY, LEGACY_SEMANTIC_POLICY, MAX_PAYLOAD, block_key, grouped_block, semantic_consolidate)
 from requirement_reuse_service.workflow.storage import canonical
 from requirement_reuse_service.workflow.evaluation import workflow_metrics
 
@@ -280,3 +280,45 @@ def test_derived_assessment_snapshot_survives_source_changes(setup):
     engine.execute_run(store,derived['run_id'],source_client)
     assert source_client.count('Qualification',mark)==0
     assert store.get('run',derived['run_id'])['status']=='awaiting_human'
+
+
+def test_statement_only_payload_ignores_inconsistent_model_labels(setup):
+    store, run, records = inputs(setup)
+    intent=records[1].normalized_intent.model_dump()
+    intent['value_kind']='uri'
+    records[1]=revised(run,records[1],intent=intent,scope='Unspecified',requirement_type='validation_constraint')
+    engine.qualify_record(store,records[1],run['evidence_ids'])
+    client=GroupClient()
+    active,_,_=semantic_consolidate(store,run,records,client)
+    assert len(active)==1
+    assert all(set(payload)=={'statement'} for data,_ in client.group_requests for payload in data['candidates'].values())
+
+
+def test_later_chunks_offer_only_25_relevant_groups_and_keep_every_record(setup):
+    store,run,records=inputs(setup,90)
+    client=GroupClient('separate')
+    groups,audit=grouped_block(store,run,block_key(records[0]),records,client,{})
+    assert len(groups)==90 and client.count('SemanticGrouping')==3
+    assert len(client.group_requests[1][0]['offered_groups'])==25
+    assert len(client.group_requests[2][0]['offered_groups'])==25
+    assert not any(e['action']=='semantic_grouping_unavailable' for e in audit)
+
+
+def test_consumer_capability_and_metadata_content_cannot_merge(setup):
+    store,run,records=inputs(setup)
+    records[1].normalized_statement='A consumer must be able to process the Dataset title.'
+    active,events,_=semantic_consolidate(store,run,records,GroupClient())
+    assert len(active)==2
+    assert any('consumer/system capabilities' in e.get('reason','') for e in events)
+
+
+def test_legacy_semantic_policy_retains_typed_payload_and_existing_checkpoints(setup):
+    store,run,records=inputs(setup)
+    run['consolidation_policy_version']=LEGACY_SEMANTIC_POLICY
+    client=GroupClient()
+    groups,_=grouped_block(store,run,block_key(records[0]),records,client,{})
+    assert len(groups)==1
+    assert 'value_kind' in client.group_requests[0][0]['candidates']['c1']
+    saved=store.get('run',run['run_id'])['consolidation_chunks']
+    grouped_block(store,run,block_key(records[0]),records,client,saved)
+    assert client.count('SemanticGrouping')==1

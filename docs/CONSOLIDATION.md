@@ -49,3 +49,9 @@ No live comparison was started for this implementation. On the saved Mobility ru
 Compare the original and derived exports for normalized/active counts, set-aside count, passing source checks, conflicts, grouping/fallback calls, new/reused assessments and stage wall time. The original trial had 2,670 normalized observations, including 1,051 without links; a derived trial should set those 1,051 aside while preserving them in its audit. These are expected input counts, not a new execution result. Inspect the publisher family and at least 20 randomly sampled merged groups for distinct constraints accidentally grouped together.
 
 For a paper claim, independently annotate duplicate groups in a stratified sample of blocks with two annotators. Report pairwise precision/recall and annotator agreement, adjudicate disagreements, and check whether merging hides reference-matching candidates. Until then, reduced review-item counts alone do not establish accuracy or human-effort savings.
+
+## Text grouping policy v2
+
+`rq1-semantic-consolidation-v2` groups statement text without treating other models' type, value-kind or scope labels as reliable meaning. Deterministic resource/head-term blocking still limits comparisons. Later chunks offer the 25 prior groups with greatest word overlap, retaining their stable IDs and all unoffered groups in the audit. Payload limits and exact fallback remain enforced. Metadata-content statements cannot join consumer/system processing capabilities; the prompt and a conservative accounting guard enforce that separation. Obligation variants remain separate outputs.
+
+New and derived trials use v2. Saved v1 trials retain their typed payload, full offered-group list and compatible checkpoints when resumed. These changes have offline regression coverage; live grouping quality still requires independent review.

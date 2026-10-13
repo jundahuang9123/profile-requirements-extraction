@@ -18,7 +18,7 @@ from .models import (BaselineRequest, CorpusSnapshot, DecisionRequest, Deliberat
                      NormalizedIntent, Qualification, RequirementRecord, RunRequest, SnapshotRequest, WorkflowRun)
 from .storage import ConflictError, Store, canonical, digest, now, uid
 from .role_selection import initial_manifest, panel_roles, select_roles
-from .semantic_consolidation import EXACT_POLICY, SEMANTIC_POLICY
+from .semantic_consolidation import EXACT_POLICY, SEMANTIC_POLICY, SEMANTIC_POLICIES
 
 PROMPT_VERSION = ELICITATION_POLICY_VERSION
 QUALIFICATION_VERSION = 'rq1-support-quality-v2.2'
@@ -668,7 +668,7 @@ def consolidate(store: Store, run: dict, records: list[RequirementRecord], clien
     """Merge identical candidates. ``previous`` maps revision IDs of an earlier attempt
     of this run to their records: an identical merged revision keeps its completed
     assessment, as normalization does for single candidates."""
-    if run.get('consolidation_policy_version') == SEMANTIC_POLICY:
+    if run.get('consolidation_policy_version') in SEMANTIC_POLICIES:
         from .semantic_consolidation import semantic_consolidate
         return semantic_consolidate(store, run, records, client, previous)
     previous = previous or {}

@@ -43,7 +43,7 @@ def workflow_metrics(run: dict) -> dict:
         'set_aside': {'count': len(aside), 'by_role': dict(Counter(o['role_id'] for o in aside)),
             'by_support_label': dict(Counter(observations.get(o['observation_id'], {}).get('support_level', 'unknown') for o in aside))},
         'consolidation': {
-            'mode': 'semantic' if run.get('consolidation_policy_version') == 'rq1-semantic-consolidation-v1' else 'exact',
+            'mode': 'semantic' if (run.get('consolidation_policy_version') or '').startswith('rq1-semantic-consolidation-') else 'exact',
             'policy_version': run.get('consolidation_policy_version') or 'legacy-exact',
             'input_records': sum(not r.get('parent_revision_ids') for r in raw), 'review_items': len(machine),
             'merged_groups': len({e['group_id'] for e in semantic_events}) + sum(

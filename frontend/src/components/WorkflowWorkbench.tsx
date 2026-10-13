@@ -248,7 +248,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
         return <article key={item.observation_id}><strong>{observation?.statement ?? item.observation_id}</strong><p>{roleLabel(run, item.role_id)} · extractor support: {humanLabel(observation?.support_level ?? 'unknown')}</p></article>;
       })}<p>A reviewer can add a requirement with supporting evidence through the existing requirement editor.</p></details>}
     </section>}
-    {run && page === 'consolidation' && run.consolidation_policy_version === 'rq1-semantic-consolidation-v1' && <section className="workflow-panel">
+    {run && page === 'consolidation' && run.consolidation_policy_version?.startsWith('rq1-semantic-consolidation-') && <section className="workflow-panel">
       <p>{run.metrics.normalized_count as number ?? run.stage_results?.normalization?.requirements?.length ?? 0} candidates → {resultRecords.length} review items: {mergedGroupIds.size} merged groups, {run.conflicts.filter(c => c.kind === 'obligation').length} obligation conflicts, {mergeEvents.reduce((n, e) => n + (e.attached_failed?.length ?? 0), 0)} failed duplicates attached, {consolidationEvents.filter(e => e.action === 'semantic_grouping_unavailable').length} chunks fell back to exact merging.</p>
       <p>Grouping is a model judgment. Members and differing obligation variants remain available for review and splitting.</p>
       {groupIds.map(id => { const members = groupMembers(id); const variants = resultRecords.filter(item => item.group_id === id); return <details key={id}>
