@@ -53,6 +53,7 @@ def payload(data, *, obligation=True, unknown=False, unsupported=False):
     if obligation and not unsupported:
         links.append({'source_span_id': spans[0]['span_id'], 'component': 'obligation'})
     return {'observations': [{'observation_id': 'model-id', 'role_id': 'untrusted-role',
+        'extension_kind': 'new_information_need', 'base_property': None,
         'statement': 'Describe National Access Point metadata.', 'evidence_links': links,
         'requirement_type': 'descriptive_metadata',
         'intent': {'resource_type': 'DataService', 'metadata_need': 'metadata',
@@ -142,6 +143,7 @@ def test_unsupported_hypothesis_retains_empty_evidence_and_fails_gate(corpus):
 def test_generated_quote_is_not_accepted_by_new_provider_contract():
     with pytest.raises(ValueError):
         SpanElicitationResult.model_validate({'observations': [{'observation_id': 'x', 'role_id': 'x',
+            'extension_kind': 'new_information_need', 'base_property': None,
             'statement': 'A need.', 'evidence_links': [{'evidence_id': 'x', 'quote': 'A fabricated quotation.'}]}]})
 
 
@@ -171,6 +173,7 @@ def test_excerpt_batch_includes_all_units_without_silent_truncation():
         assert [len(s['quote']) for s in spans] == [400, 400, len('xxxxx\nlast line')]
         assert ''.join(s['quote'] for s in spans) == unit['content']
         proposal = SpanObservation(observation_id='x', role_id='x', statement='Need.',
+            extension_kind='new_information_need', base_property=None,
             evidence_links=[{'source_span_id': spans[-1]['span_id']}])
         link = materialize_observation(proposal, catalogue).evidence_links[0]
         assert link.evidence_id == unit['evidence_id'] and link.quote == 'xxxxx\nlast line'
@@ -229,6 +232,7 @@ def test_later_excerpt_of_a_long_page_keeps_its_offset_and_passes_source_verific
         cited = next(span for span in spans if 'must publish' in span['quote'])
         assert cited['span_id'] == 's1'
         return {'observations': [{'observation_id': 'x', 'role_id': 'x', 'statement': 'Publish a contact point.',
+            'extension_kind': 'new_information_need', 'base_property': None,
             'requirement_type': 'descriptive_metadata',
             'intent': {'resource_type': 'Dataset', 'metadata_need': 'contact point', 'obligation_hint': 'mandatory'},
             'evidence_links': [{'source_span_id': cited['span_id'], 'component': 'statement'},
@@ -283,6 +287,7 @@ def multiunit_run(corpus, count=5):
 
 def unit_response(data):
     return {'observations': [{'observation_id': unit['evidence_id'], 'role_id': 'x',
+        'extension_kind': 'new_information_need', 'base_property': None,
         'statement': unit['source_spans'][0]['quote'], 'evidence_links': [
             {'source_span_id': unit['source_spans'][0]['span_id'], 'component': 'statement'}],
         'intent': {'resource_type': 'Dataset', 'metadata_need': 'field'},

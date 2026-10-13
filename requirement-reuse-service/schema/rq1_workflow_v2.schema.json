@@ -889,12 +889,43 @@
           "title": "Assumptions",
           "type": "array"
         },
+        "base_property": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Property"
+        },
         "evidence_links": {
           "items": {
             "$ref": "#/$defs/EvidenceLink"
           },
           "title": "Evidence Links",
           "type": "array"
+        },
+        "extension_kind": {
+          "anyOf": [
+            {
+              "enum": [
+                "new_information_need",
+                "stricter_obligation",
+                "value_constraint",
+                "new_class_or_relation",
+                "not_an_extension"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Extension Kind"
         },
         "intent": {
           "$ref": "#/$defs/NormalizedIntent"
@@ -1066,6 +1097,18 @@
           "title": "Base Check Findings",
           "type": "array"
         },
+        "base_property": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Property"
+        },
         "conflict_ids": {
           "items": {
             "type": "string"
@@ -1102,6 +1145,25 @@
           },
           "title": "Evidence Links",
           "type": "array"
+        },
+        "extension_kind": {
+          "anyOf": [
+            {
+              "enum": [
+                "new_information_need",
+                "stricter_obligation",
+                "value_constraint",
+                "new_class_or_relation",
+                "not_an_extension"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Extension Kind"
         },
         "group_id": {
           "anyOf": [
@@ -1820,6 +1882,168 @@
       "title": "SourceRequest",
       "type": "object"
     },
+    "SourceSpanLink": {
+      "additionalProperties": false,
+      "properties": {
+        "component": {
+          "default": "statement",
+          "enum": [
+            "statement",
+            "obligation",
+            "scope",
+            "condition",
+            "value_kind"
+          ],
+          "title": "Component",
+          "type": "string"
+        },
+        "relation": {
+          "default": "supports",
+          "enum": [
+            "supports",
+            "contradicts",
+            "contextualizes"
+          ],
+          "title": "Relation",
+          "type": "string"
+        },
+        "source_span_id": {
+          "minLength": 1,
+          "title": "Source Span Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_span_id"
+      ],
+      "title": "SourceSpanLink",
+      "type": "object"
+    },
+    "SpanElicitationResult": {
+      "additionalProperties": false,
+      "properties": {
+        "observations": {
+          "items": {
+            "$ref": "#/$defs/SpanObservation"
+          },
+          "title": "Observations",
+          "type": "array"
+        }
+      },
+      "title": "SpanElicitationResult",
+      "type": "object"
+    },
+    "SpanObservation": {
+      "additionalProperties": false,
+      "description": "Provider-only contract; original quotations are materialized by the server.",
+      "properties": {
+        "assumptions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "base_property": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Base Property"
+        },
+        "evidence_links": {
+          "items": {
+            "$ref": "#/$defs/SourceSpanLink"
+          },
+          "maxItems": 12,
+          "title": "Evidence Links",
+          "type": "array"
+        },
+        "extension_kind": {
+          "enum": [
+            "new_information_need",
+            "stricter_obligation",
+            "value_constraint",
+            "new_class_or_relation",
+            "not_an_extension"
+          ],
+          "title": "Extension Kind",
+          "type": "string"
+        },
+        "intent": {
+          "$ref": "#/$defs/NormalizedIntent"
+        },
+        "observation_id": {
+          "title": "Observation Id",
+          "type": "string"
+        },
+        "rationale": {
+          "default": "",
+          "title": "Rationale",
+          "type": "string"
+        },
+        "requirement_type": {
+          "default": "unknown",
+          "enum": [
+            "descriptive_metadata",
+            "semantic_anchor",
+            "technical_metadata",
+            "access_policy",
+            "quality_provenance",
+            "lifecycle_context",
+            "controlled_vocabulary",
+            "validation_constraint",
+            "competency_question",
+            "unknown"
+          ],
+          "title": "Requirement Type",
+          "type": "string"
+        },
+        "role_id": {
+          "title": "Role Id",
+          "type": "string"
+        },
+        "scope": {
+          "default": "Unspecified",
+          "title": "Scope",
+          "type": "string"
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        },
+        "support_level": {
+          "default": "evidence_supported_inference",
+          "enum": [
+            "explicit",
+            "evidence_supported_inference",
+            "unsupported"
+          ],
+          "title": "Support Level",
+          "type": "string"
+        },
+        "supports_user_tasks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supports User Tasks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "observation_id",
+        "role_id",
+        "statement",
+        "extension_kind",
+        "base_property"
+      ],
+      "title": "SpanObservation",
+      "type": "object"
+    },
     "TextSelector": {
       "additionalProperties": false,
       "properties": {
@@ -2073,7 +2297,7 @@
           "type": "array"
         },
         "elicitation_policy_version": {
-          "default": "rq1-independent-elicitation-v2.11",
+          "default": "rq1-independent-elicitation-v3.0",
           "title": "Elicitation Policy Version",
           "type": "string"
         },

@@ -71,6 +71,7 @@ class SelectorClient:
         elif output_model.__name__ == 'SpanElicitationResult':
             unit = data['evidence_units'][0]
             response = {'observations': [{'observation_id': 'model-proposal', 'role_id': 'untrusted-model-id',
+                'extension_kind': 'new_information_need', 'base_property': None,
                 'statement': 'Describe dataset geographic coverage.', 'scope': 'Datasets',
                 'requirement_type': 'descriptive_metadata', 'intent': {'resource_type': 'Dataset', 'metadata_need': 'geographic coverage'},
                 'evidence_links': [{'source_span_id': unit['source_spans'][0]['span_id']}]}]}

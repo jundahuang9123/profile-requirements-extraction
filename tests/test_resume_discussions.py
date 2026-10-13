@@ -52,6 +52,7 @@ class ScriptedClient:
                 if obligation != 'unknown':
                     links.append({'source_span_id': span['span_id'], 'component': 'obligation'})
                 observations.append({'observation_id': 'x', 'role_id': 'x', 'statement': text,
+                    'extension_kind': 'new_information_need', 'base_property': None,
                     'requirement_type': 'descriptive_metadata', 'scope': 'Dataset', 'evidence_links': links,
                     'intent': {'resource_type': 'Dataset', 'metadata_need': 'title' if 'title' in text else 'coverage',
                                'value_kind': 'literal', 'obligation_hint': obligation},

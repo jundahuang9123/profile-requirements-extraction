@@ -214,6 +214,7 @@ def test_model_role_contexts_contain_no_peer_outputs_and_failures_are_visible(co
             raise RuntimeError('role failed')
         unit = context_data['evidence_units'][0]
         return {'observations': [{'observation_id': 'model-id', 'role_id': 'model-role', 'statement': sentinel,
+                                 'extension_kind': 'new_information_need', 'base_property': None,
                                  'evidence_links': [{'source_span_id': unit['source_spans'][0]['span_id']}]}]}
     observations, reports = elicit(store, run, MockLLMClient(output))
     assert len(observations) == 1

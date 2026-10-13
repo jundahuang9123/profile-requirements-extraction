@@ -8,8 +8,10 @@ from ..models import ArtifactPayload, NormalizedIntent as LegacyIntent, Requirem
 
 WORKFLOW_VERSION = 'rq1-nine-stage-v2'
 SCHEMA_VERSION = 'rq1-requirement-dataset-v2'
-ELICITATION_POLICY_VERSION = 'rq1-independent-elicitation-v2.11'
-NORMALIZATION_POLICY_VERSION = 'rq1-normalization-v2'
+ELICITATION_POLICY_VERSION = 'rq1-independent-elicitation-v3.0'
+NORMALIZATION_POLICY_VERSION = 'rq1-normalization-v3'
+ExtensionKind = Literal['new_information_need', 'stricter_obligation', 'value_constraint',
+                        'new_class_or_relation', 'not_an_extension']
 STAGES = ['acquisition', 'decomposition', 'role_selection', 'elicitation', 'normalization',
           'verification', 'consolidation', 'deliberation', 'adjudication', 'baseline']
 
@@ -149,6 +151,9 @@ class Observation(Contract):
     assumptions: list[str] = Field(default_factory=list)
     supports_user_tasks: list[str] = Field(default_factory=list)
     support_level: Literal['explicit', 'evidence_supported_inference', 'unsupported'] = 'evidence_supported_inference'
+    # Older frozen extractions have neither field; their raw saved rows stay valid.
+    extension_kind: ExtensionKind | None = None
+    base_property: str | None = None
 
 
 class ElicitationResult(Contract):
@@ -181,6 +186,8 @@ class SourceSpanLink(Contract):
 class SpanObservation(Observation):
     """Provider-only contract; original quotations are materialized by the server."""
     evidence_links: list[SourceSpanLink] = Field(default_factory=list, max_length=12)
+    extension_kind: ExtensionKind = Field(...)
+    base_property: str | None = Field(...)
 
 
 class SpanElicitationResult(Contract):
@@ -209,6 +216,8 @@ class RequirementRecord(Contract):
     group_id: str | None = None
     base_check: dict[str, Any] | None = None
     base_check_findings: list[Finding] = Field(default_factory=list)
+    extension_kind: ExtensionKind | None = None
+    base_property: str | None = None
     raw_statement: str
     normalized_statement: str
     requirement_type: RequirementType

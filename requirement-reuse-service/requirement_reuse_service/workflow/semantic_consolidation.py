@@ -267,6 +267,7 @@ def semantic_consolidate(store, run, records, client=None, previous=None):
                         role_id='consolidation_semantic', statement=rep.raw_statement, requirement_type=rep.requirement_type,
                         intent=rep.normalized_intent, scope=rep.scope, evidence_links=list(links.values()),
                         rationale=rep.rationale, assumptions=rep.assumptions, support_level=rep.support_level,
+                        extension_kind=rep.extension_kind, base_property=rep.base_property,
                         supports_user_tasks=sorted({t for r in parents for t in r.supports_user_tasks}))
                     result = record_from_observation(run['run_id'], observation,parents=[r.revision_id for r in parents])
                     inherit_base_checks(result, parents)

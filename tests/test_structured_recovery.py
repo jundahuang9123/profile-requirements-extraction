@@ -38,6 +38,7 @@ def invoke(c, contract=Reply, repair=1):
 
 def observation(links=1, value='literal'):
     return {'observation_id': 'o1', 'role_id': 'role', 'statement': 'A supported atomic need.',
+        'extension_kind': 'new_information_need', 'base_property': None,
         'intent': {'resource_type': 'Dataset', 'metadata_need': 'identifier', 'value_kind': value},
         'evidence_links': [{'source_span_id': f's{i}', 'component': 'statement'} for i in range(links)]}
 
