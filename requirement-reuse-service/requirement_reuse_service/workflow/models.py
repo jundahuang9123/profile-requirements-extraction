@@ -323,6 +323,7 @@ class RunRequest(Contract):
     # gets a bounded discussion after consolidation. on_request: these go straight to
     # human review, and a reviewer can still open a targeted discussion per candidate.
     discussion: Literal['automatic', 'on_request'] = 'automatic'
+    consolidation: Literal['exact', 'semantic'] = 'exact'
     allow_live_provider: bool = False
     name: str = 'RQ1 workflow'
 
@@ -340,6 +341,17 @@ class RunRequest(Contract):
         return self
 
 
+class DeriveRequest(Contract):
+    expected_version: int = Field(ge=1)
+    name: str = Field(default='Reprocessed requirements', min_length=1)
+    consolidation: Literal['exact', 'semantic'] = 'exact'
+    discussion: Literal['automatic', 'on_request'] = 'on_request'
+    execution_mode: Literal['automatic', 'stepwise'] = 'automatic'
+    allow_live_provider: bool = False
+    reuse_assessments: bool = True
+    rationale: str = Field(min_length=1, max_length=2000)
+
+
 class WorkflowRun(Contract):
     run_id: str
     name: str
@@ -348,6 +360,8 @@ class WorkflowRun(Contract):
     elicitation_policy_version: str = ELICITATION_POLICY_VERSION
     schema_version: str = SCHEMA_VERSION
     strategy: str
+    derived_from: dict[str, Any] | None = None
+    assessment_reuse: dict[str, dict[str, Any]] = Field(default_factory=dict)
     request: RunRequest
     status: str = 'created'
     version: int = 1

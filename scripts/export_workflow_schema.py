@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'requirement-reuse-service'))
 from pydantic.json_schema import models_json_schema
 from requirement_reuse_service.workflow.models import (WorkflowRun, SourceArtifact, EvidenceUnit, CorpusSnapshot,
-    AdditionRequest, AssessmentRequest, BaselineRequest, DecisionRequest, RunRequest, SourceRequest)
+    AdditionRequest, AssessmentRequest, BaselineRequest, DecisionRequest, DeriveRequest, RunRequest, SourceRequest)
 
 
 def main():
@@ -18,7 +18,7 @@ def main():
     args = parser.parse_args()
     _, schema = models_json_schema([(model, 'validation') for model in (
         WorkflowRun, SourceArtifact, EvidenceUnit, CorpusSnapshot, AdditionRequest,
-        AssessmentRequest, BaselineRequest, DecisionRequest, RunRequest, SourceRequest)],
+        AssessmentRequest, BaselineRequest, DecisionRequest, DeriveRequest, RunRequest, SourceRequest)],
         title='RQ1 persistent workflow v2 contracts')
     schema['$schema'] = 'https://json-schema.org/draft/2020-12/schema'
     output = json.dumps(schema, indent=2, sort_keys=True) + '\n'

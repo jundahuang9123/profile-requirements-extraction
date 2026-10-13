@@ -11,10 +11,10 @@ from pydantic import BaseModel
 
 from .engine import (HUMAN_REQUEST_PREFIX, UNFINISHED_CASE_STATES, active_records, configured_client, decide,
                      execute_case, execute_run, freeze_snapshot, is_human_request, lexical_relation, make_case, new_run,
-                     publish_baseline, ensure_elicitation_resumable, qualify_record, record_from_observation, verify)
+                     publish_baseline, ensure_elicitation_resumable, qualify_record, record_from_observation, verify, derive_run)
 from .evidence import register_source, resolve_evidence
 from .models import (AdditionRequest, AssessmentRequest, BaselineRequest, DecisionRequest, EvidenceUnit,
-                     MessageRequest, Observation, RunRequest, SnapshotRequest, SourceRequest)
+                     MessageRequest, Observation, RunRequest, DeriveRequest, SnapshotRequest, SourceRequest)
 from .storage import ConflictError, Store, now, uid
 from ..llm.config import runtime_config_status, set_runtime_config
 from .role_selection import ensure_selection_resumable
@@ -116,7 +116,7 @@ def downloadable(value, enabled: bool, filename: str):
 
 
 # Audit parts the workbench does not display; the export always includes them.
-AUDIT_PARTS = ('model_calls', 'machine_snapshot', 'catalogues')
+AUDIT_PARTS = ('model_calls', 'machine_snapshot', 'catalogues', 'assessment_reuse')
 
 
 @router.post('/sources')
@@ -183,6 +183,14 @@ def get_run(run_id: str, audit: bool = True):
     """The saved run. ``audit=false`` leaves out the model-call log, the frozen machine
     snapshot and the excerpt catalogues, which the workbench does not display."""
     return translate(lambda: JSONResponse(Store().get_run(run_id, omit=() if audit else AUDIT_PARTS)))
+
+
+@router.post('/runs/{run_id}/derive', status_code=202)
+def derive_saved_run(run_id: str, request: DeriveRequest, background: BackgroundTasks):
+    store = Store()
+    run = translate(lambda: derive_run(store, run_id, request, actor()))
+    background.add_task(execute_run, store, run['run_id'])
+    return run
 
 
 @router.get('/runs/{run_id}/events')
@@ -267,7 +275,7 @@ def continue_run(run_id: str, request: VersionRequest, background: BackgroundTas
         if run.get('worker_id') and run.get('job_lease_until', 0) > time.time():
             raise ConflictError('The previous worker is still finishing. Refresh and retry.')
         ensure_elicitation_resumable(run)
-        if run.get('role_manifest'):
+        if run.get('role_manifest') and run['stages'].get('role_selection') != 'completed':
             ensure_selection_resumable(run['role_manifest'])
         configured_client(RunRequest.model_validate(run['request']))
         run.update(status='created', worker_id=None, job_lease_until=0)
@@ -294,7 +302,7 @@ def resume_run(run_id: str, request: VersionRequest, background: BackgroundTasks
         previous_attempt = deepcopy({key: run.get(key) for key in
             ('status', 'requirements', 'observations', 'role_runs', 'diagnostics', 'role_manifest', 'stages',
              'deliberations')})
-        if run.get('role_manifest'):
+        if run.get('role_manifest') and run['stages'].get('role_selection') != 'completed':
             ensure_selection_resumable(run['role_manifest'])
         ensure_elicitation_resumable(run)
         configured_client(RunRequest.model_validate(run['request']))

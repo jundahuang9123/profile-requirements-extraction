@@ -13,7 +13,7 @@ from ..llm.client import LLMClient, OutputTokenLimitError, OutputValidationError
 from ..llm.config import LLMConfig
 from .evidence import resolve_evidence
 from .citations import elicitation_batch, materialize_observation
-from .models import (BaselineRequest, CorpusSnapshot, DecisionRequest, DeliberationCase,
+from .models import (BaselineRequest, CorpusSnapshot, DecisionRequest, DeliberationCase, DeriveRequest,
                      SpanElicitationResult, ELICITATION_POLICY_VERSION, EvidenceLink, EvidenceUnit, Finding, Observation,
                      NormalizedIntent, Qualification, RequirementRecord, RunRequest, SnapshotRequest, WorkflowRun)
 from .storage import ConflictError, Store, canonical, digest, now, uid
@@ -211,6 +211,61 @@ def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') ->
     return run.model_dump(mode='json')
 
 
+def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='local-reviewer') -> dict:
+    """Reprocess a frozen extraction in a separate run; never mutate its source."""
+    source = store.get('run', source_run_id)
+    if source['version'] != request.expected_version:
+        raise ConflictError('Source run changed. Refresh before deriving a run.')
+    if source.get('worker_id') and source.get('job_lease_until', 0) > time.time():
+        raise ConflictError('Wait for the source worker to finish before deriving a run.')
+    manifest = source.get('role_manifest') or {}
+    if (source['stages'].get('elicitation') != 'completed' or not source['role_runs']
+            or any(r['status'] != 'completed' for r in source['role_runs'])
+            or (source['request'].get('role_selection', 'manual') != 'manual'
+                and manifest.get('status') != 'completed')):
+        raise ValueError('Derivation requires a complete extraction and stakeholder panel.')
+    options = deepcopy(source['request'])
+    options.update({k: getattr(request, k) for k in
+                    ('name', 'consolidation', 'discussion', 'execution_mode', 'allow_live_provider')})
+    settings = RunRequest.model_validate(options)
+    configured_client(settings)  # Validate permission/configuration; sends no request.
+    run = WorkflowRun(run_id=f'run-{uuid.uuid4().hex}', name=settings.name,
+        snapshot_id=source['snapshot_id'], strategy=source['strategy'], request=settings,
+        evidence_ids=source['evidence_ids'], observations=source['observations'],
+        role_runs=source['role_runs'], role_manifest=manifest or None, created_at=now(),
+        elicitation_policy_version=source.get('elicitation_policy_version', 'legacy-unknown'),
+        implementation_hash=digest({p.name: digest(p.read_bytes()) for p in Path(__file__).parent.glob('*.py')}),
+        derived_from={'run_id': source_run_id, 'version': source['version'], 'stage': 'elicitation',
+            'observations_hash': digest(source['observations']), 'role_runs_hash': digest(source['role_runs']),
+            'elicitation_policy_version': source.get('elicitation_policy_version'),
+            'reuse_assessments': request.reuse_assessments, 'actor': actor, 'rationale': request.rationale})
+    for stage in ('acquisition', 'decomposition', 'role_selection', 'elicitation'):
+        run.stages[stage] = 'completed'
+        run.stage_results[stage] = deepcopy(source.get('stage_results', {}).get(stage) or
+            {k: source.get(k) for k in STAGE_RESULT_FIELDS[stage]})
+    hashes = {c.get('catalogue_hash') for r in source['role_runs'] for c in r.get('citation_selections', [])}
+    run.catalogues = {h: deepcopy(c) for h, c in source.get('catalogues', {}).items() if h in hashes}
+    if request.reuse_assessments:
+        run.assessment_reuse = {r['content_hash']: {'content_hash': r['content_hash'],
+            'qualification': deepcopy(r['qualification'])} for r in source['requirements']
+            if reusable_qualification(r, r['content_hash'])}
+    run.derived_from['assessments_hash'] = digest(run.assessment_reuse)
+    if store.get_run(source_run_id, parts=False)['version'] != source['version']:
+        raise ConflictError('Source run changed while copying extraction. Refresh and retry.')
+    value = run.model_dump(mode='json')
+    store.put('run', run.run_id, value)
+    return value
+
+
+def reusable_qualification(record: dict, content_hash: str):
+    qualification = record.get('qualification') or {}
+    assessor = qualification.get('assessor', '')
+    if (record.get('content_hash') == content_hash and qualification.get('revision_hash') == content_hash
+            and assessor.startswith(QUALIFICATION_VERSION + '/') and '/unavailable/' not in assessor):
+        return Qualification.model_validate(qualification)
+    return None
+
+
 def verify(store: Store, record: RequirementRecord, eligible_evidence_ids: list[str], cache: dict | None = None) -> dict:
     expected_hash = digest({'statement': record.normalized_statement, 'type': record.requirement_type,
         'intent': record.normalized_intent.model_dump(mode='json'), 'scope': record.scope,
@@ -347,6 +402,14 @@ def offline_observations(run_id: str, role_id: str, units: list[dict], strategy:
 
 
 def ensure_elicitation_resumable(run):
+    needs_extraction = (run['stages'].get('elicitation') != 'completed'
+                        or any(r['status'] != 'completed' for r in run['role_runs']))
+    if run.get('derived_from'):
+        if needs_extraction:
+            raise ValueError('Derived runs cannot repeat extraction. Create a new run.')
+        return
+    if not needs_extraction:
+        return
     if run['strategy'] == 'multi_agent' and run.get('elicitation_policy_version') != PROMPT_VERSION:
         raise ValueError('Requirement extraction policy has changed; create a new run to avoid mixing extraction contracts.')
 
@@ -601,6 +664,8 @@ def consolidate(store: Store, run: dict, records: list[RequirementRecord], clien
     of this run to their records: an identical merged revision keeps its completed
     assessment, as normalization does for single candidates."""
     previous = previous or {}
+    previous_by_hash = {r['content_hash']: r for r in previous.values()
+                        if reusable_qualification(r, r['content_hash'])} if run.get('derived_from') else {}
     cache = {}      # each source is parsed once for all merged candidates, as in verification
     groups: dict[str, list[RequirementRecord]] = {}
     for record in records:
@@ -630,7 +695,7 @@ def consolidate(store: Store, run: dict, records: list[RequirementRecord], clien
         merged = record_from_observation(run['run_id'], obs, parents=[item.revision_id for item in group])
         merged.observation_ids = [oid for item in group for oid in item.observation_ids]
         merged.contributing_roles = sorted({role for item in group for role in item.contributing_roles})
-        earlier = previous.get(merged.revision_id)
+        earlier = previous.get(merged.revision_id) or previous_by_hash.get(merged.content_hash)
         reusable = (earlier and earlier.get('content_hash') == merged.content_hash and earlier.get('qualification')
                     and earlier['qualification'].get('revision_hash') == merged.content_hash)
         if reusable:
@@ -764,13 +829,14 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
     """Checkpoint each stage; provider failures retain completed independent artifacts."""
     worker_id = uuid.uuid4().hex
     active_stage = 'role_selection'
-    def patch(stage: str, updates: dict, stage_status: str = 'completed'):
+    def patch(stage: str, updates: dict, stage_status: str = 'completed', result_extras=None):
         def apply(run):
             if run['status'] == 'cancelled':
                 raise ConflictError('Run cancelled.')
             run['stages'][stage] = stage_status
             run.update(updates)
-            run.setdefault('stage_results', {})[stage] = {key: deepcopy(run.get(key)) for key in STAGE_RESULT_FIELDS[stage]}
+            run.setdefault('stage_results', {})[stage] = {
+                **{key: deepcopy(run.get(key)) for key in STAGE_RESULT_FIELDS[stage]}, **(result_extras or {})}
             run['job_lease_until'] = time.time() + 900
             return {'stage': stage}
         return store.mutate(run_id, None, 'stage_completed', apply)['run']
@@ -801,6 +867,12 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             run['role_manifest'] = initial_manifest(store, request, 'legacy-run')
         # Candidates of an earlier attempt; consolidation reuses assessments of identical merges.
         prior_records = {r['revision_id']: r for r in run['requirements']}
+        assessment_reuse = {}
+        if (run.get('derived_from') or {}).get('reuse_assessments'):
+            assessment_reuse = store.get_run(run_id, omit=('model_calls', 'catalogues', 'machine_snapshot'))['assessment_reuse']
+            if digest(assessment_reuse) != run['derived_from']['assessments_hash']:
+                raise ValueError('Frozen assessment reuse cache hash mismatch.')
+            prior_records.update({f'reused-{h}': r for h, r in assessment_reuse.items()})
         def pause(stage):
             if request.execution_mode != 'stepwise':
                 return False
@@ -814,6 +886,7 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
                 return
         active_stage = 'elicitation'
         if run['stages']['elicitation'] != 'completed':
+            ensure_elicitation_resumable(run)
             start_stage('elicitation', 'eliciting')
             observations, reports = elicit(store, run, client)
             run = patch('elicitation', {'observations': [o.model_dump(mode='json') for o in observations], 'role_runs': reports,
@@ -827,6 +900,14 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             start_stage('normalization', 'normalizing')
             saved_records = {r['revision_id']: RequirementRecord.model_validate(r) for r in run['requirements']}
             records = [record_from_observation(run_id, observation) for observation in observations]
+            source_assessments = {}
+            lineage = run.get('derived_from') or {}
+            if lineage.get('reuse_assessments'):
+                for item in assessment_reuse.values():
+                    qualification = reusable_qualification(item, item['content_hash'])
+                    if qualification:
+                        source_assessments.setdefault(item['content_hash'], qualification)
+            reused_assessments = 0
             for record in records:
                 previous = saved_records.get(record.revision_id)
                 if (previous and previous.content_hash == record.content_hash and previous.qualification
@@ -834,7 +915,12 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
                     record.qualification = previous.qualification
                     record.verification = previous.verification
                     record.lifecycle_state = previous.lifecycle_state
-            run = patch('normalization', {'requirements': [r.model_dump(mode='json') for r in records], 'status': 'verifying'})
+                elif record.content_hash in source_assessments:
+                    record.qualification = source_assessments[record.content_hash].model_copy(deep=True)
+                    reused_assessments += 1
+            run = patch('normalization', {'requirements': [r.model_dump(mode='json') for r in records],
+                'metrics': {**run['metrics'], 'assessments_reused': reused_assessments}, 'status': 'verifying'},
+                result_extras={'assessments_reused': reused_assessments})
             if pause('normalization'):
                 return
         records = [RequirementRecord.model_validate(r) for r in run['requirements']]
@@ -886,7 +972,7 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             discussion_stage = 'completed'
         run = patch('deliberation', {'deliberations': cases, 'status': 'awaiting_human',
             'diagnostics': [f'{failed_roles} extraction role(s) failed; partial panel retained.'] if failed_roles else [],
-            'metrics': {'evidence_count': len(run['evidence_ids']), 'raw_observation_count': len(observations),
+            'metrics': {**run['metrics'], 'evidence_count': len(run['evidence_ids']), 'raw_observation_count': len(observations),
                         'normalized_count': len(records), 'active_count': len(active),
                         'failed_role_count': failed_roles, 'conflict_count': len(conflicts), 'routing': routing,
                         'discussion_mode': request.discussion,

@@ -45,6 +45,12 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
   const [maxRoles, setMaxRoles] = useState<number>(setup.maxRoles ?? 4);
   const [executionMode, setExecutionMode] = useState<string>(setup.executionMode ?? 'stepwise');
   const [discussion, setDiscussion] = useState<string>(setup.discussion ?? 'automatic');
+  const [showDerive, setShowDerive] = useState(false);
+  const [deriveName, setDeriveName] = useState('Reprocessed requirements');
+  const [deriveDiscussion, setDeriveDiscussion] = useState('on_request');
+  const [deriveConsolidation, setDeriveConsolidation] = useState('exact');
+  const [reuseAssessments, setReuseAssessments] = useState(true);
+  const [deriveLive, setDeriveLive] = useState(false);
   const [allowLive, setAllowLive] = useState(false);
   const [selectedRevisions, setSelectedRevisions] = useState<string[]>([]);
   const [evidence, setEvidence] = useState<Evidence | null>(null);
@@ -163,6 +169,21 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
       {(['created', 'selecting_roles', 'eliciting', 'normalizing', 'verifying', 'consolidating', 'routing'].includes(run.status) || run.deliberations.some(item => ['queued','running'].includes(item.status))) && <button disabled={busy} onClick={() => void act(() => command('/cancel', { expected_version: run.version }))}>Stop ongoing work</button>}
       {resumable(run) && <button disabled={busy} title="Repeats only unfinished extraction units and discussions; finished results are kept." onClick={() => void act(async () => { await workflowApi(`/runs/${run.run_id}/resume`, { expected_version: run.version }); await loadRun(run.run_id); })}>{['failed', 'cancelled'].includes(run.status) ? 'Resume interrupted run' : 'Retry unfinished work'}</button>}
     </div>}
+    {run && run.stages.elicitation === 'completed' && run.role_runs.length > 0 && run.role_runs.every(role => role.status === 'completed') && !leaseActive(run) && <section className="workflow-panel">
+      <button disabled={busy} onClick={() => setShowDerive(value => !value)}>Re-run steps 4–7 with new settings</button>
+      {showDerive && <div><p>Creates a new run that reuses this run's extraction, with no extraction calls. This run stays unchanged.</p>
+        <label>Name<input value={deriveName} onChange={event => setDeriveName(event.target.value)} /></label>
+        <label>Consolidation<select value={deriveConsolidation} onChange={event => setDeriveConsolidation(event.target.value)}><option value="exact">Exact copies only (earlier behaviour)</option></select></label>
+        <label>Discussion<select value={deriveDiscussion} onChange={event => setDeriveDiscussion(event.target.value)}><option value="on_request">Only when a reviewer asks</option><option value="automatic">Discuss flagged candidates automatically</option></select></label>
+        <label className="workflow-check"><input type="checkbox" checked={reuseAssessments} onChange={event => setReuseAssessments(event.target.checked)} />Reuse identical assessments under the same assessment policy</label>
+        {run.strategy === 'multi_agent' && <label className="workflow-check"><input type="checkbox" checked={deriveLive} onChange={event => setDeriveLive(event.target.checked)} />Allow downstream calls to the configured provider</label>}
+        <button className="workflow-primary" disabled={busy || !deriveName.trim() || (run.strategy === 'multi_agent' && !deriveLive)} onClick={() => void act(async () => {
+          const created = await workflowApi<Run>(`/runs/${run.run_id}/derive`, { expected_version: run.version, name: deriveName, consolidation: deriveConsolidation, discussion: deriveDiscussion, execution_mode: 'automatic', reuse_assessments: reuseAssessments, allow_live_provider: deriveLive, rationale: 'Reprocess saved extraction with the selected downstream settings.' });
+          setShowDerive(false); setActiveRecord(null); setSelectedRevisions([]); await loadRun(created.run_id); await refreshLists(); navigate('normalization', created.run_id); onStatus('New run created from the saved extraction.');
+        })}>Create reprocessed run</button>
+      </div>}
+    </section>}
+    {run?.derived_from && <p className="workflow-notice">Extraction reused from <a href={`#/workflow/${run.derived_from.run_id}/elicitation`}>{run.derived_from.run_id}</a>, saved revision {run.derived_from.version}. New call counts exclude the source run's extraction.</p>}
     {run?.status === 'paused' && <section className="workflow-panel"><h2>Results saved — ready for review</h2><p>Review the completed step, then continue. No processing runs while this workflow is paused.</p><button className="workflow-primary" disabled={busy || Boolean(run.worker_id)} onClick={() => void act(async () => { await workflowApi(`/runs/${run.run_id}/continue`, { expected_version: run.version }); const updated = await loadRun(run.run_id); navigate(stages.find(stage => !['completed', 'partial'].includes(updated.stages[stage])) ?? 'adjudication'); })}>Continue to next processing step</button></section>}
     {run?.diagnostics.map((message, i) => <p className="workflow-error" key={i}>{message}</p>)}
     {page === 'acquisition' && <section className="workflow-panel">

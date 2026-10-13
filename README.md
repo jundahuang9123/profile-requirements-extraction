@@ -154,3 +154,5 @@ and pauses after each stage, until Continue is clicked. Choose **Automatic** for
 test run. Opening or changing pages never starts a model call. Completed extraction
 batches and matching semantic assessments are checkpointed for interruption recovery.
 See [WORKFLOW_V2.md](docs/WORKFLOW_V2.md) for recovery limits and historical-run behaviour.
+
+Completed extraction can be reprocessed in a **new run** using **Re-run steps 4–7 with new settings**. The source run stays unchanged; extraction is reused and compatible identical assessments can be reused. See [consolidation and downstream trials](docs/CONSOLIDATION.md).

@@ -238,3 +238,7 @@ completion, role semantic quality, extraction coverage and discussion outcomes
 remain unvalidated. This fix prevents the quotation-generation failure class; other
 malformed model fields, provider failures and invalid panel accounting can still
 stop a run visibly. The full workflow remains incomplete with zero requirements.
+
+## Saved-extraction downstream trials
+
+A separate derived run can now reuse completed extraction and identical current-policy assessments. Original-source checks are recomputed; the source run is never rewritten. Offline scripted-client tests cover lineage, stale/partial source rejection, stage exports, no extraction calls and reset prevention. No live acceptance trial has been run.

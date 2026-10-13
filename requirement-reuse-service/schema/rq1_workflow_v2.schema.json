@@ -429,6 +429,71 @@
       "title": "DeliberationCase",
       "type": "object"
     },
+    "DeriveRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_live_provider": {
+          "default": false,
+          "title": "Allow Live Provider",
+          "type": "boolean"
+        },
+        "consolidation": {
+          "default": "exact",
+          "enum": [
+            "exact",
+            "semantic"
+          ],
+          "title": "Consolidation",
+          "type": "string"
+        },
+        "discussion": {
+          "default": "on_request",
+          "enum": [
+            "automatic",
+            "on_request"
+          ],
+          "title": "Discussion",
+          "type": "string"
+        },
+        "execution_mode": {
+          "default": "automatic",
+          "enum": [
+            "automatic",
+            "stepwise"
+          ],
+          "title": "Execution Mode",
+          "type": "string"
+        },
+        "expected_version": {
+          "minimum": 1,
+          "title": "Expected Version",
+          "type": "integer"
+        },
+        "name": {
+          "default": "Reprocessed requirements",
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "reuse_assessments": {
+          "default": true,
+          "title": "Reuse Assessments",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "expected_version",
+        "rationale"
+      ],
+      "title": "DeriveRequest",
+      "type": "object"
+    },
     "EvidenceLink": {
       "additionalProperties": false,
       "properties": {
@@ -1267,6 +1332,15 @@
           "default": null,
           "title": "Based On Run Id"
         },
+        "consolidation": {
+          "default": "exact",
+          "enum": [
+            "exact",
+            "semantic"
+          ],
+          "title": "Consolidation",
+          "type": "string"
+        },
         "discussion": {
           "default": "automatic",
           "enum": [
@@ -1664,6 +1738,13 @@
           "title": "Assessment History",
           "type": "array"
         },
+        "assessment_reuse": {
+          "additionalProperties": {
+            "type": "object"
+          },
+          "title": "Assessment Reuse",
+          "type": "object"
+        },
         "attempt_history": {
           "items": {
             "type": "object"
@@ -1720,6 +1801,18 @@
           },
           "title": "Deliberations",
           "type": "array"
+        },
+        "derived_from": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Derived From"
         },
         "diagnostics": {
           "items": {
