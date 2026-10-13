@@ -15,11 +15,11 @@ from ..llm.config import LLMConfig
 from .evidence import resolve_evidence
 from .citations import elicitation_batch, materialize_observation
 from .models import (BaselineRequest, CorpusSnapshot, DecisionRequest, DeliberationCase, DeriveRequest,
-                     SpanElicitationResult, NeedSpanElicitationResult, NEEDS_ELICITATION_POLICY, ELICITATION_POLICY_VERSION, NORMALIZATION_POLICY_VERSION, EvidenceLink, EvidenceUnit, Finding, Observation,
+                     SpanElicitationResult, NeedSpanElicitationResult, NEEDS_ELICITATION_POLICY, ELICITATION_POLICY_VERSION, NORMALIZATION_POLICY_VERSION, NEEDS_NORMALIZATION_POLICY, EvidenceLink, EvidenceUnit, Finding, Observation,
                      NormalizedIntent, Qualification, RequirementRecord, RunRequest, SnapshotRequest, WorkflowRun)
 from .storage import ConflictError, RUN_PARTS, Store, canonical, digest, now, uid
 from .role_selection import initial_manifest, panel_roles, select_roles
-from .semantic_consolidation import EXACT_POLICY, SEMANTIC_POLICY, SEMANTIC_POLICIES
+from .semantic_consolidation import EXACT_POLICY, SEMANTIC_POLICY, NEED_SEMANTIC_POLICY, SEMANTIC_POLICIES
 from .base_profile import BASE_CHECK_POLICY_VERSION, PROFILE_ID_PATTERN, check_record, load_profile
 from .evaluation import base_check_metrics
 
@@ -84,7 +84,7 @@ STAGE_RESULT_FIELDS = {
 }
 RUN_POLICY_FIELDS = ('elicitation_policy_version', 'normalization_policy_version',
                      'consolidation_policy_version', 'base_profile_id', 'base_profile_sha256',
-                     'base_registry_policy_version', 'base_check_policy_version')
+                     'base_registry_policy_version', 'base_check_policy_version', 'needs_policies')
 
 
 class TrackedClient:
@@ -292,8 +292,8 @@ def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') ->
                       elicitation_policy_version=NEEDS_ELICITATION_POLICY if request.output_form == 'needs' else PROMPT_VERSION,
                       **base_metadata,
                       base_check_policy_version=BASE_CHECK_POLICY_VERSION if base_metadata and request.base_check else None,
-                      normalization_policy_version=NORMALIZATION_POLICY_VERSION,
-                      consolidation_policy_version=SEMANTIC_POLICY if request.consolidation == 'semantic' else EXACT_POLICY,
+                      normalization_policy_version=NEEDS_NORMALIZATION_POLICY if request.output_form == 'needs' else NORMALIZATION_POLICY_VERSION,
+                      consolidation_policy_version=NEED_SEMANTIC_POLICY if request.output_form == 'needs' else SEMANTIC_POLICY if request.consolidation == 'semantic' else EXACT_POLICY,
                       implementation_hash=digest({path.name: digest(path.read_bytes()) for path in Path(__file__).parent.glob('*.py')}))
     run.stages['acquisition'] = 'completed'
     run.stages['decomposition'] = 'completed'
@@ -339,10 +339,10 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
         evidence_ids=source['evidence_ids'], observations=source['observations'],
         role_runs=source['role_runs'], role_manifest=manifest or None, created_at=now(),
         elicitation_policy_version=source.get('elicitation_policy_version', 'legacy-unknown'),
-        normalization_policy_version=NORMALIZATION_POLICY_VERSION,
+        normalization_policy_version=NEEDS_NORMALIZATION_POLICY if settings.output_form == 'needs' else NORMALIZATION_POLICY_VERSION,
         **base_metadata,
         base_check_policy_version=BASE_CHECK_POLICY_VERSION if base_metadata and settings.base_check else None,
-        consolidation_policy_version=SEMANTIC_POLICY if settings.consolidation == 'semantic' else EXACT_POLICY,
+        consolidation_policy_version=NEED_SEMANTIC_POLICY if settings.output_form == 'needs' else SEMANTIC_POLICY if settings.consolidation == 'semantic' else EXACT_POLICY,
         implementation_hash=digest({p.name: digest(p.read_bytes()) for p in Path(__file__).parent.glob('*.py')}),
         derived_from={'run_id': source_run_id, 'version': source['version'], 'stage': 'elicitation',
             'observations_hash': digest(source['observations']), 'role_runs_hash': digest(source['role_runs']),
@@ -497,6 +497,10 @@ def _requirement_content(*, statement, requirement_type, intent, scope, evidence
 
 
 def verify(store: Store, record: RequirementRecord, eligible_evidence_ids: list[str], cache: dict | None = None) -> dict:
+    if record.need_statement is not None:
+        from .needs import need_integrity
+        if record.need_statement != record.normalized_statement or record.need_integrity_hash != need_integrity(record):
+            return {'status': 'fail', 'links': [], 'message': 'Need metadata integrity mismatch.', 'checked_at': now()}
     expected_hash = digest(_requirement_content(statement=record.normalized_statement,
         requirement_type=record.requirement_type, intent=record.normalized_intent, scope=record.scope,
         evidence_links=record.evidence_links, rationale=record.rationale, assumptions=record.assumptions,
@@ -1210,7 +1214,7 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             saved_records = {r['revision_id']: RequirementRecord.model_validate(r) for r in run['requirements']}
             set_aside = [{'observation_id': o.observation_id, 'role_id': o.role_id, 'reason': 'no_source_link'}
                          for o in observations if not o.evidence_links] if run.get('normalization_policy_version') in {
-                             'rq1-normalization-v2', NORMALIZATION_POLICY_VERSION} else []
+                             'rq1-normalization-v2', NORMALIZATION_POLICY_VERSION, NEEDS_NORMALIZATION_POLICY} else []
             if run.get('normalization_policy_version') == NORMALIZATION_POLICY_VERSION:
                 set_aside.extend({'observation_id': o.observation_id, 'role_id': o.role_id,
                                   'reason': 'declared_not_extension'} for o in observations
@@ -1225,15 +1229,15 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
                 by_observation = {o.observation_id: o for o in observations}
                 for record in records:
                     apply_base_check(store, run, record, context)
-                    inherited = (record.base_check['relation'] == 'inherited'
-                                 and not record.base_check.get('requires_review'))
+                    inherited = ((evidence_source_group(record, context) == 'base_only') if request.output_form == 'needs' else
+                                 (record.base_check['relation'] == 'inherited' and not record.base_check.get('requires_review')))
                     observation = by_observation[record.observation_ids[0]]
                     base_audit.append({'observation_id': observation.observation_id, 'role_id': observation.role_id,
                         'revision_id': record.revision_id, 'base_check': deepcopy(record.base_check),
                         'findings': [f.model_dump(mode='json') for f in record.base_check_findings], 'set_aside': inherited})
                     if inherited:
                         set_aside.append({'observation_id': observation.observation_id, 'role_id': observation.role_id,
-                            'reason': 'inherited_from_base', 'base_check': deepcopy(record.base_check)})
+                            'reason': 'base_specification_only' if request.output_form == 'needs' else 'inherited_from_base', 'base_check': deepcopy(record.base_check)})
                     else:
                         kept_records.append(record)
                 records = kept_records
@@ -1255,6 +1259,11 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
                 elif record.content_hash in source_assessments:
                     record.qualification = source_assessments[record.content_hash].model_copy(deep=True)
                     reused_assessments += 1
+                if request.output_form == 'needs':
+                    from .terms import collect_hints
+                    record.qualification = None
+                    record.rq2_hints = collect_hints(record.raw_statement, record.evidence_links, selected_profile, record.revision_id, record.rq2_hints)
+                    record.base_check_findings = []
                 retain_base_findings(record)
             normalized_records = [r.model_dump(mode='json') for r in records]
             base_summary = base_check_metrics({**run, 'requirements': normalized_records,
@@ -1276,7 +1285,7 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             cache = {}
             for record in records:
                 record.verification = verify(store, record, run['evidence_ids'], cache)
-                if not record.qualification or record.qualification.revision_hash != record.content_hash:
+                if request.output_form != 'needs' and (not record.qualification or record.qualification.revision_hash != record.content_hash):
                     record.qualification = assess(store, record, client)
                 retain_base_findings(record)
                 record.lifecycle_state = 'blocked_evidence' if record.verification['status'] != 'pass' else 'awaiting_human'
@@ -1295,7 +1304,11 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             # A failed semantic stage may have saved assessed merges. They are reuse
             # checkpoints, not new inputs; only normalized observations are grouped.
             records = [r for r in records if not r.parent_revision_ids]
-            active, events, conflicts = consolidate(store, run, records, client, previous=prior_records)
+            if request.output_form == 'needs':
+                from .needs import process_needs
+                active, events, conflicts = process_needs(store, run, records, client, selected_profile)
+            else:
+                active, events, conflicts = consolidate(store, run, records, client, previous=prior_records)
             all_records = {r.revision_id: r.model_dump(mode='json') for r in [*records, *active]}
             frozen_base_audit = deepcopy(store.get_run(run_id,
                 omit=tuple(part for part in RUN_PARTS if part != 'base_check_audit'))['base_check_audit'])

@@ -297,6 +297,7 @@ class RequirementRecord(Contract):
     matched_base_need_ids: list[str] = Field(default_factory=list)
     base_need_matches: list[dict[str, Any]] = Field(default_factory=list)
     need_condition: str = ''
+    need_integrity_hash: str | None = None
     rank: int | None = Field(default=None, ge=1)
     rank_keys: dict[str, Any] = Field(default_factory=dict)
 

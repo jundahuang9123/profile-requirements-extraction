@@ -1361,6 +1361,18 @@
           "title": "Need Condition",
           "type": "string"
         },
+        "need_integrity_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Need Integrity Hash"
+        },
         "need_statement": {
           "anyOf": [
             {
