@@ -178,7 +178,7 @@ def test_spatial_quality_is_new_without_a_base_property(profile):
 
 
 def test_relaxing_base_obligation_is_blocking(profile):
-    result, findings = checked(record('CatalogRecord should include dct:modified.',
+    result, findings = checked(record('CatalogRecord should include dct:modified if access is restricted.',
         resource='CatalogRecord', obligation='recommended'), profile)
     assert result['relation'] == 'loosened' and result['base_obligation'] == 'mandatory'
     assert findings[0]['criterion'] == 'conflicts_with_base' and findings[0]['severity'] == 'blocking'
@@ -196,10 +196,11 @@ def test_explicit_property_precedes_text_and_lexicon(profile):
     assert result['property'] == 'dct:publisher' and result['resolved_via'] == 'base_property'
 
 
-def test_explicit_property_not_in_candidate_class_is_new(profile):
+def test_explicit_property_not_in_candidate_class_resolves_label_noise(profile):
     result, _ = checked(record('Publish a publisher.', resource='Distribution',
         base_property='dcat:Dataset/dct:publisher'), profile)
-    assert result['relation'] == 'new' and result['property'] == 'dct:publisher'
+    assert result['relation'] == 'inherited' and result['property'] == 'dct:publisher'
+    assert result['class'] == 'dcat:Dataset' and result['candidate_class'] == 'dcat:Distribution'
     assert result['notes']
 
 
@@ -299,3 +300,121 @@ def test_check_is_read_only(profile):
     before = deepcopy((row, profile))
     check_record(row, profile)
     assert (row, profile) == before
+
+
+@pytest.mark.parametrize('statement', [
+    'Datasets may include dcat:contactPoint.',
+    'Datasets should be linked to a contact point for enquiries about access or use.',
+])
+def test_weaker_label_without_added_need_is_inherited(profile, statement):
+    result, findings = checked(record(statement, metadata='contact point', obligation='optional'), profile)
+    assert result['relation'] == 'inherited' and findings == []
+    assert 'weaker label than base' in result['notes']
+
+
+@pytest.mark.parametrize('statement', [
+    'DataService must expose an endpoint URL where clients can access the service.',
+    'DataService must expose an endpoint URL where data can be retrieved.',
+    'Dataset must provide a title and its text.',
+])
+def test_relative_clause_and_ordinary_conjunction_do_not_add_constraints(profile, statement):
+    row = record(statement, resource='DataService' if 'DataService' in statement else 'Dataset', obligation='mandatory')
+    result, findings = checked(row, profile)
+    assert result['relation'] == 'inherited' and not result.get('requires_review')
+    assert not result['constraint_signals'] and findings == []
+
+
+@pytest.mark.parametrize('statement', [
+    'Dataset title is required where applicable.',
+    'Dataset title is required when the dataset is published.',
+    'Dataset title is required where access is restricted.',
+    'If the dataset is public, its title is required.',
+])
+def test_applicability_clause_is_a_constraint(profile, statement):
+    result, _ = checked(record(statement, metadata='title'), profile)
+    assert result['relation'] == 'constrained'
+    assert any(s.startswith('condition:') for s in result['constraint_signals'])
+
+
+def test_when_describes_a_timestamp_not_applicability(profile):
+    result, _ = checked(record('Dataset must record the date when it was modified.',
+        resource='CatalogRecord', metadata='last modified', obligation='mandatory'), profile)
+    assert result['relation'] == 'inherited' and not result['constraint_signals']
+
+
+def test_generic_vocabulary_is_inherited_but_an_alternative_is_retained(profile):
+    profile['classes']['dcat:Dataset']['dcat:theme']['vocabulary'] = 'http://example.org/base-theme'
+    generic, _ = checked(record('Dataset theme uses a controlled vocabulary.', metadata='theme'), profile)
+    assert generic['relation'] == 'inherited' and not generic['constraint_signals']
+    added, _ = checked(record('Dataset theme comes from Regulation 1205/2008.', metadata='theme'), profile)
+    assert added['relation'] == 'constrained'
+
+
+@pytest.mark.parametrize('phrase,prop', [
+    ('validity interval', 'dct:temporal'), ('period of time', 'dct:temporal'),
+    ('start and end dates', 'dct:temporal'), ('bounding box', 'dct:spatial'),
+    ('geographic location', 'dct:spatial'),
+])
+def test_requested_coverage_synonyms_resolve_to_inherited_property(profile, phrase, prop):
+    profile['classes']['dcat:Dataset']['dct:temporal'] = {
+        'obligation': 'recommended', 'labels': [], 'range': 'dct:PeriodOfTime'}
+    result, findings = checked(record('Dataset should provide its ' + phrase + '.',
+        metadata=phrase, obligation='recommended'), profile)
+    assert result['property'] == prop and result['relation'] == 'inherited'
+    assert not result.get('requires_review') and findings == []
+
+
+def test_role_and_relationship_resolution_uses_existing_base_classes(profile):
+    profile['classes']['dcat:Relationship'] = {
+        'dcat:hadRole': {'obligation': 'mandatory', 'labels': ['hadRole'], 'range': 'dcat:Role'},
+        'dct:relation': {'obligation': 'mandatory', 'labels': ['relation'], 'range': 'rdfs:Resource'}}
+    for need, prop in [('hadRole', 'dcat:hadRole'), ('Relationship', 'dct:relation')]:
+        result, _ = checked(record('The ' + need + ' is provided.', metadata=need, obligation='mandatory'), profile)
+        assert result['class'] == 'dcat:Relationship' and result['property'] == prop
+        assert result['relation'] == 'inherited' and result['candidate_class'] == 'dcat:Dataset'
+
+
+def test_owner_role_entity_is_qualified_attribution_not_an_unknown_need(profile):
+    profile['classes']['dcat:Dataset']['prov:qualifiedAttribution'] = {
+        'obligation': 'optional', 'labels': [], 'range': 'prov:Attribution'}
+    result, _ = checked(record('Metadata provides a role entity identifying the owner.',
+        metadata='role entity for owner', obligation='optional'), profile)
+    assert result['property'] == 'prov:qualifiedAttribution' and result['relation'] == 'inherited'
+
+
+@pytest.mark.parametrize('contrast', ['rather than', 'instead of'])
+def test_contrast_preserves_institutional_email_constraint(profile, contrast):
+    result, _ = checked(record('The contact point uses an institutional e-mail address ' + contrast + ' a personal one.',
+        metadata='contact point', obligation='recommended'), profile)
+    assert result['relation'] == 'constrained'
+    assert 'value_restriction: ' + contrast in result['constraint_signals']
+
+
+def test_base_only_stronger_label_does_not_erase_added_contrast(profile):
+    result, _ = checked(record('dct:publisher must use an Agent URI rather than a literal string.',
+        obligation='mandatory', evidence_links=[{'evidence_id': 'base', 'relation': 'supports'}]), profile)
+    assert result['relation'] == 'constrained'
+    assert 'stricter label not supported outside the base specification' in result['notes']
+
+
+def test_multiple_possible_base_classes_with_different_definitions_remain_reviewable(profile):
+    profile['classes']['dcat:Catalog']['dct:publisher'] = {
+        'obligation': 'mandatory', 'labels': ['publisher'], 'range': 'foaf:Agent'}
+    result, findings = checked(record('The publisher is recorded.', resource='Agent', metadata='publisher'), profile)
+    assert result['relation'] == 'inherited' and result['requires_review']
+    assert result['base_property_classes'] == ['dcat:Catalog', 'dcat:Dataset']
+    assert any(f['criterion'] == 'ambiguous_base_property_class' for f in findings)
+
+
+@pytest.mark.parametrize('statement,need', [
+    ('A dataset must provide a concise abstract.', 'abstract'),
+    ('Datasets should record their owning entity.', 'ownership'),
+    ('Spatial data services should specify their service type.', 'service type'),
+    ('The relationship between a dataset and its owner uses the PROV ontology.', 'owning entity'),
+])
+def test_resource_subject_is_not_a_cross_class_property_match(profile, statement, need):
+    profile['classes']['dcat:Catalog']['dcat:dataset'] = {'obligation': 'mandatory', 'labels': ['dataset']}
+    profile['classes']['dcat:Catalog']['dcat:service'] = {'obligation': 'optional', 'labels': ['service']}
+    profile['classes']['dcat:Dataset']['dct:relation'] = {'obligation': 'optional', 'labels': ['relation']}
+    result, _ = checked(record(statement, metadata=need), profile)
+    assert result['relation'] == 'new' and result['property'] is None

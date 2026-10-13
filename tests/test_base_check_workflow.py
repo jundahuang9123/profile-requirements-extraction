@@ -14,7 +14,13 @@ from requirement_reuse_service.workflow.storage import digest
 
 def with_base(setup, **settings):
     store, initial, client = setup
-    request = RunRequest(snapshot_id=initial['snapshot_id'], strategy='multi_agent',
+    conditional = register_source(store, SourceRequest(source_role='stakeholder_need',
+        artifact=ArtifactPayload(name='conditional-title.md',
+            content='Each dataset should publish its title if access is restricted.')))
+    source_ids = store.get('snapshot', initial['snapshot_id'])['source_version_ids']
+    snapshot = engine.freeze_snapshot(store, SnapshotRequest(
+        source_version_ids=[*source_ids, conditional['source_version_id']]))
+    request = RunRequest(snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
         role_ids=ROLES, consolidation='exact', discussion='on_request',
         base_profile_id='dcat-ap-2.0.1', **settings)
     return store, engine.new_run(store, request), client
@@ -74,6 +80,32 @@ def test_saved_legacy_extraction_derives_without_extraction_or_assessment_calls(
     assert store.get('run', source['run_id']) == before
     for record in saved['requirements']:
         assert any(f['criterion'] == 'conflicts_with_base' for f in record['qualification']['findings'])
+
+
+def test_new_base_policy_does_not_reuse_assessments_from_v1(setup):
+    store, source, client = with_base(setup)
+    engine.execute_run(store, source['run_id'], client)
+    store.mutate(source['run_id'], None, 'historical-v1-test', lambda run: run.update(
+        base_check_policy_version='rq1-base-check-v1'))
+    source = store.get('run', source['run_id'])
+    trial = engine.derive_run(store, source['run_id'], DeriveRequest(
+        expected_version=source['version'], consolidation='exact',
+        rationale='Reprocess a historical base check under the current policy.'))
+    assert trial['base_check_policy_version'] == 'rq1-base-check-v2'
+    assert not trial['derived_from']['base_assessment_context_compatible']
+    assert trial['assessment_reuse'] == {}
+
+
+def test_weaker_plain_restatements_are_audited_and_make_no_assessment_calls(setup):
+    store, source, client = setup
+    run = engine.new_run(store, RunRequest(snapshot_id=source['snapshot_id'], strategy='multi_agent',
+        role_ids=ROLES, consolidation='exact', discussion='on_request', base_profile_id='dcat-ap-2.0.1'))
+    engine.execute_run(store, run['run_id'], client)
+    saved = store.get('run', run['run_id'])
+    assert saved['status'] == 'awaiting_human' and saved['active_revision_ids'] == []
+    assert client.count('Qualification') == 0
+    weaker = [a for a in saved['base_check_audit'] if a['base_check'].get('notes') == ['weaker label than base']]
+    assert weaker and all(a['set_aside'] and not a['findings'] for a in weaker)
 
 
 def test_registry_hash_guard_stops_before_provider_and_preserves_checkpoint(setup, monkeypatch):

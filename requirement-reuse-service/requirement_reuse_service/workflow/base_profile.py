@@ -11,13 +11,15 @@ import re
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
-BASE_CHECK_POLICY_VERSION = 'rq1-base-check-v1'
+BASE_CHECK_POLICY_VERSION = 'rq1-base-check-v2'
 PROFILE_DIRECTORY = Path(__file__).resolve().parents[2] / 'config' / 'base_profiles'
 CLASS_NAMES = {
     'Dataset': 'dcat:Dataset', 'Distribution': 'dcat:Distribution',
     'DataService': 'dcat:DataService', 'Catalog': 'dcat:Catalog',
     'CatalogRecord': 'dcat:CatalogRecord', 'Agent': 'foaf:Agent',
     'Concept': 'skos:Concept',
+    'Relationship': 'dcat:Relationship', 'PeriodOfTime': 'dct:PeriodOfTime',
+    'Location': 'dct:Location',
 }
 OBLIGATION_RANK = {'mandatory': 3, 'recommended': 2, 'optional': 1}
 LABEL_SYNONYMS = {
@@ -27,8 +29,11 @@ LABEL_SYNONYMS = {
     'dcat:accessService': ['access service'], 'dcat:accessURL': ['access url'],
     'dcat:downloadURL': ['download url'], 'dcat:mediaType': ['media type', 'mime type'],
     'adms:versionNotes': ['version notes'],
-    'dct:spatial': ['spatial coverage', 'geographic coverage', 'geographic extent', 'geographical area'],
-    'dct:temporal': ['temporal coverage', 'time period'],
+    'dct:spatial': ['spatial coverage', 'geographic coverage', 'geographic extent', 'geographical area',
+                    'bounding box', 'geographic location'],
+    'dct:temporal': ['temporal coverage', 'temporal extent', 'time period', 'period of time',
+                     'validity interval', 'validity intervals', 'start and end dates'],
+    'dcat:hadRole': ['hadRole', 'had role'],
     'dcat:contactPoint': ['contact', 'contact point', 'point of contact'],
     'dcat:keyword': ['keyword', 'tag'], 'dcat:theme': ['theme'],
     'dcat:themeTaxonomy': ['theme taxonomy'], 'dct:license': ['licence', 'license'],
@@ -92,7 +97,45 @@ def _phrase_pattern(phrase: str) -> re.Pattern:
     return re.compile(r'(?<!\w)' + r'\s+'.join(re.escape(p) for p in parts) + r'(?!\w)', re.I)
 
 
-def constraint_signals(record: Any) -> list[str]:
+def _condition_matches(statement: str):
+    """Recognize applicability clauses without mistaking a location/time description for one."""
+    for match in re.finditer(r'\b(?:if|when|where|in case|unless|provided that)\b', statement, re.I):
+        word = match.group(0).casefold()
+        tail = statement[match.end():].lstrip()
+        if word not in {'when', 'where'}:
+            yield match
+        elif re.match(r'(?:applicable|available|possible|necessary|required|appropriate|relevant)\b', tail, re.I):
+            yield match
+        elif word == 'where':
+            # "where clients can access" describes the endpoint. The finite
+            # applicability patterns below describe circumstances of a rule.
+            if re.match(r'(?:(?:a|an|the)\s+)?(?:access|data|datasets?|distributions?|services?|metadata)\b'
+                        r'[^.;,\n]{0,65}\b(?:is|are|has|have)\s+(?:not\s+)?'
+                        r'(?:restricted|available|provided|published|required|applicable|missing)\b', tail, re.I):
+                yield match
+        else:
+            prefix = statement[:match.start()]
+            if not re.search(r'\b(?:date|time|moment|timestamp|instant|indicates?|records?|describes?|captures?)'
+                             r'\s*(?:at\s+)?$', prefix, re.I):
+                yield match
+
+
+def _inherited_vocabulary(signal: str, definition: Mapping[str, Any]) -> bool:
+    vocabulary = definition.get('vocabulary')
+    if not vocabulary:
+        return False
+    # Generic use of a scheme adds nothing to a property already pinned to one.
+    # Explicit alternatives/subsets remain inspectable constraint claims.
+    text = signal.split(': ', 1)[-1]
+    if re.search(r'\b(?:Regulation|subset|narrower|restricted|specific|only|ISO\s*639|IANA|NUTS)\b', text, re.I):
+        return False
+    if re.search(r'\bGeoNames\b', text, re.I):
+        return any('geonames' in str(v).casefold() for v in
+                   (vocabulary if isinstance(vocabulary, list) else [vocabulary]))
+    return True
+
+
+def constraint_signals(record: Any, base_definition: Mapping[str, Any] | None = None) -> list[str]:
     """Return inspectable text/scope cues; declared v3 kinds are not proof."""
     row = _dict(record)
     intent = _dict(row.get('normalized_intent', row.get('intent', {})))
@@ -103,11 +146,15 @@ def constraint_signals(record: Any) -> list[str]:
         ('controlled_vocabulary', r'\bfrom\s+(?:the\s+)?[^.;\n]{0,100}\b(?:list|vocabulary|scheme)\b'),
         ('controlled_vocabulary', r'\bfrom\b[^.;\n]{0,100}\bRegulation\s+\d{1,4}/\d{2,4}\b'),
         ('cardinality', r'\b(?:exactly one|at most (?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|N)|one per language|for each)\b'),
-        ('condition', r'\b(?:if|when|where|in case|unless|provided that)\b'),
+        ('value_restriction', r'\b(?:rather than|instead of)\b'),
     ]
     for kind, pattern in patterns:
         for match in re.finditer(pattern, statement, re.I):
             signals.append(kind + ': ' + match.group(0))
+    signals.extend('condition: ' + match.group(0) for match in _condition_matches(statement))
+    if base_definition:
+        signals = [s for s in signals if not (s.startswith('controlled_vocabulary:')
+                   and _inherited_vocabulary(s, base_definition))]
     for phrase in DOMAIN_WORDS:
         for match in _phrase_pattern(phrase).finditer(statement):
             signals.append('domain_term: ' + match.group(0))
@@ -126,7 +173,9 @@ def constraint_signals(record: Any) -> list[str]:
     return sorted(set(signals))
 
 
-def _property(row: dict, class_id: str, properties: dict) -> tuple[str | None, str, list[str]]:
+def _property(row: dict, class_id: str, properties: dict, *,
+              registry_properties: Mapping[str, Any] | None = None,
+              registry_classes: Iterable[str] = ()) -> tuple[str | None, str, list[str]]:
     statement = row.get('raw_statement', row.get('statement', ''))
     intent = _dict(row.get('normalized_intent', row.get('intent', {})))
     notes = []
@@ -135,10 +184,9 @@ def _property(row: dict, class_id: str, properties: dict) -> tuple[str | None, s
         parts = str(explicit).split('/', 1)
         property_id = _canonical_curie(parts[-1])
         if CURIE.fullmatch(property_id):
-            if len(parts) == 2 and _canonical_curie(parts[0]) != class_id:
-                notes.append('Declared base property names a different class; checked against the candidate class.')
             without_declaration = dict(row, base_property=None)
-            text_property, _, _ = _property(without_declaration, class_id, properties)
+            text_property, _, _ = _property(without_declaration, class_id,
+                dict(registry_properties or properties), registry_classes=registry_classes)
             if text_property != property_id:
                 notes.append('Declared base property is not corroborated by the statement or metadata need; review its mapping.')
             return property_id, 'base_property', notes
@@ -150,9 +198,16 @@ def _property(row: dict, class_id: str, properties: dict) -> tuple[str | None, s
     ranges = {str(term) for definition in properties.values()
               for term in (definition.get('range') if isinstance(definition.get('range'), list)
                            else [definition.get('range')])}
-    unknown = next((term for term in terms if term not in CLASS_NAMES.values() and term not in ranges), None)
+    unknown = next((term for term in terms if term not in set(CLASS_NAMES.values()) | set(registry_classes)
+                    and term not in ranges and not term.startswith(('xsd:', 'rdfs:'))), None)
     if unknown:
         return unknown, 'statement_curie', notes
+    if ('prov:qualifiedAttribution' in properties and re.search(
+            r'\brole\s+entity\b[^.;\n]{0,100}\bowner\b',
+            str(intent.get('metadata_need', '')) + ' ' + statement, re.I)):
+        return 'prov:qualifiedAttribution', 'role_entity_lexicon', notes
+    if str(intent.get('metadata_need', '')).strip().casefold() == 'relationship' and 'dct:relation' in properties:
+        return 'dct:relation', 'relationship_lexicon', notes
     labels = []
     for property_id, definition in properties.items():
         synonyms = list(definition.get('labels', [])) + LABEL_SYNONYMS.get(property_id, [])
@@ -204,7 +259,42 @@ def _outside_base_support(row: dict, evidence_by_id: Mapping[str, Any],
     return False
 
 
-def _provisional_constraint(row: dict, check: dict, findings: list[dict], properties: Mapping[str, Any]) -> None:
+def _compound_signals(row: dict, check: dict, properties: Mapping[str, Any],
+                      registry_classes: Iterable[str]) -> tuple[list[str], list[str]]:
+    statement = row.get('raw_statement', row.get('statement', ''))
+    ranges = {str(term) for definition in properties.values()
+              for term in (definition.get('range') if isinstance(definition.get('range'), list)
+                           else [definition.get('range')])}
+    terms = {_canonical_curie(match.group(0)) for match in CURIE.finditer(statement)}
+    terms -= set(CLASS_NAMES.values()) | set(registry_classes) | ranges
+    terms = {term for term in terms if not term.startswith(('xsd:', 'rdfs:'))}
+    signals = ['multiple_property_curies'] if len(terms) > 1 else []
+    for match in re.finditer(r'\b(?:and|as well as)\b|;', statement, re.I):
+        tail = statement[match.end():].strip().rstrip('.')
+        if check['property'] == 'dct:temporal' and re.match(r'^(?:end(?:ing)?|begin(?:ning)?|start)\b', tail, re.I):
+            continue
+        other, _, _ = _property({'statement': tail, 'intent': {}}, check['class'], dict(properties),
+                                registry_classes=registry_classes)
+        if other and other != check['property']:
+            signals.append('different_property: ' + other)
+        elif not other:
+            # Keep an independently named need, not a bare conjunction joining
+            # components of one need ("start and end dates", "title and its text").
+            first = re.split(r'[;,]|\b(?:is|are|must|shall|should|may)\b', tail, maxsplit=1, flags=re.I)[0].strip()
+            component = re.match(r'^(?:end(?:ing)?|begin(?:ning)?|start)\b', first, re.I)
+            qualifier = re.match(r'^(?:its|their|the same|to|be|can|using|with|without|that|which|in|on|for)\b', first, re.I)
+            words = re.findall(r'[A-Za-z][\w-]*', first)
+            if (2 <= len(words) <= 6 and not component and not qualifier
+                    and not re.search(r'\b(?:and|as well as)\b', first, re.I)):
+                before, _, _ = _property({'statement': statement[:match.start()], 'intent': {}},
+                                         check['class'], dict(properties), registry_classes=registry_classes)
+                if before == check['property']:
+                    signals.append('different_need: ' + first)
+    return sorted(set(signals)), sorted(terms)
+
+
+def _provisional_constraint(row: dict, check: dict, findings: list[dict], properties: Mapping[str, Any],
+                            registry_classes: Iterable[str] = ()) -> None:
     if (check['relation'] == 'inherited' and not check['constraint_signals']
             and row.get('extension_kind') == 'value_constraint'):
         check['requires_review'] = True
@@ -213,19 +303,12 @@ def _provisional_constraint(row: dict, check: dict, findings: list[dict], proper
                          'message': 'The model declares a value constraint but the deterministic checker found no added-constraint cue; retain it for review.'})
     if check['relation'] == 'inherited':
         statement = row.get('raw_statement', row.get('statement', ''))
-        ranges = {str(term) for definition in properties.values()
-                  for term in (definition.get('range') if isinstance(definition.get('range'), list)
-                               else [definition.get('range')])}
-        property_terms = {_canonical_curie(match.group(0)) for match in CURIE.finditer(statement)}
-        property_terms -= set(CLASS_NAMES.values()) | ranges
-        conjunctions = list(re.finditer(r'\b(?:and|as well as)\b|;', statement, re.I))
-        if len(property_terms) > 1 or conjunctions:
+        compound, property_terms = _compound_signals(row, check, properties, registry_classes)
+        if compound:
             check['requires_review'] = True
             if len(property_terms) > 1:
                 check['statement_property_candidates'] = sorted(property_terms)
-            check['compound_signals'] = sorted(set(
-                (['multiple_property_curies'] if len(property_terms) > 1 else []) +
-                ['conjunction: ' + match.group(0) for match in conjunctions]))
+            check['compound_signals'] = compound
             check.setdefault('notes', []).append('The statement may cover multiple clauses; a single inherited match cannot exclude the whole candidate.')
             findings.append({'criterion': 'compound_base_check', 'severity': 'review',
                              'message': 'Inspect or split this potentially compound statement before classifying every clause as inherited.'})
@@ -265,18 +348,57 @@ def check_record(record: Any, profile: Mapping[str, Any], *,
         findings.append({'criterion': 'unresolved_base_class', 'severity': 'review',
                          'message': 'The candidate class could not be resolved in the selected base profile.'})
         return check, findings
-    properties = profile['classes'][class_id]
-    property_id, via, notes = _property(row, class_id, properties)
+    classes = profile['classes']
+    properties = classes[class_id]
+    registry_properties = {p: definition for cls in sorted(classes, reverse=True)
+                           for p, definition in classes[cls].items()}
+    # Do not mistake a resource subject ("a dataset needs ownership metadata")
+    # for the Catalog's dcat:dataset property. Cross-class text fallback uses
+    # property names/specific synonyms, not whole registry table headings.
+    cross_class_lexicon = {p: dict(definition, labels=[label for label in definition.get('labels', [])
+        if label.casefold() == p.split(':')[-1].casefold()])
+        for p, definition in registry_properties.items()
+        if p not in {'dcat:dataset', 'dcat:catalog', 'dcat:service', 'dcat:record', 'dcat:distribution'}}
+    property_id, via, notes = _property(row, class_id, properties,
+        registry_properties=cross_class_lexicon, registry_classes=classes)
+    if property_id is None:
+        property_id, via, notes = _property(row, class_id, cross_class_lexicon, registry_classes=classes)
     check.update(property=property_id, resolved_via=via, relation='new')
+    need_class = _class(str(intent.get('metadata_need', '')).strip())
+    class_hint = need_class if need_class == 'dcat:Relationship' and property_id in classes.get(need_class, {}) else None
+    if (property_id not in properties or class_hint) and property_id in registry_properties:
+        candidates = sorted(cls for cls, props in classes.items() if property_id in props)
+        explicit_class = _canonical_curie(str(row.get('base_property') or '').split('/', 1)[0])
+        statement = row.get('raw_statement', row.get('statement', ''))
+        mentioned = [cls for cls in candidates if _phrase_pattern(cls).search(statement)
+                     or _phrase_pattern(cls.split(':')[-1]).search(statement)]
+        resolved = class_hint or (explicit_class if explicit_class in candidates else (
+            mentioned[0] if len(mentioned) == 1 else 'dcat:Dataset' if 'dcat:Dataset' in candidates else candidates[0])
+        )
+        check.update({'candidate_class': class_id, 'class': resolved, 'base_property_classes': candidates})
+        notes.append('Property exists in the base under another class; treated as class label noise.')
+        if not class_hint and explicit_class not in candidates and len(mentioned) != 1:
+            # Matching a known property prevents a false "new" claim. A class
+            # choice affecting its obligations/constraints still needs review.
+            definitions = {json.dumps({k: classes[cls][property_id].get(k)
+                           for k in ('obligation', 'max', 'range', 'vocabulary')}, sort_keys=True) for cls in candidates}
+            if len(definitions) > 1:
+                check['requires_review'] = True
+                findings.append({'criterion': 'ambiguous_base_property_class', 'severity': 'review',
+                    'message': 'The property occurs under multiple base classes with different definitions; review the candidate class.'})
+        class_id, properties = resolved, classes[resolved]
     if notes:
         check['notes'] = notes
-    if any('not corroborated' in note or 'different class' in note for note in notes):
+    if any('not corroborated' in note for note in notes):
         check['requires_review'] = True
         findings.append({'criterion': 'unconfirmed_base_property', 'severity': 'review',
                          'message': 'The declared base-property mapping needs review against the candidate statement and class.'})
     if property_id not in properties:
         return check, findings
+    compound_properties = {**cross_class_lexicon, **properties}
     base_obligation = properties[property_id]['obligation']
+    signals = constraint_signals(row, properties[property_id])
+    check['constraint_signals'] = signals
     check['base_obligation'] = base_obligation
     candidate_rank = OBLIGATION_RANK.get(obligation)
     base_rank = OBLIGATION_RANK.get(base_obligation)
@@ -284,7 +406,7 @@ def check_record(record: Any, profile: Mapping[str, Any], *,
     ability = bool(re.search(r'\b(?:consumer|system)\b[^.;\n]{0,120}\b(?:must|shall|should|may)\s+be\s+able\s+to\s+(?:process|retrieve|interpret)\b', statement, re.I))
     if ability and not signals:
         check['relation'] = 'inherited'
-        _provisional_constraint(row, check, findings, properties)
+        _provisional_constraint(row, check, findings, compound_properties, classes)
         return check, findings
     if candidate_rank is not None and base_rank is not None and candidate_rank > base_rank:
         base_ids, base_names = set(base_source_version_ids), list(base_source_names)
@@ -292,20 +414,25 @@ def check_record(record: Any, profile: Mapping[str, Any], *,
                                  source_name_by_version or {}, base_names):
             check['relation'] = 'tightened'
         else:
-            check['relation'] = 'inherited'
+            check['relation'] = 'constrained' if signals else 'inherited'
             check.setdefault('notes', []).append('stricter label not supported outside the base specification')
             if not base_ids and not base_names:
                 check['requires_review'] = True
                 check.setdefault('notes', []).append('Base specification sources were not classified; inheritance is provisional pending review.')
                 findings.append({'criterion': 'unresolved_base_source_classification', 'severity': 'review',
                                  'message': 'The selected base has no configured base-source classification; retain this stronger obligation for review.'})
-        _provisional_constraint(row, check, findings, properties)
+        _provisional_constraint(row, check, findings, compound_properties, classes)
         return check, findings
     if candidate_rank is not None and base_rank is not None and candidate_rank < base_rank:
-        check['relation'] = 'loosened'
-        findings.append({'criterion': 'conflicts_with_base', 'severity': 'blocking',
-                         'message': f'{property_id} is {base_obligation} in {profile["id"]}; an extension cannot relax it to {obligation}.'})
+        if signals:
+            check['relation'] = 'loosened'
+            findings.append({'criterion': 'conflicts_with_base', 'severity': 'blocking',
+                             'message': f'{property_id} is {base_obligation} in {profile["id"]}; an extension cannot relax it to {obligation}.'})
+        else:
+            check['relation'] = 'inherited'
+            check.setdefault('notes', []).append('weaker label than base')
+            _provisional_constraint(row, check, findings, compound_properties, classes)
         return check, findings
     check['relation'] = 'constrained' if signals else 'inherited'
-    _provisional_constraint(row, check, findings, properties)
+    _provisional_constraint(row, check, findings, compound_properties, classes)
     return check, findings

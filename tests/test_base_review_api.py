@@ -1,16 +1,14 @@
 """Human support judgements cannot bypass an inherited base obligation."""
 from fastapi.testclient import TestClient
-from test_resume_discussions import setup, ROLES
+from test_resume_discussions import setup
 from requirement_reuse_service.main import app
-from requirement_reuse_service.workflow.engine import new_run, execute_run
-from requirement_reuse_service.workflow.models import RunRequest
+from requirement_reuse_service.workflow.engine import execute_run
 from copy import deepcopy
+from test_base_check_workflow import with_base
 
 
 def test_manual_assessment_retains_blocking_base_finding(setup):
-    store, source, scripted = setup
-    run = new_run(store, RunRequest(snapshot_id=source['snapshot_id'], strategy='multi_agent',
-        role_ids=ROLES, consolidation='exact', discussion='on_request', base_profile_id='dcat-ap-2.0.1'))
+    store, run, scripted = with_base(setup)
     execute_run(store, run['run_id'], scripted)
     saved = store.get('run', run['run_id'])
     record = next(r for r in saved['requirements'] if r['revision_id'] in saved['active_revision_ids']
@@ -33,9 +31,7 @@ def test_manual_assessment_retains_blocking_base_finding(setup):
 
 
 def test_human_addition_gets_base_check_without_mutating_machine_snapshot(setup):
-    store, source, scripted = setup
-    run = new_run(store, RunRequest(snapshot_id=source['snapshot_id'], strategy='multi_agent',
-        role_ids=ROLES, consolidation='exact', discussion='on_request', base_profile_id='dcat-ap-2.0.1'))
+    store, run, scripted = with_base(setup)
     execute_run(store, run['run_id'], scripted)
     saved = store.get('run', run['run_id'])
     machine = deepcopy(saved['machine_snapshot'])
@@ -44,7 +40,7 @@ def test_human_addition_gets_base_check_without_mutating_machine_snapshot(setup)
     response = TestClient(app).post(f'/api/rq1/v2/runs/{run["run_id"]}/requirements', json={
         'expected_version': saved['version'], 'idempotency_key': 'manual-base-proposal',
         'rationale': 'A scripted addition to test the review guard.', 'draft': {
-            'statement': 'Dataset title is optional.', 'requirement_type': 'descriptive_metadata',
+            'statement': 'Dataset title is optional if access is restricted.', 'requirement_type': 'descriptive_metadata',
             'scope': 'Dataset', 'intent': {'resource_type': 'Dataset', 'metadata_need': 'title',
                 'value_kind': 'literal', 'obligation_hint': 'optional'}, 'evidence_links': reference['evidence_links']}})
     assert response.status_code == 200, response.text

@@ -15,7 +15,7 @@ source run, saved extraction and changed downstream conditions.
 ## Policies and reproducible base data
 
 The registry policy is `rq1-base-registry-v1`, the base-check policy is
-`rq1-base-check-v1`, normalization uses `rq1-normalization-v3`, semantic grouping
+`rq1-base-check-v2`, normalization uses `rq1-normalization-v3`, semantic grouping
 uses `rq1-semantic-consolidation-v2`, and extension extraction uses
 `rq1-independent-elicitation-v3.0`. Runs record the selected `base_profile_id`,
 `base_registry_policy_version` and the SHA256 of the exact registry JSON bytes.
@@ -122,7 +122,7 @@ calls. Ambiguous mappings or an unrecognized declared constraint are retained
 for review rather than being removed with confidence.
 
 Class resolution recognizes Dataset, Distribution, DataService, Catalog,
-CatalogRecord, Agent and Concept. It maps these to the corresponding DCAT,
+CatalogRecord, Agent, Concept, Relationship, PeriodOfTime and Location. It maps these to the corresponding DCAT,
 FOAF or SKOS class. Unknown/unresolved classes stay visible for review.
 
 Property resolution tries the declared v3 `base_property` first, then a prefixed
@@ -133,13 +133,24 @@ notes precede description, URL and version. A declaration is checked against
 the class/text and flagged for review if uncorroborated. A new vocabulary term
 or unmatched information need remains `new`.
 
+The v2 resolver also recognizes validity interval/period of time/start and end
+dates as `dct:temporal`, and bounding box/geographic location as `dct:spatial`.
+`hadRole` resolves to the base's `dcat:Relationship/dcat:hadRole`; a metadata need
+labelled `Relationship` resolves within that class. A role entity described as
+the owner resolves to `prov:qualifiedAttribution`. When an identified property
+exists under another base class, its base definition is used and the audit keeps
+the original `candidate_class`, possible `base_property_classes`, and a class-label
+noise note. If multiple class definitions differ and the text/declaration cannot
+choose one, `ambiguous_base_property_class` keeps it reviewable. Resource subjects
+such as “dataset” are not cross-class property matches for `dcat:dataset`.
+
 | Relation | Treatment |
 | --- | --- |
 | `inherited` | Matching base property with equal/unknown obligation and no added constraint: set aside with its base comparison when no review guard is present. An ordinary consumer/system ability to process/retrieve/interpret base metadata is inherited too. |
 | `tightened` | Stronger obligation: retain only when at least one cited supporting evidence unit comes from outside the configured base specifications. Otherwise classify as inherited and record “stricter label not supported outside the base specification”. Missing base-source classification leaves that inheritance provisional for review. |
-| `loosened` | Weaker obligation: retain with a blocking `conflicts_with_base` finding. A profile extension cannot relax its base. |
+| `loosened` | Weaker obligation with an added constraint: retain with a blocking `conflicts_with_base` finding. A profile extension cannot relax its base. A weaker label without an added constraint is classified as inherited with the note `weaker label than base`; compound/negation guards can still retain it. |
 | `constrained` | Matching base property plus an added-constraint cue: retain. |
-| `new` | No matching property of the resolved base class: retain. |
+| `new` | No matching property in the base: retain. |
 | `unresolved_class` | Class cannot be resolved: retain with a review finding. |
 
 Obligation ranks are mandatory 3, recommended 2 and optional 1; `unknown` makes
@@ -147,6 +158,15 @@ no obligation claim. Added-constraint cues include named controlled vocabularies
 code/authority lists, cardinality, conditions and domain scope. Acronyms such as
 `ITS`, `NAP` and `CRS` are case-sensitive so that `ITS` never matches “its”. A
 generic scope such as Dataset or Unspecified does not add a domain constraint.
+
+Generic “controlled vocabulary” or code/authority-list wording is ignored when
+the resolved base property already has a registered vocabulary. Explicit alternate
+schemes, regulations and restricted subsets remain cues for review. Applicability
+clauses such as “where applicable” and “if the dataset…” count as conditions;
+relative location/time descriptions such as “where clients can access” and “date
+when…” do not. “Rather than” and “instead of” remain value-restriction cues. A
+stricter obligation label supported only by base evidence cannot establish
+tightening, but it no longer erases a separately detected added constraint.
 
 These labels describe a comparison claim, not proven requirements. In particular,
 a lexical cue can misidentify a property or constraint, and a nonbase supporting
@@ -158,8 +178,8 @@ the text gets `unconfirmed_base_property`. `requires_review` keeps such provisio
 inherited labels from causing automatic exclusion.
 
 The same preservation rule covers potentially compound statements and negation.
-A statement with multiple property names, a conjunction or a semicolon may combine
-an inherited clause with a new need; it gets a `compound_base_check` finding for
+A statement with multiple property names, or a coordinated clause naming another
+property or distinct need, may combine an inherited clause with a new need; it gets a `compound_base_check` finding for
 inspection/splitting. Negated wording gets `base_polarity_review` rather than being
 discarded on the strength of a matching property. If the selected base has no
 configured base-source classification, a stronger obligation gets
@@ -288,6 +308,26 @@ counted among relations, while actual `inherited_from_base` set-aside rows have 
 separate count. Candidate counts must be interpreted
 with source-check/support findings and coverage, not as distinct correct
 requirements automatically obtained.
+
+### Run A recovery under base-check v2
+
+The six requested fixes arose from manual inspection of derived Run A
+`run-60b4c3d768b04eb393c82191fee37b54`, rather than reference-answer matching.
+In particular, its six sampled weaker-obligation candidates were restatements
+with noisy labels. The policy is versioned because it changes inherited
+exclusions. V1 runs remain historical: reprocess saved extraction in a separate
+trial; do not resume unfinished v1 normalization under v2. Assessments from a v1
+base-checked run are not reused under v2. Run A can instead repeat from its original
+completed extraction, reusing compatible source assessments as it did originally.
+This keeps the extraction, input corpus, model, grouping and discussion settings
+fixed while changing the deterministic base check. Later stochastic grouping can
+still differ, so candidate-count changes alone are not an accuracy result.
+
+Regression fixtures exercise lower-label exclusions without verification/model
+assessment calls, genuine constraint conflicts, named-vocabulary alternatives,
+relative versus applicability clauses, distinct compound needs, cross-class
+ambiguity and recovery of the institutional-email contrast. Outputs and live
+comparison records are saved outside the repository.
 
 This change has offline validation only until Junda's acceptance runs. The next
 checks are a derived Run A on saved Mobility extraction with semantic grouping,
