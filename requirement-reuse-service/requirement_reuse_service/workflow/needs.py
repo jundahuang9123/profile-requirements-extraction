@@ -16,7 +16,7 @@ from .semantic_consolidation import grouped_block, partition_exact, NEED_SEMANTI
 
 POLICIES = {'source_check': 'rq1-original-source-v2.1', 'grouping': NEED_SEMANTIC_POLICY,
             'need_statement': 'rq1-need-statement-v1', 'classification': 'rq1-generic-domain-v1', 'scoping': 'rq1-use-case-necessity-v1',
-            'scope_critic': 'rq1-use-case-critic-v1', 'assessment': 'rq1-need-support-v1'}
+            'scope_critic': 'rq1-use-case-critic-v1', 'assessment': 'rq1-need-support-v1', 'ranking': 'rq1-need-ranking-v1'}
 MAX_WRITE_GROUPS = 20
 MAX_PAYLOAD = 24000
 
@@ -303,7 +303,7 @@ def process_needs(store, run, records, client, profile):
     kept = classify_needs(store, run, needs, client)
     kept = scope_needs(store, run, kept, records, client)
     assess_needs(store, run, kept, client)
-    # Ranking follows support assessment.
+    kept = rank_needs(store, run, kept)
     save_need_records(store, run, records, needs)
     return kept, [*audit, *events], []
 
@@ -531,3 +531,20 @@ def assess_needs(store, run, needs, client):
             need.lifecycle_state='awaiting_human';assessed+=1
     step_saved(store,run,'assessment',input_count=len(needs),assessed_count=assessed,blocked_count=blocked,
         records=[n.model_dump(mode='json') for n in needs])
+
+
+def rank_needs(store, run, needs):
+    for need in needs:
+        documents={store.get('evidence',link.evidence_id)['source_id'] for link in need.evidence_links
+                   if link.relation=='supports'}
+        support=need.qualification.support if need.qualification else 'uncertain'
+        need.rank_keys={'support':support,'support_order':{'explicit':0,'inferred':1}.get(support,2),
+                        'supporting_documents':len(documents),'contributing_roles':len(set(need.contributing_roles)),
+                        'kept_use_cases':len(set(need.supports_user_tasks)),'need_id':need.requirement_id}
+    ordered=sorted(needs,key=lambda n:(n.rank_keys['support_order'],
+        -n.rank_keys['supporting_documents'],-n.rank_keys['contributing_roles'],
+        -n.rank_keys['kept_use_cases'],n.requirement_id))
+    for rank,need in enumerate(ordered,1): need.rank=rank
+    step_saved(store,run,'ranking',input_count=len(needs),ordered_need_ids=[n.requirement_id for n in ordered],
+               rule='support explicit/inferred/rest; distinct supporting documents, roles, kept links descending; need ID ascending')
+    return ordered
