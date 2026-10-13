@@ -1,6 +1,7 @@
 """Offline checks for pinned base data and its RDF/DOCX parsers."""
 import importlib.util
 import json
+import hashlib
 from pathlib import Path
 
 import pytest
@@ -21,6 +22,82 @@ PREFIXES = '''
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 '''
+
+
+@pytest.mark.parametrize('identifier', builder.SUPPORTED_PROFILES)
+def test_every_registry_is_bound_to_official_pinned_input_bytes(identifier):
+    data = json.loads((REGISTRY / f'{identifier}.json').read_text())
+    assert data['id'] == identifier
+    for path, digest in data['source']['files'].items():
+        assert digest == builder.PINNED_HASHES[path]
+    if identifier.startswith('dcat-ap-'):
+        assert data['source']['commit'] == builder.PINNED_COMMIT
+    else:
+        assert data['source']['url'] == builder.W3C_SOURCES[data['version']]
+
+
+@pytest.mark.parametrize('version', ['3.0.0', '3.0.1'])
+def test_ap3_registry_combines_separate_constraints_and_keeps_vocabularies(version):
+    data = json.loads((REGISTRY / f'dcat-ap-{version}.json').read_text())
+    classes = data['classes']
+    assert classes['dcat:Dataset']['dct:title']['obligation'] == 'mandatory'
+    assert classes['dcat:Dataset']['dct:publisher']['obligation'] == 'recommended'
+    assert classes['dcat:Dataset']['dct:publisher']['max'] == 1
+    assert classes['dcat:Dataset']['dct:publisher']['range'] == 'foaf:Agent'
+    assert classes['dcat:DatasetSeries']['dct:title']['obligation'] == 'mandatory'
+    assert classes['dcat:Dataset']['dct:language']['vocabulary'] == 'http://publications.europa.eu/resource/authority/language'
+    assert classes['dcat:Dataset']['dcat:theme']['vocabulary'] == 'http://publications.europa.eu/resource/authority/data-theme'
+    assert classes['dcat:Dataset']['dct:publisher']['vocabulary'] is None
+    assert classes['dcat:Dataset']['dct:publisher']['vocabulary_guidance']['qualification'] == 'conditional'
+
+
+@pytest.mark.parametrize('version', ['2', '3'])
+def test_w3c_vocabulary_inherits_properties_without_fabricating_obligations(version):
+    data = json.loads((REGISTRY / f'dcat-{version}.0.0.json').read_text())
+    for properties in data['classes'].values():
+        assert all(entry['obligation'] is None and entry['max'] is None for entry in properties.values())
+    assert 'dct:title' in data['classes']['dcat:Dataset']
+    assert ('dcat:DatasetSeries' in data['classes']) == (version == '3')
+    if version == '3':
+        assert 'dct:title' in data['classes']['dcat:DatasetSeries']
+
+
+def pinned_fixture(tmp_path, monkeypatch, relative, text):
+    path = tmp_path / relative
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text)
+    monkeypatch.setitem(builder.PINNED_HASHES, relative, hashlib.sha256(path.read_bytes()).hexdigest())
+    return path
+
+
+def test_ap3_html_parser_and_multiple_shapes_are_not_last_shape_wins(tmp_path, monkeypatch):
+    classes = ['Catalog', 'CatalogRecord', 'Dataset', 'DatasetSeries', 'Distribution', 'DataService']
+    summary, details = [], []
+    for cls in classes:
+        summary.append(f'<tr><td>{cls}</td><td>dcat:{cls}</td><td>mandatory</td><td><a href="#{cls}.title">title</a></td><td>dct:title</td></tr>')
+        details.append(f'<tr id="{cls}.title"><td>title</td><td>rdfs:Literal</td><td>1..*</td></tr>')
+    summary.append('<tr><td>Dataset</td><td>dcat:Dataset</td><td>recommended</td><td><a href="#Dataset.publisher">publisher</a></td><td>dct:publisher</td></tr>')
+    details.append('<tr id="Dataset.publisher"><td>publisher</td><td>foaf:Agent</td><td>0..1</td></tr>')
+    document = '<html><body><table>' + ''.join(summary + details) + '</table></body></html>'
+    pinned_fixture(tmp_path, monkeypatch, 'releases/3.0.0/index.html', document)
+    shapes = PREFIXES + '''
+    :Dataset sh:targetClass dcat:Dataset; sh:property
+      [sh:path dct:publisher; sh:maxCount 1],
+      [sh:path dct:publisher; sh:class foaf:Agent],
+      [sh:path dct:publisher; sh:nodeKind sh:BlankNodeOrIRI],
+      [sh:path dct:title; sh:minCount 1] .
+    '''
+    path = pinned_fixture(tmp_path, monkeypatch, 'releases/3.0.0/shacl/dcat-ap-SHACL.ttl', shapes)
+    data = builder.build_profile('dcat-ap-3.0.0', tmp_path)
+    entry = data['classes']['dcat:Dataset']['dct:publisher']
+    assert entry['obligation'] == 'recommended' and entry['max'] == 1 and entry['range'] == 'foaf:Agent'
+    assert data['classes']['dcat:Dataset']['dct:title']['obligation'] == 'mandatory'
+    pinned_fixture(tmp_path, monkeypatch, 'releases/3.0.0/shacl/dcat-ap-SHACL.ttl', shapes.replace('sh:maxCount 1', 'sh:maxCount 2'))
+    with pytest.raises(ValueError, match='maximum disagreement'):
+        builder.build_profile('dcat-ap-3.0.0', tmp_path)
+    path.write_text('Changed source bytes without updating the pin.')
+    with pytest.raises(ValueError, match='checksum mismatch'):
+        builder.build_profile('dcat-ap-3.0.0', tmp_path)
 
 
 @pytest.mark.parametrize('version', ['2.0.1', '2.1.1'])

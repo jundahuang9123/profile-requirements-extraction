@@ -1,2 +1,3 @@
 -r requirement-reuse-service/requirements.txt
 pytest>=8,<9
+lxml>=5,<7

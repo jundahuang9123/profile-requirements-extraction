@@ -1,0 +1,1578 @@
+{
+  "id": "dcat-ap-3.0.1",
+  "version": "3.0.1",
+  "family": "DCAT-AP",
+  "label": "DCAT-AP 3.0.1",
+  "registry_policy": "rq1-base-registry-v2",
+  "source": {
+    "repo": "SEMICeu/DCAT-AP",
+    "commit": "4470b8ea907b7eb9ec55ab22befd1ecd2210ff32",
+    "files": {
+      "releases/3.0.1/index.html": "cfa6c5e3bd05bfa731e6a8b4848062d9dfb56303ed40b12efa467847a9171e12",
+      "releases/3.0.1/shacl/dcat-ap-SHACL.ttl": "990d3e42721de6a4be8cc338a7171559f195e62dea89c0b56531356b78cc026f",
+      "releases/3.0.1/shacl/ranges.ttl": "a6eed0fae8d0f5ca977fe2098ca12081ac60b0efe1ddce802d5c08e49505ebcc"
+    }
+  },
+  "recommended_source": "3.0.1-html-conformance-table",
+  "classes": {
+    "adms:Identifier": {
+      "skos:notation": {
+        "obligation": "mandatory",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "notation"
+        ]
+      }
+    },
+    "dcat:Catalog": {
+      "dcat:catalog": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dcat:Catalog",
+        "vocabulary": null,
+        "labels": [
+          "catalog",
+          "catalogue"
+        ]
+      },
+      "dcat:dataset": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "dcat:Dataset",
+        "vocabulary": null,
+        "labels": [
+          "dataset"
+        ]
+      },
+      "dcat:record": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dcat:CatalogRecord",
+        "vocabulary": null,
+        "labels": [
+          "record"
+        ]
+      },
+      "dcat:service": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "dcat:DataService",
+        "vocabulary": null,
+        "labels": [
+          "service"
+        ]
+      },
+      "dcat:themeTaxonomy": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "skos:ConceptScheme",
+        "vocabulary": null,
+        "labels": [
+          "theme taxonomy",
+          "themeTaxonomy",
+          "themes"
+        ]
+      },
+      "dcatap:applicableLegislation": {
+        "obligation": "optional",
+        "max": null,
+        "range": "http://data.europa.eu/eli/ontology#LegalResource",
+        "vocabulary": null,
+        "labels": [
+          "applicable legislation",
+          "applicableLegislation"
+        ]
+      },
+      "dct:creator": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "foaf:Agent",
+        "vocabulary": null,
+        "labels": [
+          "creator"
+        ]
+      },
+      "dct:description": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "description"
+        ]
+      },
+      "dct:hasPart": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dcat:Catalog",
+        "vocabulary": null,
+        "labels": [
+          "has part",
+          "hasPart"
+        ]
+      },
+      "dct:issued": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "issued",
+          "publication date",
+          "release date"
+        ]
+      },
+      "dct:language": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "dct:LinguisticSystem",
+        "vocabulary": "http://publications.europa.eu/resource/authority/language",
+        "labels": [
+          "language"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/language"
+          ],
+          "qualification": "must",
+          "usage_note": ""
+        }
+      },
+      "dct:license": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "dct:LicenseDocument",
+        "vocabulary": null,
+        "labels": [
+          "licence",
+          "license"
+        ]
+      },
+      "dct:modified": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "last modified",
+          "last updated",
+          "modification date",
+          "modified"
+        ]
+      },
+      "dct:publisher": {
+        "obligation": "mandatory",
+        "max": 1,
+        "range": "foaf:Agent",
+        "vocabulary": null,
+        "labels": [
+          "publisher"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/corporate-body"
+          ],
+          "qualification": "conditional",
+          "usage_note": "The Corporate bodies NAL must be used for European institutions and a small set of international organisations. In case of other types of organisations, national, regional or local vocabularies should be used."
+        }
+      },
+      "dct:rights": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "rights"
+        ]
+      },
+      "dct:spatial": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "dct:Location",
+        "vocabulary": null,
+        "labels": [
+          "geographic coverage",
+          "geographic extent",
+          "geographical area",
+          "geographical coverage",
+          "spatial",
+          "spatial coverage"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/continent/",
+            "http://publications.europa.eu/resource/authority/country",
+            "http://publications.europa.eu/resource/authority/place/",
+            "http://sws.geonames.org/"
+          ],
+          "qualification": "conditional",
+          "usage_note": "The EU Vocabularies Name Authority Lists must be used for continents, countries and places that are in those lists; if a particular location is not in one of the mentioned Named Authority Lists, Geonames URIs must be used."
+        }
+      },
+      "dct:temporal": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dct:PeriodOfTime",
+        "vocabulary": null,
+        "labels": [
+          "temporal",
+          "temporal coverage",
+          "time period"
+        ]
+      },
+      "dct:title": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "title"
+        ]
+      },
+      "foaf:homepage": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "foaf:Document",
+        "vocabulary": null,
+        "labels": [
+          "homepage"
+        ]
+      }
+    },
+    "dcat:CatalogRecord": {
+      "adms:status": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "skos:Concept",
+        "vocabulary": null,
+        "labels": [
+          "change type",
+          "status"
+        ]
+      },
+      "dct:conformsTo": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "dct:Standard",
+        "vocabulary": null,
+        "labels": [
+          "application profile",
+          "conformance",
+          "conforms to",
+          "conformsTo"
+        ]
+      },
+      "dct:description": {
+        "obligation": "optional",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "description"
+        ]
+      },
+      "dct:issued": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "issued",
+          "listing date",
+          "publication date",
+          "release date"
+        ]
+      },
+      "dct:language": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dct:LinguisticSystem",
+        "vocabulary": "http://publications.europa.eu/resource/authority/language",
+        "labels": [
+          "language"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/language"
+          ],
+          "qualification": "must",
+          "usage_note": ""
+        }
+      },
+      "dct:modified": {
+        "obligation": "mandatory",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "last modified",
+          "last updated",
+          "modification date",
+          "modified"
+        ]
+      },
+      "dct:source": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dcat:CatalogRecord",
+        "vocabulary": null,
+        "labels": [
+          "source",
+          "source metadata"
+        ]
+      },
+      "dct:title": {
+        "obligation": "optional",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "title"
+        ]
+      },
+      "foaf:primaryTopic": {
+        "obligation": "mandatory",
+        "max": 1,
+        "range": "dcat:Resource",
+        "vocabulary": null,
+        "labels": [
+          "primary topic",
+          "primaryTopic"
+        ]
+      }
+    },
+    "dcat:DataService": {
+      "dcat:contactPoint": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "vcard:Kind",
+        "vocabulary": null,
+        "labels": [
+          "contact",
+          "contact point",
+          "contactPoint",
+          "point of contact"
+        ]
+      },
+      "dcat:endpointDescription": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "rdfs:Resource",
+        "vocabulary": null,
+        "labels": [
+          "api description",
+          "description of the api or interface",
+          "endpoint description",
+          "endpointDescription"
+        ]
+      },
+      "dcat:endpointURL": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Resource",
+        "vocabulary": null,
+        "labels": [
+          "endpoint URL",
+          "endpoint address",
+          "endpoint uri",
+          "endpoint url",
+          "endpointURL",
+          "root location"
+        ]
+      },
+      "dcat:keyword": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "keyword",
+          "tag"
+        ]
+      },
+      "dcat:landingPage": {
+        "obligation": "optional",
+        "max": null,
+        "range": "foaf:Document",
+        "vocabulary": null,
+        "labels": [
+          "landing page",
+          "landingPage"
+        ]
+      },
+      "dcat:servesDataset": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "dcat:Dataset",
+        "vocabulary": null,
+        "labels": [
+          "datasets it serves",
+          "served datasets",
+          "serves dataset",
+          "servesDataset"
+        ]
+      },
+      "dcat:theme": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "skos:Concept",
+        "vocabulary": "http://publications.europa.eu/resource/authority/data-theme",
+        "labels": [
+          "theme"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/data-theme"
+          ],
+          "qualification": "at_least_one",
+          "usage_note": "The values to be used for this property are the URIs of the concepts in the vocabulary."
+        }
+      },
+      "dcatap:applicableLegislation": {
+        "obligation": "optional",
+        "max": null,
+        "range": "http://data.europa.eu/eli/ontology#LegalResource",
+        "vocabulary": null,
+        "labels": [
+          "applicable legislation",
+          "applicableLegislation"
+        ]
+      },
+      "dct:accessRights": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "access restrictions",
+          "access rights",
+          "accessRights"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/access-right"
+          ],
+          "qualification": "recommended",
+          "usage_note": "Use one of the following values (:PUBLIC, :RESTRICTED, :NON_PUBLIC)."
+        }
+      },
+      "dct:conformsTo": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "dct:Standard",
+        "vocabulary": null,
+        "labels": [
+          "conformance",
+          "conforms to",
+          "conformsTo"
+        ]
+      },
+      "dct:description": {
+        "obligation": "optional",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "description"
+        ]
+      },
+      "dct:format": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dct:MediaTypeOrExtent",
+        "vocabulary": "http://publications.europa.eu/resource/authority/file-type",
+        "labels": [
+          "file format",
+          "format"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/file-type"
+          ],
+          "qualification": "must",
+          "usage_note": ""
+        }
+      },
+      "dct:license": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dct:LicenseDocument",
+        "vocabulary": null,
+        "labels": [
+          "licence",
+          "license"
+        ]
+      },
+      "dct:publisher": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "foaf:Agent",
+        "vocabulary": null,
+        "labels": [
+          "publisher"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/corporate-body"
+          ],
+          "qualification": "conditional",
+          "usage_note": "The Corporate bodies NAL must be used for European institutions and a small set of international organisations. In case of other types of organisations, national, regional or local vocabularies should be used."
+        }
+      },
+      "dct:title": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "title"
+        ]
+      },
+      "foaf:page": {
+        "obligation": "optional",
+        "max": null,
+        "range": "foaf:Document",
+        "vocabulary": null,
+        "labels": [
+          "documentation",
+          "page"
+        ]
+      }
+    },
+    "dcat:Dataset": {
+      "adms:identifier": {
+        "obligation": "optional",
+        "max": null,
+        "range": "adms:Identifier",
+        "vocabulary": null,
+        "labels": [
+          "identifier",
+          "other identifier"
+        ]
+      },
+      "adms:sample": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dcat:Distribution",
+        "vocabulary": null,
+        "labels": [
+          "sample"
+        ]
+      },
+      "adms:versionNotes": {
+        "obligation": "optional",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "version notes",
+          "versionNotes"
+        ]
+      },
+      "dcat:contactPoint": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "vcard:Kind",
+        "vocabulary": null,
+        "labels": [
+          "contact",
+          "contact point",
+          "contactPoint",
+          "point of contact"
+        ]
+      },
+      "dcat:distribution": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "dcat:Distribution",
+        "vocabulary": null,
+        "labels": [
+          "dataset distribution",
+          "distribution"
+        ]
+      },
+      "dcat:hasVersion": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dcat:Dataset",
+        "vocabulary": null,
+        "labels": [
+          "has version",
+          "hasVersion"
+        ]
+      },
+      "dcat:inSeries": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dcat:DatasetSeries",
+        "vocabulary": null,
+        "labels": [
+          "in series",
+          "inSeries"
+        ]
+      },
+      "dcat:keyword": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "keyword",
+          "tag"
+        ]
+      },
+      "dcat:landingPage": {
+        "obligation": "optional",
+        "max": null,
+        "range": "foaf:Document",
+        "vocabulary": null,
+        "labels": [
+          "landing page",
+          "landingPage"
+        ]
+      },
+      "dcat:qualifiedRelation": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dcat:Relationship",
+        "vocabulary": null,
+        "labels": [
+          "qualified relation",
+          "qualifiedRelation"
+        ]
+      },
+      "dcat:spatialResolutionInMeters": {
+        "obligation": "optional",
+        "max": null,
+        "range": "xsd:decimal",
+        "vocabulary": null,
+        "labels": [
+          "spatial resolution",
+          "spatialResolutionInMeters"
+        ]
+      },
+      "dcat:temporalResolution": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "xsd:duration",
+        "vocabulary": null,
+        "labels": [
+          "temporal resolution",
+          "temporalResolution"
+        ]
+      },
+      "dcat:theme": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "skos:Concept",
+        "vocabulary": "http://publications.europa.eu/resource/authority/data-theme",
+        "labels": [
+          "theme"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/data-theme"
+          ],
+          "qualification": "at_least_one",
+          "usage_note": "The values to be used for this property are the URIs of the concepts in the vocabulary."
+        }
+      },
+      "dcat:version": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "version"
+        ]
+      },
+      "dcatap:applicableLegislation": {
+        "obligation": "optional",
+        "max": null,
+        "range": "http://data.europa.eu/eli/ontology#LegalResource",
+        "vocabulary": null,
+        "labels": [
+          "applicable legislation",
+          "applicableLegislation"
+        ]
+      },
+      "dct:accessRights": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "access restrictions",
+          "access rights",
+          "accessRights"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/access-right"
+          ],
+          "qualification": "recommended",
+          "usage_note": "Use one of the following values (:PUBLIC, :RESTRICTED, :NON_PUBLIC)."
+        }
+      },
+      "dct:accrualPeriodicity": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dct:Frequency",
+        "vocabulary": "http://publications.europa.eu/resource/authority/frequency",
+        "labels": [
+          "accrual periodicity",
+          "accrualPeriodicity",
+          "frequency",
+          "update frequency"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/frequency"
+          ],
+          "qualification": "must",
+          "usage_note": ""
+        }
+      },
+      "dct:conformsTo": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dct:Standard",
+        "vocabulary": null,
+        "labels": [
+          "conformance",
+          "conforms to",
+          "conformsTo"
+        ]
+      },
+      "dct:creator": {
+        "obligation": "optional",
+        "max": null,
+        "range": "foaf:Agent",
+        "vocabulary": null,
+        "labels": [
+          "creator"
+        ]
+      },
+      "dct:description": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "description"
+        ]
+      },
+      "dct:identifier": {
+        "obligation": "optional",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "identifier"
+        ]
+      },
+      "dct:isReferencedBy": {
+        "obligation": "optional",
+        "max": null,
+        "range": "rdfs:Resource",
+        "vocabulary": null,
+        "labels": [
+          "is referenced by",
+          "isReferencedBy"
+        ]
+      },
+      "dct:issued": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "issued",
+          "publication date",
+          "release date"
+        ]
+      },
+      "dct:language": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dct:LinguisticSystem",
+        "vocabulary": "http://publications.europa.eu/resource/authority/language",
+        "labels": [
+          "language"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/language"
+          ],
+          "qualification": "must",
+          "usage_note": ""
+        }
+      },
+      "dct:modified": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "last modified",
+          "last updated",
+          "modification date",
+          "modified"
+        ]
+      },
+      "dct:provenance": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dct:ProvenanceStatement",
+        "vocabulary": null,
+        "labels": [
+          "lineage",
+          "provenance"
+        ]
+      },
+      "dct:publisher": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "foaf:Agent",
+        "vocabulary": null,
+        "labels": [
+          "publisher"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/corporate-body"
+          ],
+          "qualification": "conditional",
+          "usage_note": "The Corporate bodies NAL must be used for European institutions and a small set of international organisations. In case of other types of organisations, national, regional or local vocabularies should be used."
+        }
+      },
+      "dct:relation": {
+        "obligation": "optional",
+        "max": null,
+        "range": "rdfs:Resource",
+        "vocabulary": null,
+        "labels": [
+          "related resource",
+          "relation"
+        ]
+      },
+      "dct:source": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dcat:Dataset",
+        "vocabulary": null,
+        "labels": [
+          "source"
+        ]
+      },
+      "dct:spatial": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "dct:Location",
+        "vocabulary": null,
+        "labels": [
+          "geographic coverage",
+          "geographic extent",
+          "geographical area",
+          "geographical coverage",
+          "spatial",
+          "spatial coverage"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/continent/",
+            "http://publications.europa.eu/resource/authority/country",
+            "http://publications.europa.eu/resource/authority/place/",
+            "http://sws.geonames.org/"
+          ],
+          "qualification": "conditional",
+          "usage_note": "The EU Vocabularies Name Authority Lists must be used for continents, countries and places that are in those lists; if a particular location is not in one of the mentioned Named Authority Lists, Geonames URIs must be used."
+        }
+      },
+      "dct:temporal": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "dct:PeriodOfTime",
+        "vocabulary": null,
+        "labels": [
+          "temporal",
+          "temporal coverage",
+          "time period"
+        ]
+      },
+      "dct:title": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "title"
+        ]
+      },
+      "dct:type": {
+        "obligation": "optional",
+        "max": null,
+        "range": "skos:Concept",
+        "vocabulary": null,
+        "labels": [
+          "type"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/dataset-type"
+          ],
+          "qualification": "may",
+          "usage_note": "This list of terms provide types of datasets. Its main scope is to support dataset categorisation of the EU Open Data Portal."
+        }
+      },
+      "foaf:page": {
+        "obligation": "optional",
+        "max": null,
+        "range": "foaf:Document",
+        "vocabulary": null,
+        "labels": [
+          "documentation",
+          "page"
+        ]
+      },
+      "prov:qualifiedAttribution": {
+        "obligation": "optional",
+        "max": null,
+        "range": "prov:Attribution",
+        "vocabulary": null,
+        "labels": [
+          "qualified attribution",
+          "qualifiedAttribution"
+        ]
+      },
+      "prov:wasGeneratedBy": {
+        "obligation": "optional",
+        "max": null,
+        "range": "prov:Activity",
+        "vocabulary": null,
+        "labels": [
+          "was generated by",
+          "wasGeneratedBy"
+        ]
+      }
+    },
+    "dcat:DatasetSeries": {
+      "dcat:contactPoint": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "vcard:Kind",
+        "vocabulary": null,
+        "labels": [
+          "contact",
+          "contact point",
+          "contactPoint",
+          "point of contact"
+        ]
+      },
+      "dcatap:applicableLegislation": {
+        "obligation": "optional",
+        "max": null,
+        "range": "http://data.europa.eu/eli/ontology#LegalResource",
+        "vocabulary": null,
+        "labels": [
+          "applicable legislation",
+          "applicableLegislation"
+        ]
+      },
+      "dct:accrualPeriodicity": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dct:Frequency",
+        "vocabulary": "http://publications.europa.eu/resource/authority/frequency",
+        "labels": [
+          "accrual periodicity",
+          "accrualPeriodicity",
+          "frequency",
+          "update frequency"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/frequency"
+          ],
+          "qualification": "must",
+          "usage_note": ""
+        }
+      },
+      "dct:description": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "description"
+        ]
+      },
+      "dct:issued": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "issued",
+          "publication date",
+          "release date"
+        ]
+      },
+      "dct:modified": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "last modified",
+          "last updated",
+          "modification date",
+          "modified"
+        ]
+      },
+      "dct:publisher": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "foaf:Agent",
+        "vocabulary": null,
+        "labels": [
+          "publisher"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/corporate-body"
+          ],
+          "qualification": "conditional",
+          "usage_note": "The Corporate bodies NAL must be used for European institutions and a small set of international organisations. In case of other types of organisations, national, regional or local vocabularies should be used."
+        }
+      },
+      "dct:spatial": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "dct:Location",
+        "vocabulary": null,
+        "labels": [
+          "geographic coverage",
+          "geographic extent",
+          "geographical area",
+          "geographical coverage",
+          "spatial",
+          "spatial coverage"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/continent/",
+            "http://publications.europa.eu/resource/authority/country",
+            "http://publications.europa.eu/resource/authority/place/",
+            "http://sws.geonames.org/"
+          ],
+          "qualification": "conditional",
+          "usage_note": "The EU Vocabularies Name Authority Lists must be used for continents, countries and places that are in those lists; if a particular location is not in one of the mentioned Named Authority Lists, Geonames URIs must be used."
+        }
+      },
+      "dct:temporal": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dct:PeriodOfTime",
+        "vocabulary": null,
+        "labels": [
+          "temporal",
+          "temporal coverage",
+          "time period"
+        ]
+      },
+      "dct:title": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "title"
+        ]
+      }
+    },
+    "dcat:Distribution": {
+      "adms:status": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "skos:Concept",
+        "vocabulary": "http://publications.europa.eu/resource/authority/distribution-status",
+        "labels": [
+          "status"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/distribution-status"
+          ],
+          "qualification": "must",
+          "usage_note": ""
+        }
+      },
+      "dcat:accessService": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dcat:DataService",
+        "vocabulary": null,
+        "labels": [
+          "access service",
+          "accessService"
+        ]
+      },
+      "dcat:accessURL": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Resource",
+        "vocabulary": null,
+        "labels": [
+          "access URL",
+          "access url",
+          "accessURL"
+        ]
+      },
+      "dcat:byteSize": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "xsd:nonNegativeInteger",
+        "vocabulary": null,
+        "labels": [
+          "byte size",
+          "byteSize",
+          "file size"
+        ]
+      },
+      "dcat:compressFormat": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dct:MediaType",
+        "vocabulary": "http://www.iana.org/assignments/media-types/media-types.xhtml",
+        "labels": [
+          "compressFormat",
+          "compression format"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://www.iana.org/assignments/media-types/media-types.xhtml"
+          ],
+          "qualification": "must",
+          "usage_note": "The members listed are considered a controlled vocabulary of supported compression formats."
+        }
+      },
+      "dcat:downloadURL": {
+        "obligation": "optional",
+        "max": null,
+        "range": "rdfs:Resource",
+        "vocabulary": null,
+        "labels": [
+          "download URL",
+          "download url",
+          "downloadURL"
+        ]
+      },
+      "dcat:mediaType": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dct:MediaType",
+        "vocabulary": "http://www.iana.org/assignments/media-types/media-types.xhtml",
+        "labels": [
+          "media type",
+          "mediaType",
+          "mime type"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://www.iana.org/assignments/media-types/media-types.xhtml"
+          ],
+          "qualification": "must",
+          "usage_note": ""
+        }
+      },
+      "dcat:packageFormat": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dct:MediaType",
+        "vocabulary": "http://www.iana.org/assignments/media-types/media-types.xhtml",
+        "labels": [
+          "packageFormat",
+          "packaging format"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://www.iana.org/assignments/media-types/media-types.xhtml"
+          ],
+          "qualification": "must",
+          "usage_note": "The members listed are considered a controlled vocabulary of supported compression formats."
+        }
+      },
+      "dcat:spatialResolutionInMeters": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "xsd:decimal",
+        "vocabulary": null,
+        "labels": [
+          "spatial resolution",
+          "spatialResolutionInMeters"
+        ]
+      },
+      "dcat:temporalResolution": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "xsd:duration",
+        "vocabulary": null,
+        "labels": [
+          "temporal resolution",
+          "temporalResolution"
+        ]
+      },
+      "dcatap:applicableLegislation": {
+        "obligation": "optional",
+        "max": null,
+        "range": "http://data.europa.eu/eli/ontology#LegalResource",
+        "vocabulary": null,
+        "labels": [
+          "applicable legislation",
+          "applicableLegislation"
+        ]
+      },
+      "dcatap:availability": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "skos:Concept",
+        "vocabulary": "http://publications.europa.eu/resource/authority/planned-availability",
+        "labels": [
+          "availability"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/planned-availability"
+          ],
+          "qualification": "must",
+          "usage_note": "The list of terms for the avalability levels of a dataset distribution in the DCAT-AP specification."
+        }
+      },
+      "dct:conformsTo": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dct:Standard",
+        "vocabulary": null,
+        "labels": [
+          "conformance",
+          "conforms to",
+          "conformsTo",
+          "linked schemas"
+        ]
+      },
+      "dct:description": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "description"
+        ]
+      },
+      "dct:format": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "dct:MediaTypeOrExtent",
+        "vocabulary": "http://publications.europa.eu/resource/authority/file-type",
+        "labels": [
+          "file format",
+          "format"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/file-type"
+          ],
+          "qualification": "must",
+          "usage_note": ""
+        }
+      },
+      "dct:issued": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "issued",
+          "publication date",
+          "release date"
+        ]
+      },
+      "dct:language": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dct:LinguisticSystem",
+        "vocabulary": "http://publications.europa.eu/resource/authority/language",
+        "labels": [
+          "language"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://publications.europa.eu/resource/authority/language"
+          ],
+          "qualification": "must",
+          "usage_note": ""
+        }
+      },
+      "dct:license": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "dct:LicenseDocument",
+        "vocabulary": null,
+        "labels": [
+          "licence",
+          "license"
+        ]
+      },
+      "dct:modified": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "last modified",
+          "last updated",
+          "modification date",
+          "modified"
+        ]
+      },
+      "dct:rights": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "rights"
+        ]
+      },
+      "dct:title": {
+        "obligation": "optional",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "title"
+        ]
+      },
+      "foaf:page": {
+        "obligation": "optional",
+        "max": null,
+        "range": "foaf:Document",
+        "vocabulary": null,
+        "labels": [
+          "documentation",
+          "page"
+        ]
+      },
+      "odrl:hasPolicy": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "odrl:Policy",
+        "vocabulary": null,
+        "labels": [
+          "has policy",
+          "hasPolicy"
+        ]
+      },
+      "spdx:checksum": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "spdx:Checksum",
+        "vocabulary": null,
+        "labels": [
+          "checksum"
+        ]
+      }
+    },
+    "dcat:Relationship": {
+      "dcat:hadRole": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "dcat:Role",
+        "vocabulary": null,
+        "labels": [
+          "had role",
+          "hadRole"
+        ]
+      },
+      "dct:relation": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Resource",
+        "vocabulary": null,
+        "labels": [
+          "relation"
+        ]
+      }
+    },
+    "dct:LicenseDocument": {
+      "dct:type": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "skos:Concept",
+        "vocabulary": null,
+        "labels": [
+          "type"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://purl.org/adms/licencetype/1.0"
+          ],
+          "qualification": "recommended",
+          "usage_note": "The list of terms in the ADMS licence type vocabulary is included in the ADMS specification"
+        }
+      }
+    },
+    "dct:Location": {
+      "dcat:bbox": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "bbox"
+        ]
+      },
+      "dcat:centroid": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "centroid"
+        ]
+      },
+      "locn:geometry": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "locn:Geometry",
+        "vocabulary": null,
+        "labels": [
+          "geometry"
+        ]
+      }
+    },
+    "dct:PeriodOfTime": {
+      "dcat:endDate": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "end date",
+          "endDate"
+        ]
+      },
+      "dcat:startDate": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "start date",
+          "startDate"
+        ]
+      },
+      "time:hasBeginning": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "time:Instant",
+        "vocabulary": null,
+        "labels": [
+          "beginning",
+          "hasBeginning"
+        ]
+      },
+      "time:hasEnd": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "time:Instant",
+        "vocabulary": null,
+        "labels": [
+          "end",
+          "hasEnd"
+        ]
+      }
+    },
+    "foaf:Agent": {
+      "dct:type": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "skos:Concept",
+        "vocabulary": null,
+        "labels": [
+          "type"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "http://purl.org/adms/publishertype/1.0"
+          ],
+          "qualification": "recommended",
+          "usage_note": "The list of terms in the ADMS publisher type vocabulary is included in the ADMS specification"
+        }
+      },
+      "foaf:name": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "name"
+        ]
+      }
+    },
+    "skos:Concept": {
+      "skos:prefLabel": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "prefLabel",
+          "preferred label"
+        ]
+      }
+    },
+    "skos:ConceptScheme": {
+      "dct:title": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "title"
+        ]
+      }
+    },
+    "spdx:Checksum": {
+      "spdx:algorithm": {
+        "obligation": "mandatory",
+        "max": 1,
+        "range": "spdx:ChecksumAlgorithm",
+        "vocabulary": "https://spdx.org/rdf/terms/#d4e2129",
+        "labels": [
+          "algorithm"
+        ],
+        "vocabulary_guidance": {
+          "schemes": [
+            "https://spdx.org/rdf/terms/#d4e2129"
+          ],
+          "qualification": "must",
+          "usage_note": "The members listed are considered a controlled vocabulary of supported checksum algorithms."
+        }
+      },
+      "spdx:checksumValue": {
+        "obligation": "mandatory",
+        "max": 1,
+        "range": "xsd:hexBinary",
+        "vocabulary": null,
+        "labels": [
+          "checksum value",
+          "checksumValue"
+        ]
+      }
+    }
+  }
+}

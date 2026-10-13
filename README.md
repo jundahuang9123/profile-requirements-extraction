@@ -29,6 +29,18 @@ saved manifests and optional human overrides. Fixed panels remain available for 
 The [source preparation guide](docs/SOURCE_PREPARATION.md) explains what to skim,
 what the software prepares, and which evidence still needs human review.
 
+## Starting version and active branch
+
+`codex/extend-dcat-ap` is the default development branch. Historical branches are
+preserved as archive tags rather than active branches; see [repository maintenance](docs/REPOSITORY_MAINTENANCE.md).
+
+On **Sources & scope**, select the starting DCAT / DCAT-AP version for each run:
+DCAT-AP 2.0.1, 2.1.1, 3.0.0 or 3.0.1, or W3C DCAT 2 / 3. Mobility reproduction
+keeps DCAT-AP 2.0.1. New profiles can explicitly target a 3.x release. The choice
+and pinned checksum stay with the saved run. See [base selection and version
+provenance](docs/BASE_PROFILE.md) for the distinction between vocabulary terms and
+application-profile obligations, offline registry sources, and derived comparisons.
+
 ## Run locally
 
 Use Python 3.11 or 3.12 and Node.js 22. From the repository root:

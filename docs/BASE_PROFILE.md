@@ -1,6 +1,8 @@
-# Extending an inherited DCAT-AP base
+# Extending a selected DCAT / DCAT-AP base
 
-A domain profile starts with DCAT-AP's existing classes, properties and obligations.
+A domain profile starts with the selected base's existing classes and properties.
+DCAT-AP also supplies application-profile obligations; W3C DCAT supplies vocabulary
+definitions without those obligations.
 The extraction workflow therefore looks for the additions or changes a domain needs:
 new information needs, stricter obligations, added value/cardinality/usage constraints,
 controlled vocabularies, and new classes or relations. Restating the base should not
@@ -12,9 +14,40 @@ a separate derived run can apply the new normalization and base check to the sav
 step 3b observations without making extraction calls. Its lineage identifies the
 source run, saved extraction and changed downstream conditions.
 
+## Choose the starting version for each run
+
+On **Sources & scope**, choose **Starting DCAT / DCAT-AP version** before you
+freeze the corpus/start the run. The choices are DCAT-AP 2.0.1, 2.1.1, 3.0.0 and
+3.0.1, and W3C DCAT 2 and 3. The version is repeated on the configuration page
+and saved with the run, including the exact registry checksum and registry policy.
+
+Selecting the Mobility benchmark selects **DCAT-AP 2.0.1** automatically for
+reproduction. You can deliberately choose another version; the UI marks that as
+a different comparison condition. A custom or other benchmark corpus does not
+silently acquire Mobility's base. For a new profile targeting DCAT-AP 3, choose
+the specific 3.x release the profile is intended to extend.
+
+Version selection changes the extraction context and downstream comparison,
+not the uploaded documents, reference answers, or their provenance. Review scope
+and base/background-source classification when using a different base. An explicit
+**No base profile selected** remains available for exploratory extraction.
+
+Saved runs keep their original version. A **separate derived trial** may select
+another base for steps 4–7 using saved step 3b; that does not rerun extraction or
+claim its original extraction used the new base. For extraction under a different
+base, create a new run instead.
+
+W3C DCAT and DCAT-AP are separate choices: DCAT defines terms and inherited
+class membership. It does not provide the DCAT-AP mandatory/recommended property
+table. When a source proposes an application obligation for a DCAT term, the
+checker retains it as a constrained proposal requiring review; it does not invent
+an inherited application obligation or silently set that proposal aside.
+
 ## Policies and reproducible base data
 
-The registry policy is `rq1-base-registry-v1`, the base-check policy is
+The existing 2.x registry policy is `rq1-base-registry-v1`; the new 3.x registries
+use `rq1-base-registry-v2`, and W3C vocabularies use `rq1-base-vocabulary-v1`.
+The base-check policy is
 `rq1-base-check-v2`, normalization uses `rq1-normalization-v3`, semantic grouping
 uses `rq1-semantic-consolidation-v2`, and extension extraction uses
 `rq1-independent-elicitation-v3.0`. Runs record the selected `base_profile_id`,
@@ -24,19 +57,49 @@ machine output retain the corresponding policy/base metadata. A derived run reta
 its source extraction policy; applying the base check does not relabel old v2.11
 extraction as v3. An unfinished v2.11 extraction cannot resume under v3.
 
-The registry is built from the official
+The DCAT-AP registries are built from the official
 [SEMICeu/DCAT-AP repository at commit 4470b8ea907b7eb9ec55ab22befd1ecd2210ff32](https://github.com/SEMICeu/DCAT-AP/tree/4470b8ea907b7eb9ec55ab22befd1ecd2210ff32).
 The checked-in registries are:
 
-| Registry | SHA256 of JSON bytes | Recommendation source |
+| Registry | Classes / entries | SHA256 of JSON bytes |
 | --- | --- | --- |
-| `requirement-reuse-service/config/base_profiles/dcat-ap-2.0.1.json` | `8714b33e415b4576e2bf9046ae66806555f376dffbeeff5e681eb9e0fda70180` | Official 2.0.1 DOCX class tables |
-| `requirement-reuse-service/config/base_profiles/dcat-ap-2.1.1.json` | `928c2686f32183b7b6540b8a7d28d1f38bff47fa19e7281f64e2c6f731a912c0` | Official 2.1.1 recommended SHACL shapes |
+| `dcat-ap-2.0.1.json` | 14 / 109 | `8714b33e415b4576e2bf9046ae66806555f376dffbeeff5e681eb9e0fda70180` |
+| `dcat-ap-2.1.1.json` | 14 / 109 | `928c2686f32183b7b6540b8a7d28d1f38bff47fa19e7281f64e2c6f731a912c0` |
+| `dcat-ap-3.0.0.json` | 15 / 131 | `abac1d09177b760059d4e3deb63819c081081df758f23f0567815f4b9d35971f` |
+| `dcat-ap-3.0.1.json` | 15 / 131 | `84de0548ad207c259d82426e3905b7fa50c38a27e09db6ea1166099774153216` |
+| `dcat-2.0.0.json` | 12 / 146 | `7c9f715ac49f51e239d5e388d879b68022b86ae77d9f9f7a8384f1eefa4934a5` |
+| `dcat-3.0.0.json` | 14 / 236 | `6738d665366484c4ecc6e6cf77057b581b6fe20d60d2cb6d5c39ff61aed816bf` |
 
-Each contains 14 classes and 109 class/property entries. Entries hold obligation,
-maximum cardinality, range, vocabulary and label/synonym data; union ranges or
-multiple schemes use a list. These are a base comparison registry, not a complete
-SHACL conformance validator.
+All files are in `requirement-reuse-service/config/base_profiles/`. These are
+comparison registries, not complete SHACL conformance validators. Entries record
+obligation, maximum cardinality, range, vocabulary and label data where defined.
+Multiple ranges/schemes use lists.
+
+The W3C sources are the dated [DCAT 2 Recommendation](https://www.w3.org/TR/2020/REC-vocab-dcat-2-20200204/)
+and [DCAT 3 Recommendation](https://www.w3.org/TR/2024/REC-vocab-dcat-3-20240822/).
+The builder reads explicit class/property tables and expands their superclass
+membership. Unspecified ranges remain unknown; application-profile obligations
+and maximum cardinalities remain unset.
+
+For DCAT-AP 3.x, property membership, obligations and cardinalities come from the
+official release HTML conformance/property tables. Separate SHACL shapes for the
+same class/property are combined and checked against the specification. A generic
+IRI node-kind restriction cannot replace or broaden an explicit class range.
+The HTML controlled-vocabulary tables retain compulsory, recommended and conditional
+use separately in `vocabulary_guidance`. Only unconditional required schemes populate
+`vocabulary`; recommended/conditional guidance is not used to dismiss a proposed
+domain constraint automatically. This registry does not implement every usage-note
+condition or nested SHACL constraint. Dataset Series is available in 3.x, and
+membership/obligations may differ between releases.
+
+The persistent workflow's resource-type contract accepts the classes present in
+these registries, including Dataset Series and the supporting classes. This is a
+backward-compatible enum expansion; previous resource labels remain valid and
+the older v1 endpoint contract is unchanged. An unregistered domain class remains
+`Unknown` for review rather than inventing a base class.
+
+The 2.x files remain byte-for-byte unchanged for historical reproducibility.
+The following describes their original builder:
 
 Mandatory means `sh:minCount >= 1` in the main release shapes. Recommended means
 membership of the 2.1.1 recommended shapes, or a recommended-properties section
@@ -69,17 +132,22 @@ Every input below is recorded with its full checksum in the JSON `source.files`.
 ### Building offline
 
 Put the pinned release files in a local checkout/directory preserving their
-`releases/<version>/` paths. With the repository's dependencies installed, run:
+`releases/<version>/` paths. For W3C choices, save the dated specifications as
+`w3c/dcat-2.html` and `w3c/dcat-3.html` in the same input directory. With the repository's dependencies installed, run:
 
 ```sh
 python scripts/build_base_profile.py --input-dir /absolute/path/to/pinned-DCAT-AP
 ```
 
 The builder makes no downloads and does not follow RDF imports. It checks all
-input hashes, parses RDF and the DOCX with `python-docx`, writes both JSONs, and
+input hashes, parses RDF, DOCX with `python-docx`, and HTML with `lxml`, writes all six JSONs, and
 prints their entry counts, recommendation sources and output hashes. Use
 `--profile dcat-ap-2.0.1` or `--output-dir /absolute/path/outside-the-repo` for a
-single profile or a separate reproducibility comparison.
+single profile or a separate reproducibility comparison. All input pins, including
+the 3.x HTML/SHACL and W3C files, are in `scripts/build_base_profile.py`; each JSON
+also records the exact source checksums. Adding a future release requires a
+reviewed official source pin, parser validation and a new immutable registry;
+there is no runtime download of a moving latest version.
 
 Both official registries rebuilt to byte-identical output. The 2.0.1 DOCX parse
 succeeded; **no recommended-set fallback was taken**. A parse failure stops the

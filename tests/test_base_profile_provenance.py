@@ -4,6 +4,7 @@ from requirement_reuse_service.workflow import engine
 from requirement_reuse_service.workflow.models import RunRequest, DeriveRequest
 from pathlib import Path
 from hashlib import sha256
+import pytest
 
 
 def profile_hash(identifier):
@@ -19,6 +20,34 @@ def test_case_defaults_are_explicit_and_other_versions_remain_unset(setup):
     for case in ['healthdcat','geodcat','statdcat','jrc-research','epos']:
         selected,metadata=engine.selected_base(RunRequest(snapshot_id=run['snapshot_id'],benchmark_case_id=case))
         assert selected.base_profile_id is None and metadata=={}
+
+
+@pytest.mark.parametrize('identifier', ['dcat-ap-3.0.0', 'dcat-ap-3.0.1', 'dcat-2.0.0', 'dcat-3.0.0'])
+def test_explicit_version_overrides_mobility_default_and_is_pinned(setup, identifier):
+    _, source, _ = setup
+    selected, metadata = engine.selected_base(RunRequest(snapshot_id=source['snapshot_id'],
+        benchmark_case_id='mobilitydcat', base_profile_id=identifier))
+    assert selected.base_profile_id == metadata['base_profile_id'] == identifier
+    assert metadata['base_profile_sha256'] == profile_hash(identifier)
+    context = engine.extraction_base_context(identifier, metadata['base_profile_sha256'])
+    assert context['id'] == identifier and context['sha256'] == profile_hash(identifier)
+    if identifier.startswith('dcat-ap-'):
+        assert 'obligation_policy' not in context and 'dct:title (mandatory)' in context['table']
+    else:
+        assert 'vocabulary' in context['obligation_policy'] and '(mandatory)' not in context['table']
+
+
+@pytest.mark.parametrize('identifier', ['dcat-ap-3.0.1', 'dcat-3.0.0'])
+def test_derived_version_change_preserves_saved_extraction_and_source_run(setup, identifier):
+    store, source, client = setup
+    engine.execute_run(store, source['run_id'], client)
+    before = store.get('run', source['run_id'])
+    trial = engine.derive_run(store, source['run_id'], DeriveRequest(expected_version=before['version'],
+        base_profile_id=identifier, rationale='Compare a different pinned starting version.'))
+    assert trial['base_profile_id'] == identifier
+    assert trial['base_profile_sha256'] == profile_hash(identifier)
+    assert trial['stage_results']['elicitation'] == before['stage_results']['elicitation']
+    assert store.get('run', source['run_id']) == before
 
 
 def test_new_run_and_completed_stage_record_selected_base_hash(setup):

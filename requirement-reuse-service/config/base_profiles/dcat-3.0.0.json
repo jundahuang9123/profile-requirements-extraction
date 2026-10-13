@@ -1,0 +1,2415 @@
+{
+  "id": "dcat-3.0.0",
+  "version": "3",
+  "family": "DCAT",
+  "label": "W3C DCAT 3",
+  "registry_policy": "rq1-base-vocabulary-v1",
+  "source": {
+    "url": "https://www.w3.org/TR/2024/REC-vocab-dcat-3-20240822/",
+    "files": {
+      "w3c/dcat-3.html": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb"
+    }
+  },
+  "recommended_source": "not_applicable",
+  "description": "Vocabulary membership and ranges. No DCAT-AP mandatory/recommended obligations.",
+  "classes": {
+    "dcat:Catalog": {
+      "adms:status": {
+        "obligation": null,
+        "max": null,
+        "range": "skos:Concept",
+        "vocabulary": null,
+        "labels": [
+          "status"
+        ]
+      },
+      "adms:versionNotes": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "version notes",
+          "versionNotes"
+        ]
+      },
+      "dcat:catalog": {
+        "obligation": null,
+        "max": null,
+        "range": "dcat:Catalog",
+        "vocabulary": null,
+        "labels": [
+          "catalog"
+        ]
+      },
+      "dcat:contactPoint": {
+        "obligation": null,
+        "max": null,
+        "range": "vcard:Kind",
+        "vocabulary": null,
+        "labels": [
+          "contact",
+          "contact point",
+          "contactPoint",
+          "point of contact"
+        ]
+      },
+      "dcat:dataset": {
+        "obligation": null,
+        "max": null,
+        "range": "dcat:Dataset",
+        "vocabulary": null,
+        "labels": [
+          "dataset"
+        ]
+      },
+      "dcat:distribution": {
+        "obligation": null,
+        "max": null,
+        "range": "dcat:Distribution",
+        "vocabulary": null,
+        "labels": [
+          "distribution"
+        ]
+      },
+      "dcat:first": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "first"
+        ]
+      },
+      "dcat:hasCurrentVersion": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "hasCurrentVersion"
+        ]
+      },
+      "dcat:hasVersion": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "hasVersion"
+        ]
+      },
+      "dcat:inSeries": {
+        "obligation": null,
+        "max": null,
+        "range": "dcat:DatasetSeries",
+        "vocabulary": null,
+        "labels": [
+          "inSeries"
+        ]
+      },
+      "dcat:keyword": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "keyword",
+          "tag"
+        ]
+      },
+      "dcat:landingPage": {
+        "obligation": null,
+        "max": null,
+        "range": "foaf:Document",
+        "vocabulary": null,
+        "labels": [
+          "landingPage"
+        ]
+      },
+      "dcat:last": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "last"
+        ]
+      },
+      "dcat:prev": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "prev"
+        ]
+      },
+      "dcat:previousVersion": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "previousVersion"
+        ]
+      },
+      "dcat:qualifiedRelation": {
+        "obligation": null,
+        "max": null,
+        "range": "dcat:Relationship",
+        "vocabulary": null,
+        "labels": [
+          "qualifiedRelation"
+        ]
+      },
+      "dcat:record": {
+        "obligation": null,
+        "max": null,
+        "range": "dcat:CatalogRecord",
+        "vocabulary": null,
+        "labels": [
+          "record"
+        ]
+      },
+      "dcat:resource": {
+        "obligation": null,
+        "max": null,
+        "range": "dcat:Resource",
+        "vocabulary": null,
+        "labels": [
+          "resource"
+        ]
+      },
+      "dcat:service": {
+        "obligation": null,
+        "max": null,
+        "range": "dcat:DataService",
+        "vocabulary": null,
+        "labels": [
+          "service"
+        ]
+      },
+      "dcat:spatialResolutionInMeters": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:decimal"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "spatialResolutionInMeters"
+        ]
+      },
+      "dcat:temporalResolution": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:duration"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "temporalResolution"
+        ]
+      },
+      "dcat:theme": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "theme"
+        ]
+      },
+      "dcat:themeTaxonomy": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Resource",
+        "vocabulary": null,
+        "labels": [
+          "theme taxonomy",
+          "themeTaxonomy"
+        ]
+      },
+      "dcat:version": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "version"
+        ]
+      },
+      "dct:accessRights": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "access restrictions",
+          "access rights",
+          "accessRights"
+        ]
+      },
+      "dct:accrualPeriodicity": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:Frequency",
+        "vocabulary": null,
+        "labels": [
+          "accrual periodicity",
+          "accrualPeriodicity",
+          "update frequency"
+        ]
+      },
+      "dct:conformsTo": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:Standard",
+        "vocabulary": null,
+        "labels": [
+          "conformance",
+          "conforms to",
+          "conformsTo"
+        ]
+      },
+      "dct:creator": {
+        "obligation": null,
+        "max": null,
+        "range": "foaf:Agent",
+        "vocabulary": null,
+        "labels": [
+          "creator"
+        ]
+      },
+      "dct:description": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "description"
+        ]
+      },
+      "dct:hasPart": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "hasPart"
+        ]
+      },
+      "dct:identifier": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "identifier"
+        ]
+      },
+      "dct:isReferencedBy": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "isReferencedBy"
+        ]
+      },
+      "dct:issued": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime",
+          "xsd:gYear",
+          "xsd:gYearMonth"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "issued",
+          "publication date",
+          "release date"
+        ]
+      },
+      "dct:language": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:LinguisticSystem",
+        "vocabulary": null,
+        "labels": [
+          "language"
+        ]
+      },
+      "dct:license": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:LicenseDocument",
+        "vocabulary": null,
+        "labels": [
+          "licence",
+          "license"
+        ]
+      },
+      "dct:modified": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime",
+          "xsd:gYear",
+          "xsd:gYearMonth"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "last modified",
+          "last updated",
+          "modification date",
+          "modified"
+        ]
+      },
+      "dct:publisher": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "publisher"
+        ]
+      },
+      "dct:relation": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "relation"
+        ]
+      },
+      "dct:replaces": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "replaces"
+        ]
+      },
+      "dct:rights": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "rights"
+        ]
+      },
+      "dct:spatial": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:Location",
+        "vocabulary": null,
+        "labels": [
+          "geographic coverage",
+          "geographic extent",
+          "geographical area",
+          "spatial",
+          "spatial coverage"
+        ]
+      },
+      "dct:temporal": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:PeriodOfTime",
+        "vocabulary": null,
+        "labels": [
+          "temporal",
+          "temporal coverage",
+          "time period"
+        ]
+      },
+      "dct:title": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "title"
+        ]
+      },
+      "dct:type": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Class",
+        "vocabulary": null,
+        "labels": [
+          "type"
+        ]
+      },
+      "foaf:homepage": {
+        "obligation": null,
+        "max": null,
+        "range": "foaf:Document",
+        "vocabulary": null,
+        "labels": [
+          "homepage"
+        ]
+      },
+      "odrl:hasPolicy": {
+        "obligation": null,
+        "max": null,
+        "range": "odrl:Policy",
+        "vocabulary": null,
+        "labels": [
+          "hasPolicy"
+        ]
+      },
+      "prov:qualifiedAttribution": {
+        "obligation": null,
+        "max": null,
+        "range": "prov:Attribution",
+        "vocabulary": null,
+        "labels": [
+          "qualifiedAttribution"
+        ]
+      },
+      "prov:wasGeneratedBy": {
+        "obligation": null,
+        "max": null,
+        "range": "prov:Activity",
+        "vocabulary": null,
+        "labels": [
+          "wasGeneratedBy"
+        ]
+      }
+    },
+    "dcat:CatalogRecord": {
+      "dct:conformsTo": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:Standard",
+        "vocabulary": null,
+        "labels": [
+          "conformance",
+          "conforms to",
+          "conformsTo"
+        ]
+      },
+      "dct:description": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "description"
+        ]
+      },
+      "dct:issued": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime",
+          "xsd:gYear",
+          "xsd:gYearMonth"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "issued",
+          "publication date",
+          "release date"
+        ]
+      },
+      "dct:modified": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime",
+          "xsd:gYear",
+          "xsd:gYearMonth"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "last modified",
+          "last updated",
+          "modification date",
+          "modified"
+        ]
+      },
+      "dct:title": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "title"
+        ]
+      },
+      "foaf:primaryTopic": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "primaryTopic"
+        ]
+      }
+    },
+    "dcat:DataService": {
+      "adms:status": {
+        "obligation": null,
+        "max": null,
+        "range": "skos:Concept",
+        "vocabulary": null,
+        "labels": [
+          "status"
+        ]
+      },
+      "adms:versionNotes": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "version notes",
+          "versionNotes"
+        ]
+      },
+      "dcat:contactPoint": {
+        "obligation": null,
+        "max": null,
+        "range": "vcard:Kind",
+        "vocabulary": null,
+        "labels": [
+          "contact",
+          "contact point",
+          "contactPoint",
+          "point of contact"
+        ]
+      },
+      "dcat:endpointDescription": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Resource",
+        "vocabulary": null,
+        "labels": [
+          "api description",
+          "description of the api or interface",
+          "endpoint description",
+          "endpointDescription"
+        ]
+      },
+      "dcat:endpointURL": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Resource",
+        "vocabulary": null,
+        "labels": [
+          "endpoint address",
+          "endpoint uri",
+          "endpoint url",
+          "endpointURL",
+          "root location"
+        ]
+      },
+      "dcat:first": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "first"
+        ]
+      },
+      "dcat:hasCurrentVersion": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "hasCurrentVersion"
+        ]
+      },
+      "dcat:hasVersion": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "hasVersion"
+        ]
+      },
+      "dcat:keyword": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "keyword",
+          "tag"
+        ]
+      },
+      "dcat:landingPage": {
+        "obligation": null,
+        "max": null,
+        "range": "foaf:Document",
+        "vocabulary": null,
+        "labels": [
+          "landingPage"
+        ]
+      },
+      "dcat:last": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "last"
+        ]
+      },
+      "dcat:prev": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "prev"
+        ]
+      },
+      "dcat:previousVersion": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "previousVersion"
+        ]
+      },
+      "dcat:qualifiedRelation": {
+        "obligation": null,
+        "max": null,
+        "range": "dcat:Relationship",
+        "vocabulary": null,
+        "labels": [
+          "qualifiedRelation"
+        ]
+      },
+      "dcat:servesDataset": {
+        "obligation": null,
+        "max": null,
+        "range": "dcat:Dataset",
+        "vocabulary": null,
+        "labels": [
+          "datasets it serves",
+          "served datasets",
+          "serves dataset",
+          "servesDataset"
+        ]
+      },
+      "dcat:theme": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "theme"
+        ]
+      },
+      "dcat:version": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "version"
+        ]
+      },
+      "dct:accessRights": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "access restrictions",
+          "access rights",
+          "accessRights"
+        ]
+      },
+      "dct:conformsTo": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:Standard",
+        "vocabulary": null,
+        "labels": [
+          "conformance",
+          "conforms to",
+          "conformsTo"
+        ]
+      },
+      "dct:creator": {
+        "obligation": null,
+        "max": null,
+        "range": "foaf:Agent",
+        "vocabulary": null,
+        "labels": [
+          "creator"
+        ]
+      },
+      "dct:description": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "description"
+        ]
+      },
+      "dct:hasPart": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "hasPart"
+        ]
+      },
+      "dct:identifier": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "identifier"
+        ]
+      },
+      "dct:isReferencedBy": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "isReferencedBy"
+        ]
+      },
+      "dct:issued": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime",
+          "xsd:gYear",
+          "xsd:gYearMonth"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "issued",
+          "publication date",
+          "release date"
+        ]
+      },
+      "dct:language": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:LinguisticSystem",
+        "vocabulary": null,
+        "labels": [
+          "language"
+        ]
+      },
+      "dct:license": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:LicenseDocument",
+        "vocabulary": null,
+        "labels": [
+          "licence",
+          "license"
+        ]
+      },
+      "dct:modified": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime",
+          "xsd:gYear",
+          "xsd:gYearMonth"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "last modified",
+          "last updated",
+          "modification date",
+          "modified"
+        ]
+      },
+      "dct:publisher": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "publisher"
+        ]
+      },
+      "dct:relation": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "relation"
+        ]
+      },
+      "dct:replaces": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "replaces"
+        ]
+      },
+      "dct:rights": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "rights"
+        ]
+      },
+      "dct:title": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "title"
+        ]
+      },
+      "dct:type": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Class",
+        "vocabulary": null,
+        "labels": [
+          "type"
+        ]
+      },
+      "odrl:hasPolicy": {
+        "obligation": null,
+        "max": null,
+        "range": "odrl:Policy",
+        "vocabulary": null,
+        "labels": [
+          "hasPolicy"
+        ]
+      },
+      "prov:qualifiedAttribution": {
+        "obligation": null,
+        "max": null,
+        "range": "prov:Attribution",
+        "vocabulary": null,
+        "labels": [
+          "qualifiedAttribution"
+        ]
+      }
+    },
+    "dcat:Dataset": {
+      "adms:status": {
+        "obligation": null,
+        "max": null,
+        "range": "skos:Concept",
+        "vocabulary": null,
+        "labels": [
+          "status"
+        ]
+      },
+      "adms:versionNotes": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "version notes",
+          "versionNotes"
+        ]
+      },
+      "dcat:contactPoint": {
+        "obligation": null,
+        "max": null,
+        "range": "vcard:Kind",
+        "vocabulary": null,
+        "labels": [
+          "contact",
+          "contact point",
+          "contactPoint",
+          "point of contact"
+        ]
+      },
+      "dcat:distribution": {
+        "obligation": null,
+        "max": null,
+        "range": "dcat:Distribution",
+        "vocabulary": null,
+        "labels": [
+          "distribution"
+        ]
+      },
+      "dcat:first": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "first"
+        ]
+      },
+      "dcat:hasCurrentVersion": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "hasCurrentVersion"
+        ]
+      },
+      "dcat:hasVersion": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "hasVersion"
+        ]
+      },
+      "dcat:inSeries": {
+        "obligation": null,
+        "max": null,
+        "range": "dcat:DatasetSeries",
+        "vocabulary": null,
+        "labels": [
+          "inSeries"
+        ]
+      },
+      "dcat:keyword": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "keyword",
+          "tag"
+        ]
+      },
+      "dcat:landingPage": {
+        "obligation": null,
+        "max": null,
+        "range": "foaf:Document",
+        "vocabulary": null,
+        "labels": [
+          "landingPage"
+        ]
+      },
+      "dcat:last": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "last"
+        ]
+      },
+      "dcat:prev": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "prev"
+        ]
+      },
+      "dcat:previousVersion": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "previousVersion"
+        ]
+      },
+      "dcat:qualifiedRelation": {
+        "obligation": null,
+        "max": null,
+        "range": "dcat:Relationship",
+        "vocabulary": null,
+        "labels": [
+          "qualifiedRelation"
+        ]
+      },
+      "dcat:spatialResolutionInMeters": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:decimal"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "spatialResolutionInMeters"
+        ]
+      },
+      "dcat:temporalResolution": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:duration"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "temporalResolution"
+        ]
+      },
+      "dcat:theme": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "theme"
+        ]
+      },
+      "dcat:version": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "version"
+        ]
+      },
+      "dct:accessRights": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "access restrictions",
+          "access rights",
+          "accessRights"
+        ]
+      },
+      "dct:accrualPeriodicity": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:Frequency",
+        "vocabulary": null,
+        "labels": [
+          "accrual periodicity",
+          "accrualPeriodicity",
+          "update frequency"
+        ]
+      },
+      "dct:conformsTo": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:Standard",
+        "vocabulary": null,
+        "labels": [
+          "conformance",
+          "conforms to",
+          "conformsTo"
+        ]
+      },
+      "dct:creator": {
+        "obligation": null,
+        "max": null,
+        "range": "foaf:Agent",
+        "vocabulary": null,
+        "labels": [
+          "creator"
+        ]
+      },
+      "dct:description": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "description"
+        ]
+      },
+      "dct:hasPart": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "hasPart"
+        ]
+      },
+      "dct:identifier": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "identifier"
+        ]
+      },
+      "dct:isReferencedBy": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "isReferencedBy"
+        ]
+      },
+      "dct:issued": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime",
+          "xsd:gYear",
+          "xsd:gYearMonth"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "issued",
+          "publication date",
+          "release date"
+        ]
+      },
+      "dct:language": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:LinguisticSystem",
+        "vocabulary": null,
+        "labels": [
+          "language"
+        ]
+      },
+      "dct:license": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:LicenseDocument",
+        "vocabulary": null,
+        "labels": [
+          "licence",
+          "license"
+        ]
+      },
+      "dct:modified": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime",
+          "xsd:gYear",
+          "xsd:gYearMonth"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "last modified",
+          "last updated",
+          "modification date",
+          "modified"
+        ]
+      },
+      "dct:publisher": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "publisher"
+        ]
+      },
+      "dct:relation": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "relation"
+        ]
+      },
+      "dct:replaces": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "replaces"
+        ]
+      },
+      "dct:rights": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "rights"
+        ]
+      },
+      "dct:spatial": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:Location",
+        "vocabulary": null,
+        "labels": [
+          "geographic coverage",
+          "geographic extent",
+          "geographical area",
+          "spatial",
+          "spatial coverage"
+        ]
+      },
+      "dct:temporal": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:PeriodOfTime",
+        "vocabulary": null,
+        "labels": [
+          "temporal",
+          "temporal coverage",
+          "time period"
+        ]
+      },
+      "dct:title": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "title"
+        ]
+      },
+      "dct:type": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Class",
+        "vocabulary": null,
+        "labels": [
+          "type"
+        ]
+      },
+      "odrl:hasPolicy": {
+        "obligation": null,
+        "max": null,
+        "range": "odrl:Policy",
+        "vocabulary": null,
+        "labels": [
+          "hasPolicy"
+        ]
+      },
+      "prov:qualifiedAttribution": {
+        "obligation": null,
+        "max": null,
+        "range": "prov:Attribution",
+        "vocabulary": null,
+        "labels": [
+          "qualifiedAttribution"
+        ]
+      },
+      "prov:wasGeneratedBy": {
+        "obligation": null,
+        "max": null,
+        "range": "prov:Activity",
+        "vocabulary": null,
+        "labels": [
+          "wasGeneratedBy"
+        ]
+      }
+    },
+    "dcat:DatasetSeries": {
+      "adms:status": {
+        "obligation": null,
+        "max": null,
+        "range": "skos:Concept",
+        "vocabulary": null,
+        "labels": [
+          "status"
+        ]
+      },
+      "adms:versionNotes": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "version notes",
+          "versionNotes"
+        ]
+      },
+      "dcat:contactPoint": {
+        "obligation": null,
+        "max": null,
+        "range": "vcard:Kind",
+        "vocabulary": null,
+        "labels": [
+          "contact",
+          "contact point",
+          "contactPoint",
+          "point of contact"
+        ]
+      },
+      "dcat:distribution": {
+        "obligation": null,
+        "max": null,
+        "range": "dcat:Distribution",
+        "vocabulary": null,
+        "labels": [
+          "distribution"
+        ]
+      },
+      "dcat:first": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "first"
+        ]
+      },
+      "dcat:hasCurrentVersion": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "hasCurrentVersion"
+        ]
+      },
+      "dcat:hasVersion": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "hasVersion"
+        ]
+      },
+      "dcat:inSeries": {
+        "obligation": null,
+        "max": null,
+        "range": "dcat:DatasetSeries",
+        "vocabulary": null,
+        "labels": [
+          "inSeries"
+        ]
+      },
+      "dcat:keyword": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "keyword",
+          "tag"
+        ]
+      },
+      "dcat:landingPage": {
+        "obligation": null,
+        "max": null,
+        "range": "foaf:Document",
+        "vocabulary": null,
+        "labels": [
+          "landingPage"
+        ]
+      },
+      "dcat:last": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "last"
+        ]
+      },
+      "dcat:prev": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "prev"
+        ]
+      },
+      "dcat:previousVersion": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "previousVersion"
+        ]
+      },
+      "dcat:qualifiedRelation": {
+        "obligation": null,
+        "max": null,
+        "range": "dcat:Relationship",
+        "vocabulary": null,
+        "labels": [
+          "qualifiedRelation"
+        ]
+      },
+      "dcat:spatialResolutionInMeters": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:decimal"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "spatialResolutionInMeters"
+        ]
+      },
+      "dcat:temporalResolution": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:duration"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "temporalResolution"
+        ]
+      },
+      "dcat:theme": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "theme"
+        ]
+      },
+      "dcat:version": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "version"
+        ]
+      },
+      "dct:accessRights": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "access restrictions",
+          "access rights",
+          "accessRights"
+        ]
+      },
+      "dct:accrualPeriodicity": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:Frequency",
+        "vocabulary": null,
+        "labels": [
+          "accrual periodicity",
+          "accrualPeriodicity",
+          "update frequency"
+        ]
+      },
+      "dct:conformsTo": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:Standard",
+        "vocabulary": null,
+        "labels": [
+          "conformance",
+          "conforms to",
+          "conformsTo"
+        ]
+      },
+      "dct:creator": {
+        "obligation": null,
+        "max": null,
+        "range": "foaf:Agent",
+        "vocabulary": null,
+        "labels": [
+          "creator"
+        ]
+      },
+      "dct:description": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "description"
+        ]
+      },
+      "dct:hasPart": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "hasPart"
+        ]
+      },
+      "dct:identifier": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "identifier"
+        ]
+      },
+      "dct:isReferencedBy": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "isReferencedBy"
+        ]
+      },
+      "dct:issued": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime",
+          "xsd:gYear",
+          "xsd:gYearMonth"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "issued",
+          "publication date",
+          "release date"
+        ]
+      },
+      "dct:language": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:LinguisticSystem",
+        "vocabulary": null,
+        "labels": [
+          "language"
+        ]
+      },
+      "dct:license": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:LicenseDocument",
+        "vocabulary": null,
+        "labels": [
+          "licence",
+          "license"
+        ]
+      },
+      "dct:modified": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime",
+          "xsd:gYear",
+          "xsd:gYearMonth"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "last modified",
+          "last updated",
+          "modification date",
+          "modified"
+        ]
+      },
+      "dct:publisher": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "publisher"
+        ]
+      },
+      "dct:relation": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "relation"
+        ]
+      },
+      "dct:replaces": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "replaces"
+        ]
+      },
+      "dct:rights": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "rights"
+        ]
+      },
+      "dct:spatial": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:Location",
+        "vocabulary": null,
+        "labels": [
+          "geographic coverage",
+          "geographic extent",
+          "geographical area",
+          "spatial",
+          "spatial coverage"
+        ]
+      },
+      "dct:temporal": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:PeriodOfTime",
+        "vocabulary": null,
+        "labels": [
+          "temporal",
+          "temporal coverage",
+          "time period"
+        ]
+      },
+      "dct:title": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "title"
+        ]
+      },
+      "dct:type": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Class",
+        "vocabulary": null,
+        "labels": [
+          "type"
+        ]
+      },
+      "odrl:hasPolicy": {
+        "obligation": null,
+        "max": null,
+        "range": "odrl:Policy",
+        "vocabulary": null,
+        "labels": [
+          "hasPolicy"
+        ]
+      },
+      "prov:qualifiedAttribution": {
+        "obligation": null,
+        "max": null,
+        "range": "prov:Attribution",
+        "vocabulary": null,
+        "labels": [
+          "qualifiedAttribution"
+        ]
+      },
+      "prov:wasGeneratedBy": {
+        "obligation": null,
+        "max": null,
+        "range": "prov:Activity",
+        "vocabulary": null,
+        "labels": [
+          "wasGeneratedBy"
+        ]
+      }
+    },
+    "dcat:Distribution": {
+      "dcat:accessService": {
+        "obligation": null,
+        "max": null,
+        "range": "dcat:DataService",
+        "vocabulary": null,
+        "labels": [
+          "access service",
+          "accessService"
+        ]
+      },
+      "dcat:accessURL": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Resource",
+        "vocabulary": null,
+        "labels": [
+          "access url",
+          "accessURL"
+        ]
+      },
+      "dcat:byteSize": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:nonNegativeInteger"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "byte size",
+          "byteSize",
+          "file size"
+        ]
+      },
+      "dcat:compressFormat": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:MediaType",
+        "vocabulary": null,
+        "labels": [
+          "compressFormat"
+        ]
+      },
+      "dcat:downloadURL": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Resource",
+        "vocabulary": null,
+        "labels": [
+          "download url",
+          "downloadURL"
+        ]
+      },
+      "dcat:mediaType": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:MediaType",
+        "vocabulary": null,
+        "labels": [
+          "media type",
+          "mediaType",
+          "mime type"
+        ]
+      },
+      "dcat:packageFormat": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:MediaType",
+        "vocabulary": null,
+        "labels": [
+          "packageFormat"
+        ]
+      },
+      "dcat:spatialResolutionInMeters": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "xsd:decimal",
+          "xsd:double"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "spatialResolutionInMeters"
+        ]
+      },
+      "dcat:temporalResolution": {
+        "obligation": null,
+        "max": null,
+        "range": "xsd:duration",
+        "vocabulary": null,
+        "labels": [
+          "temporalResolution"
+        ]
+      },
+      "dct:accessRights": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "access restrictions",
+          "access rights",
+          "accessRights"
+        ]
+      },
+      "dct:conformsTo": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:Standard",
+        "vocabulary": null,
+        "labels": [
+          "conformance",
+          "conforms to",
+          "conformsTo"
+        ]
+      },
+      "dct:description": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "description"
+        ]
+      },
+      "dct:format": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:MediaTypeOrExtent",
+        "vocabulary": null,
+        "labels": [
+          "file format",
+          "format"
+        ]
+      },
+      "dct:issued": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime",
+          "xsd:gYear",
+          "xsd:gYearMonth"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "issued",
+          "publication date",
+          "release date"
+        ]
+      },
+      "dct:license": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:LicenseDocument",
+        "vocabulary": null,
+        "labels": [
+          "licence",
+          "license"
+        ]
+      },
+      "dct:modified": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime",
+          "xsd:gYear",
+          "xsd:gYearMonth"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "last modified",
+          "last updated",
+          "modification date",
+          "modified"
+        ]
+      },
+      "dct:rights": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "rights"
+        ]
+      },
+      "dct:title": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "title"
+        ]
+      },
+      "odrl:hasPolicy": {
+        "obligation": null,
+        "max": null,
+        "range": "odrl:Policy",
+        "vocabulary": null,
+        "labels": [
+          "hasPolicy"
+        ]
+      },
+      "spdx:checksum": {
+        "obligation": null,
+        "max": null,
+        "range": "spdx:Checksum",
+        "vocabulary": null,
+        "labels": [
+          "checksum"
+        ]
+      }
+    },
+    "dcat:Relationship": {
+      "dcat:hadRole": {
+        "obligation": null,
+        "max": null,
+        "range": "dcat:Role",
+        "vocabulary": null,
+        "labels": [
+          "hadRole"
+        ]
+      },
+      "dct:relation": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "relation"
+        ]
+      }
+    },
+    "dcat:Resource": {
+      "adms:status": {
+        "obligation": null,
+        "max": null,
+        "range": "skos:Concept",
+        "vocabulary": null,
+        "labels": [
+          "status"
+        ]
+      },
+      "adms:versionNotes": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "version notes",
+          "versionNotes"
+        ]
+      },
+      "dcat:contactPoint": {
+        "obligation": null,
+        "max": null,
+        "range": "vcard:Kind",
+        "vocabulary": null,
+        "labels": [
+          "contact",
+          "contact point",
+          "contactPoint",
+          "point of contact"
+        ]
+      },
+      "dcat:first": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "first"
+        ]
+      },
+      "dcat:hasCurrentVersion": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "hasCurrentVersion"
+        ]
+      },
+      "dcat:hasVersion": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "hasVersion"
+        ]
+      },
+      "dcat:keyword": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "keyword",
+          "tag"
+        ]
+      },
+      "dcat:landingPage": {
+        "obligation": null,
+        "max": null,
+        "range": "foaf:Document",
+        "vocabulary": null,
+        "labels": [
+          "landingPage"
+        ]
+      },
+      "dcat:last": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "last"
+        ]
+      },
+      "dcat:prev": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "prev"
+        ]
+      },
+      "dcat:previousVersion": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "previousVersion"
+        ]
+      },
+      "dcat:qualifiedRelation": {
+        "obligation": null,
+        "max": null,
+        "range": "dcat:Relationship",
+        "vocabulary": null,
+        "labels": [
+          "qualifiedRelation"
+        ]
+      },
+      "dcat:theme": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "theme"
+        ]
+      },
+      "dcat:version": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "version"
+        ]
+      },
+      "dct:accessRights": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "access restrictions",
+          "access rights",
+          "accessRights"
+        ]
+      },
+      "dct:conformsTo": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:Standard",
+        "vocabulary": null,
+        "labels": [
+          "conformance",
+          "conforms to",
+          "conformsTo"
+        ]
+      },
+      "dct:creator": {
+        "obligation": null,
+        "max": null,
+        "range": "foaf:Agent",
+        "vocabulary": null,
+        "labels": [
+          "creator"
+        ]
+      },
+      "dct:description": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "description"
+        ]
+      },
+      "dct:hasPart": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "hasPart"
+        ]
+      },
+      "dct:identifier": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "identifier"
+        ]
+      },
+      "dct:isReferencedBy": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "isReferencedBy"
+        ]
+      },
+      "dct:issued": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime",
+          "xsd:gYear",
+          "xsd:gYearMonth"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "issued",
+          "publication date",
+          "release date"
+        ]
+      },
+      "dct:language": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:LinguisticSystem",
+        "vocabulary": null,
+        "labels": [
+          "language"
+        ]
+      },
+      "dct:license": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:LicenseDocument",
+        "vocabulary": null,
+        "labels": [
+          "licence",
+          "license"
+        ]
+      },
+      "dct:modified": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime",
+          "xsd:gYear",
+          "xsd:gYearMonth"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "last modified",
+          "last updated",
+          "modification date",
+          "modified"
+        ]
+      },
+      "dct:publisher": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "publisher"
+        ]
+      },
+      "dct:relation": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "relation"
+        ]
+      },
+      "dct:replaces": {
+        "obligation": null,
+        "max": null,
+        "range": null,
+        "vocabulary": null,
+        "labels": [
+          "replaces"
+        ]
+      },
+      "dct:rights": {
+        "obligation": null,
+        "max": null,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "rights"
+        ]
+      },
+      "dct:title": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "title"
+        ]
+      },
+      "dct:type": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Class",
+        "vocabulary": null,
+        "labels": [
+          "type"
+        ]
+      },
+      "odrl:hasPolicy": {
+        "obligation": null,
+        "max": null,
+        "range": "odrl:Policy",
+        "vocabulary": null,
+        "labels": [
+          "hasPolicy"
+        ]
+      },
+      "prov:qualifiedAttribution": {
+        "obligation": null,
+        "max": null,
+        "range": "prov:Attribution",
+        "vocabulary": null,
+        "labels": [
+          "qualifiedAttribution"
+        ]
+      }
+    },
+    "dcat:Role": {},
+    "dct:Location": {
+      "dcat:bbox": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "bbox"
+        ]
+      },
+      "dcat:centroid": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "centroid"
+        ]
+      },
+      "locn:geometry": {
+        "obligation": null,
+        "max": null,
+        "range": "locn:Geometry",
+        "vocabulary": null,
+        "labels": [
+          "geometry"
+        ]
+      }
+    },
+    "dct:PeriodOfTime": {
+      "dcat:endDate": {
+        "obligation": null,
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "endDate"
+        ]
+      },
+      "dcat:startDate": {
+        "obligation": null,
+        "max": null,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime",
+          "xsd:gYear",
+          "xsd:gYearMonth"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "startDate"
+        ]
+      },
+      "time:hasBeginning": {
+        "obligation": null,
+        "max": null,
+        "range": "time:Instant",
+        "vocabulary": null,
+        "labels": [
+          "hasBeginning"
+        ]
+      },
+      "time:hasEnd": {
+        "obligation": null,
+        "max": null,
+        "range": "time:Instant",
+        "vocabulary": null,
+        "labels": [
+          "hasEnd"
+        ]
+      }
+    },
+    "skos:Concept": {},
+    "skos:ConceptScheme": {},
+    "spdx:Checksum": {
+      "spdx:algorithm": {
+        "obligation": null,
+        "max": null,
+        "range": "spdx:ChecksumAlgorithm",
+        "vocabulary": null,
+        "labels": [
+          "algorithm"
+        ]
+      },
+      "spdx:checksumValue": {
+        "obligation": null,
+        "max": null,
+        "range": "xsd:hexBinary",
+        "vocabulary": null,
+        "labels": [
+          "checksumValue"
+        ]
+      }
+    }
+  }
+}

@@ -20,7 +20,7 @@ from .models import (BaselineRequest, CorpusSnapshot, DecisionRequest, Deliberat
 from .storage import ConflictError, RUN_PARTS, Store, canonical, digest, now, uid
 from .role_selection import initial_manifest, panel_roles, select_roles
 from .semantic_consolidation import EXACT_POLICY, SEMANTIC_POLICY, SEMANTIC_POLICIES
-from .base_profile import BASE_CHECK_POLICY_VERSION, check_record, load_profile
+from .base_profile import BASE_CHECK_POLICY_VERSION, PROFILE_ID_PATTERN, check_record, load_profile
 from .evaluation import base_check_metrics
 
 PROMPT_VERSION = ELICITATION_POLICY_VERSION
@@ -199,7 +199,7 @@ def selected_base(request):
         request.background_source_names = [Path(p).name for p in case.get('background', [])]
     if not request.base_profile_id:
         return request, {}
-    if not re.fullmatch(r'dcat-ap-\d+\.\d+\.\d+', request.base_profile_id):
+    if not re.fullmatch(PROFILE_ID_PATTERN, request.base_profile_id):
         raise ValueError('Invalid base profile id.')
     path = Path(__file__).resolve().parents[2] / 'config/base_profiles' / (request.base_profile_id + '.json')
     if not path.is_file():
@@ -223,10 +223,12 @@ def _load_pinned_profile(identifier: str | None, fingerprint: str | None):
 
 def _base_profile_context(profile: dict, fingerprint: str) -> dict:
     table = '\n'.join(f'{class_id}: ' + ', '.join(
-        f'{property_id} ({entry["obligation"]})' for property_id, entry in sorted(properties.items()))
+        f'{property_id} ({entry["obligation"] or "obligation unspecified"})' for property_id, entry in sorted(properties.items()))
         for class_id, properties in sorted(profile['classes'].items()))
-    return {'id': profile['id'], 'version': profile['id'].removeprefix('dcat-ap-'),
-            'sha256': fingerprint, 'table': table}
+    result = {'id': profile['id'], 'version': profile['version'], 'sha256': fingerprint, 'table': table}
+    if profile.get('family') == 'DCAT':
+        result['obligation_policy'] = 'W3C DCAT is a vocabulary. Do not invent DCAT-AP mandatory/recommended rules; cite domain evidence for application obligations.'
+    return result
 
 
 def extraction_base_context(base_profile_id: str | None, expected_sha: str | None = None) -> dict | None:

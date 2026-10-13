@@ -13,6 +13,7 @@ from typing import Any, Iterable, Mapping
 
 BASE_CHECK_POLICY_VERSION = 'rq1-base-check-v2'
 PROFILE_DIRECTORY = Path(__file__).resolve().parents[2] / 'config' / 'base_profiles'
+PROFILE_ID_PATTERN = r'dcat(?:-ap)?-\d+\.\d+\.\d+'
 CLASS_NAMES = {
     'Dataset': 'dcat:Dataset', 'Distribution': 'dcat:Distribution',
     'DataService': 'dcat:DataService', 'Catalog': 'dcat:Catalog',
@@ -20,6 +21,10 @@ CLASS_NAMES = {
     'Concept': 'skos:Concept',
     'Relationship': 'dcat:Relationship', 'PeriodOfTime': 'dct:PeriodOfTime',
     'Location': 'dct:Location',
+    'Resource': 'dcat:Resource', 'DatasetSeries': 'dcat:DatasetSeries',
+    'Role': 'dcat:Role',
+    'ConceptScheme': 'skos:ConceptScheme', 'Checksum': 'spdx:Checksum',
+    'Identifier': 'adms:Identifier', 'LicenseDocument': 'dct:LicenseDocument',
 }
 OBLIGATION_RANK = {'mandatory': 3, 'recommended': 2, 'optional': 1}
 LABEL_SYNONYMS = {
@@ -68,7 +73,7 @@ def _dict(value: Any) -> dict:
 
 def load_profile(profile_id: str) -> tuple[dict, str]:
     """Load a checked-in registry and fingerprint its exact saved bytes."""
-    if not re.fullmatch(r'dcat-ap-\d+\.\d+\.\d+', profile_id):
+    if not re.fullmatch(PROFILE_ID_PATTERN, profile_id):
         raise ValueError('Invalid base profile id.')
     raw = (PROFILE_DIRECTORY / (profile_id + '.json')).read_bytes()
     profile = json.loads(raw)
@@ -406,6 +411,15 @@ def check_record(record: Any, profile: Mapping[str, Any], *,
     ability = bool(re.search(r'\b(?:consumer|system)\b[^.;\n]{0,120}\b(?:must|shall|should|may)\s+be\s+able\s+to\s+(?:process|retrieve|interpret)\b', statement, re.I))
     if ability and not signals:
         check['relation'] = 'inherited'
+        _provisional_constraint(row, check, findings, compound_properties, classes)
+        return check, findings
+    if base_rank is None and candidate_rank is not None:
+        # W3C DCAT defines vocabulary, not DCAT-AP property obligations. A
+        # source-backed must/should/may is an application rule requiring review.
+        check.update(relation='constrained', requires_review=True)
+        check.setdefault('notes', []).append('The selected vocabulary does not prescribe this property obligation.')
+        findings.append({'criterion': 'application_obligation', 'severity': 'review',
+                         'message': 'Review the source support for the proposed application obligation; W3C DCAT has no corresponding DCAT-AP obligation.'})
         _provisional_constraint(row, check, findings, compound_properties, classes)
         return check, findings
     if candidate_rank is not None and base_rank is not None and candidate_rank > base_rank:

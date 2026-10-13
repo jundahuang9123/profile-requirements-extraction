@@ -65,6 +65,40 @@ def test_loader_records_actual_bytes_hash_and_rejects_paths(tmp_path, monkeypatc
         load_profile('dcat-ap-2.0.1')
 
 
+@pytest.mark.parametrize('identifier', ['dcat-2.0.0', 'dcat-3.0.0'])
+def test_vocabulary_does_not_erase_a_source_proposed_application_obligation(identifier):
+    registry, _ = load_profile(identifier)
+    result, findings = checked(record('Datasets must include dct:title.', obligation='mandatory'), registry)
+    assert result['property'] == 'dct:title' and result['base_obligation'] is None
+    assert result['relation'] == 'constrained' and result['requires_review']
+    assert any(f['criterion'] == 'application_obligation' for f in findings)
+
+
+def test_selected_version_changes_dataset_series_classification():
+    from requirement_reuse_service.workflow.models import NormalizedIntent
+    row = record('A Dataset Series must include dct:title.', resource='DatasetSeries', obligation='mandatory')
+    row['normalized_intent'] = NormalizedIntent(**row['normalized_intent']).model_dump()
+    old, _ = load_profile('dcat-ap-2.0.1')
+    current, _ = load_profile('dcat-ap-3.0.1')
+    assert checked(row, old)[0]['relation'] == 'unresolved_class'
+    result, findings = checked(row, current)
+    assert result['class'] == 'dcat:DatasetSeries' and result['relation'] == 'inherited'
+    assert not findings
+
+
+def test_workflow_contract_accepts_all_registered_base_classes():
+    from requirement_reuse_service.workflow.models import NormalizedIntent
+    from pydantic import ValidationError
+    identifiers = ['dcat-ap-2.0.1', 'dcat-ap-2.1.1', 'dcat-ap-3.0.0', 'dcat-ap-3.0.1', 'dcat-2.0.0', 'dcat-3.0.0']
+    for identifier in identifiers:
+        registry, _ = load_profile(identifier)
+        for class_id in registry['classes']:
+            name = class_id.split(':')[1]
+            assert NormalizedIntent(resource_type=name).resource_type == name
+    with pytest.raises(ValidationError):
+        NormalizedIntent(resource_type='InventedClass')
+
+
 @pytest.mark.parametrize('statement,obligation', [
     ('Datasets should include a dct:publisher.', 'recommended'),
     ('A consumer must be able to process the Dataset title.', 'mandatory'),

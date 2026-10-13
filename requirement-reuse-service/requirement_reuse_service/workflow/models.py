@@ -4,7 +4,7 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from ..models import ArtifactPayload, NormalizedIntent as LegacyIntent, RequirementType, ResourceType, UserTask
+from ..models import ArtifactPayload, NormalizedIntent as LegacyIntent, RequirementType, UserTask
 
 WORKFLOW_VERSION = 'rq1-nine-stage-v2'
 SCHEMA_VERSION = 'rq1-requirement-dataset-v2'
@@ -12,6 +12,10 @@ ELICITATION_POLICY_VERSION = 'rq1-independent-elicitation-v3.0'
 NORMALIZATION_POLICY_VERSION = 'rq1-normalization-v3'
 ExtensionKind = Literal['new_information_need', 'stricter_obligation', 'value_constraint',
                         'new_class_or_relation', 'not_an_extension']
+WorkflowResourceType = Literal['Catalog', 'CatalogRecord', 'Dataset', 'DatasetSeries',
+    'Distribution', 'DataService', 'Agent', 'Concept', 'ConceptScheme', 'Resource',
+    'Relationship', 'Role', 'PeriodOfTime', 'Location', 'Checksum', 'Identifier',
+    'LicenseDocument', 'Unknown']
 STAGES = ['acquisition', 'decomposition', 'role_selection', 'elicitation', 'normalization',
           'verification', 'consolidation', 'deliberation', 'adjudication', 'baseline']
 
@@ -23,7 +27,7 @@ class Contract(BaseModel):
 class NormalizedIntent(LegacyIntent):
     """V2 never supplies an unstated Dataset scope or discovery need."""
     model_config = ConfigDict(extra='forbid')
-    resource_type: ResourceType = 'Unknown'
+    resource_type: WorkflowResourceType = 'Unknown'
     metadata_need: str = ''
 
 
