@@ -2208,6 +2208,18 @@
           "default": null,
           "title": "Base Profile Sha256"
         },
+        "base_registry_policy_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Registry Policy Version"
+        },
         "baselines": {
           "items": {
             "type": "object"

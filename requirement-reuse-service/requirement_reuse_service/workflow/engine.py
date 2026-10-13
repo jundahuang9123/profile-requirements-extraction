@@ -21,6 +21,7 @@ from .storage import ConflictError, RUN_PARTS, Store, canonical, digest, now, ui
 from .role_selection import initial_manifest, panel_roles, select_roles
 from .semantic_consolidation import EXACT_POLICY, SEMANTIC_POLICY, SEMANTIC_POLICIES
 from .base_profile import BASE_CHECK_POLICY_VERSION, check_record, load_profile
+from .evaluation import base_check_metrics
 
 PROMPT_VERSION = ELICITATION_POLICY_VERSION
 QUALIFICATION_VERSION = 'rq1-support-quality-v2.2'
@@ -81,6 +82,9 @@ STAGE_RESULT_FIELDS = {
     'deliberation': ['deliberations'], 'adjudication': ['requirements', 'decisions', 'assessment_history'],
     'baseline': ['baselines'],
 }
+RUN_POLICY_FIELDS = ('elicitation_policy_version', 'normalization_policy_version',
+                     'consolidation_policy_version', 'base_profile_id', 'base_profile_sha256',
+                     'base_registry_policy_version', 'base_check_policy_version')
 
 
 class TrackedClient:
@@ -203,7 +207,8 @@ def selected_base(request):
     profile = json.loads(raw)
     if profile.get('id') != request.base_profile_id or not isinstance(profile.get('classes'), dict):
         raise ValueError('Invalid base profile registry.')
-    return request, {'base_profile_id': request.base_profile_id, 'base_profile_sha256': digest(raw)}
+    return request, {'base_profile_id': request.base_profile_id, 'base_profile_sha256': digest(raw),
+                     'base_registry_policy_version': profile.get('registry_policy')}
 
 
 def _load_pinned_profile(identifier: str | None, fingerprint: str | None):
@@ -290,7 +295,7 @@ def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') ->
     if base_metadata:
         for stage in ('acquisition', 'decomposition'):
             run.stage_results[stage] = {**{key: getattr(run, key) for key in STAGE_RESULT_FIELDS[stage]}, **base_metadata,
-                                       'base_check_policy_version': run.base_check_policy_version}
+                                       **{key: getattr(run, key) for key in RUN_POLICY_FIELDS}}
     store.put('run', run.run_id, run.model_dump(mode='json'))
     return run.model_dump(mode='json')
 
@@ -1082,7 +1087,7 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             run.update(updates)
             run.setdefault('stage_results', {})[stage] = {
                 **{key: deepcopy(run.get(key)) for key in STAGE_RESULT_FIELDS[stage]},
-                **{key: run.get(key) for key in ('base_profile_id', 'base_profile_sha256', 'base_check_policy_version')}, **(result_extras or {})}
+                **{key: run.get(key) for key in RUN_POLICY_FIELDS}, **(result_extras or {})}
             run['job_lease_until'] = time.time() + 900
             return {'stage': stage}
         return store.mutate(run_id, None, 'stage_completed', apply)['run']
@@ -1208,12 +1213,17 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
                     record.qualification = source_assessments[record.content_hash].model_copy(deep=True)
                     reused_assessments += 1
                 retain_base_findings(record)
-            run = patch('normalization', {'requirements': [r.model_dump(mode='json') for r in records],
+            normalized_records = [r.model_dump(mode='json') for r in records]
+            base_summary = base_check_metrics({**run, 'requirements': normalized_records,
+                'active_revision_ids': [r.revision_id for r in records],
+                'base_check_audit': base_audit, 'set_aside_observations': set_aside})
+            run = patch('normalization', {'requirements': normalized_records,
                 'set_aside_observations': set_aside,
                 'base_check_audit': base_audit,
-                'metrics': {**run['metrics'], 'assessments_reused': reused_assessments, 'set_aside_count': len(set_aside)}, 'status': 'verifying'},
+                'metrics': {**run['metrics'], 'base_check': base_summary,
+                    'assessments_reused': reused_assessments, 'set_aside_count': len(set_aside)}, 'status': 'verifying'},
                 result_extras={'assessments_reused': reused_assessments,
-                    'base_check': {'policy_version': run.get('base_check_policy_version'), 'audit': base_audit}})
+                    'base_check': base_summary})
             if pause('normalization'):
                 return
         records = [RequirementRecord.model_validate(r) for r in run['requirements']]
@@ -1244,21 +1254,21 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             records = [r for r in records if not r.parent_revision_ids]
             active, events, conflicts = consolidate(store, run, records, client, previous=prior_records)
             all_records = {r.revision_id: r.model_dump(mode='json') for r in [*records, *active]}
-            run = patch('consolidation', {'requirements': list(all_records.values()),
-                        'active_revision_ids': [r.revision_id for r in active], 'consolidation_events': events,
-                        'conflicts': conflicts, 'status': 'routing'})
             frozen_base_audit = deepcopy(store.get_run(run_id,
                 omit=tuple(part for part in RUN_PARTS if part != 'base_check_audit'))['base_check_audit'])
+            base_summary = base_check_metrics({**run, 'requirements': list(all_records.values()),
+                'active_revision_ids': [r.revision_id for r in active], 'base_check_audit': frozen_base_audit})
+            run = patch('consolidation', {'requirements': list(all_records.values()),
+                        'active_revision_ids': [r.revision_id for r in active], 'consolidation_events': events,
+                        'conflicts': conflicts, 'metrics': {**run['metrics'], 'base_check': base_summary},
+                        'status': 'routing'}, result_extras={'base_check': base_summary})
             def freeze_machine(r):
                 r['machine_snapshot'] = {'requirements': r['requirements'], 'active_revision_ids': r['active_revision_ids'],
                     'observations': r['observations'], 'role_runs': r['role_runs'], 'conflicts': r['conflicts'],
                     'consolidation_events': r['consolidation_events'], 'role_manifest': r.get('role_manifest'), 'created_at': now()}
                 r['machine_snapshot'].update(set_aside_observations=r.get('set_aside_observations', []),
-                    normalization_policy_version=r.get('normalization_policy_version'),
-                    consolidation_policy_version=r.get('consolidation_policy_version'),
-                    base_check_policy_version=r.get('base_check_policy_version'),
-                    base_profile_id=r.get('base_profile_id'), base_profile_sha256=r.get('base_profile_sha256'),
-                    base_check_audit=frozen_base_audit)
+                    **{key: r.get(key) for key in RUN_POLICY_FIELDS},
+                    base_check_audit=frozen_base_audit, base_check=base_summary)
             store.mutate(run_id, None, 'machine_output_frozen', freeze_machine)
             if pause('consolidation'):
                 return
@@ -1286,7 +1296,10 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
         if client:
             for case_id in to_run:
                 execute_case(store, run_id, case_id, client)
-            store.mutate(run_id, None, 'discussion_results_saved', lambda r: r.setdefault('stage_results', {}).update(deliberation={'deliberations': deepcopy(r['deliberations'])}))
+            store.mutate(run_id, None, 'discussion_results_saved', lambda r:
+                r.setdefault('stage_results', {}).update(deliberation={
+                    'deliberations': deepcopy(r['deliberations']),
+                    **{key: r.get(key) for key in RUN_POLICY_FIELDS}}))
     except ConflictError:
         # Cancellation or another worker's claim never overwrites a valid run.
         return

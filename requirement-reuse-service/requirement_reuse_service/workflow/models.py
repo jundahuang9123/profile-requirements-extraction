@@ -401,6 +401,7 @@ class WorkflowRun(Contract):
     consolidation_policy_version: str | None = None
     base_profile_id: str | None = None
     base_profile_sha256: str | None = None
+    base_registry_policy_version: str | None = None
     base_check_policy_version: str | None = None
     base_check_audit: list[dict[str, Any]] = Field(default_factory=list)
     schema_version: str = SCHEMA_VERSION

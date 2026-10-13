@@ -250,3 +250,70 @@ New/derived normalization now keeps uncited observations solely in a set-aside a
 Semantic consolidation is implemented with bounded ID-only model output, deterministic verbatim representatives, separate obligation variants, failed-member attachments and durable chunk/assessment checkpoints. Exact mode and historical runs retain their earlier behavior. New tests cover passing and failed provenance unions, all-failed complementary premises, accounting correction, visible fallback, negation, oversized inputs, chunk reuse and interrupted derived-stage recovery. Earlier regression fixtures explicitly choose exact mode to preserve their baseline condition.
 
 Validation is offline only: 310 tests pass, the generated workflow schema matches runtime contracts, and the frontend builds. No live KI:connect acceptance trial, new benchmark, semantic grouping accuracy measurement or effort-savings measurement was performed. The original completed MobilityDCAT run remains unchanged. Its results should be interpreted independently of this new consolidation condition. Browser interaction was unavailable to this session, so the new UI has build verification but no visual browser check yet. See [CONSOLIDATION.md](CONSOLIDATION.md) for the pending acceptance and independent annotation checks.
+
+## Extending DCAT-AP rather than rebuilding it — 13 October 2026
+
+The new base-profile condition compares proposals against a pinned DCAT-AP registry
+before source verification and assessment. Ordinary inherited restatements are kept
+in the set-aside audit; new, tightened, constrained, loosened and unresolved claims
+continue to review. Tightening requires a supporting link from outside the configured
+base specifications; weakening a base obligation creates a blocking finding.
+Uncorroborated model declarations and unrecognized declared constraints remain
+provisional, visible review cases. These deterministic classifications are not
+semantic correctness or stakeholder endorsement.
+
+The recorded policies are `rq1-normalization-v3`, `rq1-base-check-v1`,
+`rq1-independent-elicitation-v3.0` and `rq1-semantic-consolidation-v2` (registry
+`rq1-base-registry-v1`). Grouping v2 compares statement text, offers at most the
+25 most similar previous groups by word overlap, and separates metadata-presence
+claims from consumer/system capabilities. Historical runs retain their earlier
+policies; derived runs retain their original extraction policy.
+
+Potentially compound or negated statements, an unconfirmed declared constraint,
+an uncorroborated property mapping, and an unclassified base-source distinction
+can retain a provisional `inherited` relation while staying active for review.
+The relation-label count and actual inherited set-aside count are therefore
+different metrics. These guards avoid silently excluding every clause of a
+compound claim on the strength of one base match.
+
+Both registry JSONs were built from official SEMIC release files at commit
+`4470b8ea907b7eb9ec55ab22befd1ecd2210ff32`. Full input and JSON hashes are documented
+in [BASE_PROFILE.md](BASE_PROFILE.md). The 2.0.1 recommended sections were parsed
+from the official DOCX; no fallback was taken. Rebuilds were byte-identical, and
+eight offline registry tests passed. The official SHACL supplements have source
+limitations described there; this comparison registry is not a complete validator
+of all profile constraints.
+
+Mobility alone defaults to DCAT-AP 2.0.1. New benchmark-loading operations can
+register W3C DCAT 2, DCAT-AP 2.0.0 and 2.1.0 as background and freeze a new snapshot
+that excludes their evidence units. Existing source versions, snapshots and saved
+runs are unchanged. Derived trials can apply the base check to saved extraction
+without repeating it. Fresh extension extraction uses v3 and supplies a compact
+base table within the request's input bounds; an unfinished v2.11 extraction cannot
+mix in v3 calls.
+Only configured base-specification names classify authoritative base sources;
+an arbitrary background role alone does not. Exported background provenance is
+preserved separately from the snapshot's extraction evidence.
+
+Completed before/after preflight sizing: Mobility changes from 1,030 to 822
+evidence units and 61 to 48 selector batches, excluding 208 background units.
+Its selected base adds 3,391 characters to the request reserve, and conservative
+extraction batches per role rise from 279 to 315. Health stays at 511 units/36
+selector batches but changes 158 → 156 extraction batches; GeoDCAT stays 271/19
+but changes 81 → 80. These small boundary differences follow stable source-ID/hash
+sorting changes rather than an optimization. StatDCAT stays 60/5/20 and JRC stays
+59/3/15; EPOS remains unavailable. Character sizing and batch estimates do not
+establish provider token use, throughput or latency, and Mobility's combined
+corpus/context changes do not isolate a single cause.
+
+No live inference or visual UI check was performed for this change. The full
+offline suite passes (419 tests), the exported schema matches the runtime
+contracts, and the frontend builds. These checks are not acceptance-run results.
+
+This new condition remains offline-tested only until Junda runs the derived Run A
+and fresh Run B and reviews retained and inherited samples. There is no measured
+accuracy, effort saving, false-exclusion rate or successful live full-workflow result
+under these new policies yet. The model's extension labels and lexical property
+matches still need independent review. Corpus coverage, INSPIRE scope, GeoDCAT's
+evidence/background role, nonmetadata relevance and other cases' base versions
+remain Junda's open decisions.

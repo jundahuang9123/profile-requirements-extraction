@@ -2,6 +2,34 @@
 from collections import Counter
 
 
+def base_check_metrics(run: dict, frozen: dict | None = None) -> dict:
+    """Descriptive counts; a base classification is not an expert judgement."""
+    frozen = frozen or {}
+    audits = frozen.get('base_check_audit', run.get('base_check_audit', []))
+    checks = [entry['base_check'] for entry in audits if entry.get('base_check')]
+    aside = frozen.get('set_aside_observations', run.get('set_aside_observations', []))
+    records = frozen.get('requirements', run.get('requirements', []))
+    active = frozen.get('active_revision_ids', run.get('active_revision_ids'))
+    kept = ([r for r in records if r['revision_id'] in active] if active is not None
+            else [r for r in records if not r.get('parent_revision_ids')])
+    source_groups = Counter()
+    for record in kept:
+        check = record.get('base_check') or {}
+        groups = set(check.get('evidence_source_groups', []))
+        if not groups:
+            continue  # Legacy records have no measured source grouping.
+        group = ('mobility' if 'mobility' in groups else 'inspire_geodcat' if 'inspire_geodcat' in groups
+                 else 'base_only' if groups == {'base_only'} else 'other_generic')
+        source_groups[group] += 1
+    return {'policy_version': run.get('base_check_policy_version'),
+        'registry_policy_version': run.get('base_registry_policy_version'),
+        'base_profile_id': run.get('base_profile_id'), 'base_profile_sha256': run.get('base_profile_sha256'),
+        'by_relation': dict(Counter(c['relation'] for c in checks)),
+        'by_resolved_via': dict(Counter(c['resolved_via'] for c in checks)),
+        'set_aside_inherited': sum(item['reason'] == 'inherited_from_base' for item in aside),
+        'kept_by_evidence_source_group': dict(source_groups)}
+
+
 def _summary(records):
     n = len(records)
     grounded = sum(r.get('verification', {}).get('status') == 'pass' for r in records)
@@ -40,7 +68,9 @@ def workflow_metrics(run: dict) -> dict:
         'extraction_reused': bool(run.get('derived_from')),
         'assessments_reused': run.get('metrics', {}).get('assessments_reused', 0),
         'normalization_policy_version': run.get('normalization_policy_version'),
+        'base_check': base_check_metrics(run, frozen),
         'set_aside': {'count': len(aside), 'by_role': dict(Counter(o['role_id'] for o in aside)),
+            'by_reason': dict(Counter(o['reason'] for o in aside)),
             'by_support_label': dict(Counter(observations.get(o['observation_id'], {}).get('support_level', 'unknown') for o in aside))},
         'consolidation': {
             'mode': 'semantic' if (run.get('consolidation_policy_version') or '').startswith('rq1-semantic-consolidation-') else 'exact',
