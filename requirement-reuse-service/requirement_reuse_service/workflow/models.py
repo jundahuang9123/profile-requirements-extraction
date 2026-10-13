@@ -9,6 +9,7 @@ from ..models import ArtifactPayload, NormalizedIntent as LegacyIntent, Requirem
 WORKFLOW_VERSION = 'rq1-nine-stage-v2'
 SCHEMA_VERSION = 'rq1-requirement-dataset-v2'
 ELICITATION_POLICY_VERSION = 'rq1-independent-elicitation-v2.11'
+NORMALIZATION_POLICY_VERSION = 'rq1-normalization-v2'
 STAGES = ['acquisition', 'decomposition', 'role_selection', 'elicitation', 'normalization',
           'verification', 'consolidation', 'deliberation', 'adjudication', 'baseline']
 
@@ -152,6 +153,12 @@ class Observation(Contract):
 
 class ElicitationResult(Contract):
     observations: list[Observation] = Field(default_factory=list)
+
+
+class SetAside(Contract):
+    observation_id: str
+    role_id: str
+    reason: Literal['no_source_link'] = 'no_source_link'
 
 
 class SourceSpanLink(Contract):
@@ -358,6 +365,7 @@ class WorkflowRun(Contract):
     snapshot_id: str
     workflow_version: str = WORKFLOW_VERSION
     elicitation_policy_version: str = ELICITATION_POLICY_VERSION
+    normalization_policy_version: str | None = None
     schema_version: str = SCHEMA_VERSION
     strategy: str
     derived_from: dict[str, Any] | None = None
@@ -369,6 +377,7 @@ class WorkflowRun(Contract):
     stages: dict[str, str] = Field(default_factory=lambda: {stage: 'pending' for stage in STAGES})
     evidence_ids: list[str] = Field(default_factory=list)
     observations: list[Observation] = Field(default_factory=list)
+    set_aside_observations: list[SetAside] = Field(default_factory=list)
     requirements: list[RequirementRecord] = Field(default_factory=list)
     active_revision_ids: list[str] = Field(default_factory=list)
     role_runs: list[dict[str, Any]] = Field(default_factory=list)

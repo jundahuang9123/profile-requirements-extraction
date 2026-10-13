@@ -28,12 +28,17 @@ def workflow_metrics(run: dict) -> dict:
     transport_calls = [c for c in calls if 'http_attempts' in c.get('transport', {})]
     selection_calls = [c for c in calls if c.get('output_contract') in {'RoleCandidates', 'RoleCitationCorrections', 'RolePanel'}]
     manifest = run.get('role_manifest') or {}
+    aside = frozen.get('set_aside_observations', run.get('set_aside_observations', []))
+    observations = {o['observation_id']: o for o in frozen.get('observations', run.get('observations', []))}
     return {'schema_version': 'rq1-workflow-evaluation-v2', 'run_id': run['run_id'],
         'snapshot_id': run['snapshot_id'], 'strategy': run['strategy'], 'implementation_hash': run['implementation_hash'],
         'elicitation_policy_version': run.get('elicitation_policy_version'),
         'derived_from': run.get('derived_from'),
         'extraction_reused': bool(run.get('derived_from')),
         'assessments_reused': run.get('metrics', {}).get('assessments_reused', 0),
+        'normalization_policy_version': run.get('normalization_policy_version'),
+        'set_aside': {'count': len(aside), 'by_role': dict(Counter(o['role_id'] for o in aside)),
+            'by_support_label': dict(Counter(observations.get(o['observation_id'], {}).get('support_level', 'unknown') for o in aside))},
         'machine': _summary(machine), 'current_review': _summary(current), 'human_accepted': _summary(accepted),
         'machine_revision_ids': [r['revision_id'] for r in machine],
         'human_added_revision_ids': [rid for d in run['decisions'] if d['action'] == 'add' for rid in d['result_revision_ids']],

@@ -14,7 +14,7 @@ from ..llm.config import LLMConfig
 from .evidence import resolve_evidence
 from .citations import elicitation_batch, materialize_observation
 from .models import (BaselineRequest, CorpusSnapshot, DecisionRequest, DeliberationCase, DeriveRequest,
-                     SpanElicitationResult, ELICITATION_POLICY_VERSION, EvidenceLink, EvidenceUnit, Finding, Observation,
+                     SpanElicitationResult, ELICITATION_POLICY_VERSION, NORMALIZATION_POLICY_VERSION, EvidenceLink, EvidenceUnit, Finding, Observation,
                      NormalizedIntent, Qualification, RequirementRecord, RunRequest, SnapshotRequest, WorkflowRun)
 from .storage import ConflictError, Store, canonical, digest, now, uid
 from .role_selection import initial_manifest, panel_roles, select_roles
@@ -73,7 +73,7 @@ class DiscussionBudgetStop(RuntimeError):
 STAGE_RESULT_FIELDS = {
     'acquisition': ['snapshot_id'], 'decomposition': ['evidence_ids'],
     'role_selection': ['role_manifest'], 'elicitation': ['observations', 'role_runs'],
-    'normalization': ['requirements'], 'verification': ['requirements'],
+    'normalization': ['requirements', 'set_aside_observations', 'normalization_policy_version'], 'verification': ['requirements'],
     'consolidation': ['requirements', 'active_revision_ids', 'consolidation_events', 'conflicts'],
     'deliberation': ['deliberations'], 'adjudication': ['requirements', 'decisions', 'assessment_history'],
     'baseline': ['baselines'],
@@ -204,6 +204,7 @@ def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') ->
     run = WorkflowRun(run_id=f'run-{uuid.uuid4().hex}', name=request.name, snapshot_id=request.snapshot_id,
                       strategy=request.strategy, request=request, evidence_ids=snapshot['evidence_ids'], created_at=now(),
                       role_manifest=role_manifest,
+                      normalization_policy_version=NORMALIZATION_POLICY_VERSION,
                       implementation_hash=digest({path.name: digest(path.read_bytes()) for path in Path(__file__).parent.glob('*.py')}))
     run.stages['acquisition'] = 'completed'
     run.stages['decomposition'] = 'completed'
@@ -234,6 +235,7 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
         evidence_ids=source['evidence_ids'], observations=source['observations'],
         role_runs=source['role_runs'], role_manifest=manifest or None, created_at=now(),
         elicitation_policy_version=source.get('elicitation_policy_version', 'legacy-unknown'),
+        normalization_policy_version=NORMALIZATION_POLICY_VERSION,
         implementation_hash=digest({p.name: digest(p.read_bytes()) for p in Path(__file__).parent.glob('*.py')}),
         derived_from={'run_id': source_run_id, 'version': source['version'], 'stage': 'elicitation',
             'observations_hash': digest(source['observations']), 'role_runs_hash': digest(source['role_runs']),
@@ -899,7 +901,11 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
         if run['stages']['normalization'] != 'completed':
             start_stage('normalization', 'normalizing')
             saved_records = {r['revision_id']: RequirementRecord.model_validate(r) for r in run['requirements']}
-            records = [record_from_observation(run_id, observation) for observation in observations]
+            set_aside = [{'observation_id': o.observation_id, 'role_id': o.role_id, 'reason': 'no_source_link'}
+                         for o in observations if not o.evidence_links] if run.get('normalization_policy_version') == NORMALIZATION_POLICY_VERSION else []
+            aside_ids = {o['observation_id'] for o in set_aside}
+            records = [record_from_observation(run_id, observation) for observation in observations
+                       if observation.observation_id not in aside_ids]
             source_assessments = {}
             lineage = run.get('derived_from') or {}
             if lineage.get('reuse_assessments'):
@@ -919,7 +925,8 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
                     record.qualification = source_assessments[record.content_hash].model_copy(deep=True)
                     reused_assessments += 1
             run = patch('normalization', {'requirements': [r.model_dump(mode='json') for r in records],
-                'metrics': {**run['metrics'], 'assessments_reused': reused_assessments}, 'status': 'verifying'},
+                'set_aside_observations': set_aside,
+                'metrics': {**run['metrics'], 'assessments_reused': reused_assessments, 'set_aside_count': len(set_aside)}, 'status': 'verifying'},
                 result_extras={'assessments_reused': reused_assessments})
             if pause('normalization'):
                 return
@@ -954,6 +961,8 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
                 r['machine_snapshot'] = {'requirements': r['requirements'], 'active_revision_ids': r['active_revision_ids'],
                     'observations': r['observations'], 'role_runs': r['role_runs'], 'conflicts': r['conflicts'],
                     'consolidation_events': r['consolidation_events'], 'role_manifest': r.get('role_manifest'), 'created_at': now()}
+                r['machine_snapshot'].update(set_aside_observations=r.get('set_aside_observations', []),
+                    normalization_policy_version=r.get('normalization_policy_version'))
             store.mutate(run_id, None, 'machine_output_frozen', freeze_machine)
             if pause('consolidation'):
                 return

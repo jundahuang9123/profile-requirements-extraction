@@ -230,6 +230,13 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     {run && page === 'elicitation' && <section className="workflow-panel"><h2>Independent extraction results</h2><p>Each perspective reads the frozen input independently.</p>{run.role_runs.some(role => role.status === 'failed') && <p className="workflow-error">Extraction is incomplete: {run.role_runs.filter(role => role.status === 'completed').length} of {run.role_runs.length} roles completed. Retained proposals do not establish full input coverage.</p>}
             <div className="workflow-role-list">{run.role_runs.map(role => <article key={role.role_id} className="workflow-role-run"><strong>{roleLabel(run, role.role_id)}</strong><span>{role.status}</span><small>{role.observation_ids?.length ?? run.observations?.filter(item => item.role_id === role.role_id).length ?? 0} proposals</small>{role.evidence_unit_count != null && <small>{role.processed_unit_count ?? 0} of {role.evidence_unit_count} evidence units processed</small>}{role.error && <p>{role.error}</p>}<details><summary>Recorded context</summary><code>{role.context_hash}</code></details></article>)}</div>
     <details><summary>Saved observations and batch audit</summary><pre>{JSON.stringify({ observations: run.observations, role_runs: run.role_runs }, null, 2)}</pre></details></section>}
+    {run && page === 'normalization' && run.normalization_policy_version && <section className="workflow-panel">
+      <p>{run.set_aside_observations?.length ?? 0} of {run.observations?.length ?? 0} proposals had no source link and were set aside. They are not checked, discussed or reviewed.</p>
+      {!!run.set_aside_observations?.length && <details><summary>Show proposals set aside for missing source links</summary>{run.set_aside_observations.map(item => {
+        const observation = run.observations?.find(o => o.observation_id === item.observation_id);
+        return <article key={item.observation_id}><strong>{observation?.statement ?? item.observation_id}</strong><p>{roleLabel(run, item.role_id)} · extractor support: {humanLabel(observation?.support_level ?? 'unknown')}</p></article>;
+      })}<p>A reviewer can add a requirement with supporting evidence through the existing requirement editor.</p></details>}
+    </section>}
     {run && ['normalization', 'verification', 'consolidation', 'adjudication'].includes(page) && <>
           <section className="workflow-panel"><h2>{labels[stages.indexOf(page)]}</h2>
             {!resultRecords.length && <p>No saved candidates for this step yet. Empty outputs and source evidence remain available for review.</p>}

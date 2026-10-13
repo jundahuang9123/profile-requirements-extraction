@@ -242,3 +242,5 @@ stop a run visibly. The full workflow remains incomplete with zero requirements.
 ## Saved-extraction downstream trials
 
 A separate derived run can now reuse completed extraction and identical current-policy assessments. Original-source checks are recomputed; the source run is never rewritten. Offline scripted-client tests cover lineage, stale/partial source rejection, stage exports, no extraction calls and reset prevention. No live acceptance trial has been run.
+
+New/derived normalization now keeps uncited observations solely in a set-aside audit, with export and UI access; legacy runs remain unchanged. This is an offline-tested filter, not a semantic rejection or acceptance decision. The elicitation prompt and policy have not changed.

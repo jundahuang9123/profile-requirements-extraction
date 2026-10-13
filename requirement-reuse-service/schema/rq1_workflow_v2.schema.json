@@ -1423,6 +1423,31 @@
       "title": "RunRequest",
       "type": "object"
     },
+    "SetAside": {
+      "additionalProperties": false,
+      "properties": {
+        "observation_id": {
+          "title": "Observation Id",
+          "type": "string"
+        },
+        "reason": {
+          "const": "no_source_link",
+          "default": "no_source_link",
+          "title": "Reason",
+          "type": "string"
+        },
+        "role_id": {
+          "title": "Role Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "observation_id",
+        "role_id"
+      ],
+      "title": "SetAside",
+      "type": "object"
+    },
     "SourceArtifact": {
       "additionalProperties": false,
       "properties": {
@@ -1862,6 +1887,18 @@
           "title": "Name",
           "type": "string"
         },
+        "normalization_policy_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Normalization Policy Version"
+        },
         "observations": {
           "items": {
             "$ref": "#/$defs/Observation"
@@ -1906,6 +1943,13 @@
           "default": "rq1-requirement-dataset-v2",
           "title": "Schema Version",
           "type": "string"
+        },
+        "set_aside_observations": {
+          "items": {
+            "$ref": "#/$defs/SetAside"
+          },
+          "title": "Set Aside Observations",
+          "type": "array"
         },
         "snapshot_id": {
           "title": "Snapshot Id",
