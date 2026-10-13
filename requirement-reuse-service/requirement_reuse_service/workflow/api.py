@@ -168,7 +168,7 @@ def list_base_profiles():
              'family': profile.get('family', 'DCAT-AP'),
              'label': profile.get('label', 'DCAT-AP ' + profile['version']),
              'description': profile.get('description', 'Application-profile properties and obligations.')}
-            for path in sorted(PROFILE_DIRECTORY.glob('dcat-*.json'))
+            for path in sorted(PROFILE_DIRECTORY.glob('dcat-*.json')) if not path.name.endswith('.needs.json')
             for profile, fingerprint in [load_profile(path.stem)]]
 
 

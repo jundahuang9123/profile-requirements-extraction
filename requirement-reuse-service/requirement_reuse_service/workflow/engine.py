@@ -1310,6 +1310,9 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             else:
                 active, events, conflicts = consolidate(store, run, records, client, previous=prior_records)
             all_records = {r.revision_id: r.model_dump(mode='json') for r in [*records, *active]}
+            if request.output_form == 'needs':
+                saved_needs = store.get_run(run_id, parts=False)
+                all_records.update({r['revision_id']: r for r in saved_needs['requirements']})
             frozen_base_audit = deepcopy(store.get_run(run_id,
                 omit=tuple(part for part in RUN_PARTS if part != 'base_check_audit'))['base_check_audit'])
             base_summary = base_check_metrics({**run, 'requirements': list(all_records.values()),
