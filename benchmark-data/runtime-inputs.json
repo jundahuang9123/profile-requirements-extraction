@@ -37,6 +37,11 @@
     },
     "mobilitydcat": {
       "base_profile": "dcat-ap-2.0.1",
+      "background": [
+        "mobilitydcat/input-raw/w3c-dcat-2-2020.html",
+        "mobilitydcat/input-raw/dcat-ap-2.0.0.pdf",
+        "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf"
+      ],
       "raw": [
         "mobilitydcat/input-raw/open-data-directive.html",
         "mobilitydcat/input-raw/inspire-directive.html",

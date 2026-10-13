@@ -157,6 +157,42 @@ def add_snapshot(request: SnapshotRequest):
     return translate(lambda: freeze_snapshot(Store(), request))
 
 
+class BenchmarkLoadRequest(BaseModel):
+    treat_base_as_background: bool = True
+
+
+@router.get('/base-profiles')
+def list_base_profiles():
+    from .base_profile import PROFILE_DIRECTORY, load_profile
+    return [{'id': profile['id'], 'version': profile['version'], 'sha256': fingerprint}
+            for path in sorted(PROFILE_DIRECTORY.glob('dcat-ap-*.json'))
+            for profile, fingerprint in [load_profile(path.stem)]]
+
+
+@router.get('/benchmarks')
+def list_benchmarks():
+    from .benchmarks import benchmark_cases, benchmark_settings
+    from pathlib import Path
+    return [{'case_id': case, 'base_profile_id': settings['base_profile_id'],
+             'background_source_names': [Path(p).name for p in settings['background']],
+             'raw_file_count': len(settings['raw'])}
+            for case in benchmark_cases() for settings in [benchmark_settings(case)]]
+
+
+@router.post('/benchmarks/{case_id}/load')
+def import_benchmark(case_id: str, request: BenchmarkLoadRequest):
+    from .benchmarks import load_benchmark
+    def load():
+        try:
+            result = load_benchmark(Store(), case_id, request.treat_base_as_background)
+        except FileNotFoundError as exc:
+            raise ValueError('An allowlisted raw document is missing; restore the benchmark inputs before loading.') from exc
+        result['sources'] = [{k: v for k, v in source.items() if k not in {'raw_base64', 'representation'}}
+                             for source in result['sources']]
+        return result
+    return translate(load)
+
+
 @router.get('/evidence/{evidence_id}')
 def get_evidence(evidence_id: str):
     def read():
@@ -174,6 +210,9 @@ def list_runs():
 @router.post('/runs', status_code=202)
 def create_run(request: RunRequest, background: BackgroundTasks):
     store = Store()
+    if request.benchmark_case_id:
+        from .benchmarks import validate_case_snapshot
+        translate(lambda: validate_case_snapshot(store, request.benchmark_case_id, request.snapshot_id))
     run = translate(lambda: new_run(store, request, actor()))
     background.add_task(execute_run, store, run['run_id'])
     return run
