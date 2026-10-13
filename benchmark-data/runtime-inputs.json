@@ -36,6 +36,7 @@
       "consolidation": []
     },
     "mobilitydcat": {
+      "base_profile": "dcat-ap-2.0.1",
       "raw": [
         "mobilitydcat/input-raw/open-data-directive.html",
         "mobilitydcat/input-raw/inspire-directive.html",

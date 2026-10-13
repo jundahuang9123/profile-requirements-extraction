@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import json
 from copy import deepcopy
 import time
 import uuid
@@ -180,7 +181,32 @@ def configured_client(request: RunRequest) -> LLMClient | None:
     return create_client(config)
 
 
+def selected_base(request):
+    """Resolve explicit case defaults and pin exact registry bytes, without inference."""
+    request = request.model_copy(deep=True)
+    if request.benchmark_case_id:
+        settings = json.loads((Path(__file__).resolve().parents[3] / 'benchmark-data/runtime-inputs.json').read_text())['benchmarks']
+        if request.benchmark_case_id not in settings:
+            raise ValueError('Unknown benchmark case.')
+        case = settings[request.benchmark_case_id]
+        request.base_profile_id = request.base_profile_id or case.get('base_profile')
+        request.background_source_names = [Path(p).name for p in case.get('background', [])]
+    if not request.base_profile_id:
+        return request, {}
+    if not re.fullmatch(r'dcat-ap-\d+\.\d+\.\d+', request.base_profile_id):
+        raise ValueError('Invalid base profile id.')
+    path = Path(__file__).resolve().parents[2] / 'config/base_profiles' / (request.base_profile_id + '.json')
+    if not path.is_file():
+        raise ValueError('Unknown base profile; select a checked-in registry.')
+    raw = path.read_bytes()
+    profile = json.loads(raw)
+    if profile.get('id') != request.base_profile_id or not isinstance(profile.get('classes'), dict):
+        raise ValueError('Invalid base profile registry.')
+    return request, {'base_profile_id': request.base_profile_id, 'base_profile_sha256': digest(raw)}
+
+
 def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') -> dict:
+    request, base_metadata = selected_base(request)
     snapshot = store.get('snapshot', request.snapshot_id)
     # Reject bad or obsolete ingestion before creating a job or contacting a model.
     units = [store.get('evidence', identifier) for identifier in snapshot['evidence_ids']]
@@ -205,11 +231,15 @@ def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') ->
     run = WorkflowRun(run_id=f'run-{uuid.uuid4().hex}', name=request.name, snapshot_id=request.snapshot_id,
                       strategy=request.strategy, request=request, evidence_ids=snapshot['evidence_ids'], created_at=now(),
                       role_manifest=role_manifest,
+                      **base_metadata,
                       normalization_policy_version=NORMALIZATION_POLICY_VERSION,
                       consolidation_policy_version=SEMANTIC_POLICY if request.consolidation == 'semantic' else EXACT_POLICY,
                       implementation_hash=digest({path.name: digest(path.read_bytes()) for path in Path(__file__).parent.glob('*.py')}))
     run.stages['acquisition'] = 'completed'
     run.stages['decomposition'] = 'completed'
+    if base_metadata:
+        for stage in ('acquisition', 'decomposition'):
+            run.stage_results[stage] = {**{key: getattr(run, key) for key in STAGE_RESULT_FIELDS[stage]}, **base_metadata}
     store.put('run', run.run_id, run.model_dump(mode='json'))
     return run.model_dump(mode='json')
 
@@ -230,7 +260,9 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
     options = deepcopy(source['request'])
     options.update({k: getattr(request, k) for k in
                     ('name', 'consolidation', 'discussion', 'execution_mode', 'allow_live_provider')})
-    settings = RunRequest.model_validate(options)
+    options.update(base_profile_id=request.base_profile_id or options.get('base_profile_id'), base_check=request.base_check,
+                   benchmark_case_id=request.benchmark_case_id or options.get('benchmark_case_id'))
+    settings, base_metadata = selected_base(RunRequest.model_validate(options))
     configured_client(settings)  # Validate permission/configuration; sends no request.
     run = WorkflowRun(run_id=f'run-{uuid.uuid4().hex}', name=settings.name,
         snapshot_id=source['snapshot_id'], strategy=source['strategy'], request=settings,
@@ -238,6 +270,7 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
         role_runs=source['role_runs'], role_manifest=manifest or None, created_at=now(),
         elicitation_policy_version=source.get('elicitation_policy_version', 'legacy-unknown'),
         normalization_policy_version=NORMALIZATION_POLICY_VERSION,
+        **base_metadata,
         consolidation_policy_version=SEMANTIC_POLICY if settings.consolidation == 'semantic' else EXACT_POLICY,
         implementation_hash=digest({p.name: digest(p.read_bytes()) for p in Path(__file__).parent.glob('*.py')}),
         derived_from={'run_id': source_run_id, 'version': source['version'], 'stage': 'elicitation',
@@ -844,7 +877,8 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             run['stages'][stage] = stage_status
             run.update(updates)
             run.setdefault('stage_results', {})[stage] = {
-                **{key: deepcopy(run.get(key)) for key in STAGE_RESULT_FIELDS[stage]}, **(result_extras or {})}
+                **{key: deepcopy(run.get(key)) for key in STAGE_RESULT_FIELDS[stage]},
+                **{key: run.get(key) for key in ('base_profile_id', 'base_profile_sha256')}, **(result_extras or {})}
             run['job_lease_until'] = time.time() + 900
             return {'stage': stage}
         return store.mutate(run_id, None, 'stage_completed', apply)['run']

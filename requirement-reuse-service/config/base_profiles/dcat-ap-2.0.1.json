@@ -1,0 +1,1473 @@
+{
+  "id": "dcat-ap-2.0.1",
+  "version": "2.0.1",
+  "registry_policy": "rq1-base-registry-v1",
+  "source": {
+    "repo": "SEMICeu/DCAT-AP",
+    "commit": "4470b8ea907b7eb9ec55ab22befd1ecd2210ff32",
+    "files": {
+      "releases/2.0.1/DCAT_AP_2.0.1.docx": "6d1e0db4eb1890fa373436bdc0da3f578c5b58f6cf4b5e447ce45f958a6e8d3f",
+      "releases/2.0.1/dcat-ap_2.0.1.rdf": "d939611b553dde9b080ccdd33941c2161ddf47bd68ec09039d60145de8a8642a",
+      "releases/2.0.1/dcat-ap_2.0.1_shacl_mdr-vocabularies.shape.ttl": "10d9194cf8db767ab0d0e99ae0b5c4f21542f0aa2a2066ff8e75a3f8cdda645d",
+      "releases/2.0.1/dcat-ap_2.0.1_shacl_shapes.ttl": "864501811f0e599500ba02fd2f15027a6b82728343af3bd8a273d141a6a089da"
+    }
+  },
+  "recommended_source": "2.0.1-docx",
+  "normalizations": {
+    "http://data.europa.eu/r5ravailability": "dcatap:availability",
+    "dct:licence": "dct:license"
+  },
+  "classes": {
+    "adms:Identifier": {
+      "skos:notation": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Identifier - notation",
+          "notation"
+        ]
+      }
+    },
+    "dcat:Catalog": {
+      "dcat:catalog": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dcat:Catalog",
+        "vocabulary": null,
+        "labels": [
+          "Data Catalogue - catalog",
+          "catalog",
+          "catalogue"
+        ]
+      },
+      "dcat:dataset": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "dcat:Dataset",
+        "vocabulary": null,
+        "labels": [
+          "Data Catalogue - dataset",
+          "dataset"
+        ]
+      },
+      "dcat:record": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dcat:CatalogRecord",
+        "vocabulary": null,
+        "labels": [
+          "Data Catalogue - record",
+          "record"
+        ]
+      },
+      "dcat:service": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dcat:DataService",
+        "vocabulary": null,
+        "labels": [
+          "Data Catalogue - service",
+          "service"
+        ]
+      },
+      "dcat:themeTaxonomy": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "skos:ConceptScheme",
+        "vocabulary": "http://publications.europa.eu/resource/authority/data-theme",
+        "labels": [
+          "Data Catalogue - themes",
+          "theme taxonomy",
+          "themeTaxonomy",
+          "themes"
+        ]
+      },
+      "dct:creator": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "foaf:Agent",
+        "vocabulary": null,
+        "labels": [
+          "Data Catalogue- creator",
+          "Dataset - creator",
+          "creator"
+        ]
+      },
+      "dct:description": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - description",
+          "Data Catalogue - description",
+          "Data Service - description",
+          "Dataset - description",
+          "Distribution - description",
+          "description"
+        ]
+      },
+      "dct:hasPart": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dcat:Catalog",
+        "vocabulary": null,
+        "labels": [
+          "Data Catalogue - has part",
+          "has part",
+          "hasPart"
+        ]
+      },
+      "dct:isPartOf": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dcat:Catalog",
+        "vocabulary": null,
+        "labels": [
+          "Data Catalogue - is part of",
+          "is part of",
+          "isPartOf"
+        ]
+      },
+      "dct:issued": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": [
+          "xsd:date",
+          "xsd:dateTime"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - listing date",
+          "Data Catalogue - release date",
+          "Dataset - release date",
+          "Distribution - release date",
+          "issued",
+          "listing date",
+          "publication date",
+          "release date"
+        ]
+      },
+      "dct:language": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "dct:LinguisticSystem",
+        "vocabulary": "http://publications.europa.eu/resource/authority/language",
+        "labels": [
+          "Catalogue Record - language",
+          "Data Catalogue - language",
+          "Dataset - language",
+          "Distribution - language",
+          "language"
+        ]
+      },
+      "dct:license": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "dct:LicenseDocument",
+        "vocabulary": null,
+        "labels": [
+          "Data Catalogue - licence",
+          "Data Service - licence",
+          "Distribution - licence",
+          "licence",
+          "license"
+        ]
+      },
+      "dct:modified": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": [
+          "xsd:date",
+          "xsd:dateTime"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - update/ modification date",
+          "Data Catalogue - update/ modification date",
+          "Dataset - update/ modification date",
+          "Distribution - update/modification date",
+          "last modified",
+          "last updated",
+          "modification date",
+          "modified",
+          "update/ modification date",
+          "update/modification date"
+        ]
+      },
+      "dct:publisher": {
+        "obligation": "mandatory",
+        "max": 1,
+        "range": "foaf:Agent",
+        "vocabulary": "http://publications.europa.eu/resource/authority/corporate-body",
+        "labels": [
+          "Data Catalogue - publisher",
+          "Dataset - publisher",
+          "publisher"
+        ]
+      },
+      "dct:rights": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "Data Catalogue - rights",
+          "Distribution - rights",
+          "Rights",
+          "rights"
+        ]
+      },
+      "dct:spatial": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "dct:Location",
+        "vocabulary": [
+          "http://publications.europa.eu/resource/authority/continent",
+          "http://publications.europa.eu/resource/authority/country",
+          "http://publications.europa.eu/resource/authority/place",
+          "http://sws.geonames.org"
+        ],
+        "labels": [
+          "Data Catalogue - spatial / geographic",
+          "Dataset - spatial/ geographical coverage",
+          "geographic coverage",
+          "geographic extent",
+          "geographical area",
+          "spatial",
+          "spatial / geographic",
+          "spatial coverage",
+          "spatial/ geographic",
+          "spatial/ geographical coverage"
+        ]
+      },
+      "dct:title": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - title",
+          "Category Scheme - title",
+          "Data Catalogue - title",
+          "Data Service - title",
+          "Dataset - title",
+          "Distribution - title",
+          "Title",
+          "title"
+        ]
+      },
+      "foaf:homepage": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "foaf:Document",
+        "vocabulary": null,
+        "labels": [
+          "Data Catalogue - homepage",
+          "homepage"
+        ]
+      }
+    },
+    "dcat:CatalogRecord": {
+      "adms:status": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "skos:Concept",
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - change type",
+          "Distribution - status",
+          "change type",
+          "status"
+        ]
+      },
+      "dct:conformsTo": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "dct:Standard",
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - conforms to",
+          "Dataset - conforms to",
+          "Distribution - linked schemas",
+          "application profile",
+          "conformance",
+          "conforms to",
+          "conformsTo",
+          "linked schemas"
+        ]
+      },
+      "dct:description": {
+        "obligation": "optional",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - description",
+          "Data Catalogue - description",
+          "Data Service - description",
+          "Dataset - description",
+          "Distribution - description",
+          "description"
+        ]
+      },
+      "dct:issued": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": [
+          "xsd:date",
+          "xsd:dateTime"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - listing date",
+          "Data Catalogue - release date",
+          "Dataset - release date",
+          "Distribution - release date",
+          "issued",
+          "listing date",
+          "publication date",
+          "release date"
+        ]
+      },
+      "dct:language": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dct:LinguisticSystem",
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - language",
+          "Data Catalogue - language",
+          "Dataset - language",
+          "Distribution - language",
+          "language"
+        ]
+      },
+      "dct:modified": {
+        "obligation": "mandatory",
+        "max": 1,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - update/ modification date",
+          "Data Catalogue - update/ modification date",
+          "Dataset - update/ modification date",
+          "Distribution - update/modification date",
+          "last modified",
+          "last updated",
+          "modification date",
+          "modified",
+          "update/ modification date",
+          "update/modification date"
+        ]
+      },
+      "dct:source": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dcat:CatalogRecord",
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - source metadata",
+          "Dataset - source",
+          "source",
+          "source metadata"
+        ]
+      },
+      "dct:title": {
+        "obligation": "optional",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - title",
+          "Category Scheme - title",
+          "Data Catalogue - title",
+          "Data Service - title",
+          "Dataset - title",
+          "Distribution - title",
+          "Title",
+          "title"
+        ]
+      },
+      "foaf:primaryTopic": {
+        "obligation": "mandatory",
+        "max": 1,
+        "range": [
+          "dcat:Catalog",
+          "dcat:DataService",
+          "dcat:Dataset"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - primary topic",
+          "primary topic",
+          "primaryTopic"
+        ]
+      }
+    },
+    "dcat:DataService": {
+      "dcat:endpointDescription": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "rdfs:Resource",
+        "vocabulary": null,
+        "labels": [
+          "Data Service - endpoint description",
+          "api description",
+          "description of the api or interface",
+          "endpoint description",
+          "endpointDescription"
+        ]
+      },
+      "dcat:endpointURL": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Resource",
+        "vocabulary": null,
+        "labels": [
+          "Data Service - endpoint URL",
+          "endpoint URL",
+          "endpoint address",
+          "endpoint uri",
+          "endpoint url",
+          "endpointURL",
+          "root location"
+        ]
+      },
+      "dcat:servesDataset": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "dcat:Dataset",
+        "vocabulary": null,
+        "labels": [
+          "datasets it serves",
+          "served datasets",
+          "serves dataset",
+          "servesDataset"
+        ]
+      },
+      "dct:accessRights": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "Data Service - access rights",
+          "Dataset - access Rights",
+          "access Rights",
+          "access restrictions",
+          "access rights",
+          "accessRights"
+        ]
+      },
+      "dct:description": {
+        "obligation": "optional",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - description",
+          "Data Catalogue - description",
+          "Data Service - description",
+          "Dataset - description",
+          "Distribution - description",
+          "description"
+        ]
+      },
+      "dct:license": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dct:LicenseDocument",
+        "vocabulary": null,
+        "labels": [
+          "Data Catalogue - licence",
+          "Data Service - licence",
+          "Distribution - licence",
+          "licence",
+          "license"
+        ]
+      },
+      "dct:title": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - title",
+          "Category Scheme - title",
+          "Data Catalogue - title",
+          "Data Service - title",
+          "Dataset - title",
+          "Distribution - title",
+          "Title",
+          "title"
+        ]
+      }
+    },
+    "dcat:Dataset": {
+      "adms:identifier": {
+        "obligation": "optional",
+        "max": null,
+        "range": "adms:Identifier",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - other identifier",
+          "identifier",
+          "other identifier"
+        ]
+      },
+      "adms:sample": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dcat:Distribution",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - sample",
+          "sample"
+        ]
+      },
+      "adms:versionNotes": {
+        "obligation": "optional",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - version notes",
+          "version notes",
+          "versionNotes"
+        ]
+      },
+      "dc:isReferencedBy": {
+        "obligation": "optional",
+        "max": null,
+        "range": "rdfs:Resource",
+        "vocabulary": null,
+        "labels": [
+          "isReferencedBy"
+        ]
+      },
+      "dcat:contactPoint": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "vcard:Kind",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - contact point",
+          "contact",
+          "contact point",
+          "contactPoint",
+          "point of contact"
+        ]
+      },
+      "dcat:distribution": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "dcat:Distribution",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - dataset distribution",
+          "dataset distribution",
+          "distribution"
+        ]
+      },
+      "dcat:keyword": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - keyword/ tag",
+          "keyword",
+          "keyword/ tag",
+          "tag"
+        ]
+      },
+      "dcat:landingPage": {
+        "obligation": "optional",
+        "max": null,
+        "range": "foaf:Document",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - landing page",
+          "landing page",
+          "landingPage"
+        ]
+      },
+      "dcat:qualifiedRelation": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dcat:Relationship",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - qualified relation",
+          "qualified relation",
+          "qualifiedRelation"
+        ]
+      },
+      "dcat:spatialResolutionInMeters": {
+        "obligation": "optional",
+        "max": null,
+        "range": "xsd:decimal",
+        "vocabulary": null,
+        "labels": [
+          "Dataset -",
+          "Distribution - spatial resolution",
+          "spatial resolution",
+          "spatialResolutionInMeters"
+        ]
+      },
+      "dcat:temporalResolution": {
+        "obligation": "optional",
+        "max": null,
+        "range": "xsd:duration",
+        "vocabulary": null,
+        "labels": [
+          "Dataset -",
+          "Distribution - temporal resolution",
+          "temporal resolution",
+          "temporalResolution"
+        ]
+      },
+      "dcat:theme": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "skos:Concept",
+        "vocabulary": "http://publications.europa.eu/resource/authority/data-theme",
+        "labels": [
+          "Dataset - theme/category",
+          "theme",
+          "theme/ category",
+          "theme/category"
+        ]
+      },
+      "dct:accessRights": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "Data Service - access rights",
+          "Dataset - access Rights",
+          "access Rights",
+          "access restrictions",
+          "access rights",
+          "accessRights"
+        ]
+      },
+      "dct:accrualPeriodicity": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dct:Frequency",
+        "vocabulary": "http://publications.europa.eu/resource/authority/frequency",
+        "labels": [
+          "accrual periodicity",
+          "accrualPeriodicity",
+          "frequency",
+          "update frequency"
+        ]
+      },
+      "dct:conformsTo": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dct:Standard",
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - conforms to",
+          "Dataset - conforms to",
+          "Distribution - linked schemas",
+          "conformance",
+          "conforms to",
+          "conformsTo",
+          "linked schemas"
+        ]
+      },
+      "dct:creator": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "foaf:Agent",
+        "vocabulary": null,
+        "labels": [
+          "Data Catalogue- creator",
+          "Dataset - creator",
+          "creator"
+        ]
+      },
+      "dct:description": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - description",
+          "Data Catalogue - description",
+          "Data Service - description",
+          "Dataset - description",
+          "Distribution - description",
+          "description"
+        ]
+      },
+      "dct:hasVersion": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dcat:Dataset",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - has Version",
+          "has Version",
+          "has version",
+          "hasVersion"
+        ]
+      },
+      "dct:identifier": {
+        "obligation": "optional",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - identifier",
+          "identifier"
+        ]
+      },
+      "dct:isVersionOf": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dcat:Dataset",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - is Version Of",
+          "is Version Of",
+          "is version of",
+          "isVersionOf"
+        ]
+      },
+      "dct:issued": {
+        "obligation": "optional",
+        "max": 1,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - listing date",
+          "Data Catalogue - release date",
+          "Dataset - release date",
+          "Distribution - release date",
+          "issued",
+          "listing date",
+          "publication date",
+          "release date"
+        ]
+      },
+      "dct:language": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dct:LinguisticSystem",
+        "vocabulary": "http://publications.europa.eu/resource/authority/language",
+        "labels": [
+          "Catalogue Record - language",
+          "Data Catalogue - language",
+          "Dataset - language",
+          "Distribution - language",
+          "language"
+        ]
+      },
+      "dct:modified": {
+        "obligation": "optional",
+        "max": 1,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - update/ modification date",
+          "Data Catalogue - update/ modification date",
+          "Dataset - update/ modification date",
+          "Distribution - update/modification date",
+          "last modified",
+          "last updated",
+          "modification date",
+          "modified",
+          "update/ modification date",
+          "update/modification date"
+        ]
+      },
+      "dct:provenance": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dct:ProvenanceStatement",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - provenance",
+          "lineage",
+          "provenance"
+        ]
+      },
+      "dct:publisher": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "foaf:Agent",
+        "vocabulary": "http://publications.europa.eu/resource/authority/corporate-body",
+        "labels": [
+          "Data Catalogue - publisher",
+          "Dataset - publisher",
+          "publisher"
+        ]
+      },
+      "dct:relation": {
+        "obligation": "optional",
+        "max": null,
+        "range": "rdfs:Resource",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - related resource",
+          "Relationship - relation",
+          "related resource",
+          "relation"
+        ]
+      },
+      "dct:source": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dcat:Dataset",
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - source metadata",
+          "Dataset - source",
+          "source",
+          "source metadata"
+        ]
+      },
+      "dct:spatial": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "dct:Location",
+        "vocabulary": [
+          "http://publications.europa.eu/resource/authority/continent",
+          "http://publications.europa.eu/resource/authority/country",
+          "http://publications.europa.eu/resource/authority/place",
+          "http://sws.geonames.org"
+        ],
+        "labels": [
+          "Data Catalogue - spatial / geographic",
+          "Dataset - spatial/ geographical coverage",
+          "geographic coverage",
+          "geographic extent",
+          "geographical area",
+          "spatial",
+          "spatial / geographic",
+          "spatial coverage",
+          "spatial/ geographical coverage"
+        ]
+      },
+      "dct:temporal": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "dct:PeriodOfTime",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - temporal coverage",
+          "temporal",
+          "temporal coverage",
+          "time period"
+        ]
+      },
+      "dct:title": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - title",
+          "Category Scheme - title",
+          "Data Catalogue - title",
+          "Data Service - title",
+          "Dataset - title",
+          "Distribution - title",
+          "Title",
+          "title"
+        ]
+      },
+      "dct:type": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "skos:Concept",
+        "vocabulary": null,
+        "labels": [
+          "Agent - type",
+          "Dataset - type",
+          "Licence Document - licence type",
+          "Type",
+          "licence type",
+          "type"
+        ]
+      },
+      "foaf:page": {
+        "obligation": "optional",
+        "max": null,
+        "range": "foaf:Document",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - documentation",
+          "Distribution - documentation",
+          "documentation",
+          "page"
+        ]
+      },
+      "owl:versionInfo": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - version",
+          "version",
+          "versionInfo"
+        ]
+      },
+      "prov:qualifiedAttribution": {
+        "obligation": "optional",
+        "max": null,
+        "range": "prov:Attribution",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - qualified attribution",
+          "qualified attribution",
+          "qualifiedAttribution"
+        ]
+      },
+      "prov:wasGeneratedBy": {
+        "obligation": "optional",
+        "max": null,
+        "range": "prov:Activity",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - was generated by",
+          "was generated by",
+          "wasGeneratedBy"
+        ]
+      }
+    },
+    "dcat:Distribution": {
+      "adms:status": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "skos:Concept",
+        "vocabulary": "http://purl.org/adms/status/1.0",
+        "labels": [
+          "Catalogue Record - change type",
+          "Distribution - status",
+          "change type",
+          "status"
+        ]
+      },
+      "dcat:accessService": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dcat:DataService",
+        "vocabulary": null,
+        "labels": [
+          "Distribution - access service",
+          "access service",
+          "accessService"
+        ]
+      },
+      "dcat:accessURL": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Resource",
+        "vocabulary": null,
+        "labels": [
+          "Distribution - access URL",
+          "access URL",
+          "access url",
+          "accessURL"
+        ]
+      },
+      "dcat:byteSize": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "xsd:decimal",
+        "vocabulary": null,
+        "labels": [
+          "Distribution - byte size",
+          "byte size",
+          "byteSize",
+          "file size"
+        ]
+      },
+      "dcat:compressFormat": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dct:MediaType",
+        "vocabulary": null,
+        "labels": [
+          "Distribution - compression format",
+          "compressFormat",
+          "compression format"
+        ]
+      },
+      "dcat:downloadURL": {
+        "obligation": "optional",
+        "max": null,
+        "range": "rdfs:Resource",
+        "vocabulary": null,
+        "labels": [
+          "Distribution - download URL",
+          "download URL",
+          "download url",
+          "downloadURL"
+        ]
+      },
+      "dcat:mediaType": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dct:MediaType",
+        "vocabulary": null,
+        "labels": [
+          "media type",
+          "mediaType",
+          "mime type"
+        ]
+      },
+      "dcat:packageFormat": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dct:MediaType",
+        "vocabulary": null,
+        "labels": [
+          "Distribution - packaging format",
+          "packageFormat",
+          "packaging format"
+        ]
+      },
+      "dcat:spatialResolutionInMeters": {
+        "obligation": "optional",
+        "max": null,
+        "range": "xsd:decimal",
+        "vocabulary": null,
+        "labels": [
+          "Dataset -",
+          "Distribution - spatial resolution",
+          "spatial resolution",
+          "spatialResolutionInMeters"
+        ]
+      },
+      "dcat:temporalResolution": {
+        "obligation": "optional",
+        "max": null,
+        "range": "xsd:duration",
+        "vocabulary": null,
+        "labels": [
+          "Dataset -",
+          "Distribution - temporal resolution",
+          "temporal resolution",
+          "temporalResolution"
+        ]
+      },
+      "dcatap:availability": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "skos:Concept",
+        "vocabulary": "http://data.europa.eu/r5r/availability/1.0",
+        "labels": [
+          "Distribution - availability",
+          "availability"
+        ]
+      },
+      "dct:conformsTo": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dct:Standard",
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - conforms to",
+          "Dataset - conforms to",
+          "Distribution - linked schemas",
+          "conformance",
+          "conforms to",
+          "conformsTo",
+          "linked schemas"
+        ]
+      },
+      "dct:description": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - description",
+          "Data Catalogue - description",
+          "Data Service - description",
+          "Dataset - description",
+          "Distribution - description",
+          "description"
+        ]
+      },
+      "dct:format": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "dct:MediaTypeOrExtent",
+        "vocabulary": "http://publications.europa.eu/resource/authority/file-type",
+        "labels": [
+          "Distribution - format",
+          "file format",
+          "format"
+        ]
+      },
+      "dct:issued": {
+        "obligation": "optional",
+        "max": 1,
+        "range": [
+          "xsd:date",
+          "xsd:dateTime"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - listing date",
+          "Data Catalogue - release date",
+          "Dataset - release date",
+          "Distribution - release date",
+          "issued",
+          "listing date",
+          "publication date",
+          "release date"
+        ]
+      },
+      "dct:language": {
+        "obligation": "optional",
+        "max": null,
+        "range": "dct:LinguisticSystem",
+        "vocabulary": "http://publications.europa.eu/resource/authority/language",
+        "labels": [
+          "Catalogue Record - language",
+          "Data Catalogue - language",
+          "Dataset - language",
+          "Distribution - language",
+          "Language",
+          "language"
+        ]
+      },
+      "dct:license": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "dct:LicenseDocument",
+        "vocabulary": null,
+        "labels": [
+          "Data Catalogue - licence",
+          "Data Service - licence",
+          "Distribution - licence",
+          "licence",
+          "license"
+        ]
+      },
+      "dct:modified": {
+        "obligation": "optional",
+        "max": 1,
+        "range": [
+          "xsd:date",
+          "xsd:dateTime"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - update/ modification date",
+          "Data Catalogue - update/ modification date",
+          "Dataset - update/ modification date",
+          "Distribution - update/modification date",
+          "last modified",
+          "last updated",
+          "modification date",
+          "modified",
+          "update/ modification date",
+          "update/modification date"
+        ]
+      },
+      "dct:rights": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "dct:RightsStatement",
+        "vocabulary": null,
+        "labels": [
+          "Data Catalogue - rights",
+          "Distribution - rights",
+          "Rights",
+          "rights"
+        ]
+      },
+      "dct:title": {
+        "obligation": "optional",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - title",
+          "Category Scheme - title",
+          "Data Catalogue - title",
+          "Data Service - title",
+          "Dataset - title",
+          "Distribution - title",
+          "Title",
+          "title"
+        ]
+      },
+      "foaf:page": {
+        "obligation": "optional",
+        "max": null,
+        "range": "foaf:Document",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - documentation",
+          "Distribution - documentation",
+          "Documentation",
+          "documentation",
+          "page"
+        ]
+      },
+      "odrl:hasPolicy": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "odrl:Policy",
+        "vocabulary": null,
+        "labels": [
+          "Distribution - has policy",
+          "has policy",
+          "hasPolicy"
+        ]
+      },
+      "spdx:checksum": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "spdx:Checksum",
+        "vocabulary": null,
+        "labels": [
+          "Checksum",
+          "checksum",
+          "distribution - checksum"
+        ]
+      }
+    },
+    "dcat:Relationship": {
+      "dcat:hadRole": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": [
+          "dcat:Catalog",
+          "dcat:DataService",
+          "dcat:Dataset"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "Relationship - had role",
+          "had role",
+          "hadRole"
+        ]
+      },
+      "dct:relation": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "dcat:Role",
+        "vocabulary": null,
+        "labels": [
+          "Dataset - related resource",
+          "Relationship - relation",
+          "related resource",
+          "relation"
+        ]
+      }
+    },
+    "dct:LicenseDocument": {
+      "dct:type": {
+        "obligation": "recommended",
+        "max": null,
+        "range": "skos:Concept",
+        "vocabulary": "http://purl.org/adms/licencetype/1.0",
+        "labels": [
+          "Agent - type",
+          "Dataset - type",
+          "Licence Document - licence type",
+          "licence type",
+          "type"
+        ]
+      }
+    },
+    "dct:Location": {
+      "dcat:bbox": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Location - bounding box",
+          "bbox",
+          "bounding box"
+        ]
+      },
+      "dcat:centroid": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Location - centroid",
+          "centroid"
+        ]
+      },
+      "locn:geometry": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Location - geometry",
+          "geometry"
+        ]
+      }
+    },
+    "dct:PeriodOfTime": {
+      "dcat:endDate": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "Period Of Time - end date",
+          "end date",
+          "endDate"
+        ]
+      },
+      "dcat:startDate": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": [
+          "rdfs:Literal",
+          "xsd:date",
+          "xsd:dateTime"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "Period Of Time - start date",
+          "start date",
+          "startDate"
+        ]
+      },
+      "time:hasBeginning": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "time:Instant",
+        "vocabulary": null,
+        "labels": [
+          "beginning",
+          "hasBeginning"
+        ]
+      },
+      "time:hasEnd": {
+        "obligation": "optional",
+        "max": 1,
+        "range": "time:Instant",
+        "vocabulary": null,
+        "labels": [
+          "Period Of Time - end",
+          "end",
+          "hasEnd"
+        ]
+      }
+    },
+    "foaf:Agent": {
+      "dct:type": {
+        "obligation": "recommended",
+        "max": 1,
+        "range": "skos:Concept",
+        "vocabulary": null,
+        "labels": [
+          "Agent - type",
+          "Dataset - type",
+          "Licence Document - licence type",
+          "Type",
+          "licence type",
+          "type"
+        ]
+      },
+      "foaf:name": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Agent - name",
+          "Name",
+          "name"
+        ]
+      }
+    },
+    "skos:Concept": {
+      "skos:prefLabel": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Category - preferred label",
+          "prefLabel",
+          "preferred label"
+        ]
+      }
+    },
+    "skos:ConceptScheme": {
+      "dct:title": {
+        "obligation": "mandatory",
+        "max": null,
+        "range": "rdfs:Literal",
+        "vocabulary": null,
+        "labels": [
+          "Catalogue Record - title",
+          "Category Scheme - title",
+          "Data Catalogue - title",
+          "Data Service - title",
+          "Dataset - title",
+          "Distribution - title",
+          "Title",
+          "title"
+        ]
+      }
+    },
+    "spdx:Checksum": {
+      "spdx:algorithm": {
+        "obligation": "mandatory",
+        "max": 1,
+        "range": "spdx:checksumAlgorithm_sha1",
+        "vocabulary": null,
+        "labels": [
+          "Checksum - algorithm",
+          "algorithm"
+        ]
+      },
+      "spdx:checksumValue": {
+        "obligation": "mandatory",
+        "max": 1,
+        "range": [
+          "rdfs:Literal",
+          "xsd:hexBinary"
+        ],
+        "vocabulary": null,
+        "labels": [
+          "Checksum - checksum value",
+          "checksum value",
+          "checksumValue"
+        ]
+      }
+    }
+  }
+}

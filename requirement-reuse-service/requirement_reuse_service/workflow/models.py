@@ -329,6 +329,10 @@ class RolePanel(Contract):
 
 class RunRequest(Contract):
     snapshot_id: str
+    base_profile_id: str | None = None
+    base_check: bool = True
+    benchmark_case_id: str | None = None
+    background_source_names: list[str] = Field(default_factory=list)
     strategy: Literal['rules', 'mock', 'multi_agent'] = 'rules'
     role_ids: list[str] = Field(default_factory=lambda: ['consumer_discovery', 'construction_domain'])
     role_selection: Literal['manual', 'automatic', 'override'] = 'manual'
@@ -369,6 +373,9 @@ class DeriveRequest(Contract):
     execution_mode: Literal['automatic', 'stepwise'] = 'automatic'
     allow_live_provider: bool = False
     reuse_assessments: bool = True
+    base_profile_id: str | None = None
+    base_check: bool = True
+    benchmark_case_id: str | None = None
     rationale: str = Field(min_length=1, max_length=2000)
 
 
@@ -380,6 +387,8 @@ class WorkflowRun(Contract):
     elicitation_policy_version: str = ELICITATION_POLICY_VERSION
     normalization_policy_version: str | None = None
     consolidation_policy_version: str | None = None
+    base_profile_id: str | None = None
+    base_profile_sha256: str | None = None
     schema_version: str = SCHEMA_VERSION
     strategy: str
     derived_from: dict[str, Any] | None = None

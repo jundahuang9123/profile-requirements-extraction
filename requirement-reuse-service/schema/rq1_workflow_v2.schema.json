@@ -474,6 +474,35 @@
           "title": "Allow Live Provider",
           "type": "boolean"
         },
+        "base_check": {
+          "default": true,
+          "title": "Base Check",
+          "type": "boolean"
+        },
+        "base_profile_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Profile Id"
+        },
+        "benchmark_case_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Benchmark Case Id"
+        },
         "consolidation": {
           "default": "semantic",
           "enum": [
@@ -1369,6 +1398,30 @@
           "title": "Allow Live Provider",
           "type": "boolean"
         },
+        "background_source_names": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Background Source Names",
+          "type": "array"
+        },
+        "base_check": {
+          "default": true,
+          "title": "Base Check",
+          "type": "boolean"
+        },
+        "base_profile_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Profile Id"
+        },
         "based_on_run_id": {
           "anyOf": [
             {
@@ -1380,6 +1433,18 @@
           ],
           "default": null,
           "title": "Based On Run Id"
+        },
+        "benchmark_case_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Benchmark Case Id"
         },
         "consolidation": {
           "default": "semantic",
@@ -1840,6 +1905,30 @@
           },
           "title": "Attempt History",
           "type": "array"
+        },
+        "base_profile_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Profile Id"
+        },
+        "base_profile_sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Profile Sha256"
         },
         "baselines": {
           "items": {
