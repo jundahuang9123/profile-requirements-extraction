@@ -194,7 +194,8 @@ def selected_base(request):
         if request.benchmark_case_id not in settings:
             raise ValueError('Unknown benchmark case.')
         case = settings[request.benchmark_case_id]
-        request.base_profile_id = request.base_profile_id or case.get('base_profile')
+        if 'base_profile_id' not in request.model_fields_set:
+            request.base_profile_id = case.get('base_profile')
         request.background_source_names = [Path(p).name for p in case.get('background', [])]
     if not request.base_profile_id:
         return request, {}
@@ -316,8 +317,16 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
     options = deepcopy(source['request'])
     options.update({k: getattr(request, k) for k in
                     ('name', 'consolidation', 'discussion', 'execution_mode', 'allow_live_provider')})
-    options.update(base_profile_id=request.base_profile_id or options.get('base_profile_id'), base_check=request.base_check,
-                   benchmark_case_id=request.benchmark_case_id or options.get('benchmark_case_id'))
+    options['base_check'] = request.base_check
+    if 'benchmark_case_id' in request.model_fields_set:
+        options['benchmark_case_id'] = request.benchmark_case_id
+    if 'base_profile_id' in request.model_fields_set:
+        options['base_profile_id'] = request.base_profile_id
+    elif ('benchmark_case_id' in request.model_fields_set
+          and request.benchmark_case_id != source['request'].get('benchmark_case_id')):
+        # A newly selected case gets its own default. Explicit null instead clears
+        # the base; silently reviving it would contradict the workbench selection.
+        options.pop('base_profile_id', None)
     settings, base_metadata = selected_base(RunRequest.model_validate(options))
     configured_client(settings)  # Validate permission/configuration; sends no request.
     run = WorkflowRun(run_id=f'run-{uuid.uuid4().hex}', name=settings.name,

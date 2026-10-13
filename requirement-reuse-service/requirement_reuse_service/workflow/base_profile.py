@@ -204,13 +204,38 @@ def _outside_base_support(row: dict, evidence_by_id: Mapping[str, Any],
     return False
 
 
-def _provisional_constraint(row: dict, check: dict, findings: list[dict]) -> None:
+def _provisional_constraint(row: dict, check: dict, findings: list[dict], properties: Mapping[str, Any]) -> None:
     if (check['relation'] == 'inherited' and not check['constraint_signals']
             and row.get('extension_kind') == 'value_constraint'):
         check['requires_review'] = True
         check.setdefault('notes', []).append('Declared extension has no recognized added constraint; inheritance is provisional pending review.')
         findings.append({'criterion': 'unconfirmed_extension_constraint', 'severity': 'review',
                          'message': 'The model declares a value constraint but the deterministic checker found no added-constraint cue; retain it for review.'})
+    if check['relation'] == 'inherited':
+        statement = row.get('raw_statement', row.get('statement', ''))
+        ranges = {str(term) for definition in properties.values()
+                  for term in (definition.get('range') if isinstance(definition.get('range'), list)
+                               else [definition.get('range')])}
+        property_terms = {_canonical_curie(match.group(0)) for match in CURIE.finditer(statement)}
+        property_terms -= set(CLASS_NAMES.values()) | ranges
+        conjunctions = list(re.finditer(r'\b(?:and|as well as)\b|;', statement, re.I))
+        if len(property_terms) > 1 or conjunctions:
+            check['requires_review'] = True
+            if len(property_terms) > 1:
+                check['statement_property_candidates'] = sorted(property_terms)
+            check['compound_signals'] = sorted(set(
+                (['multiple_property_curies'] if len(property_terms) > 1 else []) +
+                ['conjunction: ' + match.group(0) for match in conjunctions]))
+            check.setdefault('notes', []).append('The statement may cover multiple clauses; a single inherited match cannot exclude the whole candidate.')
+            findings.append({'criterion': 'compound_base_check', 'severity': 'review',
+                             'message': 'Inspect or split this potentially compound statement before classifying every clause as inherited.'})
+        negations = list(re.finditer(r'\b(?:not|never|without|avoid)\b', statement, re.I))
+        if negations:
+            check['requires_review'] = True
+            check['polarity_signals'] = sorted({match.group(0) for match in negations})
+            check.setdefault('notes', []).append('Negated wording needs review before treating the candidate as a restatement of the base.')
+            findings.append({'criterion': 'base_polarity_review', 'severity': 'review',
+                             'message': 'Review the candidate polarity against the base; a matching property alone does not establish inheritance.'})
 
 
 def check_record(record: Any, profile: Mapping[str, Any], *,
@@ -259,7 +284,7 @@ def check_record(record: Any, profile: Mapping[str, Any], *,
     ability = bool(re.search(r'\b(?:consumer|system)\b[^.;\n]{0,120}\b(?:must|shall|should|may)\s+be\s+able\s+to\s+(?:process|retrieve|interpret)\b', statement, re.I))
     if ability and not signals:
         check['relation'] = 'inherited'
-        _provisional_constraint(row, check, findings)
+        _provisional_constraint(row, check, findings, properties)
         return check, findings
     if candidate_rank is not None and base_rank is not None and candidate_rank > base_rank:
         base_ids, base_names = set(base_source_version_ids), list(base_source_names)
@@ -274,7 +299,7 @@ def check_record(record: Any, profile: Mapping[str, Any], *,
                 check.setdefault('notes', []).append('Base specification sources were not classified; inheritance is provisional pending review.')
                 findings.append({'criterion': 'unresolved_base_source_classification', 'severity': 'review',
                                  'message': 'The selected base has no configured base-source classification; retain this stronger obligation for review.'})
-        _provisional_constraint(row, check, findings)
+        _provisional_constraint(row, check, findings, properties)
         return check, findings
     if candidate_rank is not None and base_rank is not None and candidate_rank < base_rank:
         check['relation'] = 'loosened'
@@ -282,5 +307,5 @@ def check_record(record: Any, profile: Mapping[str, Any], *,
                          'message': f'{property_id} is {base_obligation} in {profile["id"]}; an extension cannot relax it to {obligation}.'})
         return check, findings
     check['relation'] = 'constrained' if signals else 'inherited'
-    _provisional_constraint(row, check, findings)
+    _provisional_constraint(row, check, findings, properties)
     return check, findings

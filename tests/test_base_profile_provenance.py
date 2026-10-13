@@ -41,3 +41,35 @@ def test_derived_trial_adds_base_metadata_without_rewriting_older_extraction(set
     assert trial['elicitation_policy_version']==before['elicitation_policy_version']
     assert trial['stage_results']['elicitation']==before['stage_results']['elicitation']
     assert store.get('run',source['run_id'])==before
+
+
+def test_explicit_no_base_is_not_replaced_by_a_case_default(setup):
+    _, source, _ = setup
+    selected, metadata = engine.selected_base(RunRequest(snapshot_id=source['snapshot_id'],
+        benchmark_case_id='mobilitydcat', base_profile_id=None))
+    assert selected.base_profile_id is None and metadata == {}
+
+
+def test_derived_ui_can_clear_the_source_base_and_case_without_rewriting_it(setup):
+    store, initial, client = setup
+    source = engine.new_run(store, RunRequest(snapshot_id=initial['snapshot_id'], strategy='multi_agent',
+        role_ids=initial['request']['role_ids'], consolidation='exact', discussion='on_request',
+        base_profile_id='dcat-ap-2.0.1'))
+    engine.execute_run(store, source['run_id'], client)
+    before = store.get('run', source['run_id'])
+    trial = engine.derive_run(store, source['run_id'], DeriveRequest(expected_version=before['version'],
+        base_profile_id=None, benchmark_case_id=None, rationale='Explicit custom trial without a base.'))
+    assert trial['base_profile_id'] is None and trial['base_check_policy_version'] is None
+    assert trial['request']['benchmark_case_id'] is None
+    assert store.get('run', source['run_id']) == before
+
+
+def test_new_case_on_a_derived_trial_uses_its_default_when_base_is_omitted(setup):
+    store, source, client = setup
+    engine.execute_run(store, source['run_id'], client)
+    saved = store.get('run', source['run_id'])
+    trial = engine.derive_run(store, source['run_id'], DeriveRequest(expected_version=saved['version'],
+        benchmark_case_id='mobilitydcat', rationale='Explicit Mobility source context.'))
+    assert trial['base_profile_id'] == 'dcat-ap-2.0.1'
+    assert trial['request']['background_source_names'] == [
+        'w3c-dcat-2-2020.html', 'dcat-ap-2.0.0.pdf', 'dcat-ap-2.1.0.pdf']

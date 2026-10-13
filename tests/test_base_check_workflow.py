@@ -43,6 +43,14 @@ def test_inherited_skips_source_checks_and_assessments_with_saved_audit(setup, m
     assert stage['base_check_audit'] == saved['base_check_audit']
     assert stage['base_profile_sha256'] == saved['base_profile_sha256']
     assert stage['base_check_policy_version'] == base_profile.BASE_CHECK_POLICY_VERSION
+    assert stage['base_registry_policy_version'] == saved['base_registry_policy_version'] == 'rq1-base-registry-v1'
+    assert stage['base_check']['set_aside_inherited'] == len(inherited)
+    assert stage['base_check']['by_relation']['inherited'] == len(inherited)
+    assert saved['machine_snapshot']['base_check'] == saved['metrics']['base_check']
+    for stage_name in ('normalization', 'verification', 'consolidation', 'deliberation'):
+        for key in engine.RUN_POLICY_FIELDS:
+            assert saved['stage_results'][stage_name][key] == saved[key]
+            assert saved['machine_snapshot'][key] == saved[key]
     assert all(r['base_check']['relation'] == 'loosened' for r in saved['requirements'])
 
 
@@ -171,6 +179,44 @@ def test_custom_source_with_no_base_classification_keeps_stronger_rule_for_revie
         assert record['base_check']['relation'] == 'inherited' and record['base_check']['requires_review']
         assert any(f['criterion'] == 'unresolved_base_source_classification'
                    for f in record['qualification']['findings'])
+
+
+def test_mixed_inherited_and_new_property_clause_is_retained_without_fabricating_support(setup):
+    store, _, client = setup
+    text = 'Each dataset must publish dct:title and ex:roadDirection.'
+    source = register_source(store, SourceRequest(source_role='stakeholder_need',
+        artifact=ArtifactPayload(name='domain-needs.md', content=text)))
+    snapshot = engine.freeze_snapshot(store, SnapshotRequest(source_version_ids=[source['source_version_id']]))
+    run = engine.new_run(store, RunRequest(snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
+        role_ids=ROLES, consolidation='exact', discussion='on_request', base_profile_id='dcat-ap-2.0.1'))
+    engine.execute_run(store, run['run_id'], client)
+    saved = store.get('run', run['run_id'])
+    assert saved['status'] == 'awaiting_human' and saved['set_aside_observations'] == []
+    assert saved['active_revision_ids']
+    for record in saved['requirements']:
+        assert record['raw_statement'] == text
+        assert record['base_check']['relation'] == 'inherited' and record['base_check']['requires_review']
+        assert any(f['criterion'] == 'compound_base_check' for f in record['qualification']['findings'])
+        assert record['verification']['status'] == 'pass'
+        assert all(link['quote'] == text for link in record['evidence_links'])
+
+
+def test_negated_base_statement_stays_for_review_with_authentic_evidence(setup):
+    store, _, client = setup
+    text = 'Each dataset must not include dct:title.'
+    source = register_source(store, SourceRequest(source_role='stakeholder_need',
+        artifact=ArtifactPayload(name='domain-needs.md', content=text)))
+    snapshot = engine.freeze_snapshot(store, SnapshotRequest(source_version_ids=[source['source_version_id']]))
+    run = engine.new_run(store, RunRequest(snapshot_id=snapshot['snapshot_id'], strategy='multi_agent',
+        role_ids=ROLES, consolidation='exact', discussion='on_request', base_profile_id='dcat-ap-2.0.1'))
+    engine.execute_run(store, run['run_id'], client)
+    saved = store.get('run', run['run_id'])
+    assert saved['status'] == 'awaiting_human' and saved['set_aside_observations'] == []
+    assert saved['active_revision_ids']
+    for record in saved['requirements']:
+        assert record['raw_statement'] == text and record['verification']['status'] == 'pass'
+        assert record['base_check']['relation'] == 'inherited' and record['base_check']['requires_review']
+        assert any(f['criterion'] == 'base_polarity_review' for f in record['qualification']['findings'])
 
 
 def test_base_context_change_does_not_reuse_stale_base_findings(setup):

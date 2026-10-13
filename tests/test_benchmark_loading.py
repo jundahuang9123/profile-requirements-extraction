@@ -125,6 +125,25 @@ def test_benchmark_api_loads_without_run_or_provider_and_exposes_pinned_choices(
     assert client.post('/api/rq1/v2/benchmarks/unknown/load', json={}).status_code == 422
 
 
+def test_saved_export_keeps_background_provenance_outside_evidence(benchmark_store, monkeypatch):
+    from fastapi.testclient import TestClient
+    from requirement_reuse_service.main import app
+    from requirement_reuse_service.workflow import api, engine
+    from requirement_reuse_service.workflow.models import RunRequest
+    store, _, _ = benchmark_store
+    loaded = benchmarks.load_benchmark(store, 'mobilitydcat')
+    run = engine.new_run(store, RunRequest(snapshot_id=loaded['snapshot']['snapshot_id'], strategy='rules'))
+    monkeypatch.setattr(api, 'Store', lambda: store)
+    response = TestClient(app).get(f'/api/rq1/v2/runs/{run["run_id"]}/export')
+    assert response.status_code == 200
+    payload = response.json()
+    assert [s['name'] for s in payload['background_sources']] == ['base.md']
+    assert {s['name'] for s in payload['sources']} == {'inspire.md', 'mobility.md'}
+    assert payload['background_sources'][0]['raw_sha256'] == loaded['sources'][0]['raw_sha256']
+    assert all(u['source_version_id'] != payload['background_sources'][0]['source_version_id']
+               for u in payload['evidence_units'])
+
+
 @pytest.mark.parametrize('raw_path', [
     '../secret.md', '/tmp/secret.md', 'mobilitydcat/reference/answers.md',
     'mobilitydcat/input-preconsolidation/answers.md', 'mobilitydcat/input-raw/../answers.md'])

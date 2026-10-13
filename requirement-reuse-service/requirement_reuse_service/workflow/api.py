@@ -252,6 +252,8 @@ def export_run(run_id: str, download: bool = False):
         snapshot = store.get('snapshot', run['snapshot_id'])
         return {'schema_version': run['schema_version'], 'export_kind': 'saved_review_state', 'run': run,
                 'snapshot': snapshot, 'sources': [store.get('source', sid) for sid in snapshot['source_version_ids']],
+                'background_sources': [store.get('source', item['source_version_id'])
+                    for item in snapshot.get('exclusions', []) if item['reason'] == 'background_not_evidence'],
                 'evidence_units': [store.get('evidence', eid) for eid in run['evidence_ids']],
                 'events': store.events(run_id)}
     return downloadable(translate(export), download, 'rq1-saved-workflow.json')

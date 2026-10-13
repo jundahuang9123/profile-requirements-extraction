@@ -216,6 +216,9 @@ INSPIRE, GeoDCAT-AP, FAIR, policy and mobility-specific sources remain evidence
 by default. Other cases have no automatic base version or background list in this
 change. Users must select appropriate versions and scope deliberately; an
 available registry is not a decision to assign it to every case.
+An explicit “No base profile selected” choice is respected, including in a
+derived trial. A case supplies its default only when no explicit base choice
+was provided; changing or clearing trial settings does not change the source run.
 
 ## Extraction v3 and payload limits
 
@@ -278,7 +281,9 @@ inherited class/property/obligation comparisons. Retained cards display their
 base relation and refined property; loosened obligations carry a blocking
 conflict. Metrics count relations, resolution methods and inherited exclusions,
 and describe retained candidates' evidence source groups: base only,
-INSPIRE/GeoDCAT, other generic and mobility. Review-guarded inherited labels are
+INSPIRE/GeoDCAT, other generic and mobility. Relation and resolution counts describe
+the initial normalization audit; source-group counts describe the kept records at
+that stage and active review items after consolidation. Review-guarded inherited labels are
 counted among relations, while actual `inherited_from_base` set-aside rows have a
 separate count. Candidate counts must be interpreted
 with source-check/support findings and coverage, not as distinct correct
@@ -297,7 +302,7 @@ offline tests or reduced candidate counts.
 
 No live inference or visual UI check was performed for this change. The new UI's
 available validation is the frontend build, and model-facing behavior is exercised
-with offline fixtures/scripted clients. All 419 offline tests pass, the generated
+with offline fixtures/scripted clients. All 422 offline tests pass, the generated
 schema matches runtime contracts, and the frontend builds.
 
 Junda still needs to decide the mobility corpus/supportable reference coverage,

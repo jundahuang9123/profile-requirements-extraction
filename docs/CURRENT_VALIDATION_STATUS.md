@@ -307,7 +307,7 @@ establish provider token use, throughput or latency, and Mobility's combined
 corpus/context changes do not isolate a single cause.
 
 No live inference or visual UI check was performed for this change. The full
-offline suite passes (419 tests), the exported schema matches the runtime
+offline suite passes (422 tests), the exported schema matches the runtime
 contracts, and the frontend builds. These checks are not acceptance-run results.
 
 This new condition remains offline-tested only until Junda runs the derived Run A

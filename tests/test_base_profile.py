@@ -108,6 +108,55 @@ def test_unclassified_base_sources_keep_a_stronger_claim_for_review(profile):
     assert findings[0]['severity'] == 'review'
 
 
+@pytest.mark.parametrize('statement,terms', [
+    ('Dataset must publish dct:title and ex:roadDirection.', ['dct:title', 'ex:roadDirection']),
+    ('Dataset must publish dct:title and dct:description.', ['dct:description', 'dct:title']),
+])
+def test_compound_property_claim_cannot_be_excluded_by_one_inherited_match(profile, statement, terms):
+    result, findings = checked(record(statement, obligation='mandatory'), profile)
+    assert result['relation'] == 'inherited' and result['requires_review']
+    assert result['statement_property_candidates'] == terms
+    assert findings[0]['criterion'] == 'compound_base_check'
+
+
+def test_class_and_range_curies_are_not_compound_property_claims(profile):
+    result, findings = checked(record('dcat:Dataset should publish a dct:publisher that is a foaf:Agent.',
+        obligation='recommended'), profile)
+    assert result['relation'] == 'inherited' and not result.get('requires_review')
+    assert findings == []
+
+
+def test_compound_cue_does_not_change_an_already_constrained_relation(profile):
+    result, _ = checked(record('Dataset must publish dct:title and ex:roadDirection for traffic metadata.',
+        obligation='mandatory'), profile)
+    assert result['relation'] == 'constrained' and not result.get('requires_review')
+
+
+@pytest.mark.parametrize('statement', [
+    'Datasets must include a title and driving direction.',
+    'Datasets must include a title as well as driving direction.',
+    'Datasets must include a title; driving direction is published.',
+])
+def test_natural_language_compound_inherited_match_is_provisional(profile, statement):
+    result, findings = checked(record(statement, metadata='title', obligation='mandatory'), profile)
+    assert result['relation'] == 'inherited' and result['requires_review']
+    assert result['compound_signals']
+    assert findings[0]['criterion'] == 'compound_base_check'
+
+
+@pytest.mark.parametrize('statement,signal', [
+    ('Datasets must not include dct:title.', 'not'),
+    ('Datasets must never include dct:title.', 'never'),
+    ('Datasets must be described without a title.', 'without'),
+    ('Datasets must avoid a title.', 'avoid'),
+])
+def test_negated_base_property_match_needs_review_without_inventing_relation(profile, statement, signal):
+    result, findings = checked(record(statement, metadata='title', obligation='mandatory'), profile)
+    assert result['relation'] == 'inherited' and result['requires_review']
+    assert result['polarity_signals'] == [signal]
+    assert findings[0]['criterion'] == 'base_polarity_review' and findings[0]['severity'] == 'review'
+
+
 def test_tightening_with_nonbase_support(profile):
     result, findings = checked(record('A mandatory contact point must include e-mail.',
         metadata='contact point', obligation='mandatory'), profile)
