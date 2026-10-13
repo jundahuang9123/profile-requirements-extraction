@@ -18,6 +18,7 @@ from .models import (BaselineRequest, CorpusSnapshot, DecisionRequest, Deliberat
                      NormalizedIntent, Qualification, RequirementRecord, RunRequest, SnapshotRequest, WorkflowRun)
 from .storage import ConflictError, Store, canonical, digest, now, uid
 from .role_selection import initial_manifest, panel_roles, select_roles
+from .semantic_consolidation import EXACT_POLICY, SEMANTIC_POLICY
 
 PROMPT_VERSION = ELICITATION_POLICY_VERSION
 QUALIFICATION_VERSION = 'rq1-support-quality-v2.2'
@@ -74,7 +75,7 @@ STAGE_RESULT_FIELDS = {
     'acquisition': ['snapshot_id'], 'decomposition': ['evidence_ids'],
     'role_selection': ['role_manifest'], 'elicitation': ['observations', 'role_runs'],
     'normalization': ['requirements', 'set_aside_observations', 'normalization_policy_version'], 'verification': ['requirements'],
-    'consolidation': ['requirements', 'active_revision_ids', 'consolidation_events', 'conflicts'],
+    'consolidation': ['requirements', 'active_revision_ids', 'consolidation_events', 'conflicts', 'consolidation_policy_version'],
     'deliberation': ['deliberations'], 'adjudication': ['requirements', 'decisions', 'assessment_history'],
     'baseline': ['baselines'],
 }
@@ -205,6 +206,7 @@ def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') ->
                       strategy=request.strategy, request=request, evidence_ids=snapshot['evidence_ids'], created_at=now(),
                       role_manifest=role_manifest,
                       normalization_policy_version=NORMALIZATION_POLICY_VERSION,
+                      consolidation_policy_version=SEMANTIC_POLICY if request.consolidation == 'semantic' else EXACT_POLICY,
                       implementation_hash=digest({path.name: digest(path.read_bytes()) for path in Path(__file__).parent.glob('*.py')}))
     run.stages['acquisition'] = 'completed'
     run.stages['decomposition'] = 'completed'
@@ -236,6 +238,7 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
         role_runs=source['role_runs'], role_manifest=manifest or None, created_at=now(),
         elicitation_policy_version=source.get('elicitation_policy_version', 'legacy-unknown'),
         normalization_policy_version=NORMALIZATION_POLICY_VERSION,
+        consolidation_policy_version=SEMANTIC_POLICY if settings.consolidation == 'semantic' else EXACT_POLICY,
         implementation_hash=digest({p.name: digest(p.read_bytes()) for p in Path(__file__).parent.glob('*.py')}),
         derived_from={'run_id': source_run_id, 'version': source['version'], 'stage': 'elicitation',
             'observations_hash': digest(source['observations']), 'role_runs_hash': digest(source['role_runs']),
@@ -407,7 +410,7 @@ def ensure_elicitation_resumable(run):
     needs_extraction = (run['stages'].get('elicitation') != 'completed'
                         or any(r['status'] != 'completed' for r in run['role_runs']))
     if run.get('derived_from'):
-        if needs_extraction:
+        if needs_extraction or run['stages'].get('role_selection') != 'completed':
             raise ValueError('Derived runs cannot repeat extraction. Create a new run.')
         return
     if not needs_extraction:
@@ -665,6 +668,9 @@ def consolidate(store: Store, run: dict, records: list[RequirementRecord], clien
     """Merge identical candidates. ``previous`` maps revision IDs of an earlier attempt
     of this run to their records: an identical merged revision keeps its completed
     assessment, as normalization does for single candidates."""
+    if run.get('consolidation_policy_version') == SEMANTIC_POLICY:
+        from .semantic_consolidation import semantic_consolidate
+        return semantic_consolidate(store, run, records, client, previous)
     previous = previous or {}
     previous_by_hash = {r['content_hash']: r for r in previous.values()
                         if reusable_qualification(r, r['content_hash'])} if run.get('derived_from') else {}
@@ -853,6 +859,11 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
         run = store.get_run(run_id, parts=False)
         if run['status'] in {'cancelled', 'awaiting_human', 'completed'}:
             return
+        if run.get('derived_from'):
+            ensure_elicitation_resumable(run)
+            for field in ('observations', 'role_runs'):
+                if digest(run[field]) != run['derived_from'][field + '_hash']:
+                    raise ValueError('Derived extraction checkpoint hash mismatch. Create a new run.')
         def claim(r):
             if r.get('worker_id') and r.get('job_lease_until', 0) > time.time():
                 raise ConflictError('A worker already owns this run.')
@@ -952,6 +963,9 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
         active_stage = 'consolidation'
         if run['stages']['consolidation'] != 'completed':
             start_stage('consolidation', 'consolidating')
+            # A failed semantic stage may have saved assessed merges. They are reuse
+            # checkpoints, not new inputs; only normalized observations are grouped.
+            records = [r for r in records if not r.parent_revision_ids]
             active, events, conflicts = consolidate(store, run, records, client, previous=prior_records)
             all_records = {r.revision_id: r.model_dump(mode='json') for r in [*records, *active]}
             run = patch('consolidation', {'requirements': list(all_records.values()),
@@ -962,7 +976,8 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
                     'observations': r['observations'], 'role_runs': r['role_runs'], 'conflicts': r['conflicts'],
                     'consolidation_events': r['consolidation_events'], 'role_manifest': r.get('role_manifest'), 'created_at': now()}
                 r['machine_snapshot'].update(set_aside_observations=r.get('set_aside_observations', []),
-                    normalization_policy_version=r.get('normalization_policy_version'))
+                    normalization_policy_version=r.get('normalization_policy_version'),
+                    consolidation_policy_version=r.get('consolidation_policy_version'))
             store.mutate(run_id, None, 'machine_output_frozen', freeze_machine)
             if pause('consolidation'):
                 return

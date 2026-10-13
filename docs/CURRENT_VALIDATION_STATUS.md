@@ -244,3 +244,9 @@ stop a run visibly. The full workflow remains incomplete with zero requirements.
 A separate derived run can now reuse completed extraction and identical current-policy assessments. Original-source checks are recomputed; the source run is never rewritten. Offline scripted-client tests cover lineage, stale/partial source rejection, stage exports, no extraction calls and reset prevention. No live acceptance trial has been run.
 
 New/derived normalization now keeps uncited observations solely in a set-aside audit, with export and UI access; legacy runs remain unchanged. This is an offline-tested filter, not a semantic rejection or acceptance decision. The elicitation prompt and policy have not changed.
+
+## Grouped review candidates (13 October 2026)
+
+Semantic consolidation is implemented with bounded ID-only model output, deterministic verbatim representatives, separate obligation variants, failed-member attachments and durable chunk/assessment checkpoints. Exact mode and historical runs retain their earlier behavior. New tests cover passing and failed provenance unions, all-failed complementary premises, accounting correction, visible fallback, negation, oversized inputs, chunk reuse and interrupted derived-stage recovery. Earlier regression fixtures explicitly choose exact mode to preserve their baseline condition.
+
+Validation is offline only: 310 tests pass, the generated workflow schema matches runtime contracts, and the frontend builds. No live KI:connect acceptance trial, new benchmark, semantic grouping accuracy measurement or effort-savings measurement was performed. The original completed MobilityDCAT run remains unchanged. Its results should be interpreted independently of this new consolidation condition. Browser interaction was unavailable to this session, so the new UI has build verification but no visual browser check yet. See [CONSOLIDATION.md](CONSOLIDATION.md) for the pending acceptance and independent annotation checks.

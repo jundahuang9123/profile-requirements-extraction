@@ -130,6 +130,43 @@
       "title": "BaselineRequest",
       "type": "object"
     },
+    "CandidateGroup": {
+      "additionalProperties": false,
+      "properties": {
+        "join_group_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Join Group Id"
+        },
+        "member_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 40,
+          "minItems": 1,
+          "title": "Member Ids",
+          "type": "array"
+        },
+        "rationale": {
+          "default": "",
+          "maxLength": 240,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "member_ids"
+      ],
+      "title": "CandidateGroup",
+      "type": "object"
+    },
     "ConflictRecord": {
       "additionalProperties": false,
       "properties": {
@@ -438,7 +475,7 @@
           "type": "boolean"
         },
         "consolidation": {
-          "default": "exact",
+          "default": "semantic",
           "enum": [
             "exact",
             "semantic"
@@ -1018,6 +1055,18 @@
           "title": "Evidence Links",
           "type": "array"
         },
+        "group_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Group Id"
+        },
         "lifecycle_state": {
           "default": "verification_pending",
           "title": "Lifecycle State",
@@ -1333,7 +1382,7 @@
           "title": "Based On Run Id"
         },
         "consolidation": {
-          "default": "exact",
+          "default": "semantic",
           "enum": [
             "exact",
             "semantic"
@@ -1421,6 +1470,21 @@
         "snapshot_id"
       ],
       "title": "RunRequest",
+      "type": "object"
+    },
+    "SemanticGrouping": {
+      "additionalProperties": false,
+      "properties": {
+        "groups": {
+          "items": {
+            "$ref": "#/$defs/CandidateGroup"
+          },
+          "maxItems": 40,
+          "title": "Groups",
+          "type": "array"
+        }
+      },
+      "title": "SemanticGrouping",
       "type": "object"
     },
     "SetAside": {
@@ -1802,12 +1866,31 @@
           "title": "Conflicts",
           "type": "array"
         },
+        "consolidation_chunks": {
+          "additionalProperties": {
+            "type": "object"
+          },
+          "title": "Consolidation Chunks",
+          "type": "object"
+        },
         "consolidation_events": {
           "items": {
             "type": "object"
           },
           "title": "Consolidation Events",
           "type": "array"
+        },
+        "consolidation_policy_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consolidation Policy Version"
         },
         "created_at": {
           "title": "Created At",

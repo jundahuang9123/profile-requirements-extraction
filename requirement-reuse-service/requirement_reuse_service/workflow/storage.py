@@ -55,7 +55,8 @@ class PartNotLoaded(RuntimeError):
 # Run parts stored as rows next to the run document, with their shape and empty value.
 # ``catalogues`` maps the hash of each extraction excerpt catalogue to the catalogue.
 RUN_PARTS = {'model_calls': list, 'attempt_history': list, 'baselines': list,
-             'stage_results': dict, 'machine_snapshot': dict, 'catalogues': dict, 'assessment_reuse': dict}
+             'stage_results': dict, 'machine_snapshot': dict, 'catalogues': dict, 'assessment_reuse': dict,
+             'consolidation_chunks': dict}
 _LISTS = {name for name, shape in RUN_PARTS.items() if shape is list}
 _VALUES = {'machine_snapshot'}          # stored as one row; every other dict is keyed per entry
 _MISSING = object()

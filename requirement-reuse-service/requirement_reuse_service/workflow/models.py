@@ -161,6 +161,16 @@ class SetAside(Contract):
     reason: Literal['no_source_link'] = 'no_source_link'
 
 
+class CandidateGroup(Contract):
+    member_ids: list[str] = Field(min_length=1, max_length=40)
+    join_group_id: str | None = None
+    rationale: str = Field(default='', max_length=240)
+
+
+class SemanticGrouping(Contract):
+    groups: list[CandidateGroup] = Field(default_factory=list, max_length=40)
+
+
 class SourceSpanLink(Contract):
     source_span_id: str = Field(min_length=1)
     relation: Literal['supports', 'contradicts', 'contextualizes'] = 'supports'
@@ -195,6 +205,7 @@ class RequirementRecord(Contract):
     revision_id: str
     revision_number: int
     content_hash: str
+    group_id: str | None = None
     raw_statement: str
     normalized_statement: str
     requirement_type: RequirementType
@@ -330,12 +341,14 @@ class RunRequest(Contract):
     # gets a bounded discussion after consolidation. on_request: these go straight to
     # human review, and a reviewer can still open a targeted discussion per candidate.
     discussion: Literal['automatic', 'on_request'] = 'automatic'
-    consolidation: Literal['exact', 'semantic'] = 'exact'
+    consolidation: Literal['exact', 'semantic'] = 'semantic'
     allow_live_provider: bool = False
     name: str = 'RQ1 workflow'
 
     @model_validator(mode='after')
     def panel_mode(self) -> 'RunRequest':
+        if self.strategy == 'rules':
+            self.consolidation = 'exact'
         if self.strategy == 'rules' and self.role_selection != 'manual':
             raise ValueError('Rules baseline does not use role selection.')
         if self.role_selection == 'override':
@@ -351,7 +364,7 @@ class RunRequest(Contract):
 class DeriveRequest(Contract):
     expected_version: int = Field(ge=1)
     name: str = Field(default='Reprocessed requirements', min_length=1)
-    consolidation: Literal['exact', 'semantic'] = 'exact'
+    consolidation: Literal['exact', 'semantic'] = 'semantic'
     discussion: Literal['automatic', 'on_request'] = 'on_request'
     execution_mode: Literal['automatic', 'stepwise'] = 'automatic'
     allow_live_provider: bool = False
@@ -366,6 +379,7 @@ class WorkflowRun(Contract):
     workflow_version: str = WORKFLOW_VERSION
     elicitation_policy_version: str = ELICITATION_POLICY_VERSION
     normalization_policy_version: str | None = None
+    consolidation_policy_version: str | None = None
     schema_version: str = SCHEMA_VERSION
     strategy: str
     derived_from: dict[str, Any] | None = None
@@ -383,6 +397,7 @@ class WorkflowRun(Contract):
     role_runs: list[dict[str, Any]] = Field(default_factory=list)
     role_manifest: dict[str, Any] | None = None
     consolidation_events: list[dict[str, Any]] = Field(default_factory=list)
+    consolidation_chunks: dict[str, dict[str, Any]] = Field(default_factory=dict)
     conflicts: list[ConflictRecord] = Field(default_factory=list)
     deliberations: list[DeliberationCase] = Field(default_factory=list)
     decisions: list[dict[str, Any]] = Field(default_factory=list)

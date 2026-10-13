@@ -116,7 +116,7 @@ def downloadable(value, enabled: bool, filename: str):
 
 
 # Audit parts the workbench does not display; the export always includes them.
-AUDIT_PARTS = ('model_calls', 'machine_snapshot', 'catalogues', 'assessment_reuse')
+AUDIT_PARTS = ('model_calls', 'machine_snapshot', 'catalogues', 'assessment_reuse', 'consolidation_chunks')
 
 
 @router.post('/sources')

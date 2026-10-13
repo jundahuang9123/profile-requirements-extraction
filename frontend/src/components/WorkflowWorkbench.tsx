@@ -44,11 +44,12 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
   const [roleSelection, setRoleSelection] = useState<string>(setup.roleSelection ?? 'automatic');
   const [maxRoles, setMaxRoles] = useState<number>(setup.maxRoles ?? 4);
   const [executionMode, setExecutionMode] = useState<string>(setup.executionMode ?? 'stepwise');
+  const [consolidation, setConsolidation] = useState<string>(setup.consolidation ?? 'semantic');
   const [discussion, setDiscussion] = useState<string>(setup.discussion ?? 'automatic');
   const [showDerive, setShowDerive] = useState(false);
   const [deriveName, setDeriveName] = useState('Reprocessed requirements');
   const [deriveDiscussion, setDeriveDiscussion] = useState('on_request');
-  const [deriveConsolidation, setDeriveConsolidation] = useState('exact');
+  const [deriveConsolidation, setDeriveConsolidation] = useState('semantic');
   const [reuseAssessments, setReuseAssessments] = useState(true);
   const [deriveLive, setDeriveLive] = useState(false);
   const [allowLive, setAllowLive] = useState(false);
@@ -107,7 +108,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     window.addEventListener('hashchange', change);
     return () => window.removeEventListener('hashchange', change);
   }, [run?.run_id]);
-  useEffect(() => { localStorage.setItem('rq1-workflow-setup', JSON.stringify({ selectedSources, tasks, strategy, roles, roleSelection, maxRoles, sourceRole, authority, executionMode, discussion })); }, [selectedSources, tasks, strategy, roles, roleSelection, maxRoles, sourceRole, authority, executionMode, discussion]);
+  useEffect(() => { localStorage.setItem('rq1-workflow-setup', JSON.stringify({ selectedSources, tasks, strategy, roles, roleSelection, maxRoles, sourceRole, authority, executionMode, discussion, consolidation })); }, [selectedSources, tasks, strategy, roles, roleSelection, maxRoles, sourceRole, authority, executionMode, discussion, consolidation]);
   useEffect(() => {
     if (page !== 'decomposition' || run) return;
     let active = true;
@@ -139,7 +140,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     const snapshot = await workflowApi<{ snapshot_id: string }>('/snapshots', {
       source_version_ids: selectedSources, user_tasks: tasks.split('\n').filter(line => line.trim()).map((statement, i) => ({ id: `CQ-${i + 1}`, statement, kind: 'competency_question' })), name: 'Workbench corpus',
     });
-    const created = await workflowApi<Run>('/runs', { snapshot_id: snapshot.snapshot_id, execution_mode: executionMode, strategy, role_ids: roles, role_selection: strategy === 'rules' ? 'manual' : roleSelection, max_roles: maxRoles, discussion: strategy === 'multi_agent' ? discussion : 'automatic', allow_live_provider: allowLive, name: 'Requirements extraction' });
+    const created = await workflowApi<Run>('/runs', { snapshot_id: snapshot.snapshot_id, execution_mode: executionMode, strategy, role_ids: roles, role_selection: strategy === 'rules' ? 'manual' : roleSelection, max_roles: maxRoles, consolidation: strategy === 'rules' ? 'exact' : consolidation, discussion: strategy === 'multi_agent' ? discussion : 'automatic', allow_live_provider: allowLive, name: 'Requirements extraction' });
     setSelectedRevisions([]); setActiveRecord(null); await loadRun(created.run_id); await refreshLists(); navigate('role_selection', created.run_id); onStatus('Workflow saved. Results persist while you browse the steps.');
   });
   const command = async (path: string, payload: unknown) => {
@@ -153,7 +154,16 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
 
   const pageIndex = stages.indexOf(page);
   const savedStageRecords = run?.stage_results?.[page]?.requirements;
-  const resultRecords = ['normalization', 'verification', 'consolidation'].includes(page) && savedStageRecords ? savedStageRecords : ['normalization', 'verification'].includes(page) ? run?.requirements.filter(item => !item.parent_revision_ids.length) ?? [] : currentRecords;
+  const resultRecords = page === 'consolidation' && savedStageRecords
+    ? savedStageRecords.filter(item => (run?.stage_results?.consolidation?.active_revision_ids ?? run?.active_revision_ids ?? []).includes(item.revision_id))
+    : ['normalization', 'verification'].includes(page) && savedStageRecords ? savedStageRecords : ['normalization', 'verification'].includes(page) ? run?.requirements.filter(item => !item.parent_revision_ids.length) ?? [] : currentRecords;
+  const consolidationEvents = run?.stage_results?.consolidation?.consolidation_events ?? run?.consolidation_events ?? [];
+  const mergeEvents = consolidationEvents.filter(event => event.action === 'semantic_merge');
+  const mergedGroupIds = new Set(mergeEvents.map(event => event.group_id));
+  const groupIds = [...new Set(consolidationEvents.map(event => event.group_id).filter((id): id is string => Boolean(id)))];
+  const groupMembers = (groupId: string) => run?.requirements.filter(item => item.group_id === groupId && !item.parent_revision_ids.length) ?? [];
+  const variantsFor = (item: Requirement) => currentRecords.filter(record => record.group_id && record.group_id === item.group_id);
+
   return <main className="workflow-workbench">
     <div className="workflow-intro"><div><h1>{stageNumbers[pageIndex]} · {labels[pageIndex]}</h1><p>Each step has saved results. Step by step for human review, or automatic processing for tests. Results save to the run; review actions save when submitted.</p></div><button onClick={newWorkflow}>New workflow</button></div>
     {error && <div className="workflow-error" role="alert">{error}</div>}
@@ -173,7 +183,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
       <button disabled={busy} onClick={() => setShowDerive(value => !value)}>Re-run steps 4–7 with new settings</button>
       {showDerive && <div><p>Creates a new run that reuses this run's extraction, with no extraction calls. This run stays unchanged.</p>
         <label>Name<input value={deriveName} onChange={event => setDeriveName(event.target.value)} /></label>
-        <label>Consolidation<select value={deriveConsolidation} onChange={event => setDeriveConsolidation(event.target.value)}><option value="exact">Exact copies only (earlier behaviour)</option></select></label>
+        <label>Consolidation<select value={deriveConsolidation} onChange={event => setDeriveConsolidation(event.target.value)}><option value="semantic">Merge candidates with the same meaning</option><option value="exact">Exact copies only (earlier behaviour)</option></select></label>
         <label>Discussion<select value={deriveDiscussion} onChange={event => setDeriveDiscussion(event.target.value)}><option value="on_request">Only when a reviewer asks</option><option value="automatic">Discuss flagged candidates automatically</option></select></label>
         <label className="workflow-check"><input type="checkbox" checked={reuseAssessments} onChange={event => setReuseAssessments(event.target.checked)} />Reuse identical assessments under the same assessment policy</label>
         {run.strategy === 'multi_agent' && <label className="workflow-check"><input type="checkbox" checked={deriveLive} onChange={event => setDeriveLive(event.target.checked)} />Allow downstream calls to the configured provider</label>}
@@ -209,7 +219,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     </section>}
     {page === 'role_selection' && (run ? <>
           <RoleManifestView key={`${run.run_id}-${run.role_manifest?.manifest_hash ?? 'pending'}`} run={run} busy={busy} inspect={id => void inspectEvidence(id)} override={(roleOverrides, rationale, limit, live) => act(async () => {
-            const created = await workflowApi<Run>('/runs', { snapshot_id: run.snapshot_id, execution_mode: run.request?.execution_mode ?? 'stepwise', discussion: run.request?.discussion ?? 'automatic', strategy: run.strategy, role_selection: 'override', role_overrides: roleOverrides, based_on_run_id: run.run_id, override_rationale: rationale, max_roles: limit, allow_live_provider: live, name: 'Requirements extraction · edited panel' });
+            const created = await workflowApi<Run>('/runs', { snapshot_id: run.snapshot_id, execution_mode: run.request?.execution_mode ?? 'stepwise', discussion: run.request?.discussion ?? 'automatic', consolidation: run.request?.consolidation ?? 'exact', strategy: run.strategy, role_selection: 'override', role_overrides: roleOverrides, based_on_run_id: run.run_id, override_rationale: rationale, max_roles: limit, allow_live_provider: live, name: 'Requirements extraction · edited panel' });
             setActiveRecord(null); setSelectedRevisions([]); await loadRun(created.run_id); await refreshLists(); onStatus('New run saved with your panel override.');
           })} />
       {run.role_manifest?.status === 'not_applicable' && <section className="workflow-panel"><h2>Rules baseline</h2><p>This offline baseline does not select stakeholder agents. Continue to extract rule-based observations.</p></section>}
@@ -221,6 +231,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
         </select></label>
         {strategy !== 'rules' && <><label>Stakeholder panel<select value={roleSelection} onChange={event => setRoleSelection(event.target.value)}><option value="automatic">Select roles from sources and CQs</option><option value="manual">Use a fixed panel</option></select></label>{roleSelection === 'automatic' && <label>Maximum stakeholder roles<input type="number" min={1} max={8} value={maxRoles} onChange={event => setMaxRoles(Number(event.target.value))} /></label>}</>}
         {strategy !== 'rules' && roleSelection === 'manual' && <details><summary>{roles.length} selected perspectives</summary>{perspectives.map(role => <label key={role} className="workflow-check"><input type="checkbox" checked={roles.includes(role)} onChange={event => setRoles(previous => event.target.checked ? [...previous, role] : previous.filter(value => value !== role))} />{humanLabel(role)}</label>)}</details>}
+        {strategy !== 'rules' && <label>Consolidation<select value={consolidation} onChange={event => setConsolidation(event.target.value)}><option value="semantic">Merge candidates with the same meaning</option><option value="exact">Exact copies only (earlier behaviour)</option></select></label>}
         {strategy === 'multi_agent' && <label>Discussion<select value={discussion} onChange={event => setDiscussion(event.target.value)}><option value="automatic">Discuss flagged candidates automatically</option><option value="on_request">Only when a reviewer asks · fewer model calls</option></select></label>}
         {strategy === 'multi_agent' && <label className="workflow-check"><input type="checkbox" checked={allowLive} onChange={event => setAllowLive(event.target.checked)} />Allow calls to the configured model provider for this run</label>}
         <p className="workflow-muted">Offline modes require human semantic and quality assessment. Agent mode sends the selected corpus to your configured provider.</p>
@@ -237,6 +248,16 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
         return <article key={item.observation_id}><strong>{observation?.statement ?? item.observation_id}</strong><p>{roleLabel(run, item.role_id)} · extractor support: {humanLabel(observation?.support_level ?? 'unknown')}</p></article>;
       })}<p>A reviewer can add a requirement with supporting evidence through the existing requirement editor.</p></details>}
     </section>}
+    {run && page === 'consolidation' && run.consolidation_policy_version === 'rq1-semantic-consolidation-v1' && <section className="workflow-panel">
+      <p>{run.metrics.normalized_count as number ?? run.stage_results?.normalization?.requirements?.length ?? 0} candidates → {resultRecords.length} review items: {mergedGroupIds.size} merged groups, {run.conflicts.filter(c => c.kind === 'obligation').length} obligation conflicts, {mergeEvents.reduce((n, e) => n + (e.attached_failed?.length ?? 0), 0)} failed duplicates attached, {consolidationEvents.filter(e => e.action === 'semantic_grouping_unavailable').length} chunks fell back to exact merging.</p>
+      <p>Grouping is a model judgment. Members and differing obligation variants remain available for review and splitting.</p>
+      {groupIds.map(id => { const members = groupMembers(id); const variants = resultRecords.filter(item => item.group_id === id); return <details key={id}>
+        <summary>{variants[0]?.normalized_statement ?? id} · {members.length} proposals · {variants.length} obligation variants</summary>
+        <p>Roles: {[...new Set(members.flatMap(item => item.contributing_roles))].map(role => roleLabel(run, role)).join(', ')}</p>
+        {variants.map(item => <p key={item.revision_id}>{humanLabel(item.normalized_intent.obligation_hint)} · {members.filter(member => member.normalized_intent.obligation_hint === item.normalized_intent.obligation_hint).length} proposals · {humanLabel(item.lifecycle_state)}</p>)}
+        {members.map(item => <article key={item.revision_id}><strong>{item.normalized_statement}</strong><p>Source {item.verification?.status ?? 'pending'} · {humanLabel(item.normalized_intent.obligation_hint)} · {item.contributing_roles.map(role => roleLabel(run, role)).join(', ')}</p></article>)}
+      </details>; })}
+    </section>}
     {run && ['normalization', 'verification', 'consolidation', 'adjudication'].includes(page) && <>
           <section className="workflow-panel"><h2>{labels[stages.indexOf(page)]}</h2>
             {!resultRecords.length && <p>No saved candidates for this step yet. Empty outputs and source evidence remain available for review.</p>}
@@ -244,6 +265,9 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
               <label className="workflow-check"><input type="checkbox" checked={selectedRevisions.includes(item.revision_id)} onChange={event => setSelectedRevisions(previous => event.target.checked ? [...previous, item.revision_id] : previous.filter(id => id !== item.revision_id))} /><strong>{item.normalized_statement}</strong></label>
               <div className="workflow-tags"><span>{humanLabel(item.lifecycle_state)}</span><span>Source {item.verification?.status ?? 'pending'}</span><span>Support {item.qualification?.support ?? 'pending'}</span></div>
               <small>{humanLabel(item.requirement_type)} · {item.contributing_roles.map(id => roleLabel(run, id)).join(', ')}</small>
+              {!!item.parent_revision_ids.length && <details><summary>Merged from {item.parent_revision_ids.length} proposals (roles: {item.contributing_roles.map(id => roleLabel(run, id)).join(', ')}) · Show members</summary>{item.parent_revision_ids.map(id => { const member = run.requirements.find(r => r.revision_id === id); return <p key={id}>{member?.normalized_statement ?? id} · Source {member?.verification?.status ?? 'pending'}</p>; })}</details>}
+              {item.group_id && !!consolidationEvents.find(e => e.group_id === item.group_id && e.attached_failed?.length) && <details><summary>Show failed members retained for evidence repair</summary>{groupMembers(item.group_id).filter(member => member.verification?.status === 'fail').map(member => <p key={member.revision_id}>{member.normalized_statement} · Source fail</p>)}</details>}
+              {item.group_id && variantsFor(item).length > 1 && <p><a href={`#/workflow/${run.run_id}/deliberation`}>Obligation variant: {humanLabel(item.normalized_intent.obligation_hint)} · {variantsFor(item).findIndex(variant => variant.revision_id === item.revision_id) + 1} of {variantsFor(item).length} · View conflict</a></p>}
               <button onClick={() => { setActiveRecord(currentRecords.find(current => current.revision_id === item.revision_id || current.parent_revision_ids.includes(item.revision_id))?.revision_id ?? item.revision_id); navigate('adjudication'); }}>Inspect and review</button>
             </article>)}</div>
             {page === 'adjudication' && selectedRevisions.length > 1 && <MergeEditor records={currentRecords.filter(r => selectedRevisions.includes(r.revision_id))} busy={busy || !['awaiting_human', 'completed'].includes(run.status)} submit={(draft) => act(async () => { await command('/decisions', { expected_version: run.version, idempotency_key: commandKey(), action: 'merge', revision_ids: selectedRevisions, rationale: draft.rationale, drafts: [draft] }); setSelectedRevisions([]); setActiveRecord(null); })} />}

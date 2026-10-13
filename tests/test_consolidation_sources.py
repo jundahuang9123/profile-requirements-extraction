@@ -20,7 +20,7 @@ def test_consolidation_parses_each_source_once_for_all_merged_candidates(tmp_pat
     source = register_source(store, SourceRequest(artifact=ArtifactPayload(name='needs.md', content=NEEDS),
                                                   source_role='stakeholder_need'))
     snapshot = freeze_snapshot(store, SnapshotRequest(source_version_ids=[source['source_version_id']]))
-    run = new_run(store, RunRequest(snapshot_id=snapshot['snapshot_id'], strategy='multi_agent', role_ids=ROLES))
+    run = new_run(store, RunRequest(consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='multi_agent', role_ids=ROLES))
     parsed = []
     parse = evidence.decompose
     monkeypatch.setattr(evidence, 'decompose', lambda item: parsed.append(item.source_version_id) or parse(item))

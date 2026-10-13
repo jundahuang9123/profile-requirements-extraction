@@ -30,6 +30,9 @@ def workflow_metrics(run: dict) -> dict:
     manifest = run.get('role_manifest') or {}
     aside = frozen.get('set_aside_observations', run.get('set_aside_observations', []))
     observations = {o['observation_id']: o for o in frozen.get('observations', run.get('observations', []))}
+    consolidation_events = frozen.get('consolidation_events', run.get('consolidation_events', []))
+    grouping_calls = [c for c in calls if c.get('output_contract') == 'SemanticGrouping']
+    semantic_events = [e for e in consolidation_events if e.get('action') == 'semantic_merge']
     return {'schema_version': 'rq1-workflow-evaluation-v2', 'run_id': run['run_id'],
         'snapshot_id': run['snapshot_id'], 'strategy': run['strategy'], 'implementation_hash': run['implementation_hash'],
         'elicitation_policy_version': run.get('elicitation_policy_version'),
@@ -39,6 +42,18 @@ def workflow_metrics(run: dict) -> dict:
         'normalization_policy_version': run.get('normalization_policy_version'),
         'set_aside': {'count': len(aside), 'by_role': dict(Counter(o['role_id'] for o in aside)),
             'by_support_label': dict(Counter(observations.get(o['observation_id'], {}).get('support_level', 'unknown') for o in aside))},
+        'consolidation': {
+            'mode': 'semantic' if run.get('consolidation_policy_version') == 'rq1-semantic-consolidation-v1' else 'exact',
+            'policy_version': run.get('consolidation_policy_version') or 'legacy-exact',
+            'input_records': sum(not r.get('parent_revision_ids') for r in raw), 'review_items': len(machine),
+            'merged_groups': len({e['group_id'] for e in semantic_events}) + sum(
+                e.get('action') == 'equivalent_merge' for e in consolidation_events),
+            'obligation_conflicts': sum(c['kind'] == 'obligation' for c in frozen.get('conflicts', [])),
+            'attached_failed_duplicates': len({rid for e in semantic_events for rid in e.get('attached_failed', [])}),
+            'fallback_chunks': sum(e.get('action') == 'semantic_grouping_unavailable' for e in consolidation_events),
+            'grouping_calls': len(grouping_calls), 'grouping_failures': sum(c['status'] == 'failed' for c in grouping_calls),
+            'merged_assessments_reused': sum(e.get('assessment_reused', False) for e in semantic_events),
+            'grouping_latency_seconds_sum': sum(c.get('latency_seconds', 0) for c in grouping_calls)},
         'machine': _summary(machine), 'current_review': _summary(current), 'human_accepted': _summary(accepted),
         'machine_revision_ids': [r['revision_id'] for r in machine],
         'human_added_revision_ids': [rid for d in run['decisions'] if d['action'] == 'add' for rid in d['result_revision_ids']],
@@ -74,6 +89,7 @@ def workflow_metrics(run: dict) -> dict:
             'calls_without_token_usage': len(calls) - len(usage_calls),
             'monetary_cost': None},
         'limitations': ['Task-link presence is not expert-assessed competency-question coverage.',
+            'Semantic grouping is a model judgment; report consolidation quality only against independently annotated duplicate groups.',
             'No precision/recall without an independently adjudicated reference set and equivalence mapping.',
             'Token caps are reservations. Usage is measured only when the provider reports it; partial recorded totals are not complete run usage. Monetary cost is unavailable.',
             'Sequential call latency sum is not wall-clock duration when perspectives run concurrently.']}
