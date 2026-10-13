@@ -3,7 +3,7 @@ import pytest
 from test_resume_discussions import setup
 from test_semantic_consolidation import inputs, revised
 from requirement_reuse_service.workflow import needs
-from requirement_reuse_service.workflow.semantic_consolidation import NEED_SEMANTIC_POLICY
+from requirement_reuse_service.workflow.semantic_consolidation import NEED_SEMANTIC_POLICY, grouped_block
 from requirement_reuse_service.workflow.base_profile import load_profile
 
 
@@ -49,7 +49,8 @@ def need_inputs(setup):
 
 def test_underlying_capability_content_merge_and_obligation_alternatives(setup):
     store,run,records=need_inputs(setup); client=NeedsClient()
-    active,events,_=needs.process_needs(store,run,records,client,None)
+    groups,_=grouped_block(store,run,'underlying_needs',records,client,{})
+    active,events=needs.write_needs(store,run,groups,client,None)
     assert len(active)==1
     record=active[0]
     assert record.need_statement == record.normalized_statement

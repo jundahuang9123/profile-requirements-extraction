@@ -16,7 +16,7 @@ from .semantic_consolidation import grouped_block, partition_exact, NEED_SEMANTI
 
 POLICIES = {'source_check': 'rq1-original-source-v2.1', 'grouping': NEED_SEMANTIC_POLICY,
             'need_statement': 'rq1-need-statement-v1', 'classification': 'rq1-generic-domain-v1', 'scoping': 'rq1-use-case-necessity-v1',
-            'scope_critic': 'rq1-use-case-critic-v1'}
+            'scope_critic': 'rq1-use-case-critic-v1', 'assessment': 'rq1-need-support-v1'}
 MAX_WRITE_GROUPS = 20
 MAX_PAYLOAD = 24000
 
@@ -302,7 +302,8 @@ def process_needs(store, run, records, client, profile):
                records=[n.model_dump(mode='json') for n in needs], events=events)
     kept = classify_needs(store, run, needs, client)
     kept = scope_needs(store, run, kept, records, client)
-    # Later phases assess and rank retained needs.
+    assess_needs(store, run, kept, client)
+    # Ranking follows support assessment.
     save_need_records(store, run, records, needs)
     return kept, [*audit, *events], []
 
@@ -499,3 +500,34 @@ def scope_needs(store, run, needs, candidates, client):
         set_aside_count=len(needs)-len(retained),blocked_count=len(blocked),linker=linker_audit,
         kept_links=kept_links)
     return retained
+
+
+
+def assess_needs(store, run, needs, client):
+    from .engine import assess, verify
+    assessed=0; blocked=0
+    for need in needs:
+        refresh_need(need)
+        need.verification=verify(store,need,run['evidence_ids'])
+        key=digest([POLICIES['assessment'],need.content_hash,need.need_integrity_hash,
+                    client.describe() if client else 'offline'])
+        saved=store.get_run(run['run_id'],omit=tuple(p for p in RUN_PARTS if p!='need_chunks'))['need_chunks'].get(key)
+        if saved:
+            if saved.get('checkpoint_hash')!=digest({k:v for k,v in saved.items() if k!='checkpoint_hash'}):
+                raise ValueError('Need assessment checkpoint hash mismatch.')
+            from .models import Qualification
+            need.qualification=Qualification.model_validate(saved['qualification'])
+        else:
+            # One logical assessment per retained need, with at most two bounded
+            # generations for output recovery. Source failures make no model call.
+            need.qualification=assess(store,need,client)
+            saved={'step':'assessment','policy_version':POLICIES['assessment'],
+                   'need_id':need.requirement_id,'qualification':need.qualification.model_dump(mode='json')}
+            saved['checkpoint_hash']=digest(saved)
+            store.mutate(run['run_id'],None,'need_assessment_saved',lambda r:r['need_chunks'].__setitem__(key,saved))
+        if need.verification['status']!='pass':
+            need.lifecycle_state='blocked_evidence';blocked+=1
+        else:
+            need.lifecycle_state='awaiting_human';assessed+=1
+    step_saved(store,run,'assessment',input_count=len(needs),assessed_count=assessed,blocked_count=blocked,
+        records=[n.model_dump(mode='json') for n in needs])
