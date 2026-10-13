@@ -427,4 +427,5 @@ At the start of this plan, the previous work-plan changes were already committed
 and pushed to `implement-rq1-workflow`. An additional Phase 0 pull request containing
 those same changes would have no diff. The extension work is therefore based on
 that pushed state on its separate `codex/extend-dcat-ap` branch; its pull request
-records the actual delivery conditions.
+records the actual delivery conditions. That branch was renamed to `main` on
+13 October 2026, preserving its history.

@@ -15,7 +15,7 @@ from .engine import (HUMAN_REQUEST_PREFIX, UNFINISHED_CASE_STATES, active_record
                      apply_base_check, retain_base_findings)
 from .evidence import register_source, resolve_evidence
 from .models import (AdditionRequest, AssessmentRequest, BaselineRequest, DecisionRequest, EvidenceUnit,
-                     MessageRequest, Observation, RunRequest, DeriveRequest, SnapshotRequest, SourceRequest)
+                     MessageRequest, RestoreRequest, Observation, RunRequest, DeriveRequest, SnapshotRequest, SourceRequest)
 from .storage import ConflictError, Store, now, uid
 from ..llm.config import runtime_config_status, set_runtime_config
 from .role_selection import ensure_selection_resumable
@@ -117,7 +117,7 @@ def downloadable(value, enabled: bool, filename: str):
 
 
 # Audit parts the workbench does not display; the export always includes them.
-AUDIT_PARTS = ('model_calls', 'machine_snapshot', 'catalogues', 'assessment_reuse', 'consolidation_chunks', 'base_check_audit')
+AUDIT_PARTS = ('model_calls', 'machine_snapshot', 'catalogues', 'assessment_reuse', 'consolidation_chunks', 'base_check_audit', 'need_chunks')
 
 
 @router.post('/sources')
@@ -416,7 +416,11 @@ def add_requirement(run_id: str, request: AdditionRequest):
             statement=draft.statement, requirement_type=draft.requirement_type, intent=draft.intent,
             evidence_links=draft.evidence_links, scope=draft.scope, rationale=draft.rationale)
         record = record_from_observation(run_id, observation)
-        apply_base_check(store, run, record)
+        if run['request'].get('output_form') == 'needs':
+            from .needs import prepare_human_need
+            prepare_human_need(store, run, record, [])
+        else:
+            apply_base_check(store, run, record)
         qualify_record(store, record, run['evidence_ids'])
         for other in active_records(run, run['active_revision_ids']):
             relation = lexical_relation(record, other)
@@ -513,3 +517,21 @@ def get_baseline(run_id: str, baseline_id: str, download: bool = False):
             raise KeyError(baseline_id)
         return baseline
     return downloadable(translate(read), download, 'rq1-validated-baseline-v2.json')
+
+
+@router.get('/base-profiles/{profile_id}/needs')
+def base_needs_catalogue(profile_id: str, download: bool = False):
+    from .base_needs import load_catalogue
+    return downloadable(translate(lambda: load_catalogue(profile_id)), download, profile_id+'.needs.json')
+
+
+@router.get('/runs/{run_id}/needs')
+def export_needs(run_id: str, download: bool = False):
+    from .needs import needs_export
+    return downloadable(translate(lambda: needs_export(Store(), run_id)), download, 'needs.json')
+
+
+@router.post('/runs/{run_id}/restore')
+def restore_aside(run_id: str, request: RestoreRequest):
+    from .needs import restore_need
+    return translate(lambda: restore_need(Store(), run_id, request, actor()))

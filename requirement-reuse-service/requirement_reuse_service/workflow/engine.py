@@ -266,6 +266,8 @@ def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') ->
     base_context = extraction_base_context(request.base_profile_id, base_metadata.get('base_profile_sha256'))
     snapshot = store.get('snapshot', request.snapshot_id)
     request.scoping = request.scoping or ('use_cases' if snapshot['user_tasks'] else 'off')
+    if request.output_form == 'needs' and request.scoping == 'use_cases' and not snapshot['user_tasks']:
+        raise ValueError('Use-case scoping requires declared tasks; provide them or choose scoping off.')
     # Reject bad or obsolete ingestion before creating a job or contacting a model.
     units = [store.get('evidence', identifier) for identifier in snapshot['evidence_ids']]
     cache = {}
@@ -295,9 +297,12 @@ def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') ->
                       normalization_policy_version=NEEDS_NORMALIZATION_POLICY if request.output_form == 'needs' else NORMALIZATION_POLICY_VERSION,
                       consolidation_policy_version=NEED_SEMANTIC_POLICY if request.output_form == 'needs' else SEMANTIC_POLICY if request.consolidation == 'semantic' else EXACT_POLICY,
                       implementation_hash=digest({path.name: digest(path.read_bytes()) for path in Path(__file__).parent.glob('*.py')}))
+    if request.output_form == 'needs':
+        from .needs import POLICIES
+        run.needs_policies = dict(POLICIES)
     run.stages['acquisition'] = 'completed'
     run.stages['decomposition'] = 'completed'
-    if base_metadata:
+    if base_metadata or request.output_form == 'needs':
         for stage in ('acquisition', 'decomposition'):
             run.stage_results[stage] = {**{key: getattr(run, key) for key in STAGE_RESULT_FIELDS[stage]}, **base_metadata,
                                        **{key: getattr(run, key) for key in RUN_POLICY_FIELDS}}
@@ -332,7 +337,10 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
         # the base; silently reviving it would contradict the workbench selection.
         options.pop('base_profile_id', None)
     settings, base_metadata = selected_base(RunRequest.model_validate(options))
-    settings.scoping = settings.scoping or ('use_cases' if store.get('snapshot', source['snapshot_id'])['user_tasks'] else 'off')
+    tasks = store.get('snapshot', source['snapshot_id'])['user_tasks']
+    settings.scoping = settings.scoping or ('use_cases' if tasks else 'off')
+    if settings.output_form == 'needs' and settings.scoping == 'use_cases' and not tasks:
+        raise ValueError('Use-case scoping requires declared tasks; provide them in a new snapshot or choose scoping off.')
     configured_client(settings)  # Validate permission/configuration; sends no request.
     run = WorkflowRun(run_id=f'run-{uuid.uuid4().hex}', name=settings.name,
         snapshot_id=source['snapshot_id'], strategy=source['strategy'], request=settings,
@@ -348,6 +356,9 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
             'observations_hash': digest(source['observations']), 'role_runs_hash': digest(source['role_runs']),
             'elicitation_policy_version': source.get('elicitation_policy_version'),
             'reuse_assessments': request.reuse_assessments, 'actor': actor, 'rationale': request.rationale})
+    if settings.output_form == 'needs':
+        from .needs import POLICIES
+        run.needs_policies = dict(POLICIES)
     for stage in ('acquisition', 'decomposition', 'role_selection', 'elicitation'):
         run.stages[stage] = 'completed'
         run.stage_results[stage] = deepcopy(source.get('stage_results', {}).get(stage) or
@@ -878,6 +889,12 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
                 outputs.append(result.model_dump(mode='json'))
                 try:
                     materialized = [materialize_observation(proposal, catalogue) for proposal in result.observations]
+                    if run['request'].get('output_form') == 'needs':
+                        for observation in materialized:
+                            linked = observation.supports_user_tasks
+                            justified = [j.task_id for j in observation.task_justifications]
+                            if set(linked) != set(justified) or len(justified) != len(set(justified)) or set(linked) - task_ids:
+                                raise ValueError('Every extraction task link requires exactly one justification and a supplied task ID.')
                 except ValueError as exc:
                     # A schema-valid answer with an unknown or repeated excerpt link. The raw
                     # response stays in the audit; none of its observations is accepted.
@@ -893,11 +910,6 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
                     continue
                 selection.update(status='materialized', observation_count=len(materialized))
                 for index, observation in enumerate(materialized):
-                    if run['request'].get('output_form') == 'needs':
-                        linked = observation.supports_user_tasks
-                        justified = [j.task_id for j in observation.task_justifications]
-                        if set(linked) != set(justified) or len(justified) != len(set(justified)) or set(linked) - task_ids:
-                            raise ValueError('Every extraction task link requires exactly one justification and a supplied task ID.')
                     observation.role_id = role.id
                     invalid = set(observation.supports_user_tasks) - task_ids
                     if invalid:
@@ -1168,6 +1180,8 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
         if run.get('base_check_policy_version'):
             active_stage = 'normalization'
         selected_profile = checked_base_profile(run)
+        need_profile = (_load_pinned_profile(run['base_profile_id'], run.get('base_profile_sha256'))[0]
+                        if run['request'].get('output_form') == 'needs' and run.get('base_profile_id') else selected_profile)
         active_stage = 'role_selection'
         if run.get('derived_from'):
             ensure_elicitation_resumable(run)
@@ -1278,7 +1292,7 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
                 if request.output_form == 'needs':
                     from .terms import collect_hints
                     record.qualification = None
-                    record.rq2_hints = collect_hints(record.raw_statement, record.evidence_links, selected_profile, record.revision_id, record.rq2_hints)
+                    record.rq2_hints = collect_hints(record.raw_statement, record.evidence_links, need_profile, record.revision_id, record.rq2_hints)
                     record.base_check_findings = []
                 retain_base_findings(record)
             normalized_records = [r.model_dump(mode='json') for r in records]
@@ -1311,6 +1325,11 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
                     r['requirements'] = [record.model_dump(mode='json') if item['revision_id'] == record.revision_id else item
                                          for item in r['requirements']]
                 store.mutate(run_id, None, 'requirement_assessed', checkpoint)
+            if request.output_form == 'needs':
+                from .needs import step_saved
+                step_saved(store, run, 'source_check', input_count=len(records),
+                           passed_count=sum(r.verification['status'] == 'pass' for r in records),
+                           blocked_count=sum(r.verification['status'] != 'pass' for r in records), model_calls=0)
             run = patch('verification', {'requirements': [r.model_dump(mode='json') for r in records], 'status': 'consolidating'})
             if pause('verification'):
                 return
@@ -1322,7 +1341,7 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             records = [r for r in records if not r.parent_revision_ids]
             if request.output_form == 'needs':
                 from .needs import process_needs
-                active, events, conflicts = process_needs(store, run, records, client, selected_profile)
+                active, events, conflicts = process_needs(store, run, records, client, need_profile)
             else:
                 active, events, conflicts = consolidate(store, run, records, client, previous=prior_records)
             all_records = {r.revision_id: r.model_dump(mode='json') for r in [*records, *active]}
@@ -1333,17 +1352,22 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
                 omit=tuple(part for part in RUN_PARTS if part != 'base_check_audit'))['base_check_audit'])
             base_summary = base_check_metrics({**run, 'requirements': list(all_records.values()),
                 'active_revision_ids': [r.revision_id for r in active], 'base_check_audit': frozen_base_audit})
+            needs_extras = {}
+            if request.output_form == 'needs':
+                completed_needs = store.get_run(run_id, omit=tuple(p for p in RUN_PARTS if p != 'need_steps'))
+                needs_extras = {'need_steps': completed_needs['need_steps'], 'base_needs_catalogue': completed_needs.get('base_needs_catalogue'),
+                                'set_aside_observations': completed_needs['set_aside_observations']}
             run = patch('consolidation', {'requirements': list(all_records.values()),
                         'active_revision_ids': [r.revision_id for r in active], 'consolidation_events': events,
                         'conflicts': conflicts, 'metrics': {**run['metrics'], 'base_check': base_summary},
-                        'status': 'routing'}, result_extras={'base_check': base_summary})
+                        'status': 'routing'}, result_extras={'base_check': base_summary, **needs_extras})
             def freeze_machine(r):
                 r['machine_snapshot'] = {'requirements': r['requirements'], 'active_revision_ids': r['active_revision_ids'],
                     'observations': r['observations'], 'role_runs': r['role_runs'], 'conflicts': r['conflicts'],
                     'consolidation_events': r['consolidation_events'], 'role_manifest': r.get('role_manifest'), 'created_at': now()}
                 r['machine_snapshot'].update(set_aside_observations=r.get('set_aside_observations', []),
                     **{key: r.get(key) for key in RUN_POLICY_FIELDS},
-                    base_check_audit=frozen_base_audit, base_check=base_summary)
+                    base_check_audit=frozen_base_audit, base_check=base_summary, **{k:v for k,v in needs_extras.items() if k!='set_aside_observations'})
             store.mutate(run_id, None, 'machine_output_frozen', freeze_machine)
             if pause('consolidation'):
                 return
@@ -1543,6 +1567,13 @@ def active_records(run: dict, identifiers: list[str]) -> list[RequirementRecord]
     return [RequirementRecord.model_validate(by_id[identifier]) for identifier in identifiers]
 
 
+def require_need_form(run, record):
+    from .terms import detect_terms
+    profile = _load_pinned_profile(run['base_profile_id'], run.get('base_profile_sha256'))[0] if run.get('base_profile_id') else None
+    if not record.need_statement or detect_terms(record.need_statement, profile):
+        raise ValueError('Repair the RQ1 need form before acceptance: state a term-free need and keep terms separately as hints.')
+
+
 def eligible(record: RequirementRecord):
     if any(f.severity in {'blocking', 'review'} for f in record.base_check_findings):
         raise ValueError('Resolve required base-profile findings before acceptance.')
@@ -1577,6 +1608,8 @@ def decide(store: Store, run_id: str, request: DecisionRequest, actor: str) -> d
         decision_id = uid('decision', run_id, request.idempotency_key)
         if request.action == 'accept':
             for record in records:
+                if run['request'].get('output_form') == 'needs':
+                    require_need_form(run, record)
                 record.verification = verify(store, record, run['evidence_ids'])
                 eligible(record)
                 for conflict in run['conflicts']:
@@ -1599,7 +1632,11 @@ def decide(store: Store, run_id: str, request: DecisionRequest, actor: str) -> d
                     number=max(r.revision_number for r in records) + 1,
                     requirement_id=records[0].requirement_id if request.action == 'edit' else None,
                     parents=[r.revision_id for r in records])
-                apply_base_check(store, run, new)
+                if run['request'].get('output_form') == 'needs':
+                    from .needs import prepare_human_need
+                    prepare_human_need(store, run, new, records)
+                else:
+                    apply_base_check(store, run, new)
                 qualify_record(store, new, run['evidence_ids'])
                 new_records.append(new)
         state = {'accept': 'accepted', 'reject': 'rejected', 'defer': 'deferred',
@@ -1651,6 +1688,8 @@ def publish_baseline(store: Store, run_id: str, request: BaselineRequest, actor:
         if any(c['status'] in {'queued', 'running'} and set(c['revision_ids']) & set(request.revision_ids) for c in run['deliberations']):
             raise ValueError('Complete or explicitly close pending deliberation before publishing.')
         for record in records:
+            if run['request'].get('output_form') == 'needs':
+                require_need_form(run, record)
             if record.lifecycle_state != 'accepted':
                 raise ValueError('Baseline may contain only human-accepted current revisions.')
             fresh_verification = verify(store, record, run['evidence_ids'])

@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
+import { NeedSummaryView } from './NeedSummaryView';
+import { NeedAsidesView } from './NeedAsidesView';
 import { RoleManifestView } from './RoleManifestView';
 import { BaseCheck, BaseProfileSummary, Baseline, BenchmarkImport, BenchmarkSummary, Case, commandKey, Evidence, EvidenceSummary, Snapshot, Link, Requirement, Run, RunSummary, SetAside, Source, workflowApi } from '../lib/workflowApi';
 
 const stages = ['acquisition', 'decomposition', 'role_selection', 'elicitation', 'normalization', 'verification', 'consolidation', 'deliberation', 'adjudication', 'baseline'];
-const labels = ['Sources & scope', 'Evidence units', 'Stakeholder roles', 'Independent extraction', 'Normalized candidates', 'Evidence & quality checks', 'Consolidation', 'Discussion', 'Human review', 'Validated baseline'];
+const labels = ['Sources & scope', 'Evidence units', 'Stakeholder roles', 'Independent extraction', 'Normalized candidates', 'Original-source checks', 'Grouped needs & scope', 'Discussion', 'Human review', 'Validated baseline'];
 const stageNumbers = ['1', '2', '3a', '3b', '4', '5', '6', '7', '8', '9'];
 const perspectives = ['standards_conformance', 'dcat_reuse', 'construction_domain', 'aas_idta', 'ifc_bim', 'dataspace_interoperability', 'publisher_feasibility', 'consumer_discovery', 'stewardship_governance', 'access_rights_policy', 'fair_quality_provenance', 'minimality_scope'];
 const humanLabel = (value: string) => value.replace(/_/g, ' ');
 const roleLabel = (run: Run, id: string) => run.role_manifest?.selected_roles.find(role => role.role_id === id)?.label ?? humanLabel(id);
-const asideReasons: Record<SetAside['reason'], string> = { no_source_link: 'No source link', inherited_from_base: 'Inherited from the base', declared_not_extension: 'Declared not an extension' };
+const asideReasons: Record<SetAside['reason'], string> = { no_source_link: 'No source link', inherited_from_base: 'Inherited from the base', declared_not_extension: 'Declared not an extension', base_specification_only: 'Base specification only', generic_need_served_by_base: 'Generic need served by base', no_use_case: 'No necessary use-case link' };
 // Routed discussions that resume runs again; reviewer-requested ones are never repeated.
 const unfinishedCase = (item: Case) => ['queued', 'running', 'failed', 'cancelled'].includes(item.status) && !item.triggers.some(trigger => trigger.startsWith('human_request: '));
 const leaseActive = (run: Run) => Boolean(run.worker_id) && (run.job_lease_until ?? 0) * 1000 > Date.now();
@@ -18,7 +20,7 @@ const resumable = (run: Run) => ['failed', 'cancelled'].includes(run.status)
 const stageState = (run: Run, stage: string) => stage === 'elicitation' && run.stages[stage] === 'completed' && run.role_runs.some(role => role.status === 'failed') ? 'partial' : stage === 'role_selection' && run.stages[stage] !== 'completed' && ['failed', 'cancelled'].includes(run.status) ? run.status : run.stages[stage] ?? 'pending';
 
 function savedSetup() {
-  try { return JSON.parse(localStorage.getItem('rq1-workflow-setup') ?? '{}'); } catch { return {}; }
+  try { return JSON.parse(localStorage.getItem('rq1-needs-setup') ?? '{}'); } catch { return {}; }
 }
 function currentRoute() {
   const match = window.location.hash.match(/^#\/workflow\/([^/]+)\/([^/]+)$/);
@@ -46,19 +48,20 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
   const [text, setText] = useState('Data publishers must describe the geographic coverage of each dataset.\nEach dataset should include its access rights.');
   const [sourceRole, setSourceRole] = useState<string>(setup.sourceRole ?? 'stakeholder_need');
   const [authority, setAuthority] = useState<string>(setup.authority ?? '');
-  const [tasks, setTasks] = useState<string>(setup.tasks ?? 'Which datasets cover the area I need?');
-  const [strategy, setStrategy] = useState<string>(setup.strategy ?? 'rules');
+  const [tasks, setTasks] = useState<string>(setup.tasks ?? '');
+  const [scoping, setScoping] = useState<string>(setup.scoping ?? 'auto');
+  const [deriveScoping, setDeriveScoping] = useState<string>('auto');
+  const [strategy, setStrategy] = useState<string>(setup.strategy ?? 'multi_agent');
   const [roles, setRoles] = useState<string[]>(setup.roles ?? ['consumer_discovery', 'publisher_feasibility']);
   const [roleSelection, setRoleSelection] = useState<string>(setup.roleSelection ?? 'automatic');
   const [maxRoles, setMaxRoles] = useState<number>(setup.maxRoles ?? 4);
   const [executionMode, setExecutionMode] = useState<string>(setup.executionMode ?? 'stepwise');
   const [consolidation, setConsolidation] = useState<string>(setup.consolidation ?? 'semantic');
-  const [discussion, setDiscussion] = useState<string>(setup.discussion ?? 'automatic');
+  const [discussion, setDiscussion] = useState<string>(setup.discussion ?? 'on_request');
   const [showDerive, setShowDerive] = useState(false);
   const [deriveName, setDeriveName] = useState('Reprocessed requirements');
   const [deriveDiscussion, setDeriveDiscussion] = useState('on_request');
   const [deriveConsolidation, setDeriveConsolidation] = useState('semantic');
-  const [reuseAssessments, setReuseAssessments] = useState(true);
   const [deriveLive, setDeriveLive] = useState(false);
   const [deriveBaseProfileId, setDeriveBaseProfileId] = useState('');
   const [deriveBaseCheck, setDeriveBaseCheck] = useState(true);
@@ -120,7 +123,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     window.addEventListener('hashchange', change);
     return () => window.removeEventListener('hashchange', change);
   }, [run?.run_id]);
-  useEffect(() => { localStorage.setItem('rq1-workflow-setup', JSON.stringify({ selectedSources, tasks, strategy, roles, roleSelection, maxRoles, sourceRole, authority, executionMode, discussion, consolidation, benchmarkCaseId, baseProfileId, baseCheck, treatBaseAsBackground, benchmarkImport })); }, [selectedSources, tasks, strategy, roles, roleSelection, maxRoles, sourceRole, authority, executionMode, discussion, consolidation, benchmarkCaseId, baseProfileId, baseCheck, treatBaseAsBackground, benchmarkImport]);
+  useEffect(() => { localStorage.setItem('rq1-needs-setup', JSON.stringify({ selectedSources, tasks, scoping, strategy, roles, roleSelection, maxRoles, sourceRole, authority, executionMode, discussion, consolidation, benchmarkCaseId, baseProfileId, baseCheck, treatBaseAsBackground, benchmarkImport })); }, [selectedSources, tasks, scoping, strategy, roles, roleSelection, maxRoles, sourceRole, authority, executionMode, discussion, consolidation, benchmarkCaseId, baseProfileId, baseCheck, treatBaseAsBackground, benchmarkImport]);
   useEffect(() => {
     setShowDerive(false); setAsideFilter('all');
     setDeriveBaseProfileId(run?.base_profile_id ?? run?.request?.base_profile_id ?? '');
@@ -150,6 +153,8 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     await refreshLists(); setSelectedSources(imported.sources.map(source => source.source_version_id));
     setBenchmarkImport({ caseId: imported.case_id, treatBaseAsBackground: imported.treat_base_as_background, sourceVersionIds: imported.sources.map(source => source.source_version_id) });
     setSnapshot(imported.snapshot);
+    setTasks(imported.snapshot.user_tasks.map(task => task.statement).join('\n'));
+    setScoping('auto');
     onStatus(`Loaded ${imported.sources.length} sources and ${imported.snapshot.evidence_ids.length} evidence units. Scope and questions are frozen when you start the run.`);
   });
 
@@ -177,7 +182,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     const snapshot = await workflowApi<{ snapshot_id: string }>('/snapshots', {
       source_version_ids: selectedSources, user_tasks: tasks.split('\n').filter(line => line.trim()).map((statement, i) => ({ id: `CQ-${i + 1}`, statement, kind: 'competency_question' })), name: 'Workbench corpus',
     });
-    const created = await workflowApi<Run>('/runs', { snapshot_id: snapshot.snapshot_id, execution_mode: executionMode, strategy, role_ids: roles, role_selection: strategy === 'rules' ? 'manual' : roleSelection, max_roles: maxRoles, consolidation: strategy === 'rules' ? 'exact' : consolidation, discussion: strategy === 'multi_agent' ? discussion : 'automatic', base_profile_id: baseProfileId || null, base_check: Boolean(baseProfileId) && baseCheck, benchmark_case_id: benchmarkCaseId || null, allow_live_provider: allowLive, name: 'Requirements extraction' });
+    const created = await workflowApi<Run>('/runs', { output_form: strategy === 'multi_agent' ? 'needs' : 'candidates', scoping: scoping === 'auto' ? null : scoping, snapshot_id: snapshot.snapshot_id, execution_mode: executionMode, strategy, role_ids: roles, role_selection: strategy === 'rules' ? 'manual' : roleSelection, max_roles: maxRoles, consolidation: strategy === 'rules' ? 'exact' : consolidation, discussion: strategy === 'multi_agent' ? discussion : 'automatic', base_profile_id: baseProfileId || null, base_check: Boolean(baseProfileId) && baseCheck, benchmark_case_id: benchmarkCaseId || null, allow_live_provider: allowLive, name: 'Requirements extraction' });
     setSelectedRevisions([]); setActiveRecord(null); await loadRun(created.run_id); await refreshLists(); navigate('role_selection', created.run_id); onStatus('Workflow saved. Results persist while you browse the steps.');
   });
   const command = async (path: string, payload: unknown) => {
@@ -185,8 +190,8 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     const result = await workflowApi<{ run: Run }>(`/runs/${run.run_id}${path}`, payload); setRun(result.run); setRuns(previous => previous.map(item => item.run_id === run.run_id ? { ...item, status: result.run.status, version: result.run.version } : item)); onStatus('Changes saved.');
   };
   const inspectEvidence = (id: string) => act(async () => setEvidence(await workflowApi<Evidence>(`/evidence/${id}`)));
-  const currentRecords = run?.requirements.filter(record => run.active_revision_ids.length ? run.active_revision_ids.includes(record.revision_id) : !record.parent_revision_ids.length) ?? [];
-  const record = currentRecords.find(item => item.revision_id === activeRecord);
+  const currentRecords = (run?.requirements.filter(record => run.request?.output_form === 'needs' ? run.active_revision_ids.includes(record.revision_id) : run.active_revision_ids.length ? run.active_revision_ids.includes(record.revision_id) : !record.parent_revision_ids.length) ?? []).sort((a,b) => (a.rank ?? Number.MAX_SAFE_INTEGER) - (b.rank ?? Number.MAX_SAFE_INTEGER) || a.requirement_id.localeCompare(b.requirement_id));
+  const record = currentRecords.find(item => item.revision_id === activeRecord) ?? run?.requirements.find(item => item.revision_id === activeRecord);
   const accepted = currentRecords.filter(item => item.lifecycle_state === 'accepted').map(item => item.revision_id);
 
   const pageIndex = stages.indexOf(page);
@@ -200,7 +205,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
   const groupIds = [...new Set(consolidationEvents.map(event => event.group_id).filter((id): id is string => Boolean(id)))];
   const groupMembers = (groupId: string) => run?.requirements.filter(item => item.group_id === groupId && !item.parent_revision_ids.length) ?? [];
   const variantsFor = (item: Requirement) => currentRecords.filter(record => record.group_id && record.group_id === item.group_id);
-  const setAside = run?.stage_results?.normalization?.set_aside_observations ?? run?.set_aside_observations ?? [];
+  const setAside = run?.request?.output_form === 'needs' ? run.set_aside_observations ?? [] : run?.stage_results?.normalization?.set_aside_observations ?? run?.set_aside_observations ?? [];
   const filteredAside = setAside.filter(item => asideFilter === 'all' || item.reason === asideFilter);
   const baseSummary = run?.stage_results?.normalization?.base_check ?? run?.metrics.base_check;
 
@@ -212,15 +217,15 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
       if (event.target.value) { await loadRun(event.target.value); navigate(localStorage.getItem(`rq1-workflow-page-${event.target.value}`) ?? 'role_selection', event.target.value); }
       else newWorkflow();
     })}><option value="">New workflow</option>{runs.map(item => <option key={item.run_id} value={item.run_id}>{item.name} · {humanLabel(item.status)} · {item.run_id.slice(-6)}</option>)}</select></label>
-      {run && <><button disabled={busy} onClick={() => void act(async () => { await loadRun(run.run_id); })}>Refresh saved results</button><a className="workflow-download" href={`/api/rq1/v2/runs/${run.run_id}/export?download=true`}>Download full run</a><a className="workflow-download" href={`/api/rq1/v2/runs/${run.run_id}/stages/${page}?download=true`}>Download this step</a></>}
+      {run && <><button disabled={busy} onClick={() => void act(async () => { await loadRun(run.run_id); })}>Refresh saved results</button><a className="workflow-download" href={`/api/rq1/v2/runs/${run.run_id}/export?download=true`}>Download full run</a>{run.request?.output_form === 'needs' && <a className="workflow-download" href={`/api/rq1/v2/runs/${run.run_id}/needs?download=true`}>Download needs.json</a>}<a className="workflow-download" href={`/api/rq1/v2/runs/${run.run_id}/stages/${page}?download=true`}>Download this step</a></>}
     </div>
     <nav aria-label="Workflow steps"><ol className="workflow-stages">{stages.map((stage, index) => <li key={stage} data-state={run ? stageState(run, stage) : 'pending'} data-current={stage === page}><button aria-current={stage === page ? 'step' : undefined} onClick={() => navigate(stage)}><span>{stageNumbers[index]}</span><div><strong>{labels[index]}</strong><small>{run ? humanLabel(stageState(run, stage)) : 'setup'}</small></div></button></li>)}</ol></nav>
-    {run && <div className="workflow-toolbar"><span className="workflow-pill">{humanLabel(run.status)} · saved revision {run.version}</span><span>{run.evidence_ids.length} evidence units · {currentRecords.length} candidates · {accepted.length} accepted</span>
+    {run && <div className="workflow-toolbar"><span className="workflow-pill">{humanLabel(run.status)} · saved revision {run.version}</span><span>{run.evidence_ids.length} evidence units · {currentRecords.length} {run.request?.output_form === 'needs' ? 'needs' : 'candidates'} · {accepted.length} accepted</span>
       {(['created', 'selecting_roles', 'eliciting', 'normalizing', 'verifying', 'consolidating', 'routing'].includes(run.status) || run.deliberations.some(item => ['queued','running'].includes(item.status))) && <button disabled={busy} onClick={() => void act(() => command('/cancel', { expected_version: run.version }))}>Stop ongoing work</button>}
       {resumable(run) && <button disabled={busy} title="Repeats only unfinished extraction units and discussions; finished results are kept." onClick={() => void act(async () => { await workflowApi(`/runs/${run.run_id}/resume`, { expected_version: run.version }); await loadRun(run.run_id); })}>{['failed', 'cancelled'].includes(run.status) ? 'Resume interrupted run' : 'Retry unfinished work'}</button>}
     </div>}
-    {run && run.stages.elicitation === 'completed' && run.role_runs.length > 0 && run.role_runs.every(role => role.status === 'completed') && !leaseActive(run) && <section className="workflow-panel">
-      <button disabled={busy} onClick={() => setShowDerive(value => !value)}>Re-run steps 4–7 with new settings</button>
+    {run && page === 'normalization' && run.stages.elicitation === 'completed' && run.role_runs.length > 0 && run.role_runs.every(role => role.status === 'completed') && !leaseActive(run) && <section className="workflow-panel">
+      <button disabled={busy} onClick={() => setShowDerive(value => !value)}>Reprocess from saved extraction in a separate trial</button>
       {showDerive && <div><p>Creates a new run that reuses this run's extraction, with no extraction calls. This run stays unchanged.</p>
         <label>Name<input value={deriveName} onChange={event => setDeriveName(event.target.value)} /></label>
         <label>Benchmark source context<select value={deriveCaseId} onChange={event => {
@@ -229,19 +234,19 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
         }}><option value="">Custom or unspecified case</option>{benchmarks.map(item => <option key={item.case_id} value={item.case_id}>{humanLabel(item.case_id)}</option>)}</select></label>
         <p className="workflow-muted">For an older saved extraction, select its case to identify which cited documents are base specifications.</p>
         <BaseProfileField profiles={baseProfiles} value={deriveBaseProfileId} onChange={value => { setDeriveBaseProfileId(value); setDeriveBaseCheck(Boolean(value)); }} />
-        <label className="workflow-check"><input type="checkbox" disabled={!deriveBaseProfileId} checked={Boolean(deriveBaseProfileId) && deriveBaseCheck} onChange={event => setDeriveBaseCheck(event.target.checked)} />Check proposals against the base profile and set inherited requirements aside</label>
+        <label className="workflow-check"><input type="checkbox" disabled={!deriveBaseProfileId} checked={Boolean(deriveBaseProfileId) && deriveBaseCheck} onChange={event => setDeriveBaseCheck(event.target.checked)} />Filter proposals supported only by the base specification</label>
         <label>Consolidation<select value={deriveConsolidation} onChange={event => setDeriveConsolidation(event.target.value)}><option value="semantic">Merge candidates with the same meaning</option><option value="exact">Exact copies only (earlier behaviour)</option></select></label>
-        <label>Discussion<select value={deriveDiscussion} onChange={event => setDeriveDiscussion(event.target.value)}><option value="on_request">Only when a reviewer asks</option><option value="automatic">Discuss flagged candidates automatically</option></select></label>
-        <label className="workflow-check"><input type="checkbox" checked={reuseAssessments} onChange={event => setReuseAssessments(event.target.checked)} />Reuse identical assessments under the same assessment policy</label>
+        <label>Discussion<select value={deriveDiscussion} onChange={event => setDeriveDiscussion(event.target.value)}><option value="on_request">Only when a reviewer asks</option><option value="automatic">Discuss flagged needs automatically</option></select></label>
+        <p>Needs are assessed after grouping and scoping; old per-candidate assessments are not reused.</p><label>Use-case scoping<select value={deriveScoping} onChange={event => setDeriveScoping(event.target.value)}><option value="auto">Use declared tasks when present; otherwise off</option><option value="use_cases">Only needs necessary for declared use cases</option><option value="off">Off · retain needs without a use-case claim</option></select></label>
         {run.strategy === 'multi_agent' && <label className="workflow-check"><input type="checkbox" checked={deriveLive} onChange={event => setDeriveLive(event.target.checked)} />Allow downstream calls to the configured provider</label>}
         <button className="workflow-primary" disabled={busy || !deriveName.trim() || (run.strategy === 'multi_agent' && !deriveLive)} onClick={() => void act(async () => {
-          const created = await workflowApi<Run>(`/runs/${run.run_id}/derive`, { expected_version: run.version, name: deriveName, consolidation: deriveConsolidation, discussion: deriveDiscussion, execution_mode: 'automatic', reuse_assessments: reuseAssessments, base_profile_id: deriveBaseProfileId || null, base_check: Boolean(deriveBaseProfileId) && deriveBaseCheck, benchmark_case_id: deriveCaseId || null, allow_live_provider: deriveLive, rationale: 'Reprocess saved extraction with the selected downstream settings.' });
+          const created = await workflowApi<Run>(`/runs/${run.run_id}/derive`, { output_form: 'needs', scoping: deriveScoping === 'auto' ? null : deriveScoping, expected_version: run.version, name: deriveName, consolidation: deriveConsolidation, discussion: deriveDiscussion, execution_mode: 'automatic', reuse_assessments: false, base_profile_id: deriveBaseProfileId || null, base_check: Boolean(deriveBaseProfileId) && deriveBaseCheck, benchmark_case_id: deriveCaseId || null, allow_live_provider: deriveLive, rationale: 'Reprocess saved extraction with the selected downstream settings.' });
           setShowDerive(false); setActiveRecord(null); setSelectedRevisions([]); await loadRun(created.run_id); await refreshLists(); navigate('normalization', created.run_id); onStatus('New run created from the saved extraction.');
         })}>Create reprocessed run</button>
       </div>}
     </section>}
     {run?.derived_from && <p className="workflow-notice">Extraction reused from <a href={`#/workflow/${run.derived_from.run_id}/elicitation`}>{run.derived_from.run_id}</a>, saved revision {run.derived_from.version}. New call counts exclude the source run's extraction.</p>}
-    {run?.base_profile_id && <section className="workflow-panel"><p>Starting from <strong>{baseProfiles.find(profile => profile.id === run.base_profile_id)?.label ?? run.base_profile_id}</strong>{run.base_check_policy_version && <> · base check {run.base_check_policy_version}</>}.</p>{baseSummary?.by_relation && <><div className="workflow-tags">{Object.entries(baseSummary.by_relation).map(([relation, count]) => <span key={relation}>{humanLabel(relation)}: {count}</span>)}</div><p>{baseSummary.set_aside_inherited} inherited proposals set aside.</p></>}<details><summary>Pinned base-profile file</summary><code>{run.base_profile_sha256 ?? 'No saved hash'}</code></details></section>}
+    {run?.base_profile_id && <section className="workflow-panel"><p>Starting from <strong>{baseProfiles.find(profile => profile.id === run.base_profile_id)?.label ?? run.base_profile_id}</strong>{run.base_check_policy_version && <> · base check {run.base_check_policy_version}</>}.</p>{baseSummary?.by_relation && <><div className="workflow-tags">{Object.entries(baseSummary.by_relation).map(([relation, count]) => <span key={relation}>{humanLabel(relation)}: {count}</span>)}</div><p>{baseSummary.set_aside_inherited} inherited proposals set aside.</p></>}<details><summary>Pinned base-profile file</summary><code>{run.base_profile_sha256 ?? 'No saved hash'}</code></details>{run.request?.output_form === 'needs' && <p>Base-needs catalogue: {run.base_needs_catalogue?.review?.status ?? 'unreviewed'} · <a href={`/api/rq1/v2/base-profiles/${run.base_profile_id}/needs?download=true`}>Download for review</a></p>}</section>}
     {run?.status === 'paused' && <section className="workflow-panel"><h2>Results saved — ready for review</h2><p>Review the completed step, then continue. No processing runs while this workflow is paused.</p><button className="workflow-primary" disabled={busy || Boolean(run.worker_id)} onClick={() => void act(async () => { await workflowApi(`/runs/${run.run_id}/continue`, { expected_version: run.version }); const updated = await loadRun(run.run_id); navigate(stages.find(stage => !['completed', 'partial'].includes(updated.stages[stage])) ?? 'adjudication'); })}>Continue to next processing step</button></section>}
     {run?.diagnostics.map((message, i) => <p className="workflow-error" key={i}>{message}</p>)}
     {page === 'acquisition' && <section className="workflow-panel">
@@ -250,7 +255,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
         <BaseProfileField profiles={baseProfiles} value={baseProfileId} onChange={value => { setBaseProfileId(value); setBaseCheck(Boolean(value)); }} />
         <p className="workflow-muted">Choose the version the profile originally extended to reproduce it. For a new profile, select the version you plan to extend.</p>
         {benchmarkCaseId === 'mobilitydcat' && <p className={baseProfileId === 'dcat-ap-2.0.1' ? 'workflow-muted' : 'workflow-notice'}>Mobility reproduction uses DCAT-AP 2.0.1.{baseProfileId !== 'dcat-ap-2.0.1' && ' This selection creates a comparison against a different base.'}</p>}
-        <label className="workflow-check"><input type="checkbox" disabled={!baseProfileId} checked={Boolean(baseProfileId) && baseCheck} onChange={event => setBaseCheck(event.target.checked)} />Check proposals against the selected base and set inherited requirements aside</label>
+        <label className="workflow-check"><input type="checkbox" disabled={!baseProfileId} checked={Boolean(baseProfileId) && baseCheck} onChange={event => setBaseCheck(event.target.checked)} />Filter proposals supported only by the base specification (needs); inherited candidates in offline modes</label>
         {selectedBenchmark && <div>
           <p>{selectedBenchmark.raw_file_count} allowlisted raw documents. {selectedBenchmark.base_profile_id ? `Default base: ${selectedBenchmark.base_profile_id}.` : 'A base version has not been selected for this case.'}</p>
           {!!selectedBenchmark.background_source_names.length && <label className="workflow-check"><input type="checkbox" checked={treatBaseAsBackground} onChange={event => setTreatBaseAsBackground(event.target.checked)} />Treat base specifications as background</label>}
@@ -259,7 +264,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
           {benchmarkNeedsImport && <p className="workflow-notice">Load this case with the selected background setting before starting. Reloading creates source versions for these settings.</p>}
           {!benchmarkNeedsImport && <p className="workflow-notice">Sources loaded for this case. Starting also saves the scope and questions below.</p>}
         </div>}
-        <label>Competency questions / user tasks<textarea rows={3} value={tasks} onChange={event => setTasks(event.target.value)} placeholder="One task per line" /></label>
+        <label>Use-case scoping<select value={scoping} onChange={event => setScoping(event.target.value)}><option value="auto">Use declared tasks when present; otherwise off</option><option value="use_cases">Only needs necessary for declared use cases</option><option value="off">Off · retain needs without a use-case claim</option></select></label><label>Competency questions / user tasks<textarea rows={3} value={tasks} onChange={event => setTasks(event.target.value)} placeholder="One task per line" /></label>
         {!benchmarkCaseId && <><label>Source role<select value={sourceRole} onChange={event => setSourceRole(event.target.value)}>
           {['stakeholder_need', 'normative_spec', 'example', 'observation', 'background', 'evaluation_reference'].map(role => <option key={role} value={role}>{humanLabel(role)}</option>)}
         </select></label>
@@ -280,22 +285,22 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     </section>}
     {page === 'role_selection' && (run ? <>
           <RoleManifestView key={`${run.run_id}-${run.role_manifest?.manifest_hash ?? 'pending'}`} run={run} busy={busy} inspect={id => void inspectEvidence(id)} override={(roleOverrides, rationale, limit, live) => act(async () => {
-            const created = await workflowApi<Run>('/runs', { snapshot_id: run.snapshot_id, execution_mode: run.request?.execution_mode ?? 'stepwise', discussion: run.request?.discussion ?? 'automatic', consolidation: run.request?.consolidation ?? 'exact', base_profile_id: run.base_profile_id ?? null, base_check: run.request?.base_check ?? false, benchmark_case_id: run.request?.benchmark_case_id ?? null, strategy: run.strategy, role_selection: 'override', role_overrides: roleOverrides, based_on_run_id: run.run_id, override_rationale: rationale, max_roles: limit, allow_live_provider: live, name: 'Requirements extraction · edited panel' });
+            const created = await workflowApi<Run>('/runs', { output_form: 'needs', scoping: run.request?.scoping ?? null, snapshot_id: run.snapshot_id, execution_mode: run.request?.execution_mode ?? 'stepwise', discussion: run.request?.discussion ?? 'automatic', consolidation: run.request?.consolidation ?? 'exact', base_profile_id: run.base_profile_id ?? null, base_check: run.request?.base_check ?? false, benchmark_case_id: run.request?.benchmark_case_id ?? null, strategy: run.strategy, role_selection: 'override', role_overrides: roleOverrides, based_on_run_id: run.run_id, override_rationale: rationale, max_roles: limit, allow_live_provider: live, name: 'Requirements extraction · edited panel' });
             setActiveRecord(null); setSelectedRevisions([]); await loadRun(created.run_id); await refreshLists(); onStatus('New run saved with your panel override.');
           })} />
       {run.role_manifest?.status === 'not_applicable' && <section className="workflow-panel"><h2>Rules baseline</h2><p>This offline baseline does not select stakeholder agents. Continue to extract rule-based observations.</p></section>}
     </> : <section className="workflow-panel"><h2>Configure & start the saved workflow</h2><p>{selectedSources.length} selected sources. Starting freezes the sources and questions together.</p>
         {benchmarkNeedsImport && <p className="workflow-error">The benchmark input settings changed. <button onClick={() => navigate('acquisition')}>Return to Sources and reload this case</button></p>}
         <p>Starting version: <strong>{baseProfiles.find(profile => profile.id === baseProfileId)?.label ?? 'No base selected'}</strong>. <button onClick={() => navigate('acquisition')}>Change starting version on Sources & scope</button></p>
-        {baseProfileId && <p className="workflow-muted">Extraction receives the selected base definitions and proposes source-supported additions or changes. This choice is saved with the run.</p>}
+        {baseProfileId && <p className="workflow-muted">Extraction states source-supported needs; the selected base is compared after grouping. This choice is saved with the run.</p>}
         <label>Progression<select value={executionMode} onChange={event => setExecutionMode(event.target.value)}><option value="stepwise">Step by step · pause for review</option><option value="automatic">Automatic · test run</option></select></label>
         <label>Execution<select value={strategy} onChange={event => { setStrategy(event.target.value); setAllowLive(false); }}>
-          <option value="rules">Rules baseline · offline</option><option value="mock">Perspective demo · offline mock</option><option value="multi_agent">Independent agents · configured provider</option>
+          <option value="rules">Rules candidates · offline legacy</option><option value="mock">Perspective candidates · offline demo</option><option value="multi_agent">Needs workflow · independent agents</option>
         </select></label>
         {strategy !== 'rules' && <><label>Stakeholder panel<select value={roleSelection} onChange={event => setRoleSelection(event.target.value)}><option value="automatic">Select roles from sources and CQs</option><option value="manual">Use a fixed panel</option></select></label>{roleSelection === 'automatic' && <label>Maximum stakeholder roles<input type="number" min={1} max={8} value={maxRoles} onChange={event => setMaxRoles(Number(event.target.value))} /></label>}</>}
         {strategy !== 'rules' && roleSelection === 'manual' && <details><summary>{roles.length} selected perspectives</summary>{perspectives.map(role => <label key={role} className="workflow-check"><input type="checkbox" checked={roles.includes(role)} onChange={event => setRoles(previous => event.target.checked ? [...previous, role] : previous.filter(value => value !== role))} />{humanLabel(role)}</label>)}</details>}
         {strategy !== 'rules' && <label>Consolidation<select value={consolidation} onChange={event => setConsolidation(event.target.value)}><option value="semantic">Merge candidates with the same meaning</option><option value="exact">Exact copies only (earlier behaviour)</option></select></label>}
-        {strategy === 'multi_agent' && <label>Discussion<select value={discussion} onChange={event => setDiscussion(event.target.value)}><option value="automatic">Discuss flagged candidates automatically</option><option value="on_request">Only when a reviewer asks · fewer model calls</option></select></label>}
+        {strategy === 'multi_agent' && <label>Discussion<select value={discussion} onChange={event => setDiscussion(event.target.value)}><option value="automatic">Discuss flagged needs automatically</option><option value="on_request">Only when a reviewer asks · fewer model calls</option></select></label>}
         {strategy === 'multi_agent' && <label className="workflow-check"><input type="checkbox" checked={allowLive} onChange={event => setAllowLive(event.target.checked)} />Allow calls to the configured model provider for this run</label>}
         <p className="workflow-muted">Offline modes require human semantic and quality assessment. Agent mode sends the selected corpus to your configured provider.</p>
         <p className="workflow-muted">Upload original documents and describe your scope or tasks. Check parsing diagnostics and proposed stakeholder perspectives; you do not need to extract roles or retype PDF passages first.</p>
@@ -304,7 +309,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     {run && page === 'elicitation' && <section className="workflow-panel"><h2>Independent extraction results</h2><p>Each perspective reads the frozen input independently.</p>{run.role_runs.some(role => role.status === 'failed') && <p className="workflow-error">Extraction is incomplete: {run.role_runs.filter(role => role.status === 'completed').length} of {run.role_runs.length} roles completed. Retained proposals do not establish full input coverage.</p>}
             <div className="workflow-role-list">{run.role_runs.map(role => <article key={role.role_id} className="workflow-role-run"><strong>{roleLabel(run, role.role_id)}</strong><span>{role.status}</span><small>{role.observation_ids?.length ?? run.observations?.filter(item => item.role_id === role.role_id).length ?? 0} proposals</small>{role.evidence_unit_count != null && <small>{role.processed_unit_count ?? 0} of {role.evidence_unit_count} evidence units processed</small>}{role.error && <p>{role.error}</p>}<details><summary>Recorded context</summary><code>{role.context_hash}</code></details></article>)}</div>
     <details><summary>Saved observations and batch audit</summary><pre>{JSON.stringify({ observations: run.observations, role_runs: run.role_runs }, null, 2)}</pre></details></section>}
-    {run && page === 'normalization' && run.normalization_policy_version && <section className="workflow-panel">
+    {run && run.request?.output_form !== 'needs' && page === 'normalization' && run.normalization_policy_version && <section className="workflow-panel">
       <p>{setAside.length} of {run.observations?.length ?? 0} proposals were set aside before evidence and quality checks. They remain in this audit.</p>
       {!!setAside.length && <details><summary>Show set-aside proposals</summary><label>Reason<select value={asideFilter} onChange={event => setAsideFilter(event.target.value)}><option value="all">All reasons · {setAside.length}</option>{Object.entries(asideReasons).map(([reason, label]) => <option key={reason} value={reason}>{label} · {setAside.filter(item => item.reason === reason).length}</option>)}</select></label>{filteredAside.map(item => {
         const observation = run.observations?.find(o => o.observation_id === item.observation_id);
@@ -328,8 +333,8 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
               <label className="workflow-check"><input type="checkbox" checked={selectedRevisions.includes(item.revision_id)} onChange={event => setSelectedRevisions(previous => event.target.checked ? [...previous, item.revision_id] : previous.filter(id => id !== item.revision_id))} /><strong>{item.normalized_statement}</strong></label>
               <div className="workflow-tags"><span>{humanLabel(item.lifecycle_state)}</span><span>Source {item.verification?.status ?? 'pending'}</span><span>Support {item.qualification?.support ?? 'pending'}</span></div>
               {item.base_check && <BaseCheckView check={item.base_check} />}
-              <small>{humanLabel(item.requirement_type)} · {item.contributing_roles.map(id => roleLabel(run, id)).join(', ')}</small>
-              {!!item.parent_revision_ids.length && <details><summary>Merged from {item.parent_revision_ids.length} proposals (roles: {item.contributing_roles.map(id => roleLabel(run, id)).join(', ')}) · Show members</summary>{item.parent_revision_ids.map(id => { const member = run.requirements.find(r => r.revision_id === id); return <p key={id}>{member?.normalized_statement ?? id} · Source {member?.verification?.status ?? 'pending'}</p>; })}</details>}
+              {item.need_statement && <NeedSummaryView record={item} run={run} inspect={id => void inspectEvidence(id)} />}<small>{item.need_statement ? 'Perspectives: ' : humanLabel(item.requirement_type) + ' · '}{item.contributing_roles.map(id => roleLabel(run, id)).join(', ')}</small>
+              {!item.need_statement && !!item.parent_revision_ids.length && <details><summary>Merged from {item.parent_revision_ids.length} proposals (roles: {item.contributing_roles.map(id => roleLabel(run, id)).join(', ')}) · Show members</summary>{item.parent_revision_ids.map(id => { const member = run.requirements.find(r => r.revision_id === id); return <p key={id}>{member?.normalized_statement ?? id} · Source {member?.verification?.status ?? 'pending'}</p>; })}</details>}
               {item.group_id && !!consolidationEvents.find(e => e.group_id === item.group_id && e.attached_failed?.length) && <details><summary>Show failed members retained for evidence repair</summary>{groupMembers(item.group_id).filter(member => member.verification?.status === 'fail').map(member => <p key={member.revision_id}>{member.normalized_statement} · Source fail</p>)}</details>}
               {item.group_id && variantsFor(item).length > 1 && <p><a href={`#/workflow/${run.run_id}/deliberation`}>Obligation variant: {humanLabel(item.normalized_intent.obligation_hint)} · {variantsFor(item).findIndex(variant => variant.revision_id === item.revision_id) + 1} of {variantsFor(item).length} · View conflict</a></p>}
               <button onClick={() => { setActiveRecord(currentRecords.find(current => current.revision_id === item.revision_id || current.parent_revision_ids.includes(item.revision_id))?.revision_id ?? item.revision_id); navigate('adjudication'); }}>Inspect and review</button>
@@ -339,8 +344,9 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
           </section>
     </>}
     <div hidden={page !== 'adjudication'}>
-          {run && record && <RequirementEditor key={record.revision_id} record={record} run={run} busy={busy || !['awaiting_human', 'completed'].includes(run.status)} inspect={id => void inspectEvidence(id)} submit={(path, payload) => act(async () => { await command(path, payload); })} />}
+          {run && record && <RequirementEditor key={record.revision_id} record={record} run={run} busy={busy || !['awaiting_human', 'completed'].includes(run.status) || record.lifecycle_state === 'set_aside'} inspect={id => void inspectEvidence(id)} submit={(path, payload) => act(async () => { await command(path, payload); })} />}
     </div>
+    {run?.request?.output_form === 'needs' && ['normalization','consolidation','adjudication'].includes(page) && <NeedAsidesView run={run} busy={busy} review={id => { setActiveRecord(id); navigate('adjudication'); }} restore={(item,rationale) => act(async () => { await command('/restore', { expected_version:run.version, idempotency_key:commandKey(), observation_id:item.observation_id, reason:item.reason, need_id:item.need_id ?? null, rationale }); })} />}
     {run && page === 'deliberation' && <>
           <section className="workflow-panel"><h2>Discussion & disagreement</h2>
             {run.request?.discussion === 'on_request' && <p className="workflow-notice">Automatic discussion is off for this run. Candidates with review findings and flagged pairs went straight to human review with their reasons. A reviewer can still request a targeted discussion for a candidate.</p>}
@@ -358,6 +364,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
           </section>
     </>}
     {!run && !['acquisition', 'decomposition', 'role_selection'].includes(page) && <section className="workflow-empty"><h2>No saved run selected</h2><p>Choose a saved run above, or configure roles to start a new workflow.</p><button onClick={() => navigate('role_selection')}>Configure workflow</button></section>}
+    {run?.request?.output_form === 'needs' && <section className="workflow-panel"><h2>Needs processing progress</h2><p>Source-checked proposals become grouped needs before classification, use-case scoping and support assessment. No automatic result is a human approval.</p><div className="workflow-tags">{Object.entries(run.need_steps ?? {}).map(([step, result]) => <span key={step}>{humanLabel(step)} · {String(result.retained_count ?? result.need_count ?? result.passed_count ?? result.group_count ?? result.input_count ?? 'saved')}</span>)}</div><details><summary>Saved needs policies</summary><pre>{JSON.stringify(run.needs_policies, null, 2)}</pre></details></section>}
     {run && <details className="workflow-panel"><summary>Saved history & metrics</summary><a className="workflow-download" href={`/api/rq1/v2/runs/${run.run_id}/evaluation?download=true`}>Download metrics</a><pre>{JSON.stringify({ metrics: run.metrics, attempts: run.attempt_history }, null, 2)}</pre></details>}
     <div className="workflow-toolbar workflow-page-footer"><button disabled={pageIndex === 0} onClick={() => navigate(stages[pageIndex - 1])}>Previous step</button><span>{pageIndex + 1} of {stages.length} views · saved results stay with this run</span><button disabled={pageIndex === stages.length - 1} onClick={() => navigate(stages[pageIndex + 1])}>Next step</button></div>
     {evidence && <div className="workflow-evidence-overlay" role="dialog" aria-modal="true" aria-label="Evidence inspector"><section className="workflow-panel"><button onClick={() => setEvidence(null)}>Close evidence inspector</button><h2>{humanLabel(evidence.unit.kind)}</h2><p>{humanLabel(evidence.unit.source_claim_kind)} · source {evidence.resolution.status}</p><pre>{evidence.unit.content}</pre><details open><summary>Address and structural context</summary><pre>{JSON.stringify({ selector: evidence.unit.selector, context: evidence.unit.structural_context, resolution: evidence.resolution }, null, 2)}</pre></details></section></div>}
@@ -382,7 +389,7 @@ function AdditionEditor({ run, busy, submit }: { run: Run; busy: boolean; submit
   const [statement, setStatement] = useState(''); const [rationale, setRationale] = useState('');
   const [scope, setScope] = useState(''); const [quote, setQuote] = useState('');
   const [evidenceId, setEvidenceId] = useState(run.evidence_ids[0]);
-  return <details><summary>Add a requirement missed by extraction</summary><p>A human proposal is tracked separately from machine output. It starts unaccepted; inspect it to set its type, resource, obligation, and assessment.</p>
+  return <details><summary>Add a requirement missed by extraction</summary><p>A human proposal is tracked separately from machine output. It starts unaccepted. State a term-free need and inspect its source, scope, obligation and support.</p>
     <label>Atomic requirement<textarea value={statement} onChange={event => setStatement(event.target.value)} /></label><label>Applicability / scope<input value={scope} onChange={event => setScope(event.target.value)} /></label>
     <label>Supporting evidence<select value={evidenceId} onChange={event => setEvidenceId(event.target.value)}>{run.evidence_ids.map(id => <option key={id}>{id}</option>)}</select></label><label>Exact supporting quote<textarea value={quote} onChange={event => setQuote(event.target.value)} /></label>
     <label>Reason for this addition<textarea value={rationale} onChange={event => setRationale(event.target.value)} /></label><button disabled={busy || !statement.trim() || !quote.trim() || !scope.trim() || !rationale.trim()} onClick={() => void submit({ statement, scope, rationale, evidence_links: [{ evidence_id: evidenceId, quote, relation: 'supports', component: 'statement' }] })}>Save human proposal for verification</button>
@@ -407,6 +414,7 @@ function RequirementEditor({ record, run, busy, submit, inspect }: { record: Req
   const applicable = run.conflicts.filter(c => c.revision_ids.includes(record.revision_id) && c.status !== 'resolved');
   const draft = () => ({ statement, evidence_links: links, requirement_type: type, intent: { ...record.normalized_intent, metadata_need: metadataNeed, value_kind: valueKind, resource_type: resource, obligation_hint: obligation }, scope, rationale });
   return <section className="workflow-panel"><h2>8 · Inspect and adjudicate</h2><p>{record.normalized_statement}</p><div className="workflow-tags"><span>Source {record.verification?.status}</span><span>Support {record.qualification?.support}</span><span>{humanLabel(record.lifecycle_state)}</span></div>
+    {record.need_statement && <NeedSummaryView record={record} run={run} inspect={inspect} />}
     {record.base_check && <BaseCheckView check={record.base_check} />}
     {record.evidence_links.map((link, i) => <blockquote key={i}><p className="workflow-quote">{link.quote}</p><button onClick={() => inspect(link.evidence_id)}>{link.relation} · {link.component} · inspect original evidence</button></blockquote>)}
     {record.verification?.links.filter(link => link.status !== 'pass').map((link, i) => <p className="workflow-error" key={i}>{link.message}</p>)}
@@ -418,10 +426,10 @@ function RequirementEditor({ record, run, busy, submit, inspect }: { record: Req
     </details>
     <div className="workflow-toolbar"><button disabled={busy || !rationale.trim()} onClick={() => void submit('/decisions', { ...payload, action: 'accept', conflict_ids: applicable.map(c => c.conflict_id) })}>Accept this revision</button><button disabled={busy || !rationale.trim()} onClick={() => void submit('/decisions', { ...payload, action: 'reject' })}>Reject</button><button disabled={busy || !rationale.trim()} onClick={() => void submit('/decisions', { ...payload, action: 'defer' })}>Defer</button><button disabled={busy || !rationale.trim()} onClick={() => void submit('/decisions', { ...payload, action: 'out_of_scope' })}>Out of scope</button></div>
     <details><summary>Edit or split · creates unaccepted revisions</summary><label>Revised statement<textarea value={statement} onChange={event => setStatement(event.target.value)} /></label><label>Scope<input value={scope} onChange={event => setScope(event.target.value)} /></label>
-      <label>Requirement type<select value={type} onChange={event => setType(event.target.value)}>{['descriptive_metadata','semantic_anchor','technical_metadata','access_policy','quality_provenance','lifecycle_context','controlled_vocabulary','validation_constraint','competency_question','unknown'].map(value => <option key={value}>{value}</option>)}</select></label>
+      {!record.need_statement && <><label>Requirement type<select value={type} onChange={event => setType(event.target.value)}>{['descriptive_metadata','semantic_anchor','technical_metadata','access_policy','quality_provenance','lifecycle_context','controlled_vocabulary','validation_constraint','competency_question','unknown'].map(value => <option key={value}>{value}</option>)}</select></label>
       <label>Resource<select value={resource} onChange={event => setResource(event.target.value)}>{['Catalog','CatalogRecord','Dataset','Distribution','DataService','Agent','Concept','Unknown'].map(value => <option key={value}>{value}</option>)}</select></label>
       <label>Intended metadata need<input value={metadataNeed} onChange={event => setMetadataNeed(event.target.value)} /></label>
-      <label>Expected value kind<select value={valueKind} onChange={event => setValueKind(event.target.value)}>{['literal','uri','controlled_concept','class_reference','date','agent','distribution','unknown'].map(value => <option key={value}>{value}</option>)}</select></label>
+      <label>Expected value kind<select value={valueKind} onChange={event => setValueKind(event.target.value)}>{['literal','uri','controlled_concept','class_reference','date','agent','distribution','unknown'].map(value => <option key={value}>{value}</option>)}</select></label></>}
       <label>Obligation<select value={obligation} onChange={event => setObligation(event.target.value)}>{['mandatory','recommended','optional','unknown'].map(value => <option key={value}>{value}</option>)}</select></label>
       <div><h3>Cited evidence</h3>{links.map((link, index) => <div key={index} className="workflow-panel"><label>Evidence unit<select value={link.evidence_id} onChange={event => setLinks(previous => previous.map((item, i) => i === index ? { ...item, evidence_id: event.target.value } : item))}>{run.evidence_ids.map(id => <option key={id}>{id}</option>)}</select></label><label>Exact quoted text<textarea value={link.quote} onChange={event => setLinks(previous => previous.map((item, i) => i === index ? { ...item, quote: event.target.value } : item))} /></label><label>Claim supported<select value={link.component} onChange={event => setLinks(previous => previous.map((item, i) => i === index ? { ...item, component: event.target.value } : item))}>{['statement','obligation','scope','condition','value_kind'].map(value => <option key={value}>{value}</option>)}</select></label><label>Evidence relation<select value={link.relation} onChange={event => setLinks(previous => previous.map((item, i) => i === index ? { ...item, relation: event.target.value as Link['relation'] } : item))}>{['supports','contradicts','contextualizes'].map(value => <option key={value}>{value}</option>)}</select></label><button onClick={() => setLinks(previous => previous.filter((_, i) => i !== index))}>Remove citation from new revision</button></div>)}<button onClick={() => setLinks(previous => [...previous, { evidence_id: run.evidence_ids[0], quote: '', relation: 'supports', component: 'statement' }])}>Add citation</button></div>
       <button disabled={busy || !rationale.trim() || !statement.trim()} onClick={() => void submit('/decisions', { ...payload, action: 'edit', drafts: [draft()], conflict_ids: applicable.map(c => c.conflict_id) })}>Save revised requirement</button>

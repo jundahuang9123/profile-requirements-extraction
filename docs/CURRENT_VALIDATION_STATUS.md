@@ -317,3 +317,47 @@ under these new policies yet. The model's extension labels and lexical property
 matches still need independent review. Corpus coverage, INSPIRE scope, GeoDCAT's
 evidence/background role, nonmetadata relevance and other cases' base versions
 remain Junda's open decisions.
+
+## 13 October 2026: needs workflow, review branch
+
+The default branch is now `main`. The seven-phase needs implementation is proposed
+on `codex/rq1-needs`; it is not automatically merged into the research baseline.
+See [RQ1 needs](RQ1_NEEDS.md) for the new definitions, stage order, policies, bounds,
+review controls and `needs.json` export.
+
+New agent extractions use v3.1. Derived trials reuse complete legacy extractions
+without modifying their wording or source run. Candidates receive deterministic
+source checks only; grouped, term-free needs receive classification, optional
+necessity linking with a separate critic, one support assessment per retained need
+and deterministic ranking. Generic/unlinked/source-only/uncited items remain visible.
+Human restoration and revision preserve frozen machine output and require review.
+New need acceptance does not require selecting RDF classes/properties or value kinds.
+
+The base catalogues are generated offline from pinned registries and explicitly
+**unreviewed**. Their label-based wording must be reviewed before research evaluation;
+missing prose definitions have not been fabricated. Catalogue matching has a bounded
+retrieval step and can miss generic matches. Classification, rewriting, necessity
+and semantic support remain fallible machine judgements. A valid negative critic
+verdict is kept, and exhausted corrections do not replay on Resume. Oversized input
+fails visibly or requires splitting/human review; selected evidence is not truncated.
+
+Validation: **488 offline tests pass**, with five existing dependency deprecation
+warnings. The regenerated schema, reproducible catalogue checks and production
+frontend build pass. An isolated
+browser fixture checks the need cards, obligation alternatives, source/member
+panels, RQ2 hints, export links, scoping form and set-aside controls. Its name clearly
+identifies synthetic data; no model provider is called and nothing is accepted.
+Historical regression fixtures explicitly select their original candidate pipeline.
+This is implementation validation, not a live success/accuracy/effort-saving claim.
+The repository-root test discovery also encounters Sebastian's unrelated inherited
+plotting script, which needs its separate plotting dependencies; the documented
+RQ1 test command targets `tests/`.
+
+No live run, reference scoring, freeze tag or human review has been performed for
+this condition. Junda's decisions: development cases stay scoping-off until use
+cases are supplied; unlinked needs are visible/restorable asides; preferred wording
+is “The metadata must let users …” only where actor and obligation are supported.
+Mobility remains held out. Prior heuristics were adjusted while reading Mobility
+candidates, never reference rows; disclose this in the paper. Test development
+cases first, review base catalogues, then authorise a functional Mobility derived
+check using counts/calls/errors only. Freeze before reference-based evaluation.

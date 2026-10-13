@@ -10,7 +10,8 @@ from requirement_reuse_service.workflow.base_needs import load_catalogue
 class ClassClient(NeedsClient):
     def generate_structured(self, **kwargs):
         if kwargs['output_model'].__name__!='NeedClassifications': return super().generate_structured(**kwargs)
-        data=json.loads(kwargs['user']);self.calls.append(('NeedClassifications',data));entries=list(data['base_needs'])
+        data=json.loads(kwargs['user']);self.calls.append(('NeedClassifications',data));entries=[key for key,value in data['base_needs'].items() if value['need']=='Find the title of a dataset.']
+        assert entries
         return kwargs['output_model'].model_validate({'classifications':[
             {'need_id':identifier,'classification':label,'base_need_ids':entries[:1] if label!='domain' else [],
              'rationale':'Scripted coverage classification.'}

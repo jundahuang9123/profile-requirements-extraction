@@ -556,6 +556,15 @@ class AdditionRequest(Contract):
     rationale: str = Field(min_length=1)
 
 
+class RestoreRequest(Contract):
+    expected_version: int
+    idempotency_key: str = Field(min_length=1)
+    observation_id: str = Field(min_length=1)
+    reason: str = Field(min_length=1)
+    rationale: str = Field(min_length=1, max_length=2000)
+    need_id: str | None = None
+
+
 class MessageRequest(Contract):
     expected_version: int
     idempotency_key: str

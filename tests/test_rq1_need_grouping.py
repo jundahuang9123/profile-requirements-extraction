@@ -83,3 +83,22 @@ def test_term_gets_one_correction_and_rejected_member_splits(setup):
     active,events=needs.write_needs(store,run,[records],client,profile)
     assert len(active)==2 and any(e['split_member_ids'] for e in events)
     assert {r for need in active for r in need.parent_revision_ids}=={r.revision_id for r in records}
+
+
+def test_valid_negative_rewrite_critic_is_not_pressured_to_flip(setup):
+    store,run,records=need_inputs(setup)
+    class NegativeCritic(NeedsClient):
+        def generate_structured(self,**kwargs):
+            if kwargs['output_model'].__name__=='NeedGrounding':
+                data=json.loads(kwargs['user']);self.calls.append(('NeedGrounding',data))
+                return kwargs['output_model'].model_validate({'checks':[{'group_id':identifier,'supported':False,
+                    'no_added_actor':False,'no_added_obligation':True,'no_added_condition':True,'no_added_scope':True,
+                    'rationale':'The actor was not in the members.'} for identifier in data['groups']]})
+            return super().generate_structured(**kwargs)
+    client=NegativeCritic()
+    with pytest.raises(ValueError,match='rejected by independent critic'):
+        needs.write_needs(store,run,[records],client,None)
+    assert sum(name=='NeedGrounding' for name,_ in client.calls)==1
+    with pytest.raises(ValueError,match='rejected by independent critic'):
+        needs.write_needs(store,run,[records],client,None)
+    assert len(client.calls)==2

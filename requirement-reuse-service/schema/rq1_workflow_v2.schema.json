@@ -284,6 +284,32 @@
       "title": "CorpusSnapshot",
       "type": "object"
     },
+    "CriticDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "keep": {
+          "title": "Keep",
+          "type": "boolean"
+        },
+        "link_id": {
+          "title": "Link Id",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "link_id",
+        "keep",
+        "rationale"
+      ],
+      "title": "CriticDecision",
+      "type": "object"
+    },
     "DecisionRequest": {
       "additionalProperties": false,
       "properties": {
@@ -752,6 +778,52 @@
       "title": "Finding",
       "type": "object"
     },
+    "GroundingCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "group_id": {
+          "title": "Group Id",
+          "type": "string"
+        },
+        "no_added_actor": {
+          "title": "No Added Actor",
+          "type": "boolean"
+        },
+        "no_added_condition": {
+          "title": "No Added Condition",
+          "type": "boolean"
+        },
+        "no_added_obligation": {
+          "title": "No Added Obligation",
+          "type": "boolean"
+        },
+        "no_added_scope": {
+          "title": "No Added Scope",
+          "type": "boolean"
+        },
+        "rationale": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "supported": {
+          "title": "Supported",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "group_id",
+        "supported",
+        "no_added_actor",
+        "no_added_obligation",
+        "no_added_condition",
+        "no_added_scope",
+        "rationale"
+      ],
+      "title": "GroundingCheck",
+      "type": "object"
+    },
     "IFCSelector": {
       "additionalProperties": false,
       "properties": {
@@ -848,6 +920,360 @@
         "value_hash"
       ],
       "title": "JSONSelector",
+      "type": "object"
+    },
+    "MemberCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "expresses_need": {
+          "title": "Expresses Need",
+          "type": "boolean"
+        },
+        "member_id": {
+          "title": "Member Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "member_id",
+        "expresses_need"
+      ],
+      "title": "MemberCheck",
+      "type": "object"
+    },
+    "MembershipDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "expresses_need": {
+          "title": "Expresses Need",
+          "type": "boolean"
+        },
+        "member_id": {
+          "title": "Member Id",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "member_id",
+        "expresses_need",
+        "rationale"
+      ],
+      "title": "MembershipDecision",
+      "type": "object"
+    },
+    "NeedClass": {
+      "additionalProperties": false,
+      "properties": {
+        "base_need_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 8,
+          "title": "Base Need Ids",
+          "type": "array"
+        },
+        "classification": {
+          "enum": [
+            "generic",
+            "domain_use_of_base",
+            "domain"
+          ],
+          "title": "Classification",
+          "type": "string"
+        },
+        "need_id": {
+          "title": "Need Id",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "need_id",
+        "classification",
+        "rationale"
+      ],
+      "title": "NeedClass",
+      "type": "object"
+    },
+    "NeedClassifications": {
+      "additionalProperties": false,
+      "properties": {
+        "classifications": {
+          "items": {
+            "$ref": "#/$defs/NeedClass"
+          },
+          "maxItems": 25,
+          "title": "Classifications",
+          "type": "array"
+        }
+      },
+      "required": [
+        "classifications"
+      ],
+      "title": "NeedClassifications",
+      "type": "object"
+    },
+    "NeedGrounding": {
+      "additionalProperties": false,
+      "properties": {
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/GroundingCheck"
+          },
+          "maxItems": 20,
+          "title": "Checks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "checks"
+      ],
+      "title": "NeedGrounding",
+      "type": "object"
+    },
+    "NeedLinks": {
+      "additionalProperties": false,
+      "properties": {
+        "links": {
+          "items": {
+            "$ref": "#/$defs/UseCaseLink"
+          },
+          "maxItems": 32,
+          "title": "Links",
+          "type": "array"
+        },
+        "need_id": {
+          "title": "Need Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "need_id"
+      ],
+      "title": "NeedLinks",
+      "type": "object"
+    },
+    "NeedMembership": {
+      "additionalProperties": false,
+      "properties": {
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/MembershipDecision"
+          },
+          "maxItems": 40,
+          "title": "Checks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "checks"
+      ],
+      "title": "NeedMembership",
+      "type": "object"
+    },
+    "NeedSpanElicitationResult": {
+      "additionalProperties": false,
+      "properties": {
+        "observations": {
+          "items": {
+            "$ref": "#/$defs/NeedSpanObservation"
+          },
+          "title": "Observations",
+          "type": "array"
+        }
+      },
+      "title": "NeedSpanElicitationResult",
+      "type": "object"
+    },
+    "NeedSpanObservation": {
+      "additionalProperties": false,
+      "description": "Current provider contract: needs and citations, never extension solution labels.",
+      "properties": {
+        "assumptions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "evidence_links": {
+          "items": {
+            "$ref": "#/$defs/SourceSpanLink"
+          },
+          "maxItems": 12,
+          "title": "Evidence Links",
+          "type": "array"
+        },
+        "intent": {
+          "$ref": "#/$defs/NormalizedIntent"
+        },
+        "observation_id": {
+          "title": "Observation Id",
+          "type": "string"
+        },
+        "rationale": {
+          "default": "",
+          "title": "Rationale",
+          "type": "string"
+        },
+        "requirement_type": {
+          "default": "unknown",
+          "enum": [
+            "descriptive_metadata",
+            "semantic_anchor",
+            "technical_metadata",
+            "access_policy",
+            "quality_provenance",
+            "lifecycle_context",
+            "controlled_vocabulary",
+            "validation_constraint",
+            "competency_question",
+            "unknown"
+          ],
+          "title": "Requirement Type",
+          "type": "string"
+        },
+        "role_id": {
+          "title": "Role Id",
+          "type": "string"
+        },
+        "rq2_hints": {
+          "items": {
+            "$ref": "#/$defs/RQ2Hint"
+          },
+          "title": "Rq2 Hints",
+          "type": "array"
+        },
+        "scope": {
+          "default": "Unspecified",
+          "title": "Scope",
+          "type": "string"
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        },
+        "support_level": {
+          "default": "evidence_supported_inference",
+          "enum": [
+            "explicit",
+            "evidence_supported_inference",
+            "unsupported"
+          ],
+          "title": "Support Level",
+          "type": "string"
+        },
+        "supports_user_tasks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supports User Tasks",
+          "type": "array"
+        },
+        "task_justifications": {
+          "items": {
+            "$ref": "#/$defs/TaskJustification"
+          },
+          "title": "Task Justifications",
+          "type": "array"
+        }
+      },
+      "required": [
+        "observation_id",
+        "role_id",
+        "statement"
+      ],
+      "title": "NeedSpanObservation",
+      "type": "object"
+    },
+    "NeedStatement": {
+      "additionalProperties": false,
+      "properties": {
+        "condition": {
+          "default": "",
+          "maxLength": 600,
+          "title": "Condition",
+          "type": "string"
+        },
+        "group_id": {
+          "title": "Group Id",
+          "type": "string"
+        },
+        "members": {
+          "items": {
+            "$ref": "#/$defs/MemberCheck"
+          },
+          "maxItems": 40,
+          "minItems": 1,
+          "title": "Members",
+          "type": "array"
+        },
+        "scope": {
+          "default": "",
+          "maxLength": 600,
+          "title": "Scope",
+          "type": "string"
+        },
+        "statement": {
+          "maxLength": 1600,
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "group_id",
+        "statement",
+        "members"
+      ],
+      "title": "NeedStatement",
+      "type": "object"
+    },
+    "NeedStatements": {
+      "additionalProperties": false,
+      "properties": {
+        "needs": {
+          "items": {
+            "$ref": "#/$defs/NeedStatement"
+          },
+          "maxItems": 20,
+          "title": "Needs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "needs"
+      ],
+      "title": "NeedStatements",
+      "type": "object"
+    },
+    "NeedUseCaseLinks": {
+      "additionalProperties": false,
+      "properties": {
+        "needs": {
+          "items": {
+            "$ref": "#/$defs/NeedLinks"
+          },
+          "maxItems": 25,
+          "title": "Needs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "needs"
+      ],
+      "title": "NeedUseCaseLinks",
       "type": "object"
     },
     "NormalizedIntent": {
@@ -1534,6 +1960,57 @@
         "support_level"
       ],
       "title": "RequirementRecord",
+      "type": "object"
+    },
+    "RestoreRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_version": {
+          "title": "Expected Version",
+          "type": "integer"
+        },
+        "idempotency_key": {
+          "minLength": 1,
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "need_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Need Id"
+        },
+        "observation_id": {
+          "minLength": 1,
+          "title": "Observation Id",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "reason": {
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "expected_version",
+        "idempotency_key",
+        "observation_id",
+        "reason",
+        "rationale"
+      ],
+      "title": "RestoreRequest",
       "type": "object"
     },
     "RevisionDraft": {
@@ -2425,6 +2902,45 @@
         "representation_hash"
       ],
       "title": "TextSelector",
+      "type": "object"
+    },
+    "UseCaseCritic": {
+      "additionalProperties": false,
+      "properties": {
+        "decisions": {
+          "items": {
+            "$ref": "#/$defs/CriticDecision"
+          },
+          "maxItems": 25,
+          "title": "Decisions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "decisions"
+      ],
+      "title": "UseCaseCritic",
+      "type": "object"
+    },
+    "UseCaseLink": {
+      "additionalProperties": false,
+      "properties": {
+        "justification": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Justification",
+          "type": "string"
+        },
+        "task_id": {
+          "title": "Task Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "justification"
+      ],
+      "title": "UseCaseLink",
       "type": "object"
     },
     "UserTask": {
