@@ -195,12 +195,13 @@ class ElicitationResult(Contract):
 class SetAside(Contract):
     observation_id: str
     role_id: str
-    reason: Literal['no_source_link', 'inherited_from_base', 'declared_not_extension', 'base_specification_only', 'generic_need_served_by_base', 'no_use_case', 'not_supported_by_quote', 'source_check_failed'] = 'no_source_link'
+    reason: Literal['no_source_link', 'inherited_from_base', 'declared_not_extension', 'base_specification_only', 'generic_need_served_by_base', 'no_use_case', 'not_supported_by_quote', 'source_check_failed', 'rewrite_rejected'] = 'no_source_link'
     base_check: dict[str, Any] | None = None
     revision_id: str | None = None
     need_id: str | None = None
     rationale: str = ''
     matched_base_need_ids: list[str] = Field(default_factory=list)
+    details: dict[str, Any] = Field(default_factory=dict)
     restored: bool = False
 
 

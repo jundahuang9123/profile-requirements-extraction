@@ -68,7 +68,10 @@ If all members agree on quoted obligation, keep it. Otherwise use `unknown`, pre
 counts and original revision IDs in `obligation_alternatives`, and use neutral
 wording. The reviewer decides. Source authentication does not establish entailment;
 the independent rewrite critic and support assessor are fallible model judgements.
-A valid negative critic verdict is preserved, never retried to pressure a reversal.
+A valid negative critic verdict is preserved. Only rejected groups get one new
+writer request with that rationale. A changed rewrite gets its own critic check;
+an identical rewrite reuses the negative verdict. Twice-rejected groups are visible
+`rewrite_rejected` asides with both statements and rationales; valid groups continue.
 
 ## Scope choices
 

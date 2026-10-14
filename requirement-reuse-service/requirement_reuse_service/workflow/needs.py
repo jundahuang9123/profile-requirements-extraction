@@ -224,6 +224,62 @@ def bounded_batches(items, limit, payload_for):
     if batch: yield batch
 
 
+def accepted_rewrite(check):
+    return all((check.supported, check.no_added_actor, check.no_added_obligation,
+                check.no_added_condition, check.no_added_scope))
+
+
+def aside_group(store, run, members, rewrites, rationale):
+    representative = members[0]
+    for member in members: member.lifecycle_state = 'set_aside'
+    aside_need(store,run,representative,'rewrite_rejected',rationale)
+    details = {'group_id':uid('group',run['run_id'],[r.revision_id for r in members]),
+        'member_revision_ids':[r.revision_id for r in members], 'rewrites':rewrites}
+    def audit(r):
+        item=next(a for a in r['set_aside_observations'] if a.get('need_id')==representative.requirement_id and a['reason']=='rewrite_rejected')
+        item['details']=details
+    store.mutate(run['run_id'],None,'rewrite_set_aside_audit',audit)
+
+
+def checked_rewrites(store, run, payload, answer, members, client, profile):
+    def judge(offered, written):
+        groups = deepcopy(offered['groups'])
+        for n in written.needs:
+            ids = {m.member_id for m in n.members if m.expresses_need}
+            groups[n.group_id]['members'] = {k:v for k,v in groups[n.group_id]['members'].items() if k in ids}
+        critic_payload = {'groups':groups,'proposed_needs':written.model_dump(mode='json')}
+        if len(canonical(critic_payload)) > MAX_PAYLOAD*2:
+            raise ValueError('Need rewrite critic input exceeds its bound.')
+        def valid(result):
+            counts=Counter(c.group_id for c in result.checks)
+            return [] if set(counts)==set(groups) and all(v==1 for v in counts.values()) else ['Critic must account for every offered group exactly once.']
+        result=cached_generation(store,run,'need_statement',critic_payload,NeedGrounding,GROUND_SYSTEM,client,valid)
+        return {c.group_id:c for c in result.checks}
+    original = {n.group_id:n for n in answer.needs}
+    first = judge(payload,answer)
+    accepted = [n for n in answer.needs if accepted_rewrite(first[n.group_id])]
+    rejected = [n for n in answer.needs if not accepted_rewrite(first[n.group_id])]
+    if not rejected: return answer
+    retry_payload = {'groups':{n.group_id:payload['groups'][n.group_id] for n in rejected},
+        'previous_rewrites':{n.group_id:{'rewrite':n.model_dump(mode='json'),
+            'critic':first[n.group_id].model_dump(mode='json')} for n in rejected}}
+    retry = cached_generation(store,run,'need_statement',retry_payload,NeedStatements,
+        WRITE_SYSTEM+' Repair only these rejected groups using the independent critic rationale. Do not pressure the critic to change its verdict.',
+        client,lambda result:statement_errors(result,retry_payload['groups'],profile))
+    changed = [n for n in retry.needs if n.model_dump() != original[n.group_id].model_dump()]
+    second = judge({'groups':{n.group_id:retry_payload['groups'][n.group_id] for n in changed}},NeedStatements(needs=changed)) if changed else {}
+    for n in retry.needs:
+        # Identical rewrites reuse the original negative verdict. A new critic
+        # request is made only for a genuinely changed rewrite.
+        check = second.get(n.group_id,first[n.group_id])
+        if accepted_rewrite(check): accepted.append(n)
+        else:
+            aside_group(store,run,members[n.group_id],[
+                {'statement':original[n.group_id].statement,'critic':first[n.group_id].model_dump(mode='json')},
+                {'statement':n.statement,'critic':check.model_dump(mode='json')}],check.rationale)
+    return NeedStatements(needs=accepted)
+
+
 def write_needs(store, run, groups, client, profile):
     from .engine import record_from_observation, verify
     pending = [sorted(group, key=lambda r:r.revision_id) for group in groups]
@@ -250,27 +306,7 @@ def write_needs(store, run, groups, client, profile):
             payload = payload_for(batch)
             answer = cached_generation(store, run, 'need_statement', payload, NeedStatements, WRITE_SYSTEM,
                                        client, lambda result: statement_errors(result, payload['groups'], profile))
-            grounding_groups = deepcopy(payload['groups'])
-            for written in answer.needs:
-                accepted = {m.member_id for m in written.members if m.expresses_need}
-                grounding_groups[written.group_id]['members'] = {
-                    k:v for k,v in grounding_groups[written.group_id]['members'].items() if k in accepted}
-            grounding_payload = {'groups': grounding_groups, 'proposed_needs': answer.model_dump(mode='json')}
-            # Keep critic input within the same bound; writing leaves response overhead.
-            if len(canonical(grounding_payload)) > MAX_PAYLOAD * 2:
-                raise ValueError('Need rewrite critic input exceeds its bound.')
-            def grounded(result):
-                by_id = Counter(c.group_id for c in result.checks)
-                errors = []
-                if set(by_id) != set(payload['groups']) or any(v != 1 for v in by_id.values()):
-                    errors.append('Critic must account for each offered group exactly once.')
-                return errors
-            verdict = cached_generation(store, run, 'need_statement', grounding_payload, NeedGrounding, GROUND_SYSTEM, client, grounded)
-            rejected = [c for c in verdict.checks if not all((c.supported, c.no_added_actor, c.no_added_obligation, c.no_added_condition, c.no_added_scope))]
-            if rejected:
-                # A valid negative judgement is evidence, not malformed output.
-                # Never ask the critic to flip it just to make processing pass.
-                raise ValueError('Need rewrite rejected by independent critic: ' + '; '.join(c.group_id + ': ' + c.rationale for c in rejected))
+            answer = checked_rewrites(store, run, payload, answer, dict(batch), client, profile)
             members_by_group = dict(batch)
             for written in answer.needs:
                 members = members_by_group[written.group_id]
@@ -752,17 +788,25 @@ def restore_need(store,run_id,request,actor):
             record.rq2_hints=collect_hints(record.raw_statement,record.evidence_links,profile,record.revision_id,record.rq2_hints)
             if not detect_terms(record.normalized_statement,profile):
                 record.need_statement=record.normalized_statement;refresh_need(record)
-        record.verification=verify(store,record,run['evidence_ids'])
-        record.qualification=None
-        record.lifecycle_state=('blocked_support' if aside['reason'] in {'not_supported_by_quote','rewrite_rejected'} else 'awaiting_human') if record.verification['status']=='pass' else 'blocked_evidence'
-        decision_id=uid('decision',run_id,request.idempotency_key);record.decision_id=decision_id
-        if stored: stored.update(record.model_dump(mode='json'))
-        else: run['requirements'].append(record.model_dump(mode='json'))
-        if record.revision_id not in run['active_revision_ids']: run['active_revision_ids'].append(record.revision_id)
+        group_ids=aside.get('details',{}).get('member_revision_ids',[])
+        restored_records = ([RequirementRecord.model_validate(r) for r in run['requirements'] if r['revision_id'] in group_ids]
+                            if group_ids else [record])
+        if group_ids and len(restored_records)!=len(set(group_ids)):
+            raise ValueError('Set-aside group is missing an original member; repair the audit before restoration.')
+        decision_id=uid('decision',run_id,request.idempotency_key)
+        for record in restored_records:
+            record.verification=verify(store,record,run['evidence_ids'])
+            record.qualification=None
+            record.lifecycle_state=('blocked_support' if aside['reason'] in {'not_supported_by_quote','rewrite_rejected'} else 'awaiting_human') if record.verification['status']=='pass' else 'blocked_evidence'
+            record.decision_id=decision_id
+            prior=next((r for r in run['requirements'] if r['requirement_id']==record.requirement_id),None)
+            if prior: prior.update(record.model_dump(mode='json'))
+            else: run['requirements'].append(record.model_dump(mode='json'))
+            if record.revision_id not in run['active_revision_ids']: run['active_revision_ids'].append(record.revision_id)
         aside['restored']=True
         run['decisions'].append({'decision_id':decision_id,'actor':actor,'action':'restore',
-            'revision_ids':[record.revision_id],'revision_hashes':[record.content_hash],
-            'result_revision_ids':[record.revision_id],'reason':aside['reason'],
+            'revision_ids':[r.revision_id for r in restored_records],'revision_hashes':[r.content_hash for r in restored_records],
+            'result_revision_ids':[r.revision_id for r in restored_records],'reason':aside['reason'],
             'rationale':request.rationale,'created_at':now()})
         run['status']='awaiting_human';run['stages']['adjudication']='running'
         return {'revision_id':record.revision_id,'source_status':record.verification['status']}

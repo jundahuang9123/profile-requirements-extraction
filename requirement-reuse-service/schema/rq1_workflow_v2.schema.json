@@ -2475,6 +2475,10 @@
           "default": null,
           "title": "Base Check"
         },
+        "details": {
+          "title": "Details",
+          "type": "object"
+        },
         "matched_base_need_ids": {
           "items": {
             "type": "string"
@@ -2513,7 +2517,8 @@
             "generic_need_served_by_base",
             "no_use_case",
             "not_supported_by_quote",
-            "source_check_failed"
+            "source_check_failed",
+            "rewrite_rejected"
           ],
           "title": "Reason",
           "type": "string"

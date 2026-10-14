@@ -100,12 +100,16 @@ def test_valid_negative_rewrite_critic_is_not_pressured_to_flip(setup):
                     'rationale':'The actor was not in the members.'} for identifier in data['groups']]})
             return super().generate_structured(**kwargs)
     client=NegativeCritic()
-    with pytest.raises(ValueError,match='rejected by independent critic'):
-        needs.write_needs(store,run,[records],client,None)
+    active,_=needs.write_needs(store,run,[records],client,None)
+    assert active==[]
     assert sum(name=='NeedGrounding' for name,_ in client.calls)==1
-    with pytest.raises(ValueError,match='rejected by independent critic'):
-        needs.write_needs(store,run,[records],client,None)
-    assert len(client.calls)==2
+    assert sum(name=='NeedStatements' for name,_ in client.calls)==2
+    saved=store.get('run',run['run_id'])
+    assert saved['set_aside_observations'][-1]['reason']=='rewrite_rejected'
+    assert len(saved['set_aside_observations'][-1]['details']['rewrites'])==2
+    before=len(client.calls)
+    needs.write_needs(store,run,[records],client,None)
+    assert len(client.calls)==before
 
 
 @pytest.mark.parametrize('obligation', ['mandatory','recommended','optional','unknown'])
