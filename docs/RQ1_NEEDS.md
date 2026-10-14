@@ -36,6 +36,7 @@ competency question or user task declared in the frozen snapshot.
 | Normalize | Preserve raw proposals; set uncited proposals aside | 4 · Normalized candidates |
 | Base-source pre-filter | Set aside proposals supported only by configured base-specification sources | 4 · Normalized candidates |
 | Original-source check | Resolve each candidate's exact source and every quotation; no model assessment | 5 · Original-source checks |
+| Proposal support | Judge the information/capability against own exact excerpts, at most 25 proposals / 24,000 characters; retain only selected supporting quotes in needs | 6 · Grouped needs & scope |
 | Group underlying needs | Same information/capability, resource and condition/scope; ignore typed labels, terms, wording, obligation strength and perspective | 6 · Grouped needs & scope |
 | Write and check a need | Write every group, including singletons; independently check no added actor, obligation, scope or condition; move non-expressing members to singleton follow-ups | 6 · Grouped needs & scope |
 | Classify against the base | Generic needs are visible asides; retain domain and domain use of base | 6 · Grouped needs & scope |
@@ -55,7 +56,8 @@ substep. Use “Download this step” for its full records and audit.
 Content and consumer perspectives can express the same need: “metadata contains
 the title” and “a consumer can read the title”. Different information, actor goals,
 conditions, scopes and negations remain separate. A group's evidence is the union
-of its passing members' links. Source-failed candidates remain separate blocked
+of its passing members' selected supporting quotes. Other authentic quotes remain
+on the original members for the audit; support is a separate model judgement. Source-failed candidates remain separate blocked
 needs; a passing member cannot conceal or repair a failed candidate.
 
 An obligation counts only with a passing obligation quote; missing quotes downgrade
@@ -114,6 +116,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Fresh need extraction | `rq1-independent-elicitation-v3.2` | Existing excerpt and extraction budgets; no `extension_kind` or `base_property` in the new provider contract |
 | Normalization | `rq1-need-normalization-v1` | Uncited and base-only filtering; historical extraction annotations remain readable |
 | Source check | `rq1-original-source-v2.2` | Deterministic; every cited link checked |
+| Proposal support | `rq1-proposal-support-v1` | At most 25 proposals / 24,000 input characters; only own excerpt IDs allowed |
 | Grouping | `rq1-semantic-consolidation-v3` | 40 candidates, 24,000 input characters, at most 25 prior offered groups; audited exact fallback for invalid model grouping |
 | Need writing / rewrite critic | `rq1-need-statement-v2` | At most 20 groups; 24,000 writer input characters; independent critic up to 48,000 characters; initial response plus one output correction |
 | Additional member checking | `rq1-need-membership-v1` | Large groups use a bounded writing basis (up to 20 members / 16,000 statement characters); every remaining member checked in batches up to 40 / 24,000 characters |

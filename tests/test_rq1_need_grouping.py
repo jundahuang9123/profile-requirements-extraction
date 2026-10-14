@@ -13,6 +13,10 @@ class NeedsClient:
     def describe(self): return {'provider':'offline-test','model':'scripted'}
     def generate_structured(self, *, system, user, output_model, **kwargs):
         data=json.loads(user); name=output_model.__name__; self.calls.append((name,data))
+        if name == 'ProposalSupport':
+            return output_model.model_validate({'proposals':[{'proposal_id':identifier,'support':'supported',
+                'supporting_evidence_ids':list(row['excerpts']),'obligation_stated':row['obligation']!='unknown',
+                'rationale':'Scripted supporting-quote check.'} for identifier,row in data['proposals'].items()]})
         if name == 'SemanticGrouping':
             return output_model.model_validate({'groups':[{'member_ids':list(data['candidates'])}]})
         if name == 'NeedStatements':

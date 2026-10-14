@@ -132,7 +132,7 @@ def needs_metrics(run, frozen=None):
     frozen=frozen or {};records=frozen.get('requirements',run['requirements'])
     steps=frozen.get('need_steps',run.get('need_steps',{}))
     asides=frozen.get('set_aside_observations',run.get('set_aside_observations',[]))
-    mapping={'SemanticGrouping':'grouping','NeedStatements':'need_statement','NeedGrounding':'rewrite_critic',
+    mapping={'ProposalSupport':'proposal_support','SemanticGrouping':'grouping','NeedStatements':'need_statement','NeedGrounding':'rewrite_critic',
              'NeedMembership':'need_membership','NeedClassifications':'classification','NeedUseCaseLinks':'scoping','UseCaseCritic':'scope_critic',
              'Qualification':'assessment','NeedSpanElicitationResult':'extraction','Turn':'discussion',
              'RoleCandidates':'role_selection','RolePanel':'role_selection','RoleCitationCorrections':'role_selection'}

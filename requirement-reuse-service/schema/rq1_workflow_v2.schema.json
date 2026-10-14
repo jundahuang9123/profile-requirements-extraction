@@ -1506,6 +1506,74 @@
       "title": "Observation",
       "type": "object"
     },
+    "ProposalSupport": {
+      "additionalProperties": false,
+      "properties": {
+        "proposals": {
+          "items": {
+            "$ref": "#/$defs/ProposalSupportDecision"
+          },
+          "maxItems": 25,
+          "title": "Proposals",
+          "type": "array"
+        }
+      },
+      "required": [
+        "proposals"
+      ],
+      "title": "ProposalSupport",
+      "type": "object"
+    },
+    "ProposalSupportDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "obligation_stated": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Obligation Stated"
+        },
+        "proposal_id": {
+          "title": "Proposal Id",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "support": {
+          "enum": [
+            "supported",
+            "partly",
+            "not_supported"
+          ],
+          "title": "Support",
+          "type": "string"
+        },
+        "supporting_evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Evidence Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "proposal_id",
+        "support",
+        "rationale"
+      ],
+      "title": "ProposalSupportDecision",
+      "type": "object"
+    },
     "Qualification": {
       "additionalProperties": false,
       "properties": {
@@ -1838,6 +1906,18 @@
           },
           "title": "Parent Revision Ids",
           "type": "array"
+        },
+        "proposal_support": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Proposal Support"
         },
         "qualification": {
           "anyOf": [
@@ -2431,7 +2511,8 @@
             "declared_not_extension",
             "base_specification_only",
             "generic_need_served_by_base",
-            "no_use_case"
+            "no_use_case",
+            "not_supported_by_quote"
           ],
           "title": "Reason",
           "type": "string"

@@ -195,7 +195,7 @@ class ElicitationResult(Contract):
 class SetAside(Contract):
     observation_id: str
     role_id: str
-    reason: Literal['no_source_link', 'inherited_from_base', 'declared_not_extension', 'base_specification_only', 'generic_need_served_by_base', 'no_use_case'] = 'no_source_link'
+    reason: Literal['no_source_link', 'inherited_from_base', 'declared_not_extension', 'base_specification_only', 'generic_need_served_by_base', 'no_use_case', 'not_supported_by_quote'] = 'no_source_link'
     base_check: dict[str, Any] | None = None
     revision_id: str | None = None
     need_id: str | None = None
@@ -298,6 +298,7 @@ class RequirementRecord(Contract):
     need_statement: str | None = None
     obligation_alternatives: list[ObligationAlternative] = Field(default_factory=list)
     unbacked_obligation: UnbackedObligation | None = None
+    proposal_support: dict[str, Any] | None = None
     task_justifications: list[TaskJustification] = Field(default_factory=list)
     need_class: Literal['generic', 'domain_use_of_base', 'domain'] | None = None
     matched_base_need_ids: list[str] = Field(default_factory=list)

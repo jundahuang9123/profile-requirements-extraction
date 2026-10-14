@@ -12,7 +12,7 @@ from requirement_reuse_service.workflow.models import (WorkflowRun, SourceArtifa
     AdditionRequest, AssessmentRequest, BaselineRequest, DecisionRequest, DeriveRequest, RunRequest, SourceRequest,
     SemanticGrouping, SpanElicitationResult, NeedSpanElicitationResult, RestoreRequest)
 from requirement_reuse_service.workflow.needs import (NeedStatements, NeedGrounding, NeedClassifications,
-    NeedUseCaseLinks, UseCaseCritic, NeedMembership)
+    NeedUseCaseLinks, UseCaseCritic, NeedMembership, ProposalSupport)
 
 
 def main():
@@ -23,7 +23,7 @@ def main():
         WorkflowRun, SourceArtifact, EvidenceUnit, CorpusSnapshot, AdditionRequest,
         AssessmentRequest, BaselineRequest, DecisionRequest, DeriveRequest, RunRequest, SourceRequest, SemanticGrouping,
         SpanElicitationResult, NeedSpanElicitationResult, RestoreRequest, NeedStatements, NeedGrounding,
-        NeedClassifications, NeedUseCaseLinks, UseCaseCritic, NeedMembership)],
+        NeedClassifications, NeedUseCaseLinks, UseCaseCritic, NeedMembership, ProposalSupport)],
         title='RQ1 persistent workflow v2 contracts')
     schema['$schema'] = 'https://json-schema.org/draft/2020-12/schema'
     output = json.dumps(schema, indent=2, sort_keys=True) + '\n'
