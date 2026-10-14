@@ -3,7 +3,7 @@ import re
 from .models import RQ2Hint
 
 CURIE = re.compile(r"(?<![\w/:])([A-Za-z][\w.-]*:[A-Za-z_][\w.-]*)(?![\w/])")
-CAMEL = re.compile(r"[a-z][A-Z]|[A-Z][a-z]")
+CAMEL = re.compile(r"[a-z][A-Z]")
 
 
 def registry_terms(profile):

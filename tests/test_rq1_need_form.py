@@ -20,3 +20,11 @@ def test_new_provider_contract_separates_solutions():
     assert 'extension_kind' not in properties and 'base_property' not in properties
     assert RunRequest(snapshot_id='x').output_form == 'needs'
     assert RequirementRecord.model_fields['need_statement'].default is None
+
+
+def test_single_capitalised_words_are_not_local_vocabulary_names():
+    from requirement_reuse_service.workflow.base_profile import load_profile
+    from requirement_reuse_service.workflow.terms import detect_terms
+    profile,_=load_profile('dcat-ap-2.0.1')
+    assert detect_terms('Dataset owners. Location Referencing. Distribution formats.',profile)==[]
+    assert detect_terms('accessURL DataService PeriodOfTime dcat:Dataset',profile)==['DataService','PeriodOfTime','accessURL','dcat:Dataset']
