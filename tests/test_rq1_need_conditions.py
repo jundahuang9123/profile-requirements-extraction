@@ -2,7 +2,7 @@ import pytest
 from test_resume_discussions import setup
 from requirement_reuse_service.workflow.needs import conditions
 
-@pytest.mark.parametrize('verb',['tell','see','know','check','find out','determine','show','indicate','state','record','describe','specify','document','understand','judge'])
+@pytest.mark.parametrize('verb',['tell','see','know','check','find','find out','learn','determine','show','indicate','state','record','describe','specify','document','understand','judge'])
 @pytest.mark.parametrize('marker',['when','if','whether'])
 def test_indirect_questions_are_not_restricting_conditions(verb,marker):
     assert conditions(f'Users can {verb} {marker} the data were updated.')==[]
@@ -10,6 +10,26 @@ def test_indirect_questions_are_not_restricting_conditions(verb,marker):
 @pytest.mark.parametrize('text',['If a dataset is real-time, users can identify updates.', 'Users can find a licence when access is restricted.', 'Users can check licences if the dataset is restricted.'])
 def test_restricting_clauses_stay_conditions(text):
     assert conditions(text)
+
+
+@pytest.mark.parametrize('marker',['If','When','Unless'])
+@pytest.mark.parametrize('prefix',['','Users can identify a title. '])
+def test_sentence_initial_condition_ends_at_first_comma(marker,prefix):
+    clause=f'{marker} a dataset is real-time'
+    assert conditions(prefix+clause+', users can see its update frequency.')==[clause]
+
+
+def test_licence_restriction_remains_a_condition():
+    assert conditions('Users can find a licence when access is restricted.')==['when access is restricted']
+
+
+def test_initial_condition_matches_member_clause_without_following_consequence():
+    from requirement_reuse_service.workflow import needs
+    offered={'g':{'members':{'m':{'statement':'Users can identify update frequency if a dataset is real-time.'}}}}
+    answer=needs.NeedStatements(needs=[{'group_id':'g',
+        'statement':'If a dataset is real-time, users can see its update frequency.',
+        'condition':'If a dataset is real-time','members':[{'member_id':'m','expresses_need':True}]}])
+    assert needs.statement_errors(answer,offered,None)==[]
 
 
 def test_modification_question_can_be_classified_as_generic(setup,monkeypatch):

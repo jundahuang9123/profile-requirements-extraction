@@ -444,3 +444,7 @@ Unchecked proposal-support rows retain every authentic `supports` quotation from
 source-passing members. Their rewritten need passes its own source gate and ranks
 with those documents while keeping `support_not_checked` visible. Contradicting
 links are not promoted. This fixes evidence loss, not semantic uncertainty.
+
+Sentence-initial If/When/Unless clauses stop at their first comma. Knowing-verb
+checks now include find and learn; actual access/licence restrictions remain
+conditions. Scripted regressions check exact clauses and member-grounding.

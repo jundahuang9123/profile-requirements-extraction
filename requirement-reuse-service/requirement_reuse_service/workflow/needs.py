@@ -133,13 +133,16 @@ def obligation_summary(members):
 def conditions(text):
     # This is a conservative addition check, not a semantic entailment detector.
     # Conditions offered separately must also be exact member-statement phrases.
-    knowing = re.compile(r'\b(?:tell|see|know|check|find\s+out|determine|show|indicate|state|record|'
+    knowing = re.compile(r'\b(?:tell|see|know|check|find(?:\s+out)?|learn|determine|show|indicate|state|record|'
                          r'describe|specify|document|understand|judge)\s*(?:(?:clearly|easily|directly|exactly)\s*)?$',re.I)
     found=[]
     for match in re.finditer(r'\b(?:if|when|unless|where applicable|provided that|only (?:for|when))\b[^.;]*',text,re.I):
         marker=match.group(0).split()[0].lower()
         if marker in {'if','when'} and knowing.search(text[:match.start()]): continue
-        found.append(match.group(0).strip().rstrip('.'))
+        clause=match.group(0)
+        if marker in {'if','when','unless'} and re.search(r'(?:^|[.!?])\s*$',text[:match.start()]):
+            clause=clause.split(',',1)[0]
+        found.append(clause.strip().rstrip('.'))
     return found
 
 
