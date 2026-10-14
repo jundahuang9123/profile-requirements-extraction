@@ -620,6 +620,15 @@
           ],
           "default": null,
           "title": "Scoping"
+        },
+        "start_from": {
+          "default": "normalization",
+          "enum": [
+            "normalization",
+            "elicitation"
+          ],
+          "title": "Start From",
+          "type": "string"
         }
       },
       "required": [

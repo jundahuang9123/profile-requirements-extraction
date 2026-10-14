@@ -323,14 +323,25 @@ def pin_base_needs_catalogue(run: WorkflowRun):
 
 
 def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='local-reviewer') -> dict:
-    """Reprocess a frozen extraction in a separate run; never mutate its source."""
+    """Restart from a frozen panel or extraction without mutating the source."""
     source = store.get('run', source_run_id)
     if source['version'] != request.expected_version:
         raise ConflictError('Source run changed. Refresh before deriving a run.')
     if source.get('worker_id') and source.get('job_lease_until', 0) > time.time():
         raise ConflictError('Wait for the source worker to finish before deriving a run.')
     manifest = source.get('role_manifest') or {}
-    if (source['stages'].get('elicitation') != 'completed' or not source['role_runs']
+    restart_extraction = request.start_from == 'elicitation'
+    if restart_extraction:
+        if any(source['stages'].get(stage) != 'completed'
+               for stage in ('acquisition', 'decomposition', 'role_selection')):
+            raise ValueError('Restarting extraction requires a complete source snapshot and stakeholder panel.')
+        panel_roles(source)  # Checks the sealed manifest, including manual panels.
+        snapshot = store.get('snapshot', source['snapshot_id'])
+        if (manifest.get('snapshot_id') != source['snapshot_id']
+                or manifest.get('snapshot_hash') != snapshot['manifest_hash']
+                or source['evidence_ids'] != snapshot['evidence_ids']):
+            raise ValueError('Frozen panel/source snapshot mismatch.')
+    elif (source['stages'].get('elicitation') != 'completed' or not source['role_runs']
             or any(r['status'] != 'completed' for r in source['role_runs'])
             or (source['request'].get('role_selection', 'manual') != 'manual'
                 and manifest.get('status') != 'completed')):
@@ -338,6 +349,10 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
     options = deepcopy(source['request'])
     options.update({k: getattr(request, k) for k in
                     ('name', 'consolidation', 'discussion', 'execution_mode', 'allow_live_provider', 'output_form', 'scoping')})
+    if restart_extraction:
+        for key in ('output_form', 'scoping'):
+            if key not in request.model_fields_set:
+                options[key] = source['request'].get(key)
     options['base_check'] = request.base_check
     if 'benchmark_case_id' in request.model_fields_set:
         options['benchmark_case_id'] = request.benchmark_case_id
@@ -356,33 +371,41 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
     configured_client(settings)  # Validate permission/configuration; sends no request.
     run = WorkflowRun(run_id=f'run-{uuid.uuid4().hex}', name=settings.name,
         snapshot_id=source['snapshot_id'], strategy=source['strategy'], request=settings,
-        evidence_ids=source['evidence_ids'], observations=source['observations'],
-        role_runs=source['role_runs'], role_manifest=manifest or None, created_at=now(),
-        elicitation_policy_version=source.get('elicitation_policy_version', 'legacy-unknown'),
+        evidence_ids=source['evidence_ids'], observations=[] if restart_extraction else source['observations'],
+        role_runs=[] if restart_extraction else source['role_runs'], role_manifest=manifest or None, created_at=now(),
+        elicitation_policy_version=(NEEDS_ELICITATION_POLICY if settings.output_form == 'needs' else PROMPT_VERSION)
+            if restart_extraction else source.get('elicitation_policy_version', 'legacy-unknown'),
         normalization_policy_version=NEEDS_NORMALIZATION_POLICY if settings.output_form == 'needs' else NORMALIZATION_POLICY_VERSION,
         **base_metadata,
         base_check_policy_version=BASE_CHECK_POLICY_VERSION if base_metadata and settings.base_check else None,
         consolidation_policy_version=NEED_SEMANTIC_POLICY if settings.output_form == 'needs' else SEMANTIC_POLICY if settings.consolidation == 'semantic' else EXACT_POLICY,
         implementation_hash=digest({p.name: digest(p.read_bytes()) for p in Path(__file__).parent.glob('*.py')}),
-        derived_from={'run_id': source_run_id, 'version': source['version'], 'stage': 'elicitation',
+        derived_from={'run_id': source_run_id, 'version': source['version'],
+            'stage': 'role_selection' if restart_extraction else 'elicitation',
             'observations_hash': digest(source['observations']), 'role_runs_hash': digest(source['role_runs']),
             'elicitation_policy_version': source.get('elicitation_policy_version'),
-            'reuse_assessments': request.reuse_assessments, 'actor': actor, 'rationale': request.rationale})
+            'reuse_assessments': request.reuse_assessments and not restart_extraction,
+            'actor': actor, 'rationale': request.rationale})
+    if restart_extraction:
+        run.derived_from.update(role_manifest_hash=digest(manifest),
+            evidence_ids_hash=digest(source['evidence_ids']), snapshot_hash=snapshot['manifest_hash'])
     if settings.output_form == 'needs':
         from .needs import POLICIES
         run.needs_policies = dict(POLICIES)
         pin_base_needs_catalogue(run)
     for stage in ('acquisition', 'decomposition', 'role_selection', 'elicitation'):
+        if restart_extraction and stage == 'elicitation':
+            continue
         run.stages[stage] = 'completed'
         run.stage_results[stage] = deepcopy(source.get('stage_results', {}).get(stage) or
             {k: source.get(k) for k in STAGE_RESULT_FIELDS[stage]})
-    hashes = {c.get('catalogue_hash') for r in source['role_runs'] for c in r.get('citation_selections', [])}
+    hashes = {c.get('catalogue_hash') for r in run.role_runs for c in r.get('citation_selections', [])}
     run.catalogues = {h: deepcopy(c) for h, c in source.get('catalogues', {}).items() if h in hashes}
     compatible_base_assessment = (not source.get('base_check_policy_version') or
         (source.get('base_check_policy_version') == run.base_check_policy_version
          and source.get('base_profile_sha256') == run.base_profile_sha256))
     run.derived_from['base_assessment_context_compatible'] = compatible_base_assessment
-    if request.reuse_assessments and compatible_base_assessment and settings.output_form != 'needs':
+    if run.derived_from['reuse_assessments'] and compatible_base_assessment and settings.output_form != 'needs':
         run.assessment_reuse = {r['content_hash']: {'content_hash': r['content_hash'],
             'qualification': deepcopy(r['qualification'])} for r in source['requirements']
             if reusable_qualification(r, r['content_hash'])}
@@ -392,7 +415,8 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
     value = run.model_dump(mode='json')
     # Optional v3 annotations must not appear retroactively in the copied v2.11
     # extraction: its exact source representation is bound by the lineage hash.
-    value['observations'] = deepcopy(source['observations'])
+    if not restart_extraction:
+        value['observations'] = deepcopy(source['observations'])
     store.put('run', run.run_id, value)
     return value
 
@@ -691,9 +715,17 @@ def ensure_elicitation_resumable(run):
     needs_extraction = (run['stages'].get('elicitation') != 'completed'
                         or any(r['status'] != 'completed' for r in run['role_runs']))
     if run.get('derived_from'):
-        if needs_extraction or run['stages'].get('role_selection') != 'completed':
-            raise ValueError('Derived runs cannot repeat extraction. Create a new run.')
-        return
+        lineage = run['derived_from']
+        if lineage.get('stage') == 'role_selection':
+            if (run['stages'].get('role_selection') != 'completed'
+                    or digest(run.get('role_manifest')) != lineage.get('role_manifest_hash')
+                    or digest(run['evidence_ids']) != lineage.get('evidence_ids_hash')):
+                raise ValueError('Derived stakeholder panel/source checkpoint hash mismatch.')
+            panel_roles(run)
+        else:
+            if needs_extraction or run['stages'].get('role_selection') != 'completed':
+                raise ValueError('Derived runs cannot repeat extraction. Create a new run.')
+            return
     if not needs_extraction:
         return
     expected_policy = NEEDS_ELICITATION_POLICY if run['request'].get('output_form') == 'needs' else PROMPT_VERSION
@@ -1269,9 +1301,16 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
         active_stage = 'role_selection'
         if run.get('derived_from'):
             ensure_elicitation_resumable(run)
-            for field in ('observations', 'role_runs'):
-                if digest(run[field]) != run['derived_from'][field + '_hash']:
-                    raise ValueError('Derived extraction checkpoint hash mismatch. Create a new run.')
+            if run['derived_from'].get('stage') == 'role_selection':
+                snapshot = store.get('snapshot', run['snapshot_id'])
+                if (snapshot['manifest_hash'] != run['derived_from']['snapshot_hash']
+                        or snapshot['evidence_ids'] != run['evidence_ids']
+                        or run['request']['snapshot_id'] != run['snapshot_id']):
+                    raise ValueError('Derived source snapshot checkpoint hash mismatch.')
+            else:
+                for field in ('observations', 'role_runs'):
+                    if digest(run[field]) != run['derived_from'][field + '_hash']:
+                        raise ValueError('Derived extraction checkpoint hash mismatch. Create a new run.')
         else:
             # Refuse obsolete extraction contracts or changed base bytes before
             # selecting roles or constructing a provider for unfinished work.
