@@ -507,7 +507,8 @@ def _requirement_content(*, statement, requirement_type, intent, scope, evidence
     return content
 
 
-def verify(store: Store, record: RequirementRecord, eligible_evidence_ids: list[str], cache: dict | None = None) -> dict:
+def verify(store: Store, record: RequirementRecord, eligible_evidence_ids: list[str], cache: dict | None = None,
+           policy_version: str = 'rq1-original-source-v2.1') -> dict:
     if record.need_statement is not None:
         from .needs import need_integrity
         if record.need_statement != record.normalized_statement or record.need_integrity_hash != need_integrity(record):
@@ -546,12 +547,19 @@ def verify(store: Store, record: RequirementRecord, eligible_evidence_ids: list[
     supports = any(item['status'] == 'pass' and item['relation'] == 'supports' and item['component'] == 'statement' for item in results)
     obligation_supported = record.normalized_intent.obligation_hint == 'unknown' or any(
         item['status'] == 'pass' and item['relation'] == 'supports' and item['component'] == 'obligation' for item in results)
+    if policy_version == 'rq1-original-source-v2.2' and not obligation_supported:
+        from .models import UnbackedObligation
+        from .needs import refresh_need
+        record.unbacked_obligation = UnbackedObligation(label=record.normalized_intent.obligation_hint, reason='no_quote')
+        record.normalized_intent.obligation_hint = 'unknown'
+        refresh_need(record)
+        obligation_supported = True
     # Preserve every failed attempt; all cited material must be repaired explicitly.
     passed = bool(results) and supports and obligation_supported and all(item['status'] == 'pass' for item in results)
     return {'revision_id': record.revision_id, 'revision_hash': record.content_hash,
             'status': 'pass' if passed else 'fail', 'links': results,
             'component_checks': {'statement_premise': supports, 'obligation_premise': obligation_supported},
-            'method_version': 'rq1-original-source-v2.1', 'checked_at': now()}
+            'method_version': policy_version, 'checked_at': now()}
 
 
 def assess(store: Store, record: RequirementRecord, client: LLMClient | None = None) -> Qualification:
@@ -1318,7 +1326,10 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             start_stage('verification', 'verifying')
             cache = {}
             for record in records:
-                record.verification = verify(store, record, run['evidence_ids'], cache)
+                prior_revision_id = record.revision_id
+                source_policy = (run.get('needs_policies', {}).get('source_check', 'rq1-original-source-v2.1')
+                                 if request.output_form == 'needs' else 'rq1-original-source-v2.1')
+                record.verification = verify(store, record, run['evidence_ids'], cache, source_policy)
                 if request.output_form != 'needs' and (not record.qualification or record.qualification.revision_hash != record.content_hash):
                     record.qualification = assess(store, record, client)
                 retain_base_findings(record)
@@ -1326,14 +1337,16 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
                 def checkpoint(r):
                     if r['status'] == 'cancelled':
                         raise ConflictError('Run cancelled.')
-                    r['requirements'] = [record.model_dump(mode='json') if item['revision_id'] == record.revision_id else item
+                    r['requirements'] = [record.model_dump(mode='json') if item['revision_id'] == prior_revision_id else item
                                          for item in r['requirements']]
                 store.mutate(run_id, None, 'requirement_assessed', checkpoint)
             if request.output_form == 'needs':
                 from .needs import step_saved
                 step_saved(store, run, 'source_check', input_count=len(records),
                            passed_count=sum(r.verification['status'] == 'pass' for r in records),
-                           blocked_count=sum(r.verification['status'] != 'pass' for r in records), model_calls=0)
+                           blocked_count=sum(r.verification['status'] != 'pass' for r in records), model_calls=0,
+                           unbacked_obligations=[{'revision_id':r.revision_id, **r.unbacked_obligation.model_dump(mode='json')}
+                                                 for r in records if r.unbacked_obligation])
             run = patch('verification', {'requirements': [r.model_dump(mode='json') for r in records], 'status': 'consolidating'})
             if pause('verification'):
                 return

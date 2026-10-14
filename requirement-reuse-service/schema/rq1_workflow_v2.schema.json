@@ -1933,6 +1933,17 @@
           "title": "Task Justifications",
           "type": "array"
         },
+        "unbacked_obligation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UnbackedObligation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "verification": {
           "anyOf": [
             {
@@ -2902,6 +2913,34 @@
         "representation_hash"
       ],
       "title": "TextSelector",
+      "type": "object"
+    },
+    "UnbackedObligation": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "enum": [
+            "mandatory",
+            "recommended",
+            "optional"
+          ],
+          "title": "Label",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "no_quote",
+            "quote_does_not_state_it"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "reason"
+      ],
+      "title": "UnbackedObligation",
       "type": "object"
     },
     "UseCaseCritic": {

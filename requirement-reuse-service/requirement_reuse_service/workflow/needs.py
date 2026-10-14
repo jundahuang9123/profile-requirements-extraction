@@ -14,7 +14,7 @@ from .storage import RUN_PARTS, canonical, digest, now, uid
 from .terms import collect_hints, detect_terms, union_hints
 from .semantic_consolidation import grouped_block, partition_exact, NEED_SEMANTIC_POLICY
 
-POLICIES = {'source_check': 'rq1-original-source-v2.1', 'grouping': NEED_SEMANTIC_POLICY,
+POLICIES = {'source_check': 'rq1-original-source-v2.2', 'grouping': NEED_SEMANTIC_POLICY,
             'need_statement': 'rq1-need-statement-v2', 'need_membership': 'rq1-need-membership-v1',
             'classification': 'rq1-generic-domain-v1', 'scoping': 'rq1-use-case-necessity-v1',
             'scope_critic': 'rq1-use-case-critic-v1', 'assessment': 'rq1-need-support-v1', 'ranking': 'rq1-need-ranking-v1'}
@@ -86,9 +86,12 @@ GROUND_SYSTEM = (
 
 
 def need_integrity(record):
-    return digest({key: record.model_dump(mode='json')[key] for key in (
+    content = {key: record.model_dump(mode='json')[key] for key in (
         'need_statement', 'need_condition', 'scope', 'obligation_alternatives', 'task_justifications',
-        'rq2_hints', 'need_class', 'matched_base_need_ids', 'base_need_matches', 'parent_revision_ids')})
+        'rq2_hints', 'need_class', 'matched_base_need_ids', 'base_need_matches', 'parent_revision_ids')}
+    if record.unbacked_obligation is not None:
+        content['unbacked_obligation'] = record.unbacked_obligation.model_dump(mode='json')
+    return digest(content)
 
 
 def refresh_need(record):
@@ -167,7 +170,10 @@ def cached_generation(store, run, step, payload, output_model, system, client, v
 def obligation_summary(members):
     by_value = {}
     for record in members:
-        by_value.setdefault(record.normalized_intent.obligation_hint, []).append(record.revision_id)
+        label = record.normalized_intent.obligation_hint
+        if record.unbacked_obligation or not any(l.get('status') == 'pass' and l.get('relation') == 'supports' and l.get('component') == 'obligation' for l in (record.verification or {}).get('links', [])):
+            label = 'unknown'
+        by_value.setdefault(label, []).append(record.revision_id)
     alternatives = [ObligationAlternative(obligation=value, count=len(ids), revision_ids=sorted(ids))
                     for value, ids in sorted(by_value.items())]
     return (alternatives[0].obligation if len(alternatives) == 1 else 'unknown'), alternatives

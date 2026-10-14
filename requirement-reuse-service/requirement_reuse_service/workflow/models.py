@@ -164,6 +164,11 @@ class ObligationAlternative(Contract):
     revision_ids: list[str] = Field(min_length=1)
 
 
+class UnbackedObligation(Contract):
+    label: Literal['mandatory', 'recommended', 'optional']
+    reason: Literal['no_quote', 'quote_does_not_state_it']
+
+
 class Observation(Contract):
     observation_id: str
     role_id: str
@@ -292,6 +297,7 @@ class RequirementRecord(Contract):
     rq2_hints: list[RQ2Hint] = Field(default_factory=list)
     need_statement: str | None = None
     obligation_alternatives: list[ObligationAlternative] = Field(default_factory=list)
+    unbacked_obligation: UnbackedObligation | None = None
     task_justifications: list[TaskJustification] = Field(default_factory=list)
     need_class: Literal['generic', 'domain_use_of_base', 'domain'] | None = None
     matched_base_need_ids: list[str] = Field(default_factory=list)

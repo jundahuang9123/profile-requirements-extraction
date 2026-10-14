@@ -58,7 +58,10 @@ conditions, scopes and negations remain separate. A group's evidence is the unio
 of its passing members' links. Source-failed candidates remain separate blocked
 needs; a passing member cannot conceal or repair a failed candidate.
 
-If all members agree on obligation, keep it. Otherwise use `unknown`, preserve the
+An obligation counts only with a passing obligation quote; missing quotes downgrade
+the label to unknown and retain the claimed label as `unbacked_obligation`. Every
+quote must still resolve exactly; candidate runs retain source-check v2.1.
+If all members agree on quoted obligation, keep it. Otherwise use `unknown`, preserve the
 counts and original revision IDs in `obligation_alternatives`, and use neutral
 wording. The reviewer decides. Source authentication does not establish entailment;
 the independent rewrite critic and support assessor are fallible model judgements.
@@ -110,7 +113,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 |---|---|---|
 | Fresh need extraction | `rq1-independent-elicitation-v3.2` | Existing excerpt and extraction budgets; no `extension_kind` or `base_property` in the new provider contract |
 | Normalization | `rq1-need-normalization-v1` | Uncited and base-only filtering; historical extraction annotations remain readable |
-| Source check | `rq1-original-source-v2.1` | Deterministic; every cited link checked |
+| Source check | `rq1-original-source-v2.2` | Deterministic; every cited link checked |
 | Grouping | `rq1-semantic-consolidation-v3` | 40 candidates, 24,000 input characters, at most 25 prior offered groups; audited exact fallback for invalid model grouping |
 | Need writing / rewrite critic | `rq1-need-statement-v2` | At most 20 groups; 24,000 writer input characters; independent critic up to 48,000 characters; initial response plus one output correction |
 | Additional member checking | `rq1-need-membership-v1` | Large groups use a bounded writing basis (up to 20 members / 16,000 statement characters); every remaining member checked in batches up to 40 / 24,000 characters |
