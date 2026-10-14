@@ -4,7 +4,7 @@ import re
 from .base_profile import PROFILE_DIRECTORY, load_profile
 from .storage import digest
 
-POLICY = 'rq1-base-needs-catalogue-v1'
+POLICY = 'rq1-base-needs-catalogue-v2'
 MAX_OFFERED = 25
 
 
@@ -29,11 +29,13 @@ def offer_entries(needs, catalogue):
     missed by retrieval remains a domain proposal rather than being discarded.
     """
     words=lambda text:set(re.findall(r'[a-z]+',text.casefold()))-set('the a an of for to users metadata find identify must should'.split())
+    def content(entry):
+        return ' '.join([entry['need'], entry.get('definition') or '', *entry.get('usage_notes',[])])
     rows=[]
     for need in needs:
         tokens=words(need.need_statement or need.normalized_statement)
-        ranked=sorted(catalogue['entries'],key=lambda e:(-len(tokens & words(e['need'])),e['id']))
-        rows.append([e for e in ranked if tokens & words(e['need'])][:5])
+        ranked=sorted(catalogue['entries'],key=lambda e:(-len(tokens & words(content(e))),e['id']))
+        rows.append([e for e in ranked if tokens & words(content(e))][:5])
     offered={}
     for index in range(5):
         for row in rows:

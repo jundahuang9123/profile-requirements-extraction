@@ -1,8 +1,8 @@
 {
   "base_profile_id": "dcat-3.0.0",
   "base_profile_sha256": "6738d665366484c4ecc6e6cf77057b581b6fe20d60d2cb6d5c39ff61aed816bf",
-  "policy_version": "rq1-base-needs-catalogue-v1",
-  "phrasing": "deterministic labels; definitions retained where registry provides them",
+  "policy_version": "rq1-base-needs-catalogue-v2",
+  "phrasing": "deterministic labels; verbatim pinned definitions and usage notes",
   "review": {
     "status": "unreviewed",
     "reviewer": null,
@@ -16,7 +16,17 @@
       "property": null,
       "rq2_term": "dcat:Catalog",
       "label": "catalog",
-      "definition": null,
+      "definition": "A curated collection of metadata about resources.",
+      "usage_notes": [
+        "Datasets and data services are examples of resources in the context of a data catalog."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Class:Catalog"
+        }
+      ],
       "base_obligation": null
     },
     {
@@ -26,7 +36,17 @@
       "property": "adms:status",
       "rq2_term": "adms:status",
       "label": "status",
-      "definition": null,
+      "definition": "The status of the resource in the context of a particular workflow process [VOCAB-ADMS].",
+      "usage_notes": [
+        "DCAT does not prescribe the use of any specific set of life-cycle statuses, but refers to existing standards and community practices fit for the relevant application scenario."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_status"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -37,7 +57,17 @@
       "property": "adms:versionNotes",
       "rq2_term": "adms:versionNotes",
       "label": "version notes",
-      "definition": null,
+      "definition": "A description of changes between this version and the previous version of the resource [VOCAB-ADMS].",
+      "usage_notes": [
+        "In case of backward compatibility issues with the previous version of the resource, a textual description of them SHOULD be specified by using this property."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_version_notes"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -48,7 +78,15 @@
       "property": "dcat:catalog",
       "rq2_term": "dcat:catalog",
       "label": "catalog",
-      "definition": null,
+      "definition": "A catalog that is listed in the catalog.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:catalog_catalog"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -59,7 +97,15 @@
       "property": "dcat:contactPoint",
       "rq2_term": "dcat:contactPoint",
       "label": "contact",
-      "definition": null,
+      "definition": "Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_contact_point"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -70,7 +116,15 @@
       "property": "dcat:dataset",
       "rq2_term": "dcat:dataset",
       "label": "dataset",
-      "definition": null,
+      "definition": "A dataset that is listed in the catalog.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:catalog_dataset"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -81,7 +135,15 @@
       "property": "dcat:distribution",
       "rq2_term": "dcat:distribution",
       "label": "distribution",
-      "definition": null,
+      "definition": "An available distribution of the dataset.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:dataset_distribution"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -92,7 +154,17 @@
       "property": "dcat:first",
       "rq2_term": "dcat:first",
       "label": "first",
-      "definition": null,
+      "definition": "The first resource in an ordered collection or series of resources, to which the current resource belongs.",
+      "usage_notes": [
+        "In DCAT this property is used for resources belonging to a dcat:DatasetSeries."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_first"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -103,7 +175,17 @@
       "property": "dcat:hasCurrentVersion",
       "rq2_term": "dcat:hasCurrentVersion",
       "label": "has current version",
-      "definition": null,
+      "definition": "This resource has a more specific, versioned resource with equivalent content [PAV].",
+      "usage_notes": [
+        "This property is intended for relating a non-versioned or abstract resource to a single snapshot that can be used as a permalink to indicate the current version of the content [PAV]. The notion of version used by this property is limited to versions resulting from revisions occurring to a resource as part of its life-cycle."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_has_current_version"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -114,7 +196,17 @@
       "property": "dcat:hasVersion",
       "rq2_term": "dcat:hasVersion",
       "label": "has version",
-      "definition": null,
+      "definition": "This resource has a more specific, versioned resource [PAV].",
+      "usage_notes": [
+        "This property is intended for relating a non-versioned or abstract resource to several versioned resources, e.g., snapshots [PAV]. The notion of version used by this property is limited to versions resulting from revisions occurring to a resource as part of its life-cycle. Therefore, its semantics is more specific than its super-property dcterms:hasVersion, which makes use of a broader notion of version, including editions and adaptations."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_has_version"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -125,7 +217,15 @@
       "property": "dcat:inSeries",
       "rq2_term": "dcat:inSeries",
       "label": "in series",
-      "definition": null,
+      "definition": "A dataset series of which the dataset is part.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:dataset_in_series"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -136,7 +236,15 @@
       "property": "dcat:keyword",
       "rq2_term": "dcat:keyword",
       "label": "keyword",
-      "definition": null,
+      "definition": "A keyword or tag describing the resource.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_keyword"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -147,7 +255,17 @@
       "property": "dcat:landingPage",
       "rq2_term": "dcat:landingPage",
       "label": "landing page",
-      "definition": null,
+      "definition": "A Web page that can be navigated to in a Web browser to gain access to the catalog, a dataset, its distributions and/or additional information.",
+      "usage_notes": [
+        "If the distribution(s) are accessible only through a landing page (i.e., direct download URLs are not known), then the landing page link SHOULD be duplicated as dcat:accessURL on a distribution. (see 5.7 Dataset available only behind some Web page)"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_landing_page"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -158,7 +276,17 @@
       "property": "dcat:last",
       "rq2_term": "dcat:last",
       "label": "last",
-      "definition": null,
+      "definition": "The last resource in an ordered collection or series of resources, to which the current resource belongs.",
+      "usage_notes": [
+        "In DCAT this property is used for resources belonging to a dcat:DatasetSeries."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_last"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -169,7 +297,17 @@
       "property": "dcat:prev",
       "rq2_term": "dcat:prev",
       "label": "prev",
-      "definition": null,
+      "definition": "The previous resource (before the current one) in an ordered collection or series of resources.",
+      "usage_notes": [
+        "In DCAT this property is used for resources belonging to a dcat:DatasetSeries. It is important to note that this property is different from dcat:previousVersion, as it does not denote a previous version of the same resource, but a distinct resource immediately preceding the current one in an ordered collection of resources."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_previous"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -180,7 +318,17 @@
       "property": "dcat:previousVersion",
       "rq2_term": "dcat:previousVersion",
       "label": "previous version",
-      "definition": null,
+      "definition": "The previous version of a resource in a lineage [PAV].",
+      "usage_notes": [
+        "This property is meant to be used to specify a version chain, consisting of snapshots of a resource. The notion of version used by this property is limited to versions resulting from revisions occurring to a resource as part of its life-cycle. One of the typical cases here is representing the history of the versions of a dataset that have been released over time."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_previous_version"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -191,7 +339,17 @@
       "property": "dcat:qualifiedRelation",
       "rq2_term": "dcat:qualifiedRelation",
       "label": "qualified relation",
-      "definition": null,
+      "definition": "Link to a description of a relationship with another resource",
+      "usage_notes": [
+        "Used to link to another resource where the nature of the relationship is known but does not match one of the standard [DCTERMS] properties (dcterms:hasPart, dcterms:isPartOf, dcterms:conformsTo, dcterms:isFormatOf, dcterms:hasFormat, dcterms:isVersionOf, dcterms:hasVersion, dcterms:replaces, dcterms:isReplacedBy, dcterms:references, dcterms:isReferencedBy, dcterms:requires, dcterms:isRequiredBy) or [PROV-O] properties (prov:wasDerivedFrom, prov:wasInfluencedBy, prov:wasQuotedFrom, prov:wasRevisionOf, prov:hadPrimarySource, prov:alternateOf, prov:specializationOf)."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_qualified_relation"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -202,7 +360,15 @@
       "property": "dcat:record",
       "rq2_term": "dcat:record",
       "label": "record",
-      "definition": null,
+      "definition": "A record describing the registration of a single resource (e.g., a dataset, a data service) that is part of the catalog.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:catalog_catalog_record"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -213,7 +379,17 @@
       "property": "dcat:resource",
       "rq2_term": "dcat:resource",
       "label": "resource",
-      "definition": null,
+      "definition": "A resource that is listed in the catalog.",
+      "usage_notes": [
+        "This is the most general predicate for membership of a catalog. Use of a more specific sub-property is recommended when available."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:catalog_resource"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -224,7 +400,15 @@
       "property": "dcat:service",
       "rq2_term": "dcat:service",
       "label": "service",
-      "definition": null,
+      "definition": "A service that is listed in the catalog.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:catalog_service"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -236,6 +420,8 @@
       "rq2_term": "dcat:spatialResolutionInMeters",
       "label": "spatial resolution in meters",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -247,6 +433,8 @@
       "rq2_term": "dcat:temporalResolution",
       "label": "temporal resolution",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -257,7 +445,17 @@
       "property": "dcat:theme",
       "rq2_term": "dcat:theme",
       "label": "theme",
-      "definition": null,
+      "definition": "A main category of the resource. A resource can have multiple themes.",
+      "usage_notes": [
+        "The set of themes used to categorize the resources are organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar, describing all the categories and their relations in the catalog."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_theme"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -268,7 +466,17 @@
       "property": "dcat:themeTaxonomy",
       "rq2_term": "dcat:themeTaxonomy",
       "label": "theme taxonomy",
-      "definition": null,
+      "definition": "A knowledge organization system (KOS) used to classify the resources documented in the catalog (e.g., datasets and services).",
+      "usage_notes": [
+        "It is recommended that the taxonomy is organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar, which allows each member to be denoted by an IRI and published as Linked Data."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:catalog_themes"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -279,7 +487,17 @@
       "property": "dcat:version",
       "rq2_term": "dcat:version",
       "label": "version",
-      "definition": null,
+      "definition": "The version indicator (name or identifier) of a resource.",
+      "usage_notes": [
+        "DCAT does not prescribe how a version name / identifier should be specified, and refers for guidance to [DWBP]'s Best Practice 7: Provide a version indicator."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_version"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -291,6 +509,8 @@
       "rq2_term": "dct:accessRights",
       "label": "access restrictions",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -301,7 +521,17 @@
       "property": "dct:accrualPeriodicity",
       "rq2_term": "dct:accrualPeriodicity",
       "label": "accrual periodicity",
-      "definition": null,
+      "definition": "The frequency at which a dataset is published.",
+      "usage_notes": [
+        "The value of dcterms:accrualPeriodicity gives the rate at which the dataset-as-a-whole is updated. This may be complemented by dcat:temporalResolution to give the time between collected data points in a time series."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:dataset_frequency"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -313,6 +543,8 @@
       "rq2_term": "dct:conformsTo",
       "label": "conformance",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -323,7 +555,17 @@
       "property": "dct:creator",
       "rq2_term": "dct:creator",
       "label": "creator",
-      "definition": null,
+      "definition": "The entity responsible for producing the resource.",
+      "usage_notes": [
+        "Resources of type foaf:Agent are recommended as values for this property."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_creator"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -335,6 +577,8 @@
       "rq2_term": "dct:description",
       "label": "description",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -345,7 +589,15 @@
       "property": "dct:hasPart",
       "rq2_term": "dct:hasPart",
       "label": "has part",
-      "definition": null,
+      "definition": "A related resource that is included either physically or logically in the described resource.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_has_part"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -356,7 +608,17 @@
       "property": "dct:identifier",
       "rq2_term": "dct:identifier",
       "label": "identifier",
-      "definition": null,
+      "definition": "A unique identifier of the resource being described or cataloged.",
+      "usage_notes": [
+        "The identifier is a text string which is assigned to the resource to provide an unambiguous reference within a particular context."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_identifier"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -367,7 +629,17 @@
       "property": "dct:isReferencedBy",
       "rq2_term": "dct:isReferencedBy",
       "label": "is referenced by",
-      "definition": null,
+      "definition": "A related resource, such as a publication, that references, cites, or otherwise points to the cataloged resource.",
+      "usage_notes": [
+        "This property is used to associate a resource with the resource (of type dcat:Resource) in question. For other relations to resources not covered with this property, the more generic property dcat:qualifiedRelation can be used. See also 15. Qualified relations."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_is_referenced_by"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -379,6 +651,8 @@
       "rq2_term": "dct:issued",
       "label": "issued",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -389,7 +663,17 @@
       "property": "dct:language",
       "rq2_term": "dct:language",
       "label": "language",
-      "definition": null,
+      "definition": "A language of the resource. This refers to the natural language used for textual metadata (i.e., titles, descriptions, etc.) of a cataloged resource (i.e., dataset or service) or the textual values of a dataset distribution",
+      "usage_notes": [
+        "If representations of a dataset are available for each language separately, define an instance of dcat:Distribution for each language and describe the specific language of each distribution using dcterms:language (i.e., the dataset will have multiple dcterms:language values and each distribution will have just one as the value of its dcterms:language property). In case of multilingual distributions, the distributions will have multiple dcterms:language values."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_language"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -401,6 +685,8 @@
       "rq2_term": "dct:license",
       "label": "licence",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -412,6 +698,8 @@
       "rq2_term": "dct:modified",
       "label": "last modified",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -422,7 +710,17 @@
       "property": "dct:publisher",
       "rq2_term": "dct:publisher",
       "label": "publisher",
-      "definition": null,
+      "definition": "The entity responsible for making the resource available.",
+      "usage_notes": [
+        "Resources of type foaf:Agent are recommended as values for this property."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_publisher"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -434,6 +732,8 @@
       "rq2_term": "dct:relation",
       "label": "relation",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -444,7 +744,15 @@
       "property": "dct:replaces",
       "rq2_term": "dct:replaces",
       "label": "replaces",
-      "definition": null,
+      "definition": "A related resource that is supplanted, displaced, or superseded by the described resource [DCTERMS].",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_replaces"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -456,6 +764,8 @@
       "rq2_term": "dct:rights",
       "label": "rights",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -466,7 +776,17 @@
       "property": "dct:spatial",
       "rq2_term": "dct:spatial",
       "label": "geographic coverage",
-      "definition": null,
+      "definition": "The geographical area covered by the dataset.",
+      "usage_notes": [
+        "The spatial coverage of a dataset may be encoded as an instance of dcterms:Location, or may be indicated using an IRI reference (link) to a resource describing a location. It is recommended that links are to entries in a well maintained gazetteer such as Geonames."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:dataset_spatial"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -477,7 +797,17 @@
       "property": "dct:temporal",
       "rq2_term": "dct:temporal",
       "label": "temporal",
-      "definition": null,
+      "definition": "The temporal period that the dataset covers.",
+      "usage_notes": [
+        "The temporal coverage of a dataset may be encoded as an instance of dcterms:PeriodOfTime, or may be indicated using an IRI reference (link) to a resource describing a time period or interval."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:dataset_temporal"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -489,6 +819,8 @@
       "rq2_term": "dct:title",
       "label": "title",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -499,7 +831,17 @@
       "property": "dct:type",
       "rq2_term": "dct:type",
       "label": "type",
-      "definition": null,
+      "definition": "The nature or genre of the resource.",
+      "usage_notes": [
+        "To describe the file format, physical medium, or dimensions of the resource, use the dcterms:format element."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_type"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -510,7 +852,17 @@
       "property": "foaf:homepage",
       "rq2_term": "foaf:homepage",
       "label": "homepage",
-      "definition": null,
+      "definition": "A homepage of the catalog (a public Web document usually available in HTML).",
+      "usage_notes": [
+        "foaf:homepage is an inverse functional property (IFP) which means that it MUST be unique and precisely identify the Web-page for the resource. This property indicates the canonical Web-page, which might be helpful in cases where there is more than one Web-page about the resource."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:catalog_homepage"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -522,6 +874,8 @@
       "rq2_term": "odrl:hasPolicy",
       "label": "has policy",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -532,7 +886,17 @@
       "property": "prov:qualifiedAttribution",
       "rq2_term": "prov:qualifiedAttribution",
       "label": "qualified attribution",
-      "definition": null,
+      "definition": "Link to an Agent having some form of responsibility for the resource",
+      "usage_notes": [
+        "Used to link to an Agent where the nature of the relationship is known but does not match one of the standard [DCTERMS] properties (dcterms:creator, dcterms:publisher). Use dcat:hadRole on the prov:Attribution to capture the responsibility of the Agent with respect to the Resource. See 15.1 Relationships between datasets and agents for usage examples."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_qualified_attribution"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -543,7 +907,17 @@
       "property": "prov:wasGeneratedBy",
       "rq2_term": "prov:wasGeneratedBy",
       "label": "was generated by",
-      "definition": null,
+      "definition": "An activity that generated, or provides the business context for, the creation of the dataset.",
+      "usage_notes": [
+        "Use prov:qualifiedGeneration to attach additional details about the relationship between the dataset and the activity, e.g., the exact time that the dataset was produced during the lifetime of a project"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:dataset_was_generated_by"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -554,7 +928,17 @@
       "property": null,
       "rq2_term": "dcat:CatalogRecord",
       "label": "catalog record",
-      "definition": null,
+      "definition": "A record in a catalog, describing the registration of a single dcat:Resource.",
+      "usage_notes": [
+        "This class is optional and not all catalogs will use it. It exists for catalogs where a distinction is made between metadata about a dataset or service and metadata about the entry in the catalog about the dataset or service. For example, the publication date property of the dataset reflects the date when the information was originally made available by the publishing agency, while the publication date of the catalog record is the date when the dataset was added to the catalog. In cases where both dates differ, or where only the latter is known, the publication date SHOULD only be specified for the catalog record. Notice that the W3C PROV Ontology [PROV-O] allows describing further provenance information such as the details of the process and the agent involved in a particular change to a dataset or its registration."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Class:Catalog_Record"
+        }
+      ],
       "base_obligation": null
     },
     {
@@ -564,7 +948,17 @@
       "property": "dct:conformsTo",
       "rq2_term": "dct:conformsTo",
       "label": "conformance",
-      "definition": null,
+      "definition": "An established standard to which the described resource conforms.",
+      "usage_notes": [
+        "This property SHOULD be used to indicate the model, schema, ontology, view or profile that the catalog record metadata conforms to."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:record_conforms_to"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -575,7 +969,15 @@
       "property": "dct:description",
       "rq2_term": "dct:description",
       "label": "description",
-      "definition": null,
+      "definition": "A free-text account of the record.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:record_description"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -586,7 +988,17 @@
       "property": "dct:issued",
       "rq2_term": "dct:issued",
       "label": "issued",
-      "definition": null,
+      "definition": "The date of listing (i.e., formal recording) of the corresponding dataset or service in the catalog.",
+      "usage_notes": [
+        "This indicates the date of listing the dataset in the catalog and not the publication date of the dataset itself."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:record_listing_date"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -597,7 +1009,17 @@
       "property": "dct:modified",
       "rq2_term": "dct:modified",
       "label": "last modified",
-      "definition": null,
+      "definition": "Most recent date on which the catalog entry was changed, updated or modified.",
+      "usage_notes": [
+        "This indicates the date of last change of a catalog entry, i.e., the catalog metadata description of the dataset, and not the date of the dataset itself."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:record_update_date"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -608,7 +1030,15 @@
       "property": "dct:title",
       "rq2_term": "dct:title",
       "label": "title",
-      "definition": null,
+      "definition": "A name given to the record.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:record_title"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -619,7 +1049,17 @@
       "property": "foaf:primaryTopic",
       "rq2_term": "foaf:primaryTopic",
       "label": "primary topic",
-      "definition": null,
+      "definition": "The dcat:Resource (dataset or service) described in the record.",
+      "usage_notes": [
+        "foaf:primaryTopic property is functional: each catalog record can have at most one primary topic, i.e., describes one cataloged resource."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:record_primary_topic"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -630,7 +1070,17 @@
       "property": null,
       "rq2_term": "dcat:DataService",
       "label": "data service",
-      "definition": null,
+      "definition": "A collection of operations that provides access to one or more datasets or data processing functions.",
+      "usage_notes": [
+        "The kind of service can be indicated using the dcterms:type property. Its value may be taken from a controlled vocabulary such as the INSPIRE spatial data service type code list [INSPIRE-SDST]."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Class:Data_Service"
+        }
+      ],
       "base_obligation": null
     },
     {
@@ -641,6 +1091,8 @@
       "rq2_term": "adms:status",
       "label": "status",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -652,6 +1104,8 @@
       "rq2_term": "adms:versionNotes",
       "label": "version notes",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -663,6 +1117,8 @@
       "rq2_term": "dcat:contactPoint",
       "label": "contact",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -673,7 +1129,17 @@
       "property": "dcat:endpointDescription",
       "rq2_term": "dcat:endpointDescription",
       "label": "api description",
-      "definition": null,
+      "definition": "A description of the services available via the end-points, including their operations, parameters etc.",
+      "usage_notes": [
+        "An endpoint description may be expressed in a machine-readable form, such as an OpenAPI (Swagger) description [OpenAPI], an OGC GetCapabilities response [WFS], [ISO-19142], [WMS], [ISO-19128], a SPARQL Service Description [SPARQL11-SERVICE-DESCRIPTION], an [OpenSearch] or [WSDL20] document, a Hydra API description [HYDRA], else in text or some other informal mode if a formal representation is not possible."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:data_service_endpoint_description"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -684,7 +1150,15 @@
       "property": "dcat:endpointURL",
       "rq2_term": "dcat:endpointURL",
       "label": "endpoint address",
-      "definition": null,
+      "definition": "The root location or primary endpoint of the service (a Web-resolvable IRI).",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:data_service_endpoint_url"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -696,6 +1170,8 @@
       "rq2_term": "dcat:first",
       "label": "first",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -707,6 +1183,8 @@
       "rq2_term": "dcat:hasCurrentVersion",
       "label": "has current version",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -718,6 +1196,8 @@
       "rq2_term": "dcat:hasVersion",
       "label": "has version",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -729,6 +1209,8 @@
       "rq2_term": "dcat:keyword",
       "label": "keyword",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -740,6 +1222,8 @@
       "rq2_term": "dcat:landingPage",
       "label": "landing page",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -751,6 +1235,8 @@
       "rq2_term": "dcat:last",
       "label": "last",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -762,6 +1248,8 @@
       "rq2_term": "dcat:prev",
       "label": "prev",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -773,6 +1261,8 @@
       "rq2_term": "dcat:previousVersion",
       "label": "previous version",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -784,6 +1274,8 @@
       "rq2_term": "dcat:qualifiedRelation",
       "label": "qualified relation",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -794,7 +1286,15 @@
       "property": "dcat:servesDataset",
       "rq2_term": "dcat:servesDataset",
       "label": "datasets it serves",
-      "definition": null,
+      "definition": "A collection of data that this data service can distribute.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:data_service_serves_dataset"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -806,6 +1306,8 @@
       "rq2_term": "dcat:theme",
       "label": "theme",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -817,6 +1319,8 @@
       "rq2_term": "dcat:version",
       "label": "version",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -828,6 +1332,8 @@
       "rq2_term": "dct:accessRights",
       "label": "access restrictions",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -839,6 +1345,8 @@
       "rq2_term": "dct:conformsTo",
       "label": "conformance",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -850,6 +1358,8 @@
       "rq2_term": "dct:creator",
       "label": "creator",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -861,6 +1371,8 @@
       "rq2_term": "dct:description",
       "label": "description",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -872,6 +1384,8 @@
       "rq2_term": "dct:hasPart",
       "label": "has part",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -883,6 +1397,8 @@
       "rq2_term": "dct:identifier",
       "label": "identifier",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -894,6 +1410,8 @@
       "rq2_term": "dct:isReferencedBy",
       "label": "is referenced by",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -905,6 +1423,8 @@
       "rq2_term": "dct:issued",
       "label": "issued",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -916,6 +1436,8 @@
       "rq2_term": "dct:language",
       "label": "language",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -927,6 +1449,8 @@
       "rq2_term": "dct:license",
       "label": "licence",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -938,6 +1462,8 @@
       "rq2_term": "dct:modified",
       "label": "last modified",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -949,6 +1475,8 @@
       "rq2_term": "dct:publisher",
       "label": "publisher",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -960,6 +1488,8 @@
       "rq2_term": "dct:relation",
       "label": "relation",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -971,6 +1501,8 @@
       "rq2_term": "dct:replaces",
       "label": "replaces",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -982,6 +1514,8 @@
       "rq2_term": "dct:rights",
       "label": "rights",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -993,6 +1527,8 @@
       "rq2_term": "dct:title",
       "label": "title",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1004,6 +1540,8 @@
       "rq2_term": "dct:type",
       "label": "type",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1015,6 +1553,8 @@
       "rq2_term": "odrl:hasPolicy",
       "label": "has policy",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1026,6 +1566,8 @@
       "rq2_term": "prov:qualifiedAttribution",
       "label": "qualified attribution",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1036,7 +1578,17 @@
       "property": null,
       "rq2_term": "dcat:Dataset",
       "label": "dataset",
-      "definition": null,
+      "definition": "A collection of data, published or curated by a single agent, and available for access or download in one or more representations.",
+      "usage_notes": [
+        "The notion of dataset in DCAT is broad and inclusive, with the intention of accommodating resource types arising from all communities. Data comes in many forms including numbers, text, pixels, imagery, sound and other multi-media, and potentially other types, any of which might be collected into a dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Class:Dataset"
+        }
+      ],
       "base_obligation": null
     },
     {
@@ -1047,6 +1599,8 @@
       "rq2_term": "adms:status",
       "label": "status",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1058,6 +1612,8 @@
       "rq2_term": "adms:versionNotes",
       "label": "version notes",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1069,6 +1625,8 @@
       "rq2_term": "dcat:contactPoint",
       "label": "contact",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1079,7 +1637,15 @@
       "property": "dcat:distribution",
       "rq2_term": "dcat:distribution",
       "label": "distribution",
-      "definition": null,
+      "definition": "An available distribution of the dataset.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:dataset_distribution"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1091,6 +1657,8 @@
       "rq2_term": "dcat:first",
       "label": "first",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1102,6 +1670,8 @@
       "rq2_term": "dcat:hasCurrentVersion",
       "label": "has current version",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1113,6 +1683,8 @@
       "rq2_term": "dcat:hasVersion",
       "label": "has version",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1123,7 +1695,15 @@
       "property": "dcat:inSeries",
       "rq2_term": "dcat:inSeries",
       "label": "in series",
-      "definition": null,
+      "definition": "A dataset series of which the dataset is part.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:dataset_in_series"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1135,6 +1715,8 @@
       "rq2_term": "dcat:keyword",
       "label": "keyword",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1146,6 +1728,8 @@
       "rq2_term": "dcat:landingPage",
       "label": "landing page",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1157,6 +1741,8 @@
       "rq2_term": "dcat:last",
       "label": "last",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1168,6 +1754,8 @@
       "rq2_term": "dcat:prev",
       "label": "prev",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1179,6 +1767,8 @@
       "rq2_term": "dcat:previousVersion",
       "label": "previous version",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1190,6 +1780,8 @@
       "rq2_term": "dcat:qualifiedRelation",
       "label": "qualified relation",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1200,7 +1792,17 @@
       "property": "dcat:spatialResolutionInMeters",
       "rq2_term": "dcat:spatialResolutionInMeters",
       "label": "spatial resolution in meters",
-      "definition": null,
+      "definition": "Minimum spatial separation resolvable in a dataset, measured in meters.",
+      "usage_notes": [
+        "If the dataset is an image or grid this should correspond to the spacing of items. For other kinds of spatial datasets, this property will usually indicate the smallest distance between items in the dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:dataset_spatial_resolution"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1211,7 +1813,17 @@
       "property": "dcat:temporalResolution",
       "rq2_term": "dcat:temporalResolution",
       "label": "temporal resolution",
-      "definition": null,
+      "definition": "Minimum time period resolvable in the dataset.",
+      "usage_notes": [
+        "If the dataset is a time-series this should correspond to the spacing of items in the series. For other kinds of dataset, this property will usually indicate the smallest time difference between items in the dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:dataset_temporal_resolution"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1223,6 +1835,8 @@
       "rq2_term": "dcat:theme",
       "label": "theme",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1234,6 +1848,8 @@
       "rq2_term": "dcat:version",
       "label": "version",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1245,6 +1861,8 @@
       "rq2_term": "dct:accessRights",
       "label": "access restrictions",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1255,7 +1873,17 @@
       "property": "dct:accrualPeriodicity",
       "rq2_term": "dct:accrualPeriodicity",
       "label": "accrual periodicity",
-      "definition": null,
+      "definition": "The frequency at which a dataset is published.",
+      "usage_notes": [
+        "The value of dcterms:accrualPeriodicity gives the rate at which the dataset-as-a-whole is updated. This may be complemented by dcat:temporalResolution to give the time between collected data points in a time series."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:dataset_frequency"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1267,6 +1895,8 @@
       "rq2_term": "dct:conformsTo",
       "label": "conformance",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1278,6 +1908,8 @@
       "rq2_term": "dct:creator",
       "label": "creator",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1289,6 +1921,8 @@
       "rq2_term": "dct:description",
       "label": "description",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1300,6 +1934,8 @@
       "rq2_term": "dct:hasPart",
       "label": "has part",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1311,6 +1947,8 @@
       "rq2_term": "dct:identifier",
       "label": "identifier",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1322,6 +1960,8 @@
       "rq2_term": "dct:isReferencedBy",
       "label": "is referenced by",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1333,6 +1973,8 @@
       "rq2_term": "dct:issued",
       "label": "issued",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1344,6 +1986,8 @@
       "rq2_term": "dct:language",
       "label": "language",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1355,6 +1999,8 @@
       "rq2_term": "dct:license",
       "label": "licence",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1366,6 +2012,8 @@
       "rq2_term": "dct:modified",
       "label": "last modified",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1377,6 +2025,8 @@
       "rq2_term": "dct:publisher",
       "label": "publisher",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1388,6 +2038,8 @@
       "rq2_term": "dct:relation",
       "label": "relation",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1399,6 +2051,8 @@
       "rq2_term": "dct:replaces",
       "label": "replaces",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1410,6 +2064,8 @@
       "rq2_term": "dct:rights",
       "label": "rights",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1420,7 +2076,17 @@
       "property": "dct:spatial",
       "rq2_term": "dct:spatial",
       "label": "geographic coverage",
-      "definition": null,
+      "definition": "The geographical area covered by the dataset.",
+      "usage_notes": [
+        "The spatial coverage of a dataset may be encoded as an instance of dcterms:Location, or may be indicated using an IRI reference (link) to a resource describing a location. It is recommended that links are to entries in a well maintained gazetteer such as Geonames."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:dataset_spatial"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1431,7 +2097,17 @@
       "property": "dct:temporal",
       "rq2_term": "dct:temporal",
       "label": "temporal",
-      "definition": null,
+      "definition": "The temporal period that the dataset covers.",
+      "usage_notes": [
+        "The temporal coverage of a dataset may be encoded as an instance of dcterms:PeriodOfTime, or may be indicated using an IRI reference (link) to a resource describing a time period or interval."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:dataset_temporal"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1443,6 +2119,8 @@
       "rq2_term": "dct:title",
       "label": "title",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1454,6 +2132,8 @@
       "rq2_term": "dct:type",
       "label": "type",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1465,6 +2145,8 @@
       "rq2_term": "odrl:hasPolicy",
       "label": "has policy",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1476,6 +2158,8 @@
       "rq2_term": "prov:qualifiedAttribution",
       "label": "qualified attribution",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1486,7 +2170,17 @@
       "property": "prov:wasGeneratedBy",
       "rq2_term": "prov:wasGeneratedBy",
       "label": "was generated by",
-      "definition": null,
+      "definition": "An activity that generated, or provides the business context for, the creation of the dataset.",
+      "usage_notes": [
+        "Use prov:qualifiedGeneration to attach additional details about the relationship between the dataset and the activity, e.g., the exact time that the dataset was produced during the lifetime of a project"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:dataset_was_generated_by"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1497,7 +2191,17 @@
       "property": null,
       "rq2_term": "dcat:DatasetSeries",
       "label": "dataset series",
-      "definition": null,
+      "definition": "A collection of datasets that are published separately, but share some characteristics that group them.",
+      "usage_notes": [
+        "Common scenarios for dataset series include: time series composed of periodically released subsets; map-series composed of items of the same type or theme but with differing spatial footprints."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Class:Dataset_Series"
+        }
+      ],
       "base_obligation": null
     },
     {
@@ -1508,6 +2212,8 @@
       "rq2_term": "adms:status",
       "label": "status",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1519,6 +2225,8 @@
       "rq2_term": "adms:versionNotes",
       "label": "version notes",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1530,6 +2238,8 @@
       "rq2_term": "dcat:contactPoint",
       "label": "contact",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1541,6 +2251,8 @@
       "rq2_term": "dcat:distribution",
       "label": "distribution",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1552,6 +2264,8 @@
       "rq2_term": "dcat:first",
       "label": "first",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1563,6 +2277,8 @@
       "rq2_term": "dcat:hasCurrentVersion",
       "label": "has current version",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1574,6 +2290,8 @@
       "rq2_term": "dcat:hasVersion",
       "label": "has version",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1585,6 +2303,8 @@
       "rq2_term": "dcat:inSeries",
       "label": "in series",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1596,6 +2316,8 @@
       "rq2_term": "dcat:keyword",
       "label": "keyword",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1607,6 +2329,8 @@
       "rq2_term": "dcat:landingPage",
       "label": "landing page",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1618,6 +2342,8 @@
       "rq2_term": "dcat:last",
       "label": "last",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1629,6 +2355,8 @@
       "rq2_term": "dcat:prev",
       "label": "prev",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1640,6 +2368,8 @@
       "rq2_term": "dcat:previousVersion",
       "label": "previous version",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1651,6 +2381,8 @@
       "rq2_term": "dcat:qualifiedRelation",
       "label": "qualified relation",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1662,6 +2394,8 @@
       "rq2_term": "dcat:spatialResolutionInMeters",
       "label": "spatial resolution in meters",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1673,6 +2407,8 @@
       "rq2_term": "dcat:temporalResolution",
       "label": "temporal resolution",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1684,6 +2420,8 @@
       "rq2_term": "dcat:theme",
       "label": "theme",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1695,6 +2433,8 @@
       "rq2_term": "dcat:version",
       "label": "version",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1706,6 +2446,8 @@
       "rq2_term": "dct:accessRights",
       "label": "access restrictions",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1717,6 +2459,8 @@
       "rq2_term": "dct:accrualPeriodicity",
       "label": "accrual periodicity",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1728,6 +2472,8 @@
       "rq2_term": "dct:conformsTo",
       "label": "conformance",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1739,6 +2485,8 @@
       "rq2_term": "dct:creator",
       "label": "creator",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1750,6 +2498,8 @@
       "rq2_term": "dct:description",
       "label": "description",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1761,6 +2511,8 @@
       "rq2_term": "dct:hasPart",
       "label": "has part",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1772,6 +2524,8 @@
       "rq2_term": "dct:identifier",
       "label": "identifier",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1783,6 +2537,8 @@
       "rq2_term": "dct:isReferencedBy",
       "label": "is referenced by",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1794,6 +2550,8 @@
       "rq2_term": "dct:issued",
       "label": "issued",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1805,6 +2563,8 @@
       "rq2_term": "dct:language",
       "label": "language",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1816,6 +2576,8 @@
       "rq2_term": "dct:license",
       "label": "licence",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1827,6 +2589,8 @@
       "rq2_term": "dct:modified",
       "label": "last modified",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1838,6 +2602,8 @@
       "rq2_term": "dct:publisher",
       "label": "publisher",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1849,6 +2615,8 @@
       "rq2_term": "dct:relation",
       "label": "relation",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1860,6 +2628,8 @@
       "rq2_term": "dct:replaces",
       "label": "replaces",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1871,6 +2641,8 @@
       "rq2_term": "dct:rights",
       "label": "rights",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1882,6 +2654,8 @@
       "rq2_term": "dct:spatial",
       "label": "geographic coverage",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1893,6 +2667,8 @@
       "rq2_term": "dct:temporal",
       "label": "temporal",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1904,6 +2680,8 @@
       "rq2_term": "dct:title",
       "label": "title",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1915,6 +2693,8 @@
       "rq2_term": "dct:type",
       "label": "type",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1926,6 +2706,8 @@
       "rq2_term": "odrl:hasPolicy",
       "label": "has policy",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1937,6 +2719,8 @@
       "rq2_term": "prov:qualifiedAttribution",
       "label": "qualified attribution",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1948,6 +2732,8 @@
       "rq2_term": "prov:wasGeneratedBy",
       "label": "was generated by",
       "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1958,7 +2744,17 @@
       "property": null,
       "rq2_term": "dcat:Distribution",
       "label": "distribution",
-      "definition": null,
+      "definition": "A specific representation of a dataset. A dataset might be available in multiple serializations that may differ in various ways, including natural language, media-type or format, schematic organization, temporal and spatial resolution, level of detail or profiles (which might specify any or all of the above).",
+      "usage_notes": [
+        "This represents a general availability of a dataset. It implies no information about the actual access method of the data, i.e., whether by direct download, API, or through a Web page. The use of dcat:downloadURL property indicates directly downloadable distributions."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Class:Distribution"
+        }
+      ],
       "base_obligation": null
     },
     {
@@ -1968,7 +2764,17 @@
       "property": "dcat:accessService",
       "rq2_term": "dcat:accessService",
       "label": "access service",
-      "definition": null,
+      "definition": "A data service that gives access to the distribution of the dataset",
+      "usage_notes": [
+        "dcat:accessService SHOULD be used to link to a description of a dcat:DataService that can provide access to this distribution."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_access_service"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1979,7 +2785,17 @@
       "property": "dcat:accessURL",
       "rq2_term": "dcat:accessURL",
       "label": "access url",
-      "definition": null,
+      "definition": "A URL of the resource that gives access to a distribution of the dataset. E.g., landing page, feed, SPARQL endpoint.",
+      "usage_notes": [
+        "dcat:accessURL SHOULD be used for the URL of a service or location that can provide access to this distribution, typically through a Web form, query or API call. dcat:downloadURL is preferred for direct links to downloadable resources. If the distribution(s) are accessible only through a landing page (i.e., direct download URLs are not known), then the landing page URL associated with the dcat:Dataset SHOULD be duplicated as access URL on a distribution (see 5.7 Dataset available only behind some Web page)."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_access_url"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -1990,7 +2806,17 @@
       "property": "dcat:byteSize",
       "rq2_term": "dcat:byteSize",
       "label": "byte size",
-      "definition": null,
+      "definition": "The size of a distribution in bytes.",
+      "usage_notes": [
+        "While it is recommended that the size be given as an integer, alternative literals such as '1.5 MB' are sometimes used."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_size"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2001,7 +2827,17 @@
       "property": "dcat:compressFormat",
       "rq2_term": "dcat:compressFormat",
       "label": "compress format",
-      "definition": null,
+      "definition": "The compression format of the distribution in which the data is contained in a compressed form, e.g., to reduce the size of the downloadable file.",
+      "usage_notes": [
+        "This property to be used when the files in the distribution are compressed, e.g., in a ZIP file. The format SHOULD be expressed using a media type as defined by IANA [IANA-MEDIA-TYPES], if available."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_compression_format"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2012,7 +2848,17 @@
       "property": "dcat:downloadURL",
       "rq2_term": "dcat:downloadURL",
       "label": "download url",
-      "definition": null,
+      "definition": "The URL of the downloadable file in a given format. E.g., CSV file or RDF file. The format is indicated by the distribution's dcterms:format and/or dcat:mediaType",
+      "usage_notes": [
+        "dcat:downloadURL SHOULD be used for the URL at which this distribution is available directly, typically through a HTTP Get request."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_download_url"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2023,7 +2869,17 @@
       "property": "dcat:mediaType",
       "rq2_term": "dcat:mediaType",
       "label": "media type",
-      "definition": null,
+      "definition": "The media type of the distribution as defined by IANA [IANA-MEDIA-TYPES].",
+      "usage_notes": [
+        "This property SHOULD be used when the media type of the distribution is defined in IANA [IANA-MEDIA-TYPES], otherwise dcterms:format MAY be used with different values."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_media_type"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2034,7 +2890,17 @@
       "property": "dcat:packageFormat",
       "rq2_term": "dcat:packageFormat",
       "label": "package format",
-      "definition": null,
+      "definition": "The package format of the distribution in which one or more data files are grouped together, e.g., to enable a set of related files to be downloaded together.",
+      "usage_notes": [
+        "This property to be used when the files in the distribution are packaged, e.g., in a TAR file, a ZIP file, a Frictionless Data Package or a Bagit file. The format SHOULD be expressed using a media type as defined by IANA [IANA-MEDIA-TYPES], if available."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_packaging_format"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2045,7 +2911,17 @@
       "property": "dcat:spatialResolutionInMeters",
       "rq2_term": "dcat:spatialResolutionInMeters",
       "label": "spatial resolution in meters",
-      "definition": null,
+      "definition": "The minimum spatial separation resolvable in a dataset distribution, measured in meters.",
+      "usage_notes": [
+        "Alternative spatial resolutions might be provided as different dataset distributions"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_spatial_resolution"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2056,7 +2932,17 @@
       "property": "dcat:temporalResolution",
       "rq2_term": "dcat:temporalResolution",
       "label": "temporal resolution",
-      "definition": null,
+      "definition": "Minimum time period resolvable in the dataset distribution.",
+      "usage_notes": [
+        "Alternative temporal resolutions might be provided in different dataset distributions"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_temporal_resolution"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2067,7 +2953,17 @@
       "property": "dct:accessRights",
       "rq2_term": "dct:accessRights",
       "label": "access restrictions",
-      "definition": null,
+      "definition": "A rights statement that concerns how the distribution is accessed.",
+      "usage_notes": [
+        "Information about licenses and rights MAY be provided for the Distribution. See also guidance at 9. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_access_rights"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2078,7 +2974,17 @@
       "property": "dct:conformsTo",
       "rq2_term": "dct:conformsTo",
       "label": "conformance",
-      "definition": null,
+      "definition": "An established standard to which the distribution conforms.",
+      "usage_notes": [
+        "This property SHOULD be used to indicate the model, schema, ontology, view or profile that this representation of a dataset conforms to. This is (generally) a complementary concern to the media-type or format."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_conforms_to"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2089,7 +2995,15 @@
       "property": "dct:description",
       "rq2_term": "dct:description",
       "label": "description",
-      "definition": null,
+      "definition": "A free-text account of the distribution.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_description"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2100,7 +3014,17 @@
       "property": "dct:format",
       "rq2_term": "dct:format",
       "label": "file format",
-      "definition": null,
+      "definition": "The file format of the distribution.",
+      "usage_notes": [
+        "dcat:mediaType SHOULD be used if the type of the distribution is defined by IANA [IANA-MEDIA-TYPES]."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_format"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2111,7 +3035,17 @@
       "property": "dct:issued",
       "rq2_term": "dct:issued",
       "label": "issued",
-      "definition": null,
+      "definition": "Date of formal issuance (e.g., publication) of the distribution.",
+      "usage_notes": [
+        "This property SHOULD be set using the first known date of issuance."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_release_date"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2122,7 +3056,17 @@
       "property": "dct:license",
       "rq2_term": "dct:license",
       "label": "licence",
-      "definition": null,
+      "definition": "A legal document under which the distribution is made available.",
+      "usage_notes": [
+        "Information about licenses and rights SHOULD be provided on the level of Distribution. Information about licenses and rights MAY be provided for a Dataset in addition to but not instead of the information provided for the Distributions of that Dataset. Providing license or rights information for a Dataset that is different from information provided for a Distribution of that Dataset SHOULD be avoided as this can create legal conflicts. See also guidance at 9. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_license"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2133,7 +3077,15 @@
       "property": "dct:modified",
       "rq2_term": "dct:modified",
       "label": "last modified",
-      "definition": null,
+      "definition": "Most recent date on which the distribution was changed, updated or modified.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_update_date"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2144,7 +3096,17 @@
       "property": "dct:rights",
       "rq2_term": "dct:rights",
       "label": "rights",
-      "definition": null,
+      "definition": "Information about rights held in and over the distribution.",
+      "usage_notes": [
+        "dcterms:license, which is a sub-property of dcterms:rights, can be used to link a distribution to a license document. However, dcterms:rights allows linking to a rights statement that can include licensing information as well as other information that supplements the license such as attribution. Information about licenses and rights SHOULD be provided on the level of Distribution. Information about licenses and rights MAY be provided for a Dataset in addition to but not instead of the information provided for the Distributions of that Dataset. Providing license or rights information for a Dataset that is different from information provided for a Distribution of that Dataset SHOULD be avoided as this can create legal conflicts. See also guidance at 9. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_rights"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2155,7 +3117,15 @@
       "property": "dct:title",
       "rq2_term": "dct:title",
       "label": "title",
-      "definition": null,
+      "definition": "A name given to the distribution.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_title"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2166,7 +3136,17 @@
       "property": "odrl:hasPolicy",
       "rq2_term": "odrl:hasPolicy",
       "label": "has policy",
-      "definition": null,
+      "definition": "An ODRL conformant policy expressing the rights associated with the distribution.",
+      "usage_notes": [
+        "Information about rights expressed as an ODRL policy [ODRL-MODEL] using the ODRL vocabulary [ODRL-VOCAB] MAY be provided for the distribution. See also guidance at 9. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_has_policy"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2177,7 +3157,17 @@
       "property": "spdx:checksum",
       "rq2_term": "spdx:checksum",
       "label": "checksum",
-      "definition": null,
+      "definition": "The checksum property provides a mechanism that can be used to verify that the contents of a file or package have not changed [SPDX].",
+      "usage_notes": [
+        "The checksum is related to the download URL."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:distribution_checksum"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2188,7 +3178,17 @@
       "property": null,
       "rq2_term": "dcat:Relationship",
       "label": "relationship",
-      "definition": null,
+      "definition": "An association class for attaching additional information to a relationship between DCAT Resources",
+      "usage_notes": [
+        "Use to characterize a relationship between datasets, and potentially other resources, where the nature of the relationship is known but is not adequately characterized by the standard [DCTERMS] properties (dcterms:hasPart, dcterms:isPartOf, dcterms:conformsTo, dcterms:isFormatOf, dcterms:hasFormat, dcterms:isVersionOf, dcterms:hasVersion, dcterms:replaces, dcterms:isReplacedBy, dcterms:references, dcterms:isReferencedBy, dcterms:requires, dcterms:isRequiredBy) or [PROV-O] properties (prov:wasDerivedFrom, prov:wasInfluencedBy, prov:wasQuotedFrom, prov:wasRevisionOf, prov:hadPrimarySource, prov:alternateOf, prov:specializationOf)"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Class:Relationship"
+        }
+      ],
       "base_obligation": null
     },
     {
@@ -2198,7 +3198,17 @@
       "property": "dcat:hadRole",
       "rq2_term": "dcat:hadRole",
       "label": "had role",
-      "definition": null,
+      "definition": "The function of an entity or agent with respect to another entity or resource.",
+      "usage_notes": [
+        "May be used in a qualified-relation to specify the role of an Entity with respect to another Entity. It is recommended that the value be taken from a controlled vocabulary of entity roles."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:relationship_hadRole"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2209,7 +3219,17 @@
       "property": "dct:relation",
       "rq2_term": "dct:relation",
       "label": "relation",
-      "definition": null,
+      "definition": "The resource related to the source resource.",
+      "usage_notes": [
+        "In the context of a dcat:Relationship this is expected to point to another dcat:Dataset or other cataloged resource."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:relationship_relation"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2220,7 +3240,17 @@
       "property": null,
       "rq2_term": "dcat:Resource",
       "label": "resource",
-      "definition": null,
+      "definition": "Resource published or curated by a single agent.",
+      "usage_notes": [
+        "dcat:Resource is an extension point that enables the definition of any kind of catalog. Additional sub-classes may be defined in a DCAT profile or other DCAT application for catalogs of other kinds of resources."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Class:Resource"
+        }
+      ],
       "base_obligation": null
     },
     {
@@ -2230,7 +3260,17 @@
       "property": "adms:status",
       "rq2_term": "adms:status",
       "label": "status",
-      "definition": null,
+      "definition": "The status of the resource in the context of a particular workflow process [VOCAB-ADMS].",
+      "usage_notes": [
+        "DCAT does not prescribe the use of any specific set of life-cycle statuses, but refers to existing standards and community practices fit for the relevant application scenario."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_status"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2241,7 +3281,17 @@
       "property": "adms:versionNotes",
       "rq2_term": "adms:versionNotes",
       "label": "version notes",
-      "definition": null,
+      "definition": "A description of changes between this version and the previous version of the resource [VOCAB-ADMS].",
+      "usage_notes": [
+        "In case of backward compatibility issues with the previous version of the resource, a textual description of them SHOULD be specified by using this property."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_version_notes"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2252,7 +3302,15 @@
       "property": "dcat:contactPoint",
       "rq2_term": "dcat:contactPoint",
       "label": "contact",
-      "definition": null,
+      "definition": "Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_contact_point"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2263,7 +3321,17 @@
       "property": "dcat:first",
       "rq2_term": "dcat:first",
       "label": "first",
-      "definition": null,
+      "definition": "The first resource in an ordered collection or series of resources, to which the current resource belongs.",
+      "usage_notes": [
+        "In DCAT this property is used for resources belonging to a dcat:DatasetSeries."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_first"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2274,7 +3342,17 @@
       "property": "dcat:hasCurrentVersion",
       "rq2_term": "dcat:hasCurrentVersion",
       "label": "has current version",
-      "definition": null,
+      "definition": "This resource has a more specific, versioned resource with equivalent content [PAV].",
+      "usage_notes": [
+        "This property is intended for relating a non-versioned or abstract resource to a single snapshot that can be used as a permalink to indicate the current version of the content [PAV]. The notion of version used by this property is limited to versions resulting from revisions occurring to a resource as part of its life-cycle."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_has_current_version"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2285,7 +3363,17 @@
       "property": "dcat:hasVersion",
       "rq2_term": "dcat:hasVersion",
       "label": "has version",
-      "definition": null,
+      "definition": "This resource has a more specific, versioned resource [PAV].",
+      "usage_notes": [
+        "This property is intended for relating a non-versioned or abstract resource to several versioned resources, e.g., snapshots [PAV]. The notion of version used by this property is limited to versions resulting from revisions occurring to a resource as part of its life-cycle. Therefore, its semantics is more specific than its super-property dcterms:hasVersion, which makes use of a broader notion of version, including editions and adaptations."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_has_version"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2296,7 +3384,15 @@
       "property": "dcat:keyword",
       "rq2_term": "dcat:keyword",
       "label": "keyword",
-      "definition": null,
+      "definition": "A keyword or tag describing the resource.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_keyword"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2307,7 +3403,17 @@
       "property": "dcat:landingPage",
       "rq2_term": "dcat:landingPage",
       "label": "landing page",
-      "definition": null,
+      "definition": "A Web page that can be navigated to in a Web browser to gain access to the catalog, a dataset, its distributions and/or additional information.",
+      "usage_notes": [
+        "If the distribution(s) are accessible only through a landing page (i.e., direct download URLs are not known), then the landing page link SHOULD be duplicated as dcat:accessURL on a distribution. (see 5.7 Dataset available only behind some Web page)"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_landing_page"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2318,7 +3424,17 @@
       "property": "dcat:last",
       "rq2_term": "dcat:last",
       "label": "last",
-      "definition": null,
+      "definition": "The last resource in an ordered collection or series of resources, to which the current resource belongs.",
+      "usage_notes": [
+        "In DCAT this property is used for resources belonging to a dcat:DatasetSeries."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_last"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2329,7 +3445,17 @@
       "property": "dcat:prev",
       "rq2_term": "dcat:prev",
       "label": "prev",
-      "definition": null,
+      "definition": "The previous resource (before the current one) in an ordered collection or series of resources.",
+      "usage_notes": [
+        "In DCAT this property is used for resources belonging to a dcat:DatasetSeries. It is important to note that this property is different from dcat:previousVersion, as it does not denote a previous version of the same resource, but a distinct resource immediately preceding the current one in an ordered collection of resources."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_previous"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2340,7 +3466,17 @@
       "property": "dcat:previousVersion",
       "rq2_term": "dcat:previousVersion",
       "label": "previous version",
-      "definition": null,
+      "definition": "The previous version of a resource in a lineage [PAV].",
+      "usage_notes": [
+        "This property is meant to be used to specify a version chain, consisting of snapshots of a resource. The notion of version used by this property is limited to versions resulting from revisions occurring to a resource as part of its life-cycle. One of the typical cases here is representing the history of the versions of a dataset that have been released over time."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_previous_version"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2351,7 +3487,17 @@
       "property": "dcat:qualifiedRelation",
       "rq2_term": "dcat:qualifiedRelation",
       "label": "qualified relation",
-      "definition": null,
+      "definition": "Link to a description of a relationship with another resource",
+      "usage_notes": [
+        "Used to link to another resource where the nature of the relationship is known but does not match one of the standard [DCTERMS] properties (dcterms:hasPart, dcterms:isPartOf, dcterms:conformsTo, dcterms:isFormatOf, dcterms:hasFormat, dcterms:isVersionOf, dcterms:hasVersion, dcterms:replaces, dcterms:isReplacedBy, dcterms:references, dcterms:isReferencedBy, dcterms:requires, dcterms:isRequiredBy) or [PROV-O] properties (prov:wasDerivedFrom, prov:wasInfluencedBy, prov:wasQuotedFrom, prov:wasRevisionOf, prov:hadPrimarySource, prov:alternateOf, prov:specializationOf)."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_qualified_relation"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2362,7 +3508,17 @@
       "property": "dcat:theme",
       "rq2_term": "dcat:theme",
       "label": "theme",
-      "definition": null,
+      "definition": "A main category of the resource. A resource can have multiple themes.",
+      "usage_notes": [
+        "The set of themes used to categorize the resources are organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar, describing all the categories and their relations in the catalog."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_theme"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2373,7 +3529,17 @@
       "property": "dcat:version",
       "rq2_term": "dcat:version",
       "label": "version",
-      "definition": null,
+      "definition": "The version indicator (name or identifier) of a resource.",
+      "usage_notes": [
+        "DCAT does not prescribe how a version name / identifier should be specified, and refers for guidance to [DWBP]'s Best Practice 7: Provide a version indicator."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_version"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2384,7 +3550,17 @@
       "property": "dct:accessRights",
       "rq2_term": "dct:accessRights",
       "label": "access restrictions",
-      "definition": null,
+      "definition": "Information about who can access the resource or an indication of its security status.",
+      "usage_notes": [
+        "Information about licenses and rights MAY be provided for the Resource. See also guidance at 9. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_access_rights"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2395,7 +3571,17 @@
       "property": "dct:conformsTo",
       "rq2_term": "dct:conformsTo",
       "label": "conformance",
-      "definition": null,
+      "definition": "An established standard to which the described resource conforms.",
+      "usage_notes": [
+        "This property SHOULD be used to indicate the model, schema, ontology, view or profile that the cataloged resource content conforms to."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_conforms_to"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2406,7 +3592,17 @@
       "property": "dct:creator",
       "rq2_term": "dct:creator",
       "label": "creator",
-      "definition": null,
+      "definition": "The entity responsible for producing the resource.",
+      "usage_notes": [
+        "Resources of type foaf:Agent are recommended as values for this property."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_creator"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2417,7 +3613,15 @@
       "property": "dct:description",
       "rq2_term": "dct:description",
       "label": "description",
-      "definition": null,
+      "definition": "A free-text account of the resource.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_description"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2428,7 +3632,15 @@
       "property": "dct:hasPart",
       "rq2_term": "dct:hasPart",
       "label": "has part",
-      "definition": null,
+      "definition": "A related resource that is included either physically or logically in the described resource.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_has_part"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2439,7 +3651,17 @@
       "property": "dct:identifier",
       "rq2_term": "dct:identifier",
       "label": "identifier",
-      "definition": null,
+      "definition": "A unique identifier of the resource being described or cataloged.",
+      "usage_notes": [
+        "The identifier is a text string which is assigned to the resource to provide an unambiguous reference within a particular context."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_identifier"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2450,7 +3672,17 @@
       "property": "dct:isReferencedBy",
       "rq2_term": "dct:isReferencedBy",
       "label": "is referenced by",
-      "definition": null,
+      "definition": "A related resource, such as a publication, that references, cites, or otherwise points to the cataloged resource.",
+      "usage_notes": [
+        "This property is used to associate a resource with the resource (of type dcat:Resource) in question. For other relations to resources not covered with this property, the more generic property dcat:qualifiedRelation can be used. See also 15. Qualified relations."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_is_referenced_by"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2461,7 +3693,17 @@
       "property": "dct:issued",
       "rq2_term": "dct:issued",
       "label": "issued",
-      "definition": null,
+      "definition": "Date of formal issuance (e.g., publication) of the resource.",
+      "usage_notes": [
+        "This property SHOULD be set using the first known date of issuance."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_release_date"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2472,7 +3714,17 @@
       "property": "dct:language",
       "rq2_term": "dct:language",
       "label": "language",
-      "definition": null,
+      "definition": "A language of the resource. This refers to the natural language used for textual metadata (i.e., titles, descriptions, etc.) of a cataloged resource (i.e., dataset or service) or the textual values of a dataset distribution",
+      "usage_notes": [
+        "If representations of a dataset are available for each language separately, define an instance of dcat:Distribution for each language and describe the specific language of each distribution using dcterms:language (i.e., the dataset will have multiple dcterms:language values and each distribution will have just one as the value of its dcterms:language property). In case of multilingual distributions, the distributions will have multiple dcterms:language values."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_language"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2483,7 +3735,17 @@
       "property": "dct:license",
       "rq2_term": "dct:license",
       "label": "licence",
-      "definition": null,
+      "definition": "A legal document under which the resource is made available.",
+      "usage_notes": [
+        "Information about licenses and rights MAY be provided for the Resource. See also guidance at 9. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_license"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2494,7 +3756,17 @@
       "property": "dct:modified",
       "rq2_term": "dct:modified",
       "label": "last modified",
-      "definition": null,
+      "definition": "Most recent date on which the resource was changed, updated or modified.",
+      "usage_notes": [
+        "The value of this property indicates a change to the actual resource, not a change to the catalog record. An absent value MAY indicate that the resource has never changed after its initial publication, or that the date of last modification is not known, or that the resource is continuously updated."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_update_date"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2505,7 +3777,17 @@
       "property": "dct:publisher",
       "rq2_term": "dct:publisher",
       "label": "publisher",
-      "definition": null,
+      "definition": "The entity responsible for making the resource available.",
+      "usage_notes": [
+        "Resources of type foaf:Agent are recommended as values for this property."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_publisher"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2516,7 +3798,17 @@
       "property": "dct:relation",
       "rq2_term": "dct:relation",
       "label": "relation",
-      "definition": null,
+      "definition": "A resource with an unspecified relationship to the cataloged resource.",
+      "usage_notes": [
+        "dcterms:relation SHOULD be used where the nature of the relationship between a cataloged resource and related resources is not known. A more specific sub-property SHOULD be used if the nature of the relationship of the link is known. The property dcat:distribution SHOULD be used to link from a dcat:Dataset to a representation of the dataset, described as a dcat:Distribution"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_relation"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2527,7 +3819,15 @@
       "property": "dct:replaces",
       "rq2_term": "dct:replaces",
       "label": "replaces",
-      "definition": null,
+      "definition": "A related resource that is supplanted, displaced, or superseded by the described resource [DCTERMS].",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_replaces"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2538,7 +3838,17 @@
       "property": "dct:rights",
       "rq2_term": "dct:rights",
       "label": "rights",
-      "definition": null,
+      "definition": "A statement that concerns all rights not addressed with dcterms:license or dcterms:accessRights, such as copyright statements.",
+      "usage_notes": [
+        "Information about licenses and rights MAY be provided for the Resource. See also guidance at 9. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_rights"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2549,7 +3859,15 @@
       "property": "dct:title",
       "rq2_term": "dct:title",
       "label": "title",
-      "definition": null,
+      "definition": "A name given to the resource.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_title"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2560,7 +3878,17 @@
       "property": "dct:type",
       "rq2_term": "dct:type",
       "label": "type",
-      "definition": null,
+      "definition": "The nature or genre of the resource.",
+      "usage_notes": [
+        "To describe the file format, physical medium, or dimensions of the resource, use the dcterms:format element."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_type"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2571,7 +3899,17 @@
       "property": "odrl:hasPolicy",
       "rq2_term": "odrl:hasPolicy",
       "label": "has policy",
-      "definition": null,
+      "definition": "An ODRL conformant policy expressing the rights associated with the resource.",
+      "usage_notes": [
+        "Information about rights expressed as an ODRL policy [ODRL-MODEL] using the ODRL vocabulary [ODRL-VOCAB] MAY be provided for the resource. See also guidance at 9. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_has_policy"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2582,7 +3920,17 @@
       "property": "prov:qualifiedAttribution",
       "rq2_term": "prov:qualifiedAttribution",
       "label": "qualified attribution",
-      "definition": null,
+      "definition": "Link to an Agent having some form of responsibility for the resource",
+      "usage_notes": [
+        "Used to link to an Agent where the nature of the relationship is known but does not match one of the standard [DCTERMS] properties (dcterms:creator, dcterms:publisher). Use dcat:hadRole on the prov:Attribution to capture the responsibility of the Agent with respect to the Resource. See 15.1 Relationships between datasets and agents for usage examples."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:resource_qualified_attribution"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2593,7 +3941,17 @@
       "property": null,
       "rq2_term": "dcat:Role",
       "label": "role",
-      "definition": null,
+      "definition": "A role is the function of a resource or agent with respect to another resource, in the context of resource attribution or resource relationships.",
+      "usage_notes": [
+        "Used in a qualified-relation to specify the role of an Entity with respect to another Entity. It is recommended that the values be managed as a controlled vocabulary of entity roles such as [ISO-19115-1] DS_AssociationTypeCode IANA Registry of Link Relations [IANA-RELATIONS] DataCite metadata schema [DataCite] MARC relators"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Class:Role"
+        }
+      ],
       "base_obligation": null
     },
     {
@@ -2603,7 +3961,17 @@
       "property": null,
       "rq2_term": "dct:Location",
       "label": "location",
-      "definition": null,
+      "definition": "A spatial region or named place.",
+      "usage_notes": [
+        "For an extensive geometry (i.e., a set of coordinates denoting the vertices of the relevant geographic area), the property locn:geometry [LOCN] SHOULD be used. For a geographic bounding box delimiting a spatial area the property dcat:bbox SHOULD be used. For the geographic center of a spatial area, or another characteristic point, the property dcat:centroid SHOULD be used."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Class:Location"
+        }
+      ],
       "base_obligation": null
     },
     {
@@ -2613,7 +3981,17 @@
       "property": "dcat:bbox",
       "rq2_term": "dcat:bbox",
       "label": "bbox",
-      "definition": null,
+      "definition": "The geographic bounding box of a spatial thing [SDW-BP].",
+      "usage_notes": [
+        "The range of this property (rdfs:Literal) is intentionally generic, with the purpose of allowing different geometry literal encodings. E.g., the geometry could be encoded as a WKT literal (geosparql:wktLiteral [GeoSPARQL])."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:location_bbox"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2624,7 +4002,17 @@
       "property": "dcat:centroid",
       "rq2_term": "dcat:centroid",
       "label": "centroid",
-      "definition": null,
+      "definition": "The geographic center (centroid) of a spatial thing [SDW-BP].",
+      "usage_notes": [
+        "The range of this property (rdfs:Literal) is intentionally generic, with the purpose of allowing different geometry literal encodings. E.g., the geometry could be encoded as a WKT literal (geosparql:wktLiteral [GeoSPARQL])."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:location_centroid"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2635,7 +4023,17 @@
       "property": "locn:geometry",
       "rq2_term": "locn:geometry",
       "label": "geometry",
-      "definition": null,
+      "definition": "Associates a spatial thing [SDW-BP] with a corresponding geometry.",
+      "usage_notes": [
+        "The range of this property (locn:Geometry) allows for any type of geometry specification. E.g., the geometry could be encoded by a literal, as WKT (geosparql:wktLiteral [GeoSPARQL]), or represented by a class, as geosparql:Geometry (or any of its subclasses) [GeoSPARQL]."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:location_geometry"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2646,7 +4044,17 @@
       "property": null,
       "rq2_term": "dct:PeriodOfTime",
       "label": "period of time",
-      "definition": null,
+      "definition": "An interval of time that is named or defined by its start and end.",
+      "usage_notes": [
+        "The start and end of the interval SHOULD be given by using properties dcat:startDate or time:hasBeginning, and dcat:endDate or time:hasEnd, respectively. The interval can also be open - i.e., it can have just a start or just an end."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Class:Period_of_Time"
+        }
+      ],
       "base_obligation": null
     },
     {
@@ -2656,7 +4064,15 @@
       "property": "dcat:endDate",
       "rq2_term": "dcat:endDate",
       "label": "end date",
-      "definition": null,
+      "definition": "The end of the period.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:period_end_date"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2667,7 +4083,15 @@
       "property": "dcat:startDate",
       "rq2_term": "dcat:startDate",
       "label": "start date",
-      "definition": null,
+      "definition": "The start of the period.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:period_start_date"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2678,7 +4102,17 @@
       "property": "time:hasBeginning",
       "rq2_term": "time:hasBeginning",
       "label": "has beginning",
-      "definition": null,
+      "definition": "Beginning of a period or interval.",
+      "usage_notes": [
+        "Use of the property time:hasBeginning entails that value of the dcterms:temporal property is a member of the time:TemporalEntity class from [OWL-TIME]. In this context this could be taken to imply that dcterms:PeriodOfTime is equivalent to the sub-class time:ProperInterval"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:period_has_beginning"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2689,7 +4123,17 @@
       "property": "time:hasEnd",
       "rq2_term": "time:hasEnd",
       "label": "has end",
-      "definition": null,
+      "definition": "End of a period or interval.",
+      "usage_notes": [
+        "Use of the property time:hasEnd entails that value of the dcterms:temporal property is a member of the time:TemporalEntity class from [OWL-TIME]. In this context this could be taken to imply that dcterms:PeriodOfTime is equivalent to the sub-class time:ProperInterval"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:period_has_end"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2700,7 +4144,17 @@
       "property": null,
       "rq2_term": "skos:Concept",
       "label": "concept",
-      "definition": null,
+      "definition": "A category or a theme used to describe datasets in the catalog.",
+      "usage_notes": [
+        "It is recommended to use either skos:inScheme or skos:topConceptOf on every skos:Concept used to classify datasets to link it to the concept scheme it belongs to. This concept scheme is typically associated with the catalog using dcat:themeTaxonomy."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Class:Concept"
+        }
+      ],
       "base_obligation": null
     },
     {
@@ -2710,7 +4164,15 @@
       "property": null,
       "rq2_term": "skos:ConceptScheme",
       "label": "concept scheme",
-      "definition": null,
+      "definition": "A knowledge organization system (KOS) used to represent themes/categories of datasets in the catalog.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Class:Concept_Scheme"
+        }
+      ],
       "base_obligation": null
     },
     {
@@ -2720,7 +4182,17 @@
       "property": null,
       "rq2_term": "spdx:Checksum",
       "label": "checksum",
-      "definition": null,
+      "definition": "A Checksum is a value that allows to check the integrity of the contents of a file. Even small changes to the content of the file will change its checksum. This class allows the results of a variety of checksum and cryptographic message digest algorithms to be represented [SPDX].",
+      "usage_notes": [
+        "The Checksum includes the algorithm (spdx:algorithm) and value (spdx:checksumValue) that allows the integrity of a file to be verified to ensure no errors occurred in transmission or storage."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Class:Checksum"
+        }
+      ],
       "base_obligation": null
     },
     {
@@ -2730,7 +4202,17 @@
       "property": "spdx:algorithm",
       "rq2_term": "spdx:algorithm",
       "label": "algorithm",
-      "definition": null,
+      "definition": "Identifies the algorithm used to produce the subject Checksum [SPDX].",
+      "usage_notes": [
+        "Version 2.2 of [SPDX] defines individuals for the following algorithms: MD2, MD4, MD5, MD6, SHA-1, SHA-224, SHA-256, SHA-384, SHA-512."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:checksum_algorithm"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     },
@@ -2741,10 +4223,18 @@
       "property": "spdx:checksumValue",
       "rq2_term": "spdx:checksumValue",
       "label": "checksum value",
-      "definition": null,
+      "definition": "The checksumValue property provides a lowercase hexadecimal encoded digest value produced using a specific algorithm [SPDX].",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-3.html",
+          "sha256": "068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb",
+          "anchor": "Property:checksum_checksum_value"
+        }
+      ],
       "base_obligation": null,
       "vocabulary": null
     }
   ],
-  "catalogue_hash": "71f49093e17a2e2d3fa56d53a7690ac484bea30f0de09e9ab41bbfd91b833ccc"
+  "catalogue_hash": "b20caeea53f3b5825628f262802f9e4b75c363a8ad2a09f79b73101c794f7bd9"
 }

@@ -529,7 +529,7 @@ def classify_needs(store, run, needs, client):
         return {'needs':{n.requirement_id:{'statement':n.need_statement,'condition':n.need_condition,
                     'scope':n.scope,'obligation':n.normalized_intent.obligation_hint,
                     'obligation_alternatives':[{'obligation':a.obligation,'count':a.count} for a in n.obligation_alternatives]} for n in batch},
-            'base_needs':{e['id']:{'need':e['need'],'obligation':e['base_obligation']} for e in entries}}
+            'base_needs':{e['id']:{'need':e['need'],'definition':e.get('definition'),'usage_notes':e.get('usage_notes',[]),'obligation':e['base_obligation']} for e in entries}}
     for batch in bounded_batches(eligible,25,payload_for):
         payload=payload_for(batch); identifiers=set(payload['needs']); offered_ids=set(payload['base_needs'])
         def validate(result):
