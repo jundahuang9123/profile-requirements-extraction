@@ -126,7 +126,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 
 | Step | Policy | Bound / recovery |
 |---|---|---|
-| Fresh need extraction | `rq1-independent-elicitation-v3.2` | Existing excerpt and extraction budgets; no `extension_kind` or `base_property` in the new provider contract |
+| Fresh need extraction | `rq1-independent-elicitation-v3.3` | Selected role descriptions exclude discovery citations and merge history; no `extension_kind` or `base_property` in the needs provider contract |
 | Normalization | `rq1-need-normalization-v1` | Uncited and base-only filtering; historical extraction annotations remain readable |
 | Source check | `rq1-original-source-v2.2` | Deterministic; every cited link checked |
 | Proposal support | `rq1-proposal-support-v1` | At most 25 proposals / 24,000 input characters; only own excerpt IDs allowed |

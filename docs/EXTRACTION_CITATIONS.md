@@ -1,6 +1,6 @@
 # Exact excerpts and bounded provider requests
 
-The persistent RQ1 workflow uses `rq1-independent-elicitation-v2.11` for new agent
+The persistent RQ1 workflow uses `rq1-independent-elicitation-v3.3` for new agent
 runs. Agents select source excerpt IDs for each requirement premise. The server
 supplies the original quotation and its character offset; agents no longer generate
 quotation text. The saved public requirement format remains `EvidenceLink` with
@@ -38,6 +38,13 @@ batch catalogue, catalogue hash and transformation outcome remain in the contrib
 Each catalogue is stored once per run, in the run's `catalogues` map under the hash that
 the role report records; roles that read the same batch share it. The run export and the
 extraction step's download include the catalogues.
+
+Extraction receives a selected stakeholder's label, stakeholders, basis, purpose,
+focus questions and rationale. Discovery quotations, citations and candidate merge
+history stay in the role-selection audit and are excluded from extraction prompts.
+Only excerpts supplied in the extraction batch may support a proposal. Policy v3.3
+applies to both needs and legacy candidate output; their output contracts remain
+distinct. A partial extraction from an older policy needs a fresh run.
 
 Authentic excerpts do not establish entailment. The ordinary original-source
 verification, separate obligation-premise requirement and semantic assessment

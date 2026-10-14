@@ -692,6 +692,20 @@ def ensure_elicitation_resumable(run):
         run_extraction_base_context(run)
 
 
+def extraction_role_context(run: dict, role, snapshot: dict, base_context: dict | None) -> dict:
+    context = {'role': role.model_dump(mode='json'), 'user_tasks': snapshot['user_tasks']}
+    if base_context:
+        context['base_profile'] = base_context
+    selected = next((item for item in (run.get('role_manifest') or {}).get('selected_roles', [])
+                     if item['role_id'] == role.id), None)
+    if selected:
+        # Discovery citations and merge history are not admissible extraction evidence.
+        # Use an allowlist so future selection audit fields cannot leak into the prompt.
+        context['stakeholder_perspective'] = {key: selected[key] for key in (
+            'label', 'stakeholders', 'basis', 'purpose', 'focus_questions', 'rationale') if key in selected}
+    return context
+
+
 def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Observation], list[dict]]:
     ensure_elicitation_resumable(run)
     prompt_version = NEEDS_ELICITATION_POLICY if run['request'].get('output_form') == 'needs' else PROMPT_VERSION
@@ -706,14 +720,7 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
     task_ids = {task['id'] for task in snapshot['user_tasks']}
 
     def role_call(role):
-        role_context = {'role': role.model_dump(mode='json'), 'user_tasks': snapshot['user_tasks']}
-        if base_context:
-            role_context['base_profile'] = base_context
-        manifest = run.get('role_manifest') or {}
-        selected = next((item for item in manifest.get('selected_roles', []) if item['role_id'] == role.id), None)
-        if selected:
-            # Basis/rationale travel with the role, never as substitute requirement evidence.
-            role_context['stakeholder_perspective'] = selected
+        role_context = extraction_role_context(run, role, snapshot, base_context)
         previous_report = next((r for r in run['role_runs'] if r['role_id'] == role.id and r.get('prompt_version') == prompt_version), {})
         previous_selections = previous_report.get('citation_selections', [])
         completed_units = {eid for selection in previous_selections if selection['status'] == 'materialized'
