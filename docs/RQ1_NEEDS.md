@@ -7,9 +7,11 @@ classes, properties and modelling solutions belongs to RQ2.
 A need names no RDF CURIE or class/property local name such as `accessURL` or
 `DataService`. Ordinary words such as *dataset* and *title* are allowed. External
 standards, regulations and code lists can remain when the source makes them binding.
-An example form is “The metadata must let users identify the organisation that
-publishes a dataset.” The actor and obligation must be supported by the source;
-this preferred wording is not a licence to add “users” or “must”.
+The statement template is “[Actor] can [know/find/judge/do] [what] [for which
+resource] [stated condition]”, for example “Users can identify the organisation
+that publishes a dataset.” Use Users unless the members name a specific actor.
+Never use the whole words must, shall or should in a need statement; obligation
+lives only in its separate field. Unknown is shown as “not stated by sources”.
 
 An **RQ2 hint** is a literally observed term, vocabulary, code list or modelling
 element. Its origin is a proposal or authentic evidence quotation, with the original
@@ -106,11 +108,11 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 
 | Step | Policy | Bound / recovery |
 |---|---|---|
-| Fresh need extraction | `rq1-independent-elicitation-v3.1` | Existing excerpt and extraction budgets; no `extension_kind` or `base_property` in the new provider contract |
+| Fresh need extraction | `rq1-independent-elicitation-v3.2` | Existing excerpt and extraction budgets; no `extension_kind` or `base_property` in the new provider contract |
 | Normalization | `rq1-need-normalization-v1` | Uncited and base-only filtering; historical extraction annotations remain readable |
 | Source check | `rq1-original-source-v2.1` | Deterministic; every cited link checked |
 | Grouping | `rq1-semantic-consolidation-v3` | 40 candidates, 24,000 input characters, at most 25 prior offered groups; audited exact fallback for invalid model grouping |
-| Need writing / rewrite critic | `rq1-need-statement-v1` | At most 20 groups; 24,000 writer input characters; independent critic up to 48,000 characters; initial response plus one output correction |
+| Need writing / rewrite critic | `rq1-need-statement-v2` | At most 20 groups; 24,000 writer input characters; independent critic up to 48,000 characters; initial response plus one output correction |
 | Additional member checking | `rq1-need-membership-v1` | Large groups use a bounded writing basis (up to 20 members / 16,000 statement characters); every remaining member checked in batches up to 40 / 24,000 characters |
 | Base catalogue | `rq1-base-needs-catalogue-v1` | Frozen base-only file and checksum; currently unreviewed |
 | Generic/domain | `rq1-generic-domain-v1` | Up to 25 needs / 24,000 input characters |

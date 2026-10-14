@@ -18,7 +18,7 @@ class NeedsClient:
         if name == 'NeedStatements':
             results=[]
             for identifier, group in data['groups'].items():
-                statement='The metadata lets users identify the title of a dataset.'
+                statement='Users can identify the title of a dataset.'
                 condition=''
                 if self.mode == 'invent': statement+=' When access is restricted.'; condition='When access is restricted'
                 if self.mode == 'term' and sum(n == name for n,d in self.calls) == 1:
@@ -102,3 +102,14 @@ def test_valid_negative_rewrite_critic_is_not_pressured_to_flip(setup):
     with pytest.raises(ValueError,match='rejected by independent critic'):
         needs.write_needs(store,run,[records],client,None)
     assert len(client.calls)==2
+
+
+@pytest.mark.parametrize('obligation', ['mandatory','recommended','optional','unknown'])
+@pytest.mark.parametrize('word', ['must','SHALL','Should'])
+def test_need_wording_keeps_obligation_separate(obligation, word):
+    offered={'g':{'obligation':obligation,'members':{'m':{'statement':'Users can identify titles.'}}}}
+    answer=needs.NeedStatements(needs=[{'group_id':'g','statement':f'Users {word} identify titles.',
+        'members':[{'member_id':'m','expresses_need':True}]}])
+    assert any('obligation words' in e for e in needs.statement_errors(answer,offered,None))
+    answer.needs[0].statement='Users can identify titles.'
+    assert needs.statement_errors(answer,offered,None)==[]

@@ -9,7 +9,7 @@ from ..models import ArtifactPayload, NormalizedIntent as LegacyIntent, Requirem
 WORKFLOW_VERSION = 'rq1-nine-stage-v2'
 SCHEMA_VERSION = 'rq1-requirement-dataset-v2'
 ELICITATION_POLICY_VERSION = 'rq1-independent-elicitation-v3.0'
-NEEDS_ELICITATION_POLICY = 'rq1-independent-elicitation-v3.1'
+NEEDS_ELICITATION_POLICY = 'rq1-independent-elicitation-v3.2'
 NEEDS_NORMALIZATION_POLICY = 'rq1-need-normalization-v1'
 NORMALIZATION_POLICY_VERSION = 'rq1-normalization-v3'
 ExtensionKind = Literal['new_information_need', 'stricter_obligation', 'value_constraint',

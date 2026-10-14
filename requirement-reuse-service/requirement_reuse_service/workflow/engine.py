@@ -809,13 +809,17 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
             if run['request'].get('output_form') == 'needs':
                 output_model = NeedSpanElicitationResult
                 extraction_system = (
-                    'State source-supported needs, not solutions: what people or systems must be able to '
+                    'State source-supported needs, not solutions: what people or systems can '
                     'know, find, judge or do, and under which stated condition. Do not name RDF vocabulary '
                     'terms, classes or properties in statements; preserve literally observed terms in '
                     'rq2_hints. Hints must occur in the proposal or supplied source quotations; never invent '
                     'terms. External standards, regulations and code lists may remain in a need only when '
-                    'the source makes them binding. Prefer "The metadata must let users ..." only when the '
-                    'source supports that actor and obligation; do not invent either. Generic source-supported '
+                    'the source makes them binding. Use "[Actor] can [know/find/judge/do] [what] [for which '
+                    'resource] [stated condition]". Use Users unless the source names a specific actor. '
+                    'Never put the whole words must, shall or should in the need statement. Set '
+                    'obligation_hint to mandatory, recommended or optional only when a supplied excerpt '
+                    'states that level, linked as the obligation component; otherwise use unknown. '
+                    'Do not invent actors or obligations. Generic source-supported '
                     'needs are allowed and will be classified later. Use only supplied source_span_id values '
                     'for evidence; do not generate quotations, offsets or evidence IDs. Link statement and '
                     'obligation components separately, only when the excerpt supports each. For every supplied '
@@ -1570,6 +1574,8 @@ def active_records(run: dict, identifiers: list[str]) -> list[RequirementRecord]
 def require_need_form(run, record):
     from .terms import detect_terms
     profile = _load_pinned_profile(run['base_profile_id'], run.get('base_profile_sha256'))[0] if run.get('base_profile_id') else None
+    if re.search(r'\b(?:must|shall|should)\b',record.need_statement or '',re.I):
+        raise ValueError('Use neutral need wording before acceptance; obligation belongs only in its separate field.')
     if not record.need_statement or detect_terms(record.need_statement, profile):
         raise ValueError('Repair the RQ1 need form before acceptance: state a term-free need and keep terms separately as hints.')
 

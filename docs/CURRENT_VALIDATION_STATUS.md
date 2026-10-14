@@ -354,9 +354,14 @@ plotting script, which needs its separate plotting dependencies; the documented
 RQ1 test command targets `tests/`.
 
 No live run, reference scoring, freeze tag or human review has been performed for
-this condition. Junda's decisions: development cases stay scoping-off until use
-cases are supplied; unlinked needs are visible/restorable asides; preferred wording
-is “The metadata must let users …” only where actor and obligation are supported.
+this condition. Junda's revised decisions (14 October, replacing the earlier choices): D1 needs use
+"[Actor] can …" without obligation words; obligation counts only when quoted,
+otherwise it is "not stated by sources". D2 Junda authors dated use cases from each
+development case's stated purpose before running; scoping off is a reported
+comparison. D3 needs with no verified use case stay visible/restorable asides;
+evaluation reports recall with and without these needs. D4 proposal quotes must
+support their information/capability before merging. The fixes implementing these
+decisions are recorded separately on this review branch.
 Mobility remains held out. Prior heuristics were adjusted while reading Mobility
 candidates, never reference rows; disclose this in the paper. Test development
 cases first, review base catalogues, then authorise a functional Mobility derived

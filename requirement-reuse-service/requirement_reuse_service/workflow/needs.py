@@ -15,7 +15,7 @@ from .terms import collect_hints, detect_terms, union_hints
 from .semantic_consolidation import grouped_block, partition_exact, NEED_SEMANTIC_POLICY
 
 POLICIES = {'source_check': 'rq1-original-source-v2.1', 'grouping': NEED_SEMANTIC_POLICY,
-            'need_statement': 'rq1-need-statement-v1', 'need_membership': 'rq1-need-membership-v1',
+            'need_statement': 'rq1-need-statement-v2', 'need_membership': 'rq1-need-membership-v1',
             'classification': 'rq1-generic-domain-v1', 'scoping': 'rq1-use-case-necessity-v1',
             'scope_critic': 'rq1-use-case-critic-v1', 'assessment': 'rq1-need-support-v1', 'ranking': 'rq1-need-ranking-v1'}
 MAX_WRITE_GROUPS = 20
@@ -65,10 +65,11 @@ class NeedMembership(Contract):
 
 WRITE_SYSTEM = (
     'Write one atomic, term-free requirement per offered underlying need, including singleton groups. '
-    'Say what people or systems must be able to know, find, judge or do. Prefer "The metadata must let '
-    'users ..." only when the members support that actor and obligation. Do not add any information, '
-    'actor, condition, scope or obligation that no member says. With conflicting or unknown obligation '
-    'use neutral wording, never must/should. Ignore vocabulary wording and model-generated typed labels '
+    'Use "[Actor] can [know/find/judge/do] [what] [for which resource] [condition]". '
+    'Use Users unless members name a specific actor; preserve that actor when they do. '
+    'Never use the whole words must, shall or should, in any case. Obligation is computed separately '
+    'by the server; do not write it into the statement. Do not add information, actor, condition or '
+    'scope that no member states. Ignore vocabulary wording and model-generated typed labels '
     'as evidence of an underlying need. Preserve binding external standards and regulations. Never name '
     'RDF vocabulary terms, CURIEs or camelCase/PascalCase class/property names. Return exact group IDs '
     'and account for every offered member_id exactly once; mark whether each member expresses this '
@@ -199,11 +200,8 @@ def statement_errors(answer, offered, profile):
         for field in (need.condition, need.scope, *conditions(need.statement)):
             if field and ' '.join(field.split()).casefold() not in normalized:
                 errors.append(need.group_id + ': added condition or scope: ' + field)
-        obligation = offered[need.group_id]['obligation']
-        if obligation != 'mandatory' and re.search(r'\b(?:must|shall)\b', need.statement, re.I):
-            errors.append(need.group_id + ': unsupported mandatory wording.')
-        if obligation in {'optional', 'unknown'} and re.search(r'\bshould\b', need.statement, re.I):
-            errors.append(need.group_id + ': unsupported recommended wording.')
+        if re.search(r'\b(?:must|shall|should)\b', need.statement, re.I):
+            errors.append(need.group_id + ': obligation words belong only in the separate obligation field.')
     return errors
 
 
@@ -619,6 +617,8 @@ def prepare_human_need(store, run, record, parents):
     profile=load_profile(run['base_profile_id'])[0] if run.get('base_profile_id') else None
     if detect_terms(record.normalized_statement,profile):
         raise ValueError('State a term-free RQ1 need; vocabulary terms belong in RQ2 hints.')
+    if re.search(r'\b(?:must|shall|should)\b',record.normalized_statement,re.I):
+        raise ValueError('Use neutral need wording; obligation belongs only in its separate field.')
     record.need_statement=record.normalized_statement
     record.normalized_intent.metadata_need=record.normalized_statement
     record.rq2_hints=union_hints([*collect_hints(record.raw_statement,record.evidence_links,profile,record.revision_id),

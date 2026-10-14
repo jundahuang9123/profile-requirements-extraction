@@ -3,7 +3,7 @@ import { Requirement, Run } from '../lib/workflowApi';
 export function NeedSummaryView({ record, run, inspect }: { record: Requirement; run: Run; inspect: (id: string) => void }) {
   if (!record.need_statement) return null;
   return <div className="workflow-need-summary">
-    <div className="workflow-tags"><span>{record.rank ? `Rank ${record.rank}` : 'Added / restored for review'}</span><span>{record.need_class?.replace(/_/g, ' ') ?? 'Classification needs review'}</span><span>Obligation: {record.normalized_intent.obligation_hint}</span></div>
+    <div className="workflow-tags"><span>{record.rank ? `Rank ${record.rank}` : 'Added / restored for review'}</span><span>{record.need_class?.replace(/_/g, ' ') ?? 'Classification needs review'}</span><span>Obligation: {record.normalized_intent.obligation_hint === 'unknown' ? 'not stated by sources' : record.normalized_intent.obligation_hint}</span></div>
     {(record.obligation_alternatives?.length ?? 0) > 1 && <p>Source obligations differ: {record.obligation_alternatives!.map(a => `${a.obligation} (${a.count} proposals)`).join('; ')}. A reviewer decides.</p>}
     {record.need_condition && <p>Condition: {record.need_condition}</p>}
     <details><summary>Use cases · {record.task_justifications?.length ?? 0} necessary links</summary>{record.task_justifications?.map(link => <p key={link.task_id}><strong>{link.task_id}</strong> · {link.justification}</p>)}{!record.task_justifications?.length && <p>{run.request?.scoping === 'off' ? 'Scoping is off for this run. No necessity claim is made.' : 'No verified use-case link. Human revisions and restored needs require review.'}</p>}</details>
