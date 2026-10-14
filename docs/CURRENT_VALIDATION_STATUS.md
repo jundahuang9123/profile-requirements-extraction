@@ -494,3 +494,30 @@ Schema and all six catalogue checks pass; the production frontend build passes.
 Rendering the actual review-status component confirms reviewer/date display and
 the historical unreviewed fallback. No provider call, saved-run change or reference
 requirement set is involved.
+
+
+## 14 October 2026: review-inputs PR, Mobility task file
+
+The 12 tasks in run `run-23e6df696aca4dbe9f5649cc4cbbf855`'s frozen snapshot
+`corpus-b97eeaa522fc093cb419db79` were read through a query-only, read-only SQLite
+connection. Their IDs, statement text and order are exactly identical to
+`mobilitydcat/input-raw/sprint-competency-tasks.json`; no differences were found.
+No saved database record was changed.
+
+`mobilitydcat/use-cases.json` copies those statements unchanged and adds the
+user-supplied author `Junda Huang (benchmark curator; paraphrase of SPRINT D2.3)`,
+writing date `2026-10-09` and specified SPRINT basis. The metadata is supplied by
+Junda, not inferred by the agent. No task file is created for another case.
+
+Seven import regressions pass: all 16 real Mobility source inputs import with
+12 tasks and their exact file hash frozen; HealthDCAT, GeoDCAT, StatDCAT and JRC
+imports have no declared tasks; EPOS keeps its pre-existing no-raw-input refusal.
+Read guards reject reference/preconsolidation reads. These are isolated temporary
+SQLite imports only, with zero model runs or generations.
+
+Final review-inputs validation: **661 offline tests pass** (five existing
+dependency deprecation warnings), including 14 new review-mechanics tests and
+seven real-input/task import checks. Runtime schema, all six catalogue rebuild
+checks, frontend build and diff whitespace checks pass. All current catalogue
+JSON files remain byte-identical to main; no production phrase or review status
+changed. Both requested items are separate commits, with a new PR left unmerged.
