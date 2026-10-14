@@ -469,6 +469,7 @@ class RunRequest(Contract):
 
 
 class DeriveRequest(Contract):
+    start_from: Literal['normalization', 'elicitation'] = 'normalization'
     output_form: Literal['needs', 'candidates'] | None = None
     scoping: Literal['use_cases', 'off'] | None = None
     expected_version: int = Field(ge=1)

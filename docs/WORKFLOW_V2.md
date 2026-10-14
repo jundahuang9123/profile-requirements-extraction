@@ -415,3 +415,29 @@ restores panel order after a resume, so consolidation merges the same observatio
 in the same order and the merged revision keeps its identifier. Consolidation reuses
 the completed assessment of an identical merged revision from the earlier attempt,
 as normalization already does for single candidates.
+
+## Restarting step 3b with a saved stakeholder panel
+
+`POST /api/rq1/v2/runs/{source_run_id}/derive` now accepts
+`start_from: "elicitation"`. This creates a separate trial with the current extraction
+policy, reusing the exact completed steps 1–3a: snapshot, ordered evidence IDs and
+sealed role manifest. The source worker must have stopped, its saved revision must
+match `expected_version`, and the panel and snapshot hashes must verify. Partial or
+obsolete extraction output is not copied into the new trial. Its observations,
+role reports, excerpt catalogues, provider call log and downstream outputs start empty.
+The source's partial outputs remain saved for inspection.
+
+The default, `start_from: "normalization"`, retains the earlier behaviour: it requires
+completed extraction and copies its frozen output without new extraction calls.
+
+A step-3b trial records `derived_from.stage: "role_selection"`, the source revision,
+previous extraction policy and hashes of the reused manifest, snapshot and evidence
+IDs. It checks those immutable inputs before execution and resume. It can resume its
+own unfinished extraction checkpoints under the current policy, without repeating
+finished roles. It does not reuse historical assessments. Its UI notice and
+`extraction_reused` metric distinguish panel reuse from extraction reuse.
+
+Set the desired `output_form`, `scoping`, `discussion`, `execution_mode` and
+`allow_live_provider` explicitly in an authorised live request. Restarting extraction
+is a new experimental condition, not completion of the old experiment under its
+original policy. No human decision or benchmark score is carried into the trial.

@@ -65,7 +65,7 @@ def workflow_metrics(run: dict) -> dict:
         'snapshot_id': run['snapshot_id'], 'strategy': run['strategy'], 'implementation_hash': run['implementation_hash'],
         'elicitation_policy_version': run.get('elicitation_policy_version'),
         'derived_from': run.get('derived_from'),
-        'extraction_reused': bool(run.get('derived_from')),
+        'extraction_reused': bool(run.get('derived_from')) and run['derived_from'].get('stage') != 'role_selection',
         'assessments_reused': run.get('metrics', {}).get('assessments_reused', 0),
         'normalization_policy_version': run.get('normalization_policy_version'),
         'base_check': base_check_metrics(run, frozen),
