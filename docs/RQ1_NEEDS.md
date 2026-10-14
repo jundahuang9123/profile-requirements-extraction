@@ -103,13 +103,46 @@ The six prose input files are bundled in `config/base_profiles/source-inputs`,
 so rebuilding and `--check` need no network access. Catalogue files contain a registry checksum,
 policy and catalogue hash and read **unreviewed**. They contain no benchmark material.
 
-Junda should review the selected catalogue before research evaluation. A revision
-or review annotation changes its hash; record the reviewer/date, freeze the reviewed
-catalogue as a versioned artefact and derive new trials rather than changing an
-existing run's catalogue. The deterministic builder deliberately reproduces its
-unreviewed draft; do not rebuild over a manually reviewed catalogue. `--check`
-checks the generated draft. No review has been performed on Junda's behalf.
-The UI provides a catalogue download next to the pinned base version.
+Junda reviews the selected catalogue before research evaluation. Keep the generated
+catalogue intact and save human review separately in the adjacent
+`<id>.needs-review.json`. It declares `base_profile_id`, `draft_catalogue_hash`,
+`status: reviewed`, `reviewer`, `reviewed_at` (YYYY-MM-DD), and `phrase_corrections`,
+keyed by entry ID with `need` and `note`. The draft hash binds review to the exact
+registry and pinned official prose. A changed draft requires a new human review.
+
+Use the worksheet without hand-editing the generated JSON:
+
+```sh
+.venv/bin/python scripts/base_needs_review.py export dcat-ap-2.0.1
+# Junda fills only the corrected phrase and note columns in the CSV.
+.venv/bin/python scripts/base_needs_review.py import dcat-ap-2.0.1 dcat-ap-2.0.1.needs-review.csv --reviewer "YOUR NAME" --reviewed-at YYYY-MM-DD
+.venv/bin/python scripts/build_base_needs.py
+.venv/bin/python scripts/build_base_needs.py --check
+```
+
+Export reads the current draft and leaves correction/note columns empty. Import
+checks entry IDs and every read-only worksheet cell against that draft before
+writing the review file; retain all exported rows. It imports only nonblank
+corrected phrases. Import refuses modified or stale worksheet cells; build refuses reviews with
+stale draft hashes. Both refuse unknown IDs, empty phrases, vocabulary terms and
+duplicate phrases within a class. Review may
+have zero corrections: it still records who reviewed the unchanged draft.
+
+**Only phrases change.** A corrected entry retains its original text in
+`need_draft` and the human rationale in `review_note`. Definitions, usage notes,
+obligations, labels and IDs are untouched. The generated catalogue's `review`
+records status, reviewer, date, review filename, exact file SHA-256 and corrected
+count, and its catalogue hash is recomputed. `--check` now reproduces the reviewed
+output from the registry, pinned sources and review file. Without a review file,
+output remains byte-identical to the unreviewed draft. The policy remains
+`rq1-base-needs-catalogue-v2`.
+
+New needs runs and derived trials pin the current catalogue when created.
+Existing runs keep their saved catalogue hash and review metadata; classification
+refuses a changed catalogue. Derive a new trial after rebuilding a reviewed
+catalogue. The workbench shows its reviewer/date beside the reviewed status and
+provides a catalogue download. No human review or production phrase correction
+has been performed by the agent.
 
 Classification offers at most 25 catalogue entries per batch using conservative,
 deterministic word retrieval over phrases, definitions and usage notes
@@ -133,7 +166,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Grouping | `rq1-semantic-consolidation-v3` | 40 candidates, 24,000 input characters, at most 25 prior offered groups; audited exact fallback for invalid model grouping |
 | Need writing / rewrite critic | `rq1-need-statement-v2` | At most 20 groups; 24,000 writer input characters; independent critic up to 48,000 characters; initial response plus one output correction |
 | Additional member checking | `rq1-need-membership-v1` | Large groups use a bounded writing basis (up to 20 members / 16,000 statement characters); every remaining member checked in batches up to 40 / 24,000 characters |
-| Base catalogue | `rq1-base-needs-catalogue-v2` | Frozen base-only file and checksum; currently unreviewed |
+| Base catalogue | `rq1-base-needs-catalogue-v2` | Frozen base-only file and checksum; optional hash-bound human phrase review |
 | Generic/domain | `rq1-generic-domain-v1` | Up to 25 needs / 24,000 input characters |
 | Necessity linking | `rq1-use-case-necessity-v1` | Up to 25 needs / 24,000 input characters; at most 32 task links per response row |
 | Link critic | `rq1-use-case-critic-v1` | Up to 25 links / 24,000 input characters |

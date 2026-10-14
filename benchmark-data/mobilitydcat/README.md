@@ -8,6 +8,8 @@ and contains the main report plus its annexes. The 2024 M2.7 report is not subst
 
 ## Available corpus
 
+Declared use cases come from `use-cases.json`; all 12 statements, IDs and their order match saved run `run-23e6df696aca4dbe9f5649cc4cbbf855`'s frozen snapshot.
+
 `input-raw/` contains original EU legal/policy texts, historical DCAT/DCAT-AP baselines,
 public INSPIRE guidance, the FAIR report and cost study, NISO's noncommercial primer,
 the licensed 2021 SPRINT paper, prior GeoDCAT, and factual synopses of CMC's 32 concepts

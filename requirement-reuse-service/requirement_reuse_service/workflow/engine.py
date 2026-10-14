@@ -302,6 +302,7 @@ def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') ->
     if request.output_form == 'needs':
         from .needs import POLICIES
         run.needs_policies = dict(POLICIES)
+        pin_base_needs_catalogue(run)
     run.stages['acquisition'] = 'completed'
     run.stages['decomposition'] = 'completed'
     if base_metadata or request.output_form == 'needs':
@@ -310,6 +311,14 @@ def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') ->
                                        **{key: getattr(run, key) for key in RUN_POLICY_FIELDS}}
     store.put('run', run.run_id, run.model_dump(mode='json'))
     return run.model_dump(mode='json')
+
+
+def pin_base_needs_catalogue(run: WorkflowRun):
+    """Freeze the catalogue at creation, before extraction can take time."""
+    if run.base_profile_id:
+        from .base_needs import load_catalogue
+        catalogue=load_catalogue(run.base_profile_id,run.base_profile_sha256)
+        run.base_needs_catalogue={k:v for k,v in catalogue.items() if k!='entries'}
 
 
 def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='local-reviewer') -> dict:
@@ -361,6 +370,7 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
     if settings.output_form == 'needs':
         from .needs import POLICIES
         run.needs_policies = dict(POLICIES)
+        pin_base_needs_catalogue(run)
     for stage in ('acquisition', 'decomposition', 'role_selection', 'elicitation'):
         run.stages[stage] = 'completed'
         run.stage_results[stage] = deepcopy(source.get('stage_results', {}).get(stage) or
