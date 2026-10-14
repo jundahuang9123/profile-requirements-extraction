@@ -424,3 +424,18 @@ No live inference, reference scoring, research freeze tag, human approval or
 Mobility tuning was performed. Optional item 12 (writing-basis diversity and
 cross-trial needs checkpoint reuse) remains deferred. Current compatible checkpoints
 within a run do replay; a new derived needs trial still performs its own needs steps.
+
+
+## 14 October 2026: PR #11 follow-up, offline condition
+
+Provider failures are separated from invalid output in row recovery v2. HTTP
+401/5xx errors and timeouts fail the active stage with a saved `transport_failed`
+chunk, without consuming correction attempts or creating fallback rows. Resume
+retries unfinished rows and retains accepted answers. Only malformed/cutoff output
+and deterministic input bounds exhaust into visible conservative fallbacks.
+Existing v1 conditions remain historical; apply v2 in a separate derived trial.
+
+Scripted regression checks cover all seven contracts (proposal support, writer,
+rewrite critic, membership, classifier, linker and link critic), including visible
+stage failure, working-client Resume and retained partial answers. No provider
+request, reference requirement set or saved research run is used.

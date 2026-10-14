@@ -14,7 +14,7 @@ from .storage import RUN_PARTS, canonical, digest, now, uid
 from .terms import collect_hints, detect_terms, union_hints
 from .semantic_consolidation import grouped_block, partition_exact, NEED_SEMANTIC_POLICY
 
-POLICIES = {'generation_recovery': 'rq1-needs-row-recovery-v1', 'source_check': 'rq1-original-source-v2.2', 'proposal_support': 'rq1-proposal-support-v1', 'grouping': NEED_SEMANTIC_POLICY,
+POLICIES = {'generation_recovery': 'rq1-needs-row-recovery-v2', 'source_check': 'rq1-original-source-v2.2', 'proposal_support': 'rq1-proposal-support-v1', 'grouping': NEED_SEMANTIC_POLICY,
             'need_statement': 'rq1-need-statement-v2', 'need_membership': 'rq1-need-membership-v1',
             'classification': 'rq1-generic-domain-v1', 'scoping': 'rq1-use-case-necessity-v1',
             'scope_critic': 'rq1-use-case-critic-v1', 'assessment': 'rq1-need-support-v1', 'ranking': 'rq1-need-ranking-v1'}

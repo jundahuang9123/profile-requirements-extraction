@@ -138,7 +138,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Necessity linking | `rq1-use-case-necessity-v1` | Up to 25 needs / 24,000 input characters; at most 32 task links per response row |
 | Link critic | `rq1-use-case-critic-v1` | Up to 25 links / 24,000 input characters |
 | Need assessment | `rq1-need-support-v1` | One logical assessment per kept need; complete selected excerpts, max 45,000 input characters; at most two generations for schema/cutoff recovery |
-| Row recovery | `rq1-needs-row-recovery-v1` | Valid rows saved; correction includes only failing rows; durable fallbacks after exhaustion |
+| Row recovery | `rq1-needs-row-recovery-v2` | Valid rows saved; correction includes only failing rows; invalid/cutoff output gets durable fallbacks after exhaustion; provider failures stop and remain retryable |
 | Rank | `rq1-need-ranking-v1` | Deterministic; every kept need remains listed |
 
 A single oversized needs-processing row receives the recorded conservative
@@ -149,9 +149,16 @@ remain on members. The linker records this selection and original distinct count
 
 Checkpoints bind policy, prompt, schema and complete input. Each row gets an initial
 response and at most one explicit correction containing only failing rows. Other
-valid rows are saved first. `rq1-needs-row-recovery-v1` records exhausted fallbacks
+valid rows are saved first. `rq1-needs-row-recovery-v2` records exhausted fallbacks
 and replays them on Resume without new generations; valid negative judgements are
 never corrected away.
+
+Only invalid structured output, output-token cutoffs and deterministic input-bound
+failures consume the correction budget. Authentication errors, timeouts and other
+provider failures stop the stage visibly. The chunk records `transport_failed`,
+the error class and requested IDs, without consuming an attempt or creating
+fallbacks. Resume retries unfinished rows and preserves previously accepted rows.
+Historical v1 runs retain their frozen conditions; use a derived trial to apply v2.
 
 | Exhausted row | Visible fallback |
 |---|---|
@@ -159,7 +166,7 @@ never corrected away.
 | Writer or rewrite critic | Restorable rewrite-rejected group with its audit |
 | Membership | Each unchecked member becomes a singleton, flagged membership not checked |
 | Classifier | Retain as domain, flagged not classified |
-| Use-case linker or link critic | Retain, flagged scoping not checked; technical failures never create no-use-case asides |
+| Use-case linker or link critic | Retain, flagged scoping not checked; exhausted invalid/cutoff answers never create no-use-case asides |
 
 Metrics report fallbacks per step. Oversized rows use the same visible fallback
 without a provider request; source quotes are never truncated. Unexpected code

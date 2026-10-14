@@ -9,10 +9,14 @@ from copy import deepcopy
 import time
 from typing import get_args
 from pydantic import ValidationError
-from ..llm.client import LLMError, OutputValidationError
+from ..llm.client import LLMError, OutputTokenLimitError, OutputValidationError
 from .storage import RUN_PARTS, canonical, digest, now
 
-POLICY = 'rq1-needs-row-recovery-v1'
+POLICY = 'rq1-needs-row-recovery-v2'
+
+
+class InputBoundError(ValueError):
+    """Deterministic local failure; a retry cannot change the input size."""
 SPECS = {
     'NeedStatements':('needs','group_id','groups'),
     'NeedGrounding':('checks','group_id','groups'),
@@ -67,7 +71,9 @@ def generation(store, run, step, payload, output_model, system, client, validate
         audit['checkpoint_hash']=digest({k:v for k,v in audit.items() if k!='checkpoint_hash'})
         store.mutate(run['run_id'],None,'need_rows_saved',lambda r:r['need_chunks'].__setitem__(key,deepcopy(audit)))
     row_model=get_args(output_model.model_fields[field].annotation)[0]
-    accepted=audit['accepted_rows']; errors={}
+    audit['status']='running'
+    accepted=audit['accepted_rows']
+    errors=audit['attempts'][-1].get('validation_errors',{}) if audit['attempts'] else {}
     while len(audit['attempts'])<2 and set(offered)-set(accepted):
         pending=[i for i in offered if i not in accepted]
         request=subset(payload,input_field,id_field,set(pending))
@@ -76,14 +82,25 @@ def generation(store, run, step, payload, output_model, system, client, validate
         try:
             limit=48000 if output_model.__name__=='NeedGrounding' else 24000
             if len(canonical(request))>limit:
-                raise LLMError('Input bound exceeded; no provider request was sent.')
+                raise InputBoundError('Input bound exceeded; no provider request was sent.')
             answer=client.generate_structured(system=system+correction,user=canonical(request),
                 output_model=output_model,max_tokens=8000 if not audit['attempts'] else 12000)
             raw=answer.model_dump(mode='json')
         except OutputValidationError as exc:
             raw=exc.parsed_payload; technical=str(exc)
-        except LLMError as exc:
+        except (OutputTokenLimitError, InputBoundError) as exc:
             technical=type(exc).__name__+': '+str(exc)
+        except LLMError as exc:
+            # Provider availability says nothing about the offered rows. Preserve
+            # accepted answers and correction budget, then retry unfinished rows
+            # on Resume rather than recording permanent semantic fallbacks.
+            audit['status']='transport_failed'
+            audit.setdefault('transport_failures',[]).append({
+                'error_class':type(exc).__name__, 'error':str(exc),
+                'requested_ids':pending, 'seconds':time.monotonic()-started,
+                'saved_at':now()})
+            save()
+            raise
         # Unexpected runtime errors are implementation defects, not a reason to
         # manufacture a fallback. Let them fail visibly for repair.
         errors={i:[] for i in pending}; typed={}; unexpected=[]
