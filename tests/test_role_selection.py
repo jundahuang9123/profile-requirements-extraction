@@ -515,7 +515,7 @@ def test_v7_saved_unsupported_repair_resumes_without_repeating_inference(corpus)
         ])
     client = SelectorClient()
     manifest = selector.select_roles(store, run, client)
-    assert manifest['policy_version'] == selector.POLICY_VERSION == 'rq1-stakeholder-selection-v10'
+    assert manifest['policy_version'] == selector.POLICY_VERSION == 'rq1-stakeholder-selection-v11'
     assert not any(name in {'RoleCandidates', 'RoleCitationCorrections'} for name, _ in client.calls)
     assert any(f'Resumed under {selector.POLICY_VERSION}' in note for note in manifest['migration_notes'])
     assert manifest['status'] == 'completed'

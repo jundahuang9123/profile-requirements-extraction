@@ -109,7 +109,7 @@ reserves a slot for the grounding/scope critic even when many roles contributed.
 
 ## Bounded selection and restart
 
-The versioned policy is `rq1-stakeholder-selection-v10`:
+The versioned policy is `rq1-stakeholder-selection-v11`:
 
 1. Read all snapshot evidence in deterministic source/selector order. Discovery batches
    have at most 40,000 serialized characters. A new automatic run scans its whole
@@ -131,20 +131,35 @@ The versioned policy is `rq1-stakeholder-selection-v10`:
    can choose existing IDs and group equivalent perspectives; it cannot invent new
    evidence or rewrite their remits. Historical candidate lineage is saved internally
    and excluded from the model's current identifier registry. Every input candidate must appear exactly once
-   in a group or an explicit omission. The representative's description and basis are
-   preserved unchanged; grouping lineage is retained. Invalid accounting receives at
+   in a group or an explicit omission. Repeated exact IDs within one group, or repeated
+   omissions of the same candidate, are collapsed deterministically, preserving their
+   first occurrence and the first omission reason. The batch report's
+   `panel_disposition_collapses` records the raw and normalized panel, phase, affected
+   IDs and number of removed repeats. Model-call outputs retain the original response.
+   Kept-and-omitted assignments, assignments to two groups, missing/unknown IDs and
+   invalid representatives or role counts still fail accounting. The representative's
+   description and basis are preserved unchanged; grouping lineage is retained. Invalid accounting receives at
    most one targeted correction per batch. Both dispositions and validation reports
    are saved. Failed or interrupted corrections cannot be retried silently on resume.
 4. Save each discovery batch before consolidation, and save each resulting panel.
    Resume skips completed work. A failed reducer can reuse that batch's discovery.
    Completed panels are hash-bound and stored as immutable artifacts. Incomplete
    manifests from an older selection policy generally require a new run; completed historical
-   manifests remain readable. Four narrow failure migrations reuse saved work:
+   manifests remain readable. Five narrow failure migrations reuse saved work:
    v6 panel-accounting failures, v7 complete repair responses explicitly reporting no
    supporting excerpt, and v8 undeclared-task failures in the unfinished discovery
    batch (without other non-repairable source errors), and v9 discovery stopped
    solely by a too-long quotation with provider finish reason `stop`, before any
    discovery result or batch report was accepted for the unfinished batch.
+   A failed v10 manifest can also resume when both saved panel accounting reports
+   contain only `duplicate_disposition` and its complete saved correction passes
+   accounting after collapsing same-kind repeats. The program reconstructs the
+   unfinished batch's registry and revalidates both raw responses against their
+   original error reports. Conflicting dispositions, mixed failures, missing responses
+   and interrupted corrections do not qualify. The raw correction and error reports
+   remain in the audit; a separate `normalized_selection`, recovery record and batch
+   collapse audit are added only when the user resumes. That saved correction and
+   completed batches need no additional model call. A migration note identifies v11.
    That v9 batch requires a new discovery under the excerpt-ID contract: the two
    invalid responses cannot be reused because they were not stored as accepted
    output. Other v9 failures require a new run. Migration notes are recorded;
@@ -153,7 +168,8 @@ The versioned policy is `rq1-stakeholder-selection-v10`:
    budgets still apply. This changes the experimental condition and must be reported.
    The correction attempt is recorded before calling the
    provider, so an interrupted or unsuccessful correction cannot be silently repeated
-   by Resume. Inspect the saved validation report and create a new run instead.
+   by Resume. The v10 migration above reuses a complete saved output rather than
+   repeating correction inference. Other exhausted corrections require a new run.
 5. If a successful full scan yields no candidates, use explicitly **proposed** generic
    perspectives with a recorded fallback reason. Provider/validation failures never
    trigger that fallback and never proceed with a partial panel.

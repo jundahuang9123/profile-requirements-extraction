@@ -17,7 +17,7 @@ from .models import (Contract, EvidenceUnit, RoleCandidates, RoleCitation, RoleC
                      RoleProposal, RunRequest, SelectedRole)
 from .storage import ConflictError, Store, canonical, digest, now, uid
 
-POLICY_VERSION = 'rq1-stakeholder-selection-v10'
+POLICY_VERSION = 'rq1-stakeholder-selection-v11'
 DISCOVERY_OUTPUT_TOKENS = 8000
 BATCH_CHARS = 40000
 MAX_CALLS_PER_BATCH = 4  # discovery, citation correction, panel, panel accounting correction
@@ -347,7 +347,20 @@ def ensure_selection_resumable(manifest: dict):
         # Permit narrowly scoped migrations whose saved model outputs are sufficient
         # to continue without repeating discovery: v6 panel accounting, v7 explicit
         # unsupported-role citation repairs and v8 undeclared task links.
-        if (manifest.get('policy_version') == 'rq1-stakeholder-selection-v6'
+        if (manifest.get('policy_version') == 'rq1-stakeholder-selection-v10'
+                and (recovery := _duplicate_disposition_recovery(manifest)) is not None):
+            attempt, selection = recovery
+            index = attempt['batch_index']
+            normalized = _audit_panel_dispositions(selection, manifest['batch_reports'][index], 'migration')
+            attempt.update(status='valid', normalized_selection=normalized.model_dump(mode='json'),
+                           recovery={'from_policy': 'rq1-stakeholder-selection-v10',
+                                     'previous_status': 'invalid', 'recovered_at': now()})
+            manifest['policy_version'] = POLICY_VERSION
+            manifest.setdefault('migration_notes', []).append(
+                f'Resumed under {POLICY_VERSION}: batch {index} reuses its saved panel correction after '
+                'collapsing repeated dispositions of the same kind. Completed batches and raw responses '
+                'are preserved; no model call is needed for this saved correction.')
+        elif (manifest.get('policy_version') == 'rq1-stakeholder-selection-v6'
                 and manifest.get('status') == 'failed'
                 and manifest.get('last_error') == 'Panel selection must account for every candidate exactly once within the role limit.'):
             manifest['policy_version'] = POLICY_VERSION
@@ -450,6 +463,111 @@ def panel_accounting_errors(selection: RolePanel, pool: list[dict], max_roles: i
             errors.append({'code': 'representative_not_in_group', 'group_index': index,
                            'candidate_id': group.representative_id})
     return errors
+
+
+def collapse_panel_dispositions(selection: RolePanel) -> tuple[RolePanel, list[dict]]:
+    """Collapse repeated exact IDs only within one disposition, preserving first occurrences.
+
+    Repeated omissions keep their first reason. Different groups and kept/omitted
+    dispositions are independent, so conflicting assignments remain visible to the
+    accounting validator. The model response itself is never mutated.
+    """
+    normalized = selection.model_copy(deep=True)
+    collapses = []
+    for group_index, group in enumerate(normalized.groups):
+        first, removed = {}, {}
+        for index, candidate_id in enumerate(group.member_ids):
+            if candidate_id in first:
+                removed[candidate_id] = removed.get(candidate_id, 0) + 1
+            else:
+                first[candidate_id] = index
+        group.member_ids = list(first)
+        collapses.extend({'disposition': 'group_member', 'group_index': group_index,
+                          'candidate_id': candidate_id, 'retained_index': first[candidate_id],
+                          'removed_count': count} for candidate_id, count in removed.items())
+    first, removed = {}, {}
+    omitted = []
+    for index, item in enumerate(normalized.omitted):
+        if item.candidate_id in first:
+            removed[item.candidate_id] = removed.get(item.candidate_id, 0) + 1
+        else:
+            first[item.candidate_id] = index
+            omitted.append(item)
+    collapses.extend({'disposition': 'omitted', 'candidate_id': candidate_id,
+                      'retained_index': first[candidate_id], 'removed_count': count,
+                      'retained_reason': selection.omitted[first[candidate_id]].reason}
+                     for candidate_id, count in removed.items())
+    normalized.omitted = omitted
+    return normalized, collapses
+
+
+def _audit_panel_dispositions(selection: RolePanel, report: dict, phase: str) -> RolePanel:
+    normalized, collapses = collapse_panel_dispositions(selection)
+    if collapses:
+        audit = {'phase': phase, 'original_selection': selection.model_dump(mode='json'),
+                 'normalized_selection': normalized.model_dump(mode='json'), 'collapses': collapses}
+        records = report.setdefault('panel_disposition_collapses', [])
+        if audit not in records:
+            records.append(audit)
+    return normalized
+
+
+def _panel_pool(manifest: dict, report: dict) -> list[dict]:
+    # Prior groups are represented by their selected remit. Earlier omissions stay
+    # in the audit; only the current batch's candidate IDs join the retained panel.
+    pool = [{'candidate_id': role['role_id'], 'lineage_candidate_ids': role['candidate_ids'],
+             **RoleProposal.model_validate({key: role[key] for key in RoleProposal.model_fields}).model_dump(mode='json')}
+            for role in manifest['selected_roles']]
+    return pool + [candidate for candidate in manifest['candidates']
+                   if candidate['candidate_id'] in report['candidate_ids']]
+
+
+def _duplicate_disposition_recovery(manifest: dict) -> tuple[dict, RolePanel] | None:
+    """Reuse only a complete v10 correction whose sole defect is harmless repetition."""
+    if (manifest.get('status') != 'failed'
+            or manifest.get('last_error') != 'Panel accounting remained invalid after its single targeted correction; '
+                                             'every candidate must be accounted for exactly once.'):
+        return None
+    rounds, reports = manifest.get('selection_rounds', []), manifest.get('batch_reports', [])
+    index = len(rounds)
+    if (len(reports) != index + 1
+            or any(item.get('batch_index') != i for i, item in enumerate(rounds))
+            or any(item.get('batch_index') != i for i, item in enumerate(reports))):
+        return None
+    repairs = manifest.get('panel_accounting_repairs', [])
+    current = [item for item in repairs if item.get('batch_index') == index]
+    if (len(current) != 1 or current[0].get('phase') != 'panel_accounting'
+            or current[0].get('status') != 'invalid'
+            or any(item.get('status') != 'valid' for item in repairs if item is not current[0])
+            or any(item.get('phase') == 'citation_repair' and item.get('status') != 'valid'
+                   and not _recoverable_unsupported_citation_repair(item, manifest)
+                   for item in manifest.get('validation_attempts', []))):
+        return None
+    attempt = current[0]
+    try:
+        pool = _panel_pool(manifest, reports[index])
+        ids = [candidate['candidate_id'] for candidate in pool]
+        batch_ids = reports[index]['candidate_ids']
+        if (len(ids) != len(set(ids)) or len(batch_ids) != len(set(batch_ids))
+                or set(batch_ids) - set(ids)):
+            return None
+        corrected = None
+        for selection_key, errors_key in (('original_selection', 'validation_report'),
+                                         ('corrected_selection', 'correction_validation_report')):
+            selection = RolePanel.model_validate(attempt[selection_key])
+            errors = panel_accounting_errors(selection, pool, manifest['max_roles'])
+            saved_errors = attempt.get(errors_key)
+            if (not errors or any(error['code'] != 'duplicate_disposition' for error in errors)
+                    or saved_errors != errors):
+                return None
+            if selection_key == 'corrected_selection':
+                corrected = selection
+        normalized, collapses = collapse_panel_dispositions(corrected)
+        if not collapses or panel_accounting_errors(normalized, pool, manifest['max_roles']):
+            return None
+    except (KeyError, TypeError, ValueError):
+        return None
+    return attempt, corrected
 
 
 def proposed_defaults() -> list[RoleProposal]:
@@ -730,11 +848,7 @@ def select_roles(store: Store, run: dict, client) -> dict:
                 'provider': {'provider': 'offline-demo'} if run['strategy'] == 'mock' else client.describe()})
             save('role_candidates_recorded')
         report = manifest['batch_reports'][index]
-        # Prior groups are represented by their selected remit. Earlier omissions stay in the audit.
-        pool = [{'candidate_id': r['role_id'], 'lineage_candidate_ids': r['candidate_ids'],
-                 **RoleProposal.model_validate({k: r[k] for k in RoleProposal.model_fields}).model_dump(mode='json')}
-                for r in manifest['selected_roles']]
-        pool += [c for c in manifest['candidates'] if c['candidate_id'] in report['candidate_ids']]
+        pool = _panel_pool(manifest, report)
         if pool:
             if run['strategy'] == 'mock':
                 selection = RolePanel(groups=[{'representative_id': c['candidate_id'], 'member_ids': [c['candidate_id']],
@@ -750,33 +864,38 @@ def select_roles(store: Store, run: dict, client) -> dict:
                                  'candidates': panel_candidates}
                 saved_correction = next((item for item in manifest.get('panel_accounting_repairs', [])
                                          if item['batch_index'] == index and item['status'] == 'valid'), None)
-                selection = (RolePanel.model_validate(saved_correction['corrected_selection']) if saved_correction
-                             else call(CONSOLIDATE_PROMPT, panel_payload, RolePanel))
+                raw_selection = (RolePanel.model_validate(saved_correction.get('normalized_selection',
+                                                                           saved_correction['corrected_selection']))
+                                 if saved_correction else call(CONSOLIDATE_PROMPT, panel_payload, RolePanel))
+                selection = _audit_panel_dispositions(raw_selection, report,
+                                                      'correction' if saved_correction else 'panel')
                 panel_errors = panel_accounting_errors(selection, pool, manifest['max_roles'])
                 if panel_errors:
                     if saved_correction:
                         raise ValueError('Saved panel correction does not match the current registry; its single attempt is exhausted.')
                     attempt = {'batch_index': index, 'phase': 'panel_accounting', 'status': 'started',
-                        'original_selection': selection.model_dump(mode='json'), 'validation_report': panel_errors}
+                        'original_selection': raw_selection.model_dump(mode='json'), 'validation_report': panel_errors}
                     manifest.setdefault('panel_accounting_repairs', []).append(attempt)
                     save('role_panel_accounting_repair_started')
                     correction_payload = {'max_roles': manifest['max_roles'], 'candidates': panel_candidates,
                                           'invalid_panel': selection.model_dump(mode='json'),
                                           'validation_errors': panel_errors}
                     try:
-                        corrected = call(PANEL_REPAIR_PROMPT, correction_payload, RolePanel)
+                        raw_corrected = call(PANEL_REPAIR_PROMPT, correction_payload, RolePanel)
                     except Exception as exc:
                         attempt.update(status='provider_failed', error=type(exc).__name__)
                         save('role_panel_accounting_repair_failed')
                         raise ValueError(f'Panel accounting correction failed; review its saved audit: {type(exc).__name__}.') from exc
+                    corrected = _audit_panel_dispositions(raw_corrected, report, 'correction')
                     corrected_errors = panel_accounting_errors(corrected, pool, manifest['max_roles'])
+                    attempt.update(corrected_selection=raw_corrected.model_dump(mode='json'),
+                                   normalized_selection=corrected.model_dump(mode='json'))
                     if corrected_errors:
-                        attempt.update(status='invalid', corrected_selection=corrected.model_dump(mode='json'),
-                                       correction_validation_report=corrected_errors)
+                        attempt.update(status='invalid', correction_validation_report=corrected_errors)
                         save('role_panel_accounting_repair_failed')
                         raise ValueError('Panel accounting remained invalid after its single targeted correction; '
                                          'every candidate must be accounted for exactly once.')
-                    attempt.update(status='valid', corrected_at=now(), corrected_selection=corrected.model_dump(mode='json'))
+                    attempt.update(status='valid', corrected_at=now())
                     save('role_panel_accounting_repair_validated')
                     selection = corrected
             by_id = {c['candidate_id']: c for c in pool}
