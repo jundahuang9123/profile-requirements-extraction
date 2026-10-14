@@ -1,6 +1,6 @@
 # Exact excerpts and bounded provider requests
 
-The persistent RQ1 workflow uses `rq1-independent-elicitation-v2.11` for new agent
+The persistent RQ1 workflow uses `rq1-independent-elicitation-v3.3` for new agent
 runs. Agents select source excerpt IDs for each requirement premise. The server
 supplies the original quotation and its character offset; agents no longer generate
 quotation text. The saved public requirement format remains `EvidenceLink` with
@@ -24,8 +24,11 @@ A block can contain neighbouring lines that the cited premise does not need, so 
 authentic excerpt says even less about relevance than a single line did.
 Adjacent excerpts provide context; agents can cite several when a premise spans
 them. Up to 12 premise links can be returned per observation. Batches include the
-catalogue and role/task context with a 16,000-character target and at most four
-evidence units. A single larger unit may use the 45,000-character hard limit. An oversized unit
+catalogue with a 16,000-character passage target and at most four evidence units.
+The target counts the serialized `evidence_units` array, including excerpt metadata,
+without the fixed role/task context. Every batch also has a 45,000-character hard
+limit on its full serialized user input, including that context. A single larger
+unit may exceed the passage target within this hard limit. An oversized unit
 fails explicitly rather than losing input. Character limits are not model-specific
 token limits; the provider also receives a schema and system prompt.
 
@@ -38,6 +41,28 @@ batch catalogue, catalogue hash and transformation outcome remain in the contrib
 Each catalogue is stored once per run, in the run's `catalogues` map under the hash that
 the role report records; roles that read the same batch share it. The run export and the
 extraction step's download include the catalogues.
+
+Extraction receives a selected stakeholder's label, stakeholders, basis, purpose,
+focus questions and rationale. Discovery quotations, citations and candidate merge
+history stay in the role-selection audit and are excluded from extraction prompts.
+Only excerpts supplied in the extraction batch may support a proposal. Policy v3.3
+applies to both needs and legacy candidate output; their output contracts remain
+distinct. A partial extraction from an older policy needs a fresh run.
+
+Needs extraction omits the selected base-profile table: needs are compared with
+the pinned base catalogue after grouping. Candidate extraction retains the table
+because its extension prompt asks which base fields a proposal changes. The run
+still records and validates the selected base profile and its fingerprint.
+
+Extraction task links are suggestions for the later independent scoping step.
+Under v3.3, a missing/blank justification, several justifications for one task,
+an undeclared task ID or an orphan justification removes only that task hint.
+The proposal and its source selections still pass the ordinary source checks.
+Each removal is recorded in the role report's `task_link_corrections`, tied to
+the batch, raw output and observation indices; the raw answer is preserved.
+Missing or blank reasons are allowed only in the provider's hint contract so
+they can reach this audit. Stored observation justifications remain nonempty.
+This cannot establish task necessity; the use-case linker and critic still judge it.
 
 Authentic excerpts do not establish entailment. The ordinary original-source
 verification, separate obligation-premise requirement and semantic assessment

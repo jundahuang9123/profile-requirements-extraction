@@ -71,9 +71,10 @@ def audit(output: Path, treat_base_as_background: bool = True):
                 units = [store.get('evidence', i) for i in snapshot['evidence_ids']]
                 # As a new run: the whole corpus in scan order, refused beyond the ceiling or cap.
                 selection_batches = scan_batches(store, snapshot)
-                # Same bounds as the extractor. The size estimate conservatively reserves
+                # Same two bounds as the extractor. Conservatively reserve
                 # 5,000 chars for each selected role/task payload plus the selected base
-                # table, so a run can need fewer batches.
+                # table (candidate mode; needs omit it). The exact fixed context is
+                # only known after role selection; use count_extraction_batches.py then.
                 base_context_chars = base_profile_context_chars(settings['base_profile_id'])
                 reserve = 5000 + base_context_chars
                 extraction_batches, current = [], []
@@ -83,7 +84,8 @@ def audit(output: Path, treat_base_as_background: bool = True):
                         raise ValueError('Single evidence unit exceeds extraction payload allowance.')
                     trial, _ = elicitation_batch([*current, unit])
                     if current and (len(current) >= EXTRACTION_BATCH_UNITS or
-                                    len(canonical({'evidence_units': trial})) + reserve > EXTRACTION_BATCH_CHARS):
+                                    len(canonical(trial)) > EXTRACTION_BATCH_CHARS or
+                                    len(canonical({'evidence_units': trial})) + reserve > EXTRACTION_UNIT_CHARS):
                         extraction_batches.append(current)
                         current = [unit]
                     else:

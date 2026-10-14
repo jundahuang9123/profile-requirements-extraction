@@ -283,7 +283,8 @@ def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') ->
             raise ValueError('Ingestion preflight failed original-source resolution; re-ingest the source.')
         if request.strategy == 'multi_agent':
             payload, _ = elicitation_batch([unit])
-            if len(canonical({'evidence_units': payload})) + 5000 + _base_context_chars(base_context) > EXTRACTION_UNIT_CHARS:
+            extraction_base = base_context if request.output_form != 'needs' else None
+            if len(canonical({'evidence_units': payload})) + 5000 + _base_context_chars(extraction_base) > EXTRACTION_UNIT_CHARS:
                 raise ValueError('An evidence unit exceeds the reserved extraction input budget; redecompose before running.')
     if request.role_selection == 'manual':
         roles_for(request)
@@ -702,6 +703,75 @@ def ensure_elicitation_resumable(run):
         run_extraction_base_context(run)
 
 
+def extraction_role_context(run: dict, role, snapshot: dict, base_context: dict | None) -> dict:
+    context = {'role': role.model_dump(mode='json'), 'user_tasks': snapshot['user_tasks']}
+    if base_context and run['request'].get('output_form') != 'needs':
+        context['base_profile'] = base_context
+    selected = next((item for item in (run.get('role_manifest') or {}).get('selected_roles', [])
+                     if item['role_id'] == role.id), None)
+    if selected:
+        # Discovery citations and merge history are not admissible extraction evidence.
+        # Use an allowlist so future selection audit fields cannot leak into the prompt.
+        context['stakeholder_perspective'] = {key: selected[key] for key in (
+            'label', 'stakeholders', 'basis', 'purpose', 'focus_questions', 'rationale') if key in selected}
+    return context
+
+
+def extraction_batches(units: list[dict], role_context: dict) -> list[list[dict]]:
+    """Bound passage payload and complete input separately, without dropping units.
+
+    A singleton can exceed the passage target, but never the complete-input limit.
+    The latter counts the serialized user context including all excerpt metadata.
+    """
+    batches: list[list[dict]] = []
+    for unit in units:
+        single, _ = elicitation_batch([unit])
+        if len(canonical({**role_context, 'evidence_units': single})) > EXTRACTION_UNIT_CHARS:
+            raise ValueError('An evidence unit and its excerpt catalogue exceed the extraction budget; explicitly redecompose it.')
+        trial_units = [*batches[-1], unit] if batches else [unit]
+        trial, _ = elicitation_batch(trial_units)
+        if batches and (len(batches[-1]) >= EXTRACTION_BATCH_UNITS or
+                        len(canonical(trial)) > EXTRACTION_BATCH_CHARS or
+                        len(canonical({**role_context, 'evidence_units': trial})) > EXTRACTION_UNIT_CHARS):
+            batches.append([unit])
+        elif batches:
+            batches[-1].append(unit)
+        else:
+            batches.append([unit])
+    return batches
+
+
+def normalize_extraction_task_links(proposal, task_ids: set[str]):
+    """Remove invalid task hints only; leave statement and source selections intact.
+
+    The raw provider response is stored before this transformation. A task hint is
+    admissible only with a declared ID and exactly one nonblank justification.
+    Scoping later judges necessity independently of these extraction suggestions.
+    """
+    linked = proposal.supports_user_tasks
+    reasons: dict[str, list] = {}
+    for justification in proposal.task_justifications:
+        reasons.setdefault(justification.task_id, []).append(justification)
+    changes, valid = [], set()
+    for task_id in dict.fromkeys([*linked, *reasons]):
+        supplied = reasons.get(task_id, [])
+        reason = ('undeclared_task_id' if task_id not in task_ids else
+                  'justification_without_link' if task_id not in linked else
+                  'missing_justification' if not supplied else
+                  'multiple_justifications' if len(supplied) != 1 else
+                  'blank_justification' if not supplied[0].justification.strip() else None)
+        if reason:
+            changes.append({'task_id': task_id, 'reason': reason,
+                            'linked_occurrences': linked.count(task_id),
+                            'justifications': [item.model_dump(mode='json') for item in supplied]})
+        else:
+            valid.add(task_id)
+    normalized = proposal.model_copy(update={
+        'supports_user_tasks': [task_id for task_id in linked if task_id in valid],
+        'task_justifications': [item for item in proposal.task_justifications if item.task_id in valid]})
+    return normalized, changes
+
+
 def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Observation], list[dict]]:
     ensure_elicitation_resumable(run)
     prompt_version = NEEDS_ELICITATION_POLICY if run['request'].get('output_form') == 'needs' else PROMPT_VERSION
@@ -716,34 +786,18 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
     task_ids = {task['id'] for task in snapshot['user_tasks']}
 
     def role_call(role):
-        role_context = {'role': role.model_dump(mode='json'), 'user_tasks': snapshot['user_tasks']}
-        if base_context:
-            role_context['base_profile'] = base_context
-        manifest = run.get('role_manifest') or {}
-        selected = next((item for item in manifest.get('selected_roles', []) if item['role_id'] == role.id), None)
-        if selected:
-            # Basis/rationale travel with the role, never as substitute requirement evidence.
-            role_context['stakeholder_perspective'] = selected
+        role_context = extraction_role_context(run, role, snapshot, base_context)
         previous_report = next((r for r in run['role_runs'] if r['role_id'] == role.id and r.get('prompt_version') == prompt_version), {})
         previous_selections = previous_report.get('citation_selections', [])
         completed_units = {eid for selection in previous_selections if selection['status'] == 'materialized'
                            for eid in selection.get('evidence_ids', [])}
         remaining_units = [unit for unit in units if unit['evidence_id'] not in completed_units]
-        batches: list[list[dict]] = [[]]
-        for unit in remaining_units:
-            single, _ = elicitation_batch([unit])
-            if len(canonical({**role_context, 'evidence_units': single})) > EXTRACTION_UNIT_CHARS:
-                raise ValueError('An evidence unit and its excerpt catalogue exceed the extraction budget; explicitly redecompose it.')
-            trial, _ = elicitation_batch([*batches[-1], unit])
-            if batches[-1] and (len(batches[-1]) >= EXTRACTION_BATCH_UNITS or
-                                len(canonical({**role_context, 'evidence_units': trial})) > EXTRACTION_BATCH_CHARS):
-                batches.append([unit])
-            else:
-                batches[-1].append(unit)
+        batches = extraction_batches(remaining_units, role_context)
         observations = [Observation.model_validate(item) for item in run['observations']
                         if item['role_id'] == role.id] if previous_report else []
         outputs = list(previous_report.get('raw_outputs', []))
         invalid_task_ids = set(previous_report.get('invalid_task_ids', []))
+        task_link_corrections = list(previous_report.get('task_link_corrections', []))
         citation_selections = list(previous_selections)
         batch_failures = []
         unit_ids = {unit['evidence_id'] for unit in units}
@@ -753,6 +807,7 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
                       'prompt_version': prompt_version, 'context_hash': digest({**role_context, 'units': units}),
                       'raw_outputs': outputs, 'citation_selections': citation_selections,
                       'invalid_task_ids': sorted(invalid_task_ids),
+                      'task_link_corrections': task_link_corrections,
                       'observation_ids': [item.observation_id for item in observations]}
             if run['strategy'] != 'mock':
                 # Coverage across this and earlier attempts under the same policy. A role is
@@ -912,13 +967,18 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
                     return observations, build_report('failed', error=str(exc), failed_batch=batch_index, **earlier)
                 outputs.append(result.model_dump(mode='json'))
                 try:
-                    materialized = [materialize_observation(proposal, catalogue) for proposal in result.observations]
+                    proposals = result.observations
                     if run['request'].get('output_form') == 'needs':
-                        for observation in materialized:
-                            linked = observation.supports_user_tasks
-                            justified = [j.task_id for j in observation.task_justifications]
-                            if set(linked) != set(justified) or len(justified) != len(set(justified)) or set(linked) - task_ids:
-                                raise ValueError('Every extraction task link requires exactly one justification and a supplied task ID.')
+                        normalized = []
+                        for index, proposal in enumerate(proposals):
+                            row, changes = normalize_extraction_task_links(proposal, task_ids)
+                            normalized.append(row)
+                            task_link_corrections.extend({'batch_index': batch_index, 'raw_output_index': len(outputs) - 1,
+                                'observation_index': index, **change} for change in changes)
+                            invalid_task_ids.update(change['task_id'] for change in changes
+                                                    if change['reason'] == 'undeclared_task_id')
+                        proposals = normalized
+                    materialized = [materialize_observation(proposal, catalogue) for proposal in proposals]
                 except ValueError as exc:
                     # A schema-valid answer with an unknown or repeated excerpt link. The raw
                     # response stays in the audit; none of its observations is accepted.

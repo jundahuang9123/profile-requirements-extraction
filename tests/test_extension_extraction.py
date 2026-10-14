@@ -73,7 +73,8 @@ def test_each_independent_role_gets_the_exact_pinned_compact_base_context(setup)
     for name, data in scripted.calls:
         assert name == 'SpanElicitationResult' and data['base_profile'] == expected
         assert set(data) == {'role', 'user_tasks', 'base_profile', 'evidence_units', 'stakeholder_perspective'}
-        assert len(canonical(data)) <= engine.EXTRACTION_BATCH_CHARS
+        assert len(canonical(data['evidence_units'])) <= engine.EXTRACTION_BATCH_CHARS
+        assert len(canonical(data)) <= engine.EXTRACTION_UNIT_CHARS
     assert all('Propose only what changes or adds' in system and 'at least one supporting excerpt' in system
                and 'not_an_extension' in system and 'no peer outputs' in system for system in systems)
     assert all(o.extension_kind == 'new_information_need' and o.base_property is None for o in observations)
@@ -97,20 +98,21 @@ def test_new_run_preflight_counts_base_context_before_provider_construction(setu
     assert calls == []
 
 
-def test_actual_unit_and_batch_limits_include_the_compact_base_table(setup, monkeypatch):
+def test_actual_hard_input_limit_includes_the_compact_base_table(setup, monkeypatch):
     store, run, client = base_run(setup, base_check=False)
-    role = engine.panel_roles(run)[0]
-    role_context = {'role': role.model_dump(mode='json'), 'user_tasks': [],
-                    'base_profile': engine.run_extraction_base_context(run)}
+    _, second, _ = base_run(setup, base_check=False)
     units = [store.get('evidence', eid) for eid in run['evidence_ids']]
-    single, _ = elicitation_batch([units[0]])
-    max_single = len(canonical({**role_context, 'evidence_units': single}))
-    monkeypatch.setattr(engine, 'EXTRACTION_BATCH_CHARS', max_single)
+    # Force singleton batches using the complete-input cap, which includes the base.
+    # Selected-role context is also present in the actual request.
+    snapshot = store.get('snapshot', run['snapshot_id'])
+    limits = [len(canonical({**engine.extraction_role_context(run, r, snapshot,
+        engine.run_extraction_base_context(run)), 'evidence_units': engine.elicitation_batch([u])[0]}))
+        for r in engine.panel_roles(run) for u in units]
+    monkeypatch.setattr(engine, 'EXTRACTION_UNIT_CHARS', max(limits))
     observations, reports = engine.elicit(store, run, client)
     assert observations and all(report['status'] == 'completed' for report in reports)
     assert all(len(data['evidence_units']) == 1 for name, data in client.calls)
     # A clean run cannot send a single request larger than the actual unit bound.
-    _, second, _ = base_run(setup, base_check=False)
     monkeypatch.setattr(engine, 'EXTRACTION_UNIT_CHARS', min(len(canonical(data)) for _, data in client.calls) - 1)
     mark = len(client.calls)
     rejected, rejected_reports = engine.elicit(store, second, client)
