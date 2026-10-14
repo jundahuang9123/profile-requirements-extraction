@@ -27,7 +27,8 @@ meaning, condition or scope. A **domain use of the base** refines a base informa
 need with domain meaning, scope or conditions. A **domain need** is not covered by
 an offered base need. These are machine judgements requiring review, not facts that
 an optional base property is populated in every catalogue. A **use case** is a
-competency question or user task declared in the frozen snapshot.
+competency question, user task, stakeholder need or cross-cutting goal declared
+in the frozen snapshot.
 
 ## Processing order and saved pages
 
@@ -77,23 +78,29 @@ an identical rewrite reuses the negative verdict. Twice-rejected groups are visi
 
 The form offers automatic resolution, use-case scoping or off. Automatic resolution
 uses `use_cases` if the frozen snapshot has tasks; otherwise it saves `off`.
-Development cases without declared tasks stay off until Junda supplies tasks.
+Before each development run, Junda authors dated use cases from the stated purpose.
+Scoping off is a separately reported comparison. If no tasks are supplied, the
+software records scoping off rather than inventing any.
 Benchmark import copies the case's declared tasks into the form; it does not invent
 questions from example UI text.
 
 With scoping on, a linker must explain why a use case cannot be met without a need.
 A separate critic rejudges every link. Relatedness and general usefulness are not
 necessity. Extraction task links are hints only. With scoping off, all otherwise
-retained needs remain, and the run makes no use-case necessity claim. Source-blocked
-needs remain visible for evidence repair rather than being silently discarded.
+retained needs remain, and the run makes no use-case necessity claim. Source-failed
+and unsupported proposals remain visible in their set-aside lists for repair.
 
 ## Base catalogues and review
 
 Run `python scripts/build_base_needs.py` to build each `<id>.needs.json` offline
 from its pinned registry. Each class and property has an entry, label-based phrase,
-original term and base obligation; definitions are retained where the registry
-contains them. The current registries do not consistently supply prose definitions,
-so no definitions have been invented. Catalogue files contain a registry checksum,
+original term and base obligation. Definitions and usage notes are copied only
+from the official files listed in the registry’s `source.files`, after verifying
+their SHA-256 hashes. Separate RDF descriptions preserve class-specific anchors;
+HTML definitions retain their original anchors. Where those files provide no
+prose for an entry, its definition stays empty. No definitions are generated.
+The six prose input files are bundled in `config/base_profiles/source-inputs`,
+so rebuilding and `--check` need no network access. Catalogue files contain a registry checksum,
 policy and catalogue hash and read **unreviewed**. They contain no benchmark material.
 
 Junda should review the selected catalogue before research evaluation. A revision
@@ -105,7 +112,9 @@ checks the generated draft. No review has been performed on Junda's behalf.
 The UI provides a catalogue download next to the pinned base version.
 
 Classification offers at most 25 catalogue entries per batch using conservative,
-deterministic word retrieval (up to five candidates per need, round-robin). Only
+deterministic word retrieval over phrases, definitions and usage notes
+(up to five candidates per need, round-robin). Definitions and notes also appear
+in the classifier offer. Only
 offered IDs can be selected. A missed base match remains a domain proposal rather
 than being discarded. This bound can leave generic duplicates in the review list;
 classification and false exclusions require independent evaluation. A literal
@@ -124,15 +133,16 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Grouping | `rq1-semantic-consolidation-v3` | 40 candidates, 24,000 input characters, at most 25 prior offered groups; audited exact fallback for invalid model grouping |
 | Need writing / rewrite critic | `rq1-need-statement-v2` | At most 20 groups; 24,000 writer input characters; independent critic up to 48,000 characters; initial response plus one output correction |
 | Additional member checking | `rq1-need-membership-v1` | Large groups use a bounded writing basis (up to 20 members / 16,000 statement characters); every remaining member checked in batches up to 40 / 24,000 characters |
-| Base catalogue | `rq1-base-needs-catalogue-v1` | Frozen base-only file and checksum; currently unreviewed |
+| Base catalogue | `rq1-base-needs-catalogue-v2` | Frozen base-only file and checksum; currently unreviewed |
 | Generic/domain | `rq1-generic-domain-v1` | Up to 25 needs / 24,000 input characters |
 | Necessity linking | `rq1-use-case-necessity-v1` | Up to 25 needs / 24,000 input characters; at most 32 task links per response row |
 | Link critic | `rq1-use-case-critic-v1` | Up to 25 links / 24,000 input characters |
 | Need assessment | `rq1-need-support-v1` | One logical assessment per kept need; complete selected excerpts, max 45,000 input characters; at most two generations for schema/cutoff recovery |
+| Row recovery | `rq1-needs-row-recovery-v1` | Valid rows saved; correction includes only failing rows; durable fallbacks after exhaustion |
 | Rank | `rq1-need-ranking-v1` | Deterministic; every kept need remains listed |
 
-A single item exceeding a bounded request fails visibly or, for need assessment,
-requires human review/splitting. Evidence is not truncated to make an assessment
+A single oversized needs-processing row receives the recorded conservative
+fallback below; need assessment requires human review/splitting. Evidence is not truncated to make an assessment
 fit. Extraction hints sent to the necessity linker are deduplicated, with at most
 two deterministic justification examples per declared task; all original hints
 remain on members. The linker records this selection and original distinct count.
@@ -159,7 +169,8 @@ defects still fail visibly. No model substitution or reference tuning is perform
 
 Cards show the need, rank, obligation or alternatives, justified links, base class
 and matches, expandable supporting candidates and evidence, and “For RQ2” hints.
-Set-aside lists distinguish no source, base specification only, generic and no
+Set-aside lists distinguish no source, base specification only, source-check
+failure, quote-unsupported proposals, rejected rewrites, generic needs and no
 use case. A reviewer can inspect or restore an item with a recorded rationale.
 Restoration leaves it unaccepted, resets support assessment and preserves the frozen
 machine output. An uncited or term-bearing proposal cannot bypass source or
@@ -196,14 +207,16 @@ usage/cost remains unknown.
 Historical runs remain unchanged. `output_form: candidates` preserves the old
 pipeline for explicit API compatibility and offline rule/demo comparisons. New
 agent UI runs and derived trials explicitly select `needs`; the public request
-contract also defaults to needs. Historical requests missing this field resume
+contract resolves an omitted output form by strategy: `multi_agent` selects
+needs, while `rules` and `mock` select candidates. Explicit needs output with
+an offline strategy is refused at creation, including derived trials. Historical requests missing this field resume
 under their original candidate policy. A separate derived trial reuses the exact
 saved extraction, including v2.11 wording, while rewriting every resulting group.
 It neither re-extracts nor reuses old per-candidate assessments.
 
 Mobility is the held-out test case. Use JRC, StatDCAT, HealthDCAT-AP and GeoDCAT-AP
-as development cases, with scoping off until Junda supplies authored and dated
-use cases from each documented purpose. Prior base-check and grouping heuristics
+as development cases, with Junda-authored and dated use cases from each
+documented purpose before running. Scoping off is a reported comparison. Prior base-check and grouping heuristics
 were adjusted while reading Mobility candidates, never Mobility reference rows;
 this must be disclosed in the paper.
 

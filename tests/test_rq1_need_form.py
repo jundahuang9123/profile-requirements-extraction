@@ -18,7 +18,7 @@ def test_new_provider_contract_separates_solutions():
     properties = NeedSpanObservation.model_json_schema()['properties']
     assert 'rq2_hints' in properties and 'task_justifications' in properties
     assert 'extension_kind' not in properties and 'base_property' not in properties
-    assert RunRequest(snapshot_id='x').output_form == 'needs'
+    assert RunRequest(snapshot_id='x', strategy='multi_agent').output_form == 'needs'
     assert RequirementRecord.model_fields['need_statement'].default is None
 
 

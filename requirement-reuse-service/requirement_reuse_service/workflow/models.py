@@ -419,7 +419,7 @@ class RolePanel(Contract):
 
 
 class RunRequest(Contract):
-    output_form: Literal['needs', 'candidates'] = 'needs'
+    output_form: Literal['needs', 'candidates'] | None = None
     scoping: Literal['use_cases', 'off'] | None = None
     snapshot_id: str
     base_profile_id: str | None = None
@@ -444,6 +444,10 @@ class RunRequest(Contract):
 
     @model_validator(mode='after')
     def panel_mode(self) -> 'RunRequest':
+        if self.output_form is None:
+            self.output_form = 'needs' if self.strategy == 'multi_agent' else 'candidates'
+        if self.output_form == 'needs' and self.strategy != 'multi_agent':
+            raise ValueError('Needs output requires the multi_agent strategy; use candidates for rules or mock.')
         if self.strategy == 'rules':
             self.consolidation = 'exact'
         if self.strategy == 'rules' and self.role_selection != 'manual':
@@ -459,7 +463,7 @@ class RunRequest(Contract):
 
 
 class DeriveRequest(Contract):
-    output_form: Literal['needs', 'candidates'] = 'needs'
+    output_form: Literal['needs', 'candidates'] | None = None
     scoping: Literal['use_cases', 'off'] | None = None
     expected_version: int = Field(ge=1)
     name: str = Field(default='Reprocessed requirements', min_length=1)

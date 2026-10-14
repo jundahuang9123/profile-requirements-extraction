@@ -579,13 +579,20 @@
           "type": "string"
         },
         "output_form": {
-          "default": "needs",
-          "enum": [
-            "needs",
-            "candidates"
+          "anyOf": [
+            {
+              "enum": [
+                "needs",
+                "candidates"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
           ],
-          "title": "Output Form",
-          "type": "string"
+          "default": null,
+          "title": "Output Form"
         },
         "rationale": {
           "maxLength": 2000,
@@ -2387,13 +2394,20 @@
           "type": "string"
         },
         "output_form": {
-          "default": "needs",
-          "enum": [
-            "needs",
-            "candidates"
+          "anyOf": [
+            {
+              "enum": [
+                "needs",
+                "candidates"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
           ],
-          "title": "Output Form",
-          "type": "string"
+          "default": null,
+          "title": "Output Form"
         },
         "override_rationale": {
           "default": "",

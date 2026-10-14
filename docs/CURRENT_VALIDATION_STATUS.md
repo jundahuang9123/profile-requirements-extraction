@@ -366,3 +366,61 @@ Mobility remains held out. Prior heuristics were adjusted while reading Mobility
 candidates, never reference rows; disclose this in the paper. Test development
 cases first, review base catalogues, then authorise a functional Mobility derived
 check using counts/calls/errors only. Freeze before reference-based evaluation.
+
+## 14 October 2026: revised PR #11 fixes, offline condition
+
+Required items 1–11 are implemented on `codex/rq1-needs`, with one final commit
+per item. PR #11 remains open; this is not a merge or a new research baseline.
+
+Need statements use neutral actor/capability wording and reject whole-word
+must/shall/should in machine rewrites, human edits and acceptance. Fresh need
+extraction uses v3.2. Source-check v2.2 applies only to newly created needs runs:
+missing obligation quotes become unknown with their original claims audited;
+every quotation and the statement premise still need authentic source support.
+Candidate runs and historical policies retain v2.1. Proposal support runs before
+merging in bounded batches; only its selected supporting quotes count in a need's
+evidence and document-based ranking. Other member quotations remain in the audit.
+
+Source-failed and quote-unsupported proposals stay visible asides without writer,
+critic or ranking work. Rejected rewrites retry only their own groups, with the
+first critic rationale preserved. Twice-rejected groups are restorable asides.
+Row corrections preserve valid answers and resend only failing rows. Exhaustion
+records a conservative fallback and Resume replays it without further calls.
+Unchecked support, classification, membership or scoping stays explicitly flagged;
+technical scoping failure does not become a negative use-case judgement. Unexpected
+implementation defects still fail visibly. No source integrity rule is relaxed.
+
+The term detector and knowledge-question/condition distinction have regression
+coverage. All six base catalogues now use v2, with contextual official definitions
+and usage notes from checksum-pinned source files bundled for offline rebuilding.
+Garbled labels, duplicated phrases and articles are checked. Catalogues remain
+**unreviewed**; Junda reviews each base used for evaluation.
+
+Optional purpose-based `use-cases.json` files import their IDs, kind, author,
+date, basis and file hash into frozen snapshots; cross-cutting goals are supported.
+The UI preserves this metadata for unchanged imported tasks. Junda still needs to
+author development cases' use cases before running. No such file has been authored
+by the agent; Mobility's 12 tasks have not been copied without confirmation.
+Missing API output form resolves to needs for `multi_agent`, candidates for rules
+or mock. Explicit offline needs output is refused at creation and derivation.
+
+Validation: **588 offline tests pass**, with five dependency deprecation warnings.
+The schema check, all six reproducible catalogue checks and production frontend
+build pass. A separate synthetic browser fixture confirms neutral wording,
+unbacked obligation counts, members/citations, a quote-unsupported aside and
+frozen author/date/purpose. It makes no provider request and accepts no requirement.
+
+Read-only source-check counts on the saved Mobility extraction (no model calls):
+2,670 proposals comprise 1,051 uncited and 1,619 cited. After excluding 685 supported
+only by the three configured base-specification files, 934 reach source checks.
+V2.1 passes **490**, fails **444**. V2.2 passes **917**, with **17** source-check-failed
+asides for missing statement support. All 444 missing obligation premises are
+audited as unbacked claims (427 newly pass on their statement links; 17 still fail).
+No quotation itself fails in this saved set. These counts prove source-gate behaviour
+only, not semantic correctness, recall, accuracy or effort saved. No reference
+requirements were read and no saved research run was modified.
+
+No live inference, reference scoring, research freeze tag, human approval or
+Mobility tuning was performed. Optional item 12 (writing-basis diversity and
+cross-trial needs checkpoint reuse) remains deferred. Current compatible checkpoints
+within a run do replay; a new derived needs trial still performs its own needs steps.
