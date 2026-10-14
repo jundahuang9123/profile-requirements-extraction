@@ -4,6 +4,9 @@ from test_rq1_need_grouping import need_inputs, NeedsClient
 from requirement_reuse_service.workflow import engine, needs
 from requirement_reuse_service.workflow.models import Observation, EvidenceLink
 from requirement_reuse_service.workflow.models import RestoreRequest
+from requirement_reuse_service.workflow.models import RunRequest
+from requirement_reuse_service.llm.client import validate_json_payload
+from test_rq1_need_assessment import FullNeedsClient
 
 
 class QuoteClient(NeedsClient):
@@ -24,6 +27,45 @@ def test_unrelated_quote_is_set_aside_and_unstated_label_becomes_unknown(setup):
     assert all(r.normalized_intent.obligation_hint=='unknown' for r in records)
     assert all(r.unbacked_obligation.reason=='quote_does_not_state_it' for r in records)
     assert all(a['reason']=='not_supported_by_quote' for a in store.get('run',run['run_id'])['set_aside_observations'])
+
+
+def test_unchecked_support_preserves_authentic_quotes_source_gate_and_review_flag(setup):
+    store,original,_=setup
+    class InvalidSupport(FullNeedsClient):
+        def generate_structured(self, **kw):
+            answer=super().generate_structured(**kw)
+            if kw['output_model'].__name__=='ProposalSupport':
+                raw=answer.model_dump(mode='json')
+                for row in raw['proposals']: row['proposal_id']=None
+                return validate_json_payload(json.dumps(raw),kw['output_model'])
+            return answer
+    client=InvalidSupport()
+    run=engine.new_run(store,RunRequest(snapshot_id=original['snapshot_id'],strategy='multi_agent',
+        base_check=False,scoping='off',discussion='on_request',
+        role_ids=['consumer_discovery','publisher_feasibility']))
+    engine.execute_run(store,run['run_id'],client)
+    saved=store.get('run',run['run_id'])
+    assert saved['status']=='awaiting_human',saved['diagnostics']
+    assert sum(name=='ProposalSupport' for name,_ in client.calls)==2
+    [need]=[r for r in saved['requirements'] if r['revision_id'] in saved['active_revision_ids']]
+    members=[r for r in saved['requirements'] if r['revision_id'] in need['parent_revision_ids']]
+    assert len(members)==6 and all(r['proposal_support']['support']=='not_checked' for r in members)
+    authentic={l['quote'] for r in members for l in r['evidence_links'] if l['relation']=='supports'}
+    assert authentic and {l['quote'] for l in need['evidence_links']}==authentic
+    assert need['verification']['status']=='pass'
+    assert all(l['status']=='pass' for l in need['verification']['links'])
+    assert 'support_not_checked' in need['processing_flags']
+    assert need['rank_keys']['supporting_documents']==1 and need['rank']==1
+    assert need['lifecycle_state']=='awaiting_human'
+    assert saved['decisions']==[]
+
+
+def test_unchecked_support_never_promotes_contradicting_links(setup):
+    _,_,records=need_inputs(setup)
+    record=records[0]; original=list(record.evidence_links)
+    record.evidence_links.append(original[0].model_copy(update={'relation':'contradicts'}))
+    record.proposal_support={'support':'not_checked','supporting_evidence_ids':[]}
+    assert needs.supporting_links(record)==[l for l in original if l.relation=='supports']
 
 
 def test_union_contains_selected_quotes_only_and_batch_size_is_25(setup):

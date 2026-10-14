@@ -439,3 +439,8 @@ Scripted regression checks cover all seven contracts (proposal support, writer,
 rewrite critic, membership, classifier, linker and link critic), including visible
 stage failure, working-client Resume and retained partial answers. No provider
 request, reference requirement set or saved research run is used.
+
+Unchecked proposal-support rows retain every authentic `supports` quotation from
+source-passing members. Their rewritten need passes its own source gate and ranks
+with those documents while keeping `support_not_checked` visible. Contradicting
+links are not promoted. This fixes evidence loss, not semantic uncertainty.

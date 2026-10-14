@@ -374,6 +374,10 @@ def excerpt_id(link):
 def supporting_links(record):
     if record.proposal_support is None:
         return record.evidence_links  # historical/direct writer compatibility
+    if record.proposal_support.get('support') == 'not_checked':
+        # Source-checked members still have authentic quotations. A failed
+        # semantic check cannot erase them or imply that support was verified.
+        return [link for link in record.evidence_links if link.relation == 'supports']
     selected = set(record.proposal_support.get('supporting_evidence_ids', []))
     return [l for l in record.evidence_links if excerpt_id(l) in selected and l.relation == 'supports']
 

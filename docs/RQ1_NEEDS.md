@@ -162,7 +162,7 @@ Historical v1 runs retain their frozen conditions; use a derived trial to apply 
 
 | Exhausted row | Visible fallback |
 |---|---|
-| Proposal support | Keep, flagged support not checked; unverified quotes do not add supporting documents to a need |
+| Proposal support | Keep authentic `supports` quotations and document counts, flagged support not checked; semantic support remains unchecked |
 | Writer or rewrite critic | Restorable rewrite-rejected group with its audit |
 | Membership | Each unchecked member becomes a singleton, flagged membership not checked |
 | Classifier | Retain as domain, flagged not classified |
