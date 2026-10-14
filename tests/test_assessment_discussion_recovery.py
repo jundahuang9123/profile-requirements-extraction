@@ -29,7 +29,7 @@ def new_run(store, text='Each dataset must publish its title.'):
     source = register_source(store, SourceRequest(artifact=ArtifactPayload(name='needs.md', content=text),
         source_role='stakeholder_need'))
     snapshot = engine.freeze_snapshot(store, SnapshotRequest(source_version_ids=[source['source_version_id']]))
-    return engine.new_run(store, RunRequest(consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='rules'))
+    return engine.new_run(store, RunRequest(output_form='candidates', consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='rules'))
 
 
 def client():

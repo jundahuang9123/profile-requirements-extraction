@@ -69,6 +69,7 @@ def workflow_metrics(run: dict) -> dict:
         'assessments_reused': run.get('metrics', {}).get('assessments_reused', 0),
         'normalization_policy_version': run.get('normalization_policy_version'),
         'base_check': base_check_metrics(run, frozen),
+        'needs': needs_metrics(run, frozen),
         'set_aside': {'count': len(aside), 'by_role': dict(Counter(o['role_id'] for o in aside)),
             'by_reason': dict(Counter(o['reason'] for o in aside)),
             'by_support_label': dict(Counter(observations.get(o['observation_id'], {}).get('support_level', 'unknown') for o in aside))},
@@ -123,3 +124,39 @@ def workflow_metrics(run: dict) -> dict:
             'No precision/recall without an independently adjudicated reference set and equivalence mapping.',
             'Token caps are reservations. Usage is measured only when the provider reports it; partial recorded totals are not complete run usage. Monetary cost is unavailable.',
             'Sequential call latency sum is not wall-clock duration when perspectives run concurrently.']}
+
+
+
+def needs_metrics(run, frozen=None):
+    if run['request'].get('output_form')!='needs': return {'enabled':False}
+    frozen=frozen or {};records=frozen.get('requirements',run['requirements'])
+    steps=frozen.get('need_steps',run.get('need_steps',{}))
+    asides=frozen.get('set_aside_observations',run.get('set_aside_observations',[]))
+    mapping={'ProposalSupport':'proposal_support','SemanticGrouping':'grouping','NeedStatements':'need_statement','NeedGrounding':'rewrite_critic',
+             'NeedMembership':'need_membership','NeedClassifications':'classification','NeedUseCaseLinks':'scoping','UseCaseCritic':'scope_critic',
+             'Qualification':'assessment','NeedSpanElicitationResult':'extraction','Turn':'discussion',
+             'RoleCandidates':'role_selection','RolePanel':'role_selection','RoleCitationCorrections':'role_selection'}
+    calls_by_step={}
+    for call in run.get('model_calls',[]):
+        step=mapping.get(call['output_contract'],'other')
+        entry=calls_by_step.setdefault(step,{'calls':0,'failures':0,'latency_seconds_sum':0})
+        entry['calls']+=1;entry['failures']+=call['status']=='failed';entry['latency_seconds_sum']+=call.get('latency_seconds',0)
+    validations=Counter(); fallbacks=Counter()
+    for chunk in run.get('need_chunks',{}).values():
+        fallbacks[chunk['step']] += len(chunk.get('fallback_rows',{}))
+        for attempt in chunk.get('attempts',[]):
+            if attempt.get('validation_errors') or attempt.get('error'): validations[chunk['step']]+=1
+    return {'enabled':True,'policies':run.get('needs_policies',{}),'scoping':run['request'].get('scoping'),
+        'counts':{'proposals':len(frozen.get('observations',run['observations'])),
+                  'set_aside_by_reason':dict(Counter(a['reason'] for a in asides)),
+                  'candidates':sum(not r.get('parent_revision_ids') for r in records),
+                  'source_passed_candidates':steps.get('source_check',{}).get('passed_count'),
+                  'needs':steps.get('need_statement',{}).get('need_count'),
+                  'after_classification':steps.get('classification',{}).get('retained_count'),
+                  'after_scoping':steps.get('scoping',{}).get('retained_count'),
+                  'kept_needs':len(frozen.get('active_revision_ids',run['active_revision_ids']))},
+        'steps':steps,'calls_by_step':calls_by_step,'rejected_generation_outputs_by_step':dict(validations), 'fallbacks_by_step':dict(fallbacks),
+        'base_catalogue_review':(run.get('base_needs_catalogue') or {}).get('review'),
+        'limitations':['Counts describe processing, not accuracy, recall or measured human effort.',
+                       'One support assessment may use up to two bounded generations for schema/cutoff recovery.',
+                       'Source checks are deterministic and do not establish semantic entailment.']}

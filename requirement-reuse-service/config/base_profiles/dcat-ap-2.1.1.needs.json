@@ -1,0 +1,2441 @@
+{
+  "base_profile_id": "dcat-ap-2.1.1",
+  "base_profile_sha256": "928c2686f32183b7b6540b8a7d28d1f38bff47fa19e7281f64e2c6f731a912c0",
+  "policy_version": "rq1-base-needs-catalogue-v2",
+  "phrasing": "deterministic labels; verbatim pinned definitions and usage notes",
+  "review": {
+    "status": "unreviewed",
+    "reviewer": null,
+    "reviewed_at": null
+  },
+  "entries": [
+    {
+      "id": "base-a1f2127c15ca60904495",
+      "need": "Identify and describe an identifier.",
+      "class": "adms:Identifier",
+      "property": null,
+      "rq2_term": "adms:Identifier",
+      "label": "identifier",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-47416ecefb01e2a2bfd6",
+      "need": "Find the notation of an identifier.",
+      "class": "adms:Identifier",
+      "property": "skos:notation",
+      "rq2_term": "skos:notation",
+      "label": "notation",
+      "definition": "This property contains a string that is an identifier in the context of the identifier scheme referenced by its datatype.",
+      "usage_notes": [
+        "Mandatory property. This property contains a string that is an identifier in the context of the identifier scheme referenced by its datatype."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://www.w3.org/2009/08/skos-reference/skos.html#notation"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-c4e0853b8e20c3603540",
+      "need": "Identify and describe a catalog.",
+      "class": "dcat:Catalog",
+      "property": null,
+      "rq2_term": "dcat:Catalog",
+      "label": "catalog",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-50792ccc53b1f41d32a0",
+      "need": "Find the catalog of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:catalog",
+      "rq2_term": "dcat:catalog",
+      "label": "catalog",
+      "definition": "This property refers to a catalog whose contents are of interest in the context of this catalog .",
+      "usage_notes": [
+        "Optional property. This property refers to a catalog whose contents are of interest in the context of this catalog ."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:catalog_catalog"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-6d14ce208a675d28beb4",
+      "need": "Find the dataset of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:dataset",
+      "rq2_term": "dcat:dataset",
+      "label": "dataset",
+      "definition": "A dataset that is part of the catalog.",
+      "usage_notes": [
+        "Mandatory property. This property links the Catalogue with a Dataset that is part of the Catalogue."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:catalog_dataset"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-1a088e69a8a92555b764",
+      "need": "Find the record of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:record",
+      "rq2_term": "dcat:record",
+      "label": "record",
+      "definition": "This property refers to a Catalogue Record that is part of the Catalogue",
+      "usage_notes": [
+        "Optional property. This property refers to a Catalogue Record that is part of the Catalogue"
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:catalog_catalog_record"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-1bff4976ea3c1be34693",
+      "need": "Find the service of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:service",
+      "rq2_term": "dcat:service",
+      "label": "service",
+      "definition": "This property refers to a site or end-point that is listed in the catalog. .",
+      "usage_notes": [
+        "Optional property. This property refers to a site or end-point that is listed in the catalog."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:catalog_service"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-a9ab7820d73ff2cfc021",
+      "need": "Find the themes of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:themeTaxonomy",
+      "rq2_term": "dcat:themeTaxonomy",
+      "label": "themes",
+      "definition": "The knowledge organization system (KOS) used to classify catalog's datasets",
+      "usage_notes": [
+        "Recommended property. This property refers to a knowledge organization system (KOS) used to classify the Catalogue's Datasets."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:catalog_themes"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": "http://publications.europa.eu/resource/authority/data-theme"
+    },
+    {
+      "id": "base-33d991ad8d0704925ca0",
+      "need": "Find the creator of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:creator",
+      "rq2_term": "dct:creator",
+      "label": "creator",
+      "definition": "This property refers to an entity primarily responsible for making the catalogue.",
+      "usage_notes": [
+        "Optional property. This property refers to an entity primarily responsible for making the resource."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.dublincore.org/specifications/dublin-core/dcmi-terms/#terms-creator"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-6b26bdd8b730fcb8a6d8",
+      "need": "Find the description of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:description",
+      "rq2_term": "dct:description",
+      "label": "description",
+      "definition": "Description may include but is not limited to: an abstract, a table of contents, a graphical representation, or a free-text account of the resource.",
+      "usage_notes": [
+        "Mandatory property. This property contains a free-text account of the Catalogue. This property can be repeated for parallel language versions of the description."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-description"
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-3e5e33729360a1bc8dca",
+      "need": "Find the has part of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:hasPart",
+      "rq2_term": "dct:hasPart",
+      "label": "has part",
+      "definition": "This property refers to a related Catalogue that is part of the described Catalogue",
+      "usage_notes": [
+        "Optional property. This property refers to a related Catalogue that is part of the described Catalogue."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-hasPart"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-606ce17200585e420ba2",
+      "need": "Find the is part of of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:isPartOf",
+      "rq2_term": "dct:isPartOf",
+      "label": "is part of",
+      "definition": "This property refers to a related Catalogue in which the described Catalogue is physically or logically included.",
+      "usage_notes": [
+        "Optional property. This property refers to a related Catalogue in which the described Catalogue is physically or logically included."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-isPartOf"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-66b14aabd2db6d505f58",
+      "need": "Find the release date of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:issued",
+      "rq2_term": "dct:issued",
+      "label": "release date",
+      "definition": "This property contains the date of formal issuance (e.g., publication) of the Catalogue.",
+      "usage_notes": [
+        "Recommended property. This property contains the date of formal issuance (e.g., publication) of the Catalogue."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-issued"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-0fcbfef57a1fb1aabd49",
+      "need": "Find the language of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:language",
+      "rq2_term": "dct:language",
+      "label": "language",
+      "definition": "This property refers to a language used in the textual metadata describing titles, descriptions, etc. of the Datasets in the Catalogue. This property can be repeated if the metadata is provided in multiple languages.",
+      "usage_notes": [
+        "Recommended property. This property refers to a language used in the textual metadata describing titles, descriptions, etc. of the Datasets in the Catalogue. This property can be repeated if the metadata is provided in multiple languages."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-language"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": "http://publications.europa.eu/resource/authority/language"
+    },
+    {
+      "id": "base-b15f9613392d4daf47b6",
+      "need": "Find the licence of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:license",
+      "rq2_term": "dct:license",
+      "label": "licence",
+      "definition": "This property refers to the licence under which the Catalogue can be used or reused.",
+      "usage_notes": [
+        "Recommended property. This property refers to the licence under which the Catalogue can be used or reused."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-license"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-4161e09cfcf3496fe97a",
+      "need": "Find the update/ modification date of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:modified",
+      "rq2_term": "dct:modified",
+      "label": "update/ modification date",
+      "definition": "This property contains the most recent date on which the Catalogue was changed or modified.",
+      "usage_notes": [
+        "Recommended property. This property contains the most recent date on which the Catalogue was changed or modified."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-modified"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-aea0c7b652b1ee56e4bc",
+      "need": "Find the publisher of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:publisher",
+      "rq2_term": "dct:publisher",
+      "label": "publisher",
+      "definition": "This property refers to an entity (organisation) responsible for making the Catalogue available.",
+      "usage_notes": [
+        "Mandatory property. This property refers to an entity (organisation) responsible for making the Catalogue available."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-publisher"
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": "http://publications.europa.eu/resource/authority/corporate-body"
+    },
+    {
+      "id": "base-286042dc79a6d8120b30",
+      "need": "Find the rights of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:rights",
+      "rq2_term": "dct:rights",
+      "label": "rights",
+      "definition": "This property refers to a statement that specifies rights associated with the Catalogue.",
+      "usage_notes": [
+        "Optional property. This property refers to a statement that specifies rights associated with the Catalogue."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-rights"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-843582b5995c75134683",
+      "need": "Find the spatial / geographic of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:spatial",
+      "rq2_term": "dct:spatial",
+      "label": "spatial / geographic",
+      "definition": "This property refers to a geographical area covered by the Catalogue.",
+      "usage_notes": [
+        "Recommended property. This property refers to a geographical area covered by the Catalogue."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-spatial"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": [
+        "http://publications.europa.eu/resource/authority/continent",
+        "http://publications.europa.eu/resource/authority/country",
+        "http://publications.europa.eu/resource/authority/place",
+        "http://sws.geonames.org"
+      ]
+    },
+    {
+      "id": "base-86338872b8b1e3656bce",
+      "need": "Find the title of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:title",
+      "rq2_term": "dct:title",
+      "label": "title",
+      "definition": "This property contains a name given to the Catalogue. This property can be repeated for parallel language versions of the name.",
+      "usage_notes": [
+        "Mandatory property. This property contains a name given to the Catalogue. This property can be repeated for parallel language versions of the name."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-title"
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-5c26cce3ced476f47ba2",
+      "need": "Find the homepage of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "foaf:homepage",
+      "rq2_term": "foaf:homepage",
+      "label": "homepage",
+      "definition": "This property refers to a web page that acts as the main page for the Catalogue.",
+      "usage_notes": [
+        "Recommended property. This property refers to a web page that acts as the main page for the Catalogue."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://xmlns.com/foaf/spec/#term_homepage"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-78969a0be907554bf552",
+      "need": "Identify and describe a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": null,
+      "rq2_term": "dcat:CatalogRecord",
+      "label": "catalog record",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-0780180464f03d62d92f",
+      "need": "Find the change type of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "adms:status",
+      "rq2_term": "adms:status",
+      "label": "change type",
+      "definition": "The type of the latest revision of a Dataset's entry in the Catalogue. It MUST take one of the values :Completed, :Depricated, :Under development or :Withdrawn.",
+      "usage_notes": [
+        "Recommended property. The type of the latest revision of a Dataset's entry in the Catalogue. It MUST take one of the values :created, :updated or :deleted depending on whether this latest revision is a result of a creation, update or deletion."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-adms/#adms-status"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-35cc35fe2f83d0f4ee0a",
+      "need": "Find the conforms to of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "dct:conformsTo",
+      "rq2_term": "dct:conformsTo",
+      "label": "conforms to",
+      "definition": "This property refers to an Application Profile that the Dataset’s metadata conforms to.",
+      "usage_notes": [
+        "Recommended property. This property refers to an Application Profile that the Dataset’s metadata conforms to."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-conformsTo"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-9150cd2082a0b24760f3",
+      "need": "Find the description of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "dct:description",
+      "rq2_term": "dct:description",
+      "label": "description",
+      "definition": "This property contains a free-text account of the record. This property can be repeated for parallel language versions of the description.",
+      "usage_notes": [
+        "Optional property. This property contains a free-text account of the record. This property can be repeated for parallel language versions of the description."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-description"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-2d16e2fb79d40b864455",
+      "need": "Find the listing date of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "dct:issued",
+      "rq2_term": "dct:issued",
+      "label": "listing date",
+      "definition": "This property contains the date on which the description of the Dataset was included in the Catalogue.",
+      "usage_notes": [
+        "Recommended property. This property contains the date on which the description of the Dataset was included in the Catalogue."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-issued"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-7542383efaba7f4f4ddb",
+      "need": "Find the language of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "dct:language",
+      "rq2_term": "dct:language",
+      "label": "language",
+      "definition": "This property refers to a language used in the textual metadata describing titles, descriptions, etc. of the Dataset. This property can be repeated if the metadata is provided in multiple languages.",
+      "usage_notes": [
+        "Optional property. This property refers to a language used in the textual metadata describing titles, descriptions, etc. of the Dataset. This property can be repeated if the metadata is provided in multiple languages."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-language"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-929f74bd034b1750fa3b",
+      "need": "Find the update/ modification date of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "dct:modified",
+      "rq2_term": "dct:modified",
+      "label": "update/ modification date",
+      "definition": "This property contains the most recent date on which the Catalogue entry was changed or modified.",
+      "usage_notes": [
+        "Mandatory property. This property contains the most recent date on which the Catalogue entry was changed or modified."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-modified"
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-81c2bb27447e87d76321",
+      "need": "Find the source metadata of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "dct:source",
+      "rq2_term": "dct:source",
+      "label": "source metadata",
+      "definition": "This property refers to the original metadata that was used in creating metadata for the Dataset.",
+      "usage_notes": [
+        "Optional property. This property refers to the original metadata that was used in creating metadata for the Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-source"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-9f233be59faa4f5d0025",
+      "need": "Find the title of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "dct:title",
+      "rq2_term": "dct:title",
+      "label": "title",
+      "definition": "This property contains a name given to the Catalogue. This property can be repeated for parallel language versions of the name.",
+      "usage_notes": [
+        "Optional property. This property contains a name given to the Catalogue. This property can be repeated for parallel language versions of the name."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-title"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-d4336d48e3d7bb7cf4e2",
+      "need": "Find the primary topic of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "foaf:primaryTopic",
+      "rq2_term": "foaf:primaryTopic",
+      "label": "primary topic",
+      "definition": "This property links the Catalogue Record to the Dataset, Data Service or Catalogue described in the record.",
+      "usage_notes": [
+        "Mandatory property. This property links the Catalogue Record to the Dataset, Data Service or Catalogue described in the record."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://xmlns.com/foaf/spec/#term_primaryTopic"
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-4f067c81f1d429294126",
+      "need": "Identify and describe a data service.",
+      "class": "dcat:DataService",
+      "property": null,
+      "rq2_term": "dcat:DataService",
+      "label": "data service",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-a1a499fec578f4a4710d",
+      "need": "Find the endpoint description of a data service.",
+      "class": "dcat:DataService",
+      "property": "dcat:endpointDescription",
+      "rq2_term": "dcat:endpointDescription",
+      "label": "endpoint description",
+      "definition": "A description of the services available via the end-points, including their operations, parameters etc.",
+      "usage_notes": [
+        "Recomended property. A description of the services available via the end-points, including their operations, parameters etc ."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:data_service_endpoint_description"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-0ab2b856d358ff2a3e2c",
+      "need": "Find the endpoint url of a data service.",
+      "class": "dcat:DataService",
+      "property": "dcat:endpointURL",
+      "rq2_term": "dcat:endpointURL",
+      "label": "endpoint url",
+      "definition": "The root location or primary endpoint of the service (an IRI).",
+      "usage_notes": [
+        "Mandatory property. The root location or primary endpoint of the service (an IRI).."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:data_service_endpoint_url"
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-bc8fc964bb1b14fb2ff5",
+      "need": "Find the datasets it serves of a data service.",
+      "class": "dcat:DataService",
+      "property": "dcat:servesDataset",
+      "rq2_term": "dcat:servesDataset",
+      "label": "datasets it serves",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-2c41fa812e8428857422",
+      "need": "Find the access rights of a data service.",
+      "class": "dcat:DataService",
+      "property": "dct:accessRights",
+      "rq2_term": "dct:accessRights",
+      "label": "access rights",
+      "definition": "This property refers to information that indicates whether the Dataset is open data, has access restrictions or is not public. A controlled vocabulary with three members (:public, :restricted, :non-public) will be created and maintained by the Publications Office of the EU.",
+      "usage_notes": [
+        "Optional property. This property refers to information that indicates whether the Dataset is open data, has access restrictions or is not public. A controlled vocabulary with three members (:public, :restricted, :non-public) will be created and maintained by the Publications Office of the EU."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-accessRights"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-b6c4361b65a69181c029",
+      "need": "Find the description of a data service.",
+      "class": "dcat:DataService",
+      "property": "dct:description",
+      "rq2_term": "dct:description",
+      "label": "description",
+      "definition": "Description may include but is not limited to: an abstract, a table of contents, a graphical representation, or a free-text account of the resource.",
+      "usage_notes": [
+        "Optional property. This property contains a free-text account of the Catalogue. This property can be repeated for parallel language versions of the description."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-description"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-da6f7d65a6b8831c7a7e",
+      "need": "Find the licence of a data service.",
+      "class": "dcat:DataService",
+      "property": "dct:license",
+      "rq2_term": "dct:license",
+      "label": "licence",
+      "definition": "This property refers to the licence under which the Catalogue can be used or reused.",
+      "usage_notes": [
+        "Optional property. This property refers to the licence under which the Catalogue can be used or reused."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-license"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-d19257a06dfc24850ec2",
+      "need": "Find the title of a data service.",
+      "class": "dcat:DataService",
+      "property": "dct:title",
+      "rq2_term": "dct:title",
+      "label": "title",
+      "definition": "This property contains a name given to the Data Service. This property can be repeated for parallel language versions of the name.",
+      "usage_notes": [
+        "Mandatory property. This property contains a name given to the Data Service. This property can be repeated for parallel language versions of the name."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-title"
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-687378cb550bcaadbd06",
+      "need": "Identify and describe a dataset.",
+      "class": "dcat:Dataset",
+      "property": null,
+      "rq2_term": "dcat:Dataset",
+      "label": "dataset",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-248c110a369659fecab7",
+      "need": "Find the other identifier of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "adms:identifier",
+      "rq2_term": "adms:identifier",
+      "label": "other identifier",
+      "definition": "This property refers to a secondary identifier of the Dataset, such as MAST/ADS[1], DataCite[2], DOI[3], EZID[4] or W3ID[5].",
+      "usage_notes": [
+        "Optional property. This property refers to a secondary identifier of the Dataset, such as MAST/ADS[1], DataCite[2], DOI[3], EZID[4] or W3ID[5]."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-adms/#adms-identifier"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-4d6c99b2e4c61aa4b208",
+      "need": "Find the sample of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "adms:sample",
+      "rq2_term": "adms:sample",
+      "label": "sample",
+      "definition": "This property refers to a sample distribution of the dataset.",
+      "usage_notes": [
+        "Optional property. This property refers to a sample distribution of the dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-adms/#adms-sample"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-2388a306aba266468a85",
+      "need": "Find the version notes of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "adms:versionNotes",
+      "rq2_term": "adms:versionNotes",
+      "label": "version notes",
+      "definition": "This property contains a description of the differences between this version and a previous version of the Dataset.",
+      "usage_notes": [
+        "Optional property. This property contains a description of the differences between this version and a previous version of the Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-adms/#adms-versionnotes"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-88b0fd25ca5a7e413af3",
+      "need": "Find the is referenced by of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dc:isReferencedBy",
+      "rq2_term": "dc:isReferencedBy",
+      "label": "is referenced by",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-55c2aafc7a94306fbd74",
+      "need": "Find the contact point of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:contactPoint",
+      "rq2_term": "dcat:contactPoint",
+      "label": "contact point",
+      "definition": "This property contains contact information that can be used for sending comments about the Dataset.",
+      "usage_notes": [
+        "Recommended property.This property contains contact information that can be used for sending comments about the Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:resource_contact_point"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-8a5e74bd105430f996a7",
+      "need": "Find the dataset distribution of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:distribution",
+      "rq2_term": "dcat:distribution",
+      "label": "dataset distribution",
+      "definition": "This property links the Dataset to an available Distribution.",
+      "usage_notes": [
+        "Recommended property. This property links the Dataset to an available Distribution."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:dataset_distribution"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-67fec8d5e063ea832091",
+      "need": "Find the keyword/ tag of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:keyword",
+      "rq2_term": "dcat:keyword",
+      "label": "keyword/ tag",
+      "definition": "This property contains a keyword or tag describing the Dataset.",
+      "usage_notes": [
+        "Recommended property. This property contains a keyword or tag describing the Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:resource_keyword"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-64867a6c8a5c29eb76b0",
+      "need": "Find the landing page of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:landingPage",
+      "rq2_term": "dcat:landingPage",
+      "label": "landing page",
+      "definition": "This property refers to a web page that provides access to the Dataset, its Distributions and/or additional information.",
+      "usage_notes": [
+        "Optional property. This property refers to a web page that provides access to the Dataset, its Distributions and/or additional information."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:resource_landing_page"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-b917a9578323263cd8e0",
+      "need": "Find the qualified relation of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:qualifiedRelation",
+      "rq2_term": "dcat:qualifiedRelation",
+      "label": "qualified relation",
+      "definition": "This property provides a link to a description of a relationship with another resource.",
+      "usage_notes": [
+        "Optional property. This property provides a link to a description of a relationship with another resource."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:resource_qualified_relation"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-545540ea9df198ca48fe",
+      "need": "Find the spatial resolution of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:spatialResolutionInMeters",
+      "rq2_term": "dcat:spatialResolutionInMeters",
+      "label": "spatial resolution",
+      "definition": "This property refers to the minimum spatial separation resolvable in a dataset, measured in meters.",
+      "usage_notes": [
+        "Optional property. This property refers to the minimum spatial separation resolvable in a dataset, measured in meters."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:dataset_spatial_resolution"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-9c691f9fa7c21ed0bdd3",
+      "need": "Find the temporal resolution of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:temporalResolution",
+      "rq2_term": "dcat:temporalResolution",
+      "label": "temporal resolution",
+      "definition": "This property refers to the minimum time period resolvable in the dataset. .",
+      "usage_notes": [
+        "Optional property. This property refers to the minimum time period resolvable in the dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:dataset_temporal_resolution"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-475c94cd395c1ca9f9c7",
+      "need": "Find the theme/category of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:theme",
+      "rq2_term": "dcat:theme",
+      "label": "theme/category",
+      "definition": "This property refers to a category of the Dataset. A Dataset may be associated with multiple themes. Subproperty of dct:subject",
+      "usage_notes": [
+        "Recommended property. This property refers to a category of the Dataset. A Dataset may be associated with multiple themes. Subproperty of dct:subject."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:resource_type"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": "http://publications.europa.eu/resource/authority/data-theme"
+    },
+    {
+      "id": "base-7ad9d1893dbcfdd9de85",
+      "need": "Find the access rights of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:accessRights",
+      "rq2_term": "dct:accessRights",
+      "label": "access rights",
+      "definition": "This property refers to information that indicates whether the Dataset is open data, has access restrictions or is not public. A controlled vocabulary with three members (:public, :restricted, :non-public) will be created and maintained by the Publications Office of the EU.",
+      "usage_notes": [
+        "Optional property. This property refers to information that indicates whether the Dataset is open data, has access restrictions or is not public. A controlled vocabulary with three members (:public, :restricted, :non-public) will be created and maintained by the Publications Office of the EU."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-accessRights"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": "http://publications.europa.eu/resource/authority/access-right"
+    },
+    {
+      "id": "base-a1db139baf04d36ec774",
+      "need": "Find the accrual periodicity of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:accrualPeriodicity",
+      "rq2_term": "dct:accrualPeriodicity",
+      "label": "accrual periodicity",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": "optional",
+      "vocabulary": "http://publications.europa.eu/resource/authority/frequency"
+    },
+    {
+      "id": "base-7fea0f03d287ae3b49a3",
+      "need": "Find the conforms to of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:conformsTo",
+      "rq2_term": "dct:conformsTo",
+      "label": "conforms to",
+      "definition": "This property refers to an implementing rule or other specification.",
+      "usage_notes": [
+        "Optional property. This property refers to an implementing rule or other specification."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-conformsTo"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-f943d2f2c85d497967a5",
+      "need": "Find the creator of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:creator",
+      "rq2_term": "dct:creator",
+      "label": "creator",
+      "definition": "This property refers to an entity primarily responsible for making the dataset.",
+      "usage_notes": [
+        "Optional property. This property refers to an entity primarily responsible for making the resource."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.dublincore.org/specifications/dublin-core/dcmi-terms/#terms-creator"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-2f6637e5f3a7d11c7b4d",
+      "need": "Find the description of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:description",
+      "rq2_term": "dct:description",
+      "label": "description",
+      "definition": "This property contains a free-text account of the Dataset. This property can be repeated for parallel language versions of the description.",
+      "usage_notes": [
+        "Mandatory property. This property contains a free-text account of the Dataset. This property can be repeated for parallel language versions of the description."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-description"
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-9613cc2511c872b6ed86",
+      "need": "Find the has version of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:hasVersion",
+      "rq2_term": "dct:hasVersion",
+      "label": "has version",
+      "definition": "This property refers to a related Dataset that is a version, edition, or adaptation of the described Dataset.",
+      "usage_notes": [
+        "Optional property.This property refers to a related Dataset that is a version, edition, or adaptation of the described Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-hasVersion"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-27f2e40747c6ac2c1157",
+      "need": "Find the identifier of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:identifier",
+      "rq2_term": "dct:identifier",
+      "label": "identifier",
+      "definition": "This property contains the main identifier for the Dataset, e.g. the URI or other unique identifier in the context of the Catalogue.",
+      "usage_notes": [
+        "Optional property. This property contains the main identifier for the Dataset, e.g. the URI or other unique identifier in the context of the Catalogue."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "rdf:Description[192]"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-2063699d9b153244a0fb",
+      "need": "Find the is version of of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:isVersionOf",
+      "rq2_term": "dct:isVersionOf",
+      "label": "is version of",
+      "definition": "This property refers to a related Dataset of which the described Dataset is a version, edition, or adaptation.",
+      "usage_notes": [
+        "Optional property. This property refers to a related Dataset of which the described Dataset is a version, edition, or adaptation."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-isVersionOf"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-b9fd8228661b9b9394e6",
+      "need": "Find the release date of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:issued",
+      "rq2_term": "dct:issued",
+      "label": "release date",
+      "definition": "This property contains the date of formal issuance (e.g., publication) of the Dataset.",
+      "usage_notes": [
+        "Optional property. This property contains the date of formal issuance (e.g., publication) of the Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-issued"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-b6264e89d3fa30a8d888",
+      "need": "Find the language of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:language",
+      "rq2_term": "dct:language",
+      "label": "language",
+      "definition": "This property refers to a language of the Dataset. This property can be repeated if there are multiple languages in the Dataset.",
+      "usage_notes": [
+        "Optional property. This property refers to a language of the Dataset. This property can be repeated if there are multiple languages in the Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-language"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": "http://publications.europa.eu/resource/authority/language"
+    },
+    {
+      "id": "base-45ff06266da6c9ec4592",
+      "need": "Find the update/ modification date of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:modified",
+      "rq2_term": "dct:modified",
+      "label": "update/ modification date",
+      "definition": "This property contains the most recent date on which the Dataset was changed or modified.",
+      "usage_notes": [
+        "Optional property. This property contains the most recent date on which the Dataset was changed or modified."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-modified"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-b23b0f977a3e41346735",
+      "need": "Find the provenance of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:provenance",
+      "rq2_term": "dct:provenance",
+      "label": "provenance",
+      "definition": "This property contains a statement about the lineage of a Dataset.",
+      "usage_notes": [
+        "Optional property. This property contains a statement about the lineage of a Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-provenance"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-513474dee2203aa7c31e",
+      "need": "Find the publisher of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:publisher",
+      "rq2_term": "dct:publisher",
+      "label": "publisher",
+      "definition": "This property refers to an entity (organisation) responsible for making the Dataset available.",
+      "usage_notes": [
+        "Recommended property. This property refers to an entity (organisation) responsible for making the Dataset available."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-publisher"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": "http://publications.europa.eu/resource/authority/corporate-body"
+    },
+    {
+      "id": "base-593484a1dec9281c4e00",
+      "need": "Find the related resource of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:relation",
+      "rq2_term": "dct:relation",
+      "label": "related resource",
+      "definition": "This property refers to a related resource.",
+      "usage_notes": [
+        "Optional property. This property refers to a related resource."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-relation"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-77bb9c1d01ff695d79d5",
+      "need": "Find the source of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:source",
+      "rq2_term": "dct:source",
+      "label": "source",
+      "definition": "This property refers to a related Dataset from which the described Dataset is derived.",
+      "usage_notes": [
+        "Optional property. This property refers to a related Dataset from which the described Dataset is derived."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-source"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-f5af5010fda985d53ea7",
+      "need": "Find the spatial/ geographical coverage of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:spatial",
+      "rq2_term": "dct:spatial",
+      "label": "spatial/ geographical coverage",
+      "definition": "This property refers to a geographic region that is covered by the Dataset.",
+      "usage_notes": [
+        "Recommended property. This property refers to a geographic region that is covered by the Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-spatial"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": [
+        "http://publications.europa.eu/resource/authority/continent",
+        "http://publications.europa.eu/resource/authority/country",
+        "http://publications.europa.eu/resource/authority/place",
+        "http://sws.geonames.org"
+      ]
+    },
+    {
+      "id": "base-07c0665568722c88a419",
+      "need": "Find the temporal coverage of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:temporal",
+      "rq2_term": "dct:temporal",
+      "label": "temporal coverage",
+      "definition": "This property refers to a temporal period that the Dataset covers.",
+      "usage_notes": [
+        "Recommended property. This property refers to a temporal period that the Dataset covers."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-temporal"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-f6f668f58265955eac92",
+      "need": "Find the title of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:title",
+      "rq2_term": "dct:title",
+      "label": "title",
+      "definition": "This property contains a name given to the Dataset. This property can be repeated for parallel language versions of the name.",
+      "usage_notes": [
+        "Mandatory property. This property contains a name given to the Dataset. This property can be repeated for parallel language versions of the name."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-title"
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-6d0808f80ba150dbf29e",
+      "need": "Find the type of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:type",
+      "rq2_term": "dct:type",
+      "label": "type",
+      "definition": "This property refers to the type of the Dataset. A controlled vocabulary for the values has not been established.",
+      "usage_notes": [
+        "Optional property. This property refers to the type of the Dataset. A controlled vocabulary for the values has not been established."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-type"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": "http://publications.europa.eu/resource/authority/dataset-type"
+    },
+    {
+      "id": "base-139e53c7765a9cd9b089",
+      "need": "Find the documentation of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "foaf:page",
+      "rq2_term": "foaf:page",
+      "label": "documentation",
+      "definition": "This property refers to a page or document about this Dataset.",
+      "usage_notes": [
+        "Optional property. This property refers to a page or document about this Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://xmlns.com/foaf/spec/#term_page"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-abf5abec715bbb62c822",
+      "need": "Find the version of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "owl:versionInfo",
+      "rq2_term": "owl:versionInfo",
+      "label": "version",
+      "definition": "This property contains a version number or other version designation of the Dataset.",
+      "usage_notes": [
+        "Optional property. This property contains a version number or other version designation of the Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://www.w3.org/2002/07/owl#"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-42f032ec072969d34fec",
+      "need": "Find the qualified attribution of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "prov:qualifiedAttribution",
+      "rq2_term": "prov:qualifiedAttribution",
+      "label": "qualified attribution",
+      "definition": "This property refers to the link to an Agent having some form of responsibility for the resource.",
+      "usage_notes": [
+        "Optional property. This property refers to the link to an Agent having some form of responsibility for the resource."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/2013/REC-prov-o-20130430/#qualifiedAttribution"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-abad4728ad347f53ad25",
+      "need": "Find the was generated by of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "prov:wasGeneratedBy",
+      "rq2_term": "prov:wasGeneratedBy",
+      "label": "was generated by",
+      "definition": "This property refers to an activity that generated, or provides the business context for, the creation of the dataset.",
+      "usage_notes": [
+        "Optional property. This property refers to an activity that generated, or provides the business context for, the creation of the dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/2013/REC-prov-o-20130430/#wasGeneratedBy"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-913ee1aea43a3197434e",
+      "need": "Identify and describe a distribution.",
+      "class": "dcat:Distribution",
+      "property": null,
+      "rq2_term": "dcat:Distribution",
+      "label": "distribution",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-a043846837da33a05774",
+      "need": "Find the status of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "adms:status",
+      "rq2_term": "adms:status",
+      "label": "status",
+      "definition": "This property refers to the maturity of the Distribution",
+      "usage_notes": [
+        "Optional property. This property refers to the maturity of the Distribution."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://www.w3.org/TR/vocab-adms/#status"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": "http://purl.org/adms/status/1.0"
+    },
+    {
+      "id": "base-f1d8451dc2dcb6ac8575",
+      "need": "Find the access service of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:accessService",
+      "rq2_term": "dcat:accessService",
+      "label": "access service",
+      "definition": "This property refers to the a data service that gives access to the distribution of the dataset .",
+      "usage_notes": [
+        "Optional property. This property refers to a data service that gives access to the distribution of the dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_access_service"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-be635ab478e8bcad7312",
+      "need": "Find the access url of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:accessURL",
+      "rq2_term": "dcat:accessURL",
+      "label": "access url",
+      "definition": "This property contains a URL that gives access to a Distribution of the Dataset. The resource at the access URL may contain information about how to get the Dataset.",
+      "usage_notes": [
+        "Mandatory property. This property contains a URL that gives access to a Distribution of the Dataset. The resource at the access URL may contain information about how to get the Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_access_url"
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-ca8facc4bc4f32e89b72",
+      "need": "Find the byte size of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:byteSize",
+      "rq2_term": "dcat:byteSize",
+      "label": "byte size",
+      "definition": "This property contains the size of a Distribution in bytes.",
+      "usage_notes": [
+        "Optional property. This property contains the size of a Distribution in bytes."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_size"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-119cd64f546c03949708",
+      "need": "Find the compression format of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:compressFormat",
+      "rq2_term": "dcat:compressFormat",
+      "label": "compression format",
+      "definition": "This property refers to the format of the file in which the data is contained in a compressed form, e.g. to reduce the size of the downloadable file .",
+      "usage_notes": [
+        "Optional property. This property refers to the format of the file in which the data is contained in a compressed form, e.g. to reduce the size of the downloadable file. It SHOULD be expressed using a media type as defined in the official register of media types managed by IANA."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_compression_format"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-aac6bf4c846108f9887f",
+      "need": "Find the download url of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:downloadURL",
+      "rq2_term": "dcat:downloadURL",
+      "label": "download url",
+      "definition": "This property contains a URL that is direct link to a downloadable file in a given format.",
+      "usage_notes": [
+        "Optional property. This property contains a URL that is direct link to a downloadable file in a given format."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_download_url"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-d1edd4b0e340a741ec10",
+      "need": "Find the media type of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:mediaType",
+      "rq2_term": "dcat:mediaType",
+      "label": "media type",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-3e05051c558d0500fd3b",
+      "need": "Find the packaging format of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:packageFormat",
+      "rq2_term": "dcat:packageFormat",
+      "label": "packaging format",
+      "definition": "This property refers to the format of the file in which one or more data files are grouped together, e.g. to enable a set of related files to be downloaded together.",
+      "usage_notes": [
+        "Optional property. This property refers to the format of the file in which one or more data files are grouped together, e.g. to enable a set of related files to be downloaded together. It SHOULD be expressed using a media type as defined in the official register of media types managed by IANA."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_packaging_format"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-751b2b74ced287d58c1f",
+      "need": "Find the spatial resolution of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:spatialResolutionInMeters",
+      "rq2_term": "dcat:spatialResolutionInMeters",
+      "label": "spatial resolution",
+      "definition": "This property refers to the minimum spatial separation resolvable in a dataset distribution, measured in meters. .",
+      "usage_notes": [
+        "Optional property. This property refers to the minimum spatial separation resolvable in a dataset distribution, measured in meters. ."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_spatial_resolution"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-4b412c2a4a50e7fb2722",
+      "need": "Find the temporal resolution of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:temporalResolution",
+      "rq2_term": "dcat:temporalResolution",
+      "label": "temporal resolution",
+      "definition": "This property refers to the minimum time period resolvable in the dataset distribution .",
+      "usage_notes": [
+        "Optional property. This property refers to the minimum time period resolvable in the dataset distribution ."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_temporal_resolution"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-e2fc1cd6cd38692b18c6",
+      "need": "Find the availability of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcatap:availability",
+      "rq2_term": "dcatap:availability",
+      "label": "availability",
+      "definition": "This property indicates how long it is planned to keep the Distribution of the Dataset available.",
+      "usage_notes": [
+        "Recommended property. This property indicates how long it is planned to keep the Distribution of the Dataset available ."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://data.europa.eu/r5r/availability"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": "http://publications.europa.eu/resource/authority/planned-availability"
+    },
+    {
+      "id": "base-ab7bdf9082610f549574",
+      "need": "Find the linked schemas of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:conformsTo",
+      "rq2_term": "dct:conformsTo",
+      "label": "linked schemas",
+      "definition": "This property refers to an established schema to which the described Distribution conforms.",
+      "usage_notes": [
+        "Optional property. This property refers to an established schema to which the described Distribution conforms."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-conformsTo"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-9feb59be7a1130fd80f4",
+      "need": "Find the description of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:description",
+      "rq2_term": "dct:description",
+      "label": "description",
+      "definition": "This property can be repeated for parallel language versions of the description.",
+      "usage_notes": [
+        "Recommended property. This property contains a free-text account of the Distribution. This property can be repeated for parallel language versions of the description."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-description"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-8c81adf110bd4eab253f",
+      "need": "Find the format of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:format",
+      "rq2_term": "dct:format",
+      "label": "format",
+      "definition": "This property refers to the file format of the Distribution.",
+      "usage_notes": [
+        "Recommended property. This property refers to the file format of the Distribution."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-format"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": "http://publications.europa.eu/resource/authority/file-type"
+    },
+    {
+      "id": "base-19d24f4abafd425bd785",
+      "need": "Find the release date of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:issued",
+      "rq2_term": "dct:issued",
+      "label": "release date",
+      "definition": "This property contains the date of formal issuance (e.g., publication) of the Distribution.",
+      "usage_notes": [
+        "Optional property. This property contains the date of formal issuance (e.g., publication) of the Distribution."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-issued"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-18531a79c9bbbaebee5f",
+      "need": "Find the language of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:language",
+      "rq2_term": "dct:language",
+      "label": "language",
+      "definition": "This property refers to a language used in the Distribution.",
+      "usage_notes": [
+        "Optional property. This property refers to a language used in the Distribution. This property can be repeated if the metadata is provided in multiple languages."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-language"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": "http://publications.europa.eu/resource/authority/language"
+    },
+    {
+      "id": "base-2192c59e4a9da7bd3033",
+      "need": "Find the licence of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:license",
+      "rq2_term": "dct:license",
+      "label": "licence",
+      "definition": "This property refers to the licence under which the Distribution is made available.",
+      "usage_notes": [
+        "Recommended property. This property refers to the licence under which the Distribution is made available."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-license"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-bb77c65642c9bb9e2f9f",
+      "need": "Find the update/modification date of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:modified",
+      "rq2_term": "dct:modified",
+      "label": "update/modification date",
+      "definition": "This property contains the most recent date on which the Distribution was changed or modified.",
+      "usage_notes": [
+        "Optional property. This property contains the most recent date on which the Distribution was changed or modified."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-modified"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-fb3ce2d5aba153e0e509",
+      "need": "Find the rights of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:rights",
+      "rq2_term": "dct:rights",
+      "label": "rights",
+      "definition": "This property refers to a statement that specifies rights associated with the Distribution.",
+      "usage_notes": [
+        "Optional property. This property refers to a statement that specifies rights associated with the Distribution."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-rights"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-34573ecf73ba1fd52dcc",
+      "need": "Find the title of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:title",
+      "rq2_term": "dct:title",
+      "label": "title",
+      "definition": "This property contains a name given to the Distribution. This property can be repeated for parallel language versions of the description.",
+      "usage_notes": [
+        "Optional property. This property contains a name given to the Distribution. This property can be repeated for parallel language versions of the description."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-title"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-124a3dfa8a2d10450e3e",
+      "need": "Find the documentation of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "foaf:page",
+      "rq2_term": "foaf:page",
+      "label": "documentation",
+      "definition": "This property refers to a page or document about this Distribution.",
+      "usage_notes": [
+        "Optional property.This property refers to a page or document about this Distribution."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://xmlns.com/foaf/spec/#term_page"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-8ea7a03bbceee6018f95",
+      "need": "Find the has policy of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "odrl:hasPolicy",
+      "rq2_term": "odrl:hasPolicy",
+      "label": "has policy",
+      "definition": "This property refers to a policy expressing the rights associated with the resource if using the ODRL vocabulary.",
+      "usage_notes": [
+        "Optional property. This property refers to a policy expressing the rights associated with the resource if using the ODRL vocabulary."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_has_policy"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-9aa6aa2b4782ecfcf2a0",
+      "need": "Find the checksum of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "spdx:checksum",
+      "rq2_term": "spdx:checksum",
+      "label": "checksum",
+      "definition": "This property provides a mechanism that can be used to verify that the contents of a distribution have not changed.",
+      "usage_notes": [
+        "Optional property.This property provides a mechanism that can be used to verify that the contents of a distribution have not changed. The checksum is related to the downloadURL."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://spdx.org/rdf/terms/#checksum"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-fea3828268039cc4f290",
+      "need": "Identify and describe a relationship.",
+      "class": "dcat:Relationship",
+      "property": null,
+      "rq2_term": "dcat:Relationship",
+      "label": "relationship",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-a87f3ed2ea9e5790052f",
+      "need": "Find the had role of a relationship.",
+      "class": "dcat:Relationship",
+      "property": "dcat:hadRole",
+      "rq2_term": "dcat:hadRole",
+      "label": "had role",
+      "definition": "The function of an entity or agent with respect to another entity or resource.",
+      "usage_notes": [
+        "Mandatory property. The function of an entity or agent with respect to another entity or resource.."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:relationship_hadRole"
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-c9e239c1fca79ad465fc",
+      "need": "Find the relation of a relationship.",
+      "class": "dcat:Relationship",
+      "property": "dct:relation",
+      "rq2_term": "dct:relation",
+      "label": "relation",
+      "definition": "This property refers to the resource related to the source resource.",
+      "usage_notes": [
+        "Mandatory property.This property refers to the resource related to the source resource. ."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:relationship_relation"
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-ed6501794faffdfdbee4",
+      "need": "Identify and describe a license document.",
+      "class": "dct:LicenseDocument",
+      "property": null,
+      "rq2_term": "dct:LicenseDocument",
+      "label": "license document",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-10b705464579158b8ffb",
+      "need": "Find the licence type of a license document.",
+      "class": "dct:LicenseDocument",
+      "property": "dct:type",
+      "rq2_term": "dct:type",
+      "label": "licence type",
+      "definition": "This property refers to a type of licence, e.g. indicating ‘public domain’ or ‘royalties required’.",
+      "usage_notes": [
+        "Recommended property. This property refers to a type of licence, e.g. indicating ‘public domain’ or ‘royalties required’."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-type"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": "http://purl.org/adms/licencetype/1.0"
+    },
+    {
+      "id": "base-99c993def08bfd158566",
+      "need": "Identify and describe a location.",
+      "class": "dct:Location",
+      "property": null,
+      "rq2_term": "dct:Location",
+      "label": "location",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-a0465116110b650b45bf",
+      "need": "Find the bounding box of a location.",
+      "class": "dct:Location",
+      "property": "dcat:bbox",
+      "rq2_term": "dcat:bbox",
+      "label": "bounding box",
+      "definition": "This propert refers to the geographic bounding box of a resource.",
+      "usage_notes": [
+        "Recommended property. This propert refers to the geographic bounding box of a resource."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:location_bbox"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-675cfff421bf56b90d04",
+      "need": "Find the centroid of a location.",
+      "class": "dct:Location",
+      "property": "dcat:centroid",
+      "rq2_term": "dcat:centroid",
+      "label": "centroid",
+      "definition": "This property refers to the geographic center (centroid) of a resource",
+      "usage_notes": [
+        "Recommended property. This property refers to the geographic center (centroid) of a resource."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:location_centroid"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-91c5470b88ebd9c9afde",
+      "need": "Find the geometry of a location.",
+      "class": "dct:Location",
+      "property": "locn:geometry",
+      "rq2_term": "locn:geometry",
+      "label": "geometry",
+      "definition": "This property associates any resource with the corresponding geometry",
+      "usage_notes": [
+        "Optional property. This property associates any resource with the corresponding geometry."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:location_geometry"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-12d543de9e1efa0fd4a5",
+      "need": "Identify and describe a period of time.",
+      "class": "dct:PeriodOfTime",
+      "property": null,
+      "rq2_term": "dct:PeriodOfTime",
+      "label": "period of time",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-7b22ad1e857047451aed",
+      "need": "Find the end date of a period of time.",
+      "class": "dct:PeriodOfTime",
+      "property": "dcat:endDate",
+      "rq2_term": "dcat:endDate",
+      "label": "end date",
+      "definition": "This property contains the end of the period.",
+      "usage_notes": [
+        "Recommended property. This property contains the end of the period."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:period_end_date"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-e481099180ef4f9a00f6",
+      "need": "Find the start date of a period of time.",
+      "class": "dct:PeriodOfTime",
+      "property": "dcat:startDate",
+      "rq2_term": "dcat:startDate",
+      "label": "start date",
+      "definition": "This property contains the start of the period.",
+      "usage_notes": [
+        "Recommended property. This property contains the start of the period."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:period_start_date"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-ec016e602192eac20f28",
+      "need": "Find the has beginning of a period of time.",
+      "class": "dct:PeriodOfTime",
+      "property": "time:hasBeginning",
+      "rq2_term": "time:hasBeginning",
+      "label": "has beginning",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-84cfe03d492fb72447b9",
+      "need": "Find the end of a period of time.",
+      "class": "dct:PeriodOfTime",
+      "property": "time:hasEnd",
+      "rq2_term": "time:hasEnd",
+      "label": "end",
+      "definition": "This property refers to the end of a period or interval.",
+      "usage_notes": [
+        "Optional property. This property refers to the end of a period or interval."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "https://www.w3.org/TR/vocab-dcat-2/#Property:period_has_end"
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-e6de3b0cdfadfed488ae",
+      "need": "Identify and describe an agent.",
+      "class": "foaf:Agent",
+      "property": null,
+      "rq2_term": "foaf:Agent",
+      "label": "agent",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-669922ecf891b3253f36",
+      "need": "Find the type of an agent.",
+      "class": "foaf:Agent",
+      "property": "dct:type",
+      "rq2_term": "dct:type",
+      "label": "type",
+      "definition": "This property refers to a type of the agent that makes the Catalogue or Dataset availabl",
+      "usage_notes": [
+        "Recommended property. This property refers to a type of the agent that makes the Catalogue or Dataset available"
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-type"
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-090fa9c680412e96cfb2",
+      "need": "Find the name of an agent.",
+      "class": "foaf:Agent",
+      "property": "foaf:name",
+      "rq2_term": "foaf:name",
+      "label": "name",
+      "definition": "This property can be repeated for different versions of the name (e.g. the name in different languages)",
+      "usage_notes": [
+        "Mandatory property. This property contains a name of the agent. This property can be repeated for different versions of the name (e.g. the name in different languages)"
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://xmlns.com/foaf/spec/#term_name"
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-c90e2c23d860c033c25f",
+      "need": "Identify and describe a concept.",
+      "class": "skos:Concept",
+      "property": null,
+      "rq2_term": "skos:Concept",
+      "label": "concept",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-1e3f875bae2ba3714b9e",
+      "need": "Find the preferred label of a concept.",
+      "class": "skos:Concept",
+      "property": "skos:prefLabel",
+      "rq2_term": "skos:prefLabel",
+      "label": "preferred label",
+      "definition": "This property can be repeated for parallel language versions of the label.",
+      "usage_notes": [
+        "Mandatory property. This property contains a preferred label of the category. This property can be repeated for parallel language versions of the label."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://www.w3.org/2009/08/skos-reference/skos.html#prefLabel"
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-d8c75d07441686df2d19",
+      "need": "Identify and describe a concept scheme.",
+      "class": "skos:ConceptScheme",
+      "property": null,
+      "rq2_term": "skos:ConceptScheme",
+      "label": "concept scheme",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-2766fe0d44cb303e9fd0",
+      "need": "Find the title of a concept scheme.",
+      "class": "skos:ConceptScheme",
+      "property": "dct:title",
+      "rq2_term": "dct:title",
+      "label": "title",
+      "definition": "This property contains a name of the category scheme. May be repeated for different versions of the name",
+      "usage_notes": [
+        "Mandatory property. This property contains a name of the category scheme. May be repeated for different versions of the name"
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://dublincore.org/documents/dcmi-terms/#terms-title"
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-7ce20f3acf581844c790",
+      "need": "Identify and describe a checksum.",
+      "class": "spdx:Checksum",
+      "property": null,
+      "rq2_term": "spdx:Checksum",
+      "label": "checksum",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-dc5fda6601982c0c40e4",
+      "need": "Find the algorithm of a checksum.",
+      "class": "spdx:Checksum",
+      "property": "spdx:algorithm",
+      "rq2_term": "spdx:algorithm",
+      "label": "algorithm",
+      "definition": "Identifies the algorithm used to produce the subject Checksum. Currently, SHA-1 is the only supported algorithm. It is anticipated that other algorithms will be supported at a later time.",
+      "usage_notes": [
+        "Mandatory property. This property identifies the algorithm used to produce the subject Checksum. Currently, SHA-1 is the only supported algorithm. It is anticipated that other algorithms will be supported at a later time."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://spdx.org/rdf/terms/#algorithm"
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-001d766d9528af0d8005",
+      "need": "Find the checksum value of a checksum.",
+      "class": "spdx:Checksum",
+      "property": "spdx:checksumValue",
+      "rq2_term": "spdx:checksumValue",
+      "label": "checksum value",
+      "definition": "This property provides a lower case hexadecimal encoded digest value produced using a specific algorithm.",
+      "usage_notes": [
+        "Mandatory property. This property provides a lower case hexadecimal encoded digest value produced using a specific algorithm."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/2.1.1/dcat-ap_2.1.1.rdf",
+          "sha256": "1213214797a8a8c50a7e5240b470fe1cd6f97746b3698078e6bdaebbd4a69e61",
+          "anchor": "http://spdx.org/rdf/terms/#checksumValue"
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    }
+  ],
+  "catalogue_hash": "725184f6b9417deef570b89c020abc8f99b9e0d6a99d97387ae3a8102e8ab2bb"
+}

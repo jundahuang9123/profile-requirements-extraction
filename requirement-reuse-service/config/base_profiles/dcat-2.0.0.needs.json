@@ -1,0 +1,3329 @@
+{
+  "base_profile_id": "dcat-2.0.0",
+  "base_profile_sha256": "7c9f715ac49f51e239d5e388d879b68022b86ae77d9f9f7a8384f1eefa4934a5",
+  "policy_version": "rq1-base-needs-catalogue-v2",
+  "phrasing": "deterministic labels; verbatim pinned definitions and usage notes",
+  "review": {
+    "status": "unreviewed",
+    "reviewer": null,
+    "reviewed_at": null
+  },
+  "entries": [
+    {
+      "id": "base-c4e0853b8e20c3603540",
+      "need": "Identify and describe a catalog.",
+      "class": "dcat:Catalog",
+      "property": null,
+      "rq2_term": "dcat:Catalog",
+      "label": "catalog",
+      "definition": "A curated collection of metadata about resources (e.g., datasets and data services in the context of a data catalog)",
+      "usage_notes": [
+        "A Web-based data catalog is typically represented as a single instance of this class."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Class:Catalog"
+        }
+      ],
+      "base_obligation": null
+    },
+    {
+      "id": "base-50792ccc53b1f41d32a0",
+      "need": "Find the catalog of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:catalog",
+      "rq2_term": "dcat:catalog",
+      "label": "catalog",
+      "definition": "A catalog whose contents are of interest in the context of this catalog.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:catalog_catalog"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-466520721d24ccc5673c",
+      "need": "Find the contact point of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:contactPoint",
+      "rq2_term": "dcat:contactPoint",
+      "label": "contact point",
+      "definition": "Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_contact_point",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-6d14ce208a675d28beb4",
+      "need": "Find the dataset of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:dataset",
+      "rq2_term": "dcat:dataset",
+      "label": "dataset",
+      "definition": "A collection of data that is listed in the catalog.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:catalog_dataset"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-4ea2a466f66e3482e083",
+      "need": "Find the dataset distribution of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:distribution",
+      "rq2_term": "dcat:distribution",
+      "label": "dataset distribution",
+      "definition": "An available distribution of the dataset.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:dataset_distribution",
+          "inherited_from": "dcat:Dataset"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-09be5f7e303dec685010",
+      "need": "Find the keyword/tag of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:keyword",
+      "rq2_term": "dcat:keyword",
+      "label": "keyword/tag",
+      "definition": "A keyword or tag describing the resource.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_keyword",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-3842886e5857561626d0",
+      "need": "Find the landing page of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:landingPage",
+      "rq2_term": "dcat:landingPage",
+      "label": "landing page",
+      "definition": "A Web page that can be navigated to in a Web browser to gain access to the catalog, a dataset, its distributions and/or additional information.",
+      "usage_notes": [
+        "If the distribution(s) are accessible only through a landing page (i.e. direct download URLs are not known), then the landing page link SHOULD be duplicated as dcat:accessURL on a distribution. (see § 5.7 Dataset available only behind some Web page)"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_landing_page",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-19018ecd7a5b58070008",
+      "need": "Find the qualified relation of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:qualifiedRelation",
+      "rq2_term": "dcat:qualifiedRelation",
+      "label": "qualified relation",
+      "definition": "Link to a description of a relationship with another resource",
+      "usage_notes": [
+        "Used to link to another resource where the nature of the relationship is known but does not match one of the standard [DCTERMS] properties (dct:hasPart, dct:isPartOf, dct:conformsTo, dct:isFormatOf, dct:hasFormat, dct:isVersionOf, dct:hasVersion, dct:replaces, dct:isReplacedBy, dct:references, dct:isReferencedBy, dct:requires, dct:isRequiredBy) or [PROV-O] properties (prov:wasDerivedFrom, prov:wasInfluencedBy, prov:wasQuotedFrom, prov:wasRevisionOf, prov:hadPrimarySource, prov:alternateOf, prov:specializationOf)."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_qualified_relation",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-1a088e69a8a92555b764",
+      "need": "Find the catalog record of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:record",
+      "rq2_term": "dcat:record",
+      "label": "catalog record",
+      "definition": "A record describing the registration of a single dataset or data service that is part of the catalog.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:catalog_catalog_record"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-1bff4976ea3c1be34693",
+      "need": "Find the service of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:service",
+      "rq2_term": "dcat:service",
+      "label": "service",
+      "definition": "A site or end-point that is listed in the catalog.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:catalog_service"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-73dd0dcf6ec19757ab98",
+      "need": "Find the spatial resolution in meters of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:spatialResolutionInMeters",
+      "rq2_term": "dcat:spatialResolutionInMeters",
+      "label": "spatial resolution in meters",
+      "definition": "Minimum spatial separation resolvable in a dataset, measured in meters.",
+      "usage_notes": [
+        "If the dataset is an image or grid this should correspond to the spacing of items. For other kinds of spatial datasets, this property will usually indicate the smallest distance between items in the dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:dataset_spatial_resolution",
+          "inherited_from": "dcat:Dataset"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-a022c0953d3892f0e6e0",
+      "need": "Find the temporal resolution of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:temporalResolution",
+      "rq2_term": "dcat:temporalResolution",
+      "label": "temporal resolution",
+      "definition": "Minimum time period resolvable in the dataset.",
+      "usage_notes": [
+        "If the dataset is a time-series this should correspond to the spacing of items in the series. For other kinds of dataset, this property will usually indicate the smallest time difference between items in the dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:dataset_temporal_resolution",
+          "inherited_from": "dcat:Dataset"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-f574ba605ccf3119cdd7",
+      "need": "Find the theme/category of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:theme",
+      "rq2_term": "dcat:theme",
+      "label": "theme/category",
+      "definition": "A main category of the resource. A resource can have multiple themes.",
+      "usage_notes": [
+        "The set of skos:Concepts used to categorize the resources are organized in a skos:ConceptScheme describing all the categories and their relations in the catalog."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_theme",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-a9ab7820d73ff2cfc021",
+      "need": "Find the themes of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:themeTaxonomy",
+      "rq2_term": "dcat:themeTaxonomy",
+      "label": "themes",
+      "definition": "A knowledge organization system (KOS) used to classify catalog's datasets and services.",
+      "usage_notes": [
+        "It is recommended that the taxonomy is organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar, which allows each member to be denoted by an IRI and published as Linked Data."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:catalog_themes"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-1baaba3a25e5bb32d30e",
+      "need": "Find the access restrictions of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:accessRights",
+      "rq2_term": "dct:accessRights",
+      "label": "access restrictions",
+      "definition": "Information about who can access the resource or an indication of its security status.",
+      "usage_notes": [
+        "Information about licenses and rights MAY be provided for the Resource. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_access_rights",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-a9af83b38b46e8cb9e4c",
+      "need": "Find the frequency of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:accrualPeriodicity",
+      "rq2_term": "dct:accrualPeriodicity",
+      "label": "frequency",
+      "definition": "The frequency at which dataset is published.",
+      "usage_notes": [
+        "The value of dct:accrualPeriodicity gives the rate at which the dataset-as-a-whole is updated. This may be complemented by dcat:temporalResolution to give the time between collected data points in a time series."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:dataset_frequency",
+          "inherited_from": "dcat:Dataset"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-8b21777000a0010d567e",
+      "need": "Find the conformance of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:conformsTo",
+      "rq2_term": "dct:conformsTo",
+      "label": "conformance",
+      "definition": "An established standard to which the described resource conforms.",
+      "usage_notes": [
+        "This property SHOULD be used to indicate the model, schema, ontology, view or profile that the cataloged resource content conforms to."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_conforms_to",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-33d991ad8d0704925ca0",
+      "need": "Find the resource creator of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:creator",
+      "rq2_term": "dct:creator",
+      "label": "resource creator",
+      "definition": "The entity responsible for producing the resource.",
+      "usage_notes": [
+        "Resources of type foaf:Agent are recommended as values for this property."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_creator",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-6b26bdd8b730fcb8a6d8",
+      "need": "Find the description of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:description",
+      "rq2_term": "dct:description",
+      "label": "description",
+      "definition": "A free-text account of the item.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_description",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-3e5e33729360a1bc8dca",
+      "need": "Find the has part of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:hasPart",
+      "rq2_term": "dct:hasPart",
+      "label": "has part",
+      "definition": "An item that is listed in the catalog.",
+      "usage_notes": [
+        "This is the most general predicate for membership of a catalog. Use of a more specific sub-property is recommended when available."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:catalog_has_part"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-0014e445f2cf69f29297",
+      "need": "Find the identifier of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:identifier",
+      "rq2_term": "dct:identifier",
+      "label": "identifier",
+      "definition": "A unique identifier of the item.",
+      "usage_notes": [
+        "The identifier might be used as part of the URI of the item, but still having it represented explicitly is useful."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_identifier",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-ca805a3ab3ef40b3b6fd",
+      "need": "Find the is referenced by of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:isReferencedBy",
+      "rq2_term": "dct:isReferencedBy",
+      "label": "is referenced by",
+      "definition": "A related resource, such as a publication, that references, cites, or otherwise points to the cataloged resource.",
+      "usage_notes": [
+        "This property is used to associate a resource with the resource (of type dcat:Resource) in question. For other relations to resources not covered with this property, the more generic property dcat:qualifiedRelation can be used. See also § 13. Qualified relations."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_is_referenced_by",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-66b14aabd2db6d505f58",
+      "need": "Find the issued of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:issued",
+      "rq2_term": "dct:issued",
+      "label": "issued",
+      "definition": "Date of formal issuance (e.g., publication) of the item.",
+      "usage_notes": [
+        "This property SHOULD be set using the first known date of issuance."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_release_date",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-0fcbfef57a1fb1aabd49",
+      "need": "Find the language of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:language",
+      "rq2_term": "dct:language",
+      "label": "language",
+      "definition": "A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution",
+      "usage_notes": [
+        "If representations of a dataset are available for each language separately, define an instance of dcat:Distribution for each language and describe the specific language of each distribution using dct:language (i.e. the dataset will have multiple dct:language values and each distribution will have just one as the value of its dct:language property)."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_language",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-b15f9613392d4daf47b6",
+      "need": "Find the licence of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:license",
+      "rq2_term": "dct:license",
+      "label": "licence",
+      "definition": "A legal document under which the resource is made available.",
+      "usage_notes": [
+        "Information about licenses and rights MAY be provided for the Resource. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_license",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-4161e09cfcf3496fe97a",
+      "need": "Find the last modified of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:modified",
+      "rq2_term": "dct:modified",
+      "label": "last modified",
+      "definition": "Most recent date on which the item was changed, updated or modified.",
+      "usage_notes": [
+        "The value of this property indicates a change to the actual item, not a change to the catalog record. An absent value MAY indicate that the item has never changed after its initial publication, or that the date of last modification is not known, or that the item is continuously updated."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_update_date",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-aea0c7b652b1ee56e4bc",
+      "need": "Find the publisher of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:publisher",
+      "rq2_term": "dct:publisher",
+      "label": "publisher",
+      "definition": "The entity responsible for making the item available.",
+      "usage_notes": [
+        "Resources of type foaf:Agent are recommended as values for this property."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_publisher",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-6034d80b5ea8e8aece28",
+      "need": "Find the relation of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:relation",
+      "rq2_term": "dct:relation",
+      "label": "relation",
+      "definition": "A resource with an unspecified relationship to the cataloged item.",
+      "usage_notes": [
+        "dct:relation SHOULD be used where the nature of the relationship between a cataloged item and related resources is not known. A more specific sub-property SHOULD be used if the nature of the relationship of the link is known. The property dcat:distribution SHOULD be used to link from a dcat:Dataset to a representation of the dataset, described as a dcat:Distribution"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_relation",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-286042dc79a6d8120b30",
+      "need": "Find the rights of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:rights",
+      "rq2_term": "dct:rights",
+      "label": "rights",
+      "definition": "A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.",
+      "usage_notes": [
+        "Information about licenses and rights MAY be provided for the Resource. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_rights",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-843582b5995c75134683",
+      "need": "Find the spatial/geographical coverage of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:spatial",
+      "rq2_term": "dct:spatial",
+      "label": "spatial/geographical coverage",
+      "definition": "The geographical area covered by the dataset.",
+      "usage_notes": [
+        "The spatial coverage of a dataset may be encoded as an instance of dct:Location, or may be indicated using a URI reference (link) to a resource describing a location. It is recommended that links are to entries in a well maintained gazetteer such as Geonames."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:dataset_spatial",
+          "inherited_from": "dcat:Dataset"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-81e37bfb9237c5c44fe0",
+      "need": "Find the temporal coverage of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:temporal",
+      "rq2_term": "dct:temporal",
+      "label": "temporal coverage",
+      "definition": "The temporal period that the dataset covers.",
+      "usage_notes": [
+        "The temporal coverage of a dataset may be encoded as an instance of dct:PeriodOfTime, or may be indicated using a URI reference (link) to a resource describing a time period or interval."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:dataset_temporal",
+          "inherited_from": "dcat:Dataset"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-86338872b8b1e3656bce",
+      "need": "Find the title of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:title",
+      "rq2_term": "dct:title",
+      "label": "title",
+      "definition": "A name given to the item.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_title",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-6bdfba28bdef5cc26e20",
+      "need": "Find the type/genre of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:type",
+      "rq2_term": "dct:type",
+      "label": "type/genre",
+      "definition": "The nature or genre of the resource.",
+      "usage_notes": [
+        "To describe the file format, physical medium, or dimensions of the resource, use the dct:format element."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_type",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-5c26cce3ced476f47ba2",
+      "need": "Find the homepage of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "foaf:homepage",
+      "rq2_term": "foaf:homepage",
+      "label": "homepage",
+      "definition": "A homepage of the catalog (a public Web document usually available in HTML).",
+      "usage_notes": [
+        "foaf:homepage is an inverse functional property (IFP) which means that it MUST be unique and precisely identify the Web-page for the resource. This property indicates the canonical Web-page, which might be helpful in cases where there is more than one Web-page about the resource."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:catalog_homepage"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-a9c4a71627d0be0004e5",
+      "need": "Find the has policy of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "odrl:hasPolicy",
+      "rq2_term": "odrl:hasPolicy",
+      "label": "has policy",
+      "definition": "An ODRL conformant policy expressing the rights associated with the resource.",
+      "usage_notes": [
+        "Information about rights expressed as an ODRL policy [ODRL-MODEL] using the ODRL vocabulary [ODRL-VOCAB] MAY be provided for the resource. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_has_policy",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-693c9d860fdc1f56ede0",
+      "need": "Find the qualified attribution of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "prov:qualifiedAttribution",
+      "rq2_term": "prov:qualifiedAttribution",
+      "label": "qualified attribution",
+      "definition": "Link to an Agent having some form of responsibility for the resource",
+      "usage_notes": [
+        "Used to link to an Agent where the nature of the relationship is known but does not match one of the standard [DCTERMS] properties (dct:creator, dct:publisher). Use dcat:hadRole on the prov:Attribution to capture the responsibility of the Agent with respect to the Resource. See § 13.1 Relationships between datasets and agents for usage examples."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_qualified_attribution",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-ddf5ba28a9493d01cc07",
+      "need": "Find the was generated by of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "prov:wasGeneratedBy",
+      "rq2_term": "prov:wasGeneratedBy",
+      "label": "was generated by",
+      "definition": "An activity that generated, or provides the business context for, the creation of the dataset.",
+      "usage_notes": [
+        "Use prov:qualifiedGeneration to attach additional details about the relationship between the dataset and the activity, e.g. the exact time that the dataset was produced during the lifetime of a project"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:dataset_was_generated_by",
+          "inherited_from": "dcat:Dataset"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-78969a0be907554bf552",
+      "need": "Identify and describe a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": null,
+      "rq2_term": "dcat:CatalogRecord",
+      "label": "catalog record",
+      "definition": "A record in a catalog, describing the registration of a single dcat:Resource.",
+      "usage_notes": [
+        "This class is optional and not all catalogs will use it. It exists for catalogs where a distinction is made between metadata about a dataset or service and metadata about the entry in the catalog about the dataset or service. For example, the publication date property of the dataset reflects the date when the information was originally made available by the publishing agency, while the publication date of the catalog record is the date when the dataset was added to the catalog. In cases where both dates differ, or where only the latter is known, the publication date SHOULD only be specified for the catalog record. Notice that the W3C PROV Ontology [PROV-O] allows describing further provenance information such as the details of the process and the agent involved in a particular change to a dataset or its registration."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Class:Catalog_Record"
+        }
+      ],
+      "base_obligation": null
+    },
+    {
+      "id": "base-35cc35fe2f83d0f4ee0a",
+      "need": "Find the conforms to of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "dct:conformsTo",
+      "rq2_term": "dct:conformsTo",
+      "label": "conforms to",
+      "definition": "An established standard to which the described resource conforms.",
+      "usage_notes": [
+        "This property SHOULD be used to indicate the model, schema, ontology, view or profile that the catalog record metadata conforms to."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:record_conforms_to"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-9150cd2082a0b24760f3",
+      "need": "Find the description of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "dct:description",
+      "rq2_term": "dct:description",
+      "label": "description",
+      "definition": "A free-text account of the record.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:record_description"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-2d16e2fb79d40b864455",
+      "need": "Find the listing date of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "dct:issued",
+      "rq2_term": "dct:issued",
+      "label": "listing date",
+      "definition": "The date of listing (i.e. formal recording) of the corresponding dataset or service in the catalog.",
+      "usage_notes": [
+        "This indicates the date of listing the dataset in the catalog and not the publication date of the dataset itself."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:record_listing_date"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-929f74bd034b1750fa3b",
+      "need": "Find the update/modification date of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "dct:modified",
+      "rq2_term": "dct:modified",
+      "label": "update/modification date",
+      "definition": "Most recent date on which the catalog entry was changed, updated or modified.",
+      "usage_notes": [
+        "This indicates the date of last change of a catalog entry, i.e. the catalog metadata description of the dataset, and not the date of the dataset itself."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:record_update_date"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-9f233be59faa4f5d0025",
+      "need": "Find the title of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "dct:title",
+      "rq2_term": "dct:title",
+      "label": "title",
+      "definition": "A name given to the record.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:record_title"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-d4336d48e3d7bb7cf4e2",
+      "need": "Find the primary topic of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "foaf:primaryTopic",
+      "rq2_term": "foaf:primaryTopic",
+      "label": "primary topic",
+      "definition": "The dcat:Resource (dataset or service) described in the record.",
+      "usage_notes": [
+        "foaf:primaryTopic property is functional: each catalog record can have at most one primary topic i.e. describes one dataset or service."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:record_primary_topic"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-4f067c81f1d429294126",
+      "need": "Identify and describe a data service.",
+      "class": "dcat:DataService",
+      "property": null,
+      "rq2_term": "dcat:DataService",
+      "label": "data service",
+      "definition": "A collection of operations that provides access to one or more datasets or data processing functions.",
+      "usage_notes": [
+        "The kind of service can be indicated using the dct:type property. Its value may be taken from a controlled vocabulary such as the INSPIRE spatial data service type code list [INSPIRE-SDST]."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Class:Data_Service"
+        }
+      ],
+      "base_obligation": null
+    },
+    {
+      "id": "base-1cda2a3d3790e86f8ba3",
+      "need": "Find the contact of a data service.",
+      "class": "dcat:DataService",
+      "property": "dcat:contactPoint",
+      "rq2_term": "dcat:contactPoint",
+      "label": "contact",
+      "definition": "Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_contact_point",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-a1a499fec578f4a4710d",
+      "need": "Find the endpoint description of a data service.",
+      "class": "dcat:DataService",
+      "property": "dcat:endpointDescription",
+      "rq2_term": "dcat:endpointDescription",
+      "label": "endpoint description",
+      "definition": "A description of the services available via the end-points, including their operations, parameters etc.",
+      "usage_notes": [
+        "An endpoint description may be expressed in a machine-readable form, such as an OpenAPI (Swagger) description [OpenAPI], an OGC GetCapabilities response [WFS], [ISO-19142], [WMS], [ISO-19128], a SPARQL Service Description [SPARQL11-SERVICE-DESCRIPTION], an [OpenSearch] or [WSDL20] document, a Hydra API description [HYDRA], else in text or some other informal mode if a formal representation is not possible."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:data_service_endpoint_description"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-0ab2b856d358ff2a3e2c",
+      "need": "Find the endpoint url of a data service.",
+      "class": "dcat:DataService",
+      "property": "dcat:endpointURL",
+      "rq2_term": "dcat:endpointURL",
+      "label": "endpoint url",
+      "definition": "The root location or primary endpoint of the service (a Web-resolvable IRI).",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:data_service_endpoint_url"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-225a944cf5700262a174",
+      "need": "Find the keyword of a data service.",
+      "class": "dcat:DataService",
+      "property": "dcat:keyword",
+      "rq2_term": "dcat:keyword",
+      "label": "keyword",
+      "definition": "A keyword or tag describing the resource.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_keyword",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-90c655d022c6c16c3b48",
+      "need": "Find the landing page of a data service.",
+      "class": "dcat:DataService",
+      "property": "dcat:landingPage",
+      "rq2_term": "dcat:landingPage",
+      "label": "landing page",
+      "definition": "A Web page that can be navigated to in a Web browser to gain access to the catalog, a dataset, its distributions and/or additional information.",
+      "usage_notes": [
+        "If the distribution(s) are accessible only through a landing page (i.e. direct download URLs are not known), then the landing page link SHOULD be duplicated as dcat:accessURL on a distribution. (see § 5.7 Dataset available only behind some Web page)"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_landing_page",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-0430572cc27abd846be5",
+      "need": "Find the qualified relation of a data service.",
+      "class": "dcat:DataService",
+      "property": "dcat:qualifiedRelation",
+      "rq2_term": "dcat:qualifiedRelation",
+      "label": "qualified relation",
+      "definition": "Link to a description of a relationship with another resource",
+      "usage_notes": [
+        "Used to link to another resource where the nature of the relationship is known but does not match one of the standard [DCTERMS] properties (dct:hasPart, dct:isPartOf, dct:conformsTo, dct:isFormatOf, dct:hasFormat, dct:isVersionOf, dct:hasVersion, dct:replaces, dct:isReplacedBy, dct:references, dct:isReferencedBy, dct:requires, dct:isRequiredBy) or [PROV-O] properties (prov:wasDerivedFrom, prov:wasInfluencedBy, prov:wasQuotedFrom, prov:wasRevisionOf, prov:hadPrimarySource, prov:alternateOf, prov:specializationOf)."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_qualified_relation",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-bc8fc964bb1b14fb2ff5",
+      "need": "Find the serves dataset of a data service.",
+      "class": "dcat:DataService",
+      "property": "dcat:servesDataset",
+      "rq2_term": "dcat:servesDataset",
+      "label": "serves dataset",
+      "definition": "A collection of data that this data service can distribute.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:data_service_serves_dataset"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-c57c3a7e159932a32857",
+      "need": "Find the theme of a data service.",
+      "class": "dcat:DataService",
+      "property": "dcat:theme",
+      "rq2_term": "dcat:theme",
+      "label": "theme",
+      "definition": "A main category of the resource. A resource can have multiple themes.",
+      "usage_notes": [
+        "The set of skos:Concepts used to categorize the resources are organized in a skos:ConceptScheme describing all the categories and their relations in the catalog."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_theme",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-2c41fa812e8428857422",
+      "need": "Find the access restrictions of a data service.",
+      "class": "dcat:DataService",
+      "property": "dct:accessRights",
+      "rq2_term": "dct:accessRights",
+      "label": "access restrictions",
+      "definition": "Information about who can access the resource or an indication of its security status.",
+      "usage_notes": [
+        "Information about licenses and rights MAY be provided for the Resource. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_access_rights",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-2cf2976a6775ac199fee",
+      "need": "Find the conformance of a data service.",
+      "class": "dcat:DataService",
+      "property": "dct:conformsTo",
+      "rq2_term": "dct:conformsTo",
+      "label": "conformance",
+      "definition": "An established standard to which the described resource conforms.",
+      "usage_notes": [
+        "This property SHOULD be used to indicate the model, schema, ontology, view or profile that the cataloged resource content conforms to."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_conforms_to",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-dfb4e8dc9a8bc888a0ed",
+      "need": "Find the creator of a data service.",
+      "class": "dcat:DataService",
+      "property": "dct:creator",
+      "rq2_term": "dct:creator",
+      "label": "creator",
+      "definition": "The entity responsible for producing the resource.",
+      "usage_notes": [
+        "Resources of type foaf:Agent are recommended as values for this property."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_creator",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-b6c4361b65a69181c029",
+      "need": "Find the description of a data service.",
+      "class": "dcat:DataService",
+      "property": "dct:description",
+      "rq2_term": "dct:description",
+      "label": "description",
+      "definition": "A free-text account of the item.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_description",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-4f286bafc219c9310738",
+      "need": "Find the identifier of a data service.",
+      "class": "dcat:DataService",
+      "property": "dct:identifier",
+      "rq2_term": "dct:identifier",
+      "label": "identifier",
+      "definition": "A unique identifier of the item.",
+      "usage_notes": [
+        "The identifier might be used as part of the URI of the item, but still having it represented explicitly is useful."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_identifier",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-92f5f70b8700107521fb",
+      "need": "Find the is referenced by of a data service.",
+      "class": "dcat:DataService",
+      "property": "dct:isReferencedBy",
+      "rq2_term": "dct:isReferencedBy",
+      "label": "is referenced by",
+      "definition": "A related resource, such as a publication, that references, cites, or otherwise points to the cataloged resource.",
+      "usage_notes": [
+        "This property is used to associate a resource with the resource (of type dcat:Resource) in question. For other relations to resources not covered with this property, the more generic property dcat:qualifiedRelation can be used. See also § 13. Qualified relations."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_is_referenced_by",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-34f4670db24a63c57a5b",
+      "need": "Find the issued of a data service.",
+      "class": "dcat:DataService",
+      "property": "dct:issued",
+      "rq2_term": "dct:issued",
+      "label": "issued",
+      "definition": "Date of formal issuance (e.g., publication) of the item.",
+      "usage_notes": [
+        "This property SHOULD be set using the first known date of issuance."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_release_date",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-8c3e125d86659408f13c",
+      "need": "Find the language of a data service.",
+      "class": "dcat:DataService",
+      "property": "dct:language",
+      "rq2_term": "dct:language",
+      "label": "language",
+      "definition": "A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution",
+      "usage_notes": [
+        "If representations of a dataset are available for each language separately, define an instance of dcat:Distribution for each language and describe the specific language of each distribution using dct:language (i.e. the dataset will have multiple dct:language values and each distribution will have just one as the value of its dct:language property)."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_language",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-da6f7d65a6b8831c7a7e",
+      "need": "Find the licence of a data service.",
+      "class": "dcat:DataService",
+      "property": "dct:license",
+      "rq2_term": "dct:license",
+      "label": "licence",
+      "definition": "A legal document under which the resource is made available.",
+      "usage_notes": [
+        "Information about licenses and rights MAY be provided for the Resource. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_license",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-26bc9e66a7067f06c544",
+      "need": "Find the last modified of a data service.",
+      "class": "dcat:DataService",
+      "property": "dct:modified",
+      "rq2_term": "dct:modified",
+      "label": "last modified",
+      "definition": "Most recent date on which the item was changed, updated or modified.",
+      "usage_notes": [
+        "The value of this property indicates a change to the actual item, not a change to the catalog record. An absent value MAY indicate that the item has never changed after its initial publication, or that the date of last modification is not known, or that the item is continuously updated."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_update_date",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-ed04ae7d669e4fb139d3",
+      "need": "Find the publisher of a data service.",
+      "class": "dcat:DataService",
+      "property": "dct:publisher",
+      "rq2_term": "dct:publisher",
+      "label": "publisher",
+      "definition": "The entity responsible for making the item available.",
+      "usage_notes": [
+        "Resources of type foaf:Agent are recommended as values for this property."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_publisher",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-5375b9bafed8a94ce8b8",
+      "need": "Find the relation of a data service.",
+      "class": "dcat:DataService",
+      "property": "dct:relation",
+      "rq2_term": "dct:relation",
+      "label": "relation",
+      "definition": "A resource with an unspecified relationship to the cataloged item.",
+      "usage_notes": [
+        "dct:relation SHOULD be used where the nature of the relationship between a cataloged item and related resources is not known. A more specific sub-property SHOULD be used if the nature of the relationship of the link is known. The property dcat:distribution SHOULD be used to link from a dcat:Dataset to a representation of the dataset, described as a dcat:Distribution"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_relation",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-bd174eab4f19a1009a1c",
+      "need": "Find the rights of a data service.",
+      "class": "dcat:DataService",
+      "property": "dct:rights",
+      "rq2_term": "dct:rights",
+      "label": "rights",
+      "definition": "A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.",
+      "usage_notes": [
+        "Information about licenses and rights MAY be provided for the Resource. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_rights",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-d19257a06dfc24850ec2",
+      "need": "Find the title of a data service.",
+      "class": "dcat:DataService",
+      "property": "dct:title",
+      "rq2_term": "dct:title",
+      "label": "title",
+      "definition": "A name given to the item.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_title",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-037a3e5eaee5498b87eb",
+      "need": "Find the type of a data service.",
+      "class": "dcat:DataService",
+      "property": "dct:type",
+      "rq2_term": "dct:type",
+      "label": "type",
+      "definition": "The nature or genre of the resource.",
+      "usage_notes": [
+        "To describe the file format, physical medium, or dimensions of the resource, use the dct:format element."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_type",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-3209a2a6aa86fe36b05f",
+      "need": "Find the has policy of a data service.",
+      "class": "dcat:DataService",
+      "property": "odrl:hasPolicy",
+      "rq2_term": "odrl:hasPolicy",
+      "label": "has policy",
+      "definition": "An ODRL conformant policy expressing the rights associated with the resource.",
+      "usage_notes": [
+        "Information about rights expressed as an ODRL policy [ODRL-MODEL] using the ODRL vocabulary [ODRL-VOCAB] MAY be provided for the resource. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_has_policy",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-749a1e63a227a1720e0b",
+      "need": "Find the qualified attribution of a data service.",
+      "class": "dcat:DataService",
+      "property": "prov:qualifiedAttribution",
+      "rq2_term": "prov:qualifiedAttribution",
+      "label": "qualified attribution",
+      "definition": "Link to an Agent having some form of responsibility for the resource",
+      "usage_notes": [
+        "Used to link to an Agent where the nature of the relationship is known but does not match one of the standard [DCTERMS] properties (dct:creator, dct:publisher). Use dcat:hadRole on the prov:Attribution to capture the responsibility of the Agent with respect to the Resource. See § 13.1 Relationships between datasets and agents for usage examples."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_qualified_attribution",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-687378cb550bcaadbd06",
+      "need": "Identify and describe a dataset.",
+      "class": "dcat:Dataset",
+      "property": null,
+      "rq2_term": "dcat:Dataset",
+      "label": "dataset",
+      "definition": "A collection of data, published or curated by a single agent, and available for access or download in one or more representations.",
+      "usage_notes": [
+        "This class describes the actual dataset as published by the dataset provider. In cases where a distinction between the actual dataset and its entry in the catalog is necessary (because metadata such as modification date might differ), the catalog record class can be used for the latter."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Class:Dataset"
+        }
+      ],
+      "base_obligation": null
+    },
+    {
+      "id": "base-55c2aafc7a94306fbd74",
+      "need": "Find the contact of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:contactPoint",
+      "rq2_term": "dcat:contactPoint",
+      "label": "contact",
+      "definition": "Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_contact_point",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-8a5e74bd105430f996a7",
+      "need": "Find the dataset distribution of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:distribution",
+      "rq2_term": "dcat:distribution",
+      "label": "dataset distribution",
+      "definition": "An available distribution of the dataset.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:dataset_distribution"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-67fec8d5e063ea832091",
+      "need": "Find the keyword of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:keyword",
+      "rq2_term": "dcat:keyword",
+      "label": "keyword",
+      "definition": "A keyword or tag describing the resource.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_keyword",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-64867a6c8a5c29eb76b0",
+      "need": "Find the landing page of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:landingPage",
+      "rq2_term": "dcat:landingPage",
+      "label": "landing page",
+      "definition": "A Web page that can be navigated to in a Web browser to gain access to the catalog, a dataset, its distributions and/or additional information.",
+      "usage_notes": [
+        "If the distribution(s) are accessible only through a landing page (i.e. direct download URLs are not known), then the landing page link SHOULD be duplicated as dcat:accessURL on a distribution. (see § 5.7 Dataset available only behind some Web page)"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_landing_page",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-b917a9578323263cd8e0",
+      "need": "Find the qualified relation of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:qualifiedRelation",
+      "rq2_term": "dcat:qualifiedRelation",
+      "label": "qualified relation",
+      "definition": "Link to a description of a relationship with another resource",
+      "usage_notes": [
+        "Used to link to another resource where the nature of the relationship is known but does not match one of the standard [DCTERMS] properties (dct:hasPart, dct:isPartOf, dct:conformsTo, dct:isFormatOf, dct:hasFormat, dct:isVersionOf, dct:hasVersion, dct:replaces, dct:isReplacedBy, dct:references, dct:isReferencedBy, dct:requires, dct:isRequiredBy) or [PROV-O] properties (prov:wasDerivedFrom, prov:wasInfluencedBy, prov:wasQuotedFrom, prov:wasRevisionOf, prov:hadPrimarySource, prov:alternateOf, prov:specializationOf)."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_qualified_relation",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-545540ea9df198ca48fe",
+      "need": "Find the spatial resolution of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:spatialResolutionInMeters",
+      "rq2_term": "dcat:spatialResolutionInMeters",
+      "label": "spatial resolution",
+      "definition": "Minimum spatial separation resolvable in a dataset, measured in meters.",
+      "usage_notes": [
+        "If the dataset is an image or grid this should correspond to the spacing of items. For other kinds of spatial datasets, this property will usually indicate the smallest distance between items in the dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:dataset_spatial_resolution"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-9c691f9fa7c21ed0bdd3",
+      "need": "Find the temporal resolution of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:temporalResolution",
+      "rq2_term": "dcat:temporalResolution",
+      "label": "temporal resolution",
+      "definition": "Minimum time period resolvable in the dataset.",
+      "usage_notes": [
+        "If the dataset is a time-series this should correspond to the spacing of items in the series. For other kinds of dataset, this property will usually indicate the smallest time difference between items in the dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:dataset_temporal_resolution"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-475c94cd395c1ca9f9c7",
+      "need": "Find the theme of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:theme",
+      "rq2_term": "dcat:theme",
+      "label": "theme",
+      "definition": "A main category of the resource. A resource can have multiple themes.",
+      "usage_notes": [
+        "The set of skos:Concepts used to categorize the resources are organized in a skos:ConceptScheme describing all the categories and their relations in the catalog."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_theme",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-7ad9d1893dbcfdd9de85",
+      "need": "Find the access restrictions of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:accessRights",
+      "rq2_term": "dct:accessRights",
+      "label": "access restrictions",
+      "definition": "Information about who can access the resource or an indication of its security status.",
+      "usage_notes": [
+        "Information about licenses and rights MAY be provided for the Resource. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_access_rights",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-a1db139baf04d36ec774",
+      "need": "Find the frequency of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:accrualPeriodicity",
+      "rq2_term": "dct:accrualPeriodicity",
+      "label": "frequency",
+      "definition": "The frequency at which dataset is published.",
+      "usage_notes": [
+        "The value of dct:accrualPeriodicity gives the rate at which the dataset-as-a-whole is updated. This may be complemented by dcat:temporalResolution to give the time between collected data points in a time series."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:dataset_frequency"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-7fea0f03d287ae3b49a3",
+      "need": "Find the conformance of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:conformsTo",
+      "rq2_term": "dct:conformsTo",
+      "label": "conformance",
+      "definition": "An established standard to which the described resource conforms.",
+      "usage_notes": [
+        "This property SHOULD be used to indicate the model, schema, ontology, view or profile that the cataloged resource content conforms to."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_conforms_to",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-f943d2f2c85d497967a5",
+      "need": "Find the creator of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:creator",
+      "rq2_term": "dct:creator",
+      "label": "creator",
+      "definition": "The entity responsible for producing the resource.",
+      "usage_notes": [
+        "Resources of type foaf:Agent are recommended as values for this property."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_creator",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-2f6637e5f3a7d11c7b4d",
+      "need": "Find the description of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:description",
+      "rq2_term": "dct:description",
+      "label": "description",
+      "definition": "A free-text account of the item.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_description",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-27f2e40747c6ac2c1157",
+      "need": "Find the identifier of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:identifier",
+      "rq2_term": "dct:identifier",
+      "label": "identifier",
+      "definition": "A unique identifier of the item.",
+      "usage_notes": [
+        "The identifier might be used as part of the URI of the item, but still having it represented explicitly is useful."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_identifier",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-c31ad2fbeaa725539c6f",
+      "need": "Find the is referenced by of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:isReferencedBy",
+      "rq2_term": "dct:isReferencedBy",
+      "label": "is referenced by",
+      "definition": "A related resource, such as a publication, that references, cites, or otherwise points to the cataloged resource.",
+      "usage_notes": [
+        "This property is used to associate a resource with the resource (of type dcat:Resource) in question. For other relations to resources not covered with this property, the more generic property dcat:qualifiedRelation can be used. See also § 13. Qualified relations."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_is_referenced_by",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-b9fd8228661b9b9394e6",
+      "need": "Find the issued of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:issued",
+      "rq2_term": "dct:issued",
+      "label": "issued",
+      "definition": "Date of formal issuance (e.g., publication) of the item.",
+      "usage_notes": [
+        "This property SHOULD be set using the first known date of issuance."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_release_date",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-b6264e89d3fa30a8d888",
+      "need": "Find the language of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:language",
+      "rq2_term": "dct:language",
+      "label": "language",
+      "definition": "A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution",
+      "usage_notes": [
+        "If representations of a dataset are available for each language separately, define an instance of dcat:Distribution for each language and describe the specific language of each distribution using dct:language (i.e. the dataset will have multiple dct:language values and each distribution will have just one as the value of its dct:language property)."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_language",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-91ecd945188e3a8e6caa",
+      "need": "Find the licence of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:license",
+      "rq2_term": "dct:license",
+      "label": "licence",
+      "definition": "A legal document under which the resource is made available.",
+      "usage_notes": [
+        "Information about licenses and rights MAY be provided for the Resource. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_license",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-45ff06266da6c9ec4592",
+      "need": "Find the last modified of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:modified",
+      "rq2_term": "dct:modified",
+      "label": "last modified",
+      "definition": "Most recent date on which the item was changed, updated or modified.",
+      "usage_notes": [
+        "The value of this property indicates a change to the actual item, not a change to the catalog record. An absent value MAY indicate that the item has never changed after its initial publication, or that the date of last modification is not known, or that the item is continuously updated."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_update_date",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-513474dee2203aa7c31e",
+      "need": "Find the publisher of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:publisher",
+      "rq2_term": "dct:publisher",
+      "label": "publisher",
+      "definition": "The entity responsible for making the item available.",
+      "usage_notes": [
+        "Resources of type foaf:Agent are recommended as values for this property."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_publisher",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-593484a1dec9281c4e00",
+      "need": "Find the relation of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:relation",
+      "rq2_term": "dct:relation",
+      "label": "relation",
+      "definition": "A resource with an unspecified relationship to the cataloged item.",
+      "usage_notes": [
+        "dct:relation SHOULD be used where the nature of the relationship between a cataloged item and related resources is not known. A more specific sub-property SHOULD be used if the nature of the relationship of the link is known. The property dcat:distribution SHOULD be used to link from a dcat:Dataset to a representation of the dataset, described as a dcat:Distribution"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_relation",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-eab5be5d6a33fd63699b",
+      "need": "Find the rights of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:rights",
+      "rq2_term": "dct:rights",
+      "label": "rights",
+      "definition": "A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.",
+      "usage_notes": [
+        "Information about licenses and rights MAY be provided for the Resource. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_rights",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-f5af5010fda985d53ea7",
+      "need": "Find the spatial/geographical coverage of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:spatial",
+      "rq2_term": "dct:spatial",
+      "label": "spatial/geographical coverage",
+      "definition": "The geographical area covered by the dataset.",
+      "usage_notes": [
+        "The spatial coverage of a dataset may be encoded as an instance of dct:Location, or may be indicated using a URI reference (link) to a resource describing a location. It is recommended that links are to entries in a well maintained gazetteer such as Geonames."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:dataset_spatial"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-07c0665568722c88a419",
+      "need": "Find the temporal coverage of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:temporal",
+      "rq2_term": "dct:temporal",
+      "label": "temporal coverage",
+      "definition": "The temporal period that the dataset covers.",
+      "usage_notes": [
+        "The temporal coverage of a dataset may be encoded as an instance of dct:PeriodOfTime, or may be indicated using a URI reference (link) to a resource describing a time period or interval."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:dataset_temporal"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-f6f668f58265955eac92",
+      "need": "Find the title of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:title",
+      "rq2_term": "dct:title",
+      "label": "title",
+      "definition": "A name given to the item.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_title",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-6d0808f80ba150dbf29e",
+      "need": "Find the type of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:type",
+      "rq2_term": "dct:type",
+      "label": "type",
+      "definition": "The nature or genre of the resource.",
+      "usage_notes": [
+        "To describe the file format, physical medium, or dimensions of the resource, use the dct:format element."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_type",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-dbac78d353d7da0bf9c6",
+      "need": "Find the has policy of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "odrl:hasPolicy",
+      "rq2_term": "odrl:hasPolicy",
+      "label": "has policy",
+      "definition": "An ODRL conformant policy expressing the rights associated with the resource.",
+      "usage_notes": [
+        "Information about rights expressed as an ODRL policy [ODRL-MODEL] using the ODRL vocabulary [ODRL-VOCAB] MAY be provided for the resource. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_has_policy",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-42f032ec072969d34fec",
+      "need": "Find the qualified attribution of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "prov:qualifiedAttribution",
+      "rq2_term": "prov:qualifiedAttribution",
+      "label": "qualified attribution",
+      "definition": "Link to an Agent having some form of responsibility for the resource",
+      "usage_notes": [
+        "Used to link to an Agent where the nature of the relationship is known but does not match one of the standard [DCTERMS] properties (dct:creator, dct:publisher). Use dcat:hadRole on the prov:Attribution to capture the responsibility of the Agent with respect to the Resource. See § 13.1 Relationships between datasets and agents for usage examples."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_qualified_attribution",
+          "inherited_from": "dcat:Resource"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-abad4728ad347f53ad25",
+      "need": "Find the was generated by of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "prov:wasGeneratedBy",
+      "rq2_term": "prov:wasGeneratedBy",
+      "label": "was generated by",
+      "definition": "An activity that generated, or provides the business context for, the creation of the dataset.",
+      "usage_notes": [
+        "Use prov:qualifiedGeneration to attach additional details about the relationship between the dataset and the activity, e.g. the exact time that the dataset was produced during the lifetime of a project"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:dataset_was_generated_by"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-913ee1aea43a3197434e",
+      "need": "Identify and describe a distribution.",
+      "class": "dcat:Distribution",
+      "property": null,
+      "rq2_term": "dcat:Distribution",
+      "label": "distribution",
+      "definition": "A specific representation of a dataset. A dataset might be available in multiple serializations that may differ in various ways, including natural language, media-type or format, schematic organization, temporal and spatial resolution, level of detail or profiles (which might specify any or all of the above).",
+      "usage_notes": [
+        "This represents a general availability of a dataset. It implies no information about the actual access method of the data, i.e. whether by direct download, API, or through a Web page. The use of dcat:downloadURL property indicates directly downloadable distributions."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Class:Distribution"
+        }
+      ],
+      "base_obligation": null
+    },
+    {
+      "id": "base-f1d8451dc2dcb6ac8575",
+      "need": "Find the access service of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:accessService",
+      "rq2_term": "dcat:accessService",
+      "label": "access service",
+      "definition": "A data service that gives access to the distribution of the dataset",
+      "usage_notes": [
+        "dcat:accessService SHOULD be used to link to a description of a dcat:DataService that can provide access to this distribution."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:distribution_access_service"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-be635ab478e8bcad7312",
+      "need": "Find the access url of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:accessURL",
+      "rq2_term": "dcat:accessURL",
+      "label": "access url",
+      "definition": "A URL of the resource that gives access to a distribution of the dataset. E.g. landing page, feed, SPARQL endpoint.",
+      "usage_notes": [
+        "dcat:accessURL SHOULD be used for the URL of a service or location that can provide access to this distribution, typically through a Web form, query or API call. dcat:downloadURL is preferred for direct links to downloadable resources. If the distribution(s) are accessible only through a landing page (i.e. direct download URLs are not known), then the landing page URL associated with the dcat:Dataset SHOULD be duplicated as access URL on a distribution (see § 5.7 Dataset available only behind some Web page)."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:distribution_access_url"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-ca8facc4bc4f32e89b72",
+      "need": "Find the byte size of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:byteSize",
+      "rq2_term": "dcat:byteSize",
+      "label": "byte size",
+      "definition": "The size of a distribution in bytes.",
+      "usage_notes": [
+        "The size in bytes can be approximated (as a decimal) when the precise size is not known."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:distribution_size"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-119cd64f546c03949708",
+      "need": "Find the compression format of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:compressFormat",
+      "rq2_term": "dcat:compressFormat",
+      "label": "compression format",
+      "definition": "The compression format of the distribution in which the data is contained in a compressed form, e.g. to reduce the size of the downloadable file.",
+      "usage_notes": [
+        "This property to be used when the files in the distribution are compressed, e.g. in a ZIP file. The format SHOULD be expressed using a media type as defined by IANA [IANA-MEDIA-TYPES], if available."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:distribution_compression_format"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-aac6bf4c846108f9887f",
+      "need": "Find the download url of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:downloadURL",
+      "rq2_term": "dcat:downloadURL",
+      "label": "download url",
+      "definition": "The URL of the downloadable file in a given format. E.g. CSV file or RDF file. The format is indicated by the distribution's dct:format and/or dcat:mediaType",
+      "usage_notes": [
+        "dcat:downloadURL SHOULD be used for the URL at which this distribution is available directly, typically through a HTTP Get request."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:distribution_download_url"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-d1edd4b0e340a741ec10",
+      "need": "Find the media type of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:mediaType",
+      "rq2_term": "dcat:mediaType",
+      "label": "media type",
+      "definition": "The media type of the distribution as defined by IANA [IANA-MEDIA-TYPES].",
+      "usage_notes": [
+        "This property SHOULD be used when the media type of the distribution is defined in IANA [IANA-MEDIA-TYPES], otherwise dct:format MAY be used with different values."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:distribution_media_type"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-3e05051c558d0500fd3b",
+      "need": "Find the packaging format of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:packageFormat",
+      "rq2_term": "dcat:packageFormat",
+      "label": "packaging format",
+      "definition": "The package format of the distribution in which one or more data files are grouped together, e.g. to enable a set of related files to be downloaded together.",
+      "usage_notes": [
+        "This property to be used when the files in the distribution are packaged, e.g. in a TAR file, a Frictionless Data Package or a Bagit file. The format SHOULD be expressed using a media type as defined by IANA [IANA-MEDIA-TYPES], if available."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:distribution_packaging_format"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-751b2b74ced287d58c1f",
+      "need": "Find the spatial resolution of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:spatialResolutionInMeters",
+      "rq2_term": "dcat:spatialResolutionInMeters",
+      "label": "spatial resolution",
+      "definition": "The minimum spatial separation resolvable in a dataset distribution, measured in meters.",
+      "usage_notes": [
+        "Alternative spatial resolutions might be provided as different dataset distributions"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:distribution_spatial_resolution"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-4b412c2a4a50e7fb2722",
+      "need": "Find the temporal resolution of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:temporalResolution",
+      "rq2_term": "dcat:temporalResolution",
+      "label": "temporal resolution",
+      "definition": "Minimum time period resolvable in the dataset distribution.",
+      "usage_notes": [
+        "Alternative temporal resolutions might be provided in different dataset distributions"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:distribution_temporal_resolution"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-f3c5870447b61303a78c",
+      "need": "Find the access rights of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:accessRights",
+      "rq2_term": "dct:accessRights",
+      "label": "access rights",
+      "definition": "A rights statement that concerns how the distribution is accessed.",
+      "usage_notes": [
+        "Information about licenses and rights MAY be provided for the Distribution. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:distribution_access_rights"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-ab7bdf9082610f549574",
+      "need": "Find the conforms to of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:conformsTo",
+      "rq2_term": "dct:conformsTo",
+      "label": "conforms to",
+      "definition": "An established standard to which the distribution conforms.",
+      "usage_notes": [
+        "This property SHOULD be used to indicate the model, schema, ontology, view or profile that this representation of a dataset conforms to. This is (generally) a complementary concern to the media-type or format."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:distribution_conforms_to"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-9feb59be7a1130fd80f4",
+      "need": "Find the description of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:description",
+      "rq2_term": "dct:description",
+      "label": "description",
+      "definition": "A free-text account of the distribution.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:distribution_description"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-8c81adf110bd4eab253f",
+      "need": "Find the format of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:format",
+      "rq2_term": "dct:format",
+      "label": "format",
+      "definition": "The file format of the distribution.",
+      "usage_notes": [
+        "dcat:mediaType SHOULD be used if the type of the distribution is defined by IANA [IANA-MEDIA-TYPES]."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:distribution_format"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-19d24f4abafd425bd785",
+      "need": "Find the release date of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:issued",
+      "rq2_term": "dct:issued",
+      "label": "release date",
+      "definition": "Date of formal issuance (e.g., publication) of the distribution.",
+      "usage_notes": [
+        "This property SHOULD be set using the first known date of issuance."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:distribution_release_date"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-2192c59e4a9da7bd3033",
+      "need": "Find the license of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:license",
+      "rq2_term": "dct:license",
+      "label": "license",
+      "definition": "A legal document under which the distribution is made available.",
+      "usage_notes": [
+        "Information about licenses and rights SHOULD be provided on the level of Distribution. Information about licenses and rights MAY be provided for a Dataset in addition to but not instead of the information provided for the Distributions of that Dataset. Providing license or rights information for a Dataset that is different from information provided for a Distribution of that Dataset SHOULD be avoided as this can create legal conflicts. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:distribution_license"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-bb77c65642c9bb9e2f9f",
+      "need": "Find the update/modification date of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:modified",
+      "rq2_term": "dct:modified",
+      "label": "update/modification date",
+      "definition": "Most recent date on which the distribution was changed, updated or modified.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:distribution_update_date"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-fb3ce2d5aba153e0e509",
+      "need": "Find the rights of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:rights",
+      "rq2_term": "dct:rights",
+      "label": "rights",
+      "definition": "Information about rights held in and over the distribution.",
+      "usage_notes": [
+        "dct:license, which is a sub-property of dct:rights, can be used to link a distribution to a license document. However, dct:rights allows linking to a rights statement that can include licensing information as well as other information that supplements the license such as attribution. Information about licenses and rights SHOULD be provided on the level of Distribution. Information about licenses and rights MAY be provided for a Dataset in addition to but not instead of the information provided for the Distributions of that Dataset. Providing license or rights information for a Dataset that is different from information provided for a Distribution of that Dataset SHOULD be avoided as this can create legal conflicts. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:distribution_rights"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-34573ecf73ba1fd52dcc",
+      "need": "Find the title of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:title",
+      "rq2_term": "dct:title",
+      "label": "title",
+      "definition": "A name given to the distribution.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:distribution_title"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-8ea7a03bbceee6018f95",
+      "need": "Find the has policy of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "odrl:hasPolicy",
+      "rq2_term": "odrl:hasPolicy",
+      "label": "has policy",
+      "definition": "An ODRL conformant policy expressing the rights associated with the distribution.",
+      "usage_notes": [
+        "Information about rights expressed as an ODRL policy [ODRL-MODEL] using the ODRL vocabulary [ODRL-VOCAB] MAY be provided for the distribution. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:distribution_has_policy"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-fea3828268039cc4f290",
+      "need": "Identify and describe a relationship.",
+      "class": "dcat:Relationship",
+      "property": null,
+      "rq2_term": "dcat:Relationship",
+      "label": "relationship",
+      "definition": "An association class for attaching additional information to a relationship between DCAT Resources",
+      "usage_notes": [
+        "Use to characterize a relationship between datasets, and potentially other resources, where the nature of the relationship is known but is not adequately characterized by the standard [DCTERMS] properties (dct:hasPart, dct:isPartOf, dct:conformsTo, dct:isFormatOf, dct:hasFormat, dct:isVersionOf, dct:hasVersion, dct:replaces, dct:isReplacedBy, dct:references, dct:isReferencedBy, dct:requires, dct:isRequiredBy) or [PROV-O] properties (prov:wasDerivedFrom, prov:wasInfluencedBy, prov:wasQuotedFrom, prov:wasRevisionOf, prov:hadPrimarySource, prov:alternateOf, prov:specializationOf)"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Class:Relationship"
+        }
+      ],
+      "base_obligation": null
+    },
+    {
+      "id": "base-a87f3ed2ea9e5790052f",
+      "need": "Find the had role of a relationship.",
+      "class": "dcat:Relationship",
+      "property": "dcat:hadRole",
+      "rq2_term": "dcat:hadRole",
+      "label": "had role",
+      "definition": "The function of an entity or agent with respect to another entity or resource.",
+      "usage_notes": [
+        "May be used in a qualified-relation to specify the role of an Entity with respect to another Entity. It is recommended that the value be taken from a controlled vocabulary of entity roles."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:relationship_hadRole"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-c9e239c1fca79ad465fc",
+      "need": "Find the relation of a relationship.",
+      "class": "dcat:Relationship",
+      "property": "dct:relation",
+      "rq2_term": "dct:relation",
+      "label": "relation",
+      "definition": "The resource related to the source resource.",
+      "usage_notes": [
+        "In the context of a dcat:Relationship this is expected to point to another dcat:Dataset or other cataloged resource."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:relationship_relation"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-a41c1bb8b210a3cee88e",
+      "need": "Identify and describe a resource.",
+      "class": "dcat:Resource",
+      "property": null,
+      "rq2_term": "dcat:Resource",
+      "label": "resource",
+      "definition": "Resource published or curated by a single agent.",
+      "usage_notes": [
+        "dcat:Resource is an extension point that enables the definition of any kind of catalog. Additional sub-classes may be defined in a DCAT profile or other DCAT application for catalogs of other kinds of resources."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Class:Resource"
+        }
+      ],
+      "base_obligation": null
+    },
+    {
+      "id": "base-82c93d3b2520132dd29d",
+      "need": "Find the contact point of a resource.",
+      "class": "dcat:Resource",
+      "property": "dcat:contactPoint",
+      "rq2_term": "dcat:contactPoint",
+      "label": "contact point",
+      "definition": "Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_contact_point"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-1e44ab98b96fafdb23ac",
+      "need": "Find the keyword/tag of a resource.",
+      "class": "dcat:Resource",
+      "property": "dcat:keyword",
+      "rq2_term": "dcat:keyword",
+      "label": "keyword/tag",
+      "definition": "A keyword or tag describing the resource.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_keyword"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-460e3716bf28e792b10f",
+      "need": "Find the landing page of a resource.",
+      "class": "dcat:Resource",
+      "property": "dcat:landingPage",
+      "rq2_term": "dcat:landingPage",
+      "label": "landing page",
+      "definition": "A Web page that can be navigated to in a Web browser to gain access to the catalog, a dataset, its distributions and/or additional information.",
+      "usage_notes": [
+        "If the distribution(s) are accessible only through a landing page (i.e. direct download URLs are not known), then the landing page link SHOULD be duplicated as dcat:accessURL on a distribution. (see § 5.7 Dataset available only behind some Web page)"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_landing_page"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-dc9a488dc1a9765c9d65",
+      "need": "Find the qualified relation of a resource.",
+      "class": "dcat:Resource",
+      "property": "dcat:qualifiedRelation",
+      "rq2_term": "dcat:qualifiedRelation",
+      "label": "qualified relation",
+      "definition": "Link to a description of a relationship with another resource",
+      "usage_notes": [
+        "Used to link to another resource where the nature of the relationship is known but does not match one of the standard [DCTERMS] properties (dct:hasPart, dct:isPartOf, dct:conformsTo, dct:isFormatOf, dct:hasFormat, dct:isVersionOf, dct:hasVersion, dct:replaces, dct:isReplacedBy, dct:references, dct:isReferencedBy, dct:requires, dct:isRequiredBy) or [PROV-O] properties (prov:wasDerivedFrom, prov:wasInfluencedBy, prov:wasQuotedFrom, prov:wasRevisionOf, prov:hadPrimarySource, prov:alternateOf, prov:specializationOf)."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_qualified_relation"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-728b90518d52c655866c",
+      "need": "Find the theme/category of a resource.",
+      "class": "dcat:Resource",
+      "property": "dcat:theme",
+      "rq2_term": "dcat:theme",
+      "label": "theme/category",
+      "definition": "A main category of the resource. A resource can have multiple themes.",
+      "usage_notes": [
+        "The set of skos:Concepts used to categorize the resources are organized in a skos:ConceptScheme describing all the categories and their relations in the catalog."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_theme"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-1ae7aab5758a3d204534",
+      "need": "Find the access rights of a resource.",
+      "class": "dcat:Resource",
+      "property": "dct:accessRights",
+      "rq2_term": "dct:accessRights",
+      "label": "access rights",
+      "definition": "Information about who can access the resource or an indication of its security status.",
+      "usage_notes": [
+        "Information about licenses and rights MAY be provided for the Resource. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_access_rights"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-e2e8fe045044491d49f8",
+      "need": "Find the conforms to of a resource.",
+      "class": "dcat:Resource",
+      "property": "dct:conformsTo",
+      "rq2_term": "dct:conformsTo",
+      "label": "conforms to",
+      "definition": "An established standard to which the described resource conforms.",
+      "usage_notes": [
+        "This property SHOULD be used to indicate the model, schema, ontology, view or profile that the cataloged resource content conforms to."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_conforms_to"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-13925accba712735e74a",
+      "need": "Find the resource creator of a resource.",
+      "class": "dcat:Resource",
+      "property": "dct:creator",
+      "rq2_term": "dct:creator",
+      "label": "resource creator",
+      "definition": "The entity responsible for producing the resource.",
+      "usage_notes": [
+        "Resources of type foaf:Agent are recommended as values for this property."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_creator"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-6522d1b0ab25b63bf1bb",
+      "need": "Find the description of a resource.",
+      "class": "dcat:Resource",
+      "property": "dct:description",
+      "rq2_term": "dct:description",
+      "label": "description",
+      "definition": "A free-text account of the item.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_description"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-bdd0aba2ff35331f63f7",
+      "need": "Find the identifier of a resource.",
+      "class": "dcat:Resource",
+      "property": "dct:identifier",
+      "rq2_term": "dct:identifier",
+      "label": "identifier",
+      "definition": "A unique identifier of the item.",
+      "usage_notes": [
+        "The identifier might be used as part of the URI of the item, but still having it represented explicitly is useful."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_identifier"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-33c80183496c50b8b57e",
+      "need": "Find the is referenced by of a resource.",
+      "class": "dcat:Resource",
+      "property": "dct:isReferencedBy",
+      "rq2_term": "dct:isReferencedBy",
+      "label": "is referenced by",
+      "definition": "A related resource, such as a publication, that references, cites, or otherwise points to the cataloged resource.",
+      "usage_notes": [
+        "This property is used to associate a resource with the resource (of type dcat:Resource) in question. For other relations to resources not covered with this property, the more generic property dcat:qualifiedRelation can be used. See also § 13. Qualified relations."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_is_referenced_by"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-735c095fdb874b6a40c9",
+      "need": "Find the release date of a resource.",
+      "class": "dcat:Resource",
+      "property": "dct:issued",
+      "rq2_term": "dct:issued",
+      "label": "release date",
+      "definition": "Date of formal issuance (e.g., publication) of the item.",
+      "usage_notes": [
+        "This property SHOULD be set using the first known date of issuance."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_release_date"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-d2dc6a4d14fb32052548",
+      "need": "Find the language of a resource.",
+      "class": "dcat:Resource",
+      "property": "dct:language",
+      "rq2_term": "dct:language",
+      "label": "language",
+      "definition": "A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution",
+      "usage_notes": [
+        "If representations of a dataset are available for each language separately, define an instance of dcat:Distribution for each language and describe the specific language of each distribution using dct:language (i.e. the dataset will have multiple dct:language values and each distribution will have just one as the value of its dct:language property)."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_language"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-e241130eb23991371575",
+      "need": "Find the license of a resource.",
+      "class": "dcat:Resource",
+      "property": "dct:license",
+      "rq2_term": "dct:license",
+      "label": "license",
+      "definition": "A legal document under which the resource is made available.",
+      "usage_notes": [
+        "Information about licenses and rights MAY be provided for the Resource. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_license"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-a3cc79dc9088deb6b0ae",
+      "need": "Find the update/modification date of a resource.",
+      "class": "dcat:Resource",
+      "property": "dct:modified",
+      "rq2_term": "dct:modified",
+      "label": "update/modification date",
+      "definition": "Most recent date on which the item was changed, updated or modified.",
+      "usage_notes": [
+        "The value of this property indicates a change to the actual item, not a change to the catalog record. An absent value MAY indicate that the item has never changed after its initial publication, or that the date of last modification is not known, or that the item is continuously updated."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_update_date"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-e92f4d93c958049eceba",
+      "need": "Find the publisher of a resource.",
+      "class": "dcat:Resource",
+      "property": "dct:publisher",
+      "rq2_term": "dct:publisher",
+      "label": "publisher",
+      "definition": "The entity responsible for making the item available.",
+      "usage_notes": [
+        "Resources of type foaf:Agent are recommended as values for this property."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_publisher"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-6c024959ec0ea2d3f226",
+      "need": "Find the resource relation of a resource.",
+      "class": "dcat:Resource",
+      "property": "dct:relation",
+      "rq2_term": "dct:relation",
+      "label": "resource relation",
+      "definition": "A resource with an unspecified relationship to the cataloged item.",
+      "usage_notes": [
+        "dct:relation SHOULD be used where the nature of the relationship between a cataloged item and related resources is not known. A more specific sub-property SHOULD be used if the nature of the relationship of the link is known. The property dcat:distribution SHOULD be used to link from a dcat:Dataset to a representation of the dataset, described as a dcat:Distribution"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_relation"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-af32ceeb75ca2e4a81e0",
+      "need": "Find the rights of a resource.",
+      "class": "dcat:Resource",
+      "property": "dct:rights",
+      "rq2_term": "dct:rights",
+      "label": "rights",
+      "definition": "A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.",
+      "usage_notes": [
+        "Information about licenses and rights MAY be provided for the Resource. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_rights"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-4b4ad08dfe2ea875ec98",
+      "need": "Find the title of a resource.",
+      "class": "dcat:Resource",
+      "property": "dct:title",
+      "rq2_term": "dct:title",
+      "label": "title",
+      "definition": "A name given to the item.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_title"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-1fe746ecec292880e854",
+      "need": "Find the type/genre of a resource.",
+      "class": "dcat:Resource",
+      "property": "dct:type",
+      "rq2_term": "dct:type",
+      "label": "type/genre",
+      "definition": "The nature or genre of the resource.",
+      "usage_notes": [
+        "To describe the file format, physical medium, or dimensions of the resource, use the dct:format element."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_type"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-23e056306128db8dab6c",
+      "need": "Find the has policy of a resource.",
+      "class": "dcat:Resource",
+      "property": "odrl:hasPolicy",
+      "rq2_term": "odrl:hasPolicy",
+      "label": "has policy",
+      "definition": "An ODRL conformant policy expressing the rights associated with the resource.",
+      "usage_notes": [
+        "Information about rights expressed as an ODRL policy [ODRL-MODEL] using the ODRL vocabulary [ODRL-VOCAB] MAY be provided for the resource. See also guidance at § 8. License and rights statements."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_has_policy"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-4b0cea239a4e61368487",
+      "need": "Find the qualified attribution of a resource.",
+      "class": "dcat:Resource",
+      "property": "prov:qualifiedAttribution",
+      "rq2_term": "prov:qualifiedAttribution",
+      "label": "qualified attribution",
+      "definition": "Link to an Agent having some form of responsibility for the resource",
+      "usage_notes": [
+        "Used to link to an Agent where the nature of the relationship is known but does not match one of the standard [DCTERMS] properties (dct:creator, dct:publisher). Use dcat:hadRole on the prov:Attribution to capture the responsibility of the Agent with respect to the Resource. See § 13.1 Relationships between datasets and agents for usage examples."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:resource_qualified_attribution"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-9c2d1c9969963863e814",
+      "need": "Identify and describe a role.",
+      "class": "dcat:Role",
+      "property": null,
+      "rq2_term": "dcat:Role",
+      "label": "role",
+      "definition": "A role is the function of a resource or agent with respect to another resource, in the context of resource attribution or resource relationships.",
+      "usage_notes": [
+        "Used in a qualified-relation to specify the role of an Entity with respect to another Entity. It is recommended that the values be managed as a controlled vocabulary of entity roles such as [ISO-19115-1] DS_AssociationTypeCode IANA Registry of Link Relations [IANA-RELATIONS] DataCite metadata schema [DataCite] MARC relators"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Class:Role"
+        }
+      ],
+      "base_obligation": null
+    },
+    {
+      "id": "base-99c993def08bfd158566",
+      "need": "Identify and describe a location.",
+      "class": "dct:Location",
+      "property": null,
+      "rq2_term": "dct:Location",
+      "label": "location",
+      "definition": "A spatial region or named place.",
+      "usage_notes": [
+        "For an extensive geometry (i.e., a set of coordinates denoting the vertices of the relevant geographic area), the property locn:geometry [LOCN] SHOULD be used. For a geographic bounding box delimiting a spatial area the property dcat:bbox SHOULD be used. For the geographic center of a spatial area, or another characteristic point, the property dcat:centroid SHOULD be used."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Class:Location"
+        }
+      ],
+      "base_obligation": null
+    },
+    {
+      "id": "base-a0465116110b650b45bf",
+      "need": "Find the bounding box of a location.",
+      "class": "dct:Location",
+      "property": "dcat:bbox",
+      "rq2_term": "dcat:bbox",
+      "label": "bounding box",
+      "definition": "The geographic bounding box of a resource.",
+      "usage_notes": [
+        "The range of this property is intentionally generic, with the purpose of allowing different geometry encodings. E.g., the geometry could be encoded as WKT (geosparql:asWKT [GeoSPARQL])."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:location_bbox"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-675cfff421bf56b90d04",
+      "need": "Find the centroid of a location.",
+      "class": "dct:Location",
+      "property": "dcat:centroid",
+      "rq2_term": "dcat:centroid",
+      "label": "centroid",
+      "definition": "The geographic center (centroid) of a resource.",
+      "usage_notes": [
+        "The range of this property is intentionally generic, with the purpose of allowing different geometry encodings. E.g., the geometry could be encoded as WKT (geosparql:asWKT [GeoSPARQL])."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:location_centroid"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-91c5470b88ebd9c9afde",
+      "need": "Find the geometry of a location.",
+      "class": "dct:Location",
+      "property": "locn:geometry",
+      "rq2_term": "locn:geometry",
+      "label": "geometry",
+      "definition": "Associates any resource with the corresponding geometry. [LOCN]",
+      "usage_notes": [
+        "The range of this property is intentionally generic, with the purpose of allowing different geometry encodings. E.g., the geometry could be encoded as WKT (geosparql:asWKT [GeoSPARQL])."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:location_geometry"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-12d543de9e1efa0fd4a5",
+      "need": "Identify and describe a period of time.",
+      "class": "dct:PeriodOfTime",
+      "property": null,
+      "rq2_term": "dct:PeriodOfTime",
+      "label": "period of time",
+      "definition": "An interval of time that is named or defined by its start and end.",
+      "usage_notes": [
+        "The start and end of the interval SHOULD be given by using properties dcat:startDate or time:hasBeginning, and dcat:endDate or time:hasEnd, respectively. The interval can also be open - i.e., it can have just a start or just an end."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Class:Period_of_Time"
+        }
+      ],
+      "base_obligation": null
+    },
+    {
+      "id": "base-7b22ad1e857047451aed",
+      "need": "Find the end date of a period of time.",
+      "class": "dct:PeriodOfTime",
+      "property": "dcat:endDate",
+      "rq2_term": "dcat:endDate",
+      "label": "end date",
+      "definition": "The end of the period.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:period_end_date"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-e481099180ef4f9a00f6",
+      "need": "Find the start date of a period of time.",
+      "class": "dct:PeriodOfTime",
+      "property": "dcat:startDate",
+      "rq2_term": "dcat:startDate",
+      "label": "start date",
+      "definition": "The start of the period.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:period_start_date"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-ec016e602192eac20f28",
+      "need": "Find the beginning of a period of time.",
+      "class": "dct:PeriodOfTime",
+      "property": "time:hasBeginning",
+      "rq2_term": "time:hasBeginning",
+      "label": "beginning",
+      "definition": "Beginning of a period or interval.",
+      "usage_notes": [
+        "Use of the property time:hasBeginning entails that value of the dct:temporal property is a member of the time:TemporalEntity class from [OWL-TIME]. In this context this could be taken to imply that dct:PeriodOfTime is equivalent to the sub-class time:ProperInterval"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:period_has_beginning"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-84cfe03d492fb72447b9",
+      "need": "Find the end of a period of time.",
+      "class": "dct:PeriodOfTime",
+      "property": "time:hasEnd",
+      "rq2_term": "time:hasEnd",
+      "label": "end",
+      "definition": "End of a period or interval.",
+      "usage_notes": [
+        "Use of the property time:hasEnd entails that value of the dct:temporal property is a member of the time:TemporalEntity class from [OWL-TIME]. In this context this could be taken to imply that dct:PeriodOfTime is equivalent to the sub-class time:ProperInterval"
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Property:period_has_end"
+        }
+      ],
+      "base_obligation": null,
+      "vocabulary": null
+    },
+    {
+      "id": "base-c90e2c23d860c033c25f",
+      "need": "Identify and describe a concept.",
+      "class": "skos:Concept",
+      "property": null,
+      "rq2_term": "skos:Concept",
+      "label": "concept",
+      "definition": "A category or a theme used to describe datasets in the catalog.",
+      "usage_notes": [
+        "It is recommended to use either skos:inScheme or skos:topConceptOf on every skos:Concept used to classify datasets to link it to the concept scheme it belongs to. This concept scheme is typically associated with the catalog using dcat:themeTaxonomy."
+      ],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Class:Concept"
+        }
+      ],
+      "base_obligation": null
+    },
+    {
+      "id": "base-d8c75d07441686df2d19",
+      "need": "Identify and describe a concept scheme.",
+      "class": "skos:ConceptScheme",
+      "property": null,
+      "rq2_term": "skos:ConceptScheme",
+      "label": "concept scheme",
+      "definition": "A knowledge organization system (KOS) used to represent themes/categories of datasets in the catalog.",
+      "usage_notes": [],
+      "definition_sources": [
+        {
+          "file": "w3c/dcat-2.html",
+          "sha256": "6f3904e1be0ef21684c3c1e5871a361a631648cf72bd06082a24084b400b54c6",
+          "anchor": "Class:Concept_Scheme"
+        }
+      ],
+      "base_obligation": null
+    }
+  ],
+  "catalogue_hash": "be8d565a1682a4139f9b0dd99bb2152729442160a8d53c591b4ed2968ad4c2f5"
+}

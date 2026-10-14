@@ -10,7 +10,9 @@ sys.path.insert(0, str(ROOT / 'requirement-reuse-service'))
 from pydantic.json_schema import models_json_schema
 from requirement_reuse_service.workflow.models import (WorkflowRun, SourceArtifact, EvidenceUnit, CorpusSnapshot,
     AdditionRequest, AssessmentRequest, BaselineRequest, DecisionRequest, DeriveRequest, RunRequest, SourceRequest,
-    SemanticGrouping, SpanElicitationResult)
+    SemanticGrouping, SpanElicitationResult, NeedSpanElicitationResult, RestoreRequest)
+from requirement_reuse_service.workflow.needs import (NeedStatements, NeedGrounding, NeedClassifications,
+    NeedUseCaseLinks, UseCaseCritic, NeedMembership, ProposalSupport)
 
 
 def main():
@@ -20,7 +22,8 @@ def main():
     _, schema = models_json_schema([(model, 'validation') for model in (
         WorkflowRun, SourceArtifact, EvidenceUnit, CorpusSnapshot, AdditionRequest,
         AssessmentRequest, BaselineRequest, DecisionRequest, DeriveRequest, RunRequest, SourceRequest, SemanticGrouping,
-        SpanElicitationResult)],
+        SpanElicitationResult, NeedSpanElicitationResult, RestoreRequest, NeedStatements, NeedGrounding,
+        NeedClassifications, NeedUseCaseLinks, UseCaseCritic, NeedMembership, ProposalSupport)],
         title='RQ1 persistent workflow v2 contracts')
     schema['$schema'] = 'https://json-schema.org/draft/2020-12/schema'
     output = json.dumps(schema, indent=2, sort_keys=True) + '\n'

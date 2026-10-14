@@ -20,7 +20,7 @@ def test_derive_reuses_extraction_and_identical_assessments_and_preserves_source
     store, source, client = completed(setup)
     before = deepcopy(source)
     mark = len(client.calls)
-    run = derive_run(store, source['run_id'], DeriveRequest(consolidation='exact', expected_version=source['version'], rationale='Compare downstream settings.'))
+    run = derive_run(store, source['run_id'], DeriveRequest(output_form='candidates', consolidation='exact', expected_version=source['version'], rationale='Compare downstream settings.'))
     assert run['model_calls'] == []
     assert run['derived_from']['observations_hash'] == digest(source['observations'])
     assert run['derived_from']['role_runs_hash'] == digest(source['role_runs'])
@@ -44,7 +44,7 @@ def test_changed_hash_or_old_assessment_is_not_reused(setup):
             record['qualification']['assessor'] = 'old-assessment-policy/test'
     store.mutate(source['run_id'], None, 'test_old_policy', change)
     source = store.get('run', source['run_id'])
-    run = derive_run(store, source['run_id'], DeriveRequest(consolidation='exact', expected_version=source['version'], rationale='Policy check.'))
+    run = derive_run(store, source['run_id'], DeriveRequest(output_form='candidates', consolidation='exact', expected_version=source['version'], rationale='Policy check.'))
     mark = len(client.calls)
     execute_run(store, run['run_id'], client)
     assert client.count('Qualification', mark) > 0
@@ -57,7 +57,7 @@ def test_derived_run_keeps_old_extraction_policy_but_refuses_extraction_reset(se
     store, source, client = completed(setup)
     store.mutate(source['run_id'], None, 'test_old_extraction', lambda r: r.update(elicitation_policy_version='legacy-policy'))
     source = store.get('run', source['run_id'])
-    run = derive_run(store, source['run_id'], DeriveRequest(consolidation='exact', expected_version=source['version'], rationale='Reuse legacy extraction.'))
+    run = derive_run(store, source['run_id'], DeriveRequest(output_form='candidates', consolidation='exact', expected_version=source['version'], rationale='Reuse legacy extraction.'))
     assert run['elicitation_policy_version'] == 'legacy-policy'
     engine.ensure_elicitation_resumable(run)
     run['stages']['elicitation'] = 'pending'
@@ -71,11 +71,11 @@ def test_derived_run_keeps_old_extraction_policy_but_refuses_extraction_reset(se
 def test_derive_rejects_partial_extraction_and_stale_source(setup):
     store, source, _ = completed(setup)
     with pytest.raises(ConflictError):
-        derive_run(store, source['run_id'], DeriveRequest(consolidation='exact', expected_version=1, rationale='Stale.'))
+        derive_run(store, source['run_id'], DeriveRequest(output_form='candidates', consolidation='exact', expected_version=1, rationale='Stale.'))
     store.mutate(source['run_id'], None, 'test_partial', lambda r: r['role_runs'][0].update(status='failed'))
     source = store.get('run', source['run_id'])
     with pytest.raises(ValueError, match='complete extraction'):
-        derive_run(store, source['run_id'], DeriveRequest(consolidation='exact', expected_version=source['version'], rationale='Partial.'))
+        derive_run(store, source['run_id'], DeriveRequest(output_form='candidates', consolidation='exact', expected_version=source['version'], rationale='Partial.'))
 
 
 def test_derive_endpoint_creates_separate_saved_run(setup):

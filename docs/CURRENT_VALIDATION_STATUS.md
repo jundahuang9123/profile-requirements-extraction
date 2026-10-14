@@ -317,3 +317,158 @@ under these new policies yet. The model's extension labels and lexical property
 matches still need independent review. Corpus coverage, INSPIRE scope, GeoDCAT's
 evidence/background role, nonmetadata relevance and other cases' base versions
 remain Junda's open decisions.
+
+## 13 October 2026: needs workflow, review branch
+
+The default branch is now `main`. The seven-phase needs implementation is proposed
+on `codex/rq1-needs`; it is not automatically merged into the research baseline.
+See [RQ1 needs](RQ1_NEEDS.md) for the new definitions, stage order, policies, bounds,
+review controls and `needs.json` export.
+
+New agent extractions use v3.1. Derived trials reuse complete legacy extractions
+without modifying their wording or source run. Candidates receive deterministic
+source checks only; grouped, term-free needs receive classification, optional
+necessity linking with a separate critic, one support assessment per retained need
+and deterministic ranking. Generic/unlinked/source-only/uncited items remain visible.
+Human restoration and revision preserve frozen machine output and require review.
+New need acceptance does not require selecting RDF classes/properties or value kinds.
+
+The base catalogues are generated offline from pinned registries and explicitly
+**unreviewed**. Their label-based wording must be reviewed before research evaluation;
+missing prose definitions have not been fabricated. Catalogue matching has a bounded
+retrieval step and can miss generic matches. Classification, rewriting, necessity
+and semantic support remain fallible machine judgements. A valid negative critic
+verdict is kept, and exhausted corrections do not replay on Resume. Oversized input
+fails visibly or requires splitting/human review; selected evidence is not truncated.
+
+Validation: **488 offline tests pass**, with five existing dependency deprecation
+warnings. The regenerated schema, reproducible catalogue checks and production
+frontend build pass. An isolated
+browser fixture checks the need cards, obligation alternatives, source/member
+panels, RQ2 hints, export links, scoping form and set-aside controls. Its name clearly
+identifies synthetic data; no model provider is called and nothing is accepted.
+Historical regression fixtures explicitly select their original candidate pipeline.
+This is implementation validation, not a live success/accuracy/effort-saving claim.
+The repository-root test discovery also encounters Sebastian's unrelated inherited
+plotting script, which needs its separate plotting dependencies; the documented
+RQ1 test command targets `tests/`.
+
+No live run, reference scoring, freeze tag or human review has been performed for
+this condition. Junda's revised decisions (14 October, replacing the earlier choices): D1 needs use
+"[Actor] can …" without obligation words; obligation counts only when quoted,
+otherwise it is "not stated by sources". D2 Junda authors dated use cases from each
+development case's stated purpose before running; scoping off is a reported
+comparison. D3 needs with no verified use case stay visible/restorable asides;
+evaluation reports recall with and without these needs. D4 proposal quotes must
+support their information/capability before merging. The fixes implementing these
+decisions are recorded separately on this review branch.
+Mobility remains held out. Prior heuristics were adjusted while reading Mobility
+candidates, never reference rows; disclose this in the paper. Test development
+cases first, review base catalogues, then authorise a functional Mobility derived
+check using counts/calls/errors only. Freeze before reference-based evaluation.
+
+## 14 October 2026: revised PR #11 fixes, offline condition
+
+Required items 1–11 are implemented on `codex/rq1-needs`, with one final commit
+per item. PR #11 remains open; this is not a merge or a new research baseline.
+
+Need statements use neutral actor/capability wording and reject whole-word
+must/shall/should in machine rewrites, human edits and acceptance. Fresh need
+extraction uses v3.2. Source-check v2.2 applies only to newly created needs runs:
+missing obligation quotes become unknown with their original claims audited;
+every quotation and the statement premise still need authentic source support.
+Candidate runs and historical policies retain v2.1. Proposal support runs before
+merging in bounded batches; only its selected supporting quotes count in a need's
+evidence and document-based ranking. Other member quotations remain in the audit.
+
+Source-failed and quote-unsupported proposals stay visible asides without writer,
+critic or ranking work. Rejected rewrites retry only their own groups, with the
+first critic rationale preserved. Twice-rejected groups are restorable asides.
+Row corrections preserve valid answers and resend only failing rows. Exhaustion
+records a conservative fallback and Resume replays it without further calls.
+Unchecked support, classification, membership or scoping stays explicitly flagged;
+technical scoping failure does not become a negative use-case judgement. Unexpected
+implementation defects still fail visibly. No source integrity rule is relaxed.
+
+The term detector and knowledge-question/condition distinction have regression
+coverage. All six base catalogues now use v2, with contextual official definitions
+and usage notes from checksum-pinned source files bundled for offline rebuilding.
+Garbled labels, duplicated phrases and articles are checked. Catalogues remain
+**unreviewed**; Junda reviews each base used for evaluation.
+
+Optional purpose-based `use-cases.json` files import their IDs, kind, author,
+date, basis and file hash into frozen snapshots; cross-cutting goals are supported.
+The UI preserves this metadata for unchanged imported tasks. Junda still needs to
+author development cases' use cases before running. No such file has been authored
+by the agent; Mobility's 12 tasks have not been copied without confirmation.
+Missing API output form resolves to needs for `multi_agent`, candidates for rules
+or mock. Explicit offline needs output is refused at creation and derivation.
+
+Validation: **588 offline tests pass**, with five dependency deprecation warnings.
+The schema check, all six reproducible catalogue checks and production frontend
+build pass. A separate synthetic browser fixture confirms neutral wording,
+unbacked obligation counts, members/citations, a quote-unsupported aside and
+frozen author/date/purpose. It makes no provider request and accepts no requirement.
+
+Read-only source-check counts on the saved Mobility extraction (no model calls):
+2,670 proposals comprise 1,051 uncited and 1,619 cited. After excluding 685 supported
+only by the three configured base-specification files, 934 reach source checks.
+V2.1 passes **490**, fails **444**. V2.2 passes **917**, with **17** source-check-failed
+asides for missing statement support. All 444 missing obligation premises are
+audited as unbacked claims (427 newly pass on their statement links; 17 still fail).
+No quotation itself fails in this saved set. These counts prove source-gate behaviour
+only, not semantic correctness, recall, accuracy or effort saved. No reference
+requirements were read and no saved research run was modified.
+
+No live inference, reference scoring, research freeze tag, human approval or
+Mobility tuning was performed. Optional item 12 (writing-basis diversity and
+cross-trial needs checkpoint reuse) remains deferred. Current compatible checkpoints
+within a run do replay; a new derived needs trial still performs its own needs steps.
+
+
+## 14 October 2026: PR #11 follow-up, offline condition
+
+Provider failures are separated from invalid output in row recovery v2. HTTP
+401/5xx errors and timeouts fail the active stage with a saved `transport_failed`
+chunk, without consuming correction attempts or creating fallback rows. Resume
+retries unfinished rows and retains accepted answers. Only malformed/cutoff output
+and deterministic input bounds exhaust into visible conservative fallbacks.
+Existing v1 conditions remain historical; apply v2 in a separate derived trial.
+
+Scripted regression checks cover all seven contracts (proposal support, writer,
+rewrite critic, membership, classifier, linker and link critic), including visible
+stage failure, working-client Resume and retained partial answers. No provider
+request, reference requirement set or saved research run is used.
+
+Unchecked proposal-support rows retain every authentic `supports` quotation from
+source-passing members. Their rewritten need passes its own source gate and ranks
+with those documents while keeping `support_not_checked` visible. Contradicting
+links are not promoted. This fixes evidence loss, not semantic uncertainty.
+
+Sentence-initial If/When/Unless clauses stop at their first comma. Knowing-verb
+checks now include find and learn; actual access/licence restrictions remain
+conditions. Scripted regressions check exact clauses and member-grounding.
+
+The DCAT 2/3 catalogue builder follows declared ancestry in each pinned W3C
+file, copying the closest available definition and recording its original
+file/hash/anchor plus `inherited_from`. Target-class overrides win. No definitions
+are authored; IDs, labels, need wording and entry counts remain unchanged.
+Missing definitions: DCAT 2, 56/158 → 0/158; DCAT 3, 119/250 → 0/250.
+All four DCAT-AP catalogue files remain unchanged. The updated DCAT catalogues
+remain unreviewed drafts with new content hashes. Eleven catalogue regression
+tests and all six offline rebuild checks pass.
+
+The root third-party notice now lists all six bundled official source files, the
+2015/2023 W3C Software and Document licences and SEMIC's CC BY 4.0 declarations.
+Original notices, including the inconsistent CC0 link caption in the 3.x HTML,
+remain unchanged in the checksum-pinned copies.
+
+Final follow-up validation: **640 RQ1 offline tests pass** (five dependency
+deprecation warnings), using the documented `pytest tests -q` suite. This adds
+52 regressions: 21 complete outage/Resume tests across seven steps and three
+provider-error categories, seven partial-row preservation checks, two bounded
+cutoff/input tests, two support-evidence checks, fourteen condition checks and
+six catalogue checks. The runtime schema, all six catalogue rebuild checks,
+production frontend build and diff whitespace checks pass. No live model
+generations, reference requirement sets, saved-run changes or human decisions.
+PR #11 stays open and unmerged; one commit addresses each follow-up item.

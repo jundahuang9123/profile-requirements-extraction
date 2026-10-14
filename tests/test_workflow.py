@@ -25,7 +25,7 @@ def setup_run(context, text='Each dataset must describe the represented asset.',
     store, client = context
     source = register_source(store, SourceRequest(artifact=ArtifactPayload(name='needs.md', content=text), source_role='stakeholder_need'))
     snapshot = freeze_snapshot(store, SnapshotRequest(source_version_ids=[source['source_version_id']]))
-    run = new_run(store, RunRequest(consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy=strategy))
+    run = new_run(store, RunRequest(output_form='candidates', consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy=strategy))
     execute_run(store, run['run_id'])
     return store.get('run', run['run_id'])
 
@@ -109,7 +109,7 @@ def test_disabled_multi_agent_is_rejected_without_rule_fallback(context, monkeyp
     run = setup_run(context)
     monkeypatch.setenv('RRS_LLM_PROVIDER', 'disabled')
     with pytest.raises(ValueError, match='configured provider'):
-        new_run(store, RunRequest(consolidation='exact', snapshot_id=run['snapshot_id'], strategy='multi_agent'))
+        new_run(store, RunRequest(output_form='candidates', consolidation='exact', snapshot_id=run['snapshot_id'], strategy='multi_agent'))
 
 def test_grounding_fabricated_quotes_and_real_but_irrelevant_quote(context):
     store, _ = context

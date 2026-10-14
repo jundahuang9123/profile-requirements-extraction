@@ -1,6 +1,6 @@
 # Active development and archived branches
 
-The default and sole active development branch is `codex/extend-dcat-ap`.
+The default and sole active development branch is `main`.
 It contains the RQ1 workflow fixes, grouped-candidate work, inherited-base
 comparison and per-run DCAT/DCAT-AP version selection.
 

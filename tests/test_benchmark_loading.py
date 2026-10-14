@@ -136,7 +136,7 @@ def test_saved_export_keeps_background_provenance_outside_evidence(benchmark_sto
     from requirement_reuse_service.workflow.models import RunRequest
     store, _, _ = benchmark_store
     loaded = benchmarks.load_benchmark(store, 'mobilitydcat')
-    run = engine.new_run(store, RunRequest(snapshot_id=loaded['snapshot']['snapshot_id'], strategy='rules'))
+    run = engine.new_run(store, RunRequest(output_form='candidates', snapshot_id=loaded['snapshot']['snapshot_id'], strategy='rules'))
     monkeypatch.setattr(api, 'Store', lambda: store)
     response = TestClient(app).get(f'/api/rq1/v2/runs/{run["run_id"]}/export')
     assert response.status_code == 200
@@ -205,3 +205,46 @@ def test_preflight_uses_background_roles_and_reserves_base_context(benchmark_sto
     assert [s['source_role'] for s in mobility['sources']] == ['background', 'normative_spec', 'normative_spec']
     retained = preflight_benchmarks.audit(tmp_path / 'preflight-retained', treat_base_as_background=False)['mobilitydcat']
     assert retained['evidence_units'] == 3 and retained['background_excluded_units'] == 0
+
+
+def test_authored_use_cases_are_frozen_with_exact_file_hash(benchmark_store):
+    import hashlib
+    from requirement_reuse_service.workflow.models import CorpusSnapshot
+    store,root,_=benchmark_store
+    # Synthetic fixture: no real held-out task file is created or copied.
+    tasks=[{'id':'GOAL-1','statement':'Users can judge whether reuse is legal.',
+            'kind':'cross_cutting_goal','basis':'Purpose document, section 1',
+            'author':'Fixture author','written_at':'2026-10-13'}]
+    path=root/'other/use-cases.json';path.parent.mkdir();path.write_text(json.dumps(tasks))
+    imported=benchmarks.load_benchmark(store,'other')['snapshot']
+    frozen=imported['user_tasks'][0]
+    assert all(frozen[k]==v for k,v in tasks[0].items())
+    assert imported['use_case_input']=={'file':'benchmark-data/other/use-cases.json',
+                                       'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
+    CorpusSnapshot.model_validate(imported)
+    path.write_text(json.dumps(tasks,indent=2))
+    changed=benchmarks.load_benchmark(store,'other')['snapshot']
+    assert changed['snapshot_id']!=imported['snapshot_id']
+    assert store.get('snapshot',imported['snapshot_id'])==imported
+
+
+def test_no_use_case_file_preserves_empty_and_old_snapshots(benchmark_store):
+    from requirement_reuse_service.workflow.models import CorpusSnapshot
+    store,_,_=benchmark_store
+    imported=benchmarks.load_benchmark(store,'other')['snapshot']
+    assert imported['user_tasks']==[] and imported['use_case_input'] is None
+    imported.pop('use_case_input')
+    imported['user_tasks']=[{'id':'CQ-1','statement':'A legacy task','kind':'competency_question'}]
+    legacy=CorpusSnapshot.model_validate(imported)
+    assert legacy.user_tasks[0].author is None and legacy.use_case_input is None
+
+
+@pytest.mark.parametrize('change',[{'author':''},{'written_at':'yesterday'},{'kind':'invented_kind'}])
+def test_invalid_authored_use_cases_refused_before_source_registration(benchmark_store,change):
+    store,root,_=benchmark_store
+    task={'id':'GOAL-1','statement':'A task','kind':'cross_cutting_goal',
+          'basis':'Purpose section 1','author':'Fixture author','written_at':'2026-10-13'}
+    task.update(change)
+    path=root/'other/use-cases.json';path.parent.mkdir();path.write_text(json.dumps([task]))
+    with pytest.raises(ValueError):benchmarks.load_benchmark(store,'other')
+    assert not store.list('source') and not store.list('snapshot')

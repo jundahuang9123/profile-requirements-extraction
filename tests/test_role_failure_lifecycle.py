@@ -22,7 +22,7 @@ def pending(tmp_path, monkeypatch):
     source = register_source(store, SourceRequest(artifact=ArtifactPayload(
         name='needs.md', content='Transport operators need to discover datasets.'), source_role='stakeholder_need'))
     snapshot = engine.freeze_snapshot(store, SnapshotRequest(source_version_ids=[source['source_version_id']]))
-    run = engine.new_run(store, RunRequest(consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='mock', role_selection='automatic'))
+    run = engine.new_run(store, RunRequest(output_form='candidates', consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='mock', role_selection='automatic'))
     return store, run, TestClient(app)
 
 
@@ -92,7 +92,7 @@ def test_assessment_restart_preserves_exact_revision_checkpoints(tmp_path, monke
     source = register_source(store, SourceRequest(artifact=ArtifactPayload(name='needs.md',
         content='Each dataset must publish its title.\nEach dataset must specify its language.'), source_role='stakeholder_need'))
     snapshot = engine.freeze_snapshot(store, SnapshotRequest(source_version_ids=[source['source_version_id']]))
-    run = engine.new_run(store, RunRequest(consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='rules'))
+    run = engine.new_run(store, RunRequest(output_form='candidates', consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='rules'))
     attempts = []
     def assessment(system, user):
         import json

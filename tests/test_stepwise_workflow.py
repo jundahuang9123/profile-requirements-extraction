@@ -19,7 +19,7 @@ def workflow(tmp_path, monkeypatch):
     source = register_source(store, SourceRequest(artifact=ArtifactPayload(name='needs.md',
         content='Each dataset must specify its title.'), source_role='stakeholder_need'))
     snapshot = freeze_snapshot(store, SnapshotRequest(source_version_ids=[source['source_version_id']]))
-    run = new_run(store, RunRequest(consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='rules', execution_mode='stepwise'))
+    run = new_run(store, RunRequest(output_form='candidates', consolidation='exact', snapshot_id=snapshot['snapshot_id'], strategy='rules', execution_mode='stepwise'))
     return store, run, source, snapshot, TestClient(app)
 
 

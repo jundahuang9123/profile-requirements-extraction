@@ -61,8 +61,11 @@ class OutputTokenLimitError(LLMError):
 class OutputValidationError(LLMError):
     """Complete text failed its output contract; no invalid object was accepted."""
 
-    def __init__(self, contract: str, issues: list[dict], finish_reason: str | None = None):
+    def __init__(self, contract: str, issues: list[dict], finish_reason: str | None = None, parsed_payload=None):
         self.issues = issues
+        # Complete JSON only, for explicit row-level recovery. This is never an
+        # accepted contract or an exception-message/log field.
+        self.parsed_payload = parsed_payload
         details = '; '.join(f'{issue["loc"]}: {issue["type"]}' for issue in issues[:30])
         reason = f' (provider finish_reason={finish_reason}).' if finish_reason else ''
         super().__init__(f'LLM output failed schema validation for {contract}: {details}{reason}')
@@ -245,7 +248,7 @@ class OpenAICompatibleClient:
                              validation_issue_count=len(exc.issues))
                 if index == schema_repair_attempts:
                     reason = audit.get('finish_reason') or 'unknown'
-                    raise OutputValidationError(output_model.__name__, exc.issues, reason) from exc
+                    raise OutputValidationError(output_model.__name__, exc.issues, reason, exc.parsed_payload) from exc
                 # Same provider, original source context and schema. Never trim lists,
                 # map unknown enums or accept only the valid fraction of an answer.
                 body = {**body, 'messages': [*body['messages'],
@@ -398,7 +401,9 @@ def validate_json_payload(text: str, output_model: type[T]) -> T:
         # schema. Do not persist invalid input values or Pydantic context objects.
         issues = [{'loc': list(error['loc']), 'type': error['type']}
                   for error in exc.errors(include_url=False, include_input=False, include_context=False)]
-        raise OutputValidationError(output_model.__name__, issues) from exc
+        try: parsed = json.loads(candidate)
+        except (ValueError, TypeError): parsed = None
+        raise OutputValidationError(output_model.__name__, issues, parsed_payload=parsed) from exc
 
 
 def extract_json_object(text: str) -> str:

@@ -3,17 +3,16 @@
 A local research workbench for extracting, inspecting, and validating traceable
 metadata requirements from heterogeneous domain materials. Formerly `rq1-blackboard`.
 
-The default interface implements the persistent **nine-stage RQ1 workflow**:
+New agent runs produce a **minimal, traceable list of needs**. RQ1 states what
+people or systems need to know, find, judge or do; vocabulary terms stay separately
+as observed RQ2 hints. Source-checked candidates are grouped into needs, classified
+against the selected base, optionally scoped by independently checked use-case
+necessity, assessed once per retained need, and ranked for human review.
 
-1. Acquire versioned source artifacts and record their authority.
-2. Decompose them into stable, addressable evidence units.
-3. Select source-grounded stakeholder perspectives, then elicit candidates independently.
-4. Normalize atomic, typed, implementation-neutral requirement records.
-5. Verify original-source provenance before assessing semantic support and quality.
-6. Consolidate exact equivalents while retaining conflicting alternatives.
-7. Deliberate selectively on grounded issues within explicit budgets.
-8. Obtain revision-specific human adjudication.
-9. Publish an immutable, traceable validated requirement baseline for RQ2.
+See [RQ1 needs: definitions, processing, UI and limits](docs/RQ1_NEEDS.md).
+Set-aside items remain visible and restorable. Discussion is on request by default;
+automatic discussion is optional. Saved extractions can be reprocessed in separate
+trials without changing historical runs or using reference answers.
 
 See [the operating guide](docs/WORKFLOW_V2.md) for formats, review gates, APIs,
 persistence, evaluation and limitations, and [the implementation design](docs/RQ1_IMPLEMENTATION_GUIDE.md)
@@ -31,7 +30,7 @@ what the software prepares, and which evidence still needs human review.
 
 ## Starting version and active branch
 
-`codex/extend-dcat-ap` is the default development branch. Historical branches are
+`main` is the default development branch. Historical branches are
 preserved as archive tags rather than active branches; see [repository maintenance](docs/REPOSITORY_MAINTENANCE.md).
 
 On **Sources & scope**, select the starting DCAT / DCAT-AP version for each run:

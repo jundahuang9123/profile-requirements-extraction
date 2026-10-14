@@ -264,6 +264,17 @@
           "title": "Source Version Ids",
           "type": "array"
         },
+        "use_case_input": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UseCaseInput"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "user_tasks": {
           "items": {
             "$ref": "#/$defs/UserTask"
@@ -282,6 +293,32 @@
         "created_at"
       ],
       "title": "CorpusSnapshot",
+      "type": "object"
+    },
+    "CriticDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "keep": {
+          "title": "Keep",
+          "type": "boolean"
+        },
+        "link_id": {
+          "title": "Link Id",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "link_id",
+        "keep",
+        "rationale"
+      ],
+      "title": "CriticDecision",
       "type": "object"
     },
     "DecisionRequest": {
@@ -541,6 +578,22 @@
           "title": "Name",
           "type": "string"
         },
+        "output_form": {
+          "anyOf": [
+            {
+              "enum": [
+                "needs",
+                "candidates"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Output Form"
+        },
         "rationale": {
           "maxLength": 2000,
           "minLength": 1,
@@ -551,6 +604,22 @@
           "default": true,
           "title": "Reuse Assessments",
           "type": "boolean"
+        },
+        "scoping": {
+          "anyOf": [
+            {
+              "enum": [
+                "use_cases",
+                "off"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scoping"
         }
       },
       "required": [
@@ -727,6 +796,52 @@
       "title": "Finding",
       "type": "object"
     },
+    "GroundingCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "group_id": {
+          "title": "Group Id",
+          "type": "string"
+        },
+        "no_added_actor": {
+          "title": "No Added Actor",
+          "type": "boolean"
+        },
+        "no_added_condition": {
+          "title": "No Added Condition",
+          "type": "boolean"
+        },
+        "no_added_obligation": {
+          "title": "No Added Obligation",
+          "type": "boolean"
+        },
+        "no_added_scope": {
+          "title": "No Added Scope",
+          "type": "boolean"
+        },
+        "rationale": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "supported": {
+          "title": "Supported",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "group_id",
+        "supported",
+        "no_added_actor",
+        "no_added_obligation",
+        "no_added_condition",
+        "no_added_scope",
+        "rationale"
+      ],
+      "title": "GroundingCheck",
+      "type": "object"
+    },
     "IFCSelector": {
       "additionalProperties": false,
       "properties": {
@@ -825,6 +940,360 @@
       "title": "JSONSelector",
       "type": "object"
     },
+    "MemberCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "expresses_need": {
+          "title": "Expresses Need",
+          "type": "boolean"
+        },
+        "member_id": {
+          "title": "Member Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "member_id",
+        "expresses_need"
+      ],
+      "title": "MemberCheck",
+      "type": "object"
+    },
+    "MembershipDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "expresses_need": {
+          "title": "Expresses Need",
+          "type": "boolean"
+        },
+        "member_id": {
+          "title": "Member Id",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "member_id",
+        "expresses_need",
+        "rationale"
+      ],
+      "title": "MembershipDecision",
+      "type": "object"
+    },
+    "NeedClass": {
+      "additionalProperties": false,
+      "properties": {
+        "base_need_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 8,
+          "title": "Base Need Ids",
+          "type": "array"
+        },
+        "classification": {
+          "enum": [
+            "generic",
+            "domain_use_of_base",
+            "domain"
+          ],
+          "title": "Classification",
+          "type": "string"
+        },
+        "need_id": {
+          "title": "Need Id",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "need_id",
+        "classification",
+        "rationale"
+      ],
+      "title": "NeedClass",
+      "type": "object"
+    },
+    "NeedClassifications": {
+      "additionalProperties": false,
+      "properties": {
+        "classifications": {
+          "items": {
+            "$ref": "#/$defs/NeedClass"
+          },
+          "maxItems": 25,
+          "title": "Classifications",
+          "type": "array"
+        }
+      },
+      "required": [
+        "classifications"
+      ],
+      "title": "NeedClassifications",
+      "type": "object"
+    },
+    "NeedGrounding": {
+      "additionalProperties": false,
+      "properties": {
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/GroundingCheck"
+          },
+          "maxItems": 20,
+          "title": "Checks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "checks"
+      ],
+      "title": "NeedGrounding",
+      "type": "object"
+    },
+    "NeedLinks": {
+      "additionalProperties": false,
+      "properties": {
+        "links": {
+          "items": {
+            "$ref": "#/$defs/UseCaseLink"
+          },
+          "maxItems": 32,
+          "title": "Links",
+          "type": "array"
+        },
+        "need_id": {
+          "title": "Need Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "need_id"
+      ],
+      "title": "NeedLinks",
+      "type": "object"
+    },
+    "NeedMembership": {
+      "additionalProperties": false,
+      "properties": {
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/MembershipDecision"
+          },
+          "maxItems": 40,
+          "title": "Checks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "checks"
+      ],
+      "title": "NeedMembership",
+      "type": "object"
+    },
+    "NeedSpanElicitationResult": {
+      "additionalProperties": false,
+      "properties": {
+        "observations": {
+          "items": {
+            "$ref": "#/$defs/NeedSpanObservation"
+          },
+          "title": "Observations",
+          "type": "array"
+        }
+      },
+      "title": "NeedSpanElicitationResult",
+      "type": "object"
+    },
+    "NeedSpanObservation": {
+      "additionalProperties": false,
+      "description": "Current provider contract: needs and citations, never extension solution labels.",
+      "properties": {
+        "assumptions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "evidence_links": {
+          "items": {
+            "$ref": "#/$defs/SourceSpanLink"
+          },
+          "maxItems": 12,
+          "title": "Evidence Links",
+          "type": "array"
+        },
+        "intent": {
+          "$ref": "#/$defs/NormalizedIntent"
+        },
+        "observation_id": {
+          "title": "Observation Id",
+          "type": "string"
+        },
+        "rationale": {
+          "default": "",
+          "title": "Rationale",
+          "type": "string"
+        },
+        "requirement_type": {
+          "default": "unknown",
+          "enum": [
+            "descriptive_metadata",
+            "semantic_anchor",
+            "technical_metadata",
+            "access_policy",
+            "quality_provenance",
+            "lifecycle_context",
+            "controlled_vocabulary",
+            "validation_constraint",
+            "competency_question",
+            "unknown"
+          ],
+          "title": "Requirement Type",
+          "type": "string"
+        },
+        "role_id": {
+          "title": "Role Id",
+          "type": "string"
+        },
+        "rq2_hints": {
+          "items": {
+            "$ref": "#/$defs/RQ2Hint"
+          },
+          "title": "Rq2 Hints",
+          "type": "array"
+        },
+        "scope": {
+          "default": "Unspecified",
+          "title": "Scope",
+          "type": "string"
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        },
+        "support_level": {
+          "default": "evidence_supported_inference",
+          "enum": [
+            "explicit",
+            "evidence_supported_inference",
+            "unsupported"
+          ],
+          "title": "Support Level",
+          "type": "string"
+        },
+        "supports_user_tasks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supports User Tasks",
+          "type": "array"
+        },
+        "task_justifications": {
+          "items": {
+            "$ref": "#/$defs/TaskJustification"
+          },
+          "title": "Task Justifications",
+          "type": "array"
+        }
+      },
+      "required": [
+        "observation_id",
+        "role_id",
+        "statement"
+      ],
+      "title": "NeedSpanObservation",
+      "type": "object"
+    },
+    "NeedStatement": {
+      "additionalProperties": false,
+      "properties": {
+        "condition": {
+          "default": "",
+          "maxLength": 600,
+          "title": "Condition",
+          "type": "string"
+        },
+        "group_id": {
+          "title": "Group Id",
+          "type": "string"
+        },
+        "members": {
+          "items": {
+            "$ref": "#/$defs/MemberCheck"
+          },
+          "maxItems": 40,
+          "minItems": 1,
+          "title": "Members",
+          "type": "array"
+        },
+        "scope": {
+          "default": "",
+          "maxLength": 600,
+          "title": "Scope",
+          "type": "string"
+        },
+        "statement": {
+          "maxLength": 1600,
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "group_id",
+        "statement",
+        "members"
+      ],
+      "title": "NeedStatement",
+      "type": "object"
+    },
+    "NeedStatements": {
+      "additionalProperties": false,
+      "properties": {
+        "needs": {
+          "items": {
+            "$ref": "#/$defs/NeedStatement"
+          },
+          "maxItems": 20,
+          "title": "Needs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "needs"
+      ],
+      "title": "NeedStatements",
+      "type": "object"
+    },
+    "NeedUseCaseLinks": {
+      "additionalProperties": false,
+      "properties": {
+        "needs": {
+          "items": {
+            "$ref": "#/$defs/NeedLinks"
+          },
+          "maxItems": 25,
+          "title": "Needs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "needs"
+      ],
+      "title": "NeedUseCaseLinks",
+      "type": "object"
+    },
     "NormalizedIntent": {
       "additionalProperties": false,
       "description": "V2 never supplies an unstated Dataset scope or discovery need.",
@@ -887,6 +1356,41 @@
         }
       },
       "title": "NormalizedIntent",
+      "type": "object"
+    },
+    "ObligationAlternative": {
+      "additionalProperties": false,
+      "properties": {
+        "count": {
+          "minimum": 1,
+          "title": "Count",
+          "type": "integer"
+        },
+        "obligation": {
+          "enum": [
+            "mandatory",
+            "recommended",
+            "optional",
+            "unknown"
+          ],
+          "title": "Obligation",
+          "type": "string"
+        },
+        "revision_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Revision Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "obligation",
+        "count",
+        "revision_ids"
+      ],
+      "title": "ObligationAlternative",
       "type": "object"
     },
     "Observation": {
@@ -970,6 +1474,13 @@
           "title": "Role Id",
           "type": "string"
         },
+        "rq2_hints": {
+          "items": {
+            "$ref": "#/$defs/RQ2Hint"
+          },
+          "title": "Rq2 Hints",
+          "type": "array"
+        },
         "scope": {
           "default": "Unspecified",
           "title": "Scope",
@@ -995,6 +1506,13 @@
           },
           "title": "Supports User Tasks",
           "type": "array"
+        },
+        "task_justifications": {
+          "items": {
+            "$ref": "#/$defs/TaskJustification"
+          },
+          "title": "Task Justifications",
+          "type": "array"
         }
       },
       "required": [
@@ -1004,6 +1522,74 @@
         "evidence_links"
       ],
       "title": "Observation",
+      "type": "object"
+    },
+    "ProposalSupport": {
+      "additionalProperties": false,
+      "properties": {
+        "proposals": {
+          "items": {
+            "$ref": "#/$defs/ProposalSupportDecision"
+          },
+          "maxItems": 25,
+          "title": "Proposals",
+          "type": "array"
+        }
+      },
+      "required": [
+        "proposals"
+      ],
+      "title": "ProposalSupport",
+      "type": "object"
+    },
+    "ProposalSupportDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "obligation_stated": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Obligation Stated"
+        },
+        "proposal_id": {
+          "title": "Proposal Id",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "support": {
+          "enum": [
+            "supported",
+            "partly",
+            "not_supported"
+          ],
+          "title": "Support",
+          "type": "string"
+        },
+        "supporting_evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Evidence Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "proposal_id",
+        "support",
+        "rationale"
+      ],
+      "title": "ProposalSupportDecision",
       "type": "object"
     },
     "Qualification": {
@@ -1078,6 +1664,65 @@
       "title": "RDFSelector",
       "type": "object"
     },
+    "RQ2Hint": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Id"
+        },
+        "kind": {
+          "enum": [
+            "vocabulary_term",
+            "code_list",
+            "standard",
+            "other"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "origin": {
+          "enum": [
+            "proposal",
+            "evidence"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "revision_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Revision Id"
+        },
+        "term": {
+          "minLength": 1,
+          "title": "Term",
+          "type": "string"
+        }
+      },
+      "required": [
+        "term",
+        "kind",
+        "origin"
+      ],
+      "title": "RQ2Hint",
+      "type": "object"
+    },
     "RequirementRecord": {
       "additionalProperties": false,
       "properties": {
@@ -1105,6 +1750,13 @@
             "$ref": "#/$defs/Finding"
           },
           "title": "Base Check Findings",
+          "type": "array"
+        },
+        "base_need_matches": {
+          "items": {
+            "type": "object"
+          },
+          "title": "Base Need Matches",
           "type": "array"
         },
         "base_property": {
@@ -1192,12 +1844,72 @@
           "title": "Lifecycle State",
           "type": "string"
         },
+        "matched_base_need_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Matched Base Need Ids",
+          "type": "array"
+        },
+        "need_class": {
+          "anyOf": [
+            {
+              "enum": [
+                "generic",
+                "domain_use_of_base",
+                "domain"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Need Class"
+        },
+        "need_condition": {
+          "default": "",
+          "title": "Need Condition",
+          "type": "string"
+        },
+        "need_integrity_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Need Integrity Hash"
+        },
+        "need_statement": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Need Statement"
+        },
         "normalized_intent": {
           "$ref": "#/$defs/NormalizedIntent"
         },
         "normalized_statement": {
           "title": "Normalized Statement",
           "type": "string"
+        },
+        "obligation_alternatives": {
+          "items": {
+            "$ref": "#/$defs/ObligationAlternative"
+          },
+          "title": "Obligation Alternatives",
+          "type": "array"
         },
         "observation_ids": {
           "items": {
@@ -1213,6 +1925,25 @@
           "title": "Parent Revision Ids",
           "type": "array"
         },
+        "processing_flags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Processing Flags",
+          "type": "array"
+        },
+        "proposal_support": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Proposal Support"
+        },
         "qualification": {
           "anyOf": [
             {
@@ -1223,6 +1954,23 @@
             }
           ],
           "default": null
+        },
+        "rank": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rank"
+        },
+        "rank_keys": {
+          "title": "Rank Keys",
+          "type": "object"
         },
         "rationale": {
           "default": "",
@@ -1263,7 +2011,7 @@
         },
         "rq2_hints": {
           "items": {
-            "type": "object"
+            "$ref": "#/$defs/RQ2Hint"
           },
           "title": "Rq2 Hints",
           "type": "array"
@@ -1282,6 +2030,24 @@
           },
           "title": "Supports User Tasks",
           "type": "array"
+        },
+        "task_justifications": {
+          "items": {
+            "$ref": "#/$defs/TaskJustification"
+          },
+          "title": "Task Justifications",
+          "type": "array"
+        },
+        "unbacked_obligation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UnbackedObligation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "verification": {
           "anyOf": [
@@ -1310,6 +2076,57 @@
         "support_level"
       ],
       "title": "RequirementRecord",
+      "type": "object"
+    },
+    "RestoreRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_version": {
+          "title": "Expected Version",
+          "type": "integer"
+        },
+        "idempotency_key": {
+          "minLength": 1,
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "need_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Need Id"
+        },
+        "observation_id": {
+          "minLength": 1,
+          "title": "Observation Id",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "reason": {
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "expected_version",
+        "idempotency_key",
+        "observation_id",
+        "reason",
+        "rationale"
+      ],
+      "title": "RestoreRequest",
       "type": "object"
     },
     "RevisionDraft": {
@@ -1576,6 +2393,22 @@
           "title": "Name",
           "type": "string"
         },
+        "output_form": {
+          "anyOf": [
+            {
+              "enum": [
+                "needs",
+                "candidates"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Output Form"
+        },
         "override_rationale": {
           "default": "",
           "maxLength": 2000,
@@ -1606,6 +2439,22 @@
           ],
           "title": "Role Selection",
           "type": "string"
+        },
+        "scoping": {
+          "anyOf": [
+            {
+              "enum": [
+                "use_cases",
+                "off"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scoping"
         },
         "snapshot_id": {
           "title": "Snapshot Id",
@@ -1658,8 +2507,36 @@
           "default": null,
           "title": "Base Check"
         },
+        "details": {
+          "title": "Details",
+          "type": "object"
+        },
+        "matched_base_need_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Matched Base Need Ids",
+          "type": "array"
+        },
+        "need_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Need Id"
+        },
         "observation_id": {
           "title": "Observation Id",
+          "type": "string"
+        },
+        "rationale": {
+          "default": "",
+          "title": "Rationale",
           "type": "string"
         },
         "reason": {
@@ -1667,10 +2544,33 @@
           "enum": [
             "no_source_link",
             "inherited_from_base",
-            "declared_not_extension"
+            "declared_not_extension",
+            "base_specification_only",
+            "generic_need_served_by_base",
+            "no_use_case",
+            "not_supported_by_quote",
+            "source_check_failed",
+            "rewrite_rejected"
           ],
           "title": "Reason",
           "type": "string"
+        },
+        "restored": {
+          "default": false,
+          "title": "Restored",
+          "type": "boolean"
+        },
+        "revision_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Revision Id"
         },
         "role_id": {
           "title": "Role Id",
@@ -2017,6 +2917,13 @@
           "title": "Role Id",
           "type": "string"
         },
+        "rq2_hints": {
+          "items": {
+            "$ref": "#/$defs/RQ2Hint"
+          },
+          "title": "Rq2 Hints",
+          "type": "array"
+        },
         "scope": {
           "default": "Unspecified",
           "title": "Scope",
@@ -2042,6 +2949,13 @@
           },
           "title": "Supports User Tasks",
           "type": "array"
+        },
+        "task_justifications": {
+          "items": {
+            "$ref": "#/$defs/TaskJustification"
+          },
+          "title": "Task Justifications",
+          "type": "array"
         }
       },
       "required": [
@@ -2052,6 +2966,28 @@
         "base_property"
       ],
       "title": "SpanObservation",
+      "type": "object"
+    },
+    "TaskJustification": {
+      "additionalProperties": false,
+      "properties": {
+        "justification": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Justification",
+          "type": "string"
+        },
+        "task_id": {
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "justification"
+      ],
+      "title": "TaskJustification",
       "type": "object"
     },
     "TextSelector": {
@@ -2098,9 +3034,120 @@
       "title": "TextSelector",
       "type": "object"
     },
+    "UnbackedObligation": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "enum": [
+            "mandatory",
+            "recommended",
+            "optional"
+          ],
+          "title": "Label",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "no_quote",
+            "quote_does_not_state_it"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "reason"
+      ],
+      "title": "UnbackedObligation",
+      "type": "object"
+    },
+    "UseCaseCritic": {
+      "additionalProperties": false,
+      "properties": {
+        "decisions": {
+          "items": {
+            "$ref": "#/$defs/CriticDecision"
+          },
+          "maxItems": 25,
+          "title": "Decisions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "decisions"
+      ],
+      "title": "UseCaseCritic",
+      "type": "object"
+    },
+    "UseCaseInput": {
+      "additionalProperties": false,
+      "properties": {
+        "file": {
+          "title": "File",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file",
+        "sha256"
+      ],
+      "title": "UseCaseInput",
+      "type": "object"
+    },
+    "UseCaseLink": {
+      "additionalProperties": false,
+      "properties": {
+        "justification": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Justification",
+          "type": "string"
+        },
+        "task_id": {
+          "title": "Task Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "justification"
+      ],
+      "title": "UseCaseLink",
+      "type": "object"
+    },
     "UserTask": {
       "description": "A predefined competency question, corpus-derived task, or declared need.\n\nRequirements link back to user tasks via ``supports_user_tasks`` so that\ncompetency-question coverage can be computed during evaluation (RQ1).",
       "properties": {
+        "author": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Author"
+        },
+        "basis": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Basis"
+        },
         "id": {
           "title": "Id",
           "type": "string"
@@ -2110,7 +3157,8 @@
           "enum": [
             "competency_question",
             "user_task",
-            "stakeholder_need"
+            "stakeholder_need",
+            "cross_cutting_goal"
           ],
           "title": "Kind",
           "type": "string"
@@ -2135,6 +3183,18 @@
         "statement": {
           "title": "Statement",
           "type": "string"
+        },
+        "written_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Written At"
         }
       },
       "required": [
@@ -2193,6 +3253,18 @@
           ],
           "default": null,
           "title": "Base Check Policy Version"
+        },
+        "base_needs_catalogue": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Needs Catalogue"
         },
         "base_profile_id": {
           "anyOf": [
@@ -2358,6 +3430,27 @@
         "name": {
           "title": "Name",
           "type": "string"
+        },
+        "need_chunks": {
+          "additionalProperties": {
+            "type": "object"
+          },
+          "title": "Need Chunks",
+          "type": "object"
+        },
+        "need_steps": {
+          "additionalProperties": {
+            "type": "object"
+          },
+          "title": "Need Steps",
+          "type": "object"
+        },
+        "needs_policies": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Needs Policies",
+          "type": "object"
         },
         "normalization_policy_version": {
           "anyOf": [
