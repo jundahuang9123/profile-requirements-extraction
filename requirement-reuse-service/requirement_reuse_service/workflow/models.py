@@ -120,13 +120,20 @@ class EvidenceUnit(Contract):
     parser_version: str
 
 
+class UseCaseInput(Contract):
+    file: str
+    sha256: str = Field(pattern=r'^[0-9a-f]{64}$')
+
+
 class SnapshotRequest(Contract):
     source_version_ids: list[str] = Field(min_length=1)
     user_tasks: list[UserTask] = Field(default_factory=list)
     name: str = 'Research corpus'
+    use_case_input: UseCaseInput | None = None
 
 
 class CorpusSnapshot(Contract):
+    use_case_input: UseCaseInput | None = None
     snapshot_id: str
     name: str
     source_version_ids: list[str]

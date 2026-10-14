@@ -153,13 +153,15 @@ def freeze_snapshot(store: Store, request: SnapshotRequest) -> dict:
     manifest = {'sources': source_ids, 'evidence': evidence_ids,
                 'tasks': [task.model_dump(mode='json') for task in request.user_tasks],
                 'exclusions': exclusions, 'decomposition_policy': 'all-addressable-v2'}
+    if request.use_case_input is not None:
+        manifest['use_case_input'] = request.use_case_input.model_dump(mode='json')
     snapshot_id = uid('corpus', manifest, request.name)
     try:
         return store.get('snapshot', snapshot_id)
     except KeyError:
         pass
     snapshot = CorpusSnapshot(snapshot_id=snapshot_id, name=request.name, source_version_ids=source_ids,
-                              evidence_ids=evidence_ids, user_tasks=request.user_tasks,
+                              evidence_ids=evidence_ids, user_tasks=request.user_tasks, use_case_input=request.use_case_input,
                               manifest_hash=digest(manifest), exclusions=exclusions, created_at=now())
     store.put('snapshot', snapshot_id, snapshot.model_dump(mode='json'))
     return snapshot.model_dump(mode='json')

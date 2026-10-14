@@ -8,11 +8,13 @@ from __future__ import annotations
 
 import base64
 import json
+import hashlib
+from datetime import datetime
 from pathlib import Path
 
-from ..models import ArtifactPayload
+from ..models import ArtifactPayload, UserTask
 from .evidence import register_source
-from .models import SnapshotRequest, SourceRequest
+from .models import SnapshotRequest, SourceRequest, UseCaseInput
 from .storage import Store, digest
 
 
@@ -75,6 +77,30 @@ def source_request(relative: str, source_role: str) -> SourceRequest:
         origin_uri='benchmark-data/' + relative)
 
 
+def use_case_inputs(case_id: str) -> tuple[list[UserTask], UseCaseInput | None]:
+    """Freeze user-authored purpose-based tasks, without generating any tasks."""
+    root = BENCHMARK_ROOT.resolve()
+    path = (root / case_id / 'use-cases.json').resolve()
+    if not path.is_relative_to(root) or path.parent != root / case_id:
+        raise ValueError('Use-case input must belong to the selected case.')
+    if not path.exists(): return [], None
+    raw = path.read_bytes()
+    rows = json.loads(raw)
+    if not isinstance(rows, list): raise ValueError('Use-case input must be a list.')
+    required = {'id','statement','kind','basis','author','written_at'}
+    tasks = []
+    for row in rows:
+        if not isinstance(row, dict) or set(row) != required or any(
+                not isinstance(value,str) or not value.strip() for value in row.values()):
+            raise ValueError('Each use case needs nonempty id, statement, kind, basis, author and written_at.')
+        try: datetime.fromisoformat(row['written_at'].replace('Z','+00:00'))
+        except ValueError as exc: raise ValueError('Use-case written_at must be an ISO date or timestamp.') from exc
+        tasks.append(UserTask(**row, source='benchmark-data/' + case_id + '/use-cases.json'))
+    if len({task.id for task in tasks}) != len(tasks): raise ValueError('Use-case IDs must be unique.')
+    return tasks, UseCaseInput(file='benchmark-data/' + case_id + '/use-cases.json',
+                              sha256=hashlib.sha256(raw).hexdigest())
+
+
 def load_benchmark(store: Store, case_id: str, treat_base_as_background: bool = True) -> dict:
     """Register raw inputs and freeze a new snapshot using the case's explicit defaults.
 
@@ -87,6 +113,7 @@ def load_benchmark(store: Store, case_id: str, treat_base_as_background: bool = 
     settings = benchmark_settings(case_id)
     if not settings['raw']:
         raise ValueError(f'Benchmark {case_id} has no allowlisted raw inputs.')
+    tasks, task_input = use_case_inputs(case_id)
     background = set(settings['background']) if treat_base_as_background else set()
     # Read every file before registration; a missing document must not leave a partial
     # benchmark import. Parsing failures are reported by the snapshot freeze.
@@ -95,6 +122,7 @@ def load_benchmark(store: Store, case_id: str, treat_base_as_background: bool = 
     sources = [register_source(store, request) for _, request in requests]
     snapshot = freeze_snapshot(store, SnapshotRequest(
         source_version_ids=[source['source_version_id'] for source in sources],
+        user_tasks=tasks, use_case_input=task_input,
         name=f'Benchmark {case_id}' + (' (base specifications as background)' if background else '')))
     return {'case_id': case_id, 'sources': sources, 'snapshot': snapshot,
             'base_profile_id': settings['base_profile_id'],

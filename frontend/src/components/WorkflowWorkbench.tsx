@@ -40,7 +40,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
   const [baseProfileId, setBaseProfileId] = useState<string>(setup.baseProfileId ?? '');
   const [baseCheck, setBaseCheck] = useState<boolean>(setup.baseCheck ?? true);
   const [treatBaseAsBackground, setTreatBaseAsBackground] = useState<boolean>(setup.treatBaseAsBackground ?? true);
-  const [benchmarkImport, setBenchmarkImport] = useState<{ caseId: string; treatBaseAsBackground: boolean; sourceVersionIds: string[] } | null>(setup.benchmarkImport ?? null);
+  const [benchmarkImport, setBenchmarkImport] = useState<{ caseId: string; treatBaseAsBackground: boolean; sourceVersionIds: string[]; userTasks?: Snapshot['user_tasks']; useCaseInput?: Snapshot['use_case_input'] } | null>(setup.benchmarkImport ?? null);
   const [runs, setRuns] = useState<RunSummary[]>([]);
   const [run, setRun] = useState<Run | null>(null);
   const [busy, setBusy] = useState(false);
@@ -151,7 +151,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
   const importBenchmark = () => act(async () => {
     const imported = await workflowApi<BenchmarkImport>(`/benchmarks/${benchmarkCaseId}/load`, { treat_base_as_background: treatBaseAsBackground });
     await refreshLists(); setSelectedSources(imported.sources.map(source => source.source_version_id));
-    setBenchmarkImport({ caseId: imported.case_id, treatBaseAsBackground: imported.treat_base_as_background, sourceVersionIds: imported.sources.map(source => source.source_version_id) });
+    setBenchmarkImport({ caseId: imported.case_id, treatBaseAsBackground: imported.treat_base_as_background, sourceVersionIds: imported.sources.map(source => source.source_version_id), userTasks: imported.snapshot.user_tasks, useCaseInput: imported.snapshot.use_case_input });
     setSnapshot(imported.snapshot);
     setTasks(imported.snapshot.user_tasks.map(task => task.statement).join('\n'));
     setScoping('auto');
@@ -179,8 +179,10 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
   const startRun = async () => act(async () => {
     if (benchmarkNeedsImport) throw new Error('Load the selected benchmark again to apply its source settings before starting.');
     if (benchmarkCaseId && selectedSources.some(id => !benchmarkImport?.sourceVersionIds.includes(id))) throw new Error('A benchmark uses only its loaded raw inputs. Select Custom documents to use additional sources.');
+    const importedTasks = benchmarkImport?.caseId === benchmarkCaseId ? benchmarkImport.userTasks : undefined;
+    const unchangedTasks = importedTasks && tasks === importedTasks.map(task => task.statement).join('\n');
     const snapshot = await workflowApi<{ snapshot_id: string }>('/snapshots', {
-      source_version_ids: selectedSources, user_tasks: tasks.split('\n').filter(line => line.trim()).map((statement, i) => ({ id: `CQ-${i + 1}`, statement, kind: 'competency_question' })), name: 'Workbench corpus',
+      source_version_ids: selectedSources, user_tasks: unchangedTasks ? importedTasks : tasks.split('\n').filter(line => line.trim()).map((statement, i) => ({ id: `CQ-${i + 1}`, statement, kind: 'competency_question' })), use_case_input: unchangedTasks ? benchmarkImport?.useCaseInput : null, name: 'Workbench corpus',
     });
     const created = await workflowApi<Run>('/runs', { output_form: strategy === 'multi_agent' ? 'needs' : 'candidates', scoping: scoping === 'auto' ? null : scoping, snapshot_id: snapshot.snapshot_id, execution_mode: executionMode, strategy, role_ids: roles, role_selection: strategy === 'rules' ? 'manual' : roleSelection, max_roles: maxRoles, consolidation: strategy === 'rules' ? 'exact' : consolidation, discussion: strategy === 'multi_agent' ? discussion : 'automatic', base_profile_id: baseProfileId || null, base_check: Boolean(baseProfileId) && baseCheck, benchmark_case_id: benchmarkCaseId || null, allow_live_provider: allowLive, name: 'Requirements extraction' });
     setSelectedRevisions([]); setActiveRecord(null); await loadRun(created.run_id); await refreshLists(); navigate('role_selection', created.run_id); onStatus('Workflow saved. Results persist while you browse the steps.');
@@ -250,7 +252,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     {run?.status === 'paused' && <section className="workflow-panel"><h2>Results saved — ready for review</h2><p>Review the completed step, then continue. No processing runs while this workflow is paused.</p><button className="workflow-primary" disabled={busy || Boolean(run.worker_id)} onClick={() => void act(async () => { await workflowApi(`/runs/${run.run_id}/continue`, { expected_version: run.version }); const updated = await loadRun(run.run_id); navigate(stages.find(stage => !['completed', 'partial'].includes(updated.stages[stage])) ?? 'adjudication'); })}>Continue to next processing step</button></section>}
     {run?.diagnostics.map((message, i) => <p className="workflow-error" key={i}>{message}</p>)}
     {page === 'acquisition' && <section className="workflow-panel">
-      {run ? <><h2>Frozen input sources</h2><p>These inputs belong to this saved run. Start a new workflow to change them.</p>{snapshot?.source_version_ids.map(id => <article key={id}><strong>{sources.find(source => source.source_version_id === id)?.name ?? id}</strong></article>)}{!!snapshot?.exclusions?.length && <details><summary>Material retained outside the evidence corpus</summary>{snapshot.exclusions.map(item => <p key={item.source_version_id}>{sources.find(source => source.source_version_id === item.source_version_id)?.name ?? item.source_version_id} · {humanLabel(item.reason)}</p>)}</details>}<h3>Scope & competency questions</h3>{snapshot?.user_tasks.map(task => <p key={task.id}>{task.id} · {task.statement}</p>)}</> : <><h2>Add source material & scope</h2>
+      {run ? <><h2>Frozen input sources</h2><p>These inputs belong to this saved run. Start a new workflow to change them.</p>{snapshot?.source_version_ids.map(id => <article key={id}><strong>{sources.find(source => source.source_version_id === id)?.name ?? id}</strong></article>)}{!!snapshot?.exclusions?.length && <details><summary>Material retained outside the evidence corpus</summary>{snapshot.exclusions.map(item => <p key={item.source_version_id}>{sources.find(source => source.source_version_id === item.source_version_id)?.name ?? item.source_version_id} · {humanLabel(item.reason)}</p>)}</details>}<h3>Scope & competency questions</h3>{snapshot?.user_tasks.map(task => <p key={task.id}>{task.id} · {task.statement}{task.author && <small> · {task.author} · {task.written_at} · {task.basis}</small>}</p>)}</> : <><h2>Add source material & scope</h2>
         <label>Input case<select value={benchmarkCaseId} onChange={event => chooseBenchmark(event.target.value)}><option value="">Custom documents</option>{benchmarks.map(item => <option key={item.case_id} value={item.case_id} disabled={!item.raw_file_count}>{humanLabel(item.case_id)} · {item.raw_file_count} raw files</option>)}</select></label>
         <BaseProfileField profiles={baseProfiles} value={baseProfileId} onChange={value => { setBaseProfileId(value); setBaseCheck(Boolean(value)); }} />
         <p className="workflow-muted">Choose the version the profile originally extended to reproduce it. For a new profile, select the version you plan to extend.</p>
@@ -265,6 +267,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
           {!benchmarkNeedsImport && <p className="workflow-notice">Sources loaded for this case. Starting also saves the scope and questions below.</p>}
         </div>}
         <label>Use-case scoping<select value={scoping} onChange={event => setScoping(event.target.value)}><option value="auto">Use declared tasks when present; otherwise off</option><option value="use_cases">Only needs necessary for declared use cases</option><option value="off">Off · retain needs without a use-case claim</option></select></label><label>Competency questions / user tasks<textarea rows={3} value={tasks} onChange={event => setTasks(event.target.value)} placeholder="One task per line" /></label>
+        {benchmarkImport?.caseId === benchmarkCaseId && !!benchmarkImport?.userTasks?.length && <details><summary>Imported use cases · author, date and purpose</summary>{benchmarkImport.userTasks.map(task => <p key={task.id}>{task.id} · {humanLabel(task.kind)} · {task.author} · {task.written_at}<br />{task.basis}</p>)}<p>{benchmarkImport.useCaseInput?.file} · {benchmarkImport.useCaseInput?.sha256}</p><p>Editing the text creates manual tasks and removes the imported file provenance.</p></details>}
         {!benchmarkCaseId && <><label>Source role<select value={sourceRole} onChange={event => setSourceRole(event.target.value)}>
           {['stakeholder_need', 'normative_spec', 'example', 'observation', 'background', 'evaluation_reference'].map(role => <option key={role} value={role}>{humanLabel(role)}</option>)}
         </select></label>

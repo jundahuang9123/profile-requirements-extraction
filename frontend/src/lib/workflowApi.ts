@@ -39,5 +39,7 @@ export function downloadWorkflow(name: string, value: unknown) {
   const link = document.createElement('a'); link.href = href; link.download = name; link.click(); URL.revokeObjectURL(href);
 }
 
-export type Snapshot = { snapshot_id: string; source_version_ids: string[]; evidence_ids: string[]; user_tasks: { id: string; statement: string; kind: string }[]; exclusions?: { source_version_id: string; reason: string }[] };
+export type UserTask = { id: string; statement: string; kind: string; author?: string | null; written_at?: string | null; basis?: string | null; source?: string; stakeholder?: string | null };
+export type UseCaseInput = { file: string; sha256: string };
+export type Snapshot = { use_case_input?: UseCaseInput | null; snapshot_id: string; source_version_ids: string[]; evidence_ids: string[]; user_tasks: UserTask[]; exclusions?: { source_version_id: string; reason: string }[] };
 export type EvidenceSummary = { evidence_id: string; kind: string; source_version_id: string; preview: string };

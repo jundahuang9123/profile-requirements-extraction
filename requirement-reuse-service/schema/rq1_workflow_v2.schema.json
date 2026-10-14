@@ -264,6 +264,17 @@
           "title": "Source Version Ids",
           "type": "array"
         },
+        "use_case_input": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UseCaseInput"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "user_tasks": {
           "items": {
             "$ref": "#/$defs/UserTask"
@@ -3055,6 +3066,26 @@
       "title": "UseCaseCritic",
       "type": "object"
     },
+    "UseCaseInput": {
+      "additionalProperties": false,
+      "properties": {
+        "file": {
+          "title": "File",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file",
+        "sha256"
+      ],
+      "title": "UseCaseInput",
+      "type": "object"
+    },
     "UseCaseLink": {
       "additionalProperties": false,
       "properties": {
@@ -3079,6 +3110,30 @@
     "UserTask": {
       "description": "A predefined competency question, corpus-derived task, or declared need.\n\nRequirements link back to user tasks via ``supports_user_tasks`` so that\ncompetency-question coverage can be computed during evaluation (RQ1).",
       "properties": {
+        "author": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Author"
+        },
+        "basis": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Basis"
+        },
         "id": {
           "title": "Id",
           "type": "string"
@@ -3088,7 +3143,8 @@
           "enum": [
             "competency_question",
             "user_task",
-            "stakeholder_need"
+            "stakeholder_need",
+            "cross_cutting_goal"
           ],
           "title": "Kind",
           "type": "string"
@@ -3113,6 +3169,18 @@
         "statement": {
           "title": "Statement",
           "type": "string"
+        },
+        "written_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Written At"
         }
       },
       "required": [

@@ -46,7 +46,7 @@ RequirementScope = Literal[
 ]
 FairDimension = Literal['F', 'A', 'I', 'R']
 ExtractionStrategy = Literal['rules', 'llm', 'hybrid', 'multi_agent']
-UserTaskKind = Literal['competency_question', 'user_task', 'stakeholder_need']
+UserTaskKind = Literal['competency_question', 'user_task', 'stakeholder_need', 'cross_cutting_goal']
 StudyMode = Literal['formative', 'summative']
 EvidenceSupportLevel = Literal['explicit', 'evidence_supported_inference', 'unsupported']
 StudyPhase = Literal[
@@ -102,6 +102,9 @@ class UserTask(BaseModel):
     kind: UserTaskKind = 'competency_question'
     stakeholder: str | None = None
     source: str = 'predefined input corpus'
+    author: str | None = None
+    written_at: str | None = None
+    basis: str | None = None
 
 
 class AgentRoleConfig(BaseModel):

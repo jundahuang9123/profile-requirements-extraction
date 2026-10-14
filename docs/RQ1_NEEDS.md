@@ -226,3 +226,23 @@ npm run build --prefix frontend
 The automated and browser checks use scripted/synthetic fixtures and isolated
 storage, not saved research runs. Their success establishes implementation
 behaviour, not live-model quality, recall or scientific validity.
+
+### User-authored, versioned use cases
+
+For each development case, Junda writes `benchmark-data/<case>/use-cases.json`
+from the profile's stated purpose **before** running. The optional file is a list
+of `{id, statement, kind, basis, author, written_at}`; every field is required in
+that file. `basis` names the purpose document and section, and `written_at` is an
+ISO date or timestamp. Kinds are `competency_question`, `user_task`,
+`stakeholder_need` and `cross_cutting_goal`. Purpose-based goals may cover legal
+reuse, publisher contact or quality judgement. The agent does not author them.
+
+Import freezes the tasks and the exact file SHA-256 into the snapshot. The UI
+shows their metadata and preserves it when the text is unchanged. Editing the
+text makes manual tasks and drops the imported file attribution. Absence of a
+file imports no tasks; existing snapshots without this metadata remain valid.
+No Mobility task file is added until Junda confirms copying its 12 frozen tasks.
+
+A scoping-off run is a reported comparison, not the intended development setup.
+Evaluation must report recall for kept needs and for kept needs plus the visible
+`no_use_case` set-asides. Neither figure is claimed without an evaluation.
