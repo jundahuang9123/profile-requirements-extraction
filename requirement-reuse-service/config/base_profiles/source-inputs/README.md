@@ -13,3 +13,9 @@ Original source notices and attribution are retained in each file.
 Definition text is copied verbatim (HTML whitespace normalised); RDF description
 blocks are matched by their class-context anchors before graph merging can lose
 that association. Catalogues remain drafts marked unreviewed.
+
+W3C inherited property definitions follow the declared class hierarchy in the
+same pinned file, including Catalog → Dataset → Resource. The nearest definition
+wins; a target-class definition is not replaced. `definition_sources` retains the
+original file, checksum and property anchor and names `inherited_from`. This
+prose repair preserves catalogue IDs, labels and existing need wording.

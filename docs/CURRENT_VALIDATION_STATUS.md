@@ -448,3 +448,12 @@ links are not promoted. This fixes evidence loss, not semantic uncertainty.
 Sentence-initial If/When/Unless clauses stop at their first comma. Knowing-verb
 checks now include find and learn; actual access/licence restrictions remain
 conditions. Scripted regressions check exact clauses and member-grounding.
+
+The DCAT 2/3 catalogue builder follows declared ancestry in each pinned W3C
+file, copying the closest available definition and recording its original
+file/hash/anchor plus `inherited_from`. Target-class overrides win. No definitions
+are authored; IDs, labels, need wording and entry counts remain unchanged.
+Missing definitions: DCAT 2, 56/158 → 0/158; DCAT 3, 119/250 → 0/250.
+All four DCAT-AP catalogue files remain unchanged. The updated DCAT catalogues
+remain unreviewed drafts with new content hashes. Eleven catalogue regression
+tests and all six offline rebuild checks pass.

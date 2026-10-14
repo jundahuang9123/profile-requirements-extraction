@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import hashlib
 import sys
 from pathlib import Path
 import pytest
@@ -63,3 +64,42 @@ def test_retrieval_uses_definitions():
                            {'id':'no','need':'Find the name.','definition':None,'usage_notes':[]}]}
     offered=offer_entries([SimpleNamespace(need_statement='Users can judge the minimum resolvable period.',normalized_statement='')],catalogue)
     assert [e['id'] for e in offered]==['yes']
+
+
+@pytest.mark.parametrize('version',['2.0.0','3.0.0'])
+@pytest.mark.parametrize('prop',['dct:description','dct:issued'])
+def test_catalog_inherits_resource_definition_with_original_pin(version,prop):
+    catalogue=load_catalogue('dcat-'+version)
+    entries={(e['class'],e['property']):e for e in catalogue['entries']}
+    resource=entries['dcat:Resource',prop];catalog=entries['dcat:Catalog',prop]
+    assert catalog['definition'] and catalog['definition']==resource['definition']
+    pin=next(s for s in catalog['definition_sources'] if s.get('inherited_from')=='dcat:Resource')
+    assert {k:pin[k] for k in ['file','sha256','anchor']}==resource['definition_sources'][0]
+    assert pin['anchor'].startswith('Property:resource_')
+
+
+def test_inherited_definition_does_not_replace_target_class_label():
+    entries={(e['class'],e['property']):e for e in load_catalogue('dcat-2.0.0')['entries']}
+    assert entries['dcat:Catalog','dct:issued']['label']=='issued'
+    assert entries['dcat:Resource','dct:issued']['label']=='release date'
+
+
+def test_inherited_definition_keeps_nearest_override_in_same_file(tmp_path):
+    def section(cls,parent=None,definition=None):
+        prop=('''<section id="Property:'''+cls+'''_description"><h4>Property: description</h4><table>
+            <tr><th>RDF Property:</th><td>dct:description</td></tr><tr><th>Definition:</th><td>'''+definition+'''</td></tr>
+            </table></section>''') if definition else ''
+        ancestry=f'<tr><th>Sub-class of:</th><td>{parent}</td></tr>' if parent else ''
+        return f'<section id="Class:{cls}"><table><tr><th>RDF Class:</th><td>dcat:{cls}</td></tr>{ancestry}</table>{prop}</section>'
+    raw=('<html>'+section('Resource',definition='Resource prose.')+
+         section('Dataset','dcat:Resource','Dataset override.')+section('Catalog','dcat:Dataset')+
+         section('DataService','dcat:Resource','Direct service definition.')+
+         section('Unrelated')+'</html>').encode()
+    relative='w3c/fixture.html';path=tmp_path/relative;path.parent.mkdir();path.write_bytes(raw)
+    profile={'source':{'files':{relative:hashlib.sha256(raw).hexdigest()}},
+             'classes':{f'dcat:{cls}':{'dct:description':{}} for cls in ['Resource','Dataset','Catalog','DataService','Unrelated']}}
+    result=builder.source_descriptions(profile,tmp_path)
+    assert result['dcat:Catalog','dct:description']['definitions']==['Dataset override.']
+    assert result['dcat:Catalog','dct:description']['sources'][0]['inherited_from']=='dcat:Dataset'
+    assert result['dcat:DataService','dct:description']['definitions']==['Direct service definition.']
+    assert ('dcat:Unrelated','dct:description') not in result
