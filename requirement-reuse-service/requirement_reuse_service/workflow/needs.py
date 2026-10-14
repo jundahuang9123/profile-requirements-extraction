@@ -424,6 +424,11 @@ def process_needs(store, run, records, client, profile):
     store.mutate(run['run_id'], None, 'needs_policies_saved', lambda r:r.update(needs_policies=policies))
     passing = [r for r in records if (r.verification or {}).get('status') == 'pass']
     failed = [r for r in records if r not in passing]
+    for record in failed:
+        check = record.verification or {}
+        rationale = canonical({'message':check.get('message'), 'component_checks':check.get('component_checks'),
+            'failed_links':[l for l in check.get('links',[]) if l.get('status') != 'pass']})
+        aside_need(store,run,record,'source_check_failed',rationale)
     passing = check_proposal_support(store, run, passing, client)
     if run['request'].get('consolidation') == 'exact':
         groups, audit = partition_exact(passing), []
@@ -433,7 +438,6 @@ def process_needs(store, run, records, client, profile):
         # One bounded stream avoids semantic blocking on noisy typed labels. The
         # cap of 25 offered earlier groups can still miss distant duplicates.
         groups, audit = grouped_block(store, run, 'underlying_needs', passing, client, saved['consolidation_chunks'])
-    groups.extend([[r] for r in failed])
     step_saved(store, run, 'grouping', input_count=len(records), group_count=len(groups), audit=audit)
     needs, events = write_needs(store, run, groups, client, profile)
     step_saved(store, run, 'need_statement', input_count=len(records), need_count=len(needs),
@@ -750,7 +754,7 @@ def restore_need(store,run_id,request,actor):
                 record.need_statement=record.normalized_statement;refresh_need(record)
         record.verification=verify(store,record,run['evidence_ids'])
         record.qualification=None
-        record.lifecycle_state='awaiting_human' if record.verification['status']=='pass' else 'blocked_evidence'
+        record.lifecycle_state=('blocked_support' if aside['reason'] in {'not_supported_by_quote','rewrite_rejected'} else 'awaiting_human') if record.verification['status']=='pass' else 'blocked_evidence'
         decision_id=uid('decision',run_id,request.idempotency_key);record.decision_id=decision_id
         if stored: stored.update(record.model_dump(mode='json'))
         else: run['requirements'].append(record.model_dump(mode='json'))

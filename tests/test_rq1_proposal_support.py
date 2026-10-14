@@ -3,6 +3,7 @@ from test_resume_discussions import setup
 from test_rq1_need_grouping import need_inputs, NeedsClient
 from requirement_reuse_service.workflow import engine, needs
 from requirement_reuse_service.workflow.models import Observation, EvidenceLink
+from requirement_reuse_service.workflow.models import RestoreRequest
 
 
 class QuoteClient(NeedsClient):
@@ -43,3 +44,17 @@ def test_union_contains_selected_quotes_only_and_batch_size_is_25(setup):
     output,_=needs.write_needs(store,run,[[member]],NeedsClient(),None)
     assert {l.quote for l in output[0].evidence_links}=={member.evidence_links[0].quote}
     assert len({l.quote for l in member.evidence_links})==2
+
+
+def test_unsupported_proposals_receive_no_writer_or_rank_and_restore_unaccepted(setup):
+    store,run,records=need_inputs(setup);client=QuoteClient('unrelated')
+    active,_,_=needs.process_needs(store,run,records,client,None)
+    assert active==[] and all(r.rank is None for r in records)
+    assert all(name=='ProposalSupport' for name,_ in client.calls)
+    store.mutate(run['run_id'],None,'offline-terminal',lambda r:r.update(status='awaiting_human'))
+    saved=store.get('run',run['run_id']);item=saved['set_aside_observations'][0]
+    restored=needs.restore_need(store,run['run_id'],RestoreRequest(expected_version=saved['version'],
+        idempotency_key='restore-unsupported',observation_id=item['observation_id'],need_id=item['need_id'],
+        reason=item['reason'],rationale='Offline reviewer needs to repair the support.'),'offline-reviewer')['run']
+    row=next(r for r in restored['requirements'] if r['revision_id'] in restored['active_revision_ids'])
+    assert row['lifecycle_state']=='blocked_support' and row['qualification'] is None

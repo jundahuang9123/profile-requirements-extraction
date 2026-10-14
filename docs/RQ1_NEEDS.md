@@ -57,8 +57,9 @@ Content and consumer perspectives can express the same need: “metadata contain
 the title” and “a consumer can read the title”. Different information, actor goals,
 conditions, scopes and negations remain separate. A group's evidence is the union
 of its passing members' selected supporting quotes. Other authentic quotes remain
-on the original members for the audit; support is a separate model judgement. Source-failed candidates remain separate blocked
-needs; a passing member cannot conceal or repair a failed candidate.
+on the original members for the audit; support is a separate model judgement. Source-failed and quote-unsupported proposals are visible asides with failed checks
+or support rationales. They receive no writer, critic or rank and never enter a
+passing group. Restoring one is unaccepted and requires evidence/support repair.
 
 An obligation counts only with a passing obligation quote; missing quotes downgrade
 the label to unknown and retain the claimed label as `unbacked_obligation`. Every

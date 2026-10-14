@@ -2512,7 +2512,8 @@
             "base_specification_only",
             "generic_need_served_by_base",
             "no_use_case",
-            "not_supported_by_quote"
+            "not_supported_by_quote",
+            "source_check_failed"
           ],
           "title": "Reason",
           "type": "string"

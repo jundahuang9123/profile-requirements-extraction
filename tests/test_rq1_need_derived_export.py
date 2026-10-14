@@ -88,9 +88,9 @@ def test_source_failed_member_stays_blocked_and_does_not_contaminate_passing_nee
     bad=engine.record_from_observation(run['run_id'],observation);bad.verification=engine.verify(store,bad,run['evidence_ids'])
     run['request']['base_profile_id']=None;run['base_profile_id']=None;run['request']['scoping']='off'
     active,events,_=needs.process_needs(store,run,[candidates[0],bad],FullNeedsClient(),None)
-    assert len(active)==2
-    blocked=next(n for n in active if bad.revision_id in n.parent_revision_ids)
-    assert blocked.lifecycle_state=='blocked_evidence' and blocked.verification['status']=='fail'
+    assert len(active)==1
+    assert not bad.parent_revision_ids and bad.lifecycle_state=='set_aside'
+    assert store.get('run',run['run_id'])['set_aside_observations'][-1]['reason']=='source_check_failed'
     passing=next(n for n in active if candidates[0].revision_id in n.parent_revision_ids)
     assert passing.verification['status']=='pass' and bad.revision_id not in passing.parent_revision_ids
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Run, SetAside } from '../lib/workflowApi';
 
-const reasons: Record<string, string> = { no_source_link:'No source link', base_specification_only:'Base specification only', inherited_from_base:'Inherited from base', declared_not_extension:'Declared not an extension', generic_need_served_by_base:'Generic need served by base', no_use_case:'No necessary use-case link' };
+const reasons: Record<string, string> = { no_source_link:'No source link', source_check_failed:'Source check failed', not_supported_by_quote:'Not supported by quote', base_specification_only:'Base specification only', inherited_from_base:'Inherited from base', declared_not_extension:'Declared not an extension', generic_need_served_by_base:'Generic need served by base', no_use_case:'No necessary use-case link' };
 export function NeedAsidesView({ run, busy, review, restore }: { run: Run; busy: boolean; review: (id: string) => void; restore: (item: SetAside, rationale: string) => Promise<void> }) {
   const [rationales, setRationales] = useState<Record<string, string>>({});
   const asides = run.set_aside_observations ?? [];
