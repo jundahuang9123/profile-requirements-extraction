@@ -457,3 +457,18 @@ Missing definitions: DCAT 2, 56/158 → 0/158; DCAT 3, 119/250 → 0/250.
 All four DCAT-AP catalogue files remain unchanged. The updated DCAT catalogues
 remain unreviewed drafts with new content hashes. Eleven catalogue regression
 tests and all six offline rebuild checks pass.
+
+The root third-party notice now lists all six bundled official source files, the
+2015/2023 W3C Software and Document licences and SEMIC's CC BY 4.0 declarations.
+Original notices, including the inconsistent CC0 link caption in the 3.x HTML,
+remain unchanged in the checksum-pinned copies.
+
+Final follow-up validation: **640 RQ1 offline tests pass** (five dependency
+deprecation warnings), using the documented `pytest tests -q` suite. This adds
+52 regressions: 21 complete outage/Resume tests across seven steps and three
+provider-error categories, seven partial-row preservation checks, two bounded
+cutoff/input tests, two support-evidence checks, fourteen condition checks and
+six catalogue checks. The runtime schema, all six catalogue rebuild checks,
+production frontend build and diff whitespace checks pass. No live model
+generations, reference requirement sets, saved-run changes or human decisions.
+PR #11 stays open and unmerged; one commit addresses each follow-up item.
