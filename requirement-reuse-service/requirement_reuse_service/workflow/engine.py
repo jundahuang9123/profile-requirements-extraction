@@ -283,7 +283,8 @@ def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') ->
             raise ValueError('Ingestion preflight failed original-source resolution; re-ingest the source.')
         if request.strategy == 'multi_agent':
             payload, _ = elicitation_batch([unit])
-            if len(canonical({'evidence_units': payload})) + 5000 + _base_context_chars(base_context) > EXTRACTION_UNIT_CHARS:
+            extraction_base = base_context if request.output_form != 'needs' else None
+            if len(canonical({'evidence_units': payload})) + 5000 + _base_context_chars(extraction_base) > EXTRACTION_UNIT_CHARS:
                 raise ValueError('An evidence unit exceeds the reserved extraction input budget; redecompose before running.')
     if request.role_selection == 'manual':
         roles_for(request)
@@ -694,7 +695,7 @@ def ensure_elicitation_resumable(run):
 
 def extraction_role_context(run: dict, role, snapshot: dict, base_context: dict | None) -> dict:
     context = {'role': role.model_dump(mode='json'), 'user_tasks': snapshot['user_tasks']}
-    if base_context:
+    if base_context and run['request'].get('output_form') != 'needs':
         context['base_profile'] = base_context
     selected = next((item for item in (run.get('role_manifest') or {}).get('selected_roles', [])
                      if item['role_id'] == role.id), None)

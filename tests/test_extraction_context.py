@@ -49,3 +49,29 @@ def test_extraction_uses_role_description_without_discovery_citations_or_history
         'eu-discovery-only', 'eu-other-discovery', 'historic-candidate', 'historic-lineage', 'audit-only'))
     assert run['role_manifest'] == frozen_manifest
     assert reports[0]['prompt_version'] == 'rq1-independent-elicitation-v3.3'
+
+
+@pytest.mark.parametrize('output_form', ['needs', 'candidates'])
+def test_only_candidate_extraction_receives_the_pinned_base_profile(corpus, output_form):
+    store, run = extraction_run(corpus, output_form)
+    client = MockLLMClient(lambda system, user: answer(json.loads(user), output_form))
+    observations, reports = engine.elicit(store, run, client)
+    assert observations and reports[0]['status'] == 'completed'
+    data = json.loads(client.calls[0]['user'])
+    if output_form == 'needs':
+        assert 'base_profile' not in data
+        assert run['base_profile_id'] == 'dcat-ap-2.0.1'
+        assert run['base_profile_sha256']
+    else:
+        assert data['base_profile'] == engine.run_extraction_base_context(run)
+
+
+def test_needs_preflight_does_not_reserve_an_unused_base_table(corpus, monkeypatch):
+    store, initial = corpus
+    units = [store.get('evidence', eid) for eid in initial['evidence_ids']]
+    batch, _ = engine.elicitation_batch(units)
+    monkeypatch.setattr(engine, 'EXTRACTION_UNIT_CHARS', len(engine.canonical({'evidence_units': batch})) + 5000)
+    _, run = extraction_run(corpus)
+    assert run['base_profile_id'] == 'dcat-ap-2.0.1'
+    with pytest.raises(ValueError, match='reserved extraction input budget'):
+        extraction_run(corpus, 'candidates')

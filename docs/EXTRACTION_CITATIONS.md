@@ -46,6 +46,11 @@ Only excerpts supplied in the extraction batch may support a proposal. Policy v3
 applies to both needs and legacy candidate output; their output contracts remain
 distinct. A partial extraction from an older policy needs a fresh run.
 
+Needs extraction omits the selected base-profile table: needs are compared with
+the pinned base catalogue after grouping. Candidate extraction retains the table
+because its extension prompt asks which base fields a proposal changes. The run
+still records and validates the selected base profile and its fingerprint.
+
 Authentic excerpts do not establish entailment. The ordinary original-source
 verification, separate obligation-premise requirement and semantic assessment
 remain in effect. Unsupported hypotheses may retain empty links and remain blocked.
