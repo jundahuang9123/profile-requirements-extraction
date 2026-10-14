@@ -300,6 +300,7 @@ class RequirementRecord(Contract):
     obligation_alternatives: list[ObligationAlternative] = Field(default_factory=list)
     unbacked_obligation: UnbackedObligation | None = None
     proposal_support: dict[str, Any] | None = None
+    processing_flags: list[str] = Field(default_factory=list)
     task_justifications: list[TaskJustification] = Field(default_factory=list)
     need_class: Literal['generic', 'domain_use_of_base', 'domain'] | None = None
     matched_base_need_ids: list[str] = Field(default_factory=list)

@@ -141,8 +141,9 @@ def needs_metrics(run, frozen=None):
         step=mapping.get(call['output_contract'],'other')
         entry=calls_by_step.setdefault(step,{'calls':0,'failures':0,'latency_seconds_sum':0})
         entry['calls']+=1;entry['failures']+=call['status']=='failed';entry['latency_seconds_sum']+=call.get('latency_seconds',0)
-    validations=Counter()
+    validations=Counter(); fallbacks=Counter()
     for chunk in run.get('need_chunks',{}).values():
+        fallbacks[chunk['step']] += len(chunk.get('fallback_rows',{}))
         for attempt in chunk.get('attempts',[]):
             if attempt.get('validation_errors') or attempt.get('error'): validations[chunk['step']]+=1
     return {'enabled':True,'policies':run.get('needs_policies',{}),'scoping':run['request'].get('scoping'),
@@ -154,7 +155,7 @@ def needs_metrics(run, frozen=None):
                   'after_classification':steps.get('classification',{}).get('retained_count'),
                   'after_scoping':steps.get('scoping',{}).get('retained_count'),
                   'kept_needs':len(frozen.get('active_revision_ids',run['active_revision_ids']))},
-        'steps':steps,'calls_by_step':calls_by_step,'rejected_generation_outputs_by_step':dict(validations),
+        'steps':steps,'calls_by_step':calls_by_step,'rejected_generation_outputs_by_step':dict(validations), 'fallbacks_by_step':dict(fallbacks),
         'base_catalogue_review':(run.get('base_needs_catalogue') or {}).get('review'),
         'limitations':['Counts describe processing, not accuracy, recall or measured human effort.',
                        'One support assessment may use up to two bounded generations for schema/cutoff recovery.',

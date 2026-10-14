@@ -1907,6 +1907,13 @@
           "title": "Parent Revision Ids",
           "type": "array"
         },
+        "processing_flags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Processing Flags",
+          "type": "array"
+        },
         "proposal_support": {
           "anyOf": [
             {

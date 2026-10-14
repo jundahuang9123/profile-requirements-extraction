@@ -67,11 +67,11 @@ def test_underlying_capability_content_merge_and_obligation_alternatives(setup):
 
 def test_added_condition_rejected_and_not_retried_on_resume(setup):
     store,run,records=need_inputs(setup);client=NeedsClient('invent')
-    with pytest.raises(ValueError,match='added condition'):
-        needs.write_needs(store,run,[records],client,None)
-    assert len(client.calls)==2
-    with pytest.raises(ValueError,match='exhausted'):
-        needs.write_needs(store,run,[records],client,None)
+    active,_=needs.write_needs(store,run,[records],client,None)
+    assert active==[] and len(client.calls)==2
+    aside=store.get('run',run['run_id'])['set_aside_observations'][-1]
+    assert aside['reason']=='rewrite_rejected' and 'added condition' in aside['rationale']
+    needs.write_needs(store,run,[records],client,None)
     assert len(client.calls)==2
 
 

@@ -137,10 +137,23 @@ fit. Extraction hints sent to the necessity linker are deduplicated, with at mos
 two deterministic justification examples per declared task; all original hints
 remain on members. The linker records this selection and original distinct count.
 
-Checkpoints bind the policy, prompt, complete offered input and output. Successful
-chunks survive transport failures. Exhausted invalid output is not replayed on
-Resume; a justified versioned recovery or human repair is required. No hosted
-fallback or reference-answer tuning is part of this workflow.
+Checkpoints bind policy, prompt, schema and complete input. Each row gets an initial
+response and at most one explicit correction containing only failing rows. Other
+valid rows are saved first. `rq1-needs-row-recovery-v1` records exhausted fallbacks
+and replays them on Resume without new generations; valid negative judgements are
+never corrected away.
+
+| Exhausted row | Visible fallback |
+|---|---|
+| Proposal support | Keep, flagged support not checked; unverified quotes do not add supporting documents to a need |
+| Writer or rewrite critic | Restorable rewrite-rejected group with its audit |
+| Membership | Each unchecked member becomes a singleton, flagged membership not checked |
+| Classifier | Retain as domain, flagged not classified |
+| Use-case linker or link critic | Retain, flagged scoping not checked; technical failures never create no-use-case asides |
+
+Metrics report fallbacks per step. Oversized rows use the same visible fallback
+without a provider request; source quotes are never truncated. Unexpected code
+defects still fail visibly. No model substitution or reference tuning is performed.
 
 ## Review, ranking and exports
 
