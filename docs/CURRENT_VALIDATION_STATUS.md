@@ -472,3 +472,25 @@ six catalogue checks. The runtime schema, all six catalogue rebuild checks,
 production frontend build and diff whitespace checks pass. No live model
 generations, reference requirement sets, saved-run changes or human decisions.
 PR #11 stays open and unmerged; one commit addresses each follow-up item.
+
+
+## 14 October 2026: review-inputs PR, catalogue mechanics
+
+Optional `<id>.needs-review.json` files bind human phrase corrections to the
+freshly generated draft hash. Builder and CSV import validate IDs, phrasing,
+vocabulary exclusion, class-local uniqueness and reviewer/date. Corrections keep
+`need_draft` and `review_note`; definitions, notes, obligations, labels and IDs
+stay intact. The generated review metadata pins the human file's exact bytes.
+The v2 policy and all six current draft files are unchanged. No production
+review file or human phrase correction has been authored by the agent.
+
+New needs runs and derived trials pin catalogue metadata at creation. A historical
+run retains its hash and refuses catalogue drift at classification. The workbench
+and matching-base cards show the saved reviewer and date. Worksheet export/import
+and rebuild/check reproduce a synthetic reviewed catalogue in temporary fixtures.
+
+Focused validation: 32 review/catalogue/classification/derived-trial tests pass.
+Schema and all six catalogue checks pass; the production frontend build passes.
+Rendering the actual review-status component confirms reviewer/date display and
+the historical unreviewed fallback. No provider call, saved-run change or reference
+requirement set is involved.

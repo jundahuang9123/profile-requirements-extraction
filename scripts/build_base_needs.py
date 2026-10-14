@@ -6,14 +6,18 @@ never generated. Bundled prose inputs retain the registry's original checksums.
 """
 import argparse
 from copy import deepcopy
+from datetime import date
 import hashlib
 import json
 from pathlib import Path
 import re
+import sys
 from lxml import etree, html
 from build_base_profile import compact, CLASS_NAMES, PREFIXES, _terms
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'requirement-reuse-service'))
+from requirement_reuse_service.workflow.terms import detect_terms
 DIRECTORY = ROOT / 'requirement-reuse-service/config/base_profiles'
 INPUTS = DIRECTORY / 'source-inputs'
 POLICY = 'rq1-base-needs-catalogue-v2'
@@ -170,7 +174,53 @@ def source_descriptions(profile, input_dir):
     return result
 
 
-def build(path, input_dir=INPUTS):
+def catalogue_hash(body):
+    return hashlib.sha256(json.dumps({k:v for k,v in body.items() if k!='catalogue_hash'},
+        sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()).hexdigest()
+
+
+def reviewed_catalogue(draft, profile, review, review_file, raw):
+    """Apply only explicit human phrases; bind review to the unchanged draft."""
+    required={'base_profile_id','draft_catalogue_hash','status','reviewer','reviewed_at','phrase_corrections'}
+    if not isinstance(review,dict) or set(review)!=required:
+        raise ValueError('Catalogue review must contain exactly: '+', '.join(sorted(required)))
+    if review['base_profile_id']!=draft['base_profile_id']:
+        raise ValueError('Catalogue review base_profile_id differs from the selected registry.')
+    if review['draft_catalogue_hash']!=draft['catalogue_hash']:
+        raise ValueError('Catalogue review draft_catalogue_hash is stale; export and review the new draft.')
+    if review['status']!='reviewed' or not isinstance(review['reviewer'],str) or not review['reviewer'].strip():
+        raise ValueError('Catalogue review requires status reviewed and a nonempty reviewer.')
+    try:
+        if not isinstance(review['reviewed_at'],str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}',review['reviewed_at']):
+            raise ValueError()
+        date.fromisoformat(review['reviewed_at'])
+    except ValueError as exc: raise ValueError('Catalogue reviewed_at must be a valid YYYY-MM-DD date.') from exc
+    corrections=review['phrase_corrections']
+    if not isinstance(corrections,dict): raise ValueError('phrase_corrections must be an object keyed by entry ID.')
+    result=deepcopy(draft);entries={e['id']:e for e in result['entries']}
+    for identifier,correction in corrections.items():
+        if identifier not in entries: raise ValueError('Unknown catalogue review entry ID: '+identifier)
+        if not isinstance(correction,dict) or set(correction)!={'need','note'}:
+            raise ValueError(identifier+': a phrase correction needs exactly need and note.')
+        phrase=correction['need']
+        if not isinstance(phrase,str) or not phrase.strip(): raise ValueError(identifier+': corrected phrase must not be empty.')
+        if not isinstance(correction['note'],str): raise ValueError(identifier+': review note must be text.')
+        terms=detect_terms(phrase,profile)
+        if terms: raise ValueError(identifier+': corrected phrase contains vocabulary terms: '+', '.join(terms))
+        entry=entries[identifier]
+        entry.update(need=phrase,need_draft=entry['need'],review_note=correction['note'])
+    seen=set()
+    for entry in result['entries']:
+        key=entry['class'],' '.join(entry['need'].split()).casefold()
+        if key in seen: raise ValueError('Duplicate reviewed phrase within class '+entry['class']+': '+entry['need'])
+        seen.add(key)
+    result['review']={k:review[k] for k in ('status','reviewer','reviewed_at')}
+    result['review'].update(review_file=review_file,review_file_sha256=hashlib.sha256(raw).hexdigest(),corrected_count=len(corrections))
+    result['catalogue_hash']=catalogue_hash(result)
+    return result
+
+
+def build(path, input_dir=INPUTS, with_review=True):
     raw = path.read_bytes(); profile = json.loads(raw); entries = []
     descriptions = source_descriptions(profile, input_dir)
     for cls, properties in sorted(profile['classes'].items()):
@@ -199,14 +249,18 @@ def build(path, input_dir=INPUTS):
     result={'base_profile_id':profile['id'],'base_profile_sha256':hashlib.sha256(raw).hexdigest(),
         'policy_version':POLICY,'phrasing':'deterministic labels; verbatim pinned definitions and usage notes',
         'review':{'status':'unreviewed','reviewer':None,'reviewed_at':None},'entries':entries}
-    result['catalogue_hash']=hashlib.sha256(json.dumps(result,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()).hexdigest()
+    result['catalogue_hash']=catalogue_hash(result)
+    review_path=path.with_name(path.stem+'.needs-review.json')
+    if with_review and review_path.exists():
+        review_raw=review_path.read_bytes()
+        result=reviewed_catalogue(result,profile,json.loads(review_raw),review_path.name,review_raw)
     return json.dumps(result,indent=2,ensure_ascii=False)+'\n'
 
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true');parser.add_argument('--input-dir',type=Path,default=INPUTS);args=parser.parse_args()
     for path in sorted(DIRECTORY.glob('*.json')):
-        if path.name.endswith('.needs.json'): continue
+        if not re.fullmatch(r'dcat(?:-ap)?-\d+\.\d+\.\d+\.json',path.name): continue
         target=path.with_name(path.stem+'.needs.json');value=build(path,args.input_dir)
         if args.check:
             if not target.exists() or target.read_text()!=value: parser.error(f'Stale base needs catalogue: {target.name}')

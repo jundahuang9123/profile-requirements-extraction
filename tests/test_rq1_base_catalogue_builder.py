@@ -17,7 +17,8 @@ def test_all_catalogues_are_reproducible_and_have_distinct_phrases():
         assert path.read_text()==builder.build(path.with_name(path.name.replace('.needs','')))
         catalogue=load_catalogue(path.stem.removesuffix('.needs'))
         assert catalogue['policy_version']=='rq1-base-needs-catalogue-v2'
-        assert catalogue['review']['status']=='unreviewed'
+        review_path=path.with_name(path.name.replace('.needs.json','.needs-review.json'))
+        assert catalogue['review']['status']==('reviewed' if review_path.exists() else 'unreviewed')
         keys=set()
         for row in catalogue['entries']:
             assert row['label'] and not row['label'].endswith('-')

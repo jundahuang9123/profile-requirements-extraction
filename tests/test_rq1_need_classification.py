@@ -22,7 +22,9 @@ def test_base_catalogue_hash_and_no_pretended_review():
     catalogue=load_catalogue('dcat-ap-2.0.1')
     profile,_=load_profile('dcat-ap-2.0.1')
     assert len(catalogue['entries'])==sum(1+len(props) for props in profile['classes'].values())
-    assert catalogue['review']['status']=='unreviewed'
+    from requirement_reuse_service.workflow.base_profile import PROFILE_DIRECTORY
+    review_path=PROFILE_DIRECTORY/'dcat-ap-2.0.1.needs-review.json'
+    assert catalogue['review']['status']==('reviewed' if review_path.exists() else 'unreviewed')
 
 
 def test_generic_set_aside_with_base_match_but_domain_kept(setup):
@@ -39,4 +41,4 @@ def test_generic_set_aside_with_base_match_but_domain_kept(setup):
     aside=store.get('run',run['run_id'])['set_aside_observations'][-1]
     assert aside['reason']=='generic_need_served_by_base' and aside['matched_base_need_ids']
     assert generic.base_need_matches[0]['rq2_term'] and not generic.rq2_hints
-    assert generic.base_need_matches[0]['catalogue_review']['status']=='unreviewed'
+    assert generic.base_need_matches[0]['catalogue_review']==load_catalogue('dcat-ap-2.0.1')['review']
