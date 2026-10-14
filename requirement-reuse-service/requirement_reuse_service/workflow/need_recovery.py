@@ -50,10 +50,13 @@ def fallback_row(name, identifier):
 
 
 def generation(store, run, step, payload, output_model, system, client, validate):
+    from ..llm.step_models import for_contract, model_identity
+    client = for_contract(client, output_model)
+    model = model_identity(client)
     field,id_field,input_field=SPECS[output_model.__name__]
     offered=(list(payload[input_field]) if isinstance(payload[input_field],dict)
              else [r[id_field] for r in payload[input_field]])
-    key=digest([POLICY,step,run.get('needs_policies',{}).get(step),system,payload,output_model.model_json_schema()])
+    key=digest([POLICY,step,run.get('needs_policies',{}).get(step),system,payload,output_model.model_json_schema(),model])
     saved=store.get_run(run['run_id'],omit=tuple(p for p in RUN_PARTS if p!='need_chunks'))['need_chunks'].get(key)
     if saved and saved.get('checkpoint_hash')!=digest({k:v for k,v in saved.items() if k!='checkpoint_hash'}):
         raise ValueError('Need row checkpoint integrity mismatch.')
@@ -64,7 +67,7 @@ def generation(store, run, step, payload, output_model, system, client, validate
     if saved and saved['status'] in {'completed','completed_with_fallbacks'}: return materialize(saved)
     if client is None: raise ValueError('Need processing requires a configured model or scripted offline client.')
     audit=deepcopy(saved) if saved else {'step':step,'policy_version':run.get('needs_policies',{}).get(step),
-        'recovery_policy':POLICY,'input_hash':digest(payload),'status':'running','attempts':[],
+        'recovery_policy':POLICY,'input_hash':digest(payload),'provider':model,'status':'running','attempts':[],
         'accepted_rows':{},'fallback_rows':{}}
     audit.pop('checkpoint_hash',None)
     def save():

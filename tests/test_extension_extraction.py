@@ -81,7 +81,7 @@ def test_each_independent_role_gets_the_exact_pinned_compact_base_context(setup)
     units = [store.get('evidence', eid) for eid in run['evidence_ids']]
     for report, (_, data) in zip(reports, scripted.calls):
         context = {key: value for key, value in data.items() if key != 'evidence_units'}
-        assert report['context_hash'] == digest({**context, 'units': units})
+        assert report['context_hash'] == digest({**context, 'units': units, 'model': report['provider']})
 
 
 def test_new_run_preflight_counts_base_context_before_provider_construction(setup, monkeypatch):

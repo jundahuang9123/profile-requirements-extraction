@@ -10,6 +10,7 @@ from typing import Annotated, Literal
 from pydantic import Field, create_model, model_validator
 
 from ..agents.roles import load_role_configuration
+from ..llm.step_models import for_step
 from ..models import AgentRoleConfig
 from .evidence import resolve_evidence
 from .citations import elicitation_batch, source_spans_for
@@ -666,6 +667,7 @@ def panel_roles(run: dict) -> list[AgentRoleConfig]:
 
 
 def select_roles(store: Store, run: dict, client) -> dict:
+    client = for_step(client, 'role_selection')
     manifest = deepcopy(run['role_manifest'])
     ensure_selection_resumable(manifest)
     if manifest['status'] in {'completed', 'not_applicable'}:
@@ -698,6 +700,12 @@ def select_roles(store: Store, run: dict, client) -> dict:
             raise ValueError('Role-selection request exceeds its context budget; no input was silently truncated.')
         if client is None:
             raise ValueError('Automatic role selection needs a configured provider or explicit offline mock strategy.')
+        # A saved, already valid correction can finish deterministically without
+        # a provider. Refuse a configuration change only before a new generation.
+        if run.get('step_models'):
+            prior = [r.get('provider') for r in manifest.get('batch_reports', [])]
+            if any(description != client.describe() for description in prior):
+                raise ValueError('Role-selection model/configuration changed; create a new run instead of mixing batches.')
         return client.generate_structured(system=system, user=prompt, output_model=output_model, max_tokens=max_tokens,
                                           schema_repair_attempts=1)
 
@@ -844,7 +852,8 @@ def select_roles(store: Store, run: dict, client) -> dict:
                 manifest['candidates'].append({'candidate_id': candidate_id, 'batch_index': index,
                                               **proposal.model_dump(mode='json')})
             manifest['batch_reports'].append({'batch_index': index, 'evidence_ids': [u['evidence_id'] for u in batch],
-                'context_hash': digest({'tasks': tasks, 'units': batch}), 'candidate_ids': candidate_ids,
+                'context_hash': digest({'tasks': tasks, 'units': batch,
+                    'model': client.describe() if client else 'offline-demo'}), 'candidate_ids': candidate_ids,
                 'provider': {'provider': 'offline-demo'} if run['strategy'] == 'mock' else client.describe()})
             save('role_candidates_recorded')
         report = manifest['batch_reports'][index]

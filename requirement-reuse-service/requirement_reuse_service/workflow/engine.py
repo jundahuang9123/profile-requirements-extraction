@@ -12,6 +12,7 @@ from typing import Any
 from ..agents.roles import load_role_configuration
 from ..llm.client import LLMClient, OutputTokenLimitError, OutputValidationError, create_client
 from ..llm.config import LLMConfig
+from ..llm.step_models import StepModelRouter, contract_step, for_step, resolve_models
 from .evidence import resolve_evidence
 from .citations import elicitation_batch, materialize_observation
 from .models import (BaselineRequest, CorpusSnapshot, DecisionRequest, DeliberationCase, DeriveRequest,
@@ -84,20 +85,29 @@ STAGE_RESULT_FIELDS = {
 }
 RUN_POLICY_FIELDS = ('elicitation_policy_version', 'normalization_policy_version',
                      'consolidation_policy_version', 'base_profile_id', 'base_profile_sha256',
-                     'base_registry_policy_version', 'base_check_policy_version', 'needs_policies')
+                     'base_registry_policy_version', 'base_check_policy_version', 'needs_policies', 'step_models')
 
 
 class TrackedClient:
     """Persist observable outputs and call metadata; never credentials or chain of thought."""
-    def __init__(self, client, store: Store, run_id: str):
+    def __init__(self, client, store: Store, run_id: str, step=None, router=None):
         self.client, self.store, self.run_id = client, store, run_id
+        self.step, self.router = step, router if router is not None else client
+
+    def for_step(self, step):
+        return TrackedClient(for_step(self.router, step), self.store, self.run_id, step, self.router)
 
     def describe(self):
         return self.client.describe()
 
     def generate_structured(self, *, system, user, output_model, max_tokens=None, schema_repair_attempts=0):
+        if self.step is None and contract_step(output_model):
+            return self.for_step(contract_step(output_model)).generate_structured(
+                system=system, user=user, output_model=output_model, max_tokens=max_tokens,
+                schema_repair_attempts=schema_repair_attempts)
         started = time.monotonic()
         call = {'call_id': uuid.uuid4().hex, 'created_at': now(), 'provider': self.describe(),
+                'step': self.step, 'model': self.describe().get('model'),
                 'system_hash': digest(system), 'context_hash': digest(user), 'output_contract': output_model.__name__,
                 'max_output_tokens': max_tokens, 'schema_repair_attempts': schema_repair_attempts,
                 'token_usage': None, 'cost': None}
@@ -185,7 +195,15 @@ def configured_client(request: RunRequest) -> LLMClient | None:
         raise ValueError('Multi-agent execution needs a configured provider. Choose rules or mock for an offline run.')
     if config.provider not in {'mock', 'disabled'} and not request.allow_live_provider:
         raise ValueError('Live provider calls require explicit allow_live_provider; no automatic API fallback.')
-    return create_client(config)
+    return StepModelRouter(config, request.step_models) if request.step_models else create_client(config)
+
+
+def freeze_step_models(request):
+    # Creation reads /models only. Generation and resume use these frozen IDs.
+    configured_client(request)  # Check explicit live permission before network I/O.
+    if request.strategy == 'multi_agent':
+        request.step_models = resolve_models(LLMConfig.from_env(), request.step_models)
+    return request
 
 
 def selected_base(request):
@@ -288,11 +306,11 @@ def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') ->
                 raise ValueError('An evidence unit exceeds the reserved extraction input budget; redecompose before running.')
     if request.role_selection == 'manual':
         roles_for(request)
-    # Validate provider policy before creating a job, without sending a request.
-    configured_client(request)
+    request = freeze_step_models(request)
     role_manifest = initial_manifest(store, request, actor)
     run = WorkflowRun(run_id=f'run-{uuid.uuid4().hex}', name=request.name, snapshot_id=request.snapshot_id,
-                      strategy=request.strategy, request=request, evidence_ids=snapshot['evidence_ids'], created_at=now(),
+                      strategy=request.strategy, request=request, step_models=request.step_models,
+                      evidence_ids=snapshot['evidence_ids'], created_at=now(),
                       role_manifest=role_manifest,
                       elicitation_policy_version=NEEDS_ELICITATION_POLICY if request.output_form == 'needs' else PROMPT_VERSION,
                       **base_metadata,
@@ -348,7 +366,7 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
         raise ValueError('Derivation requires a complete extraction and stakeholder panel.')
     options = deepcopy(source['request'])
     options.update({k: getattr(request, k) for k in
-                    ('name', 'consolidation', 'discussion', 'execution_mode', 'allow_live_provider', 'output_form', 'scoping')})
+                    ('name', 'consolidation', 'discussion', 'execution_mode', 'allow_live_provider', 'output_form', 'scoping', 'step_models')})
     if restart_extraction:
         for key in ('output_form', 'scoping'):
             if key not in request.model_fields_set:
@@ -368,9 +386,9 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
     settings.scoping = settings.scoping or ('use_cases' if tasks else 'off')
     if settings.output_form == 'needs' and settings.scoping == 'use_cases' and not tasks:
         raise ValueError('Use-case scoping requires declared tasks; provide them in a new snapshot or choose scoping off.')
-    configured_client(settings)  # Validate permission/configuration; sends no request.
+    settings = freeze_step_models(settings)
     run = WorkflowRun(run_id=f'run-{uuid.uuid4().hex}', name=settings.name,
-        snapshot_id=source['snapshot_id'], strategy=source['strategy'], request=settings,
+        snapshot_id=source['snapshot_id'], strategy=source['strategy'], request=settings, step_models=settings.step_models,
         evidence_ids=source['evidence_ids'], observations=[] if restart_extraction else source['observations'],
         role_runs=[] if restart_extraction else source['role_runs'], role_manifest=manifest or None, created_at=now(),
         elicitation_policy_version=(NEEDS_ELICITATION_POLICY if settings.output_form == 'needs' else PROMPT_VERSION)
@@ -404,6 +422,8 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
     compatible_base_assessment = (not source.get('base_check_policy_version') or
         (source.get('base_check_policy_version') == run.base_check_policy_version
          and source.get('base_profile_sha256') == run.base_profile_sha256))
+    compatible_base_assessment = (compatible_base_assessment and
+        source.get('step_models', {}).get('assessment') == settings.step_models.get('assessment'))
     run.derived_from['base_assessment_context_compatible'] = compatible_base_assessment
     if run.derived_from['reuse_assessments'] and compatible_base_assessment and settings.output_form != 'needs':
         run.assessment_reuse = {r['content_hash']: {'content_hash': r['content_hash'],
@@ -421,11 +441,12 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
     return value
 
 
-def reusable_qualification(record: dict, content_hash: str):
+def reusable_qualification(record: dict, content_hash: str, model: str | None = None):
     qualification = record.get('qualification') or {}
     assessor = qualification.get('assessor', '')
     if (record.get('content_hash') == content_hash and qualification.get('revision_hash') == content_hash
-            and assessor.startswith(QUALIFICATION_VERSION + '/') and '/unavailable/' not in assessor):
+            and assessor.startswith(QUALIFICATION_VERSION + '/') and '/unavailable/' not in assessor
+            and (model is None or assessor == QUALIFICATION_VERSION + '/' + model)):
         return Qualification.model_validate(qualification)
     return None
 
@@ -600,6 +621,7 @@ def verify(store: Store, record: RequirementRecord, eligible_evidence_ids: list[
 
 
 def assess(store: Store, record: RequirementRecord, client: LLMClient | None = None) -> Qualification:
+    client = for_step(client, 'assessment')
     findings: list[Finding] = []
     if not record.verification or record.verification['status'] != 'pass':
         return Qualification(support='uncertain', rationale='Resolve material source evidence before semantic assessment.',
@@ -805,6 +827,7 @@ def normalize_extraction_task_links(proposal, task_ids: set[str]):
 
 
 def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Observation], list[dict]]:
+    client = for_step(client, 'extraction')
     ensure_elicitation_resumable(run)
     prompt_version = NEEDS_ELICITATION_POLICY if run['request'].get('output_form') == 'needs' else PROMPT_VERSION
     units = [store.get('evidence', identifier) for identifier in run['evidence_ids']]
@@ -820,6 +843,9 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
     def role_call(role):
         role_context = extraction_role_context(run, role, snapshot, base_context)
         previous_report = next((r for r in run['role_runs'] if r['role_id'] == role.id and r.get('prompt_version') == prompt_version), {})
+        if (previous_report and client is not None and run.get('step_models')
+                and previous_report.get('provider') != client.describe()):
+            raise ValueError('Extraction model/configuration changed; create a separate trial from the saved panel.')
         previous_selections = previous_report.get('citation_selections', [])
         completed_units = {eid for selection in previous_selections if selection['status'] == 'materialized'
                            for eid in selection.get('evidence_ids', [])}
@@ -836,7 +862,8 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
 
         def build_report(status, **details):
             report = {'role_id': role.id, 'status': status, 'provider': client.describe() if client else 'offline-mock',
-                      'prompt_version': prompt_version, 'context_hash': digest({**role_context, 'units': units}),
+                      'prompt_version': prompt_version, 'context_hash': digest({**role_context, 'units': units,
+                          'model': client.describe() if client else 'offline-mock'}),
                       'raw_outputs': outputs, 'citation_selections': citation_selections,
                       'invalid_task_ids': sorted(invalid_task_ids),
                       'task_link_corrections': task_link_corrections,
@@ -1102,8 +1129,9 @@ def consolidate(store: Store, run: dict, records: list[RequirementRecord], clien
                 inherit_base_checks(record, [by_id[rid] for rid in record.parent_revision_ids if rid in by_id])
         return active, events, conflicts
     previous = previous or {}
+    assessment_model = for_step(client, 'assessment').describe().get('model') if client else None
     previous_by_hash = {r['content_hash']: r for r in previous.values()
-                        if reusable_qualification(r, r['content_hash'])} if run.get('derived_from') else {}
+                        if reusable_qualification(r, r['content_hash'], assessment_model)} if run.get('derived_from') else {}
     cache = {}      # each source is parsed once for all merged candidates, as in verification
     groups: dict[str, list[RequirementRecord]] = {}
     for record in records:
@@ -1137,7 +1165,9 @@ def consolidate(store: Store, run: dict, records: list[RequirementRecord], clien
         merged.contributing_roles = sorted({role for item in group for role in item.contributing_roles})
         earlier = previous.get(merged.revision_id) or previous_by_hash.get(merged.content_hash)
         reusable = (earlier and earlier.get('content_hash') == merged.content_hash and earlier.get('qualification')
-                    and earlier['qualification'].get('revision_hash') == merged.content_hash)
+                    and earlier['qualification'].get('revision_hash') == merged.content_hash
+                    and (assessment_model is None or
+                         earlier['qualification'].get('assessor') == QUALIFICATION_VERSION + '/' + assessment_model))
         if reusable:
             merged.verification = verify(store, merged, run['evidence_ids'], cache)
             merged.qualification = Qualification.model_validate(earlier['qualification'])
@@ -1227,7 +1257,7 @@ def discussion_key(case: dict) -> str:
                        'qualification': r.get('qualification')}
                       for r in case['frozen_requirements']), key=lambda item: item['revision_id'])
     return digest({'triggers': sorted(case['triggers']), 'participants': sorted(case['participants']),
-                   'policy_version': case.get('policy_version'), 'records': records})
+                   'policy_version': case.get('policy_version'), 'model': case.get('model'), 'records': records})
 
 
 def carry_over_cases(previous: list[dict], routed: list[dict]) -> tuple[list[dict], list[str], int]:
@@ -1260,6 +1290,7 @@ def make_case(run: dict, records: list[RequirementRecord], triggers: list[str]) 
     participants = contributors[:3] + ['grounding_scope_critic']
     context_hash = digest([r.model_dump(mode='json') for r in records])
     case = DeliberationCase(case_id=uid('case', run['run_id'], context_hash, triggers),
+                           model=run.get('step_models', {}).get('discussion'),
                            revision_ids=[r.revision_id for r in records], triggers=triggers,
                            context_hash=context_hash, participants=participants,
                            frozen_requirements=[r.model_dump(mode='json') for r in records])
@@ -1398,14 +1429,17 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             lineage = run.get('derived_from') or {}
             if lineage.get('reuse_assessments'):
                 for item in assessment_reuse.values():
-                    qualification = reusable_qualification(item, item['content_hash'])
+                    qualification = reusable_qualification(item, item['content_hash'],
+                        for_step(client, 'assessment').describe().get('model') if client else None)
                     if qualification:
                         source_assessments.setdefault(item['content_hash'], qualification)
             reused_assessments = 0
             for record in records:
                 previous = saved_records.get(record.revision_id)
                 if (previous and previous.content_hash == record.content_hash and previous.qualification
-                        and previous.qualification.revision_hash == record.content_hash):
+                        and previous.qualification.revision_hash == record.content_hash
+                        and (client is None or previous.qualification.assessor == QUALIFICATION_VERSION + '/' +
+                             for_step(client, 'assessment').describe().get('model', 'unknown'))):
                     record.qualification = previous.qualification
                     record.verification = previous.verification
                     record.lifecycle_state = previous.lifecycle_state
@@ -1550,6 +1584,7 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
 
 
 def execute_case(store: Store, run_id: str, case_id: str, client: LLMClient):
+    client = for_step(client, 'discussion')
     from pydantic import BaseModel, Field, create_model
     from typing import Literal
 
@@ -1560,7 +1595,7 @@ def execute_case(store: Store, run_id: str, case_id: str, client: LLMClient):
         finished: bool = False
 
     if not isinstance(client, TrackedClient):
-        client = TrackedClient(client, store, run_id)
+        client = TrackedClient(client, store, run_id, step='discussion')
     run = store.get_run(run_id, parts=False)
     case = next(c for c in run['deliberations'] if c['case_id'] == case_id)
     if case['status'] == 'cancelled' or run['status'] == 'cancelled':

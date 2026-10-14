@@ -81,6 +81,11 @@ exports; restarting the service clears them. Ollama defaults to localhost for
 the local Mac service and to `host.docker.internal` in Docker. Confirm the
 model is present in Ollama before running a live workflow.
 
+Agent runs also support a collapsed **Advanced · model per step** setting.
+Defaults use the configured model throughout; overrides are validated and saved
+with each run or derived trial. See [model choices and the one-role Qwen smoke
+test](docs/STEP_MODELS.md) for routing, checkpoint and reasoning-budget details.
+
 For frontend development, keep the API running and use `npm run dev` from
 `frontend`. Port 5174 proxies `/api` to port 8011. Alternatively,
 `docker compose up --build` builds the app with a named data volume; that

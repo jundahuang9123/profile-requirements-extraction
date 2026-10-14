@@ -67,9 +67,9 @@ class LLMConfig:
       RRS_LLM_BASE_URL   base URL for openai-compatible endpoints
                          (e.g. http://localhost:11434/v1 for Ollama)
       RRS_LLM_API_KEY    API key for openai-compatible endpoints
-      RRS_LLM_REASONING_EFFORT optional OpenAI-compatible reasoning control.
-                                For Ollama thinking models, use none to return
-                                structured content without a long reasoning trace.
+      RRS_LLM_REASONING_EFFORT optional compatible reasoning control, sent only
+                                to models with documented support. GPT-OSS:
+                                low/medium/high; Qwen 3.8: low/medium/xhigh.
       ANTHROPIC_API_KEY  key for the anthropic provider (standard SDK variable)
       RRS_LLM_MAX_TOKENS response token cap (default 16000)
       RRS_LLM_TIMEOUT    request timeout in seconds per HTTP attempt (default 240)

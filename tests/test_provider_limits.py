@@ -266,7 +266,7 @@ def test_invalid_limits_fail_before_network():
 
 
 def test_environment_sets_retry_bounds_and_provenance_records_reasoning_effort(monkeypatch):
-    for name, value in {'RRS_LLM_PROVIDER': 'openai-compatible', 'RRS_LLM_MODEL': 'test',
+    for name, value in {'RRS_LLM_PROVIDER': 'openai-compatible', 'RRS_LLM_MODEL': 'inferenz-gpt-oss-120b',
                         'RRS_LLM_BASE_URL': 'https://env-bounds.invalid/v1', 'RRS_LLM_REASONING_EFFORT': 'low',
                         'RRS_LLM_RATE_LIMIT_RETRIES': '7', 'RRS_LLM_TRANSIENT_RETRIES': '1',
                         'RRS_LLM_RETRY_WAIT_BUDGET': '300'}.items():

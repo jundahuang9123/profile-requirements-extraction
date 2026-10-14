@@ -5,6 +5,7 @@ from typing import Annotated, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from ..models import ArtifactPayload, NormalizedIntent as LegacyIntent, RequirementType, UserTask
+from ..llm.step_models import ModelID, StepName
 
 WORKFLOW_VERSION = 'rq1-nine-stage-v2'
 SCHEMA_VERSION = 'rq1-requirement-dataset-v2'
@@ -338,6 +339,7 @@ class DeliberationCase(Contract):
     revision_ids: list[str]
     triggers: list[str]
     context_hash: str
+    model: str | None = None
     participants: list[str]
     policy_version: str = 'rq1-selective-v5'
     status: str = 'queued'
@@ -425,6 +427,7 @@ class RolePanel(Contract):
 
 
 class RunRequest(Contract):
+    step_models: dict[StepName, ModelID] = Field(default_factory=dict)
     output_form: Literal['needs', 'candidates'] | None = None
     scoping: Literal['use_cases', 'off'] | None = None
     snapshot_id: str
@@ -450,6 +453,8 @@ class RunRequest(Contract):
 
     @model_validator(mode='after')
     def panel_mode(self) -> 'RunRequest':
+        if self.step_models and self.strategy != 'multi_agent':
+            raise ValueError('Per-step model choices require the multi_agent strategy.')
         if self.output_form is None:
             self.output_form = 'needs' if self.strategy == 'multi_agent' else 'candidates'
         if self.output_form == 'needs' and self.strategy != 'multi_agent':
@@ -469,6 +474,7 @@ class RunRequest(Contract):
 
 
 class DeriveRequest(Contract):
+    step_models: dict[StepName, ModelID] = Field(default_factory=dict)
     start_from: Literal['normalization', 'elicitation'] = 'normalization'
     output_form: Literal['needs', 'candidates'] | None = None
     scoping: Literal['use_cases', 'off'] | None = None
@@ -486,6 +492,7 @@ class DeriveRequest(Contract):
 
 
 class WorkflowRun(Contract):
+    step_models: dict[StepName, ModelID] = Field(default_factory=dict)
     run_id: str
     name: str
     snapshot_id: str

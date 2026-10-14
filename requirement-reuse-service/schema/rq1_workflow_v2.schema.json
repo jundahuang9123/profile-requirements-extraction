@@ -434,6 +434,18 @@
           "title": "Messages",
           "type": "array"
         },
+        "model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model"
+        },
         "model_attempts": {
           "default": 0,
           "title": "Model Attempts",
@@ -629,6 +641,31 @@
           ],
           "title": "Start From",
           "type": "string"
+        },
+        "step_models": {
+          "additionalProperties": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "propertyNames": {
+            "enum": [
+              "role_selection",
+              "extraction",
+              "proposal_support",
+              "grouping",
+              "writer",
+              "rewrite_critic",
+              "membership",
+              "classification",
+              "use_case_linker",
+              "link_critic",
+              "assessment",
+              "discussion"
+            ]
+          },
+          "title": "Step Models",
+          "type": "object"
         }
       },
       "required": [
@@ -2490,6 +2527,31 @@
           "title": "Snapshot Id",
           "type": "string"
         },
+        "step_models": {
+          "additionalProperties": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "propertyNames": {
+            "enum": [
+              "role_selection",
+              "extraction",
+              "proposal_support",
+              "grouping",
+              "writer",
+              "rewrite_critic",
+              "membership",
+              "classification",
+              "use_case_linker",
+              "link_critic",
+              "assessment",
+              "discussion"
+            ]
+          },
+          "title": "Step Models",
+          "type": "object"
+        },
         "strategy": {
           "default": "rules",
           "enum": [
@@ -3568,6 +3630,31 @@
           "default": "created",
           "title": "Status",
           "type": "string"
+        },
+        "step_models": {
+          "additionalProperties": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "propertyNames": {
+            "enum": [
+              "role_selection",
+              "extraction",
+              "proposal_support",
+              "grouping",
+              "writer",
+              "rewrite_critic",
+              "membership",
+              "classification",
+              "use_case_linker",
+              "link_critic",
+              "assessment",
+              "discussion"
+            ]
+          },
+          "title": "Step Models",
+          "type": "object"
         },
         "strategy": {
           "title": "Strategy",
