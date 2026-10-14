@@ -767,6 +767,27 @@
       "title": "EvidenceUnit",
       "type": "object"
     },
+    "ExtractionTaskJustification": {
+      "additionalProperties": false,
+      "description": "Untrusted extraction hint; empty reasons are audited and dropped before storage.",
+      "properties": {
+        "justification": {
+          "default": "",
+          "maxLength": 600,
+          "title": "Justification",
+          "type": "string"
+        },
+        "task_id": {
+          "title": "Task Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id"
+      ],
+      "title": "ExtractionTaskJustification",
+      "type": "object"
+    },
     "Finding": {
       "additionalProperties": false,
       "properties": {
@@ -1201,7 +1222,7 @@
         },
         "task_justifications": {
           "items": {
-            "$ref": "#/$defs/TaskJustification"
+            "$ref": "#/$defs/ExtractionTaskJustification"
           },
           "title": "Task Justifications",
           "type": "array"
@@ -3391,7 +3412,7 @@
           "type": "array"
         },
         "elicitation_policy_version": {
-          "default": "rq1-independent-elicitation-v3.0",
+          "default": "rq1-independent-elicitation-v3.3",
           "title": "Elicitation Policy Version",
           "type": "string"
         },

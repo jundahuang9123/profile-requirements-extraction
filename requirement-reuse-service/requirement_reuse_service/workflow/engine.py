@@ -731,6 +731,37 @@ def extraction_batches(units: list[dict], role_context: dict) -> list[list[dict]
     return batches
 
 
+def normalize_extraction_task_links(proposal, task_ids: set[str]):
+    """Remove invalid task hints only; leave statement and source selections intact.
+
+    The raw provider response is stored before this transformation. A task hint is
+    admissible only with a declared ID and exactly one nonblank justification.
+    Scoping later judges necessity independently of these extraction suggestions.
+    """
+    linked = proposal.supports_user_tasks
+    reasons: dict[str, list] = {}
+    for justification in proposal.task_justifications:
+        reasons.setdefault(justification.task_id, []).append(justification)
+    changes, valid = [], set()
+    for task_id in dict.fromkeys([*linked, *reasons]):
+        supplied = reasons.get(task_id, [])
+        reason = ('undeclared_task_id' if task_id not in task_ids else
+                  'justification_without_link' if task_id not in linked else
+                  'missing_justification' if not supplied else
+                  'multiple_justifications' if len(supplied) != 1 else
+                  'blank_justification' if not supplied[0].justification.strip() else None)
+        if reason:
+            changes.append({'task_id': task_id, 'reason': reason,
+                            'linked_occurrences': linked.count(task_id),
+                            'justifications': [item.model_dump(mode='json') for item in supplied]})
+        else:
+            valid.add(task_id)
+    normalized = proposal.model_copy(update={
+        'supports_user_tasks': [task_id for task_id in linked if task_id in valid],
+        'task_justifications': [item for item in proposal.task_justifications if item.task_id in valid]})
+    return normalized, changes
+
+
 def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Observation], list[dict]]:
     ensure_elicitation_resumable(run)
     prompt_version = NEEDS_ELICITATION_POLICY if run['request'].get('output_form') == 'needs' else PROMPT_VERSION
@@ -756,6 +787,7 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
                         if item['role_id'] == role.id] if previous_report else []
         outputs = list(previous_report.get('raw_outputs', []))
         invalid_task_ids = set(previous_report.get('invalid_task_ids', []))
+        task_link_corrections = list(previous_report.get('task_link_corrections', []))
         citation_selections = list(previous_selections)
         batch_failures = []
         unit_ids = {unit['evidence_id'] for unit in units}
@@ -765,6 +797,7 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
                       'prompt_version': prompt_version, 'context_hash': digest({**role_context, 'units': units}),
                       'raw_outputs': outputs, 'citation_selections': citation_selections,
                       'invalid_task_ids': sorted(invalid_task_ids),
+                      'task_link_corrections': task_link_corrections,
                       'observation_ids': [item.observation_id for item in observations]}
             if run['strategy'] != 'mock':
                 # Coverage across this and earlier attempts under the same policy. A role is
@@ -924,13 +957,18 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
                     return observations, build_report('failed', error=str(exc), failed_batch=batch_index, **earlier)
                 outputs.append(result.model_dump(mode='json'))
                 try:
-                    materialized = [materialize_observation(proposal, catalogue) for proposal in result.observations]
+                    proposals = result.observations
                     if run['request'].get('output_form') == 'needs':
-                        for observation in materialized:
-                            linked = observation.supports_user_tasks
-                            justified = [j.task_id for j in observation.task_justifications]
-                            if set(linked) != set(justified) or len(justified) != len(set(justified)) or set(linked) - task_ids:
-                                raise ValueError('Every extraction task link requires exactly one justification and a supplied task ID.')
+                        normalized = []
+                        for index, proposal in enumerate(proposals):
+                            row, changes = normalize_extraction_task_links(proposal, task_ids)
+                            normalized.append(row)
+                            task_link_corrections.extend({'batch_index': batch_index, 'raw_output_index': len(outputs) - 1,
+                                'observation_index': index, **change} for change in changes)
+                            invalid_task_ids.update(change['task_id'] for change in changes
+                                                    if change['reason'] == 'undeclared_task_id')
+                        proposals = normalized
+                    materialized = [materialize_observation(proposal, catalogue) for proposal in proposals]
                 except ValueError as exc:
                     # A schema-valid answer with an unknown or repeated excerpt link. The raw
                     # response stays in the audit; none of its observations is accepted.

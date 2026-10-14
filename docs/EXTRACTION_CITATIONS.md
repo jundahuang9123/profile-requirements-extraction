@@ -54,6 +54,16 @@ the pinned base catalogue after grouping. Candidate extraction retains the table
 because its extension prompt asks which base fields a proposal changes. The run
 still records and validates the selected base profile and its fingerprint.
 
+Extraction task links are suggestions for the later independent scoping step.
+Under v3.3, a missing/blank justification, several justifications for one task,
+an undeclared task ID or an orphan justification removes only that task hint.
+The proposal and its source selections still pass the ordinary source checks.
+Each removal is recorded in the role report's `task_link_corrections`, tied to
+the batch, raw output and observation indices; the raw answer is preserved.
+Missing or blank reasons are allowed only in the provider's hint contract so
+they can reach this audit. Stored observation justifications remain nonempty.
+This cannot establish task necessity; the use-case linker and critic still judge it.
+
 Authentic excerpts do not establish entailment. The ordinary original-source
 verification, separate obligation-premise requirement and semantic assessment
 remain in effect. Unsupported hypotheses may retain empty links and remain blocked.

@@ -239,6 +239,12 @@ class SpanElicitationResult(Contract):
     observations: list[SpanObservation] = Field(default_factory=list)
 
 
+class ExtractionTaskJustification(Contract):
+    """Untrusted extraction hint; empty reasons are audited and dropped before storage."""
+    task_id: str
+    justification: str = Field(default='', max_length=600)
+
+
 class NeedSpanObservation(Contract):
     """Current provider contract: needs and citations, never extension solution labels."""
     observation_id: str
@@ -251,7 +257,7 @@ class NeedSpanObservation(Contract):
     rationale: str = ''
     assumptions: list[str] = Field(default_factory=list)
     supports_user_tasks: list[str] = Field(default_factory=list)
-    task_justifications: list[TaskJustification] = Field(default_factory=list)
+    task_justifications: list[ExtractionTaskJustification] = Field(default_factory=list)
     rq2_hints: list[RQ2Hint] = Field(default_factory=list)
     support_level: Literal['explicit', 'evidence_supported_inference', 'unsupported'] = 'evidence_supported_inference'
 
