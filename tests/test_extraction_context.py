@@ -75,3 +75,41 @@ def test_needs_preflight_does_not_reserve_an_unused_base_table(corpus, monkeypat
     assert run['base_profile_id'] == 'dcat-ap-2.0.1'
     with pytest.raises(ValueError, match='reserved extraction input budget'):
         extraction_run(corpus, 'candidates')
+
+
+def small_units(count=4, chars=1000):
+    return [{'evidence_id': f'unit-{index}', 'content': 'x' * chars, 'kind': 'text_span'}
+            for index in range(count)]
+
+
+def test_four_small_passages_share_one_batch_despite_12k_fixed_context():
+    units = small_units()
+    context = {'role': {'description': 'x' * 12000}, 'user_tasks': []}
+    batches = engine.extraction_batches(units, context)
+    assert batches == [units]
+    payload, _ = engine.elicitation_batch(units)
+    assert len(engine.canonical({**context, 'evidence_units': payload})) > 16000
+    assert len(engine.canonical(payload)) < 16000
+
+
+def test_45k_complete_input_cap_still_splits_small_passages():
+    units = small_units()
+    context = {'role': {'description': 'x' * 42000}}
+    batches = engine.extraction_batches(units, context)
+    assert [len(batch) for batch in batches] == [2, 2]
+    assert [unit for batch in batches for unit in batch] == units
+    for batch in batches:
+        payload, _ = engine.elicitation_batch(batch)
+        assert len(engine.canonical({**context, 'evidence_units': payload})) <= 45000
+
+
+def test_passage_target_and_four_passage_cap_still_apply():
+    assert [len(batch) for batch in engine.extraction_batches(small_units(9), {})] == [4, 4, 1]
+    assert [len(batch) for batch in engine.extraction_batches(small_units(4, 6000), {})] == [2, 2]
+
+
+def test_single_large_passage_uses_only_the_hard_limit():
+    units = small_units(1, 17000)
+    assert engine.extraction_batches(units, {}) == [units]
+    with pytest.raises(ValueError, match='extraction budget'):
+        engine.extraction_batches(units, {'role': 'x' * 45000})

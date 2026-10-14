@@ -707,6 +707,30 @@ def extraction_role_context(run: dict, role, snapshot: dict, base_context: dict 
     return context
 
 
+def extraction_batches(units: list[dict], role_context: dict) -> list[list[dict]]:
+    """Bound passage payload and complete input separately, without dropping units.
+
+    A singleton can exceed the passage target, but never the complete-input limit.
+    The latter counts the serialized user context including all excerpt metadata.
+    """
+    batches: list[list[dict]] = []
+    for unit in units:
+        single, _ = elicitation_batch([unit])
+        if len(canonical({**role_context, 'evidence_units': single})) > EXTRACTION_UNIT_CHARS:
+            raise ValueError('An evidence unit and its excerpt catalogue exceed the extraction budget; explicitly redecompose it.')
+        trial_units = [*batches[-1], unit] if batches else [unit]
+        trial, _ = elicitation_batch(trial_units)
+        if batches and (len(batches[-1]) >= EXTRACTION_BATCH_UNITS or
+                        len(canonical(trial)) > EXTRACTION_BATCH_CHARS or
+                        len(canonical({**role_context, 'evidence_units': trial})) > EXTRACTION_UNIT_CHARS):
+            batches.append([unit])
+        elif batches:
+            batches[-1].append(unit)
+        else:
+            batches.append([unit])
+    return batches
+
+
 def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Observation], list[dict]]:
     ensure_elicitation_resumable(run)
     prompt_version = NEEDS_ELICITATION_POLICY if run['request'].get('output_form') == 'needs' else PROMPT_VERSION
@@ -727,17 +751,7 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
         completed_units = {eid for selection in previous_selections if selection['status'] == 'materialized'
                            for eid in selection.get('evidence_ids', [])}
         remaining_units = [unit for unit in units if unit['evidence_id'] not in completed_units]
-        batches: list[list[dict]] = [[]]
-        for unit in remaining_units:
-            single, _ = elicitation_batch([unit])
-            if len(canonical({**role_context, 'evidence_units': single})) > EXTRACTION_UNIT_CHARS:
-                raise ValueError('An evidence unit and its excerpt catalogue exceed the extraction budget; explicitly redecompose it.')
-            trial, _ = elicitation_batch([*batches[-1], unit])
-            if batches[-1] and (len(batches[-1]) >= EXTRACTION_BATCH_UNITS or
-                                len(canonical({**role_context, 'evidence_units': trial})) > EXTRACTION_BATCH_CHARS):
-                batches.append([unit])
-            else:
-                batches[-1].append(unit)
+        batches = extraction_batches(remaining_units, role_context)
         observations = [Observation.model_validate(item) for item in run['observations']
                         if item['role_id'] == role.id] if previous_report else []
         outputs = list(previous_report.get('raw_outputs', []))

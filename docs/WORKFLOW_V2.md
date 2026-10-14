@@ -280,9 +280,10 @@ run created under an older extraction policy is rejected.
 
 ## Bounded extraction output recovery
 
-The v2.7 extractor targets at most four evidence units and 16,000 input characters
-per batch. A single larger unit remains intact under the existing 45,000-character
-hard limit; no source text is silently discarded. These are character budgets,
+The v3.3 extractor targets at most four evidence units and 16,000 characters of
+serialized passage payload per batch. Fixed role/task context is separate from
+this target. Every batch, including a single larger unit, stays within a
+45,000-character full user-input limit; no source text is silently discarded. These are character budgets,
 not guarantees about provider tokenization or output size.
 
 Each initial response reserves 8,000 tokens. When an OpenAI-compatible provider

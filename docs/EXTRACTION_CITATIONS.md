@@ -24,8 +24,11 @@ A block can contain neighbouring lines that the cited premise does not need, so 
 authentic excerpt says even less about relevance than a single line did.
 Adjacent excerpts provide context; agents can cite several when a premise spans
 them. Up to 12 premise links can be returned per observation. Batches include the
-catalogue and role/task context with a 16,000-character target and at most four
-evidence units. A single larger unit may use the 45,000-character hard limit. An oversized unit
+catalogue with a 16,000-character passage target and at most four evidence units.
+The target counts the serialized `evidence_units` array, including excerpt metadata,
+without the fixed role/task context. Every batch also has a 45,000-character hard
+limit on its full serialized user input, including that context. A single larger
+unit may exceed the passage target within this hard limit. An oversized unit
 fails explicitly rather than losing input. Character limits are not model-specific
 token limits; the provider also receives a schema and system prompt.
 

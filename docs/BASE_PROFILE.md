@@ -50,7 +50,7 @@ use `rq1-base-registry-v2`, and W3C vocabularies use `rq1-base-vocabulary-v1`.
 The base-check policy is
 `rq1-base-check-v2`, normalization uses `rq1-normalization-v3`, semantic grouping
 uses `rq1-semantic-consolidation-v2`, and extension extraction uses
-`rq1-independent-elicitation-v3.0`. Runs record the selected `base_profile_id`,
+`rq1-independent-elicitation-v3.3`. Runs record the selected `base_profile_id`,
 `base_registry_policy_version` and the SHA256 of the exact registry JSON bytes.
 Saved stage results and the frozen
 machine output retain the corresponding policy/base metadata. A derived run retains
@@ -319,13 +319,19 @@ states `extension_kind` and, where applicable, a `base_property` such as
 obligation, value constraint, new class/relation, and not an extension. The server
 applies its own base check rather than accepting that label as proof.
 
-The compact table counts toward the existing input bounds: at most four units
-and 16,000 characters for a normal extraction batch, or 45,000 characters for
-one large unit. The response cap is 8,000 tokens, with a bounded 12,000-token
+Candidate extraction includes the compact table within the full 45,000-character
+user-input limit; needs extraction omits it. Policy v3.3 targets at most four units
+and 16,000 characters of passage payload per batch. One large unit may exceed
+that target within the full-input limit. The response cap is 8,000 tokens, with a bounded 12,000-token
 single-unit retry. These are per-request limits; character sizing is not a
 measurement of provider tokens or daily quota. The preflight estimate reserves
 5,000 characters for role/task context plus the selected base context. Actual
 selected roles can produce different batch counts.
+
+After role selection, `scripts/count_extraction_batches.py <saved-run-export.json>`
+compares old and new initial batch counts using the exact frozen input. It calls no
+model and does not use generated or reference requirements. These are packing
+counts, not measured runtime, retries or accuracy.
 
 Run the offline preflight with a fresh output directory outside the repository:
 
