@@ -1211,8 +1211,15 @@ def consolidate(store: Store, run: dict, records: list[RequirementRecord], clien
 def route_cases(run: dict, records: list[RequirementRecord], conflicts: list[dict],
                 discussion: str = 'automatic') -> tuple[list[dict], list[dict]]:
     """Route each active candidate. With discussion 'on_request' no case is opened:
-    candidates that would be discussed go to human review with the same reasons."""
+    candidates that would be discussed go to human review with the same reasons.
+
+    For needs saved under the current routing policy, an obligation that no source states is
+    the normal state (shown as "not stated by sources"). A discussion cannot add a source
+    statement, so that finding stays on the need for human review and opens no case by itself.
+    Runs saved under an earlier policy keep their original routing."""
+    from .needs import ROUTING_POLICY
     automatic = discussion == 'automatic'
+    unstated_obligation_is_routine = (run.get('needs_policies') or {}).get('routing') == ROUTING_POLICY
     cases = []
     routing = []
     def unavailable(record):
@@ -1239,13 +1246,20 @@ def route_cases(run: dict, records: list[RequirementRecord], conflicts: list[dic
             continue
         if record.qualification.support in {'uncertain', 'unsupported', 'contradicted'}:
             triggers.append('semantic_support_' + record.qualification.support)
-        triggers.extend(f.criterion for f in record.qualification.findings if f.severity in {'blocking', 'review'})
+        findings = [f.criterion for f in record.qualification.findings if f.severity in {'blocking', 'review'}]
+        notes = []
+        if (unstated_obligation_is_routine and record.need_statement is not None
+                and record.normalized_intent.obligation_hint == 'unknown' and 'obligation' in findings):
+            findings = [criterion for criterion in findings if criterion != 'obligation']
+            notes.append('obligation_not_stated_by_sources')
+        triggers.extend(findings)
         if triggers and run['strategy'] == 'multi_agent' and automatic:
             cases.append(make_case(run, [record], sorted(set(triggers))))
             route = 'deliberation'
         else:
             route = 'human_review'
-        routing.append({'revision_id': record.revision_id, 'route': route, 'reasons': sorted(set(triggers)) or ['no_unresolved_issue']})
+        routing.append({'revision_id': record.revision_id, 'route': route,
+                        'reasons': sorted(set(triggers)) or notes or ['no_unresolved_issue']})
     return cases, routing
 
 
