@@ -89,3 +89,64 @@ def test_on_request_discussion_is_unchanged(setup):
     saved, active = needs_run(store, original)
     cases, routing = engine.route_cases(saved, only(active, ['obligation', 'atomicity']), [], 'on_request')
     assert cases == [] and all(row['reasons'] == ['atomicity'] for row in routing)
+
+
+def lexical(records, *, model_atomicity=False, assessor=None):
+    """The lexical 'and' hint as assess() adds it, optionally with the model's own atomicity finding."""
+    records = [r.model_copy(deep=True) for r in records]
+    for record in records:
+        record.qualification.support = 'explicit'
+        record.qualification.assessor = assessor or f'{engine.QUALIFICATION_VERSION}/scripted-model'
+        record.qualification.findings = [Finding(criterion='atomicity', severity='review',
+                                                 message=engine.LEXICAL_ATOMICITY_MESSAGE)]
+        if model_atomicity:
+            record.qualification.findings.append(Finding(criterion='Atomicity', severity='review',
+                message='Two distinct metadata needs are combined; split them.'))
+    return records
+
+
+def test_lexical_and_hint_alone_opens_no_case_when_the_model_judged_atomicity(setup):
+    store, original, _ = setup
+    saved, active = needs_run(store, original)
+    assert saved['needs_policies']['routing'] == 'rq1-needs-routing-v3'
+    records = lexical(active)
+    cases, routing = engine.route_cases(saved, records, [], 'automatic')
+    assert cases == []
+    assert all(row['route'] == 'human_review' and row['reasons'] == ['possible_compound_wording'] for row in routing)
+    # The hint itself stays on the need for the reviewer.
+    assert all(f.message == engine.LEXICAL_ATOMICITY_MESSAGE for r in records for f in r.qualification.findings)
+
+
+def test_the_models_own_atomicity_finding_still_opens_a_case(setup):
+    store, original, _ = setup
+    saved, active = needs_run(store, original)
+    cases, _ = engine.route_cases(saved, lexical(active, model_atomicity=True), [], 'automatic')
+    assert len(cases) == len(active)
+    assert all(case['triggers'] == ['Atomicity', 'atomicity'] for case in cases)
+
+
+def test_without_a_model_assessment_the_lexical_hint_remains_a_trigger(setup):
+    store, original, _ = setup
+    saved, active = needs_run(store, original)
+    for assessor in (f'{engine.QUALIFICATION_VERSION}/unavailable/scripted-model', 'offline-structural-v2'):
+        cases, _ = engine.route_cases(saved, lexical(active, assessor=assessor), [], 'automatic')
+        assert len(cases) == len(active) and all(case['triggers'] == ['atomicity'] for case in cases)
+
+
+def test_runs_saved_under_routing_v2_keep_it_and_still_process_needs(setup):
+    from requirement_reuse_service.workflow.needs import run_needs_policies
+    store, original, _ = setup
+    saved, active = needs_run(store, original)
+    v2 = deepcopy(saved)
+    v2['needs_policies']['routing'] = 'rq1-needs-routing-v2'
+    assert run_needs_policies(v2) == v2['needs_policies']
+    cases, _ = engine.route_cases(v2, lexical(active), [], 'automatic')
+    assert len(cases) == len(active) and all(case['triggers'] == ['atomicity'] for case in cases)
+    # The v2 rule for unstated obligations still applies to such runs.
+    cases, _ = engine.route_cases(v2, only(active, ['obligation']), [], 'automatic')
+    assert cases == []
+    changed = deepcopy(saved)
+    changed['needs_policies']['grouping'] = 'another-grouping-policy'
+    import pytest
+    with pytest.raises(ValueError, match='Needs policies changed'):
+        run_needs_policies(changed)

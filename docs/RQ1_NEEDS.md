@@ -173,7 +173,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Need assessment | `rq1-need-support-v1` | One logical assessment per kept need; complete selected excerpts, max 45,000 input characters; at most two generations for schema/cutoff recovery |
 | Row recovery | `rq1-needs-row-recovery-v2` | Valid rows saved; correction includes only failing rows; invalid/cutoff output gets durable fallbacks after exhaustion; provider failures stop and remain retryable |
 | Rank | `rq1-need-ranking-v1` | Deterministic; every kept need remains listed |
-| Discussion routing | `rq1-needs-routing-v2` | An obligation that no source states opens no case by itself; the finding stays on the need for review. Runs saved without this policy keep their original routing |
+| Discussion routing | `rq1-needs-routing-v3` | An obligation that no source states opens no case by itself (since v2), nor does the lexical 'and' hint when the model judged atomicity (v3); both stay on the need for review. Runs saved under v2 keep v2 routing; runs saved without a routing policy keep their original routing |
 
 A single oversized needs-processing row receives the recorded conservative
 fallback below; need assessment requires human review/splitting. Evidence is not truncated to make an assessment
@@ -256,6 +256,18 @@ obligation findings as triggers. This change followed a functional Mobility run
 (counts only, no reference rows): applied to its 417 cases, 208 would not open
 because the unstated obligation was their only trigger, and 209 would still open
 on their other triggers.
+
+`rq1-needs-routing-v3` also excludes the lexical atomicity hint. Every assessment of a
+statement containing ';', 'and' or 'as well as' carries the deterministic finding
+"Potential compound requirement; assess whether it needs splitting", whatever the
+model concludes. The model's assessment itself judges atomicity. When the model
+assessed the need and raised no atomicity finding of its own, the hint opens no case;
+it stays on the need, and its routing reason reads `possible_compound_wording`. A
+model finding about atomicity (or compound or split statements) remains a trigger, as
+does the hint when no model assessment exists (assessment unavailable, input bound,
+offline). Of those 209 cases, 111 had atomicity as their only remaining trigger; that
+count does not separate the lexical hint from the model's own findings. Runs saved
+under v2 keep v2 routing and can continue processing.
 
 ## Comparison conditions
 
