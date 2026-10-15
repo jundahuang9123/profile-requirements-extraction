@@ -12,7 +12,7 @@ from typing import Any
 from ..agents.roles import load_role_configuration
 from ..llm.client import LLMClient, OutputTokenLimitError, OutputValidationError, create_client
 from ..llm.config import LLMConfig
-from ..llm.step_models import StepModelRouter, contract_step, for_step, resolve_models
+from ..llm.step_models import StepModelRouter, contract_step, for_step, resolve_models, model_identity, model_settings
 from .evidence import resolve_evidence
 from .citations import elicitation_batch, materialize_observation
 from .models import (BaselineRequest, CorpusSnapshot, DecisionRequest, DeliberationCase, DeriveRequest,
@@ -844,7 +844,7 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
         role_context = extraction_role_context(run, role, snapshot, base_context)
         previous_report = next((r for r in run['role_runs'] if r['role_id'] == role.id and r.get('prompt_version') == prompt_version), {})
         if (previous_report and client is not None and run.get('step_models')
-                and previous_report.get('provider') != client.describe()):
+                and model_settings(previous_report.get('provider')) != model_identity(client)):
             raise ValueError('Extraction model/configuration changed; create a separate trial from the saved panel.')
         previous_selections = previous_report.get('citation_selections', [])
         completed_units = {eid for selection in previous_selections if selection['status'] == 'materialized'
@@ -863,7 +863,7 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
         def build_report(status, **details):
             report = {'role_id': role.id, 'status': status, 'provider': client.describe() if client else 'offline-mock',
                       'prompt_version': prompt_version, 'context_hash': digest({**role_context, 'units': units,
-                          'model': client.describe() if client else 'offline-mock'}),
+                          'model': model_identity(client)}),
                       'raw_outputs': outputs, 'citation_selections': citation_selections,
                       'invalid_task_ids': sorted(invalid_task_ids),
                       'task_link_corrections': task_link_corrections,

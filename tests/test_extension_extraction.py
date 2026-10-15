@@ -8,6 +8,7 @@ from test_resume_discussions import setup, ROLES
 from test_set_aside import extraction_only
 from test_semantic_consolidation import GroupClient, inputs, semantic_consolidate
 from requirement_reuse_service.llm.client import MockLLMClient
+from requirement_reuse_service.llm.step_models import model_settings
 from requirement_reuse_service.models import ArtifactPayload
 from requirement_reuse_service.workflow import engine
 from requirement_reuse_service.workflow.citations import elicitation_batch
@@ -81,7 +82,7 @@ def test_each_independent_role_gets_the_exact_pinned_compact_base_context(setup)
     units = [store.get('evidence', eid) for eid in run['evidence_ids']]
     for report, (_, data) in zip(reports, scripted.calls):
         context = {key: value for key, value in data.items() if key != 'evidence_units'}
-        assert report['context_hash'] == digest({**context, 'units': units, 'model': report['provider']})
+        assert report['context_hash'] == digest({**context, 'units': units, 'model': model_settings(report['provider'])})
 
 
 def test_new_run_preflight_counts_base_context_before_provider_construction(setup, monkeypatch):

@@ -67,7 +67,8 @@ def generation(store, run, step, payload, output_model, system, client, validate
     if saved and saved['status'] in {'completed','completed_with_fallbacks'}: return materialize(saved)
     if client is None: raise ValueError('Need processing requires a configured model or scripted offline client.')
     audit=deepcopy(saved) if saved else {'step':step,'policy_version':run.get('needs_policies',{}).get(step),
-        'recovery_policy':POLICY,'input_hash':digest(payload),'provider':model,'status':'running','attempts':[],
+        'recovery_policy':POLICY,'input_hash':digest(payload),
+        'provider':client.describe() if hasattr(client, 'describe') else model,'status':'running','attempts':[],
         'accepted_rows':{},'fallback_rows':{}}
     audit.pop('checkpoint_hash',None)
     def save():
