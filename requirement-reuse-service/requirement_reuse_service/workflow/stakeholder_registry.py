@@ -307,6 +307,18 @@ def choice_payload(entries, tasks, max_roles, candidates):
     return payload
 
 
+def compact_choice_payload(payload):
+    """Lossless table encoding: share column names, retain every exact field value."""
+    if not payload['entries']:
+        return deepcopy(payload)
+    fields = list(payload['entries'][0])
+    if any(set(entry) != set(fields) for entry in payload['entries']):
+        raise ValueError('Stakeholder choice rows do not share the same fields.')
+    return {**deepcopy(payload), 'entry_encoding': 'rows_in_entry_fields_order',
+            'entry_fields': fields,
+            'entries': [[deepcopy(entry[field]) for field in fields] for entry in payload['entries']]}
+
+
 def relevance_errors(answer, entries):
     expected = {e['entry_id'] for e in entries}
     counts = Counter(v.entry_id for v in answer.verdicts)
@@ -414,8 +426,19 @@ def choose_panel(manifest, entries, tasks, call, save, model, mock=False):
         choice, scope = [by_id[i] for i in sorted(relevant)], 'relevant_entries'
         payload = choice_payload(choice, tasks, max_roles, candidates)
         if len(canonical(payload)) > PANEL_CHARS:
-            raise ValueError(f'{len(choice)} entries were judged relevant, more than one panel request can offer; '
-                             'no entry was dropped. Review the registry or provide an override.')
+            original_chars = len(canonical(payload))
+            payload = compact_choice_payload(payload)
+            compacted_chars = len(canonical(payload))
+            if compacted_chars > PANEL_CHARS:
+                raise ValueError(f'{len(choice)} entries were judged relevant, more than one panel request can offer '
+                                 'even after lossless table encoding; no entry was dropped. '
+                                 'Review the registry or provide an override.')
+            audit = {'policy': 'rq1-panel-choice-table-v1', 'entry_count': len(choice),
+                     'original_chars': original_chars, 'compacted_chars': compacted_chars,
+                     'entry_fields': payload['entry_fields'], 'payload_hash': digest(payload)}
+            if audit not in manifest.setdefault('panel_input_compactions', []):
+                manifest['panel_input_compactions'].append(audit)
+                save('stakeholder_panel_choice_compacted')
     choice_by_id = {e['entry_id']: e for e in choice}
     key = digest([PANEL_PROMPT, payload, StakeholderPanel.model_json_schema(), model])
     def demo():

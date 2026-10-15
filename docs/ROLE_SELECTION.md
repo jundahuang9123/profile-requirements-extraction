@@ -204,9 +204,17 @@ panel among every entry judged relevant (`relevant_entries` round), with the sam
 priority checks and fill labels as above. That choice sees a compact view: label,
 stakeholders, basis, purpose, source names, source count and task hints, without
 focus questions. Entries judged not relevant in a block are saved as omissions with
-their reasons. If no block finds a relevant entry, or the relevant entries still
-exceed the budget, selection fails explicitly; entries are never dropped to fit.
-These are character bounds, not guarantees about a provider's token context window.
+their reasons. If the compact object view still exceeds the budget, the final choice
+uses a lossless table: `entry_fields` names the shared columns and every `entries`
+row retains that entry's exact field values (`entry_encoding: rows_in_entry_fields_order`).
+This avoids repeating JSON field names; it does not shorten descriptions, change IDs,
+remove sources/tasks or select a smaller shortlist. `panel_input_compactions` records
+`rq1-panel-choice-table-v1`, entry count, columns, both character counts and payload hash.
+Only an oversized final choice uses this representation; existing object requests and
+completed relevance checkpoints keep their keys. If no block finds a relevant entry,
+or even the table still exceeds the budget, selection fails explicitly; entries are
+never dropped to fit. These are character bounds, not guarantees about a provider's
+token context window.
 
 Discovery reserves 8,000 output tokens, citation correction 5,000, and registry/
 panel calls 8,000 each. Each logical call may use the existing one structural schema
