@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 import uuid
 import time
 from copy import deepcopy
@@ -155,12 +156,13 @@ class BenchmarkLoadRequest(BaseModel):
 
 @router.get('/base-profiles')
 def list_base_profiles():
-    from .base_profile import PROFILE_DIRECTORY, load_profile
+    from .base_profile import PROFILE_DIRECTORY, PROFILE_ID_PATTERN, load_profile
     return [{'id': profile['id'], 'version': profile['version'], 'sha256': fingerprint,
              'family': profile.get('family', 'DCAT-AP'),
              'label': profile.get('label', 'DCAT-AP ' + profile['version']),
              'description': profile.get('description', 'Application-profile properties and obligations.')}
-            for path in sorted(PROFILE_DIRECTORY.glob('dcat-*.json')) if not path.name.endswith('.needs.json')
+            for path in sorted(PROFILE_DIRECTORY.glob('dcat-*.json'))
+            if re.fullmatch(PROFILE_ID_PATTERN, path.stem)
             for profile, fingerprint in [load_profile(path.stem)]]
 
 
