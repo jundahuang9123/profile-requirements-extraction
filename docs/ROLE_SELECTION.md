@@ -158,6 +158,37 @@ or the bounded grouping procedure are semantically perfect.
    refused; the older narrow v6–v10 failure migrations are not used to enter v12.
    Create a new run, or use a compatible completed scan as described below.
 
+
+### Documented registry representatives
+
+`rq1-registry-documented-representative-v1` applies a deterministic rule after
+registry membership passes every accounting check. If the model chooses an inferred
+or proposed representative for a group containing documented members, the service
+uses an existing documented member of that same group. Ties use the smallest entry
+ID. A valid documented choice is left alone. The chosen member's existing label,
+purpose, questions and basis are copied unchanged; an inferred candidate is never
+relabeled as documented. Group membership, rationale and all citations are preserved.
+This does not verify the model's judgement that those members are equivalent.
+
+Raw responses remain in `registry_calls.original` / `correction.original`. Changes
+are recorded separately in `representative_normalizations`, with policy, phase,
+old/new representative IDs and group membership. Missing or unknown IDs,
+cross-group duplicates and representatives outside their group still fail; this
+rule cannot fill gaps or decide conflicting memberships. Diagnostic messages name
+the actual validation codes rather than calling every failure an accounting error.
+
+A v12 registry decision whose saved correction failed **only** this documented
+representative check can be recovered on Resume without a new call for that
+checkpoint. The service reconstructs the same request/key, checks its input hash,
+and revalidates the raw correction and its saved normalization/errors before
+applying the rule. The original invalid correction and its audit stay unchanged;
+a `recovery` record and manifest migration note describe the changed condition.
+Completed discovery and valid registry decisions are reused without changing their
+prompt, schema, model or checkpoint keys. Unfinished downstream decisions still
+need their normal calls. Other exhausted or interrupted corrections are refused.
+A saved valid correction is reused even if interruption prevented its completion
+marker from being saved.
+
 Registry prompts use stable ID ordering; candidate and batch report order does not
 change the registry inputs or final panel prompt. Each merge payload is bounded to
 18,000 characters, leaving room for its answer and correction within the 60,000

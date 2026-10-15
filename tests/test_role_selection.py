@@ -135,7 +135,7 @@ def test_full_auto_run_uses_frozen_roles_in_extraction_discussion_and_exports(co
     assert Store(str(store.path)).get('role_manifest', manifest['manifest_hash']) == manifest
 
 
-@pytest.mark.parametrize('options, message', [({'duplicate': True}, 'exactly once')])
+@pytest.mark.parametrize('options, message', [({'duplicate': True}, 'verdict_accounting')])
 def test_bad_selector_output_fails_before_extraction_without_fallback(corpus, options, message):
     store, _, _ = corpus
     run = auto_run(corpus)

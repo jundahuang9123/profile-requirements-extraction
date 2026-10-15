@@ -105,7 +105,8 @@ def test_registry_support_is_derived_and_documented_representative_required(thre
     assert entries[0]['batch_count'] == 3
     representative = next(c for c in manifest['candidates'] if c['candidate_id'] == entries[0]['representative_id'])
     assert all(entries[0][k] == representative[k] for k in ('label', 'purpose', 'focus_questions', 'basis'))
-    assert any(r.get('correction', {}).get('status') == 'valid' for r in manifest['registry_calls'])
+    assert any(r.get('representative_normalizations') for r in manifest['registry_calls'])
+    assert not any(r.get('correction') for r in manifest['registry_calls'])
 
 
 def test_registry_collapses_only_identical_member_dispositions(three_batches):
