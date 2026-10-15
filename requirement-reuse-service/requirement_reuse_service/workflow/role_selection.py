@@ -667,6 +667,102 @@ def verify_manifest(manifest: dict):
         raise ValueError('Frozen role manifest hash mismatch.')
 
 
+DISCOVERY_COPY_FIELDS = ('candidates', 'batch_reports', 'validation_attempts',
+                         'unresolved_role_candidates', 'processed_evidence_ids', 'discovery_call_records')
+
+
+def discovery_hash(manifest: dict):
+    return digest({key: manifest.get(key, []) for key in DISCOVERY_COPY_FIELDS})
+
+
+def reuse_discovery(store: Store, source: dict, settings: RunRequest, actor: str):
+    """Copy a complete, compatible scan; never its panel, registry or extraction."""
+    parent = source.get('role_manifest') or {}
+    if (parent.get('status') != 'completed' or parent.get('mode') != 'automatic'
+            or parent.get('policy_version') not in {'rq1-stakeholder-selection-v11', POLICY_VERSION}):
+        raise ValueError('Panel reselection needs a completed automatic v11/v12 discovery scan.')
+    verify_manifest(parent)
+    snapshot = store.get('snapshot', settings.snapshot_id)
+    if (settings.snapshot_id != source['snapshot_id'] or parent.get('snapshot_id') != settings.snapshot_id
+            or parent.get('snapshot_hash') != snapshot['manifest_hash']
+            or source['evidence_ids'] != snapshot['evidence_ids']
+            or set(parent.get('processed_evidence_ids', [])) != set(snapshot['evidence_ids'])):
+        raise ValueError('Saved discovery belongs to another or incomplete source snapshot.')
+    if (parent.get('discovery_candidate_limit') != settings.max_roles
+            or parent.get('discovery_max_output_tokens') != DISCOVERY_OUTPUT_TOKENS):
+        raise ValueError('Saved discovery candidate limit or output contract differs from this scan.')
+    batches = pack_batches(selection_units(store, snapshot))
+    reports = parent.get('batch_reports', [])
+    if len(reports) != len(batches) or parent.get('total_batches') != len(batches):
+        raise ValueError('Saved discovery batching changed or is incomplete.')
+    # A derived v12 scan carries the original calls separately; new registry and
+    # panel calls never retroactively become discovery calls.
+    calls = parent.get('discovery_call_records', source.get('model_calls', []))
+    copied_calls = []
+    candidates = {c['candidate_id']: c for c in parent['candidates']}
+    if len(candidates) != len(parent['candidates']):
+        raise ValueError('Saved discovery has repeated candidate IDs.')
+    accounted = set()
+    for index, batch in enumerate(batches):
+        report = reports[index]
+        evidence_ids = [u['evidence_id'] for u in batch]
+        if report.get('batch_index') != index or report.get('evidence_ids') != evidence_ids:
+            raise ValueError('Saved discovery batch/source addresses changed.')
+        inputs, catalogue = elicitation_batch(batch)
+        payload = {'user_tasks': snapshot['user_tasks'], 'evidence_units': inputs,
+                   'max_candidates': settings.max_roles}
+        contract = span_discovery_contract(settings.max_roles, catalogue)
+        attempt = next((a for a in parent.get('validation_attempts', [])
+                        if a.get('batch_index') == index and a.get('phase') == 'discovery'), None)
+        if not attempt or attempt.get('citation_policy') != 'source-excerpt-ids-v1':
+            raise ValueError('Saved discovery uses another citation/output contract.')
+        matching = [c for c in calls if c.get('system_hash') == digest(IDENTIFY_PROMPT)
+                    and c.get('context_hash') == digest(canonical(payload))
+                    and c.get('output_contract') == contract.__name__ and c.get('status') == 'completed'
+                    and c.get('max_output_tokens') == DISCOVERY_OUTPUT_TOKENS
+                    and c.get('schema_repair_attempts') == 1
+                    and (c.get('output') or {}).get('candidates') == attempt.get('generated_candidates')]
+        if not matching:
+            raise ValueError('Saved discovery prompt, contract, candidate limit or call record is incompatible.')
+        record = matching[-1]
+        if record.get('output_contract_hash') is not None:
+            if record['output_contract_hash'] != digest(contract.model_json_schema()):
+                raise ValueError('Saved discovery output contract hash changed.')
+        elif parent.get('discovery_reused_from', {}).get('original_policy', parent['policy_version']) != 'rq1-stakeholder-selection-v11':
+            raise ValueError('Saved discovery output contract hash is missing.')
+        # v11 predates schema hashes. Its known source-excerpt contract is checked
+        # by policy, citation policy, exact prompt/payload hashes, name, limits and
+        # revalidation of the saved generated output, without making a model call.
+        contract.model_validate(record['output'])
+        if report.get('candidate_ids') is None or len(report['candidate_ids']) != len(set(report['candidate_ids'])):
+            raise ValueError('Saved discovery batch candidate accounting is invalid.')
+        if set(report['candidate_ids']) - set(candidates):
+            raise ValueError('Saved discovery batch names an unknown candidate.')
+        proposals = [RoleProposal.model_validate({k: candidates[i][k] for k in RoleProposal.model_fields})
+                     for i in report['candidate_ids']]
+        _, validation = validate_candidates(store, proposals, evidence_ids, snapshot['user_tasks'], {})
+        if any(row['errors'] for row in validation):
+            raise ValueError('Saved discovery candidate citations/tasks failed validation.')
+        accounted.update(report['candidate_ids'])
+        copied_calls.append(deepcopy(record))
+    if accounted != set(candidates):
+        raise ValueError('Saved scan does not account for every discovery candidate.')
+    copied_calls.extend(deepcopy(c) for c in calls
+                        if c.get('system_hash') == digest(REPAIR_PROMPT)
+                        and c.get('output_contract') == 'RoleCitationCorrections')
+    manifest = initial_manifest(store, settings, actor)
+    for key in DISCOVERY_COPY_FIELDS:
+        if key != 'discovery_call_records':
+            manifest[key] = deepcopy(parent.get(key, []))
+    manifest['discovery_call_records'] = copied_calls
+    manifest['discovery_hash'] = discovery_hash(manifest)
+    manifest['discovery_reused_from'] = {'run_id': source['run_id'], 'manifest_hash': parent['manifest_hash'],
+        'snapshot_id': settings.snapshot_id, 'discovery_prompt_hash': digest(IDENTIFY_PROMPT),
+        'output_contract': 'RoleCandidates', 'candidate_limit': settings.max_roles,
+        'original_policy': parent.get('discovery_reused_from', {}).get('original_policy', parent['policy_version'])}
+    return manifest
+
+
 def panel_roles(run: dict) -> list[AgentRoleConfig]:
     manifest = run.get('role_manifest')
     if not manifest or manifest['status'] not in {'completed', 'not_applicable'}:
@@ -712,9 +808,15 @@ def select_roles(store: Store, run: dict, client) -> dict:
         # A saved, already valid correction can finish deterministically without
         # a provider. Refuse a configuration change only before a new generation.
         if run.get('step_models'):
-            prior = [r.get('provider') for r in manifest.get('batch_reports', [])]
+            prior = ([] if manifest.get('discovery_reused_from') else
+                     [r.get('provider') for r in manifest.get('batch_reports', [])])
+            if manifest.get('generation_model') is not None:
+                prior.append(manifest['generation_model'])
             if any(model_settings(description) != model_identity(client) for description in prior):
                 raise ValueError('Role-selection model/configuration changed; create a new run instead of mixing batches.')
+            if 'generation_model' not in manifest:
+                manifest['generation_model'] = model_identity(client)
+                save('role_selection_model_bound')
         return client.generate_structured(system=system, user=prompt, output_model=output_model, max_tokens=max_tokens,
                                           schema_repair_attempts=1)
 

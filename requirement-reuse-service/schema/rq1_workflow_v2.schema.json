@@ -637,7 +637,8 @@
           "default": "normalization",
           "enum": [
             "normalization",
-            "elicitation"
+            "elicitation",
+            "role_selection"
           ],
           "title": "Start From",
           "type": "string"

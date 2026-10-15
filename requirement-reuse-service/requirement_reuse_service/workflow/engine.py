@@ -109,6 +109,7 @@ class TrackedClient:
         call = {'call_id': uuid.uuid4().hex, 'created_at': now(), 'provider': self.describe(),
                 'step': self.step, 'model': self.describe().get('model'),
                 'system_hash': digest(system), 'context_hash': digest(user), 'output_contract': output_model.__name__,
+                'output_contract_hash': digest(output_model.model_json_schema()),
                 'max_output_tokens': max_tokens, 'schema_repair_attempts': schema_repair_attempts,
                 'token_usage': None, 'cost': None}
         # Lease and cancellation check touch a small state row, not the run document.
@@ -348,7 +349,8 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
     if source.get('worker_id') and source.get('job_lease_until', 0) > time.time():
         raise ConflictError('Wait for the source worker to finish before deriving a run.')
     manifest = source.get('role_manifest') or {}
-    restart_extraction = request.start_from == 'elicitation'
+    reselect_panel = request.start_from == 'role_selection'
+    restart_extraction = request.start_from in {'role_selection', 'elicitation'}
     if restart_extraction:
         if any(source['stages'].get(stage) != 'completed'
                for stage in ('acquisition', 'decomposition', 'role_selection')):
@@ -387,6 +389,9 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
     if settings.output_form == 'needs' and settings.scoping == 'use_cases' and not tasks:
         raise ValueError('Use-case scoping requires declared tasks; provide them in a new snapshot or choose scoping off.')
     settings = freeze_step_models(settings)
+    if reselect_panel:
+        from .role_selection import reuse_discovery
+        manifest = reuse_discovery(store, source, settings, actor)
     run = WorkflowRun(run_id=f'run-{uuid.uuid4().hex}', name=settings.name,
         snapshot_id=source['snapshot_id'], strategy=source['strategy'], request=settings, step_models=settings.step_models,
         evidence_ids=source['evidence_ids'], observations=[] if restart_extraction else source['observations'],
@@ -399,7 +404,7 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
         consolidation_policy_version=NEED_SEMANTIC_POLICY if settings.output_form == 'needs' else SEMANTIC_POLICY if settings.consolidation == 'semantic' else EXACT_POLICY,
         implementation_hash=digest({p.name: digest(p.read_bytes()) for p in Path(__file__).parent.glob('*.py')}),
         derived_from={'run_id': source_run_id, 'version': source['version'],
-            'stage': 'role_selection' if restart_extraction else 'elicitation',
+            'stage': 'discovery' if reselect_panel else 'role_selection' if restart_extraction else 'elicitation',
             'observations_hash': digest(source['observations']), 'role_runs_hash': digest(source['role_runs']),
             'elicitation_policy_version': source.get('elicitation_policy_version'),
             'reuse_assessments': request.reuse_assessments and not restart_extraction,
@@ -407,12 +412,14 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
     if restart_extraction:
         run.derived_from.update(role_manifest_hash=digest(manifest),
             evidence_ids_hash=digest(source['evidence_ids']), snapshot_hash=snapshot['manifest_hash'])
+    if reselect_panel:
+        run.derived_from['discovery_hash'] = manifest['discovery_hash']
     if settings.output_form == 'needs':
         from .needs import POLICIES
         run.needs_policies = dict(POLICIES)
         pin_base_needs_catalogue(run)
     for stage in ('acquisition', 'decomposition', 'role_selection', 'elicitation'):
-        if restart_extraction and stage == 'elicitation':
+        if (restart_extraction and stage == 'elicitation') or (reselect_panel and stage == 'role_selection'):
             continue
         run.stages[stage] = 'completed'
         run.stage_results[stage] = deepcopy(source.get('stage_results', {}).get(stage) or
@@ -738,7 +745,16 @@ def ensure_elicitation_resumable(run):
                         or any(r['status'] != 'completed' for r in run['role_runs']))
     if run.get('derived_from'):
         lineage = run['derived_from']
-        if lineage.get('stage') == 'role_selection':
+        if lineage.get('stage') == 'discovery':
+            from .role_selection import discovery_hash
+            manifest = run.get('role_manifest') or {}
+            if (discovery_hash(manifest) != lineage.get('discovery_hash')
+                    or manifest.get('discovery_hash') != lineage.get('discovery_hash')
+                    or digest(run['evidence_ids']) != lineage.get('evidence_ids_hash')):
+                raise ValueError('Derived stakeholder discovery checkpoint hash mismatch.')
+            if run['stages'].get('role_selection') == 'completed':
+                panel_roles(run)
+        elif lineage.get('stage') == 'role_selection':
             if (run['stages'].get('role_selection') != 'completed'
                     or digest(run.get('role_manifest')) != lineage.get('role_manifest_hash')
                     or digest(run['evidence_ids']) != lineage.get('evidence_ids_hash')):
@@ -1332,7 +1348,7 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
         active_stage = 'role_selection'
         if run.get('derived_from'):
             ensure_elicitation_resumable(run)
-            if run['derived_from'].get('stage') == 'role_selection':
+            if run['derived_from'].get('stage') in {'role_selection', 'discovery'}:
                 snapshot = store.get('snapshot', run['snapshot_id'])
                 if (snapshot['manifest_hash'] != run['derived_from']['snapshot_hash']
                         or snapshot['evidence_ids'] != run['evidence_ids']

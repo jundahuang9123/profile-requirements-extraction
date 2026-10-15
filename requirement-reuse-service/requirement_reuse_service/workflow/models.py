@@ -501,7 +501,7 @@ class RunRequest(Contract):
 
 class DeriveRequest(Contract):
     step_models: dict[StepName, ModelID] = Field(default_factory=dict)
-    start_from: Literal['normalization', 'elicitation'] = 'normalization'
+    start_from: Literal['normalization', 'elicitation', 'role_selection'] = 'normalization'
     output_form: Literal['needs', 'candidates'] | None = None
     scoping: Literal['use_cases', 'off'] | None = None
     expected_version: int = Field(ge=1)

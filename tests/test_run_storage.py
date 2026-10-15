@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import BaseModel
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'requirement-reuse-service'))
 from requirement_reuse_service.main import app
@@ -83,7 +84,7 @@ def test_model_calls_do_not_rewrite_the_run_document(setup):
     events = len(store.events(run['run_id']))
     for _ in range(3):
         with pytest.raises(AssertionError):     # the scripted client knows no such contract
-            tracked.generate_structured(system='s', user='{}', output_model=type('Unknown', (), {}))
+            tracked.generate_structured(system='s', user='{}', output_model=type('Unknown', (BaseModel,), {}))
     after = store.get_run(run['run_id'], parts=False)
     assert after['version'] == before['version'] and after['job_lease_until'] > time.time() + 800
     assert {k: v for k, v in after.items() if k != 'job_lease_until'} == {k: v for k, v in before.items() if k != 'job_lease_until'}
