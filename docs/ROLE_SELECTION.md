@@ -137,9 +137,18 @@ or the bounded grouping procedure are semantically perfect.
    computed from those citations and batch records, never supplied by the model.
 3. **One final panel decision sees every registry entry and the actual declared
    tasks.** Every entry receives a relevance verdict and reason. Discovery task
-   links are hints. The prompt prioritizes distinct people publishing, maintaining,
-   finding or using the profile's data; with tasks, they must carry out or be served
-   by those tasks. More documenting sources break ties; a single source is not a
+   links are hints. Relevance is judged by what a stakeholder does with the data, on
+   either side of a use case: people who ask the questions or carry out the tasks
+   (finding, judging or using the data), and people who publish or maintain the data
+   the use cases are about. Being mentioned in a use case is not the criterion: people
+   asking which datasets an organisation provides are relevant users, and that
+   organisation is relevant as a publisher. Within the basis priority below, when
+   relevant entries exist on both sides, the panel keeps at least one of each. (A
+   functional Mobility run judged every user-side entry irrelevant, documented ones
+   such as Business & SME Re-users and Data User included, because its competency
+   questions ask about providers and owners. The rule was made explicit after that
+   run; no reference requirement was consulted.)
+   More documenting sources break ties; a single source is not a
    reason to exclude an otherwise relevant perspective. Program checks enforce
    documented/relevant entries first, inferred/relevant entries next, then proposed/
    relevant entries, filling available places up to `max_roles`. One accounting
