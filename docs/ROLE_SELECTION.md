@@ -164,8 +164,17 @@ change the registry inputs or final panel prompt. Each merge payload is bounded 
 character request limit. Cross-source rounds stop when one bounded block remains
 or a round makes no reduction. Equivalent perspectives that never share a bounded
 block can remain separate; no forced merge or silent truncation makes them fit.
-The final panel must receive the whole registry. If it or its correction exceeds
-the request budget, selection fails explicitly; entries are never dropped to fit.
+The final panel decision receives the whole registry when its request fits 32,000
+characters, so that the request plus its invalid answer still fits one correction
+within the 60,000-character limit. A larger registry is decided in two parts.
+First, stable blocks in entry-ID order each give every entry exactly one relevance
+verdict and keep none (`relevance_block` rounds). Then one decision chooses the
+panel among every entry judged relevant (`relevant_entries` round), with the same
+priority checks and fill labels as above. That choice sees a compact view: label,
+stakeholders, basis, purpose, source names, source count and task hints, without
+focus questions. Entries judged not relevant in a block are saved as omissions with
+their reasons. If no block finds a relevant entry, or the relevant entries still
+exceed the budget, selection fails explicitly; entries are never dropped to fit.
 These are character bounds, not guarantees about a provider's token context window.
 
 Discovery reserves 8,000 output tokens, citation correction 5,000, and registry/
