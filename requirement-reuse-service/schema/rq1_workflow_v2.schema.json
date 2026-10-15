@@ -3175,6 +3175,20 @@
           "title": "Entry Id",
           "type": "string"
         },
+        "label": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The exact label of the entry this verdict judges, copied from that entry.",
+          "title": "Label"
+        },
         "reason": {
           "maxLength": 600,
           "minLength": 1,

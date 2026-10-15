@@ -137,7 +137,9 @@ or the bounded grouping procedure are semantically perfect.
    All member citations remain in the registry. Source names and batch counts are
    computed from those citations and batch records, never supplied by the model.
 3. **One final panel decision sees every registry entry and the actual declared
-   tasks.** Every entry receives a relevance verdict and reason. Discovery task
+   tasks.** Every entry receives a relevance verdict and reason. Each verdict first
+   copies its entry's exact label, then the entry ID, so that a verdict which drifted
+   to a neighbouring ID is detectable (see the label check below). Discovery task
    links are hints. Relevance is judged by what a stakeholder does with the data, on
    either side of a use case: people who ask the questions or carry out the tasks
    (finding, judging or using the data), and people who publish or maintain the data
@@ -204,9 +206,14 @@ marker from being saved.
 Registry prompts use stable ID ordering; candidate and batch report order does not
 change the registry inputs or final panel prompt. Each merge payload is bounded to
 18,000 characters, leaving room for its answer and correction within the 60,000
-character request limit. Cross-source rounds stop when one bounded block remains
-or a round makes no reduction. Equivalent perspectives that never share a bounded
-block can remain separate; no forced merge or silent truncation makes them fit.
+character request limit. Cross-source rounds alternate two content-based block
+orders: by the label's head noun, singular (so 'Data Owner' and 'Data Owners' from
+different sources, or all '…provider' entries, share a block), then by entry ID. Each
+request still lists its entries in ID order. Rounds stop when one bounded block
+remains or neither order reduces the registry any further. Per-source rounds are
+unchanged. (Blocks formed only in entry-ID order left five labels duplicated in the
+functional Mobility registry.) Equivalent perspectives that never share a bounded
+block can still remain separate; no forced merge or silent truncation makes them fit.
 The final panel decision receives the whole registry when its request fits 32,000
 characters, so that the request plus its invalid answer still fits one correction
 within the 60,000-character limit. A larger registry is decided in two parts.
@@ -278,6 +285,14 @@ both but miscopied one 24-digit entry ID by a single hex digit.
   choice judges it again. Entries still without a verdict are judged in a follow-up
   block (`relevance_follow_up` round, a new request). A block that keeps no usable
   verdict at all passes its entries to the final choice, which judges them.
+- **Labels.** A verdict whose label is a different offered entry's label judges that
+  entry (`verdict_label_mismatch`). It moves to that entry when exactly one entry has
+  the label, and is dropped when several share it; the entry it vacated is then judged
+  in a follow-up. Labels are compared ignoring case, spacing and dash variants. A
+  paraphrased label that names no offered entry is not an error: the ID stands. This
+  was added because, in the functional Mobility run, 3 of 107 relevance reasons
+  described a neighbouring entry (the Regulator's verdict carried the reason written
+  for Businesses and SMEs, and vice versa).
 - **Final choice.** Verdicts are merged the same way. An entry the answer does not
   judge keeps its relevance-block verdict; one with no verdict at all gets a
   follow-up block, and is recorded as not judged (not relevant, with that reason)

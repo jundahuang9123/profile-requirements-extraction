@@ -442,6 +442,10 @@ class RoleRegistry(Contract):
 
 
 class StakeholderVerdict(Contract):
+    # The label comes first and is copied from the entry, so a verdict that drifts to a
+    # neighbouring entry's ID can be detected; answers saved before it existed have none.
+    label: str | None = Field(default=None, max_length=200,
+                              description="The exact label of the entry this verdict judges, copied from that entry.")
     entry_id: str
     relevant: bool
     reason: str = Field(min_length=1, max_length=600)
