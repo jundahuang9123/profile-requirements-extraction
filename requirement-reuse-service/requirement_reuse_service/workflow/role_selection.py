@@ -18,10 +18,10 @@ from .models import (Contract, EvidenceUnit, RoleCandidates, RoleCitation, RoleC
                      RoleProposal, RunRequest, SelectedRole)
 from .storage import ConflictError, Store, canonical, digest, now, uid
 
-POLICY_VERSION = 'rq1-stakeholder-selection-v11'
+POLICY_VERSION = 'rq1-stakeholder-selection-v12'
 DISCOVERY_OUTPUT_TOKENS = 8000
 BATCH_CHARS = 40000
-MAX_CALLS_PER_BATCH = 4  # discovery, citation correction, panel, panel accounting correction
+MAX_CALLS_PER_BATCH = 2  # discovery and its single citation correction
 # Highest number of source batches one selection scan may read.
 MAX_BATCHES_CEILING = 128
 # Limit of runs created before a scan covered the whole corpus and that recorded none.
@@ -341,6 +341,15 @@ def _recoverable_quote_contract_failure(manifest: dict) -> bool:
 
 
 def ensure_selection_resumable(manifest: dict):
+    """Completed history is readable; unfinished pre-v12 scans never mix contracts."""
+    if manifest.get('status') in {'completed', 'not_applicable'}:
+        return
+    if manifest.get('mode') == 'automatic' and manifest.get('policy_version') != POLICY_VERSION:
+        raise ValueError('Role-selection policy has changed; create a new run or derive a new panel from a completed scan.')
+    _ensure_legacy_selection_resumable(manifest)
+
+
+def _ensure_legacy_selection_resumable(manifest: dict):
     """Keep history readable; allow only audited migrations with existing repair bounds."""
     if manifest['status'] in {'completed', 'not_applicable'}:
         return
@@ -839,25 +848,31 @@ def select_roles(store: Store, run: dict, client) -> dict:
     manifest.update(status='running', total_batches=len(batches), execution='offline_demo' if run['strategy'] == 'mock' else 'configured_provider')
     save('role_selection_started')
     for index, batch in enumerate(batches):
-        if len(manifest['selection_rounds']) > index:
-            continue  # Both discovery and consolidation are checkpointed.
-        if len(manifest['batch_reports']) <= index:
-            proposals = discover(index, batch)
-            candidate_ids = []
-            for proposal in proposals:
-                candidate_id = uid('role-candidate', index, proposal.model_dump(mode='json'))
-                if candidate_id in candidate_ids:
-                    continue
-                candidate_ids.append(candidate_id)
+        if len(manifest['batch_reports']) > index:
+            continue  # Discovery is independent of the eventual panel.
+        proposals = discover(index, batch)
+        candidate_ids = []
+        known = {c['candidate_id'] for c in manifest['candidates']}
+        for proposal in proposals:
+            candidate_id = uid('role-candidate', proposal.model_dump(mode='json'))
+            if candidate_id in candidate_ids:
+                continue
+            candidate_ids.append(candidate_id)
+            if candidate_id not in known:
                 manifest['candidates'].append({'candidate_id': candidate_id, 'batch_index': index,
                                               **proposal.model_dump(mode='json')})
-            manifest['batch_reports'].append({'batch_index': index, 'evidence_ids': [u['evidence_id'] for u in batch],
-                'context_hash': digest({'tasks': tasks, 'units': batch,
-                    'model': model_identity(client)}), 'candidate_ids': candidate_ids,
-                'provider': {'provider': 'offline-demo'} if run['strategy'] == 'mock' else client.describe()})
-            save('role_candidates_recorded')
-        report = manifest['batch_reports'][index]
-        pool = _panel_pool(manifest, report)
+                known.add(candidate_id)
+        manifest['batch_reports'].append({'batch_index': index, 'evidence_ids': [u['evidence_id'] for u in batch],
+            'context_hash': digest({'tasks': tasks, 'units': batch, 'model': model_identity(client)}),
+            'candidate_ids': candidate_ids,
+            'provider': {'provider': 'offline-demo'} if run['strategy'] == 'mock' else client.describe()})
+        manifest['processed_evidence_ids'].extend(u['evidence_id'] for u in batch
+                                                if u['evidence_id'] not in manifest['processed_evidence_ids'])
+        save('role_candidates_recorded')
+    if not manifest['selection_rounds']:
+        index = len(batches)
+        report = manifest.setdefault('final_panel_audit', {})
+        pool = sorted(manifest['candidates'], key=lambda c: c['candidate_id'])
         if pool:
             if run['strategy'] == 'mock':
                 selection = RolePanel(groups=[{'representative_id': c['candidate_id'], 'member_ids': [c['candidate_id']],
@@ -933,7 +948,6 @@ def select_roles(store: Store, run: dict, client) -> dict:
             round_result = {'groups': [], 'omitted': []}
         manifest['selection_rounds'].append({'batch_index': index,
             'provider': {'provider': 'offline-demo'} if run['strategy'] == 'mock' else client.describe(), **round_result})
-        manifest['processed_evidence_ids'].extend(report['evidence_ids'])
         save('role_panel_checkpointed')
     if not manifest['selected_roles']:
         manifest['selected_roles'] = [as_selected(role, reason='No stakeholder role was returned; explicitly proposed policy default.')
