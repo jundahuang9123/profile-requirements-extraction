@@ -4,9 +4,12 @@
   "policy_version": "rq1-base-needs-catalogue-v2",
   "phrasing": "deterministic labels; verbatim pinned definitions and usage notes",
   "review": {
-    "status": "unreviewed",
-    "reviewer": null,
-    "reviewed_at": null
+    "status": "reviewed",
+    "reviewer": "Junda Huang",
+    "reviewed_at": "2026-10-15",
+    "review_file": "dcat-ap-2.0.1.needs-review.json",
+    "review_file_sha256": "7e911a76dded75d07926d690dd214fa526850c769afeec3b8d5eb1f18a53e9e4",
+    "corrected_count": 33
   },
   "entries": [
     {
@@ -23,7 +26,7 @@
     },
     {
       "id": "base-47416ecefb01e2a2bfd6",
-      "need": "Find the notation of an identifier.",
+      "need": "Find the value of an identifier.",
       "class": "adms:Identifier",
       "property": "skos:notation",
       "rq2_term": "skos:notation",
@@ -40,7 +43,9 @@
         }
       ],
       "base_obligation": "optional",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the notation of an identifier.",
+      "review_note": "unclear: 'notation' is the identifier string itself (suggested by Claude; check before import)"
     },
     {
       "id": "base-c4e0853b8e20c3603540",
@@ -56,7 +61,7 @@
     },
     {
       "id": "base-50792ccc53b1f41d32a0",
-      "need": "Find the catalog of a catalog.",
+      "need": "Find the other catalogs listed in a catalog.",
       "class": "dcat:Catalog",
       "property": "dcat:catalog",
       "rq2_term": "dcat:catalog",
@@ -73,11 +78,13 @@
         }
       ],
       "base_obligation": "optional",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the catalog of a catalog.",
+      "review_note": "garbled: a catalog whose contents are of interest in this catalog (suggested by Claude; check before import)"
     },
     {
       "id": "base-6d14ce208a675d28beb4",
-      "need": "Find the dataset of a catalog.",
+      "need": "Find the datasets that are part of a catalog.",
       "class": "dcat:Catalog",
       "property": "dcat:dataset",
       "rq2_term": "dcat:dataset",
@@ -94,11 +101,13 @@
         }
       ],
       "base_obligation": "mandatory",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the dataset of a catalog.",
+      "review_note": "unclear: a dataset that is part of the catalog (suggested by Claude; check before import)"
     },
     {
       "id": "base-1a088e69a8a92555b764",
-      "need": "Find the record of a catalog.",
+      "need": "Find the catalog records that are part of a catalog.",
       "class": "dcat:Catalog",
       "property": "dcat:record",
       "rq2_term": "dcat:record",
@@ -115,11 +124,13 @@
         }
       ],
       "base_obligation": "optional",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the record of a catalog.",
+      "review_note": "unclear: a catalogue record that is part of the catalogue (suggested by Claude; check before import)"
     },
     {
       "id": "base-1bff4976ea3c1be34693",
-      "need": "Find the service of a catalog.",
+      "need": "Find the data services listed in a catalog.",
       "class": "dcat:Catalog",
       "property": "dcat:service",
       "rq2_term": "dcat:service",
@@ -136,11 +147,13 @@
         }
       ],
       "base_obligation": "optional",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the service of a catalog.",
+      "review_note": "unclear: a site or end-point listed in the catalog (suggested by Claude; check before import)"
     },
     {
       "id": "base-a9ab7820d73ff2cfc021",
-      "need": "Find the themes of a catalog.",
+      "need": "Find the scheme used to classify the datasets of a catalog.",
       "class": "dcat:Catalog",
       "property": "dcat:themeTaxonomy",
       "rq2_term": "dcat:themeTaxonomy",
@@ -157,7 +170,9 @@
         }
       ],
       "base_obligation": "recommended",
-      "vocabulary": "http://publications.europa.eu/resource/authority/data-theme"
+      "vocabulary": "http://publications.europa.eu/resource/authority/data-theme",
+      "need_draft": "Find the themes of a catalog.",
+      "review_note": "unclear: the classification scheme, not the themes themselves (suggested by Claude; check before import)"
     },
     {
       "id": "base-33d991ad8d0704925ca0",
@@ -203,7 +218,7 @@
     },
     {
       "id": "base-3e5e33729360a1bc8dca",
-      "need": "Find the has part of a catalog.",
+      "need": "Find the catalogs that are part of a catalog.",
       "class": "dcat:Catalog",
       "property": "dct:hasPart",
       "rq2_term": "dct:hasPart",
@@ -220,11 +235,13 @@
         }
       ],
       "base_obligation": "optional",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has part of a catalog.",
+      "review_note": "garbled: a related catalogue that is part of the described one (suggested by Claude; check before import)"
     },
     {
       "id": "base-606ce17200585e420ba2",
-      "need": "Find the is part of of a catalog.",
+      "need": "Find the catalog that a catalog is part of.",
       "class": "dcat:Catalog",
       "property": "dct:isPartOf",
       "rq2_term": "dct:isPartOf",
@@ -241,7 +258,9 @@
         }
       ],
       "base_obligation": "optional",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the is part of of a catalog.",
+      "review_note": "garbled: a related catalogue that includes the described one (suggested by Claude; check before import)"
     },
     {
       "id": "base-66b14aabd2db6d505f58",
@@ -266,7 +285,7 @@
     },
     {
       "id": "base-0fcbfef57a1fb1aabd49",
-      "need": "Find the language of a catalog.",
+      "need": "Find the language of the metadata in a catalog.",
       "class": "dcat:Catalog",
       "property": "dct:language",
       "rq2_term": "dct:language",
@@ -283,7 +302,9 @@
         }
       ],
       "base_obligation": "recommended",
-      "vocabulary": "http://publications.europa.eu/resource/authority/language"
+      "vocabulary": "http://publications.europa.eu/resource/authority/language",
+      "need_draft": "Find the language of a catalog.",
+      "review_note": "unclear: language of the textual metadata, not of the data (suggested by Claude; check before import)"
     },
     {
       "id": "base-b15f9613392d4daf47b6",
@@ -371,7 +392,7 @@
     },
     {
       "id": "base-843582b5995c75134683",
-      "need": "Find the spatial / geographic of a catalog.",
+      "need": "Find the geographic area covered by a catalog.",
       "class": "dcat:Catalog",
       "property": "dct:spatial",
       "rq2_term": "dct:spatial",
@@ -393,7 +414,9 @@
         "http://publications.europa.eu/resource/authority/country",
         "http://publications.europa.eu/resource/authority/place",
         "http://sws.geonames.org"
-      ]
+      ],
+      "need_draft": "Find the spatial / geographic of a catalog.",
+      "review_note": "garbled: a geographical area covered by the catalogue (suggested by Claude; check before import)"
     },
     {
       "id": "base-86338872b8b1e3656bce",
@@ -451,7 +474,7 @@
     },
     {
       "id": "base-0780180464f03d62d92f",
-      "need": "Find the change type of a catalog record.",
+      "need": "Find the type of the latest change to a catalog record.",
       "class": "dcat:CatalogRecord",
       "property": "adms:status",
       "rq2_term": "adms:status",
@@ -468,11 +491,13 @@
         }
       ],
       "base_obligation": "recommended",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the change type of a catalog record.",
+      "review_note": "unclear: type of the latest revision of the entry (suggested by Claude; check before import)"
     },
     {
       "id": "base-35cc35fe2f83d0f4ee0a",
-      "need": "Find the conforms to of a catalog record.",
+      "need": "Find the application profile that a catalog record conforms to.",
       "class": "dcat:CatalogRecord",
       "property": "dct:conformsTo",
       "rq2_term": "dct:conformsTo",
@@ -489,7 +514,9 @@
         }
       ],
       "base_obligation": "recommended",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the conforms to of a catalog record.",
+      "review_note": "garbled: the application profile the record's metadata conforms to (suggested by Claude; check before import)"
     },
     {
       "id": "base-9150cd2082a0b24760f3",
@@ -577,7 +604,7 @@
     },
     {
       "id": "base-81c2bb27447e87d76321",
-      "need": "Find the source metadata of a catalog record.",
+      "need": "Find the original metadata a catalog record was created from.",
       "class": "dcat:CatalogRecord",
       "property": "dct:source",
       "rq2_term": "dct:source",
@@ -594,7 +621,9 @@
         }
       ],
       "base_obligation": "optional",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the source metadata of a catalog record.",
+      "review_note": "unclear: the original metadata used to create this record (suggested by Claude; check before import)"
     },
     {
       "id": "base-9f233be59faa4f5d0025",
@@ -619,7 +648,7 @@
     },
     {
       "id": "base-d4336d48e3d7bb7cf4e2",
-      "need": "Find the primary topic of a catalog record.",
+      "need": "Find the dataset, data service or catalog described by a catalog record.",
       "class": "dcat:CatalogRecord",
       "property": "foaf:primaryTopic",
       "rq2_term": "foaf:primaryTopic",
@@ -636,7 +665,9 @@
         }
       ],
       "base_obligation": "mandatory",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the primary topic of a catalog record.",
+      "review_note": "unclear: links the record to what it describes (suggested by Claude; check before import)"
     },
     {
       "id": "base-4f067c81f1d429294126",
@@ -694,7 +725,7 @@
     },
     {
       "id": "base-bc8fc964bb1b14fb2ff5",
-      "need": "Find the datasets it serves of a data service.",
+      "need": "Find the datasets a data service provides.",
       "class": "dcat:DataService",
       "property": "dcat:servesDataset",
       "rq2_term": "dcat:servesDataset",
@@ -703,7 +734,9 @@
       "usage_notes": [],
       "definition_sources": [],
       "base_obligation": "recommended",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the datasets it serves of a data service.",
+      "review_note": "garbled: no definition in the release; wording from the property label (suggested by Claude; check before import)"
     },
     {
       "id": "base-2c41fa812e8428857422",
@@ -824,7 +857,7 @@
     },
     {
       "id": "base-4d6c99b2e4c61aa4b208",
-      "need": "Find the sample of a dataset.",
+      "need": "Find a sample distribution of a dataset.",
       "class": "dcat:Dataset",
       "property": "adms:sample",
       "rq2_term": "adms:sample",
@@ -841,7 +874,9 @@
         }
       ],
       "base_obligation": "optional",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the sample of a dataset.",
+      "review_note": "unclear: a sample distribution of the dataset (suggested by Claude; check before import)"
     },
     {
       "id": "base-2388a306aba266468a85",
@@ -866,7 +901,7 @@
     },
     {
       "id": "base-88b0fd25ca5a7e413af3",
-      "need": "Find the is referenced by of a dataset.",
+      "need": "Find the resources that refer to a dataset.",
       "class": "dcat:Dataset",
       "property": "dc:isReferencedBy",
       "rq2_term": "dc:isReferencedBy",
@@ -875,7 +910,9 @@
       "usage_notes": [],
       "definition_sources": [],
       "base_obligation": "optional",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the is referenced by of a dataset.",
+      "review_note": "garbled: no definition in the release; wording from the property label (suggested by Claude; check before import)"
     },
     {
       "id": "base-55c2aafc7a94306fbd74",
@@ -900,7 +937,7 @@
     },
     {
       "id": "base-8a5e74bd105430f996a7",
-      "need": "Find the dataset distribution of a dataset.",
+      "need": "Find the distributions of a dataset.",
       "class": "dcat:Dataset",
       "property": "dcat:distribution",
       "rq2_term": "dcat:distribution",
@@ -917,7 +954,9 @@
         }
       ],
       "base_obligation": "recommended",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the dataset distribution of a dataset.",
+      "review_note": "garbled: links the dataset to an available distribution (suggested by Claude; check before import)"
     },
     {
       "id": "base-67fec8d5e063ea832091",
@@ -963,7 +1002,7 @@
     },
     {
       "id": "base-b917a9578323263cd8e0",
-      "need": "Find the qualified relation of a dataset.",
+      "need": "Find descriptions of the relationships between a dataset and other resources.",
       "class": "dcat:Dataset",
       "property": "dcat:qualifiedRelation",
       "rq2_term": "dcat:qualifiedRelation",
@@ -980,7 +1019,9 @@
         }
       ],
       "base_obligation": "optional",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the qualified relation of a dataset.",
+      "review_note": "unclear: a description of a relationship with another resource (suggested by Claude; check before import)"
     },
     {
       "id": "base-545540ea9df198ca48fe",
@@ -1068,7 +1109,7 @@
     },
     {
       "id": "base-a1db139baf04d36ec774",
-      "need": "Find the accrual periodicity of a dataset.",
+      "need": "Find how often a dataset is updated.",
       "class": "dcat:Dataset",
       "property": "dct:accrualPeriodicity",
       "rq2_term": "dct:accrualPeriodicity",
@@ -1077,11 +1118,13 @@
       "usage_notes": [],
       "definition_sources": [],
       "base_obligation": "optional",
-      "vocabulary": "http://publications.europa.eu/resource/authority/frequency"
+      "vocabulary": "http://publications.europa.eu/resource/authority/frequency",
+      "need_draft": "Find the accrual periodicity of a dataset.",
+      "review_note": "unclear: no definition in the release; accrual periodicity means update frequency (suggested by Claude; check before import)"
     },
     {
       "id": "base-7fea0f03d287ae3b49a3",
-      "need": "Find the conforms to of a dataset.",
+      "need": "Find the specification a dataset conforms to.",
       "class": "dcat:Dataset",
       "property": "dct:conformsTo",
       "rq2_term": "dct:conformsTo",
@@ -1098,7 +1141,9 @@
         }
       ],
       "base_obligation": "optional",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the conforms to of a dataset.",
+      "review_note": "garbled: an implementing rule or other specification (suggested by Claude; check before import)"
     },
     {
       "id": "base-f943d2f2c85d497967a5",
@@ -1144,7 +1189,7 @@
     },
     {
       "id": "base-9613cc2511c872b6ed86",
-      "need": "Find the has version of a dataset.",
+      "need": "Find the versions, editions or adaptations of a dataset.",
       "class": "dcat:Dataset",
       "property": "dct:hasVersion",
       "rq2_term": "dct:hasVersion",
@@ -1161,7 +1206,9 @@
         }
       ],
       "base_obligation": "optional",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has version of a dataset.",
+      "review_note": "garbled: a related dataset that is a version, edition or adaptation (suggested by Claude; check before import)"
     },
     {
       "id": "base-27f2e40747c6ac2c1157",
@@ -1186,7 +1233,7 @@
     },
     {
       "id": "base-2063699d9b153244a0fb",
-      "need": "Find the is version of of a dataset.",
+      "need": "Find the dataset that a dataset is a version of.",
       "class": "dcat:Dataset",
       "property": "dct:isVersionOf",
       "rq2_term": "dct:isVersionOf",
@@ -1203,7 +1250,9 @@
         }
       ],
       "base_obligation": "optional",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the is version of of a dataset.",
+      "review_note": "garbled: the dataset of which this one is a version (suggested by Claude; check before import)"
     },
     {
       "id": "base-b9fd8228661b9b9394e6",
@@ -1333,7 +1382,7 @@
     },
     {
       "id": "base-77bb9c1d01ff695d79d5",
-      "need": "Find the source of a dataset.",
+      "need": "Find the datasets a dataset is derived from.",
       "class": "dcat:Dataset",
       "property": "dct:source",
       "rq2_term": "dct:source",
@@ -1350,7 +1399,9 @@
         }
       ],
       "base_obligation": "optional",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the source of a dataset.",
+      "review_note": "unclear: a related dataset from which this one is derived (suggested by Claude; check before import)"
     },
     {
       "id": "base-f5af5010fda985d53ea7",
@@ -1464,7 +1515,7 @@
     },
     {
       "id": "base-abf5abec715bbb62c822",
-      "need": "Find the version of a dataset.",
+      "need": "Find the version number of a dataset.",
       "class": "dcat:Dataset",
       "property": "owl:versionInfo",
       "rq2_term": "owl:versionInfo",
@@ -1481,11 +1532,13 @@
         }
       ],
       "base_obligation": "optional",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the version of a dataset.",
+      "review_note": "unclear: a version number or other version designation (suggested by Claude; check before import)"
     },
     {
       "id": "base-42f032ec072969d34fec",
-      "need": "Find the qualified attribution of a dataset.",
+      "need": "Find the agents that have some responsibility for a dataset.",
       "class": "dcat:Dataset",
       "property": "prov:qualifiedAttribution",
       "rq2_term": "prov:qualifiedAttribution",
@@ -1502,11 +1555,13 @@
         }
       ],
       "base_obligation": "optional",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the qualified attribution of a dataset.",
+      "review_note": "unclear: an agent having some form of responsibility (suggested by Claude; check before import)"
     },
     {
       "id": "base-abad4728ad347f53ad25",
-      "need": "Find the was generated by of a dataset.",
+      "need": "Find the activity that generated a dataset.",
       "class": "dcat:Dataset",
       "property": "prov:wasGeneratedBy",
       "rq2_term": "prov:wasGeneratedBy",
@@ -1523,7 +1578,9 @@
         }
       ],
       "base_obligation": "optional",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the was generated by of a dataset.",
+      "review_note": "garbled: an activity that generated the dataset (suggested by Claude; check before import)"
     },
     {
       "id": "base-913ee1aea43a3197434e",
@@ -1539,7 +1596,7 @@
     },
     {
       "id": "base-a043846837da33a05774",
-      "need": "Find the status of a distribution.",
+      "need": "Find the maturity status of a distribution.",
       "class": "dcat:Distribution",
       "property": "adms:status",
       "rq2_term": "adms:status",
@@ -1556,7 +1613,9 @@
         }
       ],
       "base_obligation": "optional",
-      "vocabulary": "http://purl.org/adms/status/1.0"
+      "vocabulary": "http://purl.org/adms/status/1.0",
+      "need_draft": "Find the status of a distribution.",
+      "review_note": "unclear: the maturity of the distribution (suggested by Claude; check before import)"
     },
     {
       "id": "base-f1d8451dc2dcb6ac8575",
@@ -1741,7 +1800,7 @@
     },
     {
       "id": "base-e2fc1cd6cd38692b18c6",
-      "need": "Find the availability of a distribution.",
+      "need": "Find how long a distribution is planned to remain available.",
       "class": "dcat:Distribution",
       "property": "dcatap:availability",
       "rq2_term": "dcatap:availability",
@@ -1758,11 +1817,13 @@
         }
       ],
       "base_obligation": "recommended",
-      "vocabulary": "http://data.europa.eu/r5r/availability/1.0"
+      "vocabulary": "http://data.europa.eu/r5r/availability/1.0",
+      "need_draft": "Find the availability of a distribution.",
+      "review_note": "unclear: how long it is planned to keep the distribution available (suggested by Claude; check before import)"
     },
     {
       "id": "base-ab7bdf9082610f549574",
-      "need": "Find the linked schemas of a distribution.",
+      "need": "Find the schema a distribution conforms to.",
       "class": "dcat:Distribution",
       "property": "dct:conformsTo",
       "rq2_term": "dct:conformsTo",
@@ -1779,7 +1840,9 @@
         }
       ],
       "base_obligation": "optional",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the linked schemas of a distribution.",
+      "review_note": "unclear: an established schema the distribution conforms to (suggested by Claude; check before import)"
     },
     {
       "id": "base-9feb59be7a1130fd80f4",
@@ -1972,7 +2035,7 @@
     },
     {
       "id": "base-8ea7a03bbceee6018f95",
-      "need": "Find the has policy of a distribution.",
+      "need": "Find the machine-readable rights policy of a distribution.",
       "class": "dcat:Distribution",
       "property": "odrl:hasPolicy",
       "rq2_term": "odrl:hasPolicy",
@@ -1989,7 +2052,9 @@
         }
       ],
       "base_obligation": "optional",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has policy of a distribution.",
+      "review_note": "garbled: a policy expressing the rights associated with the resource (suggested by Claude; check before import)"
     },
     {
       "id": "base-9aa6aa2b4782ecfcf2a0",
@@ -2026,7 +2091,7 @@
     },
     {
       "id": "base-a87f3ed2ea9e5790052f",
-      "need": "Find the had role of a relationship.",
+      "need": "Find the role that a related resource plays in a relationship.",
       "class": "dcat:Relationship",
       "property": "dcat:hadRole",
       "rq2_term": "dcat:hadRole",
@@ -2043,11 +2108,13 @@
         }
       ],
       "base_obligation": "mandatory",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the had role of a relationship.",
+      "review_note": "garbled: the function of an entity with respect to another resource (suggested by Claude; check before import)"
     },
     {
       "id": "base-c9e239c1fca79ad465fc",
-      "need": "Find the relation of a relationship.",
+      "need": "Find the related resource in a relationship.",
       "class": "dcat:Relationship",
       "property": "dct:relation",
       "rq2_term": "dct:relation",
@@ -2064,7 +2131,9 @@
         }
       ],
       "base_obligation": "mandatory",
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the relation of a relationship.",
+      "review_note": "garbled: the resource related to the source resource (suggested by Claude; check before import)"
     },
     {
       "id": "base-ed6501794faffdfdbee4",
@@ -2437,5 +2506,5 @@
       "vocabulary": null
     }
   ],
-  "catalogue_hash": "4d0ea168ea0a31e1c544aa7f135932d5d265e2b91d2f3deff615122175f7688d"
+  "catalogue_hash": "b0d09e3242590fe4b1ff8faf72bfe13caf59e6f7f569f963b81b30be1e9e81a0"
 }

@@ -1,0 +1,141 @@
+{
+  "base_profile_id": "dcat-ap-2.0.1",
+  "draft_catalogue_hash": "4d0ea168ea0a31e1c544aa7f135932d5d265e2b91d2f3deff615122175f7688d",
+  "status": "reviewed",
+  "reviewer": "Junda Huang",
+  "reviewed_at": "2026-10-15",
+  "phrase_corrections": {
+    "base-47416ecefb01e2a2bfd6": {
+      "need": "Find the value of an identifier.",
+      "note": "unclear: 'notation' is the identifier string itself (suggested by Claude; check before import)"
+    },
+    "base-50792ccc53b1f41d32a0": {
+      "need": "Find the other catalogs listed in a catalog.",
+      "note": "garbled: a catalog whose contents are of interest in this catalog (suggested by Claude; check before import)"
+    },
+    "base-6d14ce208a675d28beb4": {
+      "need": "Find the datasets that are part of a catalog.",
+      "note": "unclear: a dataset that is part of the catalog (suggested by Claude; check before import)"
+    },
+    "base-1a088e69a8a92555b764": {
+      "need": "Find the catalog records that are part of a catalog.",
+      "note": "unclear: a catalogue record that is part of the catalogue (suggested by Claude; check before import)"
+    },
+    "base-1bff4976ea3c1be34693": {
+      "need": "Find the data services listed in a catalog.",
+      "note": "unclear: a site or end-point listed in the catalog (suggested by Claude; check before import)"
+    },
+    "base-a9ab7820d73ff2cfc021": {
+      "need": "Find the scheme used to classify the datasets of a catalog.",
+      "note": "unclear: the classification scheme, not the themes themselves (suggested by Claude; check before import)"
+    },
+    "base-3e5e33729360a1bc8dca": {
+      "need": "Find the catalogs that are part of a catalog.",
+      "note": "garbled: a related catalogue that is part of the described one (suggested by Claude; check before import)"
+    },
+    "base-606ce17200585e420ba2": {
+      "need": "Find the catalog that a catalog is part of.",
+      "note": "garbled: a related catalogue that includes the described one (suggested by Claude; check before import)"
+    },
+    "base-0fcbfef57a1fb1aabd49": {
+      "need": "Find the language of the metadata in a catalog.",
+      "note": "unclear: language of the textual metadata, not of the data (suggested by Claude; check before import)"
+    },
+    "base-843582b5995c75134683": {
+      "need": "Find the geographic area covered by a catalog.",
+      "note": "garbled: a geographical area covered by the catalogue (suggested by Claude; check before import)"
+    },
+    "base-0780180464f03d62d92f": {
+      "need": "Find the type of the latest change to a catalog record.",
+      "note": "unclear: type of the latest revision of the entry (suggested by Claude; check before import)"
+    },
+    "base-35cc35fe2f83d0f4ee0a": {
+      "need": "Find the application profile that a catalog record conforms to.",
+      "note": "garbled: the application profile the record's metadata conforms to (suggested by Claude; check before import)"
+    },
+    "base-81c2bb27447e87d76321": {
+      "need": "Find the original metadata a catalog record was created from.",
+      "note": "unclear: the original metadata used to create this record (suggested by Claude; check before import)"
+    },
+    "base-d4336d48e3d7bb7cf4e2": {
+      "need": "Find the dataset, data service or catalog described by a catalog record.",
+      "note": "unclear: links the record to what it describes (suggested by Claude; check before import)"
+    },
+    "base-bc8fc964bb1b14fb2ff5": {
+      "need": "Find the datasets a data service provides.",
+      "note": "garbled: no definition in the release; wording from the property label (suggested by Claude; check before import)"
+    },
+    "base-4d6c99b2e4c61aa4b208": {
+      "need": "Find a sample distribution of a dataset.",
+      "note": "unclear: a sample distribution of the dataset (suggested by Claude; check before import)"
+    },
+    "base-88b0fd25ca5a7e413af3": {
+      "need": "Find the resources that refer to a dataset.",
+      "note": "garbled: no definition in the release; wording from the property label (suggested by Claude; check before import)"
+    },
+    "base-8a5e74bd105430f996a7": {
+      "need": "Find the distributions of a dataset.",
+      "note": "garbled: links the dataset to an available distribution (suggested by Claude; check before import)"
+    },
+    "base-b917a9578323263cd8e0": {
+      "need": "Find descriptions of the relationships between a dataset and other resources.",
+      "note": "unclear: a description of a relationship with another resource (suggested by Claude; check before import)"
+    },
+    "base-a1db139baf04d36ec774": {
+      "need": "Find how often a dataset is updated.",
+      "note": "unclear: no definition in the release; accrual periodicity means update frequency (suggested by Claude; check before import)"
+    },
+    "base-7fea0f03d287ae3b49a3": {
+      "need": "Find the specification a dataset conforms to.",
+      "note": "garbled: an implementing rule or other specification (suggested by Claude; check before import)"
+    },
+    "base-9613cc2511c872b6ed86": {
+      "need": "Find the versions, editions or adaptations of a dataset.",
+      "note": "garbled: a related dataset that is a version, edition or adaptation (suggested by Claude; check before import)"
+    },
+    "base-2063699d9b153244a0fb": {
+      "need": "Find the dataset that a dataset is a version of.",
+      "note": "garbled: the dataset of which this one is a version (suggested by Claude; check before import)"
+    },
+    "base-77bb9c1d01ff695d79d5": {
+      "need": "Find the datasets a dataset is derived from.",
+      "note": "unclear: a related dataset from which this one is derived (suggested by Claude; check before import)"
+    },
+    "base-abf5abec715bbb62c822": {
+      "need": "Find the version number of a dataset.",
+      "note": "unclear: a version number or other version designation (suggested by Claude; check before import)"
+    },
+    "base-42f032ec072969d34fec": {
+      "need": "Find the agents that have some responsibility for a dataset.",
+      "note": "unclear: an agent having some form of responsibility (suggested by Claude; check before import)"
+    },
+    "base-abad4728ad347f53ad25": {
+      "need": "Find the activity that generated a dataset.",
+      "note": "garbled: an activity that generated the dataset (suggested by Claude; check before import)"
+    },
+    "base-a043846837da33a05774": {
+      "need": "Find the maturity status of a distribution.",
+      "note": "unclear: the maturity of the distribution (suggested by Claude; check before import)"
+    },
+    "base-e2fc1cd6cd38692b18c6": {
+      "need": "Find how long a distribution is planned to remain available.",
+      "note": "unclear: how long it is planned to keep the distribution available (suggested by Claude; check before import)"
+    },
+    "base-ab7bdf9082610f549574": {
+      "need": "Find the schema a distribution conforms to.",
+      "note": "unclear: an established schema the distribution conforms to (suggested by Claude; check before import)"
+    },
+    "base-8ea7a03bbceee6018f95": {
+      "need": "Find the machine-readable rights policy of a distribution.",
+      "note": "garbled: a policy expressing the rights associated with the resource (suggested by Claude; check before import)"
+    },
+    "base-a87f3ed2ea9e5790052f": {
+      "need": "Find the role that a related resource plays in a relationship.",
+      "note": "garbled: the function of an entity with respect to another resource (suggested by Claude; check before import)"
+    },
+    "base-c9e239c1fca79ad465fc": {
+      "need": "Find the related resource in a relationship.",
+      "note": "garbled: the resource related to the source resource (suggested by Claude; check before import)"
+    }
+  }
+}
