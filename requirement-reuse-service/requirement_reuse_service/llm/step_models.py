@@ -19,7 +19,7 @@ ModelID = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, 
 # Writer and critic deliberately have separate keys although they share a saved stage.
 CONTRACT_STEPS = {
     'RoleCandidates': 'role_selection', 'RoleCitationCorrections': 'role_selection',
-    'RolePanel': 'role_selection',
+    'RolePanel': 'role_selection', 'RoleRegistry': 'role_selection',
     'SpanElicitationResult': 'extraction', 'NeedSpanElicitationResult': 'extraction',
     'ProposalSupport': 'proposal_support', 'SemanticGrouping': 'grouping',
     'NeedStatements': 'writer', 'NeedGrounding': 'rewrite_critic',

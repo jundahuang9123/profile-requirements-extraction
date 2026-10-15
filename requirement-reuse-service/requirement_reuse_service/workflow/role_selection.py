@@ -869,10 +869,16 @@ def select_roles(store: Store, run: dict, client) -> dict:
         manifest['processed_evidence_ids'].extend(u['evidence_id'] for u in batch
                                                 if u['evidence_id'] not in manifest['processed_evidence_ids'])
         save('role_candidates_recorded')
+    from .stakeholder_registry import build_registry
+    registry = build_registry(store, manifest, tasks, call, save, model_identity(client),
+                              mock=run['strategy'] == 'mock')
     if not manifest['selection_rounds']:
         index = len(batches)
         report = manifest.setdefault('final_panel_audit', {})
-        pool = sorted(manifest['candidates'], key=lambda c: c['candidate_id'])
+        pool = [{'candidate_id': entry['entry_id'],
+                 **{k: entry[k] for k in RoleProposal.model_fields},
+                 'lineage_candidate_ids': entry['member_candidate_ids']}
+                for entry in registry]
         if pool:
             if run['strategy'] == 'mock':
                 selection = RolePanel(groups=[{'representative_id': c['candidate_id'], 'member_ids': [c['candidate_id']],

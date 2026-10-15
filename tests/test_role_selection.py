@@ -61,6 +61,11 @@ class SelectorClient:
         elif output_model.__name__ == 'RoleCitationCorrections':
             response = {'corrections': [{'candidate_index': item['candidate_index'],
                 'source_span_ids': [], 'unresolved_reason': 'No valid quotation supplied by test client.'} for item in data['invalid_candidates']]}
+        elif output_model.__name__ == 'RoleRegistry':
+            ids = [c['candidate_id'] for c in data['candidates']]
+            representative = next((c['candidate_id'] for c in data['candidates'] if c['basis'] == 'documented'), ids[0])
+            response = {'groups': [{'representative_id': representative, 'member_ids': ids,
+                                   'rationale': 'Equivalent scripted operational interests.'}]}
         elif output_model.__name__ == 'RolePanel':
             if self.fail_reducer:
                 raise RuntimeError('Interrupted selection')

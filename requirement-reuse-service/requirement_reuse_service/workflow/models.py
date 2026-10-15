@@ -426,6 +426,18 @@ class RolePanel(Contract):
     omitted: list[OmittedRole] = Field(default_factory=list, max_length=16)
 
 
+class RegistryGroup(Contract):
+    representative_id: str
+    member_ids: list[str] = Field(min_length=1, max_length=1024)
+    rationale: str = Field(min_length=1, max_length=600)
+
+
+class RoleRegistry(Contract):
+    """Lossless equivalence groups, sized for a full scan rather than a panel."""
+    groups: list[RegistryGroup] = Field(min_length=1, max_length=1024)
+    omitted: list[OmittedRole] = Field(default_factory=list, max_length=0)
+
+
 class RunRequest(Contract):
     step_models: dict[StepName, ModelID] = Field(default_factory=dict)
     output_form: Literal['needs', 'candidates'] | None = None
