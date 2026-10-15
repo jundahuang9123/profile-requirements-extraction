@@ -216,6 +216,32 @@ or even the table still exceeds the budget, selection fails explicitly; entries 
 never dropped to fit. These are character bounds, not guarantees about a provider's
 token context window.
 
+### Exact missing-verdict corrections
+
+`rq1-stakeholder-missing-verdict-patch-v1` handles one narrowly defined response
+shape: an initial relevance/panel answer omitted some verdicts, and its single
+correction returned exactly those missing verdicts instead of repeating the whole
+list. The original must fail only `verdict_accounting`, with missing IDs but no
+unknown or repeated IDs. The correction must contain each missing ID exactly once
+and no other verdict. The service preserves the original verdicts and reasons,
+appends the correction's verdicts and reasons, and uses the correction's explicit
+`kept_ids` unchanged. The combined object must pass every existing check, including
+full coverage, relevance, role limit, basis priority and filling available places.
+This rule never invents a verdict or selects a stakeholder itself.
+
+Raw responses stay in `original` and `correction.original`. A separate
+`verdict_compositions` audit records the policy and phase, which verdict IDs came
+from each answer, both kept-ID lists and the combined result hash. A newly composed
+correction stores the fully validated result. For an already failed saved correction,
+Resume first reconstructs and checks both saved validation reports and the correction's
+normalized result against its raw answer, as well as the frozen request hash. Recovery
+leaves that invalid correction and its audit unchanged, stores the combined result
+separately and adds a zero-call `recovery` record and migration note. Completed discovery,
+registry and relevance calls keep their keys and results. No new correction budget
+is granted. Overlapping, contradictory, extra or still missing verdicts, invalid panel
+choices, inconsistent saved audits and interrupted/failed provider calls still stop.
+This establishes response completeness, not semantic correctness or stakeholder endorsement.
+
 Discovery reserves 8,000 output tokens, citation correction 5,000, and registry/
 panel calls 8,000 each. Each logical call may use the existing one structural schema
 repair generation. A provider `length` finish reason fails even if partial output
