@@ -404,6 +404,9 @@ class SelectedRole(RoleProposal):
     role_id: str
     candidate_ids: list[str] = Field(default_factory=list)
     selection_rationale: str = ''
+    filled_via: Literal['documented', 'fallback_inferred', 'fallback_proposed', 'default'] | None = None
+    registry_entry_id: str | None = None
+    source_support: list[dict[str, str]] = Field(default_factory=list)
 
 
 class RoleCandidates(Contract):
@@ -436,6 +439,17 @@ class RoleRegistry(Contract):
     """Lossless equivalence groups, sized for a full scan rather than a panel."""
     groups: list[RegistryGroup] = Field(min_length=1, max_length=1024)
     omitted: list[OmittedRole] = Field(default_factory=list, max_length=0)
+
+
+class StakeholderVerdict(Contract):
+    entry_id: str
+    relevant: bool
+    reason: str = Field(min_length=1, max_length=600)
+
+
+class StakeholderPanel(Contract):
+    verdicts: list[StakeholderVerdict] = Field(min_length=1, max_length=1024)
+    kept_ids: list[str] = Field(default_factory=list, max_length=8)
 
 
 class RunRequest(Contract):

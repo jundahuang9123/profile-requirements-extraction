@@ -20,6 +20,7 @@ export function RoleManifestView({ run, busy, inspect, override }: Props) {
   const [maxRoles, setMaxRoles] = useState(Math.min(manifest?.max_roles ?? 4, 8));
   if (!manifest || manifest.mode === 'rules') return null;
   const update = (index: number, patch: Partial<RoleProposal>) => setRoles(previous => previous.map((role, i) => i === index ? { ...role, ...patch } : role));
+  const wholeRegistry = manifest.policy_version === 'rq1-stakeholder-selection-v12';
   const complete = manifest.status === 'completed';
   // Historical failed runs may retain a pre-fix "running" manifest; render the
   // terminal run state without rewriting their saved audit records.
@@ -31,13 +32,15 @@ export function RoleManifestView({ run, busy, inspect, override }: Props) {
     <p>{manifest.mode} · {selectionStatus} · {manifest.selected_roles.length} perspectives</p>
     {selectionStatus === 'failed' && <p className="workflow-error">Role selection stopped before the panel was completed. Check the source citations and recorded attempts below.</p>}
     {run.strategy === 'mock' && <p className="workflow-notice">Offline demonstration: requirements use mock proposals. No model is called for this run.</p>}
-    {manifest.mode === 'automatic' && <p>{manifest.processed_evidence_ids.length} of {run.evidence_ids.length} evidence units processed · {manifest.selection_rounds.length} of {manifest.total_batches ?? '?'} batches assembled.</p>}
-    {manifest.mode === 'automatic' && manifest.total_batches != null && <p>The scan reads the whole corpus in {manifest.total_batches} source {manifest.total_batches === 1 ? 'batch' : 'batches'}, with up to {manifest.total_batches * (manifest.max_calls_per_batch ?? 3)} selector calls per uninterrupted scan. Corrections are included; provider retries may add requests.</p>}
+    {manifest.mode === 'automatic' && <p>{manifest.processed_evidence_ids.length} of {run.evidence_ids.length} evidence units processed · {wholeRegistry ? manifest.batch_reports?.length ?? 0 : manifest.selection_rounds.length} of {manifest.total_batches ?? '?'} batches {wholeRegistry ? 'read' : 'assembled'}.</p>}
+    {wholeRegistry && <p>Discovery collects candidates from the whole corpus. The registry retains every candidate; one panel selection follows. {manifest.registry?.length ?? 0} registry entries · {manifest.selection_rounds.length} panel decisions saved.</p>}
+    {manifest.mode === 'automatic' && manifest.total_batches != null && !wholeRegistry && <p>The scan reads the whole corpus in {manifest.total_batches} source {manifest.total_batches === 1 ? 'batch' : 'batches'}, with up to {manifest.total_batches * (manifest.max_calls_per_batch ?? 3)} selector calls per uninterrupted scan. Corrections are included; provider retries may add requests.</p>}
     <p>Documented and inferred labels are selection judgements. Exact quotations can be checked; they do not establish stakeholder endorsement. Every extracted requirement still needs its own evidence.</p>
     {manifest.fallback_reason && <p className="workflow-notice">{manifest.fallback_reason}</p>}
     {manifest.override && <p>Human override by {manifest.override.actor}: {manifest.override.rationale}. Based on run {manifest.override.based_on_run_id}.</p>}
     <div className="workflow-role-list">{manifest.selected_roles.map(role => <article key={role.role_id}>
       <strong>{role.label}</strong><span className="workflow-pill">{role.basis}</span>
+      {role.filled_via && <p>Place filled: {role.filled_via.replace(/_/g, ' ')}. Sources: {role.source_support?.map(source => source.name).join(', ') || 'No source citation'}</p>}
       <p>Stakeholders: {role.stakeholders.join(', ')}</p><p>{role.purpose}</p>
       <ul>{role.focus_questions.map((question, i) => <li key={i}>{question}</li>)}</ul>
       <p>{role.rationale}</p><small>{role.selection_rationale}</small>
@@ -63,10 +66,11 @@ export function RoleManifestView({ run, busy, inspect, override }: Props) {
     {!!manifest.panel_accounting_repairs?.length && <details><summary>Panel grouping corrections</summary>
       {manifest.panel_accounting_repairs.map(attempt => <p key={attempt.batch_index}>Batch {attempt.batch_index + 1} · {attempt.status}{attempt.error && ` · ${attempt.error}`}. One correction attempt is allowed per batch; the full audit is saved below.</p>)}
     </details>}
+    {!!manifest.registry?.length && <details><summary>Whole stakeholder registry</summary>{manifest.registry.map(entry => <article key={entry.entry_id}><strong>{entry.label}</strong><p>{entry.basis} · {entry.member_candidate_ids.length} candidates · {entry.batch_count} source batches</p><p>{entry.sources.map(source => source.name).join(', ') || 'Uncited perspective'}</p></article>)}</details>}
     <details><summary>Selection audit and omitted perspectives</summary>
       <p>Policy: {manifest.policy_version}</p><code>{manifest.manifest_hash ?? (['failed', 'cancelled'].includes(selectionStatus) ? 'No completed panel manifest.' : 'Manifest is still being assembled.')}</code>
       {manifest.migration_notes?.map((note, index) => <p key={index}>{note}</p>)}
-      <pre>{JSON.stringify({ candidates: manifest.candidates, validation_attempts: manifest.validation_attempts, panel_accounting_repairs: manifest.panel_accounting_repairs, unresolved_role_candidates: manifest.unresolved_role_candidates, rounds: manifest.selection_rounds, omissions: manifest.omissions, limitations: manifest.limitations }, null, 2)}</pre>
+      <pre>{JSON.stringify({ registry: manifest.registry, registry_calls: manifest.registry_calls, panel_calls: manifest.panel_calls, candidates: manifest.candidates, validation_attempts: manifest.validation_attempts, panel_accounting_repairs: manifest.panel_accounting_repairs, unresolved_role_candidates: manifest.unresolved_role_candidates, rounds: manifest.selection_rounds, omissions: manifest.omissions, limitations: manifest.limitations }, null, 2)}</pre>
     </details>
     {complete && <div className="workflow-toolbar">
       <button onClick={() => downloadWorkflow('rq1-role-manifest.json', manifest)}>Download role manifest</button>

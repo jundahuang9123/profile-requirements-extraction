@@ -3140,6 +3140,59 @@
       "title": "SpanObservation",
       "type": "object"
     },
+    "StakeholderPanel": {
+      "additionalProperties": false,
+      "properties": {
+        "kept_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 8,
+          "title": "Kept Ids",
+          "type": "array"
+        },
+        "verdicts": {
+          "items": {
+            "$ref": "#/$defs/StakeholderVerdict"
+          },
+          "maxItems": 1024,
+          "minItems": 1,
+          "title": "Verdicts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "verdicts"
+      ],
+      "title": "StakeholderPanel",
+      "type": "object"
+    },
+    "StakeholderVerdict": {
+      "additionalProperties": false,
+      "properties": {
+        "entry_id": {
+          "title": "Entry Id",
+          "type": "string"
+        },
+        "reason": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        },
+        "relevant": {
+          "title": "Relevant",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "entry_id",
+        "relevant",
+        "reason"
+      ],
+      "title": "StakeholderVerdict",
+      "type": "object"
+    },
     "TaskJustification": {
       "additionalProperties": false,
       "properties": {

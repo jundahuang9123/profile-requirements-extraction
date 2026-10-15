@@ -90,76 +90,55 @@ def test_normalization_keeps_substantive_panel_errors(conflict, expected_code):
         selector.panel_accounting_errors(normalized, pool, max_roles)}
 
 
-class DuplicateOmissionClient(SelectorClient):
+class DuplicateRegistryClient(SelectorClient):
     def generate_structured(self, **kwargs):
-        if kwargs['output_model'].__name__ != 'RolePanel':
+        if kwargs['output_model'].__name__ != 'RoleRegistry':
             return super().generate_structured(**kwargs)
         payload = json.loads(kwargs['user'])
-        self.calls.append(('RolePanel', payload))
+        self.calls.append(('RoleRegistry', payload))
         ids = [candidate['candidate_id'] for candidate in payload['candidates']]
-        assert len(ids) == 2
-        return RolePanel.model_validate({'groups': [
-            {'representative_id': ids[0], 'member_ids': [ids[0]],
-             'rationale': 'Keep the already selected perspective.'}],
-            'omitted': [
-                {'candidate_id': ids[1], 'reason': 'First reason to omit the overlap.'},
-                {'candidate_id': ids[1], 'reason': 'Repeated omission with a later explanation.'}]})
+        return kwargs['output_model'].model_validate({'groups': [
+            {'representative_id': ids[0], 'member_ids': [*ids, ids[0]],
+             'rationale': 'Equivalent publication perspective.'}], 'omitted': []})
 
 
-def test_panel_duplicate_omission_is_audited_without_spending_a_correction(corpus):
+def test_registry_duplicate_member_is_audited_without_spending_a_correction(corpus):
     store, snapshot, _ = corpus
-    run = auto_run(corpus)
-    run['role_manifest']['selected_roles'] = [selector.as_selected(
-        selector.proposed_defaults()[0], candidate_ids=['existing-lineage'], reason='Previous batch selection.')]
-    client = DuplicateOmissionClient()
-    manifest = selector.select_roles(store, run, client)
+    client = DuplicateRegistryClient()
+    manifest = selector.select_roles(store, auto_run(corpus), client)
     assert manifest['status'] == 'completed'
-    assert [name for name, _ in client.calls] == ['RoleCandidates', 'RolePanel']
-    assert not manifest.get('panel_accounting_repairs')
-    report = manifest['batch_reports'][0]
-    assert len(report['panel_disposition_collapses']) == 1
-    change = report['panel_disposition_collapses'][0]
-    assert change['phase'] == 'panel'
-    assert len(change['original_selection']['omitted']) == 2
-    assert change['normalized_selection']['omitted'] == [change['original_selection']['omitted'][0]]
-    assert change['collapses'] == [{'disposition': 'omitted',
-        'candidate_id': report['candidate_ids'][0], 'removed_count': 1, 'retained_index': 0,
-        'retained_reason': 'First reason to omit the overlap.'}]
-    assert manifest['selection_rounds'][0]['omitted'] == change['normalized_selection']['omitted']
+    assert not any(record.get('correction') for record in manifest['registry_calls'])
+    record = manifest['registry_calls'][0]
+    assert len(record['original']['groups'][0]['member_ids']) == 2
+    assert len(record['result']['groups'][0]['member_ids']) == 1
+    assert record['duplicate_collapses'][0]['phase'] == 'initial'
+    assert record['duplicate_collapses'][0]['collapses'][0]['removed_count'] == 1
     assert set(manifest['processed_evidence_ids']) == set(snapshot['evidence_ids'])
     selector.verify_manifest(manifest)
 
 
-def test_correction_duplicates_are_audited_and_raw_correction_is_preserved(corpus):
-    class CorrectionDuplicateClient(DuplicateOmissionClient):
+def test_registry_correction_duplicates_are_audited_and_raw_response_is_preserved(corpus):
+    class CorrectionDuplicateClient(DuplicateRegistryClient):
         def generate_structured(self, **kwargs):
-            if kwargs['output_model'].__name__ == 'RolePanel' and not any(
-                    name == 'RolePanel' for name, _ in self.calls):
+            if kwargs['output_model'].__name__ == 'RoleRegistry' and not any(
+                    name == 'RoleRegistry' for name, _ in self.calls):
                 data = json.loads(kwargs['user'])
-                self.calls.append(('RolePanel', data))
-                ids = [candidate['candidate_id'] for candidate in data['candidates']]
-                return RolePanel.model_validate({'groups': [
-                    {'representative_id': ids[0], 'member_ids': ids,
-                     'rationale': 'Initial conflicting disposition.'}],
-                    'omitted': [{'candidate_id': ids[1], 'reason': 'Also omitted, a genuine conflict.'}]})
+                self.calls.append(('RoleRegistry', data))
+                identifier = data['candidates'][0]['candidate_id']
+                return kwargs['output_model'].model_validate({'groups': [
+                    {'representative_id': identifier, 'member_ids': [identifier],
+                     'rationale': 'Conflicting group.'},
+                    {'representative_id': identifier, 'member_ids': [identifier],
+                     'rationale': 'Conflicting second group.'}], 'omitted': []})
             return super().generate_structured(**kwargs)
-
     store, _, _ = corpus
-    run = auto_run(corpus)
-    run['role_manifest']['selected_roles'] = [selector.as_selected(
-        selector.proposed_defaults()[0], candidate_ids=['existing-lineage'])]
-    client = CorrectionDuplicateClient()
-    manifest = selector.select_roles(store, run, client)
-    assert [name for name, _ in client.calls] == ['RoleCandidates', 'RolePanel', 'RolePanel']
-    attempt = manifest['panel_accounting_repairs'][0]
-    assert attempt['status'] == 'valid'
-    assert attempt['validation_report'][0]['code'] == 'duplicate_disposition'
-    assert len(attempt['corrected_selection']['omitted']) == 2
-    assert attempt['normalized_selection']['omitted'] == [attempt['corrected_selection']['omitted'][0]]
-    changes = manifest['batch_reports'][0]['panel_disposition_collapses']
-    assert len(changes) == 1 and changes[0]['phase'] == 'correction'
-    assert changes[0]['original_selection'] == attempt['corrected_selection']
-    assert changes[0]['normalized_selection'] == attempt['normalized_selection']
+    manifest = selector.select_roles(store, auto_run(corpus), CorrectionDuplicateClient())
+    record = manifest['registry_calls'][0]
+    assert record['correction']['status'] == 'valid'
+    assert 'duplicate_disposition' in {e['code'] for e in record['validation_errors']}
+    assert len(record['correction']['original']['groups'][0]['member_ids']) == 2
+    assert len(record['correction']['result']['groups'][0]['member_ids']) == 1
+    assert record['duplicate_collapses'][-1]['phase'] == 'correction'
     selector.verify_manifest(manifest)
 
 
@@ -233,38 +212,17 @@ def duplicate_only_v10_run(tmp_path, monkeypatch):
     return store, snapshot, run
 
 
-def test_v10_batch31_duplicate_only_recovery_reuses_all_saved_outputs_without_calls(duplicate_only_v10_run):
-    store, snapshot, run = duplicate_only_v10_run
+def test_v10_batch31_duplicate_only_scan_is_preserved_but_not_migrated_into_v12(duplicate_only_v10_run):
+    store, _, run = duplicate_only_v10_run
     original = deepcopy(run['role_manifest'])
     client = NoModelCalls()
-    manifest = selector.select_roles(store, run, client)
-    assert not client.calls
-    assert manifest['status'] == 'completed'
-    assert manifest['policy_version'] == 'rq1-stakeholder-selection-v11'
-    assert manifest['selection_rounds'][:31] == original['selection_rounds']
-    assert manifest['batch_reports'][:31] == original['batch_reports'][:31]
-    assert manifest['validation_attempts'] == original['validation_attempts']
-    assert manifest['candidates'] == original['candidates']
-    assert set(manifest['processed_evidence_ids']) == set(snapshot['evidence_ids'])
-    assert len(manifest['selection_rounds']) == 32
-    attempt = manifest['panel_accounting_repairs'][0]
-    for key in ('original_selection', 'corrected_selection', 'validation_report', 'correction_validation_report'):
-        assert attempt[key] == original['panel_accounting_repairs'][0][key]
-    assert attempt['status'] == 'valid'
-    assert attempt['normalized_selection']['omitted'] == [attempt['corrected_selection']['omitted'][0]]
-    assert attempt['recovery']['from_policy'] == 'rq1-stakeholder-selection-v10'
-    assert attempt['recovery']['previous_status'] == 'invalid'
-    assert manifest['migration_notes']
-    assert 'v11' in manifest['migration_notes'][-1]
-    changes = manifest['batch_reports'][31]['panel_disposition_collapses']
-    assert len(changes) == 1
-    assert changes[0]['phase'] == 'migration'
-    assert changes[0]['original_selection'] == attempt['corrected_selection']
-    assert changes[0]['normalized_selection'] == attempt['normalized_selection']
-    assert changes[0]['collapses'][0]['candidate_id'] == OBSERVED_DUPLICATE_ID
-    assert changes[0]['collapses'][0]['retained_reason'] == 'First saved explanation.'
-    assert run['role_manifest'] == original  # The caller's original historical object is intact.
-    selector.verify_manifest(manifest)
+    with pytest.raises(ValueError, match='policy has changed'):
+        selector.select_roles(store, run, client)
+    assert not client.calls and run['role_manifest'] == original
+    # Legacy normalisation still recognises the harmless original failure; the
+    # public v12 resume gate deliberately refuses to mix panel architectures.
+    recovery = selector._duplicate_disposition_recovery(original)
+    assert recovery is not None and recovery[0]['batch_index'] == 31
 
 
 @pytest.mark.parametrize('failure', [
