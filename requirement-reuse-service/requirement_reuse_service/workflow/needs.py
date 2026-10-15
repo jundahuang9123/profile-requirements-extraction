@@ -16,7 +16,9 @@ from .semantic_consolidation import grouped_block, partition_exact, NEED_SEMANTI
 
 # v2: an obligation that no source states stays a review note on the need; it no longer
 # opens a discussion case by itself (engine.route_cases).
-ROUTING_POLICY = 'rq1-needs-routing-v2'
+ROUTING_POLICY = 'rq1-needs-routing-v3'
+# Routing runs after needs processing, so a run saved under an earlier routing policy keeps it.
+EARLIER_ROUTING_POLICIES = ('rq1-needs-routing-v2',)
 POLICIES = {'generation_recovery': 'rq1-needs-row-recovery-v2', 'source_check': 'rq1-original-source-v2.2', 'proposal_support': 'rq1-proposal-support-v1', 'grouping': NEED_SEMANTIC_POLICY,
             'need_statement': 'rq1-need-statement-v2', 'need_membership': 'rq1-need-membership-v1',
             'classification': 'rq1-generic-domain-v1', 'scoping': 'rq1-use-case-necessity-v1',
@@ -446,11 +448,20 @@ def check_proposal_support(store, run, records, client):
     return retained
 
 
+def run_needs_policies(run):
+    """The needs policies a run continues under; a changed processing policy needs a new trial."""
+    policies = {**POLICIES}
+    saved = run.get('needs_policies') or {}
+    if saved.get('routing') in EARLIER_ROUTING_POLICIES:
+        policies['routing'] = saved['routing']
+    if saved and saved != policies:
+        raise ValueError('Needs policies changed; derive a separate trial instead of mixing versions.')
+    return policies
+
+
 def process_needs(store, run, records, client, profile):
     saved = store.get_run(run['run_id'], omit=('model_calls','catalogues','machine_snapshot','assessment_reuse'))
-    policies = {**POLICIES}
-    if run.get('needs_policies') and run['needs_policies'] != policies:
-        raise ValueError('Needs policies changed; derive a separate trial instead of mixing versions.')
+    policies = run_needs_policies(run)
     store.mutate(run['run_id'], None, 'needs_policies_saved', lambda r:r.update(needs_policies=policies))
     passing = [r for r in records if (r.verification or {}).get('status') == 'pass']
     failed = [r for r in records if r not in passing]

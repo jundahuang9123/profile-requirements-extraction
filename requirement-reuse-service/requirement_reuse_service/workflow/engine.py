@@ -627,6 +627,24 @@ def verify(store: Store, record: RequirementRecord, eligible_evidence_ids: list[
             'method_version': policy_version, 'checked_at': now()}
 
 
+# A lexical hint, added to every assessment of a statement containing ';', 'and' or 'as well as'.
+LEXICAL_ATOMICITY_MESSAGE = 'Potential compound requirement; assess whether it needs splitting.'
+
+
+def only_lexical_atomicity(qualification: Qualification) -> bool:
+    """The model judged atomicity and raised no finding of its own; only the lexical hint flags it.
+
+    Assessments made without the model (unavailable, input bound, offline) keep the hint.
+    """
+    assessor = qualification.assessor or ''
+    judged = assessor.startswith(QUALIFICATION_VERSION + '/') and not assessor.startswith(
+        QUALIFICATION_VERSION + '/unavailable/')
+    flagged = [f for f in qualification.findings if f.severity in {'blocking', 'review'}
+               and re.search(r'atomic|compound|split', f.criterion, re.I)]
+    return judged and bool(flagged) and all(
+        f.criterion == 'atomicity' and f.message == LEXICAL_ATOMICITY_MESSAGE for f in flagged)
+
+
 def assess(store: Store, record: RequirementRecord, client: LLMClient | None = None) -> Qualification:
     client = for_step(client, 'assessment')
     findings: list[Finding] = []
@@ -635,7 +653,7 @@ def assess(store: Store, record: RequirementRecord, client: LLMClient | None = N
                              findings=[Finding(criterion='grounding', severity='blocking', message='Source verification failed.')],
                              assessor='deterministic-gate-v2', revision_hash=record.content_hash)
     if re.search(r';|\b(?:and|as well as)\b', record.normalized_statement, re.I):
-        findings.append(Finding(criterion='atomicity', severity='review', message='Potential compound requirement; assess whether it needs splitting.'))
+        findings.append(Finding(criterion='atomicity', severity='review', message=LEXICAL_ATOMICITY_MESSAGE))
     if re.search(r'\b(?:dcat|dcterms|prov|cx):|\b(?:SHACL|SQL|database column)\b', record.normalized_statement):
         findings.append(Finding(criterion='implementation_neutrality', severity='review', message='Assess whether this is an externally mandated constraint or a premature solution choice.'))
     if record.need_statement is None and (record.requirement_type == 'unknown' or record.normalized_intent.resource_type == 'Unknown'):
@@ -1216,10 +1234,14 @@ def route_cases(run: dict, records: list[RequirementRecord], conflicts: list[dic
     For needs saved under the current routing policy, an obligation that no source states is
     the normal state (shown as "not stated by sources"). A discussion cannot add a source
     statement, so that finding stays on the need for human review and opens no case by itself.
+    Since rq1-needs-routing-v3, the lexical 'and' hint opens no case by itself when the model's
+    own assessment judged atomicity and raised no finding; the hint stays as a note.
     Runs saved under an earlier policy keep their original routing."""
-    from .needs import ROUTING_POLICY
+    from .needs import EARLIER_ROUTING_POLICIES, ROUTING_POLICY
     automatic = discussion == 'automatic'
-    unstated_obligation_is_routine = (run.get('needs_policies') or {}).get('routing') == ROUTING_POLICY
+    policy = (run.get('needs_policies') or {}).get('routing')
+    unstated_obligation_is_routine = policy in {ROUTING_POLICY, *EARLIER_ROUTING_POLICIES}
+    lexical_atomicity_is_a_hint = policy == ROUTING_POLICY
     cases = []
     routing = []
     def unavailable(record):
@@ -1252,6 +1274,10 @@ def route_cases(run: dict, records: list[RequirementRecord], conflicts: list[dic
                 and record.normalized_intent.obligation_hint == 'unknown' and 'obligation' in findings):
             findings = [criterion for criterion in findings if criterion != 'obligation']
             notes.append('obligation_not_stated_by_sources')
+        if (lexical_atomicity_is_a_hint and record.need_statement is not None
+                and 'atomicity' in findings and only_lexical_atomicity(record.qualification)):
+            findings = [criterion for criterion in findings if criterion != 'atomicity']
+            notes.append('possible_compound_wording')
         triggers.extend(findings)
         if triggers and run['strategy'] == 'multi_agent' and automatic:
             cases.append(make_case(run, [record], sorted(set(triggers))))
