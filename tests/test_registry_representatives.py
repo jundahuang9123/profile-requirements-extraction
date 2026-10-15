@@ -129,8 +129,8 @@ def test_saved_representative_only_correction_recovers_without_repeating_scan_or
     assert manifest == after
 
 
-@pytest.mark.parametrize('tamper', ['input_hash', 'result', 'raw', 'errors', 'interrupted', 'provider_failed'])
-def test_saved_correction_recovery_rejects_tampering_and_interruption(decision, tamper):
+@pytest.mark.parametrize('tamper', ['input_hash', 'result', 'raw', 'errors'])
+def test_saved_correction_recovery_rejects_tampering(decision, tamper):
     record = failed_record(decision)
     if tamper == 'input_hash':
         record['input_hash'] = 'wrong'
@@ -138,15 +138,33 @@ def test_saved_correction_recovery_rejects_tampering_and_interruption(decision, 
         record['correction']['result']['groups'][0]['rationale'] = 'Changed result.'
     elif tamper == 'raw':
         record['correction']['original']['groups'][0]['member_ids'].remove('entry-b')
-    elif tamper == 'errors':
-        record['correction']['validation_errors'] = []
     else:
-        record['correction'] = {'status': 'started' if tamper == 'interrupted' else 'provider_failed'}
+        record['correction']['validation_errors'] = []
     manifest = {'registry_calls': [record]}
     before = deepcopy(manifest)
     with pytest.raises(ValueError):
         checked(manifest, decision)
     assert manifest == before
+
+
+@pytest.mark.parametrize('status', ['started', 'provider_failed'])
+def test_correction_that_returned_no_answer_is_issued_once_more(decision, status):
+    from requirement_reuse_service.workflow.stakeholder_registry import CORRECTION_RETRY_POLICY, CORRECTION_SUFFIX
+    record = failed_record(decision)
+    record['correction'] = {'status': status, **({'error': 'ProviderError'} if status == 'provider_failed' else {})}
+    manifest = {'registry_calls': [record]}
+    calls = []
+    def call(system, payload, *args, **kwargs):
+        calls.append((system, payload))
+        return decision[-1]
+    result = checked(manifest, decision, call)
+    assert len(calls) == 1 and calls[0][0].endswith(CORRECTION_SUFFIX)
+    assert calls[0][1]['validation_errors'] == record['validation_errors']
+    assert result.groups[0].representative_id == 'entry-b'
+    assert record['status'] == 'completed' and record['correction']['status'] == 'valid'
+    assert record['correction_retries'] == [{'policy': CORRECTION_RETRY_POLICY, 'status': status,
+        **({'error': 'ProviderError'} if status == 'provider_failed' else {})}]
+    assert checked(manifest, decision) == result  # completed: no further call
 
 
 def test_valid_saved_correction_is_reused_in_preference_to_earlier_original(decision):

@@ -135,20 +135,24 @@ def test_full_auto_run_uses_frozen_roles_in_extraction_discussion_and_exports(co
     assert Store(str(store.path)).get('role_manifest', manifest['manifest_hash']) == manifest
 
 
-@pytest.mark.parametrize('options, message', [({'duplicate': True}, 'verdict_accounting')])
-def test_bad_selector_output_fails_before_extraction_without_fallback(corpus, options, message):
+def test_conflicting_panel_verdicts_are_repaired_and_audited_not_fatal(corpus):
+    """An entry given both verdicts, twice, counts as relevant; the run continues with an audit."""
+    from requirement_reuse_service.workflow.stakeholder_registry import ACCOUNTING_REPAIR_POLICY
     store, _, _ = corpus
     run = auto_run(corpus)
-    client = SelectorClient(**options)
+    client = SelectorClient(duplicate=True)
     execute_run(store, run['run_id'], client)
     result = store.get('run', run['run_id'])
-    assert result['status'] == 'failed'
-    assert message in ' '.join(result['diagnostics'])
-    assert not result['role_runs'] and not result['observations']
-    assert not any(contract == 'SpanElicitationResult' for contract, _ in client.calls)
-    assert result['role_manifest']['status'] != 'completed'
-    assert result['role_manifest']['status'] == 'failed'
-    assert result['stages']['role_selection'] == 'failed'
+    manifest = result['role_manifest']
+    assert manifest['status'] == 'completed', result['diagnostics']
+    record = manifest['panel_calls'][-1]
+    assert [e['code'] for e in record['validation_errors']] == ['verdict_accounting']
+    assert record['correction']['status'] == 'invalid'
+    assert record['repair']['policy'] == ACCOUNTING_REPAIR_POLICY
+    conflicts = record['repair']['changes']['correction']['conflicting_verdicts_counted_relevant']
+    assert conflicts and all(v['relevant'] for v in record['result']['verdicts'] if v['entry_id'] in conflicts)
+    assert sum(contract == 'StakeholderPanel' for contract, _ in client.calls) == 2
+    assert result['stages']['role_selection'] == 'completed'
 
 
 def test_interrupted_reducer_reuses_saved_discovery_and_completed_manifest(corpus):

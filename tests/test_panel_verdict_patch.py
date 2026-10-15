@@ -158,8 +158,25 @@ def test_initial_answer_must_have_only_missing_verdicts(decision, defect):
     assert audit is None
 
 
+@pytest.mark.parametrize('status', ['started', 'provider_failed'])
+def test_unanswered_patch_correction_is_issued_once_more_and_composed(decision, status):
+    _, _, correction, _, _, _ = decision
+    record = failed_record(decision)
+    record['correction'] = {'status': status}
+    manifest = {'panel_calls': [record]}
+    calls = []
+    def call(*args, **kwargs):
+        calls.append(args)
+        return correction.model_copy(deep=True)
+    answer = checked(manifest, decision, call)
+    assert len(calls) == 1
+    assert_exact_composition(answer, decision)
+    assert record['correction_retries'][0]['policy'] == registry.CORRECTION_RETRY_POLICY
+    assert record['correction']['status'] == 'valid' and record['status'] == 'completed'
+
+
 @pytest.mark.parametrize('tamper', ['input_hash', 'initial_result', 'initial_errors', 'correction_raw',
-    'correction_result', 'correction_errors', 'interrupted', 'provider_failed'])
+    'correction_result', 'correction_errors'])
 def test_saved_patch_recovery_rejects_tampered_or_unfinished_audits(decision, tamper):
     record = failed_record(decision)
     if tamper == 'input_hash':
@@ -172,10 +189,8 @@ def test_saved_patch_recovery_rejects_tampered_or_unfinished_audits(decision, ta
         record['correction']['original']['verdicts'][0]['reason'] = 'Changed raw judgement.'
     elif tamper == 'correction_result':
         record['correction']['result']['verdicts'][0]['reason'] = 'Changed normalized judgement.'
-    elif tamper == 'correction_errors':
-        record['correction']['validation_errors'] = []
     else:
-        record['correction'] = {'status': 'started' if tamper == 'interrupted' else 'provider_failed'}
+        record['correction']['validation_errors'] = []
     manifest = {'panel_calls': [record]}
     before = deepcopy(manifest)
     with pytest.raises(ValueError):

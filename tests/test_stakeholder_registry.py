@@ -187,15 +187,25 @@ def test_documented_priority_is_corrected_only_once(three_batches):
     assert all(r['filled_via'] == 'documented' for r in manifest['selected_roles'])
 
 
-def test_failed_panel_correction_is_not_repeated(three_batches):
+def test_failed_panel_correction_is_completed_by_the_documented_first_rule_not_repeated(three_batches):
+    from requirement_reuse_service.workflow.stakeholder_registry import ACCOUNTING_REPAIR_POLICY
     manifest, entries = panel_fixture(three_batches, ['documented']*4 + ['inferred'])
     call, calls = panel_call_log(always_invalid=True)
-    with pytest.raises(ValueError, match='single correction'):
-        choose_panel(manifest, entries, [], call, lambda event: None, {'model': 'scripted'})
+    choose_panel(manifest, entries, [], call, lambda event: None, {'model': 'scripted'})
     assert len(calls) == 2
-    with pytest.raises(ValueError, match='exhausted or interrupted'):
-        choose_panel(manifest, entries, [], call, lambda event: None, {'model': 'scripted'})
-    assert len(calls) == 2
+    record = manifest['panel_calls'][0]
+    assert record['correction']['status'] == 'invalid'
+    assert record['repair']['policy'] == ACCOUNTING_REPAIR_POLICY and record['repair']['model_calls'] == 0
+    # The model kept the inferred entry in a documented place; the program fill restores the rule.
+    assert all(r['filled_via'] == 'documented' for r in manifest['selected_roles'])
+    assert len(manifest['selected_roles']) == 4
+    assert manifest['panel_composition']['policy'] == ACCOUNTING_REPAIR_POLICY
+    inferred = next(e['entry_id'] for e in entries if e['basis'] == 'inferred')
+    assert inferred in manifest['panel_composition']['model_kept_ids']
+    assert inferred not in manifest['panel_composition']['kept_ids']
+    before = deepcopy(manifest)
+    choose_panel(manifest, entries, [], call, lambda event: None, {'model': 'scripted'})
+    assert len(calls) == 2 and manifest == before
 
 
 def test_empty_discovery_alone_uses_explicit_default_roles(three_batches):

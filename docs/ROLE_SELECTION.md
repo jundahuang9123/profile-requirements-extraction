@@ -130,7 +130,8 @@ or the bounded grouping procedure are semantically perfect.
    1,024 members per group, independently of the eight-role panel limit. Exact
    repeated IDs within the same group are collapsed and audited, preserving their
    first occurrence. Unknown or missing IDs, conflicting groups and invalid
-   representatives remain errors, with one saved accounting correction per call.
+   representatives get one saved accounting correction per call; an answer still
+   invalid after it is completed by the accounting repair described below.
    The representative's label, purpose, focus questions and basis remain unchanged.
    Any entry containing a documented member must choose a documented representative.
    All member citations remain in the registry. Source names and batch counts are
@@ -152,17 +153,20 @@ or the bounded grouping procedure are semantically perfect.
    reason to exclude an otherwise relevant perspective. Program checks enforce
    documented/relevant entries first, inferred/relevant entries next, then proposed/
    relevant entries, filling available places up to `max_roles`. One accounting
-   correction is permitted. Selected roles record `filled_via` as `documented`,
+   correction is permitted; a still-invalid answer is completed by the accounting
+   repair described below. Selected roles record `filled_via` as `documented`,
    `fallback_inferred` or `fallback_proposed`. Their page shows basis, source names
    and this fill reason. All unselected entries and verdicts remain saved.
 4. **Defaults apply only to a complete scan with no candidates.** These remain
-   proposed and uncited, with `filled_via: default`. A failed provider, invalid
-   accounting, or a nonempty registry judged entirely irrelevant does not invoke
-   defaults: selection stops for review.
+   proposed and uncited, with `filled_via: default`. A failed provider or a
+   nonempty registry judged entirely irrelevant does not invoke defaults: selection
+   stops for review.
 5. **Resume preserves completed work and correction budgets.** Discovery batches,
    registry decisions and the final panel decision are checkpointed. Corrections
-   are claimed before calling the provider, so exhausted or interrupted corrections
-   are not repeated by Resume. Completed manifests are sealed immutable artifacts.
+   are claimed before calling the provider. An answered correction is never
+   repeated; one that returned no answer (provider failure or interruption) is
+   issued again on Resume, with the failed attempt kept in `correction_retries`
+   (`rq1-stakeholder-correction-retry-v1`). Completed manifests are sealed immutable artifacts.
    Completed older panels remain readable and usable. Unfinished pre-v12 scans are
    refused; the older narrow v6–v10 failure migrations are not used to enter v12.
    Create a new run, or use a compatible completed scan as described below.
@@ -181,9 +185,8 @@ This does not verify the model's judgement that those members are equivalent.
 
 Raw responses remain in `registry_calls.original` / `correction.original`. Changes
 are recorded separately in `representative_normalizations`, with policy, phase,
-old/new representative IDs and group membership. Missing or unknown IDs,
-cross-group duplicates and representatives outside their group still fail; this
-rule cannot fill gaps or decide conflicting memberships. Diagnostic messages name
+old/new representative IDs and group membership. This rule cannot fill gaps or
+decide conflicting memberships; those go to the accounting repair below. Diagnostic messages name
 the actual validation codes rather than calling every failure an accounting error.
 
 A v12 registry decision whose saved correction failed **only** this documented
@@ -194,7 +197,7 @@ applying the rule. The original invalid correction and its audit stay unchanged;
 a `recovery` record and manifest migration note describe the changed condition.
 Completed discovery and valid registry decisions are reused without changing their
 prompt, schema, model or checkpoint keys. Unfinished downstream decisions still
-need their normal calls. Other exhausted or interrupted corrections are refused.
+need their normal calls. Other invalid saved corrections go to the accounting repair.
 A saved valid correction is reused even if interruption prevented its completion
 marker from being saved.
 
@@ -247,9 +250,49 @@ normalized result against its raw answer, as well as the frozen request hash. Re
 leaves that invalid correction and its audit unchanged, stores the combined result
 separately and adds a zero-call `recovery` record and migration note. Completed discovery,
 registry and relevance calls keep their keys and results. No new correction budget
-is granted. Overlapping, contradictory, extra or still missing verdicts, invalid panel
-choices, inconsistent saved audits and interrupted/failed provider calls still stop.
+is granted. Other shapes (overlapping, contradictory, extra or still missing verdicts,
+invalid panel choices) go to the accounting repair; inconsistent saved audits still stop.
 This establishes response completeness, not semantic correctness or stakeholder endorsement.
+
+### Accounting repair after the single correction
+
+`rq1-stakeholder-accounting-repair-v1` completes a registry, relevance-block or
+final-panel decision whose single correction is still invalid, by program rules and
+without a model call, instead of stopping the run. It was added after a functional
+Mobility re-selection stopped at its 11th registry decision: the first answer placed
+one entry in two groups and chose an inferred representative; the correction fixed
+both but miscopied one 24-digit entry ID by a single hex digit.
+
+- **Miscopied IDs.** An unknown ID is restored to an offered ID only when exactly one
+  offered ID lies within two character edits, that ID is the one the answer left
+  out, and no other unknown ID maps to it. Entry IDs end in 24 random hex digits, so
+  different entries are never this close by chance; anything ambiguous stays unknown.
+- **Registry.** Starting from the correction (the model's latest complete answer),
+  other unknown IDs are dropped, and an entry the answer leaves out or places in
+  several groups becomes its own entry. No merge is inferred; every repaired group
+  is a group the model formed, or part of one. Representatives follow the
+  documented-first rule above. Every candidate still occurs exactly once.
+- **Relevance blocks.** The correction's verdicts supersede the first answer's, and
+  the first answer supplies entries the correction left out. Unknown IDs are dropped.
+  An entry given both verdicts in one answer counts as relevant, so that the final
+  choice judges it again. Entries still without a verdict are judged in a follow-up
+  block (`relevance_follow_up` round, a new request). A block that keeps no usable
+  verdict at all passes its entries to the final choice, which judges them.
+- **Final choice.** Verdicts are merged the same way. An entry the answer does not
+  judge keeps its relevance-block verdict; one with no verdict at all gets a
+  follow-up block, and is recorded as not judged (not relevant, with that reason)
+  only if that also returns nothing. Kept IDs are restored when miscopied and
+  reduced to distinct relevant entries. The places are then filled by the program-
+  checked rule: documented, then inferred, then proposed; within each basis the
+  model's own picks first, then more documenting sources, then entry ID.
+
+Raw answers and the invalid correction stay unchanged. Each decision records a
+`repair` audit (policy, phase, every change, `model_calls: 0`); a completed final
+choice adds `panel_composition` with the model's kept IDs and the filled ones. A
+saved failure recovers on Resume with zero calls after the same frozen checks as the
+other recoveries. The repair establishes complete accounting, not that the model's
+groupings or relevance judgements are correct. Selection still stops when no entry
+is relevant, the provider fails, or saved audits are inconsistent.
 
 Discovery reserves 8,000 output tokens, citation correction 5,000, and registry/
 panel calls 8,000 each. Each logical call may use the existing one structural schema
