@@ -54,7 +54,7 @@ def workflow_metrics(run: dict) -> dict:
     complete_usage = bool(calls) and all(isinstance(c.get('token_usage'), dict) and
         all(name in c['token_usage'] for name in ('prompt_tokens', 'completion_tokens', 'total_tokens')) for c in calls)
     transport_calls = [c for c in calls if 'http_attempts' in c.get('transport', {})]
-    selection_calls = [c for c in calls if c.get('output_contract') in {'RoleCandidates', 'RoleCitationCorrections', 'RolePanel'}]
+    selection_calls = [c for c in calls if c.get('output_contract') in {'RoleCandidates', 'RoleCitationCorrections', 'RolePanel', 'RoleRegistry', 'StakeholderPanel'}]
     manifest = run.get('role_manifest') or {}
     aside = frozen.get('set_aside_observations', run.get('set_aside_observations', []))
     observations = {o['observation_id']: o for o in frozen.get('observations', run.get('observations', []))}
@@ -135,7 +135,8 @@ def needs_metrics(run, frozen=None):
     mapping={'ProposalSupport':'proposal_support','SemanticGrouping':'grouping','NeedStatements':'need_statement','NeedGrounding':'rewrite_critic',
              'NeedMembership':'need_membership','NeedClassifications':'classification','NeedUseCaseLinks':'scoping','UseCaseCritic':'scope_critic',
              'Qualification':'assessment','NeedSpanElicitationResult':'extraction','Turn':'discussion',
-             'RoleCandidates':'role_selection','RolePanel':'role_selection','RoleCitationCorrections':'role_selection'}
+             'RoleCandidates':'role_selection','RolePanel':'role_selection','RoleCitationCorrections':'role_selection',
+             'RoleRegistry':'role_selection','StakeholderPanel':'role_selection'}
     calls_by_step={}
     for call in run.get('model_calls',[]):
         step=mapping.get(call['output_contract'],'other')

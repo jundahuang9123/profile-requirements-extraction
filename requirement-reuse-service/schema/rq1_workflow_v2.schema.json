@@ -637,7 +637,8 @@
           "default": "normalization",
           "enum": [
             "normalization",
-            "elicitation"
+            "elicitation",
+            "role_selection"
           ],
           "title": "Start From",
           "type": "string"
@@ -1591,6 +1592,27 @@
       "title": "Observation",
       "type": "object"
     },
+    "OmittedRole": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_id": {
+          "title": "Candidate Id",
+          "type": "string"
+        },
+        "reason": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "candidate_id",
+        "reason"
+      ],
+      "title": "OmittedRole",
+      "type": "object"
+    },
     "ProposalSupport": {
       "additionalProperties": false,
       "properties": {
@@ -1788,6 +1810,37 @@
         "origin"
       ],
       "title": "RQ2Hint",
+      "type": "object"
+    },
+    "RegistryGroup": {
+      "additionalProperties": false,
+      "properties": {
+        "member_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 1024,
+          "minItems": 1,
+          "title": "Member Ids",
+          "type": "array"
+        },
+        "rationale": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "representative_id": {
+          "title": "Representative Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "representative_id",
+        "member_ids",
+        "rationale"
+      ],
+      "title": "RegistryGroup",
       "type": "object"
     },
     "RequirementRecord": {
@@ -2363,6 +2416,34 @@
         "focus_questions"
       ],
       "title": "RoleProposal",
+      "type": "object"
+    },
+    "RoleRegistry": {
+      "additionalProperties": false,
+      "description": "Lossless equivalence groups, sized for a full scan rather than a panel.",
+      "properties": {
+        "groups": {
+          "items": {
+            "$ref": "#/$defs/RegistryGroup"
+          },
+          "maxItems": 1024,
+          "minItems": 1,
+          "title": "Groups",
+          "type": "array"
+        },
+        "omitted": {
+          "items": {
+            "$ref": "#/$defs/OmittedRole"
+          },
+          "maxItems": 0,
+          "title": "Omitted",
+          "type": "array"
+        }
+      },
+      "required": [
+        "groups"
+      ],
+      "title": "RoleRegistry",
       "type": "object"
     },
     "RunRequest": {
@@ -3058,6 +3139,59 @@
         "base_property"
       ],
       "title": "SpanObservation",
+      "type": "object"
+    },
+    "StakeholderPanel": {
+      "additionalProperties": false,
+      "properties": {
+        "kept_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 8,
+          "title": "Kept Ids",
+          "type": "array"
+        },
+        "verdicts": {
+          "items": {
+            "$ref": "#/$defs/StakeholderVerdict"
+          },
+          "maxItems": 1024,
+          "minItems": 1,
+          "title": "Verdicts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "verdicts"
+      ],
+      "title": "StakeholderPanel",
+      "type": "object"
+    },
+    "StakeholderVerdict": {
+      "additionalProperties": false,
+      "properties": {
+        "entry_id": {
+          "title": "Entry Id",
+          "type": "string"
+        },
+        "reason": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        },
+        "relevant": {
+          "title": "Relevant",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "entry_id",
+        "relevant",
+        "reason"
+      ],
+      "title": "StakeholderVerdict",
       "type": "object"
     },
     "TaskJustification": {

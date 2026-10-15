@@ -19,7 +19,7 @@ ModelID = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, 
 # Writer and critic deliberately have separate keys although they share a saved stage.
 CONTRACT_STEPS = {
     'RoleCandidates': 'role_selection', 'RoleCitationCorrections': 'role_selection',
-    'RolePanel': 'role_selection',
+    'RolePanel': 'role_selection', 'RoleRegistry': 'role_selection', 'StakeholderPanel': 'role_selection',
     'SpanElicitationResult': 'extraction', 'NeedSpanElicitationResult': 'extraction',
     'ProposalSupport': 'proposal_support', 'SemanticGrouping': 'grouping',
     'NeedStatements': 'writer', 'NeedGrounding': 'rewrite_critic',
@@ -83,9 +83,16 @@ def for_contract(client, output_model):
     return for_step(client, step)
 
 
+def model_settings(description):
+    """Generation identity excludes transport tuning; full descriptions remain in audits."""
+    if not isinstance(description, dict):
+        return description
+    return {key: description.get(key) for key in ('provider', 'base_url', 'model', 'reasoning_effort')}
+
+
 def model_identity(client):
     if client is None:
         return 'offline'
     # Small legacy scripted fixtures need not implement the provider protocol.
     describe = getattr(client, 'describe', None)
-    return describe() if describe else {'provider': 'scripted', 'model': type(client).__qualname__}
+    return model_settings(describe() if describe else {'provider': 'scripted', 'model': type(client).__qualname__})

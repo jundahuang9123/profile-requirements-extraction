@@ -692,14 +692,14 @@ def scope_needs(store, run, needs, candidates, client):
 
 def assess_needs(store, run, needs, client):
     from .engine import assess, verify
-    from ..llm.step_models import for_step
+    from ..llm.step_models import for_step, model_identity
     client = for_step(client, 'assessment')
     assessed=0; blocked=0
     for need in needs:
         refresh_need(need)
         need.verification=verify(store,need,run['evidence_ids'])
         key=digest([POLICIES['assessment'],need.content_hash,need.need_integrity_hash,
-                    client.describe() if client else 'offline'])
+                    model_identity(client)])
         saved=store.get_run(run['run_id'],omit=tuple(p for p in RUN_PARTS if p!='need_chunks'))['need_chunks'].get(key)
         if saved:
             if saved.get('checkpoint_hash')!=digest({k:v for k,v in saved.items() if k!='checkpoint_hash'}):

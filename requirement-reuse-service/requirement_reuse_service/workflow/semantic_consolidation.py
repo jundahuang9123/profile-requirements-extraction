@@ -146,7 +146,7 @@ def calls_after(store, run_id, sequence):
 
 
 def grouped_block(store, run, key, records, client, saved):
-    from ..llm.step_models import for_step
+    from ..llm.step_models import for_step, model_identity
     client = for_step(client, 'grouping')
     from .engine import bounded_stage_output
     groups, audit = [], []
@@ -172,7 +172,7 @@ def grouped_block(store, run, key, records, client, saved):
         payload = {'candidates': {i: offered(r, policy) for i, r in candidates.items()}, 'offered_groups': offered_groups}
         group_fingerprints = {g: [r.content_hash for r in items] for g, items in existing.items()}
         chunk_key = digest([policy, [r.content_hash for r in chunk], offered_groups, group_fingerprints,
-                            client.describe() if client is not None else 'offline'])
+                            model_identity(client)])
         checkpoint = saved.get(chunk_key)
         if checkpoint is not None:
             if checkpoint['revision_ids'] != [r.revision_id for r in chunk] or checkpoint['offered_groups'] != offered_groups:

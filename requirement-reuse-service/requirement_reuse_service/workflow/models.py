@@ -404,6 +404,9 @@ class SelectedRole(RoleProposal):
     role_id: str
     candidate_ids: list[str] = Field(default_factory=list)
     selection_rationale: str = ''
+    filled_via: Literal['documented', 'fallback_inferred', 'fallback_proposed', 'default'] | None = None
+    registry_entry_id: str | None = None
+    source_support: list[dict[str, str]] = Field(default_factory=list)
 
 
 class RoleCandidates(Contract):
@@ -424,6 +427,29 @@ class OmittedRole(Contract):
 class RolePanel(Contract):
     groups: list[RoleGroup] = Field(min_length=1, max_length=8)
     omitted: list[OmittedRole] = Field(default_factory=list, max_length=16)
+
+
+class RegistryGroup(Contract):
+    representative_id: str
+    member_ids: list[str] = Field(min_length=1, max_length=1024)
+    rationale: str = Field(min_length=1, max_length=600)
+
+
+class RoleRegistry(Contract):
+    """Lossless equivalence groups, sized for a full scan rather than a panel."""
+    groups: list[RegistryGroup] = Field(min_length=1, max_length=1024)
+    omitted: list[OmittedRole] = Field(default_factory=list, max_length=0)
+
+
+class StakeholderVerdict(Contract):
+    entry_id: str
+    relevant: bool
+    reason: str = Field(min_length=1, max_length=600)
+
+
+class StakeholderPanel(Contract):
+    verdicts: list[StakeholderVerdict] = Field(min_length=1, max_length=1024)
+    kept_ids: list[str] = Field(default_factory=list, max_length=8)
 
 
 class RunRequest(Contract):
@@ -475,7 +501,7 @@ class RunRequest(Contract):
 
 class DeriveRequest(Contract):
     step_models: dict[StepName, ModelID] = Field(default_factory=dict)
-    start_from: Literal['normalization', 'elicitation'] = 'normalization'
+    start_from: Literal['normalization', 'elicitation', 'role_selection'] = 'normalization'
     output_form: Literal['needs', 'candidates'] | None = None
     scoping: Literal['use_cases', 'off'] | None = None
     expected_version: int = Field(ge=1)

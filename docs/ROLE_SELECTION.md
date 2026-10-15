@@ -12,8 +12,8 @@ The nine research stages and existing manual-panel API remain compatible.
    **evaluation reference**; these and **background** sources are excluded from snapshots.
 2. Choose **Independent agents · configured provider** and **Select roles from
    sources and CQs**. Set a maximum panel size (default 4, range 1–8).
-3. Explicitly allow the configured provider and start the saved workflow. Selection
-   proceeds straight into extraction; routine human approval is not required.
+3. Explicitly allow the configured provider and start the saved workflow. In automatic mode selection proceeds into extraction. Step-by-step mode saves the
+   panel and pauses before extraction for review.
 4. Inspect **Stakeholders and role selection** for stakeholders, basis, remit, focus
    questions, selection rationale and exact source quotations. The evidence inspector
    resolves citations against original source bytes.
@@ -107,118 +107,104 @@ receive its full remit and basis, but still have to justify each requirement sep
 Agreement among simulated roles is not stakeholder endorsement. The discussion panel
 reserves a slot for the grounding/scope critic even when many roles contributed.
 
-## Bounded selection and restart
+## Whole-corpus selection and restart (v12)
 
-The versioned policy is `rq1-stakeholder-selection-v11`:
+The policy is `rq1-stakeholder-selection-v12`. It separates discovery, registry
+construction and panel selection. Previously the retained panel was chosen again
+after every batch, so an omitted stakeholder could not return in a later decision.
+V12 retains every discovered candidate until the final whole-registry decision.
+It removes that incremental elimination, without claiming that model judgements
+or the bounded grouping procedure are semantically perfect.
 
-1. Read all snapshot evidence in deterministic source/selector order. Discovery batches
-   have at most 40,000 serialized characters. A new automatic run scans its whole
-   corpus: when the run is created, it counts the batches its snapshot needs, saves that
-   number as `max_batches` (shown on the role-selection step) and keeps it on resume.
-   Each batch costs up to four logical selector calls; of the benchmark corpora, HealthDCAT-AP
-   needs 36 batches and mobilityDCAT-AP about 60–61 depending on snapshot metadata.
-   Each run counts its exact scan size. One scan reads at most 128 batches. An
-   oversized unit or corpus is refused when the run is created, before any model call;
-   it is never silently truncated. `RQ1_ROLE_SELECTION_MAX_BATCHES` (1–128) is an
-   optional cap: a run whose corpus needs more batches is refused. Runs created before
-   whole-corpus scans keep the limit they recorded (32 if none).
-2. One logical selector uses the configured provider to discover at most the requested
-   panel size per batch (1–8). CQs accompany each batch. Only selected snapshot evidence is loaded;
-   there is no filesystem search, external retrieval or reference-set access.
-   Validate all proposals and, when needed, make the single citation correction
-   described above before accepting any candidates from that batch.
-3. After each batch, consolidate its candidates with the retained panel. The reducer
-   can choose existing IDs and group equivalent perspectives; it cannot invent new
-   evidence or rewrite their remits. Historical candidate lineage is saved internally
-   and excluded from the model's current identifier registry. Every input candidate must appear exactly once
-   in a group or an explicit omission. Repeated exact IDs within one group, or repeated
-   omissions of the same candidate, are collapsed deterministically, preserving their
-   first occurrence and the first omission reason. The batch report's
-   `panel_disposition_collapses` records the raw and normalized panel, phase, affected
-   IDs and number of removed repeats. Model-call outputs retain the original response.
-   Kept-and-omitted assignments, assignments to two groups, missing/unknown IDs and
-   invalid representatives or role counts still fail accounting. The representative's
-   description and basis are preserved unchanged; grouping lineage is retained. Invalid accounting receives at
-   most one targeted correction per batch. Both dispositions and validation reports
-   are saved. Failed or interrupted corrections cannot be retried silently on resume.
-4. Save each discovery batch before consolidation, and save each resulting panel.
-   Resume skips completed work. A failed reducer can reuse that batch's discovery.
-   Completed panels are hash-bound and stored as immutable artifacts. Incomplete
-   manifests from an older selection policy generally require a new run; completed historical
-   manifests remain readable. Five narrow failure migrations reuse saved work:
-   v6 panel-accounting failures, v7 complete repair responses explicitly reporting no
-   supporting excerpt, and v8 undeclared-task failures in the unfinished discovery
-   batch (without other non-repairable source errors), and v9 discovery stopped
-   solely by a too-long quotation with provider finish reason `stop`, before any
-   discovery result or batch report was accepted for the unfinished batch.
-   A failed v10 manifest can also resume when both saved panel accounting reports
-   contain only `duplicate_disposition` and its complete saved correction passes
-   accounting after collapsing same-kind repeats. The program reconstructs the
-   unfinished batch's registry and revalidates both raw responses against their
-   original error reports. Conflicting dispositions, mixed failures, missing responses
-   and interrupted corrections do not qualify. The raw correction and error reports
-   remain in the audit; a separate `normalized_selection`, recovery record and batch
-   collapse audit are added only when the user resumes. That saved correction and
-   completed batches need no additional model call. A migration note identifies v11.
-   That v9 batch requires a new discovery under the excerpt-ID contract: the two
-   invalid responses cannot be reused because they were not stored as accepted
-   output. Other v9 failures require a new run. Migration notes are recorded;
-   completed rounds and saved discoveries are retained. Resume history keeps the
-   original failed policy/manifest before migration, and exhausted correction
-   budgets still apply. This changes the experimental condition and must be reported.
-   The correction attempt is recorded before calling the
-   provider, so an interrupted or unsuccessful correction cannot be silently repeated
-   by Resume. The v10 migration above reuses a complete saved output rather than
-   repeating correction inference. Other exhausted corrections require a new run.
-5. If a successful full scan yields no candidates, use explicitly **proposed** generic
-   perspectives with a recorded fallback reason. Provider/validation failures never
-   trigger that fallback and never proceed with a partial panel.
+1. **Discovery reads the complete frozen corpus.** The prompt, excerpt-ID contract,
+   candidate limit, source checks and single citation correction are unchanged from
+   v11. Each batch contributes candidates and a saved validation audit; it does not
+   select a panel. Source batches have at most 40,000 serialized characters. The
+   run counts its required batches at creation and keeps that size on resume, with
+   a ceiling of 128. `RQ1_ROLE_SELECTION_MAX_BATCHES` remains an optional smaller
+   cap. An oversized corpus or unit is refused rather than scanned partially.
+   Candidate IDs derive from their complete content, without a batch-order suffix.
+2. **A lossless registry groups equivalent perspectives.** Bounded per-source calls
+   are followed by cross-source grouping. Every candidate must occur in exactly one
+   entry; omissions are forbidden. Registry contracts permit up to 1,024 groups and
+   1,024 members per group, independently of the eight-role panel limit. Exact
+   repeated IDs within the same group are collapsed and audited, preserving their
+   first occurrence. Unknown or missing IDs, conflicting groups and invalid
+   representatives remain errors, with one saved accounting correction per call.
+   The representative's label, purpose, focus questions and basis remain unchanged.
+   Any entry containing a documented member must choose a documented representative.
+   All member citations remain in the registry. Source names and batch counts are
+   computed from those citations and batch records, never supplied by the model.
+3. **One final panel decision sees every registry entry and the actual declared
+   tasks.** Every entry receives a relevance verdict and reason. Discovery task
+   links are hints. The prompt prioritizes distinct people publishing, maintaining,
+   finding or using the profile's data; with tasks, they must carry out or be served
+   by those tasks. More documenting sources break ties; a single source is not a
+   reason to exclude an otherwise relevant perspective. Program checks enforce
+   documented/relevant entries first, inferred/relevant entries next, then proposed/
+   relevant entries, filling available places up to `max_roles`. One accounting
+   correction is permitted. Selected roles record `filled_via` as `documented`,
+   `fallback_inferred` or `fallback_proposed`. Their page shows basis, source names
+   and this fill reason. All unselected entries and verdicts remain saved.
+4. **Defaults apply only to a complete scan with no candidates.** These remain
+   proposed and uncited, with `filled_via: default`. A failed provider, invalid
+   accounting, or a nonempty registry judged entirely irrelevant does not invoke
+   defaults: selection stops for review.
+5. **Resume preserves completed work and correction budgets.** Discovery batches,
+   registry decisions and the final panel decision are checkpointed. Corrections
+   are claimed before calling the provider, so exhausted or interrupted corrections
+   are not repeated by Resume. Completed manifests are sealed immutable artifacts.
+   Completed older panels remain readable and usable. Unfinished pre-v12 scans are
+   refused; the older narrow v6–v10 failure migrations are not used to enter v12.
+   Create a new run, or use a compatible completed scan as described below.
 
-This is incremental consolidation: previously omitted candidates remain in the audit
-but are not all reconsidered in a final global optimization. Selection may depend on
-source order. The manifest records coverage, candidate lineage, provider identity per
-batch/round and omissions. Per-call outputs, hashes and timings are in the run audit.
-There are at most four logical selector calls per batch in one uninterrupted pass
-(discovery, optional citation correction, consolidation, optional panel accounting
-correction). The manifest saves `max_calls_per_batch` and the UI shows the resulting
-scan bound; historical manifests without that field retain their old three-call
-estimate. An explicit retry of failed discovery/consolidation can add calls; citation
-and panel accounting corrections each remain limited to one attempt per batch across
-resumes. Provider-level retries may
-also add HTTP requests. Discovery reserves at most 8,000 output tokens; correction
-and consolidation/panel correction reserve at most 5,000 each per generation. V5 allows one
-additional schema correction generation per logical OpenAI-compatible call, so
-these reservations can double when correction is used. Citation correction remains
-a separate semantic operation with its existing across-resume bound. User payloads
-over 60,000 characters are rejected. These are character/output bounds, not a claim
-that every provider context limit is supported. The provider adds its schema prompt.
+Registry prompts use stable ID ordering; candidate and batch report order does not
+change the registry inputs or final panel prompt. Each merge payload is bounded to
+18,000 characters, leaving room for its answer and correction within the 60,000
+character request limit. Cross-source rounds stop when one bounded block remains
+or a round makes no reduction. Equivalent perspectives that never share a bounded
+block can remain separate; no forced merge or silent truncation makes them fit.
+The final panel must receive the whole registry. If it or its correction exceeds
+the request budget, selection fails explicitly; entries are never dropped to fit.
+These are character bounds, not guarantees about a provider's token context window.
 
-V10 retains the V4 bound on each discovery response to the requested panel size (default four,
-maximum eight), with concise role descriptions, up to two stakeholder names/two
-focus questions, and at most two selected source excerpts. The stored citation schema
-still allows up to 400 characters to preserve necessary context; the application
-materializes that text from its catalogue. Exact-source matching remains mandatory. The schema
-enforces the remaining limits. All source batches are still scanned, but the smaller
-candidate pool changes discovery breadth compared with the previous eight-candidate
-policy; it is a new experimental condition, not an equivalent replay. Human role
-overrides and completed historical manifests retain their original contracts.
+Discovery reserves 8,000 output tokens, citation correction 5,000, and registry/
+panel calls 8,000 each. Each logical call may use the existing one structural schema
+repair generation. A provider `length` finish reason fails even if partial output
+looks like JSON. Provider retries can add HTTP requests. Citation and accounting
+correction budgets survive restarts. No upper-bound call estimate is presented as
+measured runtime or token usage.
 
-OpenAI-compatible calls retain provider finish reason, response character count,
-and reported token counts, including reasoning/cached counts when supplied. Counts
-the provider omits remain unknown. A `length` finish reason fails explicitly even
-if the partial text happens to be valid JSON; it is never accepted as complete
-discovery, and it does not trigger an automatic model retry or citation repair.
-Other malformed responses receive one bounded structural correction using the
-same provider, original context and unchanged schema. Excess stakeholder names
-must be grouped into appropriate perspectives by the model; the application does
-not silently discard them or widen the limits. An invalid corrected response still
-fails before extraction. This recovery policy changes the experimental condition:
-incomplete older manifests need a fresh run; historical artifacts are preserved.
-Each generation retains its validation errors and finish reason, with a fingerprint
-of the response. Invalid response content is not retained in transport metadata.
-Audit records exclude response reasoning text, API keys, and request headers.
-Evaluation exports distinguish recorded partial usage from fully measured usage;
-they do not infer monetary cost from token reservations.
+Checkpoint keys and resume comparisons use only provider, base URL, model and
+reasoning effort. Timeout, concurrency, retries and backoff can change without
+invalidating semantic work. Full provider descriptions remain in call audits.
+Changing a model still changes checkpoint keys and refuses mixing generations in
+an unfinished selection/extraction. See [per-step models](STEP_MODELS.md).
+
+## A separate panel trial from saved discovery
+
+On a completed automatic run's **Stakeholder roles** page, choose **Choose a new
+panel from this saved discovery scan**. This opens the same downstream settings as
+the step-4 trial form, plus **Progression**. **Step by step** is the default here:
+the new registry and panel are saved, then the trial pauses before fresh extraction.
+Automatic mode continues through the machine stages. The source run is unchanged.
+No extraction, assessment, discussion or human decisions are copied into this trial.
+
+Only complete automatic v11/v12 scans qualify. The source snapshot, evidence
+coverage, discovery prompt and exact batch payload hashes, candidate/output limits,
+contract, saved generated candidates and citation validation must match. New calls
+record a schema hash. V11 predates that field: its known excerpt-ID contract is
+checked using its policy, citation policy, exact prompt/payload hashes, contract
+name, limits and revalidation of saved generated output against the current schema.
+Other missing schema hashes are refused. Derived chains preserve the original
+contract policy in their lineage.
+
+The new manifest copies candidates and validation/repair records and pins
+`discovery_reused_from` with the source run ID and manifest hash. Original discovery
+call records are stored separately from the new run's model-call log, so new cost
+counts include only new work. Their old provider does not bind registry or panel
+generations to that model. Newly generated decisions are bound to the new trial's
+configured selection model. Extraction starts afresh under its configured step model.
 
 ## API
 
@@ -245,11 +231,29 @@ The original manifest must be complete and the snapshot identical. The server ve
 citations and records its trusted local reviewer identity; callers cannot supply a
 reviewer name. Use the generated v2 JSON schema for the full contract.
 
+To reuse completed discovery, send `POST /api/rq1/v2/runs/<source-run-id>/derive`:
+
+```json
+{
+  "expected_version": 123,
+  "start_from": "role_selection",
+  "name": "New panel from saved discovery",
+  "execution_mode": "stepwise",
+  "allow_live_provider": true,
+  "rationale": "Review the whole-corpus panel before fresh extraction."
+}
+```
+
+`step_models` may be supplied, using the existing model-list validation. A live
+provider is contacted only after explicit opt-in. Creating the trial does not
+change its source, including when compatibility checks refuse creation.
+
 ## Experimental interpretation and validation
 
 Role selection belongs to the full workflow's cost. Evaluation exports separately report
 selector call count, failures, summed latency, output reservations, coverage and role
-basis counts. Actual provider tokens/cost remain unavailable in the existing client.
+basis counts. Reported provider token usage is retained when supplied; missing counts and monetary
+cost remain unknown.
 No requirement recovery, labour saving or human-review effectiveness is inferred.
 
 The source label is a boundary, not a document classifier. A target answer uploaded as
@@ -262,7 +266,8 @@ exclusion, bad citations and reducer outputs, context limits, restart without re
 manifest integrity, immutable override lineage and critic preservation. They also cover
 absent/repeated quotations, invalid offsets, targeted correction, retained originals,
 unchanged valid candidates, exhausted correction budgets and policy compatibility.
-Browser checks exercise the mock path and panel override. These offline checks do not
+The v12 change was tested offline; no live provider run or new browser execution was made.
+These checks do not
 establish live provider quality or role-selection stability.
 
 ## Preparing sources without reading every page
@@ -284,3 +289,22 @@ that the inferred perspective is semantically correct. A brief summary is a revi
 aid, not a substitute for the original source evidence. Scans without usable text
 need OCR before ingestion; the workflow reports that failure rather than inventing
 missing evidence.
+
+## Scripted call-count comparison
+
+The offline 48-batch regression uses 13 synthetic sources, 48 candidates, no
+citation/accounting/schema corrections and a scripted merger that combines each
+source's equivalent candidates and then combines the source entries:
+
+| Logical call | Previous incremental flow | v12 whole-registry flow |
+| --- | ---: | ---: |
+| Discovery | 48 | 48 |
+| Per-batch panel selection | 48 | 0 |
+| Per-source registry merges | 0 | 13 |
+| Cross-source registry merge | 0 | 1 |
+| Final whole-registry panel | 0 | 1 |
+| Total | 96 | 63 |
+
+This counts logical calls under the stated fixture, not live performance, quality,
+Mobility results or savings in human effort. Real registry sizes, corrections,
+provider retries and model output lengths change the counts.

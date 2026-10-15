@@ -61,6 +61,22 @@ class SelectorClient:
         elif output_model.__name__ == 'RoleCitationCorrections':
             response = {'corrections': [{'candidate_index': item['candidate_index'],
                 'source_span_ids': [], 'unresolved_reason': 'No valid quotation supplied by test client.'} for item in data['invalid_candidates']]}
+        elif output_model.__name__ == 'RoleRegistry':
+            ids = [c['candidate_id'] for c in data['candidates']]
+            representative = next((c['candidate_id'] for c in data['candidates'] if c['basis'] == 'documented'), ids[0])
+            response = {'groups': [{'representative_id': representative, 'member_ids': ids,
+                                   'rationale': 'Equivalent scripted operational interests.'}]}
+        elif output_model.__name__ == 'StakeholderPanel':
+            if self.fail_reducer:
+                raise RuntimeError('Interrupted selection')
+            entries = data['entries']
+            ids = sorted(entries, key=lambda c: (('documented', 'inferred', 'proposed').index(c['basis']), c['entry_id']))
+            response = {'verdicts': [{'entry_id': c['entry_id'], 'relevant': True,
+                                     'reason': 'Scripted operational relevance.'} for c in entries],
+                        'kept_ids': [c['entry_id'] for c in ids[:data['max_roles']]]}
+            if self.duplicate:
+                response['verdicts'].append({'entry_id': entries[0]['entry_id'], 'relevant': False,
+                                             'reason': 'Conflicting scripted verdict.'})
         elif output_model.__name__ == 'RolePanel':
             if self.fail_reducer:
                 raise RuntimeError('Interrupted selection')
@@ -114,7 +130,7 @@ def test_full_auto_run_uses_frozen_roles_in_extraction_discussion_and_exports(co
     api = TestClient(app)
     assert api.get(f'/api/rq1/v2/runs/{run["run_id"]}/export').json()['run']['role_manifest'] == manifest
     metrics = api.get(f'/api/rq1/v2/runs/{run["run_id"]}/evaluation').json()
-    assert metrics['role_selection']['model_calls'] == 2
+    assert metrics['role_selection']['model_calls'] == 4
     assert metrics['role_selection']['basis_counts'] == {'documented': 1}
     assert Store(str(store.path)).get('role_manifest', manifest['manifest_hash']) == manifest
 
@@ -156,44 +172,34 @@ def test_interrupted_reducer_reuses_saved_discovery_and_completed_manifest(corpu
 def test_panel_lineage_ids_stay_internal_and_accounting_gets_one_saved_correction(corpus):
     store, snapshot, _ = corpus
     run = auto_run(corpus)
-    old_ids = ['role-candidate-previous-a', 'role-candidate-previous-b']
-    prior = selector.as_selected(selector.proposed_defaults()[0], candidate_ids=old_ids,
-                                 reason='Existing representative with prior candidate lineage.')
-    run['role_manifest']['selected_roles'] = [prior]
-
+    old_id = 'role-candidate-previous-a'
+    run['role_manifest']['selected_roles'] = [selector.as_selected(
+        selector.proposed_defaults()[0], candidate_ids=[old_id])]
     class LineagePanelClient(SelectorClient):
-        def __init__(self):
-            super().__init__()
-            self.panel_calls = 0
-
-        def generate_structured(self, *, system, user, output_model, max_tokens=None, schema_repair_attempts=0):
-            data = json.loads(user)
-            if output_model.__name__ == 'RolePanel':
-                self.calls.append((output_model.__name__, data))
-                self.panel_calls += 1
-                ids = [candidate['candidate_id'] for candidate in data['candidates']]
-                assert all('candidate_ids' not in candidate and 'lineage_candidate_ids' not in candidate
-                           for candidate in data['candidates'])
-                if self.panel_calls == 1:
-                    # Reproduce the observed model error: it returns historical IDs instead
-                    # of current registry IDs. The correction receives a bounded audit.
-                    return output_model.model_validate({'groups': [{'representative_id': ids[0],
-                        'member_ids': [old_ids[0]], 'rationale': 'Invalid historical ID.'}], 'omitted': []})
-                assert data['validation_errors'][0]['code'] in {'unknown_candidate_ids', 'missing_candidate_ids'}
-                return output_model.model_validate({'groups': [{'representative_id': ids[0],
-                    'member_ids': ids, 'rationale': 'Corrected disposition of current IDs.'}], 'omitted': []})
-            return super().generate_structured(system=system, user=user, output_model=output_model,
-                                               max_tokens=max_tokens, schema_repair_attempts=schema_repair_attempts)
-
+        panel_calls = 0
+        def generate_structured(self, **kwargs):
+            if kwargs['output_model'].__name__ != 'StakeholderPanel':
+                return super().generate_structured(**kwargs)
+            data = json.loads(kwargs['user'])
+            self.calls.append(('StakeholderPanel', data)); self.panel_calls += 1
+            ids = [entry['entry_id'] for entry in data['entries']]
+            assert old_id not in ids
+            if self.panel_calls == 1:
+                return kwargs['output_model'].model_validate({'verdicts': [
+                    {'entry_id': old_id, 'relevant': True, 'reason': 'Invalid historical ID.'}],
+                    'kept_ids': [old_id]})
+            assert data['validation_errors'][0]['code'] == 'verdict_accounting'
+            return kwargs['output_model'].model_validate({'verdicts': [
+                {'entry_id': i, 'relevant': True, 'reason': 'Relevant publication perspective.'} for i in ids],
+                'kept_ids': ids[:data['max_roles']]})
     client = LineagePanelClient()
     manifest = selector.select_roles(store, run, TrackedClient(client, store, run['run_id']))
     assert manifest['status'] == 'completed'
     assert set(manifest['processed_evidence_ids']) == set(snapshot['evidence_ids'])
     assert client.panel_calls == 2
-    assert manifest['panel_accounting_repairs'][0]['status'] == 'valid'
-    assert manifest['panel_accounting_repairs'][0]['validation_report'][0]['code'] in {
-        'unknown_candidate_ids', 'missing_candidate_ids'}
-    assert set(old_ids).issubset(manifest['selected_roles'][0]['candidate_ids'])
+    assert manifest['panel_calls'][0]['correction']['status'] == 'valid'
+    assert manifest['panel_calls'][0]['validation_errors'][0]['code'] == 'verdict_accounting'
+    assert all(old_id not in role['candidate_ids'] for role in manifest['selected_roles'])
 
 
 def test_all_batches_scanned_with_bounded_panel_and_lineage(corpus, monkeypatch):
@@ -205,7 +211,8 @@ def test_all_batches_scanned_with_bounded_panel_and_lineage(corpus, monkeypatch)
     client = SelectorClient()
     manifest = selector.select_roles(store, run, TrackedClient(client, store, run['run_id']))
     assert manifest['total_batches'] == 2
-    assert len(manifest['batch_reports']) == len(manifest['selection_rounds']) == 2
+    assert len(manifest['batch_reports']) == 2
+    assert len(manifest['selection_rounds']) == 1
     assert len(manifest['selected_roles']) == 1
     assert len(manifest['selected_roles'][0]['candidate_ids']) == 2
     assert set(manifest['processed_evidence_ids']) == set(snapshot['evidence_ids'])
@@ -457,7 +464,9 @@ def test_citation_repair_is_targeted_once_and_keeps_originals_and_valid_roles(co
     original = deepcopy(run['role_manifest']['validation_attempts'][0]['candidates'])
     client = RepairClient()
     manifest = selector.select_roles(store, run, TrackedClient(client, store, run['run_id']))
-    assert [name for name, _ in client.calls] == ['RoleCitationCorrections', 'RolePanel']
+    names = [name for name, _ in client.calls]
+    assert names.count('RoleCitationCorrections') == 1 and names.count('StakeholderPanel') == 1
+    assert 'RoleRegistry' in names and 'RoleCandidates' not in names
     discovery, repair = manifest['validation_attempts']
     assert discovery['candidates'] == original
     assert [item['status'] for item in discovery['validation_report']] == ['valid', 'invalid']
@@ -474,7 +483,7 @@ def test_citation_repair_is_targeted_once_and_keeps_originals_and_valid_roles(co
         assert candidate['basis'] == 'documented'
         assert candidate['evidence_links'][0]['quote_start'] == 0
     assert manifest['candidates'][0]['evidence_links'][0]['quote'] == discovery['candidates'][0]['evidence_links'][0]['quote']
-    assert len(store.get('run', run['run_id'])['model_calls']) == 2
+    assert len(store.get('run', run['run_id'])['model_calls']) == len(client.calls)
 
 
 def test_unsupported_role_is_preserved_as_uncited_proposed_and_audited(corpus):
@@ -495,7 +504,7 @@ def test_unsupported_role_is_preserved_as_uncited_proposed_and_audited(corpus):
     selector.verify_manifest(manifest)
 
 
-def test_v7_saved_unsupported_repair_resumes_without_repeating_inference(corpus):
+def test_v7_unfinished_scan_is_refused_without_repeating_inference(corpus):
     store, snapshot, _ = corpus
     run = auto_run(corpus)
     batch = selector.pack_batches(selector.selection_units(store, snapshot))[0]
@@ -513,14 +522,11 @@ def test_v7_saved_unsupported_repair_resumes_without_repeating_inference(corpus)
              'source_spans': spans, 'corrections': [{'candidate_index': 0, 'source_span_ids': [],
                  'unresolved_reason': 'No excerpt supports this role.'}]}
         ])
+    before = deepcopy(run['role_manifest'])
     client = SelectorClient()
-    manifest = selector.select_roles(store, run, client)
-    assert manifest['policy_version'] == selector.POLICY_VERSION == 'rq1-stakeholder-selection-v11'
-    assert not any(name in {'RoleCandidates', 'RoleCitationCorrections'} for name, _ in client.calls)
-    assert any(f'Resumed under {selector.POLICY_VERSION}' in note for note in manifest['migration_notes'])
-    assert manifest['status'] == 'completed'
-    assert any(candidate['basis'] == 'proposed' and not candidate['evidence_links']
-               for candidate in manifest['candidates'])
+    with pytest.raises(ValueError, match='policy has changed'):
+        selector.select_roles(store, run, client)
+    assert not client.calls and run['role_manifest'] == before
 
 
 @pytest.mark.parametrize('mode', ['invalid', 'wrong_target', 'provider_failure'])
@@ -582,7 +588,9 @@ def test_unknown_task_and_bad_quote_are_independently_disposed_and_audited(corpu
     run = legacy_repair_run(corpus, unknown_tasks=True)
     client = RepairClient(repair=repair_mode)
     manifest = selector.select_roles(store, run, TrackedClient(client, store, run['run_id']))
-    assert [name for name, _ in client.calls] == ['RoleCitationCorrections', 'RolePanel']
+    names = [name for name, _ in client.calls]
+    assert names.count('RoleCitationCorrections') == 1 and names.count('StakeholderPanel') == 1
+    assert 'RoleRegistry' in names and 'RoleCandidates' not in names
     discovery, tasks, citation = manifest['validation_attempts']
     assert discovery['candidates'][0]['task_ids'] == ['invented-CQ']
     assert discovery['validation_report'][0]['errors'][0]['code'] == 'unknown_task'
@@ -597,7 +605,7 @@ def test_unknown_task_and_bad_quote_are_independently_disposed_and_audited(corpu
     repair_input = next(data for name, data in client.calls if name == 'RoleCitationCorrections')
     assert [item['candidate_index'] for item in repair_input['invalid_candidates']] == [1]
     assert all(error['code'] != 'unknown_task' for error in repair_input['invalid_candidates'][0]['validation_errors'])
-    assert manifest['max_calls_per_batch'] == 4
+    assert manifest['max_calls_per_batch'] == 2
     selector.verify_manifest(manifest)
 
 
@@ -615,20 +623,14 @@ def failed_unknown_task_run(corpus):
     return run
 
 
-def test_v8_failed_task_discovery_is_reused_without_model_repair_or_discovery(corpus):
+def test_v8_unfinished_scan_is_refused_without_changing_saved_discovery(corpus):
     store, _, _ = corpus
     run = failed_unknown_task_run(corpus)
-    original_discovery = deepcopy(run['role_manifest']['validation_attempts'][0])
+    before = deepcopy(run)
     client = SelectorClient()
-    manifest = selector.select_roles(store, run, client)
-    assert [name for name, _ in client.calls] == ['RolePanel']
-    assert manifest['policy_version'] == selector.POLICY_VERSION
-    assert manifest['validation_attempts'][0] == original_discovery
-    assert manifest['selected_roles'][0]['basis'] == 'proposed'
-    assert manifest['selected_roles'][0]['task_ids'] == []
-    assert 'no declared task' in manifest['selected_roles'][0]['rationale']
-    assert manifest['migration_notes']
-    selector.verify_manifest(manifest)
+    with pytest.raises(ValueError, match='policy has changed'):
+        selector.select_roles(store, run, client)
+    assert not client.calls and run == before
 
 
 @pytest.mark.parametrize('extra_error', ['source_unresolved', 'unrelated_failure', 'completed_batch'])
@@ -646,7 +648,7 @@ def test_v8_resume_migration_is_narrow_and_never_bypasses_integrity(corpus, extr
         selector.ensure_selection_resumable(manifest)
 
 
-def test_resume_api_preserves_original_failed_policy_before_migration(corpus, monkeypatch):
+def test_resume_api_refuses_unfinished_old_policy_without_modifying_run(corpus, monkeypatch):
     from requirement_reuse_service.workflow import api as workflow_api
     store, _, _ = corpus
     run = failed_unknown_task_run(corpus)
@@ -659,12 +661,11 @@ def test_resume_api_preserves_original_failed_policy_before_migration(corpus, mo
     monkeypatch.setattr(workflow_api, 'execute_run', lambda *_args: None)
     response = TestClient(app).post(f'/api/rq1/v2/runs/{run["run_id"]}/resume', json={
         'expected_version': saved['version'], 'idempotency_key': 'resume-v8-offline'})
-    assert response.status_code == 202, response.text
+    assert response.status_code == 422, response.text
     resumed = store.get('run', run['run_id'])
-    assert resumed['role_manifest']['policy_version'] == selector.POLICY_VERSION
-    assert resumed['role_manifest']['status'] == 'pending'
-    assert resumed['attempt_history'][-1]['role_manifest'] == original_manifest
-    assert resumed['attempt_history'][-1]['status'] == 'failed'
+    assert resumed['role_manifest'] == original_manifest
+    assert resumed['version'] == saved['version']
+    assert not resumed['attempt_history']
 
 
 def test_removed_task_link_never_masks_an_unresolved_source(corpus, monkeypatch):
@@ -702,14 +703,15 @@ def test_saved_valid_panel_correction_is_reused_without_a_second_call(corpus):
     run = auto_run(corpus)
     execute_run(store, run['run_id'], SelectorClient(fail_reducer=True))
     partial = store.get('run', run['run_id'])
-    candidate_id = partial['role_manifest']['batch_reports'][0]['candidate_ids'][0]
-    partial['role_manifest']['panel_accounting_repairs'] = [{
-        'batch_index': 0, 'status': 'valid', 'corrected_selection': {
-            'groups': [{'representative_id': candidate_id, 'member_ids': [candidate_id], 'rationale': 'Saved disposition.'}],
-            'omitted': []}}]
+    manifest = partial['role_manifest']
+    ids = [entry['entry_id'] for entry in manifest['registry']]
+    manifest['panel_calls'][0].update(original={'verdicts': [{'entry_id': 'unknown-entry', 'relevant': True, 'reason': 'Invalid entry ID.'}], 'kept_ids': []},
+        correction={'status': 'valid', 'result': {'verdicts': [
+            {'entry_id': i, 'relevant': True, 'reason': 'Saved relevant disposition.'} for i in ids],
+            'kept_ids': ids[:manifest['max_roles']]}})
     client = SelectorClient()
-    manifest = selector.select_roles(store, partial, client)
-    assert manifest['status'] == 'completed' and not client.calls
+    completed = selector.select_roles(store, partial, client)
+    assert completed['status'] == 'completed' and not client.calls
 
 
 @pytest.mark.parametrize('status', ['started', 'provider_failed', 'invalid'])
@@ -862,7 +864,7 @@ QUOTE_SCHEMA_FAILURE = ("LLM output failed schema validation for RoleCandidates:
     "['candidates', 0, 'evidence_links', 0, 'quote']: string_too_long (provider finish_reason=stop).")
 
 
-def test_v9_quote_schema_failure_preserves_completed_batches_and_rediscoveries_only_unfinished(corpus, monkeypatch):
+def test_v9_unfinished_scan_is_refused_and_preserves_completed_batches(corpus, monkeypatch):
     store, snapshot, _ = corpus
     two_batch_corpus(corpus, monkeypatch)
     run = auto_run(corpus)
@@ -876,16 +878,11 @@ def test_v9_quote_schema_failure_preserves_completed_batches_and_rediscoveries_o
     failed = store.get('run', run['run_id'])
     failed['role_manifest']['policy_version'] = 'rq1-stakeholder-selection-v9'
     before = deepcopy(failed['role_manifest'])
-    assert len(before['selection_rounds']) == len(before['batch_reports']) == 1
+    assert not before['selection_rounds'] and len(before['batch_reports']) == 1
     client = SelectorClient()
-    manifest = selector.select_roles(store, failed, client)
-    assert manifest['policy_version'] == selector.POLICY_VERSION
-    assert manifest['selection_rounds'][0] == before['selection_rounds'][0]
-    assert manifest['batch_reports'][0] == before['batch_reports'][0]
-    assert manifest['validation_attempts'][0] == before['validation_attempts'][0]
-    assert set(manifest['processed_evidence_ids']) == set(snapshot['evidence_ids'])
-    assert [name for name, _ in client.calls] == ['RoleCandidates', 'RolePanel']
-    assert 'needs a new discovery call' in manifest['migration_notes'][-1]
+    with pytest.raises(ValueError, match='policy has changed'):
+        selector.select_roles(store, failed, client)
+    assert not client.calls and failed['role_manifest'] == before
 
 
 @pytest.mark.parametrize('failure', ['mixed_schema', 'unknown_finish', 'saved_discovery', 'saved_report', 'provider'])

@@ -20,7 +20,7 @@ no model fallback. Native Anthropic model catalogues are paginated.
 
 | Setting | Work performed |
 | --- | --- |
-| `role_selection` | Stakeholder discovery, citation correction and panel selection |
+| `role_selection` | Stakeholder discovery, citation correction, registry merging and final panel selection |
 | `extraction` | Independent source-span extraction by every selected role |
 | `proposal_support` | Check whether excerpts support each extracted proposal |
 | `grouping` | Group proposals describing the same underlying need |
@@ -49,8 +49,11 @@ the catalogue again so an old browser list cannot authorize an unavailable ID.
 Saved runs show their frozen choices in **Saved models per step**.
 
 The reprocessing form on step 4 has the same advanced control. The derive API
-accepts `step_models` for either `start_from: "normalization"` (reuse extraction)
-or `start_from: "elicitation"` (reuse the sealed panel and extract afresh).
+accepts `step_models` for `start_from: "normalization"` (reuse extraction),
+`start_from: "elicitation"` (reuse the sealed panel and extract afresh), or
+`start_from: "role_selection"` (reuse compatible completed discovery, rebuild the
+registry/panel, then extract afresh). The completed automatic panel page offers
+that last option, including a step-by-step pause before extraction.
 Omitted settings resolve to the provider's current configured model, rather than
 inheriting earlier experimental overrides. The source run is unchanged.
 
@@ -69,7 +72,11 @@ the same model reuses its checkpoint; another model gets another key. Candidate
 assessment reuse checks the assessor model. Discussion reuse keys include the
 discussion model. Extraction context hashes and role-selection batch hashes
 include their model configuration; partial extraction or selection refuses a
-changed client configuration instead of mixing answers.
+changed generation configuration instead of mixing answers. Generation identity
+contains only provider, base URL, model and reasoning effort: changing concurrency,
+timeout, retry count or backoff does not change keys or block Resume. Full provider
+descriptions are still audited. Copied discovery calls in a panel trial do not bind
+its new registry/panel generations to the original model.
 
 Each generation audit records `step`, `model`, `provider.model`, output contract,
 input hashes, response-token cap, timing, status and available token usage.

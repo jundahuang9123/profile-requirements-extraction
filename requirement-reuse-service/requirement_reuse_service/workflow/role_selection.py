@@ -10,7 +10,7 @@ from typing import Annotated, Literal
 from pydantic import Field, create_model, model_validator
 
 from ..agents.roles import load_role_configuration
-from ..llm.step_models import for_step
+from ..llm.step_models import for_step, model_identity, model_settings
 from ..models import AgentRoleConfig
 from .evidence import resolve_evidence
 from .citations import elicitation_batch, source_spans_for
@@ -18,10 +18,10 @@ from .models import (Contract, EvidenceUnit, RoleCandidates, RoleCitation, RoleC
                      RoleProposal, RunRequest, SelectedRole)
 from .storage import ConflictError, Store, canonical, digest, now, uid
 
-POLICY_VERSION = 'rq1-stakeholder-selection-v11'
+POLICY_VERSION = 'rq1-stakeholder-selection-v12'
 DISCOVERY_OUTPUT_TOKENS = 8000
 BATCH_CHARS = 40000
-MAX_CALLS_PER_BATCH = 4  # discovery, citation correction, panel, panel accounting correction
+MAX_CALLS_PER_BATCH = 2  # discovery and its single citation correction
 # Highest number of source batches one selection scan may read.
 MAX_BATCHES_CEILING = 128
 # Limit of runs created before a scan covered the whole corpus and that recorded none.
@@ -341,6 +341,15 @@ def _recoverable_quote_contract_failure(manifest: dict) -> bool:
 
 
 def ensure_selection_resumable(manifest: dict):
+    """Completed history is readable; unfinished pre-v12 scans never mix contracts."""
+    if manifest.get('status') in {'completed', 'not_applicable'}:
+        return
+    if manifest.get('mode') == 'automatic' and manifest.get('policy_version') != POLICY_VERSION:
+        raise ValueError('Role-selection policy has changed; create a new run or derive a new panel from a completed scan.')
+    _ensure_legacy_selection_resumable(manifest)
+
+
+def _ensure_legacy_selection_resumable(manifest: dict):
     """Keep history readable; allow only audited migrations with existing repair bounds."""
     if manifest['status'] in {'completed', 'not_applicable'}:
         return
@@ -658,6 +667,102 @@ def verify_manifest(manifest: dict):
         raise ValueError('Frozen role manifest hash mismatch.')
 
 
+DISCOVERY_COPY_FIELDS = ('candidates', 'batch_reports', 'validation_attempts',
+                         'unresolved_role_candidates', 'processed_evidence_ids', 'discovery_call_records')
+
+
+def discovery_hash(manifest: dict):
+    return digest({key: manifest.get(key, []) for key in DISCOVERY_COPY_FIELDS})
+
+
+def reuse_discovery(store: Store, source: dict, settings: RunRequest, actor: str):
+    """Copy a complete, compatible scan; never its panel, registry or extraction."""
+    parent = source.get('role_manifest') or {}
+    if (parent.get('status') != 'completed' or parent.get('mode') != 'automatic'
+            or parent.get('policy_version') not in {'rq1-stakeholder-selection-v11', POLICY_VERSION}):
+        raise ValueError('Panel reselection needs a completed automatic v11/v12 discovery scan.')
+    verify_manifest(parent)
+    snapshot = store.get('snapshot', settings.snapshot_id)
+    if (settings.snapshot_id != source['snapshot_id'] or parent.get('snapshot_id') != settings.snapshot_id
+            or parent.get('snapshot_hash') != snapshot['manifest_hash']
+            or source['evidence_ids'] != snapshot['evidence_ids']
+            or set(parent.get('processed_evidence_ids', [])) != set(snapshot['evidence_ids'])):
+        raise ValueError('Saved discovery belongs to another or incomplete source snapshot.')
+    if (parent.get('discovery_candidate_limit') != settings.max_roles
+            or parent.get('discovery_max_output_tokens') != DISCOVERY_OUTPUT_TOKENS):
+        raise ValueError('Saved discovery candidate limit or output contract differs from this scan.')
+    batches = pack_batches(selection_units(store, snapshot))
+    reports = parent.get('batch_reports', [])
+    if len(reports) != len(batches) or parent.get('total_batches') != len(batches):
+        raise ValueError('Saved discovery batching changed or is incomplete.')
+    # A derived v12 scan carries the original calls separately; new registry and
+    # panel calls never retroactively become discovery calls.
+    calls = parent.get('discovery_call_records', source.get('model_calls', []))
+    copied_calls = []
+    candidates = {c['candidate_id']: c for c in parent['candidates']}
+    if len(candidates) != len(parent['candidates']):
+        raise ValueError('Saved discovery has repeated candidate IDs.')
+    accounted = set()
+    for index, batch in enumerate(batches):
+        report = reports[index]
+        evidence_ids = [u['evidence_id'] for u in batch]
+        if report.get('batch_index') != index or report.get('evidence_ids') != evidence_ids:
+            raise ValueError('Saved discovery batch/source addresses changed.')
+        inputs, catalogue = elicitation_batch(batch)
+        payload = {'user_tasks': snapshot['user_tasks'], 'evidence_units': inputs,
+                   'max_candidates': settings.max_roles}
+        contract = span_discovery_contract(settings.max_roles, catalogue)
+        attempt = next((a for a in parent.get('validation_attempts', [])
+                        if a.get('batch_index') == index and a.get('phase') == 'discovery'), None)
+        if not attempt or attempt.get('citation_policy') != 'source-excerpt-ids-v1':
+            raise ValueError('Saved discovery uses another citation/output contract.')
+        matching = [c for c in calls if c.get('system_hash') == digest(IDENTIFY_PROMPT)
+                    and c.get('context_hash') == digest(canonical(payload))
+                    and c.get('output_contract') == contract.__name__ and c.get('status') == 'completed'
+                    and c.get('max_output_tokens') == DISCOVERY_OUTPUT_TOKENS
+                    and c.get('schema_repair_attempts') == 1
+                    and (c.get('output') or {}).get('candidates') == attempt.get('generated_candidates')]
+        if not matching:
+            raise ValueError('Saved discovery prompt, contract, candidate limit or call record is incompatible.')
+        record = matching[-1]
+        if record.get('output_contract_hash') is not None:
+            if record['output_contract_hash'] != digest(contract.model_json_schema()):
+                raise ValueError('Saved discovery output contract hash changed.')
+        elif parent.get('discovery_reused_from', {}).get('original_policy', parent['policy_version']) != 'rq1-stakeholder-selection-v11':
+            raise ValueError('Saved discovery output contract hash is missing.')
+        # v11 predates schema hashes. Its known source-excerpt contract is checked
+        # by policy, citation policy, exact prompt/payload hashes, name, limits and
+        # revalidation of the saved generated output, without making a model call.
+        contract.model_validate(record['output'])
+        if report.get('candidate_ids') is None or len(report['candidate_ids']) != len(set(report['candidate_ids'])):
+            raise ValueError('Saved discovery batch candidate accounting is invalid.')
+        if set(report['candidate_ids']) - set(candidates):
+            raise ValueError('Saved discovery batch names an unknown candidate.')
+        proposals = [RoleProposal.model_validate({k: candidates[i][k] for k in RoleProposal.model_fields})
+                     for i in report['candidate_ids']]
+        _, validation = validate_candidates(store, proposals, evidence_ids, snapshot['user_tasks'], {})
+        if any(row['errors'] for row in validation):
+            raise ValueError('Saved discovery candidate citations/tasks failed validation.')
+        accounted.update(report['candidate_ids'])
+        copied_calls.append(deepcopy(record))
+    if accounted != set(candidates):
+        raise ValueError('Saved scan does not account for every discovery candidate.')
+    copied_calls.extend(deepcopy(c) for c in calls
+                        if c.get('system_hash') == digest(REPAIR_PROMPT)
+                        and c.get('output_contract') == 'RoleCitationCorrections')
+    manifest = initial_manifest(store, settings, actor)
+    for key in DISCOVERY_COPY_FIELDS:
+        if key != 'discovery_call_records':
+            manifest[key] = deepcopy(parent.get(key, []))
+    manifest['discovery_call_records'] = copied_calls
+    manifest['discovery_hash'] = discovery_hash(manifest)
+    manifest['discovery_reused_from'] = {'run_id': source['run_id'], 'manifest_hash': parent['manifest_hash'],
+        'snapshot_id': settings.snapshot_id, 'discovery_prompt_hash': digest(IDENTIFY_PROMPT),
+        'output_contract': 'RoleCandidates', 'candidate_limit': settings.max_roles,
+        'original_policy': parent.get('discovery_reused_from', {}).get('original_policy', parent['policy_version'])}
+    return manifest
+
+
 def panel_roles(run: dict) -> list[AgentRoleConfig]:
     manifest = run.get('role_manifest')
     if not manifest or manifest['status'] not in {'completed', 'not_applicable'}:
@@ -703,9 +808,15 @@ def select_roles(store: Store, run: dict, client) -> dict:
         # A saved, already valid correction can finish deterministically without
         # a provider. Refuse a configuration change only before a new generation.
         if run.get('step_models'):
-            prior = [r.get('provider') for r in manifest.get('batch_reports', [])]
-            if any(description != client.describe() for description in prior):
+            prior = ([] if manifest.get('discovery_reused_from') else
+                     [r.get('provider') for r in manifest.get('batch_reports', [])])
+            if manifest.get('generation_model') is not None:
+                prior.append(manifest['generation_model'])
+            if any(model_settings(description) != model_identity(client) for description in prior):
                 raise ValueError('Role-selection model/configuration changed; create a new run instead of mixing batches.')
+            if 'generation_model' not in manifest:
+                manifest['generation_model'] = model_identity(client)
+                save('role_selection_model_bound')
         return client.generate_structured(system=system, user=prompt, output_model=output_model, max_tokens=max_tokens,
                                           schema_repair_attempts=1)
 
@@ -839,106 +950,32 @@ def select_roles(store: Store, run: dict, client) -> dict:
     manifest.update(status='running', total_batches=len(batches), execution='offline_demo' if run['strategy'] == 'mock' else 'configured_provider')
     save('role_selection_started')
     for index, batch in enumerate(batches):
-        if len(manifest['selection_rounds']) > index:
-            continue  # Both discovery and consolidation are checkpointed.
-        if len(manifest['batch_reports']) <= index:
-            proposals = discover(index, batch)
-            candidate_ids = []
-            for proposal in proposals:
-                candidate_id = uid('role-candidate', index, proposal.model_dump(mode='json'))
-                if candidate_id in candidate_ids:
-                    continue
-                candidate_ids.append(candidate_id)
+        if len(manifest['batch_reports']) > index:
+            continue  # Discovery is independent of the eventual panel.
+        proposals = discover(index, batch)
+        candidate_ids = []
+        known = {c['candidate_id'] for c in manifest['candidates']}
+        for proposal in proposals:
+            candidate_id = uid('role-candidate', proposal.model_dump(mode='json'))
+            if candidate_id in candidate_ids:
+                continue
+            candidate_ids.append(candidate_id)
+            if candidate_id not in known:
                 manifest['candidates'].append({'candidate_id': candidate_id, 'batch_index': index,
                                               **proposal.model_dump(mode='json')})
-            manifest['batch_reports'].append({'batch_index': index, 'evidence_ids': [u['evidence_id'] for u in batch],
-                'context_hash': digest({'tasks': tasks, 'units': batch,
-                    'model': client.describe() if client else 'offline-demo'}), 'candidate_ids': candidate_ids,
-                'provider': {'provider': 'offline-demo'} if run['strategy'] == 'mock' else client.describe()})
-            save('role_candidates_recorded')
-        report = manifest['batch_reports'][index]
-        pool = _panel_pool(manifest, report)
-        if pool:
-            if run['strategy'] == 'mock':
-                selection = RolePanel(groups=[{'representative_id': c['candidate_id'], 'member_ids': [c['candidate_id']],
-                    'rationale': 'Deterministic offline demonstration ordering.'} for c in pool[:manifest['max_roles']]],
-                    omitted=[{'candidate_id': c['candidate_id'], 'reason': 'Offline demonstration panel limit.'}
-                             for c in pool[manifest['max_roles']:]])
-            else:
-                # Keep lineage in saved state but remove it from the model's identifier
-                # registry so historical IDs cannot be mistaken for current candidates.
-                panel_candidates = [{k: v for k, v in c.items()
-                                     if k not in {'candidate_ids', 'lineage_candidate_ids'}} for c in pool]
-                panel_payload = {'max_roles': manifest['max_roles'], 'user_tasks': tasks,
-                                 'candidates': panel_candidates}
-                saved_correction = next((item for item in manifest.get('panel_accounting_repairs', [])
-                                         if item['batch_index'] == index and item['status'] == 'valid'), None)
-                raw_selection = (RolePanel.model_validate(saved_correction.get('normalized_selection',
-                                                                           saved_correction['corrected_selection']))
-                                 if saved_correction else call(CONSOLIDATE_PROMPT, panel_payload, RolePanel))
-                selection = _audit_panel_dispositions(raw_selection, report,
-                                                      'correction' if saved_correction else 'panel')
-                panel_errors = panel_accounting_errors(selection, pool, manifest['max_roles'])
-                if panel_errors:
-                    if saved_correction:
-                        raise ValueError('Saved panel correction does not match the current registry; its single attempt is exhausted.')
-                    attempt = {'batch_index': index, 'phase': 'panel_accounting', 'status': 'started',
-                        'original_selection': raw_selection.model_dump(mode='json'), 'validation_report': panel_errors}
-                    manifest.setdefault('panel_accounting_repairs', []).append(attempt)
-                    save('role_panel_accounting_repair_started')
-                    correction_payload = {'max_roles': manifest['max_roles'], 'candidates': panel_candidates,
-                                          'invalid_panel': selection.model_dump(mode='json'),
-                                          'validation_errors': panel_errors}
-                    try:
-                        raw_corrected = call(PANEL_REPAIR_PROMPT, correction_payload, RolePanel)
-                    except Exception as exc:
-                        attempt.update(status='provider_failed', error=type(exc).__name__)
-                        save('role_panel_accounting_repair_failed')
-                        raise ValueError(f'Panel accounting correction failed; review its saved audit: {type(exc).__name__}.') from exc
-                    corrected = _audit_panel_dispositions(raw_corrected, report, 'correction')
-                    corrected_errors = panel_accounting_errors(corrected, pool, manifest['max_roles'])
-                    attempt.update(corrected_selection=raw_corrected.model_dump(mode='json'),
-                                   normalized_selection=corrected.model_dump(mode='json'))
-                    if corrected_errors:
-                        attempt.update(status='invalid', correction_validation_report=corrected_errors)
-                        save('role_panel_accounting_repair_failed')
-                        raise ValueError('Panel accounting remained invalid after its single targeted correction; '
-                                         'every candidate must be accounted for exactly once.')
-                    attempt.update(status='valid', corrected_at=now())
-                    save('role_panel_accounting_repair_validated')
-                    selection = corrected
-            by_id = {c['candidate_id']: c for c in pool}
-            if panel_accounting_errors(selection, pool, manifest['max_roles']):
-                raise ValueError('Panel selection must account for every candidate exactly once within the role limit.')
-            selected = []
-            for group in selection.groups:
-                if group.representative_id not in group.member_ids:
-                    raise ValueError('Panel representative must belong to its group.')
-                representative = by_id[group.representative_id]
-                # Preserve the representative's evidenced basis and remit, rather than upgrading
-                # an inferred/proposed perspective merely because it was merged with a documented one.
-                proposal = RoleProposal.model_validate({k: representative[k] for k in RoleProposal.model_fields})
-                lineage = list(dict.fromkeys(cid for member in group.member_ids
-                    for cid in by_id[member].get('lineage_candidate_ids', by_id[member].get('candidate_ids', [member]))))
-                selected.append(as_selected(proposal, lineage, group.rationale))
-            if len({r['role_id'] for r in selected}) != len(selected):
-                raise ValueError('Equivalent role content was selected twice; consolidate the duplicate roles.')
-            manifest['selected_roles'] = selected
-            manifest['omissions'].extend({'batch_index': index, **item.model_dump(mode='json'),
-                'candidate_ids': by_id[item.candidate_id].get('lineage_candidate_ids',
-                    by_id[item.candidate_id].get('candidate_ids', [item.candidate_id]))}
-                for item in selection.omitted)
-            round_result = selection.model_dump(mode='json')
-        else:
-            round_result = {'groups': [], 'omitted': []}
-        manifest['selection_rounds'].append({'batch_index': index,
-            'provider': {'provider': 'offline-demo'} if run['strategy'] == 'mock' else client.describe(), **round_result})
-        manifest['processed_evidence_ids'].extend(report['evidence_ids'])
-        save('role_panel_checkpointed')
-    if not manifest['selected_roles']:
-        manifest['selected_roles'] = [as_selected(role, reason='No stakeholder role was returned; explicitly proposed policy default.')
-                                      for role in proposed_defaults()[:manifest['max_roles']]]
-        manifest['fallback_reason'] = 'Completed source scan returned no roles; generic perspectives remain proposed.'
+                known.add(candidate_id)
+        manifest['batch_reports'].append({'batch_index': index, 'evidence_ids': [u['evidence_id'] for u in batch],
+            'context_hash': digest({'tasks': tasks, 'units': batch, 'model': model_identity(client)}),
+            'candidate_ids': candidate_ids,
+            'provider': {'provider': 'offline-demo'} if run['strategy'] == 'mock' else client.describe()})
+        manifest['processed_evidence_ids'].extend(u['evidence_id'] for u in batch
+                                                if u['evidence_id'] not in manifest['processed_evidence_ids'])
+        save('role_candidates_recorded')
+    from .stakeholder_registry import build_registry
+    registry = build_registry(store, manifest, tasks, call, save, model_identity(client),
+                              mock=run['strategy'] == 'mock')
+    from .stakeholder_registry import choose_panel
+    choose_panel(manifest, registry, tasks, call, save, model_identity(client), mock=run['strategy'] == 'mock')
     if set(manifest['processed_evidence_ids']) != set(snapshot['evidence_ids']):
         raise ValueError('Incomplete role-selection source coverage.')
     manifest['extraction_roles'] = [extraction_config(role, i) for i, role in enumerate(manifest['selected_roles'])]
