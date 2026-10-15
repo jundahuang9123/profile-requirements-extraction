@@ -257,6 +257,22 @@ obligation findings as triggers. This change followed a functional Mobility run
 because the unstated obligation was their only trigger, and 209 would still open
 on their other triggers.
 
+## Comparison conditions
+
+These conditions answer whether the multi-agent parts improve on simpler set-ups.
+Keep the frozen snapshot, base profile, use cases, model per step and evaluation
+protocol identical across them; only the condition changes.
+
+| Condition | How to create it in the workbench |
+|---|---|
+| Single analyst with the same evidence checks | Stakeholder panel: **Single analyst · comparison baseline**. One neutral extraction role (`single_analyst`, not in any preset) reads every passage; all later steps are unchanged. Discussion: only when a reviewer asks |
+| Independent stakeholder roles, no discussion | Stakeholder panel selected from the sources; discussion only when a reviewer asks |
+| Independent roles with selective discussion | The same panel; discussion of flagged needs automatically. A trial from the saved extraction (step 4) reuses the extraction of the previous condition |
+| Fewer roles | Stakeholder panel selected from the sources with a smaller maximum number of roles |
+
+Choose between conditions on a development case. Then freeze the pipeline and run
+Mobility once per chosen condition, as described below.
+
 ## Compatibility and test protocol
 
 Historical runs remain unchanged. `output_form: candidates` preserves the old
