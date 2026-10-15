@@ -173,6 +173,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Need assessment | `rq1-need-support-v1` | One logical assessment per kept need; complete selected excerpts, max 45,000 input characters; at most two generations for schema/cutoff recovery |
 | Row recovery | `rq1-needs-row-recovery-v2` | Valid rows saved; correction includes only failing rows; invalid/cutoff output gets durable fallbacks after exhaustion; provider failures stop and remain retryable |
 | Rank | `rq1-need-ranking-v1` | Deterministic; every kept need remains listed |
+| Discussion routing | `rq1-needs-routing-v2` | An obligation that no source states opens no case by itself; the finding stays on the need for review. Runs saved without this policy keep their original routing |
 
 A single oversized needs-processing row receives the recorded conservative
 fallback below; need assessment requires human review/splitting. Evidence is not truncated to make an assessment
@@ -241,6 +242,20 @@ machine prefixes; they do not hide other needs or measure effort saved.
 per processing step and rejected outputs separately. A logical assessment can need
 two generations. Sequential call latency is not parallel wall time; missing token
 usage/cost remains unknown.
+
+## Discussion routing
+
+With automatic discussion, a kept need opens a bounded case when its assessment
+support is uncertain, unsupported or contradicted, when it has a blocking or review
+finding, or when it conflicts with another need. Since `rq1-needs-routing-v2`, one
+finding is excluded: an obligation that no source states. It is the normal state of
+a need ("not stated by sources"), and a discussion cannot add a source statement.
+The finding stays on the need, and its routing reason reads
+`obligation_not_stated_by_sources`. A need whose obligation is stated keeps its
+obligation findings as triggers. This change followed a functional Mobility run
+(counts only, no reference rows): applied to its 417 cases, 208 would not open
+because the unstated obligation was their only trigger, and 209 would still open
+on their other triggers.
 
 ## Compatibility and test protocol
 

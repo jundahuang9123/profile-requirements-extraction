@@ -151,6 +151,12 @@ def test_real_needs_pipeline_routes_all_processing_and_discussion_calls(setup):
                 elif name == 'UseCaseCritic': raw = {'decisions': [ROWS[name](row['link_id']) for row in data['links']]}
                 else: raw = {'body': 'The need remains for human review.', 'finished': True, 'evidence_ids': []}
                 return kw['output_model'].model_validate(raw)
+            if name == 'Qualification':
+                # An unstated obligation alone no longer opens a case (rq1-needs-routing-v2);
+                # uncertain support does, so the discussion route is still exercised.
+                self.calls.append((name, data))
+                return kw['output_model'].model_validate({'support': 'uncertain',
+                    'rationale': 'Scripted uncertain support.', 'assessor': 'scripted'})
             return super().generate_structured(**kw)
     choices = {step: 'model-' + step for step in STEPS}
     router = StepModelRouter(LLMConfig(provider='mock'), choices, Scripted)
