@@ -692,6 +692,8 @@ def scope_needs(store, run, needs, candidates, client):
 
 def assess_needs(store, run, needs, client):
     from .engine import assess, verify
+    from ..llm.step_models import for_step
+    client = for_step(client, 'assessment')
     assessed=0; blocked=0
     for need in needs:
         refresh_need(need)
@@ -709,7 +711,8 @@ def assess_needs(store, run, needs, client):
             # generations for output recovery. Source failures make no model call.
             need.qualification=assess(store,need,client)
             saved={'step':'assessment','policy_version':POLICIES['assessment'],
-                   'need_id':need.requirement_id,'qualification':need.qualification.model_dump(mode='json')}
+                   'need_id':need.requirement_id,'provider':client.describe() if client else 'offline',
+                   'qualification':need.qualification.model_dump(mode='json')}
             saved['checkpoint_hash']=digest(saved)
             store.mutate(run['run_id'],None,'need_assessment_saved',lambda r:r['need_chunks'].__setitem__(key,saved))
         if need.verification['status']!='pass':

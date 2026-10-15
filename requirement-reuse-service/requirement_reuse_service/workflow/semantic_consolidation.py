@@ -146,6 +146,8 @@ def calls_after(store, run_id, sequence):
 
 
 def grouped_block(store, run, key, records, client, saved):
+    from ..llm.step_models import for_step
+    client = for_step(client, 'grouping')
     from .engine import bounded_stage_output
     groups, audit = [], []
     policy = run.get('consolidation_policy_version') or LEGACY_SEMANTIC_POLICY
@@ -169,7 +171,8 @@ def grouped_block(store, run, key, records, client, saved):
         offered_groups = {g: offered(representative(members), policy) for g, members in existing.items()}
         payload = {'candidates': {i: offered(r, policy) for i, r in candidates.items()}, 'offered_groups': offered_groups}
         group_fingerprints = {g: [r.content_hash for r in items] for g, items in existing.items()}
-        chunk_key = digest([policy, [r.content_hash for r in chunk], offered_groups, group_fingerprints])
+        chunk_key = digest([policy, [r.content_hash for r in chunk], offered_groups, group_fingerprints,
+                            client.describe() if client is not None else 'offline'])
         checkpoint = saved.get(chunk_key)
         if checkpoint is not None:
             if checkpoint['revision_ids'] != [r.revision_id for r in chunk] or checkpoint['offered_groups'] != offered_groups:
@@ -202,6 +205,7 @@ def grouped_block(store, run, key, records, client, saved):
                 fallback = f'{type(exc).__name__}: {exc}'
             # All transport/authentication and unexpected software errors propagate.
             checkpoint = {'chunk_key': chunk_key, 'block_key': key, 'revision_ids': [r.revision_id for r in chunk],
+                'provider': client.describe() if client is not None else 'offline',
                 'offered_groups': offered_groups, 'result': answer.model_dump(mode='json') if answer else None,
                 'fallback': fallback, 'validation_errors': errors,
                 'call_ids': [c['call_id'] for c in calls_after(store, run['run_id'], sequence)]}
@@ -236,6 +240,7 @@ def representative(members):
 
 
 def semantic_consolidate(store, run, records, client=None, previous=None):
+    from ..llm.step_models import for_step
     from .engine import (qualify_record, record_from_observation, reusable_qualification, verify, assess, lexical_relation,
                          inherit_base_checks, retain_base_findings)
     saved = store.get_run(run['run_id'], omit=('model_calls','catalogues','machine_snapshot','assessment_reuse'))['consolidation_chunks']
@@ -244,7 +249,9 @@ def semantic_consolidate(store, run, records, client=None, previous=None):
     for r in records: blocks.setdefault(block_key(r), []).append(r)
     active, events, conflicts, final_groups = [], [], [], []
     previous = previous or {}
-    previous_by_hash = {r['content_hash']:r for r in previous.values() if reusable_qualification(r,r['content_hash'])}
+    assessment_model = for_step(client, 'assessment').describe().get('model') if client else None
+    previous_by_hash = {r['content_hash']:r for r in previous.values()
+                        if reusable_qualification(r,r['content_hash'],assessment_model)}
     cache = {}
     for key, members in sorted(blocks.items()):
         audit = []
@@ -293,7 +300,7 @@ def semantic_consolidate(store, run, records, client=None, previous=None):
                         result.lifecycle_state = 'blocked_evidence'
                     else:
                         earlier = previous.get(result.revision_id) or previous_by_hash.get(result.content_hash)
-                        qualification = reusable_qualification(earlier,result.content_hash) if earlier else None
+                        qualification = reusable_qualification(earlier,result.content_hash,assessment_model) if earlier else None
                         if qualification:
                             assessment_reused = True
                             result.verification = verify(store,result,run['evidence_ids'],cache)

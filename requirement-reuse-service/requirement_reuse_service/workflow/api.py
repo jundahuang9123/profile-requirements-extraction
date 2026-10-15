@@ -69,27 +69,19 @@ def save_provider_settings(request: ProviderSettingsRequest):
 @router.post('/provider-models')
 def discover_provider_models():
     """Fetch model IDs on explicit user request; never return request headers or keys."""
-    import httpx
     from ..llm.config import LLMConfig
+    from ..llm.model_catalog import model_rows, text_generation_model
 
     config = LLMConfig.from_env()
     if config.provider == 'disabled':
         raise HTTPException(422, 'Select and save a model provider first.')
-    if config.provider == 'anthropic':
-        url = 'https://api.anthropic.com/v1/models'
-        headers = {'x-api-key': config.api_key or '', 'anthropic-version': '2023-06-01'}
-    else:
-        url = f"{(config.base_url or '').rstrip('/')}/models"
-        headers = {'Authorization': f'Bearer {config.api_key}'} if config.api_key else {}
     try:
-        response = httpx.get(url, headers=headers, timeout=8.0)
-        response.raise_for_status()
-        payload = response.json()
-        rows = payload.get('data', []) if isinstance(payload, dict) else []
-        models = sorted({str(row.get('id')) for row in rows if isinstance(row, dict) and row.get('id')})
-        return {'connected': True, 'models': models, 'selected_model': config.resolved_model()}
-    except (httpx.HTTPError, ValueError, TypeError) as exc:
-        raise HTTPException(502, f'Could not load model list: {exc.__class__.__name__}. Check endpoint, key, and provider availability.') from exc
+        rows = model_rows(config)
+        return {'connected': True, 'models': sorted({r['id'] for r in rows}),
+                'generation_models': sorted({r['id'] for r in rows if text_generation_model(r)}),
+                'selected_model': config.resolved_model()}
+    except ValueError as exc:
+        raise HTTPException(502, str(exc)) from exc
 
 
 def actor() -> str:

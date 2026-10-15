@@ -13,6 +13,7 @@ from typing import Any, Callable, Protocol, TypeVar, runtime_checkable
 from pydantic import BaseModel, ValidationError
 
 from .config import LLMConfig
+from .model_options import answer_without_thinking, qwen_model, reasoning_effort_for
 
 T = TypeVar('T', bound=BaseModel)
 
@@ -186,7 +187,7 @@ class OpenAICompatibleClient:
         self.api_key = config.api_key
         self.model_id = config.resolved_model()
         self.max_tokens = config.max_tokens
-        self.reasoning_effort = config.reasoning_effort
+        self.reasoning_effort = reasoning_effort_for(self.model_id, config.reasoning_effort)
         self.timeout = config.timeout
         self.extra_headers = dict(config.extra_headers)
         self.max_concurrency, self._limiter = endpoint_limiter(self.base_url, config.max_concurrency)
@@ -236,6 +237,11 @@ class OpenAICompatibleClient:
                     'retry_wait_seconds': sum(a['retry_wait_seconds'] for a in attempts),
                     'queue_seconds': round(sum(a['queue_seconds'] for a in attempts), 4),
                     'finish_reason': audit.get('finish_reason'), 'response_chars': audit.get('response_chars'),
+                    'thinking_removed': audit.get('thinking_removed', False),
+                    'separate_reasoning_present': audit.get('separate_reasoning_present', False),
+                    # Documented vLLM behaviour; KI:connect accounting has not
+                    # been measured by the offline capability tests.
+                    'output_budget_assumption': 'reasoning_and_answer' if qwen_model(self.model_id) else 'provider_defined',
                     'token_usage': aggregate_token_usage(attempts),
                 }
             audit['response_hash'] = hashlib.sha256(text.encode()).hexdigest()
@@ -341,11 +347,20 @@ class OpenAICompatibleClient:
         audit['finish_reason'] = reason if isinstance(reason, str) else None
         audit['token_usage'] = safe_token_usage(payload.get('usage'))
         audit['response_chars'] = len(content) if isinstance(content, str) else None
+        # Presence only: never retain or parse the separate reasoning channel.
+        audit['separate_reasoning_present'] = any(
+            bool(choice['message'].get(field)) for field in ('reasoning_content', 'reasoning'))
         if reason == 'length':
             raise OutputTokenLimitError('Model stopped at the output token limit (finish_reason=length). '
                            'No partial result was accepted; reduce the requested output or raise the response-token cap.')
         if not isinstance(content, str) or not content.strip():
             raise LLMError(f'Model returned no structured text (finish_reason={audit["finish_reason"] or "unknown"}).')
+        if qwen_model(self.model_id):
+            try:
+                content, removed = answer_without_thinking(content)
+            except ValueError as exc:
+                raise OutputValidationError('final_answer', [{'loc': [], 'type': 'unclosed_thinking'}], reason) from exc
+            audit['thinking_removed'] = removed
         return content
 
     def describe(self) -> dict[str, str]:
