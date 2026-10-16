@@ -633,7 +633,7 @@ def test_unknown_task_and_bad_quote_are_independently_disposed_and_audited(corpu
     repair_input = next(data for name, data in client.calls if name == 'RoleCitationCorrections')
     assert [item['candidate_index'] for item in repair_input['invalid_candidates']] == [1]
     assert all(error['code'] != 'unknown_task' for error in repair_input['invalid_candidates'][0]['validation_errors'])
-    assert manifest['max_calls_per_batch'] == 2
+    assert manifest['max_calls_per_batch'] == 3
     selector.verify_manifest(manifest)
 
 
@@ -950,17 +950,19 @@ def test_cutoff_failure_records_provider_usage_without_proceeding_to_extraction(
     assert saved['status'] == 'failed'
     assert saved['role_manifest']['processed_evidence_ids'] == []
     assert not saved['observations'] and not saved['requirements']
-    assert len(saved['model_calls']) == 1
-    call = saved['model_calls'][0]
-    assert call['finish_reason'] == 'length'
-    assert call['token_usage'] == {'prompt_tokens': 1000, 'completion_tokens': 8000, 'total_tokens': 9000}
-    assert 'output token limit' in call['error']
+    # A cut-off discovery answer is asked once more with a larger budget; a second cut-off stops.
+    assert [c['max_output_tokens'] for c in saved['model_calls']] == [8000, selector.DISCOVERY_RETRY_TOKENS]
+    for call in saved['model_calls']:
+        assert call['finish_reason'] == 'length'
+        assert call['token_usage'] == {'prompt_tokens': 1000, 'completion_tokens': 8000, 'total_tokens': 9000}
+        assert 'output token limit' in call['error']
     assert 'secret-not-for-audit' not in json.dumps(saved)
-    assert workflow_metrics(saved)['model_calls']['actual_token_usage'] == call['token_usage']
+    assert workflow_metrics(saved)['model_calls']['actual_token_usage'] == {
+        'prompt_tokens': 2000, 'completion_tokens': 16000, 'total_tokens': 18000}
     saved['model_calls'].append({**call, 'token_usage': None})
     metrics = workflow_metrics(saved)['model_calls']
     assert metrics['actual_token_usage'] is None
-    assert metrics['recorded_token_usage']['total_tokens'] == 9000
+    assert metrics['recorded_token_usage']['total_tokens'] == 18000
     assert metrics['calls_without_token_usage'] == 1
 
 

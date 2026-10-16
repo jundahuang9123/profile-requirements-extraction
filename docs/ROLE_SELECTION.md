@@ -326,10 +326,39 @@ other recoveries. The repair establishes complete accounting, not that the model
 groupings or relevance judgements are correct. Selection still stops when no entry
 is relevant, the provider fails, or saved audits are inconsistent.
 
-Discovery reserves 8,000 output tokens, citation correction 5,000, and registry/
-panel calls 8,000 each. Each logical call may use the existing one structural schema
-repair generation. A provider `length` finish reason fails even if partial output
-looks like JSON. Provider retries can add HTTP requests. Citation and accounting
+### Answers that fail their output contract
+
+Before `rq1-role-selection-output-recovery-v1`, one invalid row stopped the run: for
+example a discovery candidate that breaks the basis rule (a documented role without a
+citation, or an inferred one with neither a citation nor a declared task). A development
+run stopped on such a `value_error` on 16 Oct 2026. The provider client still makes its
+single schema correction. When that answer also fails:
+
+- **Discovery.** Every usable candidate of the complete answer is kept. Unknown or
+  repeated excerpt IDs, undeclared task IDs and unexpected fields are removed. A
+  documented role left without a citation, or an inferred one without support, is kept
+  as proposed and uncited, with the human-review rationale. Each row is then checked
+  against the stored role contract; a row that still fails is dropped and reported.
+  The batch's validation attempt keeps the raw answer and every row's disposition under
+  `output_recovery`. A cut-off answer is asked once more with 16,000 output tokens.
+- **Citation repair.** Usable corrections are kept. A candidate left without one is kept
+  as proposed and uncited, as in the fallback above.
+- **Registry, relevance and panel decisions.** Rows that pass their own contract are
+  kept; a failing `kept_ids` falls back to empty. The decision then continues through
+  its accounting correction and repair, which treat a dropped row like an entry the
+  answer left out. A correction with nothing usable leaves the first answer for the
+  repair to complete. Each decision records `output_recoveries`.
+
+A run still stops when an answer has nothing usable in it: no JSON object, a second
+cut-off, or a first registry or panel answer in which no row passes. Resume asks again.
+Provider failures stop as before. A scan with recovered batches can still seed a new
+panel: its kept candidates are re-derived from the saved raw answer, without a model
+call, and must match.
+
+Discovery reserves 8,000 output tokens (16,000 for its one retry after a cut-off),
+citation correction 5,000, and registry/panel calls 8,000 each. Each logical call may
+use the existing one structural schema repair generation. A provider `length` finish
+reason fails even if partial output looks like JSON. Provider retries can add HTTP requests. Citation and accounting
 correction budgets survive restarts. No upper-bound call estimate is presented as
 measured runtime or token usage.
 
