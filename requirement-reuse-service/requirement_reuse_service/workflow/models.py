@@ -320,8 +320,13 @@ class RequirementRecord(Contract):
     need_class: Literal['generic', 'domain_use_of_base', 'domain'] | None = None
     matched_base_need_ids: list[str] = Field(default_factory=list)
     base_need_matches: list[dict[str, Any]] = Field(default_factory=list)
-    # D5 profile-scope judgement of a source-derived need (rq1-profile-scope-v1).
+    # D5 profile-scope judgement of a source-derived need (rq1-profile-scope-v1/v2).
     profile_scope: dict[str, Any] | None = None
+    # Base-gap status from the classification (rq1-base-gap-status-v1): a miss among the
+    # offered catalogue entries is unresolved, not proof that the base lacks the capability.
+    base_gap: dict[str, Any] | None = None
+    # Linker's necessity annotation per kept use-case link (task ID -> necessary).
+    use_case_necessity: dict[str, bool] = Field(default_factory=dict)
     need_condition: str = ''
     need_integrity_hash: str | None = None
     rank: int | None = Field(default=None, ge=1)

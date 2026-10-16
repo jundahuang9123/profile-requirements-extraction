@@ -17,7 +17,8 @@ ROWS = {
     'NeedMembership':lambda i:{'member_id':i,'expresses_need':True,'rationale':'Same need.'},
     'ProposalSupport':lambda i:{'proposal_id':i,'support':'supported','supporting_evidence_ids':['q'],'obligation_stated':False,'rationale':'Supported.'},
     'NeedClassifications':lambda i:{'need_id':i,'classification':'domain','base_need_ids':[],'rationale':'Domain.'},
-    'ProfileScope':lambda i:{'need_id':i,'serves':'find','catalogue_level':True,'commonly_agreed':True,'rationale':'In scope.'},
+    'ProfileScope':lambda i:{'need_id':i,'catalogue_level':True,'serves':'find','example':'Find datasets by title.',
+                             'representativeness':'common','rationale':'In scope.'},
     'NeedUseCaseLinks':lambda i:{'need_id':i,'links':[]},
     'UseCaseCritic':lambda i:{'link_id':i,'keep':True,'rationale':'Necessary.'},
 }
@@ -210,7 +211,7 @@ def test_full_pipeline_fallback_reaches_review_and_resume_does_not_regenerate(se
     if fault=='ProfileScope':
         # An exhausted scope judgement never sets a need aside; it stays, flagged.
         assert saved['active_revision_ids']
-        assert not any(a['reason'] in {'not_find_or_access','not_catalogue_level','not_commonly_agreed'}
+        assert not any(a['reason'] in {'not_find_or_access','not_catalogue_level'}
                        for a in saved['set_aside_observations'])
         assert any('profile_scope_not_checked' in r['processing_flags'] for r in saved['requirements'])
     before=len(client.calls);engine.execute_run(store,run['run_id'],client)

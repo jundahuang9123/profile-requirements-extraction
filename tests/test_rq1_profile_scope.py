@@ -1,4 +1,8 @@
-"""D5 profile scope: a judgement over source-derived needs that can only keep or set aside."""
+"""D5 profile scope (v2): a judgement over source-derived needs that can only keep or set aside.
+
+Dataset-level relevance and discovery contribution can set a need aside; representativeness
+only labels a kept need common, specialized or for review.
+"""
 import json
 from test_resume_discussions import setup
 from test_rq1_need_grouping import need_inputs, NeedsClient
@@ -11,25 +15,37 @@ STATEMENTS = {
     'need-2': 'Users can rely on every record in the data having a timestamp.',
     'need-3': 'Users can see the positional accuracy of every dataset in metres.',
     'need-4': 'Users can compute travel times from each road segment.',
+    'need-5': 'Users can find parking datasets by the type of parking facility.',
 }
 VERDICTS = {
-    'need-0': {'serves': 'find', 'catalogue_level': True, 'commonly_agreed': True},
-    'need-1': {'serves': 'neither', 'catalogue_level': True, 'commonly_agreed': True},
-    'need-2': {'serves': 'access', 'catalogue_level': False, 'commonly_agreed': True},
-    'need-3': {'serves': 'both', 'catalogue_level': True, 'commonly_agreed': False},
-    'need-4': {'serves': 'neither', 'catalogue_level': False, 'commonly_agreed': False},
+    'need-0': {'catalogue_level': True, 'serves': 'find', 'example': 'Find datasets covering Bavaria.',
+               'representativeness': 'common'},
+    'need-1': {'catalogue_level': True, 'serves': 'neither', 'example': '', 'representativeness': 'common'},
+    'need-2': {'catalogue_level': False, 'serves': 'access', 'example': 'Get data with timestamps.',
+               'representativeness': 'common'},
+    'need-3': {'catalogue_level': True, 'serves': 'both', 'example': 'Filter datasets by stated accuracy.',
+               'representativeness': 'single_case'},
+    'need-4': {'catalogue_level': False, 'serves': 'neither', 'example': '', 'representativeness': 'uncertain'},
+    'need-5': {'catalogue_level': True, 'serves': 'find', 'example': 'Find datasets about multi-storey car parks.',
+               'representativeness': 'specialized'},
 }
 
 
 class ScopeJudge(NeedsClient):
-    def __init__(self, verdicts=VERDICTS, default=VERDICTS['need-0'], extra=(), omit=()):
+    def __init__(self, verdicts=VERDICTS, default=VERDICTS['need-0'], extra=(), omit=(), blank_once=()):
         super().__init__(); self.verdicts, self.default, self.extra, self.omit = verdicts, default, extra, omit
+        self.blank_once = set(blank_once)
     def generate_structured(self, **kwargs):
         if kwargs['output_model'].__name__ != 'ProfileScope':
             return super().generate_structured(**kwargs)
         data = json.loads(kwargs['user']); self.calls.append(('ProfileScope', data))
-        rows = [{'need_id': i, **self.verdicts.get(i, self.default), 'rationale': 'Scripted scope judgement.'}
-                for i in [*data['needs'], *self.extra] if i not in self.omit]
+        rows = []
+        for i in [*data['needs'], *self.extra]:
+            if i in self.omit: continue
+            row = {'need_id': i, **self.verdicts.get(i, self.default), 'rationale': 'Scripted scope judgement.'}
+            if i in self.blank_once:
+                self.blank_once.discard(i); row['example'] = ''
+            rows.append(row)
         return kwargs['output_model'].model_validate({'decisions': rows})
 
 
@@ -50,26 +66,29 @@ def judged(client):
     return [i for name, data in client.calls if name == 'ProfileScope' for i in data['needs']]
 
 
-def test_failed_tests_set_aside_with_first_failure_and_no_need_added(setup):
+def test_only_dataset_level_and_discovery_set_aside_and_specialised_needs_stay(setup):
     store, run, _, made = variants(setup); client = ScopeJudge()
     retained = needs.judge_profile_scope(store, run, made, client)
-    assert [n.requirement_id for n in retained] == ['need-0']
+    assert [n.requirement_id for n in retained] == ['need-0', 'need-3', 'need-5']
+    assert {n.requirement_id: n.profile_scope['scope_class'] for n in retained} == {
+        'need-0': 'common', 'need-3': 'review', 'need-5': 'specialized'}
     asides = {a['need_id']: a for a in store.get('run', run['run_id'])['set_aside_observations']}
     assert {i: a['reason'] for i, a in asides.items()} == {'need-1': 'not_find_or_access',
-        'need-2': 'not_catalogue_level', 'need-3': 'not_commonly_agreed', 'need-4': 'not_find_or_access'}
-    assert asides['need-4']['details']['profile_scope']['failed_tests'] == [
-        'not_find_or_access', 'not_catalogue_level', 'not_commonly_agreed']
+        'need-2': 'not_catalogue_level', 'need-4': 'not_catalogue_level'}
+    assert asides['need-4']['details']['profile_scope']['failed_tests'] == ['not_catalogue_level', 'not_find_or_access']
     assert all(asides[i]['rationale'] == 'Scripted scope judgement.' for i in asides)
     # The judge sees only the stated need and judges it; it is never asked to write one.
     offered = [data['needs'] for name, data in client.calls if name == 'ProfileScope']
     assert all(set(row) == {'statement', 'condition', 'scope'} for batch in offered for row in batch.values())
     kept = retained[0]
-    assert kept.profile_scope['status'] == 'checked' and kept.profile_scope['failed_tests'] == []
+    assert kept.profile_scope['status'] == 'checked' and kept.profile_scope['example'] == VERDICTS['need-0']['example']
     assert kept.need_statement == STATEMENTS['need-0']
     assert engine.verify(store, kept, run['evidence_ids'])['status'] == 'pass'  # integrity binds the judgement
     step = store.get('run', run['run_id'])['need_steps']['profile_scope']
-    assert step['retained_count'] == 1 and step['set_aside_count'] == 4
-    assert step['set_aside_by_reason'] == {'not_find_or_access': 2, 'not_catalogue_level': 1, 'not_commonly_agreed': 1}
+    assert step['policy_version'] == 'rq1-profile-scope-v2'
+    assert step['retained_count'] == 3 and step['set_aside_count'] == 3
+    assert step['set_aside_by_reason'] == {'not_catalogue_level': 2, 'not_find_or_access': 1}
+    assert step['scope_classes'] == {'common': 1, 'review': 1, 'specialized': 1}
     before = len(client.calls)
     needs.judge_profile_scope(store, run, made, client)
     assert len(client.calls) == before  # resume reuses the saved judgement
@@ -77,18 +96,31 @@ def test_failed_tests_set_aside_with_first_failure_and_no_need_added(setup):
 
 def test_contract_can_only_judge_offered_needs():
     assert set(needs.ProfileScope.model_fields) == {'decisions'}
-    assert set(needs.ScopeDecision.model_fields) == {'need_id', 'serves', 'catalogue_level', 'commonly_agreed', 'rationale'}
+    assert set(needs.ScopeDecision.model_fields) == {
+        'need_id', 'catalogue_level', 'serves', 'example', 'representativeness', 'rationale'}
     assert 'never add, merge, broaden or rewrite a need' in needs.SCOPE_SYSTEM
+    # Representativeness is a label, never a set-aside test.
+    assert [reason for reason, _ in needs.SCOPE_TESTS] == ['not_catalogue_level', 'not_find_or_access']
+    assert set(needs.SCOPE_CLASSES.values()) == {'common', 'specialized', 'review'}
 
 
-def test_invented_row_is_ignored_and_unjudged_need_stays_flagged(setup):
+def test_a_missing_example_gets_one_correction_for_that_need_only(setup):
+    store, run, _, made = variants(setup, {'need-0': STATEMENTS['need-0'], 'need-5': STATEMENTS['need-5']})
+    client = ScopeJudge(blank_once=('need-0',))
+    retained = needs.judge_profile_scope(store, run, made, client)
+    assert [n.requirement_id for n in retained] == ['need-0', 'need-5']
+    assert judged(client) == ['need-0', 'need-5', 'need-0']
+    assert retained[0].profile_scope['example'] == VERDICTS['need-0']['example']
+
+
+def test_invented_row_is_ignored_and_unjudged_need_stays_for_review(setup):
     store, run, _, made = variants(setup, {'need-0': STATEMENTS['need-0'], 'need-1': STATEMENTS['need-1']})
     client = ScopeJudge(extra=('invented-need',), omit=('need-1',))
     retained = needs.judge_profile_scope(store, run, made, client)
     assert [n.requirement_id for n in retained] == ['need-0', 'need-1']
     unchecked = retained[1]
     assert 'profile_scope_not_checked' in unchecked.processing_flags
-    assert unchecked.profile_scope['status'] == 'not_checked'
+    assert unchecked.profile_scope['status'] == 'not_checked' and unchecked.profile_scope['scope_class'] == 'review'
     assert engine.verify(store, unchecked, run['evidence_ids'])['status'] == 'pass'
     saved = store.get('run', run['run_id'])
     assert saved['set_aside_observations'] == []
@@ -120,6 +152,7 @@ def test_scope_set_aside_is_visible_in_export_and_restorable(setup):
     export = needs.needs_export(store, run['run_id'])
     row = next(a for a in export['set_aside'] if a['audit']['reason'] == 'not_catalogue_level')
     assert row['record']['profile_scope']['failed_tests'] == ['not_catalogue_level']
+    assert row['record']['base_gap']['status'] == 'not_checked'  # no base selected
     assert export['families'] == [] and saved['need_steps']['families']['family_count'] == 0
     restored = needs.restore_need(store, run['run_id'], RestoreRequest(expected_version=saved['version'],
         idempotency_key='restore-scope', observation_id=item['observation_id'], need_id=item['need_id'],
@@ -129,9 +162,11 @@ def test_scope_set_aside_is_visible_in_export_and_restorable(setup):
     assert restored['decisions'][-1]['reason'] == 'not_catalogue_level'
 
 
-def test_runs_saved_before_d5_need_a_derived_trial():
+def test_runs_saved_under_earlier_policies_need_a_derived_trial():
     import pytest
-    earlier = {k: v for k, v in needs.POLICIES.items() if k not in {'profile_scope', 'families'}}
+    earlier = {**needs.POLICIES, 'profile_scope': 'rq1-profile-scope-v1', 'scoping': 'rq1-use-case-necessity-v1',
+               'scope_critic': 'rq1-use-case-critic-v1'}
+    earlier.pop('base_gap')
     with pytest.raises(ValueError, match='derive a separate trial'):
         needs.run_needs_policies({'needs_policies': earlier})
     assert needs.run_needs_policies({'needs_policies': dict(needs.POLICIES)}) == needs.POLICIES
