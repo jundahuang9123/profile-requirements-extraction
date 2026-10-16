@@ -168,9 +168,11 @@ uncertainty. Neither the corpus nor this document contains measured evaluation r
 
 ## Train, development and held-out use
 
-Use JRC and a predeclared part of Stat for debugging/development. Split by source and
-requirement family, not random paraphrase rows: duplicates and statements from one
-source must stay together. Use mobility as the main external evaluation. Reserve Health
+Use JRC and all of Stat for debugging/development (Junda, 16 October 2026: Stat's raw
+allowlist has only two sources, both base specifications, so a split is not meaningful).
+Neither is reported as a test result. Any other split is by source and requirement
+family, not random paraphrase rows: duplicates and statements from one source must stay
+together. Use mobility as the main external evaluation. Reserve Health
 and Geo as domain-held-out tests after prompts, perspectives, thresholds and budgets are
 frozen. If their references have already influenced implementation, disclose that and
 use a genuinely new held-out case/version rather than calling them untouched.
@@ -220,8 +222,8 @@ protocol supports one-to-one and split/merged mappings, records partial coverage
 separately adjudicates supported novel requirements. Machine output is frozen before
 human revision, allowing recovery, grounding and consolidation performance to be
 reported separately from final accepted output and adjudication effort. Development uses
-JRC and a predefined Stat subset; Health is reserved for held-out domain assessment,
-while Geo is assessed after configuration freeze with its overlap with the mobility
+JRC and StatDCAT, neither reported as a test result; Health is reserved for held-out
+domain assessment, while Geo is assessed after configuration freeze with its overlap with the mobility
 inputs explicitly disclosed. Model pretraining on public
 profile documents remains a validity threat and is disclosed alongside source access,
 version uncertainty and incomplete stakeholder evidence.

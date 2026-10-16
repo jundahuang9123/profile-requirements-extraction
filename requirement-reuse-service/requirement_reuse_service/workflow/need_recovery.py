@@ -23,6 +23,7 @@ SPECS = {
     'NeedMembership':('checks','member_id','members'),
     'ProposalSupport':('proposals','proposal_id','proposals'),
     'NeedClassifications':('classifications','need_id','needs'),
+    'ProfileScope':('decisions','need_id','needs'),
     'NeedUseCaseLinks':('needs','need_id','needs'),
     'UseCaseCritic':('decisions','link_id','links'),
 }

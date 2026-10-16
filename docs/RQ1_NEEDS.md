@@ -41,9 +41,11 @@ in the frozen snapshot.
 | Group underlying needs | Same information/capability, resource and condition/scope; ignore typed labels, terms, wording, obligation strength and perspective | 6 · Grouped needs & scope |
 | Write and check a need | Write every group, including singletons; independently check no added actor, obligation, scope or condition; move non-expressing members to singleton follow-ups | 6 · Grouped needs & scope |
 | Classify against the base | Generic needs are visible asides; retain domain and domain use of base | 6 · Grouped needs & scope |
+| Profile scope (D5) | Judge each need for find or access, catalogue level and commonly agreed; failing needs are visible asides naming the failed test; no need is added or rewritten | 6 · Grouped needs & scope |
 | Scope and critic | Propose necessary use-case links with justifications; independently keep/drop each link; set unlinked needs aside | 6 · Grouped needs & scope |
 | Support assessment | One logical assessment per retained need against its union of source-checked excerpts | 6 · Grouped needs & scope |
 | Rank | Order all retained needs deterministically; no cutoff hides needs | 6 · Grouped needs & scope |
+| Families (D5) | Group kept needs that one catalogue element would serve, headed by their best-ranked member; ranked; the scoring unit | `needs.json` and the step download |
 | Discuss on request | A reviewer opens a bounded case on a need; automatic discussion remains an explicit option | 7 · Discussion |
 | Human review | Inspect, assess, accept/reject/defer, revise, split or merge; review/restore asides | 8 · Human review |
 | Baseline | Publish accepted revisions only, with their traceability and unresolved appendix | 9 · Validated baseline |
@@ -89,6 +91,80 @@ A separate critic rejudges every link. Relatedness and general usefulness are no
 necessity. Extraction task links are hints only. With scoping off, all otherwise
 retained needs remain, and the run makes no use-case necessity claim. Source-failed
 and unsupported proposals remain visible in their set-aside lists for repair.
+
+## Profile scope (D5)
+
+Decided by Junda on 16 Oct 2026. DCAT-AP 2.0.0 starts from the European
+Commission's call for “a thin layer of commonly agreed metadata”, which “could
+facilitate data cross-reference and interoperability and therefore considerably
+enhance its value for reuse”, and says a common format for portals “would support the
+sharing, discovery and re-use” of datasets. An application profile's purpose is that
+users can find datasets and get access to them through catalogues (FAIR F and A).
+Interoperability and reuse (I and R) are what such a profile delivers; they are not
+tests of what belongs in it.
+
+D5 is a rule for elicitation, applied to the needs the sources state. It never puts
+a need into the list: every kept need still comes from source-checked proposals, and
+a topic that no source raises (a licence, say) does not appear. The judge sees only
+each need's statement, condition and scope. It returns one verdict per offered need
+ID and has no field for proposing, merging or rewriting a need; rows for IDs it was
+not offered are ignored.
+
+A need stays in scope when all four tests hold:
+
+1. **Find or access.** Met in catalogue records, it helps users find datasets
+   (search, filter, browse, identify, judge relevance, also across catalogues that
+   harvest each other) or get access to them (distributions, formats, access
+   addresses and services, the licence, rights or access conditions that apply,
+   whom to contact). A need stated from the publisher side counts by what users do
+   with the information.
+2. **Catalogue level.** It concerns what a record states about a catalogued resource
+   as a whole. It fails when it prescribes what the data must be or contain (content,
+   structure, values, quality level, update interval, licence choice) or how the data
+   is produced or delivered, or when it describes individual records, fields or
+   values. Pointing to where such details are documented (a schema, specification or
+   quality report) is catalogue level.
+3. **Commonly agreed.** Publishers across the profile's community could agree to
+   record it. It fails when it singles out particular datasets, publishers or systems,
+   distinguishes datasets in more detail than users search, filter or decide on, or
+   fixes a choice that legitimately differs between datasets.
+4. **Extension.** The base does not already meet it: the generic/domain
+   classification (`generic_need_served_by_base`, below).
+
+Topics that come up often are judged like this. They are examples for judging stated
+needs, not a checklist of needs to add:
+
+| Topic | In scope | Out of scope |
+|---|---|---|
+| Licence | Knowing which licence, rights statement or access conditions apply: they decide on what terms users can obtain the data (access) | Using data once obtained (combining, redistributing); prescribing which licence the data must have |
+| Quality | Seeing a dataset's quality information, for example that a quality report or conformance result exists and where | Fixing particular quality measures or thresholds for all datasets: quality is not one standard that fits all |
+| Update frequency | Knowing, or filtering by, how often a dataset is updated | Requiring datasets to be updated at a given interval |
+
+Tests 1–3 run as one batched judgement after classification and before use-case
+scoping. A failing need is set aside with the first failed test as its reason
+(`not_find_or_access`, `not_catalogue_level`, `not_commonly_agreed`), the judge's
+rationale and all failed tests. It stays visible and restorable, as under D3; recall
+is reported with and without these set-asides. A source-failed need is not judged and
+stays blocked. A need whose judgement is unavailable after bounded recovery stays,
+flagged `profile_scope_not_checked`. The judgement is stored on the need
+(`profile_scope`) and bound by its integrity hash; a human edit clears it.
+
+### Families: the scoring unit
+
+After ranking, kept needs that one catalogue element would serve form a **family**:
+they ask records for the same kind of information about the same kind of resource,
+whatever the wording, actor, level of detail, condition or user task. Finding
+datasets by the area they cover and seeing a dataset's bounding box are one family;
+the area and the period a dataset covers are two. A family only groups existing
+needs. It is headed by its best-ranked member, and no family text is written.
+Source-failed needs stay outside families until repaired.
+
+Families are ranked by their best member's support; then by distinct supporting
+documents, contributing roles and kept use-case links across members, and member
+count (descending); then head rank and head need ID. `needs.json` lists them under
+`families`, from the frozen machine output; human edits, splits and merges do not
+change them. The planned scorer uses families as its unit and compares conditions at
+equal size: the same number of top-ranked families for each condition.
 
 ## Base catalogues and review
 
@@ -168,11 +244,13 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Additional member checking | `rq1-need-membership-v1` | Large groups use a bounded writing basis (up to 20 members / 16,000 statement characters); every remaining member checked in batches up to 40 / 24,000 characters |
 | Base catalogue | `rq1-base-needs-catalogue-v2` | Frozen base-only file and checksum; optional hash-bound human phrase review |
 | Generic/domain | `rq1-generic-domain-v1` | Up to 25 needs / 24,000 input characters |
+| Profile scope (D5) | `rq1-profile-scope-v1` | Up to 25 needs / 24,000 input characters; statement, condition and scope only; one verdict per offered need ID |
 | Necessity linking | `rq1-use-case-necessity-v1` | Up to 25 needs / 24,000 input characters; at most 32 task links per response row |
 | Link critic | `rq1-use-case-critic-v1` | Up to 25 links / 24,000 input characters |
 | Need assessment | `rq1-need-support-v1` | One logical assessment per kept need; complete selected excerpts, max 45,000 input characters; at most two generations for schema/cutoff recovery |
 | Row recovery | `rq1-needs-row-recovery-v2` | Valid rows saved; correction includes only failing rows; invalid/cutoff output gets durable fallbacks after exhaustion; provider failures stop and remain retryable |
 | Rank | `rq1-need-ranking-v1` | Deterministic; every kept need remains listed |
+| Families (D5) | `rq1-need-families-v1` | 40 needs, 24,000 input characters and at most 60 earlier families per grouping call (`grouping` model setting); invalid grouping keeps that chunk's needs as singleton families, audited |
 | Discussion routing | `rq1-needs-routing-v3` | An obligation that no source states opens no case by itself (since v2), nor does the lexical 'and' hint when the model judged atomicity (v3); both stay on the need for review. Runs saved under v2 keep v2 routing; runs saved without a routing policy keep their original routing |
 
 A single oversized needs-processing row receives the recorded conservative
@@ -200,6 +278,7 @@ Historical v1 runs retain their frozen conditions; use a derived trial to apply 
 | Writer or rewrite critic | Restorable rewrite-rejected group with its audit |
 | Membership | Each unchecked member becomes a singleton, flagged membership not checked |
 | Classifier | Retain as domain, flagged not classified |
+| Profile scope judge | Retain, flagged profile scope not checked; never a scope set-aside |
 | Use-case linker or link critic | Retain, flagged scoping not checked; exhausted invalid/cutoff answers never create no-use-case asides |
 
 Metrics report fallbacks per step. Oversized rows use the same visible fallback
@@ -211,9 +290,9 @@ defects still fail visibly. No model substitution or reference tuning is perform
 Cards show the need, rank, obligation or alternatives, justified links, base class
 and matches, expandable supporting candidates and evidence, and “For RQ2” hints.
 Set-aside lists distinguish no source, base specification only, source-check
-failure, quote-unsupported proposals, rejected rewrites, generic needs and no
-use case. A reviewer can inspect or restore an item with a recorded rationale.
-Restoration leaves it unaccepted, resets support assessment and preserves the frozen
+failure, quote-unsupported proposals, rejected rewrites, generic needs, the three
+profile-scope tests and no use case. A reviewer can inspect or restore an item with
+a recorded rationale. Restoration leaves it unaccepted, resets support assessment and preserves the frozen
 machine output. An uncited or term-bearing proposal cannot bypass source or
 term-free gates; repair its evidence/wording before acceptance.
 
@@ -232,14 +311,15 @@ Ranking is not a precision or confidence measure.
 
 `GET /api/rq1/v2/runs/{run_id}/needs?download=true` exports `needs.json`: ranked current
 needs, members, original evidence, justified use cases, observed hints, catalogue
-suggestions, review decisions, asides, policies and per-step audits. It is suitable
-as RQ2 input and as input to a separately defined evaluation, not an automatic
+suggestions, profile-scope judgements, families, review decisions, asides, policies
+and per-step audits. It is suitable as RQ2 input and as input to a separately
+defined evaluation, not an automatic
 benchmark score. Review-budget entries for 25/50/100 count decisions on the frozen
 machine prefixes; they do not hide other needs or measure effort saved.
 
 `workflow_metrics()` adds proposals → asides by reason → source-checked candidates
-→ needs → classified/scoped/kept needs. It reports model calls, failures and latency
-per processing step and rejected outputs separately. A logical assessment can need
+→ needs → classified/profile-scoped/scoped/kept needs → families. It reports model
+calls, failures and latency per processing step and rejected outputs separately. A logical assessment can need
 two generations. Sequential call latency is not parallel wall time; missing token
 usage/cost remains unknown.
 
@@ -282,10 +362,17 @@ protocol identical across them; only the condition changes.
 | Independent roles with selective discussion | The same panel; discussion of flagged needs automatically. A trial from the saved extraction (step 4) reuses the extraction of the previous condition |
 | Fewer roles | Stakeholder panel selected from the sources with a smaller maximum number of roles |
 
+All conditions pass through the same needs processing, including the D5 profile scope
+and families, so they are compared on families at equal size.
+
 Choose between conditions on a development case. Then freeze the pipeline and run
 Mobility once per chosen condition, as described below.
 
 ## Compatibility and test protocol
+
+Runs saved before `rq1-profile-scope-v1` and `rq1-need-families-v1` keep their
+results, but their needs processing cannot continue under the new policies. To apply
+D5, derive a trial from the saved extraction (`start_from: "normalization"`).
 
 Historical runs remain unchanged. `output_form: candidates` preserves the old
 pipeline for explicit API compatibility and offline rule/demo comparisons. New
@@ -297,8 +384,9 @@ under their original candidate policy. A separate derived trial reuses the exact
 saved extraction, including v2.11 wording, while rewriting every resulting group.
 It neither re-extracts nor reuses old per-candidate assessments.
 
-Mobility is the held-out test case. Use JRC, StatDCAT, HealthDCAT-AP and GeoDCAT-AP
-as development cases, with Junda-authored and dated use cases from each
+Mobility is the held-out test case. Use JRC and all of StatDCAT as development
+cases, never reported as test results; HealthDCAT-AP and GeoDCAT-AP are held out
+(`benchmark-data/BENCHMARK-METHODOLOGY.md`). Junda writes dated use cases from each
 documented purpose before running. Scoping off is a reported comparison. Prior base-check and grouping heuristics
 were adjusted while reading Mobility candidates, never Mobility reference rows;
 this must be disclosed in the paper.

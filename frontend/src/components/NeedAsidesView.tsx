@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Run, SetAside } from '../lib/workflowApi';
 
-const reasons: Record<string, string> = { no_source_link:'No source link', source_check_failed:'Source check failed', rewrite_rejected:'Rewrite rejected', not_supported_by_quote:'Not supported by quote', base_specification_only:'Base specification only', inherited_from_base:'Inherited from base', declared_not_extension:'Declared not an extension', generic_need_served_by_base:'Generic need served by base', no_use_case:'No necessary use-case link' };
+const reasons: Record<string, string> = { no_source_link:'No source link', source_check_failed:'Source check failed', rewrite_rejected:'Rewrite rejected', not_supported_by_quote:'Not supported by quote', base_specification_only:'Base specification only', inherited_from_base:'Inherited from base', declared_not_extension:'Declared not an extension', generic_need_served_by_base:'Generic need served by base', no_use_case:'No necessary use-case link', not_find_or_access:'Outside scope: not for finding or access', not_catalogue_level:'Outside scope: not catalogue level', not_commonly_agreed:'Outside scope: not commonly agreed' };
+const scopeTests: Record<string, string> = { not_find_or_access:'find or access', not_catalogue_level:'catalogue level', not_commonly_agreed:'commonly agreed' };
 export function NeedAsidesView({ run, busy, review, restore }: { run: Run; busy: boolean; review: (id: string) => void; restore: (item: SetAside, rationale: string) => Promise<void> }) {
   const [rationales, setRationales] = useState<Record<string, string>>({});
   const asides = run.set_aside_observations ?? [];
@@ -13,6 +14,7 @@ export function NeedAsidesView({ run, busy, review, restore }: { run: Run; busy:
       return <article key={key}><strong>{record?.need_statement ?? observation?.statement ?? item.observation_id}</strong><p>{item.rationale}</p>
         {!!item.details?.member_revision_ids?.length && <details><summary>Group members · {item.details.member_revision_ids.length}</summary>{item.details.member_revision_ids.map(id => <p key={id}>{run.requirements.find(r => r.revision_id===id)?.normalized_statement ?? id}</p>)}</details>}
         {!!item.details?.rewrites?.length && <details><summary>Rewrites and critic rationales</summary>{item.details.rewrites.map((attempt,i) => <article key={i}><p>{attempt.statement}</p><p>{attempt.critic?.rationale}</p></article>)}</details>}
+        {!!item.details?.profile_scope?.failed_tests?.length && <p>Fails the profile-scope tests: {item.details.profile_scope.failed_tests.map(test => scopeTests[test] ?? test).join(', ')} · serves: {item.details.profile_scope.serves}</p>}
         {!!record?.base_need_matches?.length && record.base_need_matches.map(match => <p key={match.id}>Matches base: {match.need} · <code>{match.rq2_term}</code></p>)}
         {record && <button onClick={() => review(record.revision_id)}>Inspect need and evidence</button>}
         {item.restored ? <p>Restored for human review.</p> : <><label>Reason to restore<input value={rationales[key] ?? ''} onChange={event => setRationales(old => ({ ...old, [key]:event.target.value }))} /></label><button disabled={busy || !['awaiting_human','completed'].includes(run.status) || !rationales[key]?.trim()} onClick={() => void restore(item, rationales[key])}>Restore for review</button></>}

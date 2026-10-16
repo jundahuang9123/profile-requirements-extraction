@@ -17,12 +17,13 @@ ROWS = {
     'NeedMembership':lambda i:{'member_id':i,'expresses_need':True,'rationale':'Same need.'},
     'ProposalSupport':lambda i:{'proposal_id':i,'support':'supported','supporting_evidence_ids':['q'],'obligation_stated':False,'rationale':'Supported.'},
     'NeedClassifications':lambda i:{'need_id':i,'classification':'domain','base_need_ids':[],'rationale':'Domain.'},
+    'ProfileScope':lambda i:{'need_id':i,'serves':'find','catalogue_level':True,'commonly_agreed':True,'rationale':'In scope.'},
     'NeedUseCaseLinks':lambda i:{'need_id':i,'links':[]},
     'UseCaseCritic':lambda i:{'link_id':i,'keep':True,'rationale':'Necessary.'},
 }
 
 STEPS = {'NeedStatements':'need_statement','NeedGrounding':'need_statement','NeedMembership':'need_membership',
-         'ProposalSupport':'proposal_support','NeedClassifications':'classification',
+         'ProposalSupport':'proposal_support','NeedClassifications':'classification','ProfileScope':'profile_scope',
          'NeedUseCaseLinks':'scoping','UseCaseCritic':'scope_critic'}
 
 
@@ -63,7 +64,7 @@ def test_transport_resume_preserves_accepted_rows_and_correction_budget(setup, n
 
 @pytest.mark.parametrize('fault', list(ROWS))
 @pytest.mark.parametrize('error', ['HTTP 401 unauthorized', 'HTTP 503 unavailable', 'Request timeout'])
-def test_provider_outage_fails_run_and_resume_checks_rows_for_all_seven_steps(setup, fault, error):
+def test_provider_outage_fails_run_and_resume_checks_rows_for_every_step(setup, fault, error):
     store, _, _ = setup
     source=register_source(store, SourceRequest(
         artifact=ArtifactPayload(name='synthetic-title-needs.md', content='\n'.join(
@@ -143,12 +144,14 @@ def test_invalid_row_twice_retains_good_row_corrects_only_bad_and_replays(setup,
             return validate_json_payload(json.dumps({field:rows}),kw['output_model'])
     client=InvalidRow()
     step={'NeedStatements':'need_statement','NeedGrounding':'need_statement','NeedMembership':'need_membership',
-          'ProposalSupport':'proposal_support','NeedClassifications':'classification','NeedUseCaseLinks':'scoping','UseCaseCritic':'scope_critic'}[name]
+          'ProposalSupport':'proposal_support','NeedClassifications':'classification','ProfileScope':'profile_scope',
+          'NeedUseCaseLinks':'scoping','UseCaseCritic':'scope_critic'}[name]
     accounting_messages={'NeedStatements':'Account for each offered group exactly once.',
         'NeedGrounding':'Critic must account for every offered group exactly once.',
         'NeedMembership':'Check every offered member exactly once.',
         'ProposalSupport':'Judge each offered proposal exactly once.',
         'NeedClassifications':'Classify every offered need exactly once.',
+        'ProfileScope':'Judge every offered need exactly once.',
         'NeedUseCaseLinks':'Account for every offered need exactly once.',
         'UseCaseCritic':'Decide every offered link ID exactly once.'}
     def validate(result):
@@ -165,7 +168,7 @@ def test_invalid_row_twice_retains_good_row_corrects_only_bad_and_replays(setup,
     assert chunk['status']=='completed_with_fallbacks' and set(chunk['accepted_rows'])=={'good'}
 
 
-@pytest.mark.parametrize('fault',['ProposalSupport','NeedStatements','NeedGrounding','NeedClassifications','NeedUseCaseLinks','UseCaseCritic'])
+@pytest.mark.parametrize('fault',['ProposalSupport','NeedStatements','NeedGrounding','NeedClassifications','ProfileScope','NeedUseCaseLinks','UseCaseCritic'])
 def test_full_pipeline_fallback_reaches_review_and_resume_does_not_regenerate(setup,fault):
     store,source,_=setup
     snapshot=engine.freeze_snapshot(store,SnapshotRequest(
@@ -204,5 +207,11 @@ def test_full_pipeline_fallback_reaches_review_and_resume_does_not_regenerate(se
         assert saved['active_revision_ids']
         assert not any(a['reason']=='no_use_case' for a in saved['set_aside_observations'])
         assert any('scoping_not_checked' in r['processing_flags'] for r in saved['requirements'])
+    if fault=='ProfileScope':
+        # An exhausted scope judgement never sets a need aside; it stays, flagged.
+        assert saved['active_revision_ids']
+        assert not any(a['reason'] in {'not_find_or_access','not_catalogue_level','not_commonly_agreed'}
+                       for a in saved['set_aside_observations'])
+        assert any('profile_scope_not_checked' in r['processing_flags'] for r in saved['requirements'])
     before=len(client.calls);engine.execute_run(store,run['run_id'],client)
     assert len(client.calls)==before
