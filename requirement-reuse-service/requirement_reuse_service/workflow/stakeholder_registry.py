@@ -145,6 +145,8 @@ def checked_decision(manifest, bucket, key, payload, contract, system, validate,
     answer (provider failure or interruption) is issued again on resume.
     """
     from .role_selection import collapse_panel_dispositions
+    from .output_recovery import POLICY as OUTPUT_RECOVERY_POLICY, salvage_rows
+    from ..llm.client import OutputTokenLimitError, OutputValidationError
     accept = accept or validate
     records = manifest.setdefault(bucket, [])
     record = next((r for r in records if r['key'] == key), None)
@@ -175,6 +177,21 @@ def checked_decision(manifest, bucket, key, payload, contract, system, validate,
                              f'repair: {codes}. Inspect its saved validation audit.')
         record['repair'] = {'policy': ACCOUNTING_REPAIR_POLICY, 'phase': phase, 'changes': changes, 'model_calls': 0}
         return answer
+    def ask(system_text, request, phase):
+        """A model answer. One that fails its output contract keeps its usable rows; the
+        decision then continues through its accounting correction and repair, as for an
+        accounting slip. An initial answer with nothing usable still stops (resume re-asks)."""
+        try:
+            return call(system_text, request, contract, max_tokens=8000)
+        except (OutputValidationError, OutputTokenLimitError) as exc:
+            answer, dropped = salvage_rows(contract, getattr(exc, 'parsed_payload', None))
+            record.setdefault('output_recoveries', []).append({'policy': OUTPUT_RECOVERY_POLICY, 'phase': phase,
+                'error_class': type(exc).__name__, 'error': str(exc), 'usable': answer is not None,
+                'dropped_rows': dropped})
+            save('stakeholder_output_recovered' if answer is not None else 'stakeholder_output_unusable')
+            if answer is None and phase == 'initial':
+                raise
+            return answer
 
     if record.get('status') == 'completed':
         answer = contract.model_validate(record['result'])
@@ -204,7 +221,9 @@ def checked_decision(manifest, bucket, key, payload, contract, system, validate,
         refusal = 'The single stakeholder accounting correction was exhausted or interrupted; inspect its audit.'
         if correction['status'] != 'invalid':
             raise ValueError(refusal)
-        saved = contract.model_validate(correction.get('original', {}))
+        # A correction with no usable output left the initial answer as the latest one.
+        saved = contract.model_validate(correction['original'] if correction.get('original') is not None
+                                        else record.get('original', {}))
         prior, _ = (normalize_response or collapse_panel_dispositions)(saved)
         prior_errors = validate(prior)
         if (prior.model_dump(mode='json') != correction.get('result')
@@ -253,7 +272,7 @@ def checked_decision(manifest, bucket, key, payload, contract, system, validate,
         return answer
     if 'original' not in record:
         record['status'] = 'running'; save('stakeholder_decision_started')
-        answer = mock() if mock else call(system, payload, contract, max_tokens=8000)
+        answer = mock() if mock else ask(system, payload, 'initial')
         record['original'] = answer.model_dump(mode='json')
         save('stakeholder_decision_received')
     answer = normalize(contract.model_validate(record['original']), 'initial')
@@ -263,16 +282,17 @@ def checked_decision(manifest, bucket, key, payload, contract, system, validate,
         correction = {'status': 'started'}; record['correction'] = correction
         save('stakeholder_accounting_correction_started')
         try:
-            raw = call(system + CORRECTION_SUFFIX,
+            raw = ask(system + CORRECTION_SUFFIX,
                 {**payload, 'invalid_answer': answer.model_dump(mode='json'), 'validation_errors': errors},
-                contract, max_tokens=8000)
-            correction['original'] = raw.model_dump(mode='json')
+                'correction')
+            correction['original'] = None if raw is None else raw.model_dump(mode='json')
         except Exception as exc:
             correction.update(status='provider_failed', error=type(exc).__name__)
             save('stakeholder_accounting_correction_failed'); raise
         initial = answer
-        answer = normalize(raw, 'correction')
-        if complete_verdict_patch:
+        # A correction with nothing usable leaves the initial answer for the repair to complete.
+        answer = initial if raw is None else normalize(raw, 'correction')
+        if complete_verdict_patch and raw is not None:
             combined, composition = complete_missing_verdicts(initial, raw, validate)
             if composition is not None:
                 answer = combined

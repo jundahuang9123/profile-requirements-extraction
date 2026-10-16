@@ -7,26 +7,32 @@ from copy import deepcopy
 from functools import lru_cache
 from typing import Annotated, Literal
 
-from pydantic import Field, create_model, model_validator
+from pydantic import Field, ValidationError, create_model, model_validator
 
 from ..agents.roles import load_role_configuration
+from ..llm.client import OutputTokenLimitError, OutputValidationError
 from ..llm.step_models import for_step, model_identity, model_settings
 from ..models import AgentRoleConfig
 from .evidence import resolve_evidence
 from .citations import elicitation_batch, source_spans_for
+from .output_recovery import POLICY as OUTPUT_RECOVERY_POLICY, issues, salvage_rows
 from .models import (Contract, EvidenceUnit, RoleCandidates, RoleCitation, RoleCitationCorrections, RolePanel,
                      RoleProposal, RunRequest, SelectedRole)
 from .storage import ConflictError, Store, canonical, digest, now, uid
 
 POLICY_VERSION = 'rq1-stakeholder-selection-v12'
 DISCOVERY_OUTPUT_TOKENS = 8000
+# A discovery answer cut off at the output limit is asked once more with this budget.
+DISCOVERY_RETRY_TOKENS = 16000
 BATCH_CHARS = 40000
-MAX_CALLS_PER_BATCH = 2  # discovery and its single citation correction
+MAX_CALLS_PER_BATCH = 3  # discovery, one retry after a cut-off answer, and its single citation correction
 # A citation repair that returned no answer (provider failure, interruption) is still owed.
 CITATION_RETRY_POLICY = 'rq1-citation-repair-retry-v1'
 # A candidate the single repair leaves unsupported stays as a proposed, uncited perspective.
 CITATION_FALLBACK_POLICY = 'rq1-citation-repair-fallback-v1'
 UNSUPPORTED_RATIONALE = 'Proposed perspective for human review; this source batch did not establish documentary support.'
+UNSUPPORTED_INFERENCE_RATIONALE = ('Proposed perspective for human review; no declared task or source citation '
+                                   'supports this inference.')
 # Highest number of source batches one selection scan may read.
 MAX_BATCHES_CEILING = 128
 # Limit of runs created before a scan covered the whole corpus and that recorded none.
@@ -164,6 +170,60 @@ def materialize_roles(response, catalogue: list[dict]) -> list[RoleProposal]:
                  for span_id in candidate.source_span_ids]
         proposals.append(RoleProposal.model_validate({**body, 'evidence_links': links}))
     return proposals
+
+
+def recover_discovery_rows(parsed, catalogue: list[dict], task_ids: set[str], limit: int):
+    """The usable candidates of a complete discovery answer that failed its contract.
+
+    The clean-up is deterministic and audited per row: unknown or repeated excerpt IDs,
+    undeclared task IDs and unexpected fields are removed; a documented role left without a
+    citation, or an inferred one without support, is kept as a proposed, uncited perspective.
+    Each row is then checked against the stored role contract. A row that still fails is
+    dropped and reported; no text is rewritten or invented.
+    """
+    spans = {span['span_id']: span for span in catalogue}
+    allowed = set(SpanRoleProposal.model_fields)
+    rows = parsed.get('candidates') if isinstance(parsed, dict) else None
+    proposals, audit = [], []
+    for index, row in enumerate(rows if isinstance(rows, list) else []):
+        if not isinstance(row, dict):
+            audit.append({'candidate_index': index, 'disposition': 'dropped', 'reason': 'Not a JSON object.'})
+            continue
+        if len(proposals) >= limit:
+            audit.append({'candidate_index': index, 'disposition': 'dropped',
+                          'reason': f'Beyond the limit of {limit} candidates for one batch.'})
+            continue
+        changes = []
+        body = {key: value for key, value in row.items() if key in allowed}
+        if len(body) != len(row):
+            changes.append('removed_unexpected_fields')
+        cited = body.pop('source_span_ids', [])
+        cited = cited if isinstance(cited, list) else []
+        span_ids = list(dict.fromkeys(i for i in cited if isinstance(i, str) and i in spans))[:2]
+        if span_ids != cited:
+            changes.append('removed_unknown_or_repeated_excerpt_ids')
+        linked = body.get('task_ids', [])
+        linked = linked if isinstance(linked, list) else []
+        body['task_ids'] = list(dict.fromkeys(i for i in linked if isinstance(i, str) and i in task_ids))
+        if body['task_ids'] != linked:
+            changes.append('removed_undeclared_task_ids')
+        if body.get('basis') == 'documented' and not span_ids:
+            body.update(basis='proposed', rationale=UNSUPPORTED_RATIONALE)
+            changes.append('documented_without_citation_kept_as_proposed')
+        elif body.get('basis') == 'inferred' and not (span_ids or body['task_ids']):
+            body.update(basis='proposed', rationale=UNSUPPORTED_INFERENCE_RATIONALE)
+            changes.append('inferred_without_support_kept_as_proposed')
+        body['evidence_links'] = [{key: spans[i][key] for key in ('evidence_id', 'quote', 'quote_start')}
+                                  for i in span_ids]
+        try:
+            proposal = RoleProposal.model_validate(body)
+        except ValidationError as exc:
+            audit.append({'candidate_index': index, 'disposition': 'dropped', 'changes': changes, 'issues': issues(exc)})
+            continue
+        proposals.append(proposal)
+        audit.append({'candidate_index': index, 'disposition': 'kept_after_clean_up' if changes else 'kept',
+                      'changes': changes})
+    return proposals, audit
 
 
 def selection_batch_limit() -> int | None:
@@ -309,8 +369,7 @@ def normalize_generated_task_links(proposals: list[RoleProposal], tasks: list[di
         body = proposal.model_dump(mode='json')
         body['task_ids'] = [task_id for task_id in proposal.task_ids if task_id in declared]
         if proposal.basis == 'inferred' and not (body['task_ids'] or body['evidence_links']):
-            body.update(basis='proposed', rationale=(
-                'Proposed perspective for human review; no declared task or source citation supports this inference.'))
+            body.update(basis='proposed', rationale=UNSUPPORTED_INFERENCE_RATIONALE)
         corrected = RoleProposal.model_validate(body)
         normalized.append(corrected)
         corrections.append({'candidate_index': index, 'label': proposal.label,
@@ -718,12 +777,25 @@ def reuse_discovery(store: Store, source: dict, settings: RunRequest, actor: str
                         if a.get('batch_index') == index and a.get('phase') == 'discovery'), None)
         if not attempt or attempt.get('citation_policy') != 'source-excerpt-ids-v1':
             raise ValueError('Saved discovery uses another citation/output contract.')
+        recovery = attempt.get('output_recovery') or {}
+        tokens = (recovery.get('cutoff_retry') or {}).get('max_output_tokens', DISCOVERY_OUTPUT_TOKENS)
+        recovered = 'row_recovery' in recovery
+        if recovered:
+            # Rows kept from an answer that failed its contract are re-derived from the saved
+            # complete answer, without a model call, and must reproduce the saved candidates.
+            saved_rows = recovery['row_recovery']
+            again, rows = recover_discovery_rows(saved_rows.get('raw_output'), catalogue,
+                {task['id'] for task in snapshot['user_tasks']}, settings.max_roles)
+            if (saved_rows.get('policy') != OUTPUT_RECOVERY_POLICY or rows != saved_rows.get('rows')
+                    or [p.model_dump(mode='json') for p in again] != attempt.get('candidates')):
+                raise ValueError('Saved discovery output recovery does not reproduce its candidates.')
         matching = [c for c in calls if c.get('system_hash') == digest(IDENTIFY_PROMPT)
                     and c.get('context_hash') == digest(canonical(payload))
-                    and c.get('output_contract') == contract.__name__ and c.get('status') == 'completed'
-                    and c.get('max_output_tokens') == DISCOVERY_OUTPUT_TOKENS
+                    and c.get('output_contract') == contract.__name__
+                    and c.get('status') == ('failed' if recovered else 'completed')
+                    and c.get('max_output_tokens') == tokens
                     and c.get('schema_repair_attempts') == 1
-                    and (c.get('output') or {}).get('candidates') == attempt.get('generated_candidates')]
+                    and (recovered or (c.get('output') or {}).get('candidates') == attempt.get('generated_candidates'))]
         if not matching:
             raise ValueError('Saved discovery prompt, contract, candidate limit or call record is incompatible.')
         record = matching[-1]
@@ -735,7 +807,8 @@ def reuse_discovery(store: Store, source: dict, settings: RunRequest, actor: str
         # v11 predates schema hashes. Its known source-excerpt contract is checked
         # by policy, citation policy, exact prompt/payload hashes, name, limits and
         # revalidation of the saved generated output, without making a model call.
-        contract.model_validate(record['output'])
+        if not recovered:
+            contract.model_validate(record['output'])
         if report.get('candidate_ids') is None or len(report['candidate_ids']) != len(set(report['candidate_ids'])):
             raise ValueError('Saved discovery batch candidate accounting is invalid.')
         if set(report['candidate_ids']) - set(candidates):
@@ -833,14 +906,35 @@ def select_roles(store: Store, run: dict, client) -> dict:
                 proposals = proposed_defaults() if index == 0 else []
             else:
                 inputs, catalogue = elicitation_batch(batch)
-                response = call(IDENTIFY_PROMPT, {'user_tasks': tasks, 'evidence_units': inputs,
-                    'max_candidates': manifest['discovery_candidate_limit']},
-                    span_discovery_contract(manifest['discovery_candidate_limit'], catalogue),
-                    max_tokens=manifest['discovery_max_output_tokens'])
-                proposals = materialize_roles(response, catalogue)
+                request = {'user_tasks': tasks, 'evidence_units': inputs,
+                           'max_candidates': manifest['discovery_candidate_limit']}
+                contract = span_discovery_contract(manifest['discovery_candidate_limit'], catalogue)
+                recovery = {}
+                try:
+                    try:
+                        response = call(IDENTIFY_PROMPT, request, contract,
+                                        max_tokens=manifest['discovery_max_output_tokens'])
+                    except OutputTokenLimitError as exc:
+                        # Cut off: ask once more with a larger budget. A second cut-off stops.
+                        recovery['cutoff_retry'] = {'policy': OUTPUT_RECOVERY_POLICY, 'error': str(exc),
+                                                    'max_output_tokens': DISCOVERY_RETRY_TOKENS}
+                        response = call(IDENTIFY_PROMPT, request, contract, max_tokens=DISCOVERY_RETRY_TOKENS)
+                    generated = response.model_dump(mode='json')['candidates']
+                    proposals = materialize_roles(response, catalogue)
+                except OutputValidationError as exc:
+                    # Complete JSON that still fails after the client's schema correction: keep
+                    # every usable candidate instead of stopping the run on one bad row.
+                    if not isinstance(exc.parsed_payload, dict):
+                        raise
+                    proposals, rows = recover_discovery_rows(exc.parsed_payload, catalogue,
+                        {task['id'] for task in tasks}, manifest['discovery_candidate_limit'])
+                    generated = exc.parsed_payload.get('candidates')
+                    recovery['row_recovery'] = {'policy': OUTPUT_RECOVERY_POLICY, 'error': str(exc),
+                                                'raw_output': deepcopy(exc.parsed_payload), 'rows': rows}
                 discovery_audit = {'citation_policy': 'source-excerpt-ids-v1',
-                    'generated_candidates': response.model_dump(mode='json')['candidates'],
-                    'source_catalogue_hash': digest(catalogue), 'source_span_count': len(catalogue)}
+                    'generated_candidates': generated,
+                    'source_catalogue_hash': digest(catalogue), 'source_span_count': len(catalogue),
+                    **({'output_recovery': recovery} if recovery else {})}
             # Keep the original quotations and offsets, before deterministic normalization.
             original = [proposal.model_dump(mode='json') for proposal in proposals]
             normalized, validation = validate_candidates(store, proposals, evidence_ids, tasks, cache)
@@ -901,6 +995,13 @@ def select_roles(store: Store, run: dict, client) -> dict:
             try:
                 response = call(REPAIR_PROMPT, payload, RoleCitationCorrections)
                 repair['corrections'] = response.model_dump(mode='json')['corrections']
+            except (OutputValidationError, OutputTokenLimitError) as exc:
+                # An answer that fails its contract keeps its usable corrections; a candidate
+                # left without one is kept as proposed and uncited below. Not a stop.
+                answer, dropped = salvage_rows(RoleCitationCorrections, getattr(exc, 'parsed_payload', None))
+                repair['corrections'] = answer.model_dump(mode='json')['corrections'] if answer else []
+                repair['output_recovery'] = {'policy': OUTPUT_RECOVERY_POLICY, 'error_class': type(exc).__name__,
+                                             'error': str(exc), 'usable': answer is not None, 'dropped_rows': dropped}
             except Exception as exc:
                 repair.update(status='provider_failed', error=str(exc))
                 save('role_citation_repair_failed')
