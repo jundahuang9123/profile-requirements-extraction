@@ -116,10 +116,14 @@ def test_table_choice_retains_every_exact_value_and_order(many_entries):
 def test_oversized_saved_choice_reuses_all_relevance_calls_then_sees_every_entry(many_entries, monkeypatch):
     manifest, entries = many_entries
     call, calls = scripted_panel()
-    # Reproduce v12's old failure without accepting a partial panel or adding a
-    # final call. The previously completed relevance requests remain durable.
+    # Reproduce v12's old stop without accepting a partial panel or adding a final call:
+    # no table encoding, and the overflow path itself failing. The previously completed
+    # relevance requests remain durable.
+    def old_stop(*args, **kwargs):
+        raise ValueError('103 entries were judged relevant, more than one panel request can offer.')
     with monkeypatch.context() as old:
         old.setattr(registry, 'compact_choice_payload', lambda payload: payload)
+        old.setattr(registry, 'choice_blocks', old_stop)
         with pytest.raises(ValueError, match='more than one panel request'):
             registry.choose_panel(manifest, entries, [], call, lambda event: None, {'model': 'scripted'})
     completed = deepcopy(manifest['panel_calls'])
@@ -156,14 +160,55 @@ def test_table_correction_keeps_the_same_entries_and_stays_within_request_bound(
     assert manifest['panel_calls'][-1]['correction']['status'] == 'valid'
 
 
-def test_table_still_too_large_fails_without_dropping_entries(many_entries, monkeypatch):
+def test_table_still_too_large_is_chosen_through_nominations_without_dropping_entries(many_entries, monkeypatch):
     manifest, entries = many_entries
     legacy = registry.choice_payload(entries, [], manifest['max_roles'], manifest['candidates'])
-    monkeypatch.setattr(registry, 'PANEL_CHARS', len(canonical(registry.compact_choice_payload(legacy))) - 1)
+    budget = len(canonical(registry.compact_choice_payload(legacy))) - 1
+    monkeypatch.setattr(registry, 'PANEL_CHARS', budget)
     before = deepcopy(entries)
     call, calls = scripted_panel()
-    with pytest.raises(ValueError, match='even after lossless table encoding; no entry was dropped'):
-        registry.choose_panel(manifest, entries, [], call, lambda event: None, {'model': 'scripted'})
-    assert entries == before and not manifest['selected_roles']
-    assert all(system == registry.RELEVANCE_PROMPT for system, _ in calls)
-    assert not manifest.get('panel_input_compactions')
+    registry.choose_panel(manifest, entries, [], call, lambda event: None, {'model': 'scripted'})
+    assert entries == before
+    assert all(len(canonical(payload)) <= budget for _, payload in calls)
+    nominations = [p for s, p in calls if s == registry.NOMINATION_PROMPT]
+    finals = [p for s, p in calls if s == registry.PANEL_PROMPT]
+    assert len(nominations) >= 2 and len(finals) == 1
+    reduction = manifest['panel_choice_reduction']
+    assert reduction['policy'] == registry.CHOICE_REDUCTION_POLICY
+    assert reduction['offered_bases'] == ['documented'] and reduction['not_offered_ids'] == []
+    assert reduction['nomination_blocks'] == len(nominations)
+    # Every entry was offered to exactly one nomination block; nominees reach the final choice.
+    offered = [e['entry_id'] for p in nominations for e in (
+        [dict(zip(p['entry_fields'], row, strict=True)) for row in p['entries']] if 'entry_fields' in p else p['entries'])]
+    assert sorted(offered) == sorted(e['entry_id'] for e in entries)
+    final = [dict(zip(finals[0]['entry_fields'], row, strict=True)) for row in finals[0]['entries']] \
+        if 'entry_fields' in finals[0] else finals[0]['entries']
+    assert {e['entry_id'] for e in final} == set(reduction['nominee_ids'])
+    assert len(manifest['selected_roles']) == 4
+    assert len(manifest['omissions']) + len(manifest['selected_roles']) == len(entries)
+    assert [r['scope'] for r in manifest['selection_rounds']][-1] == 'nominated_entries'
+    count = len(calls)
+    registry.choose_panel(manifest, entries, [], call, lambda event: None, {'model': 'scripted'})
+    assert len(calls) == count
+
+
+def test_bases_that_cannot_hold_a_place_are_not_offered_when_the_choice_is_too_large(three_batches, monkeypatch):
+    manifest, entries = panel_fixture(three_batches, ['documented'] * 5 + ['inferred'] * 3)
+    everything = registry.compact_choice_payload(
+        registry.choice_payload(entries, [], manifest['max_roles'], manifest['candidates']))
+    documented = [e for e in entries if e['basis'] == 'documented']
+    only_documented = registry.compact_choice_payload(
+        registry.choice_payload(documented, [], manifest['max_roles'], manifest['candidates']))
+    # The whole choice no longer fits; the documented entries alone still do.
+    monkeypatch.setattr(registry, 'PANEL_CHARS', len(canonical(only_documented)))
+    assert len(canonical(everything)) > registry.PANEL_CHARS
+    call, calls = scripted_panel()
+    registry.choose_panel(manifest, entries, [], call, lambda event: None, {'model': 'scripted'})
+    reduction = manifest['panel_choice_reduction']
+    assert reduction['offered_bases'] == ['documented']
+    assert reduction['not_offered_ids'] == sorted(e['entry_id'] for e in entries if e['basis'] == 'inferred')
+    assert 'nomination_blocks' not in reduction
+    assert all(r['filled_via'] == 'documented' for r in manifest['selected_roles'])
+    omitted = {o['entry_id']: o for o in manifest['omissions']}
+    assert all(omitted[i]['relevant'] for i in reduction['not_offered_ids'])  # relevant, but no place left
+    assert len(manifest['omissions']) + len(manifest['selected_roles']) == len(entries)

@@ -79,15 +79,21 @@ it does not fuzzy-match a paraphrase. An empty selection with a nonblank explana
 retains the candidate as **proposed**, removes its source citations and replaces its
 documentary rationale with an explicit human-review disclaimer. The original proposal
 and the model's explanation remain in the audit; no source support is invented.
-An unknown span ID, duplicate IDs or a missing explanation still stops selection.
-Choosing an authentic excerpt
+Since `rq1-citation-repair-fallback-v1`, a candidate the single correction leaves
+unsupported is retained the same way, instead of stopping selection: a correction
+that is missing, names an unknown or repeated span ID, or still fails validation. Its
+disposition reads `retained_as_proposed_after_failed_repair`; corrections for other
+or repeated candidate indices are ignored and listed in the repair's `fallback` audit.
+A correction call that returned no answer (provider failure or interruption) is asked
+again on Resume, with the failed attempt kept in `retries`
+(`rq1-citation-repair-retry-v1`). Choosing an authentic excerpt
 does not establish semantic support: the excerpt may still be irrelevant.
 For nonempty excerpt selections the correction changes only invalid candidates'
 citations: their labels, basis, stakeholder identities and remit stay unchanged.
 Valid candidates cannot be replaced. Original responses, corrections and both
-validation reports remain in `role_manifest.validation_attempts`. A failed correction
-stops selection visibly; it never silently drops candidates or triggers generic
-fallback. The UI exposes proposed dispositions and panel correction attempts.
+validation reports remain in `role_manifest.validation_attempts`. A correction never
+silently drops candidates or triggers generic fallback. The UI exposes proposed
+dispositions and panel correction attempts.
 Source resolution errors and unrelated provider errors do not trigger citation repair.
 
 In automatic discovery, an undeclared task ID is discarded rather than guessed or
@@ -231,9 +237,20 @@ remove sources/tasks or select a smaller shortlist. `panel_input_compactions` re
 `rq1-panel-choice-table-v1`, entry count, columns, both character counts and payload hash.
 Only an oversized final choice uses this representation; existing object requests and
 completed relevance checkpoints keep their keys. If no block finds a relevant entry,
-or even the table still exceeds the budget, selection fails explicitly; entries are
-never dropped to fit. These are character bounds, not guarantees about a provider's
-token context window.
+selection fails explicitly.
+
+If even the table exceeds the budget (`rq1-panel-choice-reduction-v1`, recorded in
+`panel_choice_reduction`), the choice first offers only the bases that can still hold
+a place under the program-checked rule: with at least `max_roles` relevant documented
+entries, inferred and proposed entries could never be kept, so they are not offered;
+they stay saved as relevant omissions. If that is still too large, stable blocks in
+entry-ID order each nominate up to `max_roles` entries under the same rules
+(`nomination_block` rounds, a nomination prompt that names the later choice), and one
+decision chooses the panel among all nominees (`nominated_entries` round). Every
+entry keeps a verdict: the final one, its nomination block's, or its relevance
+block's. A block applies the documented-first rule to its own entries, so the final
+choice still fills places documented first. Entries are never dropped to fit. These
+are character bounds, not guarantees about a provider's token context window.
 
 ### Exact missing-verdict corrections
 
