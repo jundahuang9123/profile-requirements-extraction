@@ -22,6 +22,11 @@ POLICY_VERSION = 'rq1-stakeholder-selection-v12'
 DISCOVERY_OUTPUT_TOKENS = 8000
 BATCH_CHARS = 40000
 MAX_CALLS_PER_BATCH = 2  # discovery and its single citation correction
+# A citation repair that returned no answer (provider failure, interruption) is still owed.
+CITATION_RETRY_POLICY = 'rq1-citation-repair-retry-v1'
+# A candidate the single repair leaves unsupported stays as a proposed, uncited perspective.
+CITATION_FALLBACK_POLICY = 'rq1-citation-repair-fallback-v1'
+UNSUPPORTED_RATIONALE = 'Proposed perspective for human review; this source batch did not establish documentary support.'
 # Highest number of source batches one selection scan may read.
 MAX_BATCHES_CEILING = 128
 # Limit of runs created before a scan covered the whole corpus and that recorded none.
@@ -401,11 +406,8 @@ def _ensure_legacy_selection_resumable(manifest: dict):
                 'this batch needs a new discovery call under the changed contract.')
         else:
             raise ValueError('Role-selection policy has changed; create a new run instead of resuming this older manifest.')
-    if any(attempt['phase'] == 'citation_repair' and attempt['status'] != 'valid'
-           and not _recoverable_unsupported_citation_repair(attempt, manifest)
-           for attempt in manifest.get('validation_attempts', [])):
-        raise ValueError('The single role-citation repair was already attempted or interrupted. '
-                         'Review its saved validation audit and create a new run; resume will not repeat inference.')
+    # Citation repairs are not refused here: one that returned no answer is asked again and
+    # a saved answer is completed by the fallback rule (see discover in select_roles).
     if any(attempt['status'] in {'started', 'provider_failed', 'invalid'}
            for attempt in manifest.get('panel_accounting_repairs', [])):
         raise ValueError('Panel accounting correction was interrupted or failed. Review its saved audit before retrying.')
@@ -875,12 +877,18 @@ def select_roles(store: Store, run: dict, client) -> dict:
 
         repair = next((attempt for attempt in attempts
                        if attempt['batch_index'] == index and attempt['phase'] == 'citation_repair'), None)
-        if repair is None:
-            repair = {'batch_index': index, 'phase': 'citation_repair', 'status': 'started',
-                      'corrections': [], 'validation_report': []}
-            attempts.append(repair)
-            # Claim the one attempt before a network call. An interrupted call is not
-            # silently repeated on resume; its possibly successful remote work is unknown.
+        if repair is None or repair['status'] in {'started', 'provider_failed'}:
+            if repair is None:
+                repair = {'batch_index': index, 'phase': 'citation_repair', 'status': 'started',
+                          'corrections': [], 'validation_report': []}
+                attempts.append(repair)
+            else:
+                # No answer was received, so the single repair is still owed. Keep the
+                # failed attempt for audit and ask again.
+                repair.setdefault('retries', []).append({'policy': CITATION_RETRY_POLICY,
+                    'previous_status': repair['status'], 'error': repair.pop('error', None)})
+                repair.update(status='started', corrections=[])
+            # Claim the attempt before the network call.
             save('role_citation_repair_started')
             source_spans = source_spans_for(batch)
             repair['source_spans'] = source_spans
@@ -896,48 +904,60 @@ def select_roles(store: Store, run: dict, client) -> dict:
             except Exception as exc:
                 repair.update(status='provider_failed', error=str(exc))
                 save('role_citation_repair_failed')
-                raise ValueError(f'Role quotation repair failed; its single attempt is exhausted: {exc}') from exc
+                raise
+        # One answer per invalid candidate. A correction for another index, or a repeat,
+        # is ignored; a candidate the repair cannot support becomes a proposed, uncited
+        # perspective (as an explicit "no support" answer always did), never a stop.
         expected = {item['candidate_index'] for item in invalid}
-        received = [item['candidate_index'] for item in repair['corrections']]
-        if len(received) != len(set(received)) or set(received) != expected:
-            message = 'Citation repair must return every invalid candidate index exactly once and no valid/new candidates.'
-            repair.update(status='invalid', validation_report=[{'candidate_index': None, 'label': 'Citation repair',
-                'status': 'invalid', 'errors': [{'code': 'repair_indices', 'repairable': False, 'message': message}]}])
-            save('role_citation_repair_failed')
-            raise ValueError(message)
+        answers, ignored = {}, []
+        for correction in repair['corrections']:
+            position = correction['candidate_index']
+            if position not in expected or position in answers:
+                ignored.append(position)
+                continue
+            answers[position] = correction
         corrected = [proposal.model_copy(deep=True) for proposal in proposals]
         spans_by_id = {span['span_id']: span for span in repair['source_spans']}
-        span_errors, unresolved = [], []
-        for correction in repair['corrections']:
-            index_in_batch = correction['candidate_index']
+        unresolved, fallback = [], []
+        def retain_as_proposed(position, reason, disposition='retained_as_proposed_after_failed_repair'):
+            body = corrected[position].model_dump(mode='json')
+            body.update(basis='proposed', evidence_links=[], rationale=UNSUPPORTED_RATIONALE)
+            corrected[position] = RoleProposal.model_validate(body)
+            unresolved.append({'candidate_index': position, 'label': corrected[position].label,
+                               'disposition': disposition, 'reason': reason})
+            if disposition != 'retained_as_proposed_without_citation':
+                fallback.append(position)
+        for position in sorted(expected):
+            correction = answers.get(position)
+            if correction is None:
+                retain_as_proposed(position, 'The citation repair returned no correction for this candidate.')
+                continue
             selected = correction['source_span_ids']
             if not selected and str(correction.get('unresolved_reason', '')).strip():
-                body = corrected[index_in_batch].model_dump(mode='json')
-                body.update(basis='proposed', evidence_links=[],
-                    rationale='Proposed perspective for human review; this source batch did not establish documentary support.')
-                corrected[index_in_batch] = RoleProposal.model_validate(body)
-                unresolved.append({'candidate_index': index_in_batch,
-                    'label': corrected[index_in_batch].label,
-                    'disposition': 'retained_as_proposed_without_citation',
-                    'reason': str(correction['unresolved_reason'])})
+                retain_as_proposed(position, str(correction['unresolved_reason']), 'retained_as_proposed_without_citation')
                 continue
             if not selected or len(selected) != len(set(selected)) or any(sid not in spans_by_id for sid in selected):
-                span_errors.append({'candidate_index': index_in_batch, 'label': proposals[index_in_batch].label,
-                    'status': 'invalid', 'errors': [{'code': 'invalid_span_selection', 'repairable': False,
-                    'message': correction.get('unresolved_reason') or 'Choose one or two distinct source span IDs from the supplied catalogue.'}]})
+                retain_as_proposed(position, correction.get('unresolved_reason')
+                                   or 'The citation repair selected no valid source excerpt.')
                 continue
             links = [{key: spans_by_id[sid][key] for key in ('evidence_id', 'quote', 'quote_start')} for sid in selected]
-            body = corrected[index_in_batch].model_dump(mode='json')
-            corrected[index_in_batch] = RoleProposal.model_validate({**body, 'evidence_links': links})
-        if span_errors:
-            repair.update(status='invalid', validation_report=span_errors)
-            save('role_citation_repair_failed')
-            raise ValueError('Role quotation repair returned invalid source-span IDs; inspect the validation audit.')
+            body = corrected[position].model_dump(mode='json')
+            corrected[position] = RoleProposal.model_validate({**body, 'evidence_links': links})
         normalized, validation = validate_candidates(store, corrected, evidence_ids, tasks, cache)
+        still_invalid = [item for item in validation if item['errors']]
+        if still_invalid and all(issue['repairable'] for item in still_invalid for issue in item['errors']):
+            repair['repaired_validation_report'] = validation
+            for item in still_invalid:
+                retain_as_proposed(item['candidate_index'], 'Its repaired citations still failed validation: '
+                                   + '; '.join(issue['message'] for issue in item['errors']))
+            normalized, validation = validate_candidates(store, corrected, evidence_ids, tasks, cache)
         repair.update(status='invalid' if any(item['errors'] for item in validation) else 'valid',
                       validation_report=validation, unresolved_candidates=unresolved)
+        if fallback or ignored:
+            repair['fallback'] = {'policy': CITATION_FALLBACK_POLICY, 'retained_as_proposed': sorted(fallback),
+                                  'ignored_correction_indices': ignored}
         if unresolved:
-            # Reusing a saved valid repair must not duplicate its review dispositions.
+            # Reusing a saved repair must not duplicate its review dispositions.
             manifest['unresolved_role_candidates'] = [item for item in manifest.get('unresolved_role_candidates', [])
                                                       if item['batch_index'] != index]
             manifest['unresolved_role_candidates'].extend({'batch_index': index, **item} for item in unresolved)

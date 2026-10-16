@@ -533,24 +533,48 @@ def test_v7_unfinished_scan_is_refused_without_repeating_inference(corpus):
     assert not client.calls and run['role_manifest'] == before
 
 
-@pytest.mark.parametrize('mode', ['invalid', 'wrong_target', 'provider_failure'])
-def test_failed_citation_repair_never_falls_back_or_repeats_on_resume(corpus, mode):
+@pytest.mark.parametrize('mode', ['invalid', 'wrong_target'])
+def test_unsupported_candidate_after_its_single_repair_stays_proposed_and_uncited(corpus, mode):
     store, _, _ = corpus
     run = legacy_repair_run(corpus)
     client = RepairClient(repair=mode)
-    execute_run(store, run['run_id'], client)
+    manifest = selector.select_roles(store, run, TrackedClient(client, store, run['run_id']))
+    assert manifest['status'] == 'completed'
+    assert [name for name, _ in client.calls].count('RoleCitationCorrections') == 1
+    repair = next(a for a in manifest['validation_attempts'] if a['phase'] == 'citation_repair')
+    assert repair['status'] == 'valid'
+    assert repair['fallback']['policy'] == selector.CITATION_FALLBACK_POLICY
+    assert repair['fallback']['retained_as_proposed'] == [1]
+    assert repair['fallback']['ignored_correction_indices'] == ([0] if mode == 'wrong_target' else [])
+    proposed = [c for c in manifest['candidates'] if c['label'] == 'Data publisher']
+    assert len(proposed) == 1 and proposed[0]['basis'] == 'proposed' and proposed[0]['evidence_links'] == []
+    assert proposed[0]['rationale'] == selector.UNSUPPORTED_RATIONALE
+    kept = [c for c in manifest['candidates'] if c['label'] == 'Catalogue operator']
+    assert kept[0]['basis'] == 'documented' and kept[0]['evidence_links']
+    assert [u['disposition'] for u in manifest['unresolved_role_candidates']] == ['retained_as_proposed_after_failed_repair']
+    # The original generated candidates are unchanged in the audit.
+    assert manifest['validation_attempts'][0]['candidates'][1]['basis'] == 'documented'
+
+
+def test_citation_repair_lost_to_the_provider_is_asked_once_more_on_resume(corpus):
+    store, _, _ = corpus
+    run = legacy_repair_run(corpus)
+    broken = RepairClient(repair='provider_failure')
+    execute_run(store, run['run_id'], broken)
     failed = store.get('run', run['run_id'])
-    assert failed['status'] == failed['role_manifest']['status'] == failed['stages']['role_selection'] == 'failed'
-    manifest = failed['role_manifest']
-    assert manifest['selected_roles'] == [] and manifest['candidates'] == []
-    assert 'fallback_reason' not in manifest
-    assert len(manifest['validation_attempts']) == 2
-    assert len(manifest['validation_attempts'][0]['candidates']) == 2
-    assert [name for name, _ in client.calls] == ['RoleCitationCorrections']
-    second_client = RepairClient()
-    with pytest.raises(ValueError, match='already attempted or interrupted'):
-        selector.select_roles(store, failed, second_client)
-    assert not second_client.calls
+    assert failed['status'] == 'failed' and 'Connection interrupted' in ' '.join(failed['diagnostics'])
+    repair = next(a for a in failed['role_manifest']['validation_attempts'] if a['phase'] == 'citation_repair')
+    assert repair['status'] == 'provider_failed'
+    selector.ensure_selection_resumable(failed['role_manifest'])
+    client = RepairClient()
+    manifest = selector.select_roles(store, failed, TrackedClient(client, store, run['run_id']))
+    assert manifest['status'] == 'completed'
+    assert [name for name, _ in client.calls].count('RoleCitationCorrections') == 1
+    repair = next(a for a in manifest['validation_attempts'] if a['phase'] == 'citation_repair')
+    assert repair['status'] == 'valid' and 'fallback' not in repair
+    assert repair['retries'] == [{'policy': selector.CITATION_RETRY_POLICY, 'previous_status': 'provider_failed',
+                                  'error': 'Connection interrupted'}]
+    assert all(c['basis'] == 'documented' for c in manifest['candidates'])
 
 
 @pytest.mark.parametrize('basis, task_ids, with_evidence, expected_basis, expected_ids', [
@@ -749,9 +773,9 @@ def test_policy_change_and_interrupted_repair_require_new_run(corpus):
     with pytest.raises(ValueError, match='new run'):
         selector.select_roles(store, old_run, SelectorClient())
     current = auto_run(corpus)
+    # An interrupted citation repair no longer blocks resume: it is asked again.
     current['role_manifest']['validation_attempts'] = [{'batch_index': 0, 'phase': 'citation_repair', 'status': 'started'}]
-    with pytest.raises(ValueError, match='already attempted or interrupted'):
-        selector.ensure_selection_resumable(current['role_manifest'])
+    selector.ensure_selection_resumable(current['role_manifest'])
     historical = {**old_run['role_manifest'], 'status': 'completed'}
     selector.ensure_selection_resumable(historical)
 
