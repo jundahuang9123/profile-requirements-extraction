@@ -1,7 +1,7 @@
 # Model choice per workflow step
 
 New agent runs and derived trials accept `step_models`. Leave it empty to use the
-configured provider model everywhere. The service resolves all twelve defaults,
+configured provider model everywhere. The service resolves all thirteen defaults,
 reads that provider's `/models` catalogue, rejects unavailable and embedding
 models, and saves the resolved mapping in both `run.step_models` and
 `run.request.step_models` before creating the run. Exact provider IDs are used,
@@ -23,11 +23,12 @@ no model fallback. Native Anthropic model catalogues are paginated.
 | `role_selection` | Stakeholder discovery, citation correction, registry merging and final panel selection |
 | `extraction` | Independent source-span extraction by every selected role |
 | `proposal_support` | Check whether excerpts support each extracted proposal |
-| `grouping` | Group proposals describing the same underlying need |
+| `grouping` | Group proposals describing the same underlying need; group kept needs into families (D5) |
 | `writer` | Write neutral, term-free needs, including bounded rewrite recovery |
 | `rewrite_critic` | Independently check that a rewrite preserves its source meaning |
 | `membership` | Verify whether other grouped proposals express that need |
 | `classification` | Compare needs with the frozen base-needs catalogue |
+| `profile_scope` | Judge needs against the profile scope (D5): find or access, catalogue level, commonly agreed |
 | `use_case_linker` | Link needs to declared use cases |
 | `link_critic` | Check the necessity of those links |
 | `assessment` | Assess final retained needs against their authentic excerpts |
@@ -164,7 +165,7 @@ extraction-only check above and is not a full Mobility benchmark.
 
 ## Offline validation
 
-The tests exercise all twelve routes through actual selection and needs-processing
+The tests exercise all thirteen routes through actual selection and needs-processing
 call sites, independent writer/critic choices, creation validation, derived-trial
 isolation, model-specific row/grouping/assessment/discussion checkpoints, supported
 reasoning payloads and Qwen thinking/token-limit handling. HTTP replies and model

@@ -35,6 +35,9 @@ class NeedsClient:
             return output_model.model_validate({'checks':[{'group_id':g,'supported':True,
                 'no_added_actor':True,'no_added_obligation':True,'no_added_condition':True,'no_added_scope':True,
                 'rationale':'Scripted independent rewrite check.'} for g in data['groups']]})
+        if name == 'ProfileScope':
+            return output_model.model_validate({'decisions':[{'need_id':i,'serves':'find','catalogue_level':True,
+                'commonly_agreed':True,'rationale':'Scripted in-scope judgement.'} for i in data['needs']]})
         raise AssertionError(name)
 
 

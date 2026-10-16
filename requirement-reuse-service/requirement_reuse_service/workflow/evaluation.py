@@ -133,7 +133,7 @@ def needs_metrics(run, frozen=None):
     steps=frozen.get('need_steps',run.get('need_steps',{}))
     asides=frozen.get('set_aside_observations',run.get('set_aside_observations',[]))
     mapping={'ProposalSupport':'proposal_support','SemanticGrouping':'grouping','NeedStatements':'need_statement','NeedGrounding':'rewrite_critic',
-             'NeedMembership':'need_membership','NeedClassifications':'classification','NeedUseCaseLinks':'scoping','UseCaseCritic':'scope_critic',
+             'NeedMembership':'need_membership','NeedClassifications':'classification','ProfileScope':'profile_scope','NeedUseCaseLinks':'scoping','UseCaseCritic':'scope_critic',
              'Qualification':'assessment','NeedSpanElicitationResult':'extraction','Turn':'discussion',
              'RoleCandidates':'role_selection','RolePanel':'role_selection','RoleCitationCorrections':'role_selection',
              'RoleRegistry':'role_selection','StakeholderPanel':'role_selection'}
@@ -154,8 +154,10 @@ def needs_metrics(run, frozen=None):
                   'source_passed_candidates':steps.get('source_check',{}).get('passed_count'),
                   'needs':steps.get('need_statement',{}).get('need_count'),
                   'after_classification':steps.get('classification',{}).get('retained_count'),
+                  'after_profile_scope':steps.get('profile_scope',{}).get('retained_count'),
                   'after_scoping':steps.get('scoping',{}).get('retained_count'),
-                  'kept_needs':len(frozen.get('active_revision_ids',run['active_revision_ids']))},
+                  'kept_needs':len(frozen.get('active_revision_ids',run['active_revision_ids'])),
+                  'families':steps.get('families',{}).get('family_count')},
         'steps':steps,'calls_by_step':calls_by_step,'rejected_generation_outputs_by_step':dict(validations), 'fallbacks_by_step':dict(fallbacks),
         'base_catalogue_review':(run.get('base_needs_catalogue') or {}).get('review'),
         'limitations':['Counts describe processing, not accuracy, recall or measured human effort.',

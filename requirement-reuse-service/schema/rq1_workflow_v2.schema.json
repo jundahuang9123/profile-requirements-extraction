@@ -659,6 +659,7 @@
               "rewrite_critic",
               "membership",
               "classification",
+              "profile_scope",
               "use_case_linker",
               "link_critic",
               "assessment",
@@ -1613,6 +1614,24 @@
       "title": "OmittedRole",
       "type": "object"
     },
+    "ProfileScope": {
+      "additionalProperties": false,
+      "properties": {
+        "decisions": {
+          "items": {
+            "$ref": "#/$defs/ScopeDecision"
+          },
+          "maxItems": 25,
+          "title": "Decisions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "decisions"
+      ],
+      "title": "ProfileScope",
+      "type": "object"
+    },
     "ProposalSupport": {
       "additionalProperties": false,
       "properties": {
@@ -2051,6 +2070,18 @@
           },
           "title": "Processing Flags",
           "type": "array"
+        },
+        "profile_scope": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Profile Scope"
         },
         "proposal_support": {
           "anyOf": [
@@ -2624,6 +2655,7 @@
               "rewrite_critic",
               "membership",
               "classification",
+              "profile_scope",
               "use_case_linker",
               "link_critic",
               "assessment",
@@ -2648,6 +2680,48 @@
         "snapshot_id"
       ],
       "title": "RunRequest",
+      "type": "object"
+    },
+    "ScopeDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "catalogue_level": {
+          "title": "Catalogue Level",
+          "type": "boolean"
+        },
+        "commonly_agreed": {
+          "title": "Commonly Agreed",
+          "type": "boolean"
+        },
+        "need_id": {
+          "title": "Need Id",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "serves": {
+          "enum": [
+            "find",
+            "access",
+            "both",
+            "neither"
+          ],
+          "title": "Serves",
+          "type": "string"
+        }
+      },
+      "required": [
+        "need_id",
+        "serves",
+        "catalogue_level",
+        "commonly_agreed",
+        "rationale"
+      ],
+      "title": "ScopeDecision",
       "type": "object"
     },
     "SemanticGrouping": {
@@ -2723,7 +2797,10 @@
             "no_use_case",
             "not_supported_by_quote",
             "source_check_failed",
-            "rewrite_rejected"
+            "rewrite_rejected",
+            "not_find_or_access",
+            "not_catalogue_level",
+            "not_commonly_agreed"
           ],
           "title": "Reason",
           "type": "string"
@@ -3795,6 +3872,7 @@
               "rewrite_critic",
               "membership",
               "classification",
+              "profile_scope",
               "use_case_linker",
               "link_critic",
               "assessment",
