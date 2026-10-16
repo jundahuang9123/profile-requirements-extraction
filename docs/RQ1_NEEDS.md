@@ -384,8 +384,8 @@ under their original candidate policy. A separate derived trial reuses the exact
 saved extraction, including v2.11 wording, while rewriting every resulting group.
 It neither re-extracts nor reuses old per-candidate assessments.
 
-Mobility is the held-out test case. Use JRC and a predeclared part of StatDCAT as
-development cases; HealthDCAT-AP and GeoDCAT-AP are held out
+Mobility is the held-out test case. Use JRC and all of StatDCAT as development
+cases, never reported as test results; HealthDCAT-AP and GeoDCAT-AP are held out
 (`benchmark-data/BENCHMARK-METHODOLOGY.md`). Junda writes dated use cases from each
 documented purpose before running. Scoping off is a reported comparison. Prior base-check and grouping heuristics
 were adjusted while reading Mobility candidates, never Mobility reference rows;
