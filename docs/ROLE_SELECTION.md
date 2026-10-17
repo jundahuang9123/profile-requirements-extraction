@@ -157,6 +157,15 @@ or the bounded grouping procedure are semantically perfect.
    such as Business & SME Re-users and Data User included, because its competency
    questions ask about providers and owners. The rule was made explicit after that
    run; no reference requirement was consulted.)
+   Writing, editing, reviewing or approving the source documents, vocabularies or the
+   profile is not taking part in a use case: authors, editors, contributors, reviewers,
+   working groups and standards bodies maintain the specification, not the data. Such
+   an entry is relevant only when the sources show it also publishing, maintaining,
+   finding or using the data, and its reason must say how. (A StatDCAT development run
+   on 17 October kept DCAT Editors, W3C Reviewers and DCAT Specification Authors as
+   three of four roles, each judged relevant for defining or reviewing the vocabulary;
+   publisher and consumer entries were in the registry. The rule was made explicit
+   after that run.)
    More documenting sources break ties; a single source is not a
    reason to exclude an otherwise relevant perspective. Program checks enforce
    documented/relevant entries first, inferred/relevant entries next, then proposed/

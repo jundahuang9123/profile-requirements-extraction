@@ -463,12 +463,19 @@ def build_registry(store, manifest, tasks, call, save, model, mock=False):
 # Relevance is judged by what a stakeholder does with the data, on either side of a use case.
 # A functional Mobility run judged every user-side entry irrelevant, documented ones included,
 # because its competency questions ask about providers and owners; the rule now names both sides.
+# A StatDCAT development run then kept the DCAT editors, W3C reviewers and specification authors
+# as three of four roles, judged relevant as maintainers of the vocabulary; the rule now says that
+# maintaining a specification is not maintaining the data.
 RELEVANCE_RULE = '''Relevant people take part in the declared use cases from either side: those who
 ask the questions or carry out the tasks (people finding, judging or using the data), and those who
 publish or maintain the data the use cases are about. Judge a stakeholder by what it does with the
 data, not by whether a use case mentions it: people asking which datasets an organisation provides
 are relevant users, and that organisation is relevant as a publisher. With no declared use cases,
-relevant people publish, maintain, find or use the data the profile describes.'''
+relevant people publish, maintain, find or use the data the profile describes. Writing, editing,
+reviewing or approving the source documents, vocabularies or the profile (authors, editors,
+contributors, reviewers, working groups, standards bodies) is not taking part: it maintains the
+specification, not the data. Such an entry is relevant only when the sources show it also
+publishing, maintaining, finding or using the data, and its reason says how.'''
 
 PANEL_PROMPT = '''Choose the stakeholder panel once, using the whole registry and declared use cases.
 Give EVERY entry_id exactly one relevance verdict: first copy that entry's exact label, then its

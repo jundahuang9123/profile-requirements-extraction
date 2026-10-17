@@ -83,7 +83,8 @@ OpenAI-compatible request. A complete response that fails JSON parsing or schema
 validation is sent back to the same configured model with the original source
 context, schema and validation paths/types. The model must correct its structure
 while preserving supported needs. The application does not slice excess citations,
-guess enum aliases or accept the valid fraction of an invalid object. The corrected
+guess enum aliases or accept the valid fraction of an invalid object; the one exception,
+for typed labels, is described below. The corrected
 response is validated again; ordinary citation/source and obligation checks still apply.
 Native Anthropic structured parsing does not use this additional correction path.
 Qualification and discussion requests retain their existing generation budgets.
@@ -91,6 +92,19 @@ Qualification and discussion requests retain their existing generation budgets.
 If extraction still fails its schema, split a multi-unit batch in half and process
 both halves. A single evidence unit that still fails is marked failed, and the role
 goes on to the remaining units.
+
+One exception keeps an answer that fails only on typed labels
+(`rq1-extraction-label-recovery-v1`). When every remaining issue is a requirement type,
+resource type, value kind or obligation hint outside its listed values, each such label
+is set to its neutral `unknown` value and the answer is accepted without splitting. No
+other value is guessed: statements, citations, scope, support level and task links stay
+as answered, and an obligation is never added. The role report lists each reset with the
+value the model gave (`label_resets`), the batch notes the recovery, and the failed call
+stays on record. Any other issue rejects the answer as before. Labels are suggestions,
+not evidence. (Two StatDCAT development runs lost units to resource types the contract
+does not list, five units in three roles on 16 October and one unit in two roles on
+17 October. The values were not recorded then; that unit covers the Data Cube integrity
+rules for observations and slices.)
 
 A schema-valid answer can still cite an excerpt ID that is not in the supplied
 catalogue, or repeat an identical link. No observation from such an answer is
