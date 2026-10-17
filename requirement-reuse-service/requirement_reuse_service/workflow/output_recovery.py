@@ -1,14 +1,22 @@
-"""Keep the usable rows of a role-selection answer that failed its output contract.
+"""Recover usable output from an answer that failed its output contract.
 
-Applied after the client's single schema correction, to complete JSON only. A row is kept
-only when it passes its own contract unchanged; nothing is trimmed, rewritten or invented.
-Only an answer with nothing usable in it, or a provider failure, stops a run.
+Role selection keeps the rows that pass their own contract unchanged; nothing is trimmed,
+rewritten or invented. Extraction resets typed labels outside their values to unknown.
+Both apply after the client's single schema correction, to complete JSON only. Only an
+answer with nothing usable in it, or a provider failure, stops a run.
 """
+from copy import deepcopy
 from typing import get_args, get_origin
 
 from pydantic import BaseModel, ValidationError
 
 POLICY = 'rq1-role-selection-output-recovery-v1'
+LABEL_POLICY = 'rq1-extraction-label-recovery-v1'
+# Typed labels of an extraction proposal are suggestions, not evidence. Each has a value
+# that says the label is not known; no other value is ever guessed.
+NEUTRAL_LABELS = {('requirement_type',): 'unknown', ('intent', 'resource_type'): 'Unknown',
+                  ('intent', 'value_kind'): 'unknown', ('intent', 'obligation_hint'): 'unknown'}
+RECORDED_VALUE_CHARS = 200
 
 
 def issues(exc: ValidationError) -> list[dict]:
@@ -61,3 +69,38 @@ def salvage_rows(contract, parsed):
                 data.pop(name)
                 dropped.append({'field': name, 'reset_to_default': True})
     return None, dropped
+
+
+def reset_unknown_labels(contract, issues, parsed):
+    """``(answer, resets)`` when every issue is a typed label outside its values, else ``(None, [])``.
+
+    Each such label is set to its neutral unknown value and recorded with the value the
+    model gave. Statements, citations, scope, support level and task links stay as answered;
+    an obligation is never added. Any other issue leaves the answer rejected as before.
+    """
+    if not isinstance(parsed, dict) or not issues:
+        return None, []
+    data, resets, seen = deepcopy(parsed), [], set()
+    rows = data.get('observations')
+    for issue in issues:
+        loc = list(issue.get('loc') or [])
+        field = tuple(loc[2:])
+        if (issue.get('type') != 'literal_error' or len(loc) < 3 or loc[0] != 'observations'
+                or type(loc[1]) is not int or field not in NEUTRAL_LABELS):
+            return None, []
+        if (loc[1], field) in seen:
+            continue
+        row = rows[loc[1]] if isinstance(rows, list) and 0 <= loc[1] < len(rows) else None
+        holder = row.get('intent') if len(field) == 2 and isinstance(row, dict) else row
+        if not isinstance(holder, dict) or field[-1] not in holder:
+            return None, []
+        value = holder[field[-1]]
+        resets.append({'observation_index': loc[1], 'field': '.'.join(field),
+                       'value': (value if isinstance(value, str) else repr(value))[:RECORDED_VALUE_CHARS],
+                       'replacement': NEUTRAL_LABELS[field]})
+        holder[field[-1]] = NEUTRAL_LABELS[field]
+        seen.add((loc[1], field))
+    try:
+        return contract.model_validate(data), resets
+    except ValidationError:
+        return None, []

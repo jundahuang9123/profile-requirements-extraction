@@ -15,6 +15,7 @@ from ..llm.config import LLMConfig
 from ..llm.step_models import StepModelRouter, contract_step, for_step, resolve_models, model_identity, model_settings
 from .evidence import resolve_evidence
 from .citations import elicitation_batch, materialize_observation
+from .output_recovery import LABEL_POLICY, reset_unknown_labels
 from .models import (BaselineRequest, CorpusSnapshot, DecisionRequest, DeliberationCase, DeriveRequest,
                      SpanElicitationResult, NeedSpanElicitationResult, NEEDS_ELICITATION_POLICY, ELICITATION_POLICY_VERSION, NORMALIZATION_POLICY_VERSION, NEEDS_NORMALIZATION_POLICY, EvidenceLink, EvidenceUnit, Finding, Observation,
                      NormalizedIntent, Qualification, RequirementRecord, RunRequest, SnapshotRequest, WorkflowRun)
@@ -890,6 +891,7 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
         outputs = list(previous_report.get('raw_outputs', []))
         invalid_task_ids = set(previous_report.get('invalid_task_ids', []))
         task_link_corrections = list(previous_report.get('task_link_corrections', []))
+        label_resets = list(previous_report.get('label_resets', []))
         citation_selections = list(previous_selections)
         batch_failures = []
         unit_ids = {unit['evidence_id'] for unit in units}
@@ -902,6 +904,8 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
                       'invalid_task_ids': sorted(invalid_task_ids),
                       'task_link_corrections': task_link_corrections,
                       'observation_ids': [item.observation_id for item in observations]}
+            if label_resets:
+                report['label_resets'] = label_resets
             if run['strategy'] != 'mock':
                 # Coverage across this and earlier attempts under the same policy. A role is
                 # complete only when every unit has an accepted response.
@@ -1035,12 +1039,19 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
                         user=prompt, output_model=output_model, max_tokens=response_budget,
                         schema_repair_attempts=1)
                 except OutputValidationError as exc:
-                    selection.update(status='schema_invalid', error=str(exc))
-                    if len(batch) > 1:
-                        split(selection, batch_index, batch, response_budget)
-                    else:
-                        unit_failed(selection, 'schema_invalid', exc)
-                    continue
+                    # A typed label outside its values (such as a resource type the contract
+                    # does not list) becomes unknown; nothing else of the answer changes.
+                    result, resets = reset_unknown_labels(output_model, exc.issues, exc.parsed_payload)
+                    if result is None:
+                        selection.update(status='schema_invalid', error=str(exc))
+                        if len(batch) > 1:
+                            split(selection, batch_index, batch, response_budget)
+                        else:
+                            unit_failed(selection, 'schema_invalid', exc)
+                        continue
+                    selection['label_recovery'] = {'policy': LABEL_POLICY, 'error': str(exc), 'reset_count': len(resets)}
+                    label_resets.extend({'batch_index': batch_index, 'raw_output_index': len(outputs), **reset}
+                                        for reset in resets)
                 except OutputTokenLimitError as exc:
                     selection.update(status='output_cutoff', error=str(exc))
                     if len(batch) > 1:
