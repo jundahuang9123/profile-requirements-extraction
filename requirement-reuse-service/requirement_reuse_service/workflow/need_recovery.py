@@ -18,6 +18,8 @@ POLICY = 'rq1-needs-row-recovery-v2'
 class InputBoundError(ValueError):
     """Deterministic local failure; a retry cannot change the input size."""
 SPECS = {
+    'DatasetCategories':('units','evidence_id','evidence'),
+    'NeedEquivalence':('decisions','need_id','needs'),
     'NeedStatements':('needs','group_id','groups'),
     'NeedGrounding':('checks','group_id','groups'),
     'NeedMembership':('checks','member_id','members'),

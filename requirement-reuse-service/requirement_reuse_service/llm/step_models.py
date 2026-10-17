@@ -10,10 +10,10 @@ from .model_catalog import generation_models
 
 StepName = Literal['role_selection', 'extraction', 'proposal_support', 'grouping',
     'writer', 'rewrite_critic', 'membership', 'classification', 'profile_scope', 'use_case_linker',
-    'link_critic', 'assessment', 'discussion']
+    'link_critic', 'assessment', 'discussion', 'dataset_categories', 'selection']
 STEPS = ('role_selection', 'extraction', 'proposal_support', 'grouping', 'writer',
     'rewrite_critic', 'membership', 'classification', 'profile_scope', 'use_case_linker', 'link_critic',
-    'assessment', 'discussion')
+    'assessment', 'discussion', 'dataset_categories', 'selection')
 ModelID = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=256)]
 
 # Writer and critic deliberately have separate keys although they share a saved stage.
@@ -25,6 +25,7 @@ CONTRACT_STEPS = {
     'NeedStatements': 'writer', 'NeedGrounding': 'rewrite_critic',
     'NeedMembership': 'membership', 'NeedClassifications': 'classification',
     'ProfileScope': 'profile_scope',
+    'DatasetCategories': 'dataset_categories', 'NeedEquivalence': 'selection',
     'NeedUseCaseLinks': 'use_case_linker', 'UseCaseCritic': 'link_critic',
     'Qualification': 'assessment',
 }

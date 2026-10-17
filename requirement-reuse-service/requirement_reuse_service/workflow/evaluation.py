@@ -136,7 +136,8 @@ def needs_metrics(run, frozen=None):
              'NeedMembership':'need_membership','NeedClassifications':'classification','ProfileScope':'profile_scope','NeedUseCaseLinks':'scoping','UseCaseCritic':'scope_critic',
              'Qualification':'assessment','NeedSpanElicitationResult':'extraction','Turn':'discussion',
              'RoleCandidates':'role_selection','RolePanel':'role_selection','RoleCitationCorrections':'role_selection',
-             'RoleRegistry':'role_selection','StakeholderPanel':'role_selection'}
+             'RoleRegistry':'role_selection','StakeholderPanel':'role_selection',
+             'DatasetCategories':'dataset_categories','NeedEquivalence':'selection'}
     calls_by_step={}
     for call in run.get('model_calls',[]):
         step=mapping.get(call['output_contract'],'other')
@@ -158,6 +159,9 @@ def needs_metrics(run, frozen=None):
                   'after_scoping':steps.get('scoping',{}).get('retained_count'),
                   'kept_needs':len(frozen.get('active_revision_ids',run['active_revision_ids'])),
                   'families':steps.get('families',{}).get('family_count'),
+                  'compact_selected':steps.get('selection',{}).get('selected_count'),
+                  'dataset_categories':steps.get('dataset_categories',{}).get('category_count'),
+                  'uncovered_dataset_categories':len(steps.get('selection',{}).get('uncovered_category_ids', [])),
                   'profile_scope_classes':steps.get('profile_scope',{}).get('scope_classes'),
                   'base_gap':steps.get('classification',{}).get('base_gap_counts')},
         'steps':steps,'calls_by_step':calls_by_step,'rejected_generation_outputs_by_step':dict(validations), 'fallbacks_by_step':dict(fallbacks),

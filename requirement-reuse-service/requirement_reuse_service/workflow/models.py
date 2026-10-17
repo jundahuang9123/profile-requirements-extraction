@@ -325,6 +325,7 @@ class RequirementRecord(Contract):
     # Base-gap status from the classification (rq1-base-gap-status-v1): a miss among the
     # offered catalogue entries is unresolved, not proof that the base lacks the capability.
     base_gap: dict[str, Any] | None = None
+    dataset_coverage: dict[str, Any] | None = None
     # Linker's necessity annotation per kept use-case link (task ID -> necessary).
     use_case_necessity: dict[str, bool] = Field(default_factory=dict)
     need_condition: str = ''

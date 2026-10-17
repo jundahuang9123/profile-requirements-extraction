@@ -6,7 +6,8 @@ const steps = [
   ['proposal_support', 'Proposal support'], ['grouping', 'Grouping'],
   ['writer', 'Need writer'], ['rewrite_critic', 'Rewrite critic'],
   ['membership', 'Group membership'], ['classification', 'Base classification'],
-  ['profile_scope', 'Profile scope'],
+  ['dataset_categories', 'Dataset categories from sources'], ['profile_scope', 'Profile scope and category applicability'],
+  ['selection', 'Compact coverage selection'],
   ['use_case_linker', 'Use-case linking'], ['link_critic', 'Use-case link critic'],
   ['assessment', 'Support assessment'], ['discussion', 'Discussion'],
 ];

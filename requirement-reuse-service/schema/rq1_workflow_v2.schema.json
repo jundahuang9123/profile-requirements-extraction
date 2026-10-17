@@ -167,6 +167,91 @@
       "title": "CandidateGroup",
       "type": "object"
     },
+    "CategoryLink": {
+      "additionalProperties": false,
+      "properties": {
+        "category_id": {
+          "title": "Category Id",
+          "type": "string"
+        },
+        "evidence_id": {
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "quote": {
+          "maxLength": 1200,
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 400,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "category_id",
+        "evidence_id",
+        "quote",
+        "rationale"
+      ],
+      "title": "CategoryLink",
+      "type": "object"
+    },
+    "CategoryMention": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "quote": {
+          "maxLength": 1200,
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 400,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "quote",
+        "rationale"
+      ],
+      "title": "CategoryMention",
+      "type": "object"
+    },
+    "CategoryUnit": {
+      "additionalProperties": false,
+      "properties": {
+        "categories": {
+          "items": {
+            "$ref": "#/$defs/CategoryMention"
+          },
+          "maxItems": 12,
+          "title": "Categories",
+          "type": "array"
+        },
+        "evidence_id": {
+          "title": "Evidence Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_id"
+      ],
+      "title": "CategoryUnit",
+      "type": "object"
+    },
     "ConflictRecord": {
       "additionalProperties": false,
       "properties": {
@@ -319,6 +404,24 @@
         "rationale"
       ],
       "title": "CriticDecision",
+      "type": "object"
+    },
+    "DatasetCategories": {
+      "additionalProperties": false,
+      "properties": {
+        "units": {
+          "items": {
+            "$ref": "#/$defs/CategoryUnit"
+          },
+          "maxItems": 12,
+          "title": "Units",
+          "type": "array"
+        }
+      },
+      "required": [
+        "units"
+      ],
+      "title": "DatasetCategories",
       "type": "object"
     },
     "DecisionRequest": {
@@ -663,7 +766,9 @@
               "use_case_linker",
               "link_critic",
               "assessment",
-              "discussion"
+              "discussion",
+              "dataset_categories",
+              "selection"
             ]
           },
           "title": "Step Models",
@@ -675,6 +780,35 @@
         "rationale"
       ],
       "title": "DeriveRequest",
+      "type": "object"
+    },
+    "EquivalentNeed": {
+      "additionalProperties": false,
+      "properties": {
+        "equivalent_to": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 19,
+          "title": "Equivalent To",
+          "type": "array"
+        },
+        "need_id": {
+          "title": "Need Id",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "need_id",
+        "rationale"
+      ],
+      "title": "EquivalentNeed",
       "type": "object"
     },
     "EvidenceLink": {
@@ -1109,6 +1243,24 @@
         "classifications"
       ],
       "title": "NeedClassifications",
+      "type": "object"
+    },
+    "NeedEquivalence": {
+      "additionalProperties": false,
+      "properties": {
+        "decisions": {
+          "items": {
+            "$ref": "#/$defs/EquivalentNeed"
+          },
+          "maxItems": 20,
+          "title": "Decisions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "decisions"
+      ],
+      "title": "NeedEquivalence",
       "type": "object"
     },
     "NeedGrounding": {
@@ -1940,6 +2092,18 @@
           "title": "Contributing Roles",
           "type": "array"
         },
+        "dataset_coverage": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dataset Coverage"
+        },
         "decision_id": {
           "anyOf": [
             {
@@ -2678,7 +2842,9 @@
               "use_case_linker",
               "link_critic",
               "assessment",
-              "discussion"
+              "discussion",
+              "dataset_categories",
+              "selection"
             ]
           },
           "title": "Step Models",
@@ -2707,6 +2873,14 @@
         "catalogue_level": {
           "title": "Catalogue Level",
           "type": "boolean"
+        },
+        "category_links": {
+          "items": {
+            "$ref": "#/$defs/CategoryLink"
+          },
+          "maxItems": 16,
+          "title": "Category Links",
+          "type": "array"
         },
         "example": {
           "default": "",
@@ -3912,7 +4086,9 @@
               "use_case_linker",
               "link_critic",
               "assessment",
-              "discussion"
+              "discussion",
+              "dataset_categories",
+              "selection"
             ]
           },
           "title": "Step Models",
