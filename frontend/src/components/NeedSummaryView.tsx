@@ -3,6 +3,7 @@ import { BaseCatalogueReview } from './BaseCatalogueReview';
 
 export function NeedSummaryView({ record, run, inspect }: { record: Requirement; run: Run; inspect: (id: string) => void }) {
   if (!record.need_statement) return null;
+  const datasetKinds = (run.need_steps?.dataset_categories?.categories ?? []) as {category_id: string; label: string}[];
   const claims = [record, ...record.parent_revision_ids.map(id => run.requirements.find(r => r.revision_id === id)).filter((r): r is Requirement => !!r)].filter(r => r.unbacked_obligation);
   return <div className="workflow-need-summary">
     <div className="workflow-tags"><span>{record.rank ? `Rank ${record.rank}` : 'Added / restored for review'}</span><span>{record.need_class?.replace(/_/g, ' ') ?? 'Classification needs review'}</span>{record.profile_scope?.scope_class && <span>Scope: {{common:'common', specialized:'specialised', review:'needs review'}[record.profile_scope.scope_class]}</span>}{record.base_gap && <span>Base: {{served_by_base:'served by base', refines_base:'refines base', unresolved:`unresolved (${record.base_gap.offered_entry_count} of ${record.base_gap.catalogue_entry_count} entries compared)`, no_base_match:'no base match', not_checked:'not checked'}[record.base_gap.status] ?? record.base_gap.status}</span>}<span>Obligation: {record.normalized_intent.obligation_hint === 'unknown' ? 'not stated by sources' : record.normalized_intent.obligation_hint}</span></div>
@@ -13,7 +14,7 @@ export function NeedSummaryView({ record, run, inspect }: { record: Requirement;
     {record.profile_scope?.example && <p>Discovery example: {record.profile_scope.example}</p>}
     {record.dataset_coverage && <details><summary>Dataset applicability · {record.dataset_coverage.status.replace(/_/g, ' ')}</summary>
       <p>Applicability is proposed from source evidence and requires review.</p>
-      {record.dataset_coverage.links?.map(link => <blockquote key={link.category_id}><p>{link.quote}</p><p>{link.rationale}</p><button onClick={() => inspect(link.evidence_id)}>Inspect applicability source</button></blockquote>)}
+      {record.dataset_coverage.links?.map(link => <blockquote key={link.category_id}><strong>{datasetKinds.find(kind => kind.category_id === link.category_id)?.label ?? link.category_id}</strong><p>{link.quote}</p><p>{link.rationale}</p><button onClick={() => inspect(link.evidence_id)}>Inspect applicability source</button></blockquote>)}
       {!record.dataset_coverage.category_ids.length && <p>No source-linked dataset kind was established for this need.</p>}
     </details>}
     <details><summary>Use cases · {record.task_justifications?.length ?? 0} links{record.use_case_necessity && Object.keys(record.use_case_necessity).length ? ` (${Object.values(record.use_case_necessity).filter(Boolean).length} necessary)` : ''}</summary>{record.task_justifications?.map(link => <p key={link.task_id}><strong>{link.task_id}</strong>{record.use_case_necessity?.[link.task_id] ? ' · necessary' : ''} · {link.justification}</p>)}{!record.task_justifications?.length && <p>{run.request?.scoping === 'off' ? 'Scoping is off for this run. No necessity claim is made.' : 'No verified use-case link. Human revisions and restored needs require review.'}</p>}</details>

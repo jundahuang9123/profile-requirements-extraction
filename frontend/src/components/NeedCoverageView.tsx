@@ -28,7 +28,7 @@ export function NeedCoverageView({ run, inspect, review }: { run: Run; inspect: 
       <ol>{selection.selected_need_ids.map(id => {
         const need = record(id);
         const represented = Object.entries(selection.covered_by).filter(([target,representative]) => representative === id && target !== id).map(([target]) => target);
-        return <li key={id}><p>{need?.need_statement ?? id}</p>{need && <button onClick={() => review(need.revision_id)}>Review need</button>}
+        return <li key={id}><p>{need?.need_statement ?? id}</p>{need && (run.active_revision_ids.includes(need.revision_id) ? <button onClick={() => review(need.revision_id)}>Review need</button> : <p>This original machine version has been reviewed or replaced; use the current full review list below.</p>)}
           {!!selection.protected_needs[id]?.length && <p>Retained for review: {selection.protected_needs[id].map(r => r.replace(/_/g,' ')).join(', ')}.</p>}
           {!!represented.length && <details><summary>Also represents {represented.length} equivalent needs</summary>{represented.map(target => <p key={target}>{run.requirements.find(r => r.requirement_id === target)?.need_statement ?? target}</p>)}</details>}
         </li>;
