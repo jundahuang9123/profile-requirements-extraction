@@ -41,11 +41,12 @@ in the frozen snapshot.
 | Group underlying needs | Same information/capability, resource and condition/scope; ignore typed labels, terms, wording, obligation strength and perspective | 6 · Grouped needs & scope |
 | Write and check a need | Write every group, including singletons; independently check no added actor, obligation, scope or condition; move non-expressing members to singleton follow-ups | 6 · Grouped needs & scope |
 | Classify against the base | Generic needs are visible asides; retain domain and domain use of base | 6 · Grouped needs & scope |
+| Dataset kinds | Scan every frozen evidence unit for explicit kinds, retain exact source quotes and report unchecked units | 6 · Grouped needs & scope |
 | Profile scope (D5) | Judge each need on dataset level, discovery contribution and representativeness; needs failing the first two are visible asides; the third labels kept needs common, specialised or for review; no need is added or rewritten | 6 · Grouped needs & scope |
 | Scope and critic | Propose contributing use-case links with justifications and a necessity note; independently keep/drop each link on its contribution; set unlinked needs aside | 6 · Grouped needs & scope |
 | Support assessment | One logical assessment per retained need against its union of source-checked excerpts | 6 · Grouped needs & scope |
 | Rank | Order all retained needs deterministically; no cutoff hides needs | 6 · Grouped needs & scope |
-| Families (D5) | Group kept needs that one catalogue element would serve, headed by their best-ranked member; ranked; the scoring unit | `needs.json` and the step download |
+| Families (D5) | Group kept needs that one catalogue element would serve; secondary review and comparison view | `needs.json` and the step download |
 | Discuss on request | A reviewer opens a bounded case on a need; automatic discussion remains an explicit option | 7 · Discussion |
 | Human review | Inspect, assess, accept/reject/defer, revise, split or merge; review/restore asides | 8 · Human review |
 | Baseline | Publish accepted revisions only, with their traceability and unresolved appendix | 9 · Validated baseline |
@@ -114,13 +115,15 @@ tests of what belongs in it.
 
 D5 is a rule for elicitation, applied to the needs the sources state. It never puts
 a need into the list: every kept need still comes from source-checked proposals, and
-a topic that no source raises (a licence, say) does not appear. The judge sees only
-each need's statement, condition and scope. It returns one verdict per offered need
+a topic that no source raises (a licence, say) does not appear. The judge sees
+each need's statement, condition, scope, supporting excerpts and the offered source-linked
+dataset categories. It returns one verdict per offered need
 ID and has no field for proposing, merging or rewriting a need; rows for IDs it was
 not offered are ignored.
 
-Since `rq1-profile-scope-v2` (Junda, 16 Oct), D5 follows the design principle of the
-extension: it adds what makes the domain's datasets distinguishable, as a minimum set
+D5 follows the design principle agreed on 16 October; `rq1-profile-scope-v3` adds
+source-backed category context to it. The
+extension adds what makes the domain's datasets distinguishable, as a minimum set
 that covers their different kinds. A need that matters for one kind of dataset is
 **specialised**, not out of scope. The judgement has three criteria:
 
@@ -168,11 +171,11 @@ results. It stays visible and restorable, as under D3; recall is reported with a
 without these set-asides. Runs under version 1 can also show `not_commonly_agreed`. A
 source-failed need is not judged and stays blocked. A need whose judgement is
 unavailable after bounded recovery stays for review, flagged
-`profile_scope_not_checked`. The judgement is stored on the need (`profile_scope`) and
+`profile_scope_not_checked`. Dataset applicability now has cited evidence (`dataset_coverage`). A model's unsupported common/specialized claim is downgraded to uncertain. The judgement is stored on the need (`profile_scope`) and
 bound by its integrity hash; a human edit clears it. The step records the counts of
-each scope class.
+each scope class; the export also reports category coverage and compact selection counts.
 
-### Families: the scoring unit
+### Families: a secondary review view
 
 After ranking, kept needs that one catalogue element would serve form a **family**:
 they ask records for the same kind of information about the same kind of resource,
@@ -189,8 +192,63 @@ count (descending); then head rank and head need ID. `needs.json` lists them und
 change them. The planned scorer uses atomic needs as its primary unit, with strict
 relations (equivalent, narrower, broader, partial; see
 `benchmark-data/BENCHMARK-METHODOLOGY.md`): one broad need cannot earn credit for
-several specific reference rows. Families are a secondary view, for comparing
+several specific reference rows. Only equivalence earns primary recovery credit. Broader, narrower and partial relations are reported separately. Families are a secondary view, for comparing
 conditions at equal size (the same number of top-ranked families).
+
+## Source-backed categories and compact coverage
+
+`rq1-dataset-categories-v1` scans the frozen input corpus once, with durable per-batch
+checkpoints. Each row names explicitly documented dataset kinds with verbatim labels,
+quotes, offsets, evidence IDs and source names. Exact spelling variants are joined;
+semantic synonyms are not guessed together. The complete registry is exported. Failed
+rows receive at most one correction and remain visibly unchecked; provider failures
+stop and resume unfinished batches. Large rows are not silently truncated. When no needs remain after classification, discovery is skipped without model calls. An empty
+registry is a valid result, not permission to invent a taxonomy.
+
+Profile scope v3 receives relevant category citations and the need's original supporting
+excerpts, in bounded batches. Each applicability link requires an offered category ID,
+an exact quote from the need's evidence, and a rationale. Quote validation establishes
+provenance, not entailment; the applicability remains a machine proposal. At most 16
+categories and 7,000 category-context characters are offered; omitted categories are
+counted. A `common` label requires links to every category in a complete scan with at
+least two categories, all offered to the judge. It means common across this registry,
+not all datasets in the world. Unsupported labels become uncertain/review; source-linked
+subsets can be specialised. Category frequency is never community consensus.
+
+`rq1-compact-coverage-v1` produces a separate **compact requirement list**, while keeping
+every atomic need in the full review list. Its objective is to cover every retained
+atomic distinction across the documented dataset kinds—not merely choose one arbitrary
+need per kind. Within the existing coarse families, bounded model calls propose strict
+semantic equivalences. A shared catalogue property, broad/narrow relationship or partial
+overlap cannot establish equivalence. Both rows must name each other. The server also
+requires identical condition, scope and obligation profiles, and a representative must
+retain every category link and use-case link of the need it represents. Nontransitive
+judgements are not expanded by inference. Uncertain support, processing failures,
+unresolved applicability, incomplete category context and incomplete category scans keep the affected needs in the
+selected list. This can legitimately keep the entire list when safe compression is not
+established.
+
+Selection starts with a deterministic greedy cover and removes redundant representatives.
+A bounded exact search improves each connected component of up to 80 needs (10,000
+search nodes per component). `optimal_for_recorded_coverage` is true only when all searches
+complete. It never establishes global semantic minimality: equivalence search is bounded
+to groups of 20 within families. Ranking breaks ties; it never hides a unique need.
+Every retained need has a `covered_by` witness. Categories with no retained linked need
+are explicit gaps; no requirement is invented to fill them.
+
+The UI's **Dataset kinds and compact requirements** panel shows the source registry,
+selected needs, represented alternatives, protected needs and category gaps. `needs.json`
+adds `dataset_categories`, `compact_selection`, and `compact_needs`. The compact list is
+frozen machine output; the original `needs` list remains the current full human-review
+view. Human edits clear their applicability and scope judgements and do not retroactively
+change the frozen compact list. Source integrity hashes bind applicability evidence.
+Two advanced model choices, `dataset_categories` and `selection`, default to the configured
+model and participate in checkpoint identity. No additional inference is required during
+export or review.
+
+These policies apply to new runs and trials derived from saved extraction. Historical
+runs and frozen results remain unchanged; their unfinished needs processing cannot be
+resumed under new policies. To apply these changes use a separate trial from step 4.
 
 ## Base catalogues and review
 
@@ -278,8 +336,10 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Additional member checking | `rq1-need-membership-v1` | Large groups use a bounded writing basis (up to 20 members / 16,000 statement characters); every remaining member checked in batches up to 40 / 24,000 characters |
 | Base catalogue | `rq1-base-needs-catalogue-v2` | Frozen base-only file and checksum; optional hash-bound human phrase review |
 | Generic/domain | `rq1-generic-domain-v1` | Up to 25 needs / 24,000 input characters |
+| Dataset categories | `rq1-dataset-categories-v1` | Up to 12 evidence rows / 22,000 input characters; exact source citations; partial scans explicit |
+| Compact selection | `rq1-compact-coverage-v1` | Up to 20 needs / 22,000 input characters per equivalence call; bounded exact cover; all retained needs preserved |
 | Base-gap status | `rq1-base-gap-status-v1` | Deterministic; from the classification and the number of entries compared |
-| Profile scope (D5) | `rq1-profile-scope-v2` | Up to 25 needs / 24,000 input characters; statement, condition and scope only; one verdict per offered need ID; an example is required unless serves is neither |
+| Profile scope (D5) | `rq1-profile-scope-v3` | Up to 25 needs / 24,000 input characters; statement, condition, scope, supporting excerpts and source-linked dataset categories; one verdict per offered need ID; an example is required unless serves is neither |
 | Contribution linking | `rq1-use-case-contribution-v1` | Up to 25 needs / 24,000 input characters; at most 32 task links per response row; necessity as an annotation |
 | Link critic | `rq1-use-case-contribution-critic-v1` | Up to 25 links / 24,000 input characters; judges contribution only |
 | Need assessment | `rq1-need-support-v1` | One logical assessment per kept need; complete selected excerpts, max 45,000 input characters; at most two generations for schema/cutoff recovery |
@@ -398,14 +458,14 @@ protocol identical across them; only the condition changes.
 | Fewer roles | Stakeholder panel selected from the sources with a smaller maximum number of roles |
 
 All conditions pass through the same needs processing, including the D5 profile scope
-and families, so they are compared on families at equal size.
+and families. Score atomic needs first; use equal-size family comparisons as a secondary analysis.
 
 Choose between conditions on a development case. Then freeze the pipeline and run
 Mobility once per chosen condition, as described below.
 
 ## Compatibility and test protocol
 
-Runs saved under earlier needs policies (before `rq1-profile-scope-v2`,
+Runs saved under earlier needs policies (before `rq1-profile-scope-v3`,
 `rq1-use-case-contribution-v1` and `rq1-base-gap-status-v1`) keep their results, but
 their needs processing cannot continue under the new policies. To apply them, derive a
 trial from the saved extraction (`start_from: "normalization"`).

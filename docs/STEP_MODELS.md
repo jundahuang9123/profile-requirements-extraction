@@ -1,7 +1,7 @@
 # Model choice per workflow step
 
 New agent runs and derived trials accept `step_models`. Leave it empty to use the
-configured provider model everywhere. The service resolves all thirteen defaults,
+configured provider model everywhere. The service resolves all fifteen defaults,
 reads that provider's `/models` catalogue, rejects unavailable and embedding
 models, and saves the resolved mapping in both `run.step_models` and
 `run.request.step_models` before creating the run. Exact provider IDs are used,
@@ -28,6 +28,8 @@ no model fallback. Native Anthropic model catalogues are paginated.
 | `rewrite_critic` | Independently check that a rewrite preserves its source meaning |
 | `membership` | Verify whether other grouped proposals express that need |
 | `classification` | Compare needs with the frozen base-needs catalogue |
+| `dataset_categories` | Identify explicit dataset kinds with source citations |
+| `selection` | Propose strict equivalence for the compact cover |
 | `profile_scope` | Judge needs against the profile scope (D5): dataset level, discovery contribution, representativeness |
 | `use_case_linker` | Link needs to declared use cases |
 | `link_critic` | Check what those links contribute to their use cases |
@@ -165,7 +167,7 @@ extraction-only check above and is not a full Mobility benchmark.
 
 ## Offline validation
 
-The tests exercise all thirteen routes through actual selection and needs-processing
+The tests exercise all fifteen routes through actual selection and needs-processing
 call sites, independent writer/critic choices, creation validation, derived-trial
 isolation, model-specific row/grouping/assessment/discussion checkpoints, supported
 reasoning payloads and Qwen thinking/token-limit handling. HTTP replies and model

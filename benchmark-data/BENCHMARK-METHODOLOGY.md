@@ -129,16 +129,20 @@ correctness. Use at least two independent reviewers for a sample or the full set
 them to system condition where feasible, record disagreements and adjudicate them.
 Report agreement and the adjudication rule.
 
-Represent matches as a bipartite mapping with reference IDs, predicted IDs, relation
-(`equivalent`, `covers`, `partial`, `conflicts`, `unrelated`), evidence locators, decision
-and reviewer rationale. Support:
+Use atomic needs as the primary scoring unit. Freeze any decomposition of compound
+reference rows before viewing system outputs. Record each predicted/reference pair as
+`equivalent`, `narrower`, `broader`, `partial`, `conflicts` or `unrelated`, with evidence
+locators and reviewer rationale. Only equivalence preserving the actor, information,
+resource, scope, condition and obligation earns primary recovery credit. Use a one-to-one
+matching for this score: a broad prediction cannot receive credit for several specific
+reference atoms, and repeated predictions cannot increase recall. Report narrower,
+broader and partial coverage separately, without silently counting it as equivalence.
 
-- **1:1:** one equivalent prediction covers one reference requirement.
-- **1:n:** several predictions jointly cover a compound reference row; a row is fully
-  recovered only when every essential clause is supported. Partial coverage is separate.
-- **n:1:** one prediction covers several reference rows; count each supported reference
-  once, but record compoundness and score prediction validity once. Do not give extra
-  precision credit for repeating the same meaning.
+Report scores on both the full retained atomic output and the frozen compact selection,
+with their sizes and coverage limitations. Need families are a secondary view for
+comparisons at equal family count; grouping is not proof of equivalent requirements.
+Dataset categories are a separate source-linked applicability registry. A machine label
+of common or specialised is not evidence of stakeholder agreement or dataset prevalence.
 
 Keep row-level recovery and an independently defined atomic/clause-level analysis
 separate. Establish any clause decomposition before viewing outputs. Preserve mandatory

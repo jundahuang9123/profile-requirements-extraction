@@ -165,7 +165,9 @@ def test_real_needs_pipeline_routes_all_processing_and_discussion_calls(setup):
     assert saved['status'] == 'awaiting_human', saved['diagnostics']
     assert saved['active_revision_ids']
     audit = saved['model_calls']
-    assert {row['step'] for row in audit} == set(STEPS) - {'role_selection'}
+    # Uncertain support is deliberately protected from compression, so no selection call occurs.
+    assert {row['step'] for row in audit} == set(STEPS) - {'role_selection', 'selection'}
+    assert saved['need_steps']['selection']['protected_needs']
     assert all(row['model'] == choices[row['step']] for row in audit)
 
 

@@ -71,7 +71,7 @@ def test_only_dataset_level_and_discovery_set_aside_and_specialised_needs_stay(s
     retained = needs.judge_profile_scope(store, run, made, client)
     assert [n.requirement_id for n in retained] == ['need-0', 'need-3', 'need-5']
     assert {n.requirement_id: n.profile_scope['scope_class'] for n in retained} == {
-        'need-0': 'common', 'need-3': 'review', 'need-5': 'specialized'}
+        'need-0': 'review', 'need-3': 'review', 'need-5': 'review'}
     asides = {a['need_id']: a for a in store.get('run', run['run_id'])['set_aside_observations']}
     assert {i: a['reason'] for i, a in asides.items()} == {'need-1': 'not_find_or_access',
         'need-2': 'not_catalogue_level', 'need-4': 'not_catalogue_level'}
@@ -79,16 +79,17 @@ def test_only_dataset_level_and_discovery_set_aside_and_specialised_needs_stay(s
     assert all(asides[i]['rationale'] == 'Scripted scope judgement.' for i in asides)
     # The judge sees only the stated need and judges it; it is never asked to write one.
     offered = [data['needs'] for name, data in client.calls if name == 'ProfileScope']
-    assert all(set(row) == {'statement', 'condition', 'scope'} for batch in offered for row in batch.values())
+    assert all(set(row) == {'statement', 'condition', 'scope', 'excerpts'} for batch in offered for row in batch.values())
     kept = retained[0]
     assert kept.profile_scope['status'] == 'checked' and kept.profile_scope['example'] == VERDICTS['need-0']['example']
     assert kept.need_statement == STATEMENTS['need-0']
     assert engine.verify(store, kept, run['evidence_ids'])['status'] == 'pass'  # integrity binds the judgement
     step = store.get('run', run['run_id'])['need_steps']['profile_scope']
-    assert step['policy_version'] == 'rq1-profile-scope-v2'
+    assert step['policy_version'] == 'rq1-profile-scope-v3'
     assert step['retained_count'] == 3 and step['set_aside_count'] == 3
     assert step['set_aside_by_reason'] == {'not_catalogue_level': 2, 'not_find_or_access': 1}
-    assert step['scope_classes'] == {'common': 1, 'review': 1, 'specialized': 1}
+    # Without category evidence, a model's confident common/specialized label remains review.
+    assert step['scope_classes'] == {'review': 3}
     before = len(client.calls)
     needs.judge_profile_scope(store, run, made, client)
     assert len(client.calls) == before  # resume reuses the saved judgement
@@ -97,7 +98,7 @@ def test_only_dataset_level_and_discovery_set_aside_and_specialised_needs_stay(s
 def test_contract_can_only_judge_offered_needs():
     assert set(needs.ProfileScope.model_fields) == {'decisions'}
     assert set(needs.ScopeDecision.model_fields) == {
-        'need_id', 'catalogue_level', 'serves', 'example', 'representativeness', 'rationale'}
+        'need_id', 'catalogue_level', 'serves', 'example', 'representativeness', 'rationale', 'category_links'}
     assert 'never add, merge, broaden or rewrite a need' in needs.SCOPE_SYSTEM
     # Representativeness is a label, never a set-aside test.
     assert [reason for reason, _ in needs.SCOPE_TESTS] == ['not_catalogue_level', 'not_find_or_access']
