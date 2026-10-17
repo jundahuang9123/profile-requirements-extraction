@@ -28,9 +28,9 @@ no model fallback. Native Anthropic model catalogues are paginated.
 | `rewrite_critic` | Independently check that a rewrite preserves its source meaning |
 | `membership` | Verify whether other grouped proposals express that need |
 | `classification` | Compare needs with the frozen base-needs catalogue |
-| `profile_scope` | Judge needs against the profile scope (D5): find or access, catalogue level, commonly agreed |
+| `profile_scope` | Judge needs against the profile scope (D5): dataset level, discovery contribution, representativeness |
 | `use_case_linker` | Link needs to declared use cases |
-| `link_critic` | Check the necessity of those links |
+| `link_critic` | Check what those links contribute to their use cases |
 | `assessment` | Assess final retained needs against their authentic excerpts |
 | `discussion` | All stakeholder and critic turns in a discussion case |
 

@@ -47,3 +47,38 @@ def test_scoping_off_keeps_every_need_without_calls(setup):
     assert needs.scope_needs(store,run,variants,candidates,client)==variants
     assert client.calls==[]
     assert store.get('run',run['run_id'])['need_steps']['scoping']['mode']=='off'
+
+
+class ContributionClient(NeedsClient):
+    """Both needs contribute to the use case; only the first is indispensable to it."""
+    def generate_structured(self, **kwargs):
+        name=kwargs['output_model'].__name__; data=json.loads(kwargs['user'])
+        if name=='NeedUseCaseLinks':
+            self.calls.append((name,data))
+            assert 'Set necessary to true only when' in kwargs['system']
+            return kwargs['output_model'].model_validate({'needs':[
+                {'need_id':identifier,'links':[{'task_id':'CQ-1','justification':'Lets users filter datasets by region.',
+                                                'necessary':index==0}]}
+                for index,identifier in enumerate(data['needs'])]})
+        if name=='UseCaseCritic':
+            self.calls.append((name,data))
+            # The critic judges the contribution only; the necessity claim is not in its input.
+            assert all('necessary' not in link for link in data['links'])
+            assert 'need not be indispensable' in kwargs['system']
+            return kwargs['output_model'].model_validate({'decisions':[
+                {'link_id':link['link_id'],'keep':True,'rationale':'Contributes a regional filter.'} for link in data['links']]})
+        return super().generate_structured(**kwargs)
+
+
+def test_contributing_link_is_kept_and_necessity_is_only_recorded(setup):
+    from requirement_reuse_service.workflow import engine
+    store,run,candidates,variants=proposals(setup);client=ContributionClient()
+    kept=needs.scope_needs(store,run,variants,candidates,client)
+    assert [n.requirement_id for n in kept]==['need-0','need-1']
+    assert kept[0].use_case_necessity=={'CQ-1':True} and kept[1].use_case_necessity=={'CQ-1':False}
+    assert all(n.supports_user_tasks==['CQ-1'] for n in kept)
+    step=store.get('run',run['run_id'])['need_steps']['scoping']
+    assert step['policy_version']=='rq1-use-case-contribution-v1' and step['kept_necessary_links']==1
+    assert [link['necessary'] for link in step['kept_links']]==[True,False]
+    assert store.get('run',run['run_id'])['need_steps']['scope_critic']['policy_version']=='rq1-use-case-contribution-critic-v1'
+    assert all(engine.verify(store,n,run['evidence_ids'])['status']=='pass' for n in kept)

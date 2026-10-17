@@ -41,8 +41,8 @@ in the frozen snapshot.
 | Group underlying needs | Same information/capability, resource and condition/scope; ignore typed labels, terms, wording, obligation strength and perspective | 6 · Grouped needs & scope |
 | Write and check a need | Write every group, including singletons; independently check no added actor, obligation, scope or condition; move non-expressing members to singleton follow-ups | 6 · Grouped needs & scope |
 | Classify against the base | Generic needs are visible asides; retain domain and domain use of base | 6 · Grouped needs & scope |
-| Profile scope (D5) | Judge each need for find or access, catalogue level and commonly agreed; failing needs are visible asides naming the failed test; no need is added or rewritten | 6 · Grouped needs & scope |
-| Scope and critic | Propose necessary use-case links with justifications; independently keep/drop each link; set unlinked needs aside | 6 · Grouped needs & scope |
+| Profile scope (D5) | Judge each need on dataset level, discovery contribution and representativeness; needs failing the first two are visible asides; the third labels kept needs common, specialised or for review; no need is added or rewritten | 6 · Grouped needs & scope |
+| Scope and critic | Propose contributing use-case links with justifications and a necessity note; independently keep/drop each link on its contribution; set unlinked needs aside | 6 · Grouped needs & scope |
 | Support assessment | One logical assessment per retained need against its union of source-checked excerpts | 6 · Grouped needs & scope |
 | Rank | Order all retained needs deterministically; no cutoff hides needs | 6 · Grouped needs & scope |
 | Families (D5) | Group kept needs that one catalogue element would serve, headed by their best-ranked member; ranked; the scoring unit | `needs.json` and the step download |
@@ -86,10 +86,19 @@ software records scoping off rather than inventing any.
 Benchmark import copies the case's declared tasks into the form; it does not invent
 questions from example UI text.
 
-With scoping on, a linker must explain why a use case cannot be met without a need.
-A separate critic rejudges every link. Relatedness and general usefulness are not
-necessity. Extraction task links are hints only. With scoping off, all otherwise
-retained needs remain, and the run makes no use-case necessity claim. Source-failed
+With scoping on (`rq1-use-case-contribution-v1`), a linker links a need to each
+declared use case it contributes to: catalogue metadata meeting the need helps answer
+the competency question or carry out the task, for example by letting users find,
+filter, identify, compare or judge suitable datasets. It explains the contribution in
+one sentence and marks a link `necessary` only when the use case cannot be met without
+the need. A separate critic rejudges every link on its contribution alone; it does not
+see the necessity claim. Shared words, a contribution nobody names, or one the use case
+does not support are rejected; a link need not be indispensable. Necessity is kept per
+link as an annotation (`use_case_necessity`), never as a filter. The earlier policy
+(`rq1-use-case-necessity-v1`) kept only indispensable links; in the functional Mobility
+run it set aside 532 of 849 classified needs, useful ones included. Extraction task
+links are hints only. With scoping off, all otherwise retained needs remain, and the
+run makes no use-case claim. Source-failed
 and unsupported proposals remain visible in their set-aside lists for repair.
 
 ## Profile scope (D5)
@@ -110,26 +119,38 @@ each need's statement, condition and scope. It returns one verdict per offered n
 ID and has no field for proposing, merging or rewriting a need; rows for IDs it was
 not offered are ignored.
 
-A need stays in scope when all four tests hold:
+Since `rq1-profile-scope-v2` (Junda, 16 Oct), D5 follows the design principle of the
+extension: it adds what makes the domain's datasets distinguishable, as a minimum set
+that covers their different kinds. A need that matters for one kind of dataset is
+**specialised**, not out of scope. The judgement has three criteria:
 
-1. **Find or access.** Met in catalogue records, it helps users find datasets
-   (search, filter, browse, identify, judge relevance, also across catalogues that
-   harvest each other) or get access to them (distributions, formats, access
-   addresses and services, the licence, rights or access conditions that apply,
-   whom to contact). A need stated from the publisher side counts by what users do
-   with the information.
-2. **Catalogue level.** It concerns what a record states about a catalogued resource
-   as a whole. It fails when it prescribes what the data must be or contain (content,
-   structure, values, quality level, update interval, licence choice) or how the data
-   is produced or delivered, or when it describes individual records, fields or
-   values. Pointing to where such details are documented (a schema, specification or
-   quality report) is catalogue level.
-3. **Commonly agreed.** Publishers across the profile's community could agree to
-   record it. It fails when it singles out particular datasets, publishers or systems,
-   distinguishes datasets in more detail than users search, filter or decide on, or
-   fixes a choice that legitimately differs between datasets.
-4. **Extension.** The base does not already meet it: the generic/domain
-   classification (`generic_need_served_by_base`, below).
+1. **Dataset-level relevance (C1, `catalogue_level`).** The need concerns what a
+   record states about a catalogued resource as a whole. It fails when it prescribes
+   what the data must be or contain (content, structure, values, quality level, update
+   interval, licence choice) or how the data is produced or delivered, or when it
+   describes individual records, fields or values. Pointing to where such details are
+   documented (a schema, specification or quality report) is catalogue level.
+2. **Discovery contribution (C2, `serves`).** Met in catalogue records, it helps users
+   find datasets (search, filter, browse, identify, compare, judge relevance, also
+   across catalogues that harvest each other) or get access to them (distributions,
+   formats, access addresses and services, the licence, rights or access conditions
+   that apply, whom to contact). A distinction finer than users search, filter or
+   decide on does not count. The judge gives one concrete `example` of the search,
+   filter or access decision the need enables. A need stated from the publisher side
+   counts by what users do with the information.
+3. **Representativeness (C3).** `common` when the need recurs across the kinds of
+   datasets the profile covers; `specialized` when it matters within an identifiable
+   group of them; `single_case` when it concerns only one dataset, publisher or system,
+   or fixes a choice that legitimately differs between datasets (one quality threshold
+   for all); `uncertain` when the need as stated does not show which. How often a need
+   was proposed is not evidence of how common it is.
+
+Only C1 and C2 can set a need aside. C3 labels a kept need: `scope_class` is `common`,
+`specialized` or `review` (single case or uncertain), for the later selection and for
+the reviewer. Version 1 set aside needs that were not "commonly agreed"; an LLM cannot
+know what a community agrees, and the test removed specialised needs. The fourth
+test, the extension test, remains the generic/domain classification below
+(`generic_need_served_by_base`).
 
 Topics that come up often are judged like this. They are examples for judging stated
 needs, not a checklist of needs to add:
@@ -140,14 +161,16 @@ needs, not a checklist of needs to add:
 | Quality | Seeing a dataset's quality information, for example that a quality report or conformance result exists and where | Fixing particular quality measures or thresholds for all datasets: quality is not one standard that fits all |
 | Update frequency | Knowing, or filtering by, how often a dataset is updated | Requiring datasets to be updated at a given interval |
 
-Tests 1–3 run as one batched judgement after classification and before use-case
-scoping. A failing need is set aside with the first failed test as its reason
-(`not_find_or_access`, `not_catalogue_level`, `not_commonly_agreed`), the judge's
-rationale and all failed tests. It stays visible and restorable, as under D3; recall
-is reported with and without these set-asides. A source-failed need is not judged and
-stays blocked. A need whose judgement is unavailable after bounded recovery stays,
-flagged `profile_scope_not_checked`. The judgement is stored on the need
-(`profile_scope`) and bound by its integrity hash; a human edit clears it.
+C1–C3 run as one batched judgement after classification and before use-case
+scoping. A need failing C1 or C2 is set aside with the first failure as its reason
+(`not_catalogue_level`, then `not_find_or_access`), the judge's rationale and both
+results. It stays visible and restorable, as under D3; recall is reported with and
+without these set-asides. Runs under version 1 can also show `not_commonly_agreed`. A
+source-failed need is not judged and stays blocked. A need whose judgement is
+unavailable after bounded recovery stays for review, flagged
+`profile_scope_not_checked`. The judgement is stored on the need (`profile_scope`) and
+bound by its integrity hash; a human edit clears it. The step records the counts of
+each scope class.
 
 ### Families: the scoring unit
 
@@ -163,8 +186,11 @@ Families are ranked by their best member's support; then by distinct supporting
 documents, contributing roles and kept use-case links across members, and member
 count (descending); then head rank and head need ID. `needs.json` lists them under
 `families`, from the frozen machine output; human edits, splits and merges do not
-change them. The planned scorer uses families as its unit and compares conditions at
-equal size: the same number of top-ranked families for each condition.
+change them. The planned scorer uses atomic needs as its primary unit, with strict
+relations (equivalent, narrower, broader, partial; see
+`benchmark-data/BENCHMARK-METHODOLOGY.md`): one broad need cannot earn credit for
+several specific reference rows. Families are a secondary view, for comparing
+conditions at equal size (the same number of top-ranked families).
 
 ## Base catalogues and review
 
@@ -220,6 +246,14 @@ catalogue. The workbench shows its reviewer/date beside the reviewed status and
 provides a catalogue download. No human review or production phrase correction
 has been performed by the agent.
 
+Since `rq1-base-gap-status-v1`, each classified need records a `base_gap`:
+`served_by_base` (generic), `refines_base` (domain use of the base), `unresolved` (no
+match among the offered entries while the search was incomplete), `no_base_match`
+(no match after a complete search) or `not_checked` (no base selected, or no checked
+classification). It records how many entries were compared out of the catalogue, and
+the step lists each batch's offered entry IDs. A miss among the offered entries is not
+proof that the base lacks the capability, so it is never reported as a new gap.
+
 Classification offers at most 25 catalogue entries per batch using conservative,
 deterministic word retrieval over phrases, definitions and usage notes
 (up to five candidates per need, round-robin). Definitions and notes also appear
@@ -244,9 +278,10 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Additional member checking | `rq1-need-membership-v1` | Large groups use a bounded writing basis (up to 20 members / 16,000 statement characters); every remaining member checked in batches up to 40 / 24,000 characters |
 | Base catalogue | `rq1-base-needs-catalogue-v2` | Frozen base-only file and checksum; optional hash-bound human phrase review |
 | Generic/domain | `rq1-generic-domain-v1` | Up to 25 needs / 24,000 input characters |
-| Profile scope (D5) | `rq1-profile-scope-v1` | Up to 25 needs / 24,000 input characters; statement, condition and scope only; one verdict per offered need ID |
-| Necessity linking | `rq1-use-case-necessity-v1` | Up to 25 needs / 24,000 input characters; at most 32 task links per response row |
-| Link critic | `rq1-use-case-critic-v1` | Up to 25 links / 24,000 input characters |
+| Base-gap status | `rq1-base-gap-status-v1` | Deterministic; from the classification and the number of entries compared |
+| Profile scope (D5) | `rq1-profile-scope-v2` | Up to 25 needs / 24,000 input characters; statement, condition and scope only; one verdict per offered need ID; an example is required unless serves is neither |
+| Contribution linking | `rq1-use-case-contribution-v1` | Up to 25 needs / 24,000 input characters; at most 32 task links per response row; necessity as an annotation |
+| Link critic | `rq1-use-case-contribution-critic-v1` | Up to 25 links / 24,000 input characters; judges contribution only |
 | Need assessment | `rq1-need-support-v1` | One logical assessment per kept need; complete selected excerpts, max 45,000 input characters; at most two generations for schema/cutoff recovery |
 | Row recovery | `rq1-needs-row-recovery-v2` | Valid rows saved; correction includes only failing rows; invalid/cutoff output gets durable fallbacks after exhaustion; provider failures stop and remain retryable |
 | Rank | `rq1-need-ranking-v1` | Deterministic; every kept need remains listed |
@@ -255,7 +290,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 
 A single oversized needs-processing row receives the recorded conservative
 fallback below; need assessment requires human review/splitting. Evidence is not truncated to make an assessment
-fit. Extraction hints sent to the necessity linker are deduplicated, with at most
+fit. Extraction hints sent to the use-case linker are deduplicated, with at most
 two deterministic justification examples per declared task; all original hints
 remain on members. The linker records this selection and original distinct count.
 
@@ -370,9 +405,10 @@ Mobility once per chosen condition, as described below.
 
 ## Compatibility and test protocol
 
-Runs saved before `rq1-profile-scope-v1` and `rq1-need-families-v1` keep their
-results, but their needs processing cannot continue under the new policies. To apply
-D5, derive a trial from the saved extraction (`start_from: "normalization"`).
+Runs saved under earlier needs policies (before `rq1-profile-scope-v2`,
+`rq1-use-case-contribution-v1` and `rq1-base-gap-status-v1`) keep their results, but
+their needs processing cannot continue under the new policies. To apply them, derive a
+trial from the saved extraction (`start_from: "normalization"`).
 
 Historical runs remain unchanged. `output_form: candidates` preserves the old
 pipeline for explicit API compatibility and offline rule/demo comparisons. New

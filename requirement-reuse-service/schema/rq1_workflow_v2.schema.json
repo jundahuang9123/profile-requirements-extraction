@@ -1891,6 +1891,18 @@
           "title": "Base Check Findings",
           "type": "array"
         },
+        "base_gap": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Gap"
+        },
         "base_need_matches": {
           "items": {
             "type": "object"
@@ -2199,6 +2211,13 @@
             }
           ],
           "default": null
+        },
+        "use_case_necessity": {
+          "additionalProperties": {
+            "type": "boolean"
+          },
+          "title": "Use Case Necessity",
+          "type": "object"
         },
         "verification": {
           "anyOf": [
@@ -2689,9 +2708,11 @@
           "title": "Catalogue Level",
           "type": "boolean"
         },
-        "commonly_agreed": {
-          "title": "Commonly Agreed",
-          "type": "boolean"
+        "example": {
+          "default": "",
+          "maxLength": 240,
+          "title": "Example",
+          "type": "string"
         },
         "need_id": {
           "title": "Need Id",
@@ -2701,6 +2722,16 @@
           "maxLength": 600,
           "minLength": 1,
           "title": "Rationale",
+          "type": "string"
+        },
+        "representativeness": {
+          "enum": [
+            "common",
+            "specialized",
+            "single_case",
+            "uncertain"
+          ],
+          "title": "Representativeness",
           "type": "string"
         },
         "serves": {
@@ -2716,9 +2747,9 @@
       },
       "required": [
         "need_id",
-        "serves",
         "catalogue_level",
-        "commonly_agreed",
+        "serves",
+        "representativeness",
         "rationale"
       ],
       "title": "ScopeDecision",
@@ -3425,6 +3456,11 @@
           "minLength": 1,
           "title": "Justification",
           "type": "string"
+        },
+        "necessary": {
+          "default": false,
+          "title": "Necessary",
+          "type": "boolean"
         },
         "task_id": {
           "title": "Task Id",
