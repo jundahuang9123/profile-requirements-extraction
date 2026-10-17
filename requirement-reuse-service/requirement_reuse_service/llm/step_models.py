@@ -24,7 +24,7 @@ CONTRACT_STEPS = {
     'ProposalSupport': 'proposal_support', 'SemanticGrouping': 'grouping',
     'NeedStatements': 'writer', 'NeedGrounding': 'rewrite_critic',
     'NeedMembership': 'membership', 'NeedClassifications': 'classification',
-    'ProfileScope': 'profile_scope',
+    'ProfileScope': 'profile_scope', 'NeedApplicability': 'profile_scope',
     'DatasetCategories': 'dataset_categories', 'NeedEquivalence': 'selection',
     'NeedUseCaseLinks': 'use_case_linker', 'UseCaseCritic': 'link_critic',
     'Qualification': 'assessment',

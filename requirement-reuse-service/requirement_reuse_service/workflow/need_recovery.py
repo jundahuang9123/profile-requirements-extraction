@@ -26,6 +26,7 @@ SPECS = {
     'ProposalSupport':('proposals','proposal_id','proposals'),
     'NeedClassifications':('classifications','need_id','needs'),
     'ProfileScope':('decisions','need_id','needs'),
+    'NeedApplicability':('decisions','need_id','needs'),
     'NeedUseCaseLinks':('needs','need_id','needs'),
     'UseCaseCritic':('decisions','link_id','links'),
 }
@@ -66,6 +67,8 @@ def generation(store, run, step, payload, output_model, system, client, validate
     def materialize(audit):
         answer=output_model.model_validate(audit['output'])
         object.__setattr__(answer,'_fallbacks',deepcopy(audit.get('fallback_rows',{})))
+        if output_model.__name__ == 'DatasetCategories':
+            object.__setattr__(answer,'_attempts',deepcopy(audit.get('attempts',[])))
         return answer
     if saved and saved['status'] in {'completed','completed_with_fallbacks'}: return materialize(saved)
     if client is None: raise ValueError('Need processing requires a configured model or scripted offline client.')

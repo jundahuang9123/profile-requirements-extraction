@@ -12,7 +12,7 @@ from requirement_reuse_service.workflow.models import (WorkflowRun, SourceArtifa
     AdditionRequest, AssessmentRequest, BaselineRequest, DecisionRequest, DeriveRequest, RunRequest, SourceRequest,
     SemanticGrouping, SpanElicitationResult, NeedSpanElicitationResult, RestoreRequest, RoleRegistry, StakeholderPanel)
 from requirement_reuse_service.workflow.needs import (NeedStatements, NeedGrounding, NeedClassifications,
-    NeedUseCaseLinks, UseCaseCritic, NeedMembership, ProposalSupport, ProfileScope)
+    NeedUseCaseLinks, UseCaseCritic, NeedMembership, ProposalSupport, ProfileScope, NeedApplicability)
 
 from requirement_reuse_service.workflow.coverage import DatasetCategories, NeedEquivalence
 
@@ -24,7 +24,7 @@ def main():
         WorkflowRun, SourceArtifact, EvidenceUnit, CorpusSnapshot, AdditionRequest,
         AssessmentRequest, BaselineRequest, DecisionRequest, DeriveRequest, RunRequest, SourceRequest, SemanticGrouping,
         SpanElicitationResult, NeedSpanElicitationResult, RestoreRequest, NeedStatements, NeedGrounding,
-        NeedClassifications, ProfileScope, NeedUseCaseLinks, UseCaseCritic, NeedMembership, ProposalSupport, RoleRegistry,
+        NeedClassifications, ProfileScope, NeedApplicability, NeedUseCaseLinks, UseCaseCritic, NeedMembership, ProposalSupport, RoleRegistry,
         StakeholderPanel, DatasetCategories, NeedEquivalence)],
         title='RQ1 persistent workflow v2 contracts')
     schema['$schema'] = 'https://json-schema.org/draft/2020-12/schema'

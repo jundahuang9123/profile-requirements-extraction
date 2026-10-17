@@ -39,7 +39,7 @@ class NeedsClient:
                 'rationale':'Scripted independent rewrite check.'} for g in data['groups']]})
         if name == 'ProfileScope':
             return output_model.model_validate({'decisions':[{'need_id':i,'catalogue_level':True,'serves':'find',
-                'example':'Find datasets by their title.','representativeness':'common',
+                'example':'Find datasets by their title.',
                 'rationale':'Scripted in-scope judgement.'} for i in data['needs']]})
         raise AssertionError(name)
 

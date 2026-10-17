@@ -30,6 +30,82 @@
       "title": "AdditionRequest",
       "type": "object"
     },
+    "ApplicabilityDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "category_links": {
+          "items": {
+            "$ref": "#/$defs/CategoryLink"
+          },
+          "maxItems": 16,
+          "title": "Category Links",
+          "type": "array"
+        },
+        "need_id": {
+          "title": "Need Id",
+          "type": "string"
+        },
+        "profile_wide_links": {
+          "items": {
+            "$ref": "#/$defs/ApplicabilityQuote"
+          },
+          "maxItems": 4,
+          "title": "Profile Wide Links",
+          "type": "array"
+        },
+        "rationale": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "representativeness": {
+          "enum": [
+            "common",
+            "specialized",
+            "single_case",
+            "uncertain"
+          ],
+          "title": "Representativeness",
+          "type": "string"
+        }
+      },
+      "required": [
+        "need_id",
+        "representativeness",
+        "rationale"
+      ],
+      "title": "ApplicabilityDecision",
+      "type": "object"
+    },
+    "ApplicabilityQuote": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "quote": {
+          "maxLength": 1200,
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 400,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "quote",
+        "rationale"
+      ],
+      "title": "ApplicabilityQuote",
+      "type": "object"
+    },
     "ArtifactPayload": {
       "properties": {
         "content": {
@@ -203,6 +279,25 @@
     "CategoryMention": {
       "additionalProperties": false,
       "properties": {
+        "aliases": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 8,
+          "title": "Aliases",
+          "type": "array"
+        },
+        "dimension": {
+          "default": "unspecified",
+          "enum": [
+            "format",
+            "structure",
+            "subject",
+            "unspecified"
+          ],
+          "title": "Dimension",
+          "type": "string"
+        },
         "label": {
           "maxLength": 160,
           "minLength": 1,
@@ -1186,6 +1281,24 @@
         "rationale"
       ],
       "title": "MembershipDecision",
+      "type": "object"
+    },
+    "NeedApplicability": {
+      "additionalProperties": false,
+      "properties": {
+        "decisions": {
+          "items": {
+            "$ref": "#/$defs/ApplicabilityDecision"
+          },
+          "maxItems": 25,
+          "title": "Decisions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "decisions"
+      ],
+      "title": "NeedApplicability",
       "type": "object"
     },
     "NeedClass": {
@@ -2874,14 +2987,6 @@
           "title": "Catalogue Level",
           "type": "boolean"
         },
-        "category_links": {
-          "items": {
-            "$ref": "#/$defs/CategoryLink"
-          },
-          "maxItems": 16,
-          "title": "Category Links",
-          "type": "array"
-        },
         "example": {
           "default": "",
           "maxLength": 240,
@@ -2896,16 +3001,6 @@
           "maxLength": 600,
           "minLength": 1,
           "title": "Rationale",
-          "type": "string"
-        },
-        "representativeness": {
-          "enum": [
-            "common",
-            "specialized",
-            "single_case",
-            "uncertain"
-          ],
-          "title": "Representativeness",
           "type": "string"
         },
         "serves": {
@@ -2923,7 +3018,6 @@
         "need_id",
         "catalogue_level",
         "serves",
-        "representativeness",
         "rationale"
       ],
       "title": "ScopeDecision",

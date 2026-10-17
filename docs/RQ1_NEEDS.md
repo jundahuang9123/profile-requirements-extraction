@@ -197,7 +197,7 @@ conditions at equal size (the same number of top-ranked families).
 
 ## Source-backed categories and compact coverage
 
-`rq1-dataset-categories-v1` scans the frozen input corpus once, with durable per-batch
+`rq1-dataset-categories-v2` scans the frozen input corpus once, with durable per-batch
 checkpoints. Each row names explicitly documented dataset kinds with verbatim labels,
 quotes, offsets, evidence IDs and source names. Exact spelling variants are joined;
 semantic synonyms are not guessed together. The complete registry is exported. Failed
@@ -205,17 +205,17 @@ rows receive at most one correction and remain visibly unchecked; provider failu
 stop and resume unfinished batches. Large rows are not silently truncated. When no needs remain after classification, discovery is skipped without model calls. An empty
 registry is a valid result, not permission to invent a taxonomy.
 
-Profile scope v3 receives relevant category citations and the need's original supporting
+The separate applicability judge receives relevant category citations and the need's original supporting
 excerpts, in bounded batches. Each applicability link requires an offered category ID,
 an exact quote from the need's evidence, and a rationale. Quote validation establishes
 provenance, not entailment; the applicability remains a machine proposal. At most 16
 categories and 7,000 category-context characters are offered; omitted categories are
-counted. A `common` label requires links to every category in a complete scan with at
-least two categories, all offered to the judge. It means common across this registry,
+counted. A `common` label requires either explicit profile-wide source evidence or links to every category in a complete scan with at
+least two categories, all offered to the judge. The latter means common across this registry,
 not all datasets in the world. Unsupported labels become uncertain/review; source-linked
 subsets can be specialised. Category frequency is never community consensus.
 
-`rq1-compact-coverage-v1` produces a separate **compact requirement list**, while keeping
+`rq1-compact-coverage-v2` produces a separate **compact requirement list**, while keeping
 every atomic need in the full review list. Its objective is to cover every retained
 atomic distinction across the documented dataset kinds—not merely choose one arbitrary
 need per kind. Within the existing coarse families, bounded model calls propose strict
@@ -224,8 +224,8 @@ overlap cannot establish equivalence. Both rows must name each other. The server
 requires identical condition, scope and obligation profiles, and a representative must
 retain every category link and use-case link of the need it represents. Nontransitive
 judgements are not expanded by inference. Uncertain support, processing failures,
-unresolved applicability, incomplete category context and incomplete category scans keep the affected needs in the
-selected list. This can legitimately keep the entire list when safe compression is not
+unresolved applicability and incomplete offered category context keep the affected needs in the
+selected list. An incomplete global scan is reported but does not block individually checked equivalences. This can legitimately keep the entire list when safe compression is not
 established.
 
 Selection starts with a deterministic greedy cover and removes redundant representatives.
@@ -526,3 +526,51 @@ No Mobility task file is added until Junda confirms copying its 12 frozen tasks.
 A scoping-off run is a reported comparison, not the intended development setup.
 Evaluation must report recall for kept needs and for kept needs plus the visible
 `no_use_case` set-asides. Neither figure is claimed without an evaluation.
+
+
+## Independent relevance and applicability checks (17 October 2026)
+
+PR #25 keeps extraction proposals with off-contract typed labels by recording a neutral-label
+reset, and distinguishes specification authorship from participating in data use. The follow-up
+uses `rq1-profile-scope-v4`, `rq1-dataset-applicability-v1`, `rq1-dataset-categories-v2` and
+`rq1-compact-coverage-v2`.
+
+C1 (catalogue-level relevance) and C2 (find/access contribution) have their own `ProfileScope`
+contract and checkpoint. Invalid category IDs, malformed applicability rows or inauthentic
+category quotations cannot erase an accepted C1/C2 decision. Only the independently saved
+applicability rows receive their bounded correction; exhausted rows remain unresolved and
+visible. Source checks and the two relevance criteria still apply normally. Applicability is
+only judged for retained, source-checked needs with checked C1/C2 decisions.
+
+Dataset distinctions record separate, overlapping **format**, **structure**, **subject** and
+**unspecified** dimensions. Formats and structures are appropriate when the source connects
+them with describing or distinguishing datasets; a class definition by itself is insufficient.
+Sharing a format does not establish equivalent metadata requirements. Exact spelling variants
+(and file/files suffixes within formats) are joined; other aliases must occur explicitly in
+the same cited source passage. Every original label and citation is retained. Different
+dimensions are never merged. Semantic synonym discovery is not automatic.
+
+Every evidence unit is attempted and accounted for as fully checked or unchecked. An exhausted
+unit may contribute individually valid source-linked mentions, with `unit_scan_complete: false`;
+rejected mentions stay in the audit. This preserves partial evidence without claiming a complete
+scan. No invented quotation is materialized. Valid mentions are machine proposals, not an
+independently established domain taxonomy.
+
+Commonness is strict: either each recorded category has a verified applicability link and the
+entire registry was offered after a complete scan, or a supporting excerpt explicitly claims
+profile-wide applicability. The output distinguishes `all_recorded_categories` from
+`explicit_profile_wide`. Quote validation establishes provenance; semantic applicability and
+profile-wide claims still require review. No restriction missing from a need, shared format,
+frequency or incomplete scan establishes commonness.
+
+An incomplete scan does not halt requirements production or blanket-protect all needs from
+selection. Needs with individually checked applicability may undergo the existing reciprocal
+exact-equivalence checks, preserving category links, use cases, conditions and obligations.
+Unknown applicability, incomplete offered category context and other processing failures keep
+the affected need protected. Selection reports unchecked units and category gaps; a valid cover
+of retained needs does not establish complete corpus or domain coverage.
+
+Earlier saved runs and their results are unchanged. Policy changes require a separate derived
+trial from a fully completed extraction. A run with failed extraction roles cannot seed such a
+trial. No live replay or new run is part of this change. Base selection remains explicit (or a
+configured case default): selecting no base performs no inherited-base comparison.
