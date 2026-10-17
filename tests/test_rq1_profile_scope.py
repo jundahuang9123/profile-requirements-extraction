@@ -42,7 +42,7 @@ class ScopeJudge(NeedsClient):
         rows = []
         for i in [*data['needs'], *self.extra]:
             if i in self.omit: continue
-            row = {'need_id': i, **self.verdicts.get(i, self.default), 'rationale': 'Scripted scope judgement.'}
+            row = {'need_id': i, **{k:v for k,v in self.verdicts.get(i, self.default).items() if k not in {'representativeness', 'category_links'}}, 'rationale': 'Scripted scope judgement.'}
             if i in self.blank_once:
                 self.blank_once.discard(i); row['example'] = ''
             rows.append(row)
@@ -85,7 +85,7 @@ def test_only_dataset_level_and_discovery_set_aside_and_specialised_needs_stay(s
     assert kept.need_statement == STATEMENTS['need-0']
     assert engine.verify(store, kept, run['evidence_ids'])['status'] == 'pass'  # integrity binds the judgement
     step = store.get('run', run['run_id'])['need_steps']['profile_scope']
-    assert step['policy_version'] == 'rq1-profile-scope-v3'
+    assert step['policy_version'] == 'rq1-profile-scope-v4'
     assert step['retained_count'] == 3 and step['set_aside_count'] == 3
     assert step['set_aside_by_reason'] == {'not_catalogue_level': 2, 'not_find_or_access': 1}
     # Without category evidence, a model's confident common/specialized label remains review.
@@ -98,7 +98,7 @@ def test_only_dataset_level_and_discovery_set_aside_and_specialised_needs_stay(s
 def test_contract_can_only_judge_offered_needs():
     assert set(needs.ProfileScope.model_fields) == {'decisions'}
     assert set(needs.ScopeDecision.model_fields) == {
-        'need_id', 'catalogue_level', 'serves', 'example', 'representativeness', 'rationale', 'category_links'}
+        'need_id', 'catalogue_level', 'serves', 'example', 'rationale'}
     assert 'never add, merge, broaden or rewrite a need' in needs.SCOPE_SYSTEM
     # Representativeness is a label, never a set-aside test.
     assert [reason for reason, _ in needs.SCOPE_TESTS] == ['not_catalogue_level', 'not_find_or_access']

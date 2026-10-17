@@ -1,8 +1,8 @@
 import { Run } from '../lib/workflowApi';
 
 type Citation = { evidence_id: string; source_name: string; quote: string; rationale: string };
-type Category = { category_id: string; label: string; citations: Citation[] };
-type Registry = { reason?: string; categories: Category[]; examined_count: number; input_count: number; unchecked_evidence_ids: string[]; scan_complete: boolean };
+type Category = { category_id: string; label: string; dimension?: string; labels?: string[]; citations: Citation[] };
+type Registry = { attempted_count?: number; rejected_mentions?: unknown[]; reason?: string; categories: Category[]; examined_count: number; input_count: number; unchecked_evidence_ids: string[]; scan_complete: boolean };
 type Selection = { selected_need_ids: string[]; selected_revision_ids: string[]; represented_need_ids: string[]; covered_by: Record<string,string>; protected_needs: Record<string,string[]>; uncovered_category_ids: string[]; optimal_for_recorded_coverage: boolean; input_count: number };
 
 export function NeedCoverageView({ run, inspect, review }: { run: Run; inspect: (id: string) => void; review: (id: string) => void }) {
@@ -15,9 +15,9 @@ export function NeedCoverageView({ run, inspect, review }: { run: Run; inspect: 
   return <section className="workflow-panel">
     <h2>Dataset kinds and compact requirements</h2>
     <p>These are source-linked machine proposals. Category labels describe the supplied sources; they do not establish community agreement or an exhaustive taxonomy.</p>
-    {registry && <>{registry.reason && <p>{registry.reason}</p>}<p>{registry.examined_count} of {registry.input_count} evidence units checked · {categories.length} dataset kinds. {!registry.scan_complete && 'The scan is incomplete; uncertain needs stay in the list.'}</p>
-      <details><summary>Dataset kinds and their sources</summary>{categories.length ? categories.map(category => <article key={category.category_id}>
-        <h3>{category.label}</h3>{category.citations.map((citation,index) => <blockquote key={index}>
+    {registry && <>{registry.reason && <p>{registry.reason}</p>}<p>{registry.attempted_count !== undefined && <>{registry.attempted_count} units attempted · </>}{registry.examined_count} of {registry.input_count} evidence units fully checked · {categories.length} dataset kinds. {!registry.scan_complete && 'The scan is incomplete; uncertain needs stay in the list. Equivalence can still be checked for needs with verified applicability.'}</p>
+      {!!registry.rejected_mentions?.length && <p>{registry.rejected_mentions.length} rejected category mentions are recorded in the scan audit; valid mentions from partially checked units remain available.</p>}<details><summary>Dataset kinds and their sources</summary>{categories.length ? categories.map(category => <article key={category.category_id}>
+        <h3>{category.label}</h3><p>Dimension: {category.dimension ?? 'unspecified'}. {!!category.labels && category.labels.length > 1 && <>Source labels: {category.labels.join(', ')}.</>}</p>{category.citations.map((citation,index) => <blockquote key={index}>
           <p>{citation.quote}</p><p>{citation.rationale}</p><button onClick={() => inspect(citation.evidence_id)}>Inspect source · {citation.source_name}</button>
         </blockquote>)}
       </article>) : <p>No dataset kinds were identified. No applicability is assumed; all needs remain available for review.</p>}</details></>}

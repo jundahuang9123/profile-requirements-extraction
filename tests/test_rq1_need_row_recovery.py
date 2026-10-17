@@ -18,13 +18,16 @@ ROWS = {
     'ProposalSupport':lambda i:{'proposal_id':i,'support':'supported','supporting_evidence_ids':['q'],'obligation_stated':False,'rationale':'Supported.'},
     'NeedClassifications':lambda i:{'need_id':i,'classification':'domain','base_need_ids':[],'rationale':'Domain.'},
     'ProfileScope':lambda i:{'need_id':i,'catalogue_level':True,'serves':'find','example':'Find datasets by title.',
-                             'representativeness':'common','rationale':'In scope.'},
+                             'rationale':'In scope.'},
+    'NeedApplicability':lambda i:{'need_id':i,'representativeness':'uncertain','category_links':[],
+                                 'rationale':'No checked applicability.'},
     'NeedUseCaseLinks':lambda i:{'need_id':i,'links':[]},
     'UseCaseCritic':lambda i:{'link_id':i,'keep':True,'rationale':'Necessary.'},
 }
 
 STEPS = {'NeedStatements':'need_statement','NeedGrounding':'need_statement','NeedMembership':'need_membership',
          'ProposalSupport':'proposal_support','NeedClassifications':'classification','ProfileScope':'profile_scope',
+         'NeedApplicability':'dataset_applicability',
          'NeedUseCaseLinks':'scoping','UseCaseCritic':'scope_critic'}
 
 
@@ -79,6 +82,20 @@ def test_provider_outage_fails_run_and_resume_checks_rows_for_every_step(setup, 
             name=kw['output_model'].__name__; data=json.loads(kw['user'])
             if name==fault and self.outage:
                 self.calls.append((name,data)); raise LLMError(error+' (simulated).')
+            if fault=='NeedApplicability' and name=='DatasetCategories':
+                self.calls.append((name,data))
+                return kw['output_model'].model_validate({'units':[{'evidence_id':i,'categories':[
+                    {'label':'dataset','dimension':'structure','quote':text,'rationale':'Synthetic fixture category.'}]}
+                    for i,text in data['evidence'].items()]})
+            if name=='NeedApplicability':
+                self.calls.append((name,data))
+                category_id=next(iter(data['dataset_context']['categories']))
+                rows=[]
+                for i,need in data['needs'].items():
+                    evidence_id,quote=next(iter(need['excerpts'].items()))
+                    rows.append({**ROWS[name](i),'representativeness':'specialized','category_links':[
+                        {'category_id':category_id,'evidence_id':evidence_id,'quote':quote,'rationale':'Synthetic link.'}]})
+                return kw['output_model'].model_validate({'decisions':rows})
             if name in {'NeedMembership','NeedClassifications','NeedUseCaseLinks','UseCaseCritic'}:
                 self.calls.append((name,data))
                 if name=='NeedMembership': raw={'checks':[ROWS[name](i) for i in data['members']]}
@@ -144,15 +161,14 @@ def test_invalid_row_twice_retains_good_row_corrects_only_bad_and_replays(setup,
                 if row[id_field]=='bad': row[id_field]=None
             return validate_json_payload(json.dumps({field:rows}),kw['output_model'])
     client=InvalidRow()
-    step={'NeedStatements':'need_statement','NeedGrounding':'need_statement','NeedMembership':'need_membership',
-          'ProposalSupport':'proposal_support','NeedClassifications':'classification','ProfileScope':'profile_scope',
-          'NeedUseCaseLinks':'scoping','UseCaseCritic':'scope_critic'}[name]
+    step=STEPS[name]
     accounting_messages={'NeedStatements':'Account for each offered group exactly once.',
         'NeedGrounding':'Critic must account for every offered group exactly once.',
         'NeedMembership':'Check every offered member exactly once.',
         'ProposalSupport':'Judge each offered proposal exactly once.',
         'NeedClassifications':'Classify every offered need exactly once.',
         'ProfileScope':'Judge every offered need exactly once.',
+        'NeedApplicability':'Judge every offered need exactly once.',
         'NeedUseCaseLinks':'Account for every offered need exactly once.',
         'UseCaseCritic':'Decide every offered link ID exactly once.'}
     def validate(result):

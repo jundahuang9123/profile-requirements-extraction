@@ -80,10 +80,10 @@ def test_source_backed_scope_and_no_invented_applicability(setup):
     made[0].evidence_links=[EvidenceLink(evidence_id=citation['evidence_id'], quote=citation['quote'])]
     class LinkedJudge(ScopeJudge):
         def generate_structured(self,**kw):
-            data=json.loads(kw['user']); self.calls.append(('ProfileScope',data))
+            if kw['output_model'].__name__ == 'ProfileScope': return super().generate_structured(**kw)
+            data=json.loads(kw['user']); self.calls.append(('NeedApplicability',data))
             assert data['dataset_context']['categories'][category['category_id']]['citation']['quote']==citation['quote']
-            return kw['output_model'].model_validate({'decisions':[{'need_id':i,'catalogue_level':True,
-                'serves':'find','example':'Find parking datasets.','representativeness':'common',
+            return kw['output_model'].model_validate({'decisions':[{'need_id':i,'representativeness':'common',
                 'rationale':'Specific to parking.','category_links':[{'category_id':category['category_id'],
                 'evidence_id':citation['evidence_id'],'quote':citation['quote'],'rationale':'Parking is explicit.'}]} for i in data['needs']]})
     out=needs.judge_profile_scope(store,run,made,LinkedJudge(),registry)
@@ -166,12 +166,13 @@ def test_exhausted_equivalence_keeps_every_need_and_audits_uncertainty(setup):
     assert len(client.calls)==2
 
 
-def test_incomplete_scan_keeps_all_without_equivalence_calls(setup):
+def test_incomplete_scan_allows_checked_equivalences_and_reports_coverage_gap(setup):
     store,run,made,families,registry=selection_inputs(setup); registry['scan_complete']=False
     client=EquivalenceClient()
     result=coverage.compact_selection(store,run,made,families,registry,client)
-    assert result['selected_count']==4 and not client.calls
-    assert all('category_scan_incomplete' in r for r in result['protected_needs'].values())
+    assert result['selected_count']==1 and client.calls
+    assert not result['category_scan_complete'] and not result['category_coverage_complete']
+    assert result['uncovered_category_ids']==['traffic']
 
 
 def test_bounded_solver_matches_small_exhaustive_oracle():
@@ -237,14 +238,16 @@ def test_false_applicability_quote_is_never_materialized(setup):
         'citations':[{'evidence_id':evidence_id,'quote':'Parking','source_name':'offline'}]}]}
     class FalseLink(ScopeJudge):
         def generate_structured(self,**kw):
-            data=json.loads(kw['user']);self.calls.append(('ProfileScope',data))
-            return kw['output_model'].model_validate({'decisions':[{'need_id':i,'catalogue_level':True,
-                'serves':'find','example':'Find datasets.','representativeness':'specialized','rationale':'Offline false citation.',
+            if kw['output_model'].__name__ == 'ProfileScope': return super().generate_structured(**kw)
+            data=json.loads(kw['user']);self.calls.append(('NeedApplicability',data))
+            return kw['output_model'].model_validate({'decisions':[{'need_id':i,'representativeness':'specialized','rationale':'Offline false citation.',
                 'category_links':[{'category_id':'parking','evidence_id':evidence_id,'quote':'Invented quote',
                                    'rationale':'Not actually in source.'}]} for i in data['needs']]})
     client=FalseLink()
     kept=needs.judge_profile_scope(store,run,made,client,registry)
-    assert len(client.calls)==2 and len(kept)==1
+    assert len(client.calls)==3 and len(kept)==1
     assert kept[0].dataset_coverage['category_ids']==[]
     assert kept[0].profile_scope['scope_class']=='review'
-    assert 'profile_scope_not_checked' in kept[0].processing_flags
+    assert kept[0].profile_scope['status']=='checked'
+    assert 'profile_scope_not_checked' not in kept[0].processing_flags
+    assert 'dataset_applicability_not_checked' in kept[0].processing_flags
