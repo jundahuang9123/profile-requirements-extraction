@@ -114,7 +114,7 @@ def test_benchmark_api_loads_without_run_or_provider_and_exposes_pinned_choices(
     assert cases[0] == {'case_id': 'mobilitydcat', 'base_profile_id': 'dcat-ap-2.0.1',
         'background_source_names': ['base.md'], 'raw_file_count': 3}
     profiles = client.get('/api/rq1/v2/base-profiles').json()
-    assert {p['id'] for p in profiles} == {'dcat-ap-2.0.1', 'dcat-ap-2.1.1',
+    assert {p['id'] for p in profiles} == {'dcat-ap-1.1.0', 'dcat-ap-2.0.1', 'dcat-ap-2.1.1',
         'dcat-ap-3.0.0', 'dcat-ap-3.0.1', 'dcat-2.0.0', 'dcat-3.0.0'}
     assert {p['family'] for p in profiles} == {'DCAT', 'DCAT-AP'}
     assert next(p['label'] for p in profiles if p['id'] == 'dcat-3.0.0') == 'W3C DCAT 3'

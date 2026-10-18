@@ -17,7 +17,7 @@ source run, saved extraction and changed downstream conditions.
 ## Choose the starting version for each run
 
 On **Sources & scope**, choose **Starting DCAT / DCAT-AP version** before you
-freeze the corpus/start the run. The choices are DCAT-AP 2.0.1, 2.1.1, 3.0.0 and
+freeze the corpus/start the run. The choices are DCAT-AP 1.1, 2.0.1, 2.1.1, 3.0.0 and
 3.0.1, and W3C DCAT 2 and 3. The version is repeated on the configuration page
 and saved with the run, including the exact registry checksum and registry policy.
 
@@ -64,6 +64,7 @@ The checked-in registries are:
 | Registry | Classes / entries | SHA256 of JSON bytes |
 | --- | --- | --- |
 | `dcat-ap-2.0.1.json` | 14 / 109 | `8714b33e415b4576e2bf9046ae66806555f376dffbeeff5e681eb9e0fda70180` |
+| `dcat-ap-1.1.0.json` | 11 / 77 | generated from the pinned 2015 final PDF; see its registry `source.files` checksum |
 | `dcat-ap-2.1.1.json` | 14 / 109 | `928c2686f32183b7b6540b8a7d28d1f38bff47fa19e7281f64e2c6f731a912c0` |
 | `dcat-ap-3.0.0.json` | 15 / 131 | `abac1d09177b760059d4e3deb63819c081081df758f23f0567815f4b9d35971f` |
 | `dcat-ap-3.0.1.json` | 15 / 131 | `84de0548ad207c259d82426e3905b7fa50c38a27e09db6ea1166099774153216` |
@@ -91,6 +92,17 @@ use separately in `vocabulary_guidance`. Only unconditional required schemes pop
 domain constraint automatically. This registry does not implement every usage-note
 condition or nested SHACL constraint. Dataset Series is available in 3.x, and
 membership/obligations may differ between releases.
+
+DCAT-AP 1.1 uses the archived [2015 final PDF](https://datos.gob.es/sites/default/files/doc/file/dcat-ap_version_1.1.pdf),
+which identifies version 1.1, date 2015-10-23, Final status and the ISA Open Metadata
+Licence v1.1. The repository's later RDF/SHACL assets are not used because they identify
+themselves as 1.2. The builder extracts the 4.x per-class property tables from the
+pinned PDF and preserves the separate §5.2 vocabulary table with page locators; its
+conditional publisher/spatial guidance is recorded without treating it as an
+unconditional vocabulary constraint. The PDF is a base-registry source, not a StatDCAT
+evidence-deck document. StatDCAT's runtime benchmark configuration now defaults to
+this DCAT-AP 1.1 registry, consistent with the StatDCAT-AP 1.0 development's stated
+starting version. A run snapshots the selected registry checksum.
 
 The persistent workflow's resource-type contract accepts the classes present in
 these registries, including Dataset Series and the supporting classes. This is a

@@ -30,7 +30,9 @@ def test_every_registry_is_bound_to_official_pinned_input_bytes(identifier):
     assert data['id'] == identifier
     for path, digest in data['source']['files'].items():
         assert digest == builder.PINNED_HASHES[path]
-    if identifier.startswith('dcat-ap-'):
+    if identifier == 'dcat-ap-1.1.0':
+        assert data['source']['url'] == 'https://datos.gob.es/sites/default/files/doc/file/dcat-ap_version_1.1.pdf'
+    elif identifier.startswith('dcat-ap-'):
         assert data['source']['commit'] == builder.PINNED_COMMIT
     else:
         assert data['source']['url'] == builder.W3C_SOURCES[data['version']]
@@ -60,6 +62,36 @@ def test_w3c_vocabulary_inherits_properties_without_fabricating_obligations(vers
     assert ('dcat:DatasetSeries' in data['classes']) == (version == '3')
     if version == '3':
         assert 'dct:title' in data['classes']['dcat:DatasetSeries']
+
+
+def test_ap11_uses_pinned_final_pdf_for_property_tables_and_vocabularies():
+    data = builder.build_profile('dcat-ap-1.1.0', REGISTRY / 'source-inputs')
+    classes = data['classes']
+    assert data['source']['files']['releases/1.1/dcat-ap_1.1.pdf'] == \
+        '7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d'
+    assert sum(map(len, classes.values())) == 78
+    assert classes['dcat:Catalog']['dct:title']['obligation'] == 'mandatory'
+    assert classes['dcat:Catalog']['dct:title']['max'] is None
+    assert 'dct:titleCatalogue' not in classes['dcat:Catalog']
+    assert classes['dcat:Dataset']['dct:publisher']['vocabulary'] is None
+    assert classes['dcat:Dataset']['dct:publisher']['vocabulary_guidance']['qualification'] == 'conditional'
+    assert classes['dcat:Distribution']['dcat:mediaType']['vocabulary'] == \
+        'http://www.iana.org/assignments/media-types/media-types.xhtml'
+    assert classes['dcat:Dataset']['dcat:theme']['vocabulary'] == \
+        'http://publications.europa.eu/resource/authority/data-theme'
+    assert classes['dcat:Dataset']['dct:title']['usage_note_source']['page'] == 13
+    assert all(not any(note.strip().startswith(('0..', '1..', '2..')) for note in entry.get('usage_note', '').splitlines())
+               for props in classes.values() for entry in props.values())
+
+
+def test_ap11_needs_catalogue_preserves_pdf_usage_note_with_locator():
+    needs = json.loads((REGISTRY / 'dcat-ap-1.1.0.needs.json').read_text())
+    entry = next(row for row in needs['entries']
+                 if row.get('class') == 'dcat:Dataset' and row.get('property') == 'dct:title')
+    assert entry['usage_notes']
+    assert any('repeated for parallel language versions' in note for note in entry['usage_notes'])
+    assert entry['definition_sources'][0]['file'] == 'releases/1.1/dcat-ap_1.1.pdf'
+    assert entry['definition_sources'][0]['page'] == 13
 
 
 def pinned_fixture(tmp_path, monkeypatch, relative, text):

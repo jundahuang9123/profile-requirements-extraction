@@ -19,13 +19,14 @@ from rdflib.namespace import SH, SKOS
 
 PINNED_COMMIT = '4470b8ea907b7eb9ec55ab22befd1ecd2210ff32'
 BUILDER_VERSION = 'rq1-base-registry-v1'
-SUPPORTED_PROFILES = ('dcat-ap-2.0.1', 'dcat-ap-2.1.1', 'dcat-ap-3.0.0', 'dcat-ap-3.0.1',
+SUPPORTED_PROFILES = ('dcat-ap-1.1.0', 'dcat-ap-2.0.1', 'dcat-ap-2.1.1', 'dcat-ap-3.0.0', 'dcat-ap-3.0.1',
                       'dcat-2.0.0', 'dcat-3.0.0')
 W3C_SOURCES = {
     '2': 'https://www.w3.org/TR/2020/REC-vocab-dcat-2-20200204/',
     '3': 'https://www.w3.org/TR/2024/REC-vocab-dcat-3-20240822/',
 }
 PINNED_HASHES = {
+    'releases/1.1/dcat-ap_1.1.pdf': '7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d',
     'releases/3.0.0/index.html': 'faf607042f641ed3c022fc8cb5bb36d450991eca9202107d3aa49dc78a9bbff2',
     'releases/3.0.0/shacl/dcat-ap-SHACL.ttl': '92f76609d78d257123e75bc6b7155df5cc0a63f14c29fbc12b0ac95c56af2059',
     'releases/3.0.1/index.html': 'cfa6c5e3bd05bfa731e6a8b4848062d9dfb56303ed40b12efa467847a9171e12',
@@ -491,11 +492,213 @@ def build_ap3_profile(profile_id: str, input_dir: Path) -> dict:
             'classes': {cls: dict(sorted(props.items())) for cls, props in sorted(result.items())}}
 
 
+def build_ap11_profile(profile_id: str, input_dir: Path) -> dict:
+    """Build DCAT-AP 1.1 membership/obligations from its archived final PDF.
+
+    The later RDF/SHACL files in upstream release folders identify themselves as
+    1.2 and must not silently stand in for the 2015 1.1 profile. We therefore use
+    only the verified 2015 final PDF here; constraints are read from its property
+    tables and the exact PDF bytes are pinned in the output registry.
+    """
+    import pdfplumber
+
+    relative = 'releases/1.1/dcat-ap_1.1.pdf'
+    path = read_pinned(input_dir, relative, {})
+    class_names = {
+        'catalogue': ('dcat:Catalog', 'catalogue'),
+        'catalogue record': ('dcat:CatalogRecord', 'catalogue record'),
+        'dataset': ('dcat:Dataset', 'dataset'),
+        'distribution': ('dcat:Distribution', 'distribution'),
+        'agent': ('foaf:Agent', 'agent'),
+        'category scheme': ('skos:ConceptScheme', 'category scheme'),
+        'category': ('skos:Concept', 'category'),
+        'checksum': ('spdx:Checksum', 'checksum'),
+        'identifier': ('adms:Identifier', 'identifier'),
+        'licence document': ('dct:LicenseDocument', 'licence document'),
+        'period of time': ('dct:PeriodOfTime', 'period of time'),
+    }
+    curie = re.compile(r'\b[A-Za-z][\w-]*:[A-Za-z_](?:[\w.-]*[\w-])?\b')
+    section_re = re.compile(
+        r'4\.\d+(?:\.\d+)?\s+(Mandatory|Recommended|Optional)\s+'
+        r'propert(?:y|ies)\s+for\s+([^\n]+)', re.I)
+    card_re = re.compile(r'\b(\d+)\s*\.\.\s*(\d+|n)\b', re.I)
+    classes: dict[str, dict] = {cls: {} for cls, _ in class_names.values()}
+    active = None
+    with pdfplumber.open(path) as pdf:
+        first = ' '.join((pdf.pages[0].extract_text() or '').split())
+        metadata = ' '.join((pdf.pages[1].extract_text() or '').split())
+        if ('Version 1.1' not in first or '2015-10-23' not in first or
+                'Status Final' not in metadata or 'ISA Open Metadata Licence v1.1' not in metadata):
+            raise ValueError('Pinned DCAT-AP 1.1 PDF identity checks failed.')
+        for page_number, page in enumerate(pdf.pages, 1):
+            for table in page.find_tables():
+                rows = table.extract()
+                if not rows:
+                    continue
+                header = [re.sub(r'\s+', ' ', (cell or '')).strip().casefold() for cell in rows[0]]
+                if 'property' not in header or 'uri' not in header or 'range' not in header:
+                    continue
+                before = page.crop((0, 0, page.width, table.bbox[1])).extract_text() or ''
+                matches = list(section_re.finditer(before))
+                if matches:
+                    level, class_label = matches[-1].groups()
+                    normalized_class = re.sub(r'\s+', ' ', class_label).strip().casefold()
+                    if normalized_class not in class_names:
+                        raise ValueError(f'Unknown DCAT-AP 1.1 property class: {class_label}')
+                    active = (class_names[normalized_class][0], class_names[normalized_class][1], level.casefold())
+                if active is None:
+                    continue  # non-property tables and the first cover/table-of-contents pages
+                indexes = {
+                    key: next((i for i, value in enumerate(header) if value.startswith(key)), None)
+                    for key in ('property', 'uri', 'range', 'usage note', 'card')
+                }
+                if indexes['card'] is None:
+                    continue
+                # PDF table extraction places the card value in the blank cell
+                # immediately before its heading, and usage text in the next
+                # cell after its heading (merged cells in the source PDF).
+                card_i = max(0, indexes['card'] - 1)
+                note_i = indexes['usage note'] + 1 if indexes['usage note'] is not None else None
+                current = None
+                extracted = []
+                def flush():
+                    if current and current.get('property'):
+                        extracted.append(dict(current))
+                for row in rows[1:]:
+                    # Merged PDF cells can shift the URI to the next visual
+                    # column. Search only the cells before Range so a range
+                    # CURIE can never be mistaken for the property.
+                    property_cells = row[indexes['uri']:indexes['range']]
+                    property_uri = next((term for cell in property_cells if cell
+                                         for term in curie.findall(cell)), None)
+                    # Continuation prose can mention a second URI (for
+                    # example, dct:subject in a note about dcat:theme). A
+                    # real property row has its label in the first cell.
+                    if not any(str(cell).strip() for cell in row[:indexes['uri']] if cell):
+                        property_uri = None
+                    # PDF extraction occasionally joins the next column's
+                    # class heading to the final URI (e.g. dct:titleCatalogue).
+                    if property_uri == 'dct:titleCatalogue':
+                        property_uri = 'dct:title'
+                    if property_uri:
+                        flush()
+                        label_bits = [row[i] for i in range(indexes['uri']) if i < len(row) and row[i]]
+                        current = {'property': compact(property_uri), 'label': ' '.join(' '.join(label_bits).split()),
+                                   'range_text': '', 'usage_note': '', 'card': ''}
+                    if current:
+                        range_i = indexes['range']
+                        if range_i < len(row) and row[range_i]: current['range_text'] += ' ' + row[range_i]
+                        if note_i is not None and note_i < len(row) and row[note_i]: current['usage_note'] += ' ' + row[note_i]
+                        if card_i < len(row) and row[card_i]: current['card'] += ' ' + row[card_i]
+                flush()
+                for item in extracted:
+                    card = card_re.search(item['card'])
+                    if not card:
+                        raise ValueError(f'Missing cardinality in DCAT-AP 1.1 table for {item["property"]}')
+                    raw_ranges = [compact(value) for value in curie.findall(item['range_text'])]
+                    label = ' '.join(item['label'].split()).strip().casefold()
+                    if not label:
+                        label = item['property'].split(':', 1)[1]
+                    cls, cls_label, obligation = active
+                    entry = {
+                        'obligation': obligation, 'max': None if card[2].casefold() == 'n' else int(card[2]),
+                        'range': scalar_or_list(set(raw_ranges)), 'vocabulary': None,
+                        'labels': [f'{cls_label} - {label}', label],
+                        'usage_note': (' '.join(item['usage_note'].split())
+                                       if not re.fullmatch(r'\s*\d+\s*\.\.\s*(?:\d+|n)\s*',
+                                                           item['usage_note'], re.I) else ''),
+                        'usage_note_source': {'file': relative, 'sha256': PINNED_HASHES[relative],
+                                              'page': page_number},
+                    }
+                    prior = classes.setdefault(cls, {}).get(item['property'])
+                    if prior and prior != entry:
+                        raise ValueError(f'Conflicting DCAT-AP 1.1 entries for {cls}/{item["property"]}')
+                    classes[cls][item['property']] = entry
+    if not any(classes.values()) or not classes['dcat:Dataset']:
+        raise ValueError('No DCAT-AP 1.1 property tables were parsed.')
+    # Section 5.2 is a separate vocabulary table. Its PDF layout splits
+    # cells across pages, so preserve the table's explicit guidance here with
+    # page-anchored, deterministic entries instead of guessing from prose.
+    vocabulary_rows = {
+        ('dcat:Distribution', 'dcat:mediaType'): {
+            'schemes': ['http://www.iana.org/assignments/media-types/media-types.xhtml'],
+            'qualification': 'must', 'source_locator': '§5.2, p.18'},
+        ('dcat:Dataset', 'dcat:theme'): {
+            'schemes': ['http://publications.europa.eu/resource/authority/data-theme'],
+            'qualification': 'must', 'source_locator': '§5.2, p.18'},
+        ('dcat:Catalog', 'dcat:themeTaxonomy'): {
+            'schemes': ['http://publications.europa.eu/resource/authority/data-theme'],
+            'qualification': 'must', 'source_locator': '§5.2, p.18'},
+        ('dcat:Dataset', 'dct:accrualPeriodicity'): {
+            'schemes': ['http://publications.europa.eu/resource/authority/frequency'],
+            'qualification': 'must', 'source_locator': '§5.2, p.18'},
+        ('dcat:Distribution', 'dct:format'): {
+            'schemes': ['http://publications.europa.eu/resource/authority/file-type'],
+            'qualification': 'must', 'source_locator': '§5.2, p.18'},
+        ('dcat:Catalog', 'dct:language'): {
+            'schemes': ['http://publications.europa.eu/resource/authority/language'],
+            'qualification': 'must', 'source_locator': '§5.2, p.19'},
+        ('dcat:Dataset', 'dct:language'): {
+            'schemes': ['http://publications.europa.eu/resource/authority/language'],
+            'qualification': 'must', 'source_locator': '§5.2, p.19'},
+        ('dcat:CatalogRecord', 'adms:status'): {
+            'schemes': ['http://purl.org/adms/change-status'],
+            'qualification': 'must', 'source_locator': '§5.2, p.19'},
+        ('dcat:Distribution', 'adms:status'): {
+            'schemes': ['http://purl.org/adms/status/'],
+            'qualification': 'must', 'source_locator': '§5.2, p.19'},
+        ('foaf:Agent', 'dct:type'): {
+            'schemes': ['http://purl.org/adms/publisherType/'],
+            'qualification': 'must', 'source_locator': '§5.2, p.19'},
+        ('dct:LicenseDocument', 'dct:type'): {
+            'schemes': ['http://purl.org/adms/licencetype/'],
+            'qualification': 'must', 'source_locator': '§5.2, p.19'},
+    }
+    for (cls, prop), guidance in vocabulary_rows.items():
+        if prop not in classes.get(cls, {}):
+            raise ValueError(f'DCAT-AP 1.1 vocabulary table refers to absent property {cls}/{prop}')
+        entry = classes[cls][prop]
+        entry['vocabulary_guidance'] = guidance
+        entry['vocabulary'] = guidance['schemes'][0]
+    for (cls, prop), guidance in {
+        ('dcat:Catalog', 'dct:publisher'): {
+            'schemes': ['http://publications.europa.eu/resource/authority/corporate-body'],
+            'qualification': 'conditional', 'usage_note': 'The corporate bodies NAL must be used for European institutions and a small set of international organisations. In case of other types of organisations, national, regional or local vocabularies should be used.',
+            'source_locator': '§5.2, p.19'},
+        ('dcat:Dataset', 'dct:publisher'): {
+            'schemes': ['http://publications.europa.eu/resource/authority/corporate-body'],
+            'qualification': 'conditional', 'usage_note': 'The corporate bodies NAL must be used for European institutions and a small set of international organisations. In case of other types of organisations, national, regional or local vocabularies should be used.',
+            'source_locator': '§5.2, p.19'},
+        ('dcat:Catalog', 'dct:spatial'): {
+            'schemes': ['http://publications.europa.eu/resource/authority/country', 'http://publications.europa.eu/resource/authority/place', 'http://publications.europa.eu/resource/authority/continent', 'http://sws.geonames.org/'],
+            'qualification': 'conditional', 'usage_note': 'The MDR Name Authority Lists must be used for continents, countries and places in those lists; if a particular location is not in one of the mentioned lists, GeoNames URIs must be used.',
+            'source_locator': '§5.2, p.19'},
+        ('dcat:Dataset', 'dct:spatial'): {
+            'schemes': ['http://publications.europa.eu/resource/authority/country', 'http://publications.europa.eu/resource/authority/place', 'http://publications.europa.eu/resource/authority/continent', 'http://sws.geonames.org/'],
+            'qualification': 'conditional', 'usage_note': 'The MDR Name Authority Lists must be used for continents, countries and places in those lists; if a particular location is not in one of the mentioned lists, GeoNames URIs must be used.',
+            'source_locator': '§5.2, p.19'},
+    }.items():
+        if prop not in classes.get(cls, {}):
+            raise ValueError(f'DCAT-AP 1.1 vocabulary table refers to absent property {cls}/{prop}')
+        classes[cls][prop]['vocabulary_guidance'] = guidance
+    return {
+        'id': profile_id, 'version': '1.1', 'family': 'DCAT-AP', 'label': 'DCAT-AP 1.1',
+        'registry_policy': 'rq1-base-registry-v1',
+        'source': {'url': 'https://datos.gob.es/sites/default/files/doc/file/dcat-ap_version_1.1.pdf',
+                   'files': {relative: PINNED_HASHES[relative]}},
+        'recommended_source': '2015-final-pdf-property-tables',
+        'description': 'Archived 2015 final specification; property membership and obligations parsed from its pinned PDF tables.',
+        'classes': {cls: dict(sorted(props.items())) for cls, props in sorted(classes.items())},
+    }
+
+
 def build_profile(profile_id: str, input_dir: Path, *, allow_recommended_fallback=False) -> dict:
     if profile_id not in SUPPORTED_PROFILES:
         raise ValueError(f'Unsupported base profile {profile_id}')
     if profile_id.startswith('dcat-ap-3.'):
         return build_ap3_profile(profile_id, input_dir)
+    if profile_id == 'dcat-ap-1.1.0':
+        return build_ap11_profile(profile_id, input_dir)
     if profile_id.startswith('dcat-') and not profile_id.startswith('dcat-ap-'):
         return build_dcat_profile(profile_id, input_dir)
     version = profile_id.removeprefix('dcat-ap-')

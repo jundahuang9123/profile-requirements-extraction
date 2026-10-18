@@ -57,7 +57,7 @@ def test_families_group_kept_needs_headed_by_best_ranked_member(setup):
     assert STATEMENTS['need-4'] not in [row['statement'] for row in offered]
     step = store.get('run', run['run_id'])['need_steps']['families']
     assert step['family_count'] == 2 and step['not_grouped_need_ids'] == ['need-4']
-    assert step['grouping_unavailable_chunks'] == 0 and step['policy_version'] == 'rq1-need-families-v1'
+    assert step['grouping_unavailable_chunks'] == 0 and step['policy_version'] == 'rq1-need-families-v2'
     saved = store.get('run', run['run_id'])['consolidation_chunks']
     before = len(client.calls)
     assert needs.need_families(store, run, made, client, saved) == families
@@ -68,7 +68,9 @@ def test_invalid_family_grouping_keeps_singletons(setup):
     store, run, made = kept_needs(setup); client = FamilyClient('invalid')
     families = needs.need_families(store, run, made, client, {})
     assert [f['member_need_ids'] for f in families] == [['need-1'], ['need-2'], ['need-0'], ['need-3']]
-    assert store.get('run', run['run_id'])['need_steps']['families']['grouping_unavailable_chunks'] == 1
+    saved=store.get('run', run['run_id'])['need_steps']['families']
+    assert saved['grouping_unavailable_chunks'] == 0
+    assert any(event['action']=='semantic_grouping_salvaged' for event in saved['audit'])
     assert sum(name == 'SemanticGrouping' for name, _ in client.calls) == 2
 
 
@@ -91,3 +93,23 @@ def test_export_lists_ranked_families_with_member_statements(setup):
     counts = workflow_metrics(run)['needs']['counts']
     assert counts['families'] == 1 and counts['after_profile_scope'] == 1
     assert run['need_steps']['profile_scope']['retained_count'] == 1
+
+
+def test_group_accounting_salvage_preserves_valid_groups_and_keeps_others_singleton():
+    from types import SimpleNamespace
+    from requirement_reuse_service.workflow.models import CandidateGroup, SemanticGrouping
+    from requirement_reuse_service.workflow.semantic_consolidation import (
+        FAMILY_POLICY, accounting_errors, salvage_independent_groups)
+    candidates={f'c{i}':SimpleNamespace(revision_id=str(i),normalized_statement=f'Users can find need {i}.')
+                for i in range(1,5)}
+    answer=SemanticGrouping(groups=[
+        CandidateGroup(member_ids=['c1','c2'],rationale='Same need.'),
+        CandidateGroup(member_ids=['c3','unknown-id'],rationale='Malformed but separable.'),
+        CandidateGroup(member_ids=['c4','c4'],rationale='Repeated ID.')])
+    salvaged,audit=salvage_independent_groups(answer,candidates,{},FAMILY_POLICY)
+    assert salvaged is not None and accounting_errors(salvaged,candidates,{},FAMILY_POLICY)==[]
+    memberships=[group.member_ids for group in salvaged.groups]
+    assert ['c1','c2'] in memberships
+    assert ['c3'] in memberships and ['c4'] in memberships
+    assert all(sum(group.count(item) for group in memberships)==1 for item in candidates)
+    assert any(row['action']=='preserved_valid_group' and row['unknown_member_ids']==['unknown-id'] for row in audit['groups'])

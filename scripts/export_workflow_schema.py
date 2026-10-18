@@ -15,6 +15,7 @@ from requirement_reuse_service.workflow.needs import (NeedStatements, NeedGround
     NeedUseCaseLinks, UseCaseCritic, NeedMembership, ProposalSupport, ProfileScope, NeedApplicability)
 
 from requirement_reuse_service.workflow.coverage import DatasetCategories, NeedEquivalence
+from requirement_reuse_service.workflow.stakeholder_workflow import SourceRouting, StakeholderReview, MediationPlan, MediationDraft, MediationChecks
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -25,7 +26,7 @@ def main():
         AssessmentRequest, BaselineRequest, DecisionRequest, DeriveRequest, RunRequest, SourceRequest, SemanticGrouping,
         SpanElicitationResult, NeedSpanElicitationResult, RestoreRequest, NeedStatements, NeedGrounding,
         NeedClassifications, ProfileScope, NeedApplicability, NeedUseCaseLinks, UseCaseCritic, NeedMembership, ProposalSupport, RoleRegistry,
-        StakeholderPanel, DatasetCategories, NeedEquivalence)],
+        StakeholderPanel, DatasetCategories, NeedEquivalence, SourceRouting, StakeholderReview, MediationPlan, MediationDraft, MediationChecks)],
         title='RQ1 persistent workflow v2 contracts')
     schema['$schema'] = 'https://json-schema.org/draft/2020-12/schema'
     output = json.dumps(schema, indent=2, sort_keys=True) + '\n'

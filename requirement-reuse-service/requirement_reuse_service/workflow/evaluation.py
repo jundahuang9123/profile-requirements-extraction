@@ -82,6 +82,7 @@ def workflow_metrics(run: dict) -> dict:
             'obligation_conflicts': sum(c['kind'] == 'obligation' for c in frozen.get('conflicts', [])),
             'attached_failed_duplicates': len({rid for e in semantic_events for rid in e.get('attached_failed', [])}),
             'fallback_chunks': sum(e.get('action') == 'semantic_grouping_unavailable' for e in consolidation_events),
+            'salvaged_chunks': sum(e.get('action') == 'semantic_grouping_salvaged' for e in consolidation_events),
             'grouping_calls': len(grouping_calls), 'grouping_failures': sum(c['status'] == 'failed' for c in grouping_calls),
             'merged_assessments_reused': sum(e.get('assessment_reused', False) for e in semantic_events),
             'grouping_latency_seconds_sum': sum(c.get('latency_seconds', 0) for c in grouping_calls)},

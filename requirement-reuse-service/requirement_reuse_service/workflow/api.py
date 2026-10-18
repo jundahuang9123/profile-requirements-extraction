@@ -230,6 +230,14 @@ def derive_saved_run(run_id: str, request: DeriveRequest, background: Background
     return run
 
 
+@router.get('/runs/{run_id}/trace')
+def run_trace(run_id: str, download: bool = False):
+    def read():
+        from .stakeholder_workflow import trace_run
+        return trace_run(Store(), run_id)
+    return downloadable(translate(read), download, 'rq1-run-trace.json')
+
+
 @router.get('/runs/{run_id}/events')
 def get_events(run_id: str):
     return translate(lambda: Store().events(run_id))
@@ -291,6 +299,8 @@ def export_stage(run_id: str, stage: str, download: bool = False):
         snapshot_kind = 'stage_checkpoint' if checkpoint is not None else 'current_saved_state'
         if stage in {'acquisition', 'decomposition'}:
             results['snapshot'] = store.get('snapshot', run['snapshot_id'])
+        if run['request'].get('stakeholder_workflow') == 'routed_mediated':
+            results = {**results, 'stakeholder_audit': run.get('stakeholder_audit', {})}
         if stage == 'elicitation':
             # The excerpt catalogues that the role reports reference by hash.
             hashes = {s.get('catalogue_hash') for report in results.get('role_runs') or []
@@ -329,7 +339,7 @@ def resume_run(run_id: str, request: VersionRequest, background: BackgroundTasks
     def resume(run):
         if run.get('worker_id') and run.get('job_lease_until', 0) > time.time():
             raise ConflictError('A worker lease is active. Retry after it finishes or after the 15-minute restart lease expires.')
-        if run['status'] not in {'failed', 'cancelled', 'awaiting_human', 'created', 'selecting_roles', 'eliciting', 'normalizing', 'verifying', 'consolidating', 'routing'} or run['decisions']:
+        if run['status'] not in {'failed', 'cancelled', 'awaiting_human', 'created', 'selecting_roles', 'eliciting', 'normalizing', 'verifying', 'consolidating', 'routing', 'deliberating'} or run['decisions']:
             raise ValueError('Resume only an interrupted/partial unreviewed run; create a new run after adjudication.')
         # A run awaiting review can be resumed for failed roles or unfinished routed discussions.
         unfinished_discussion = any(case['status'] in UNFINISHED_CASE_STATES and not is_human_request(case)

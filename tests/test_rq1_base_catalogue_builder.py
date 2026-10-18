@@ -26,7 +26,9 @@ def test_all_catalogues_are_reproducible_and_have_distinct_phrases():
             key=row['class'],row['need']
             assert key not in keys
             keys.add(key)
-        assert any(row['definition'] for row in catalogue['entries'])
+        # Some normative sources publish prose usage notes but no formal
+        # definitions (the DCAT-AP 1.1 PDF is such a case).
+        assert any(row['definition'] or row['usage_notes'] for row in catalogue['entries'])
 
 
 def test_release_context_definitions_and_identifier_labels():
@@ -64,7 +66,8 @@ def test_retrieval_uses_definitions():
     catalogue={'entries':[{'id':'yes','need':'Find the title.','definition':'minimum resolvable period','usage_notes':[]},
                            {'id':'no','need':'Find the name.','definition':None,'usage_notes':[]}]}
     offered=offer_entries([SimpleNamespace(need_statement='Users can judge the minimum resolvable period.',normalized_statement='')],catalogue)
-    assert [e['id'] for e in offered]==['yes']
+    assert [e['id'] for e in offered][0]=='yes'
+    assert {e['id'] for e in offered}=={'yes','no'}  # complete catalogue; ranking only orders context
 
 
 @pytest.mark.parametrize('version',['2.0.0','3.0.0'])

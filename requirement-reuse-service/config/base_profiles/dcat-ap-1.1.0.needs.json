@@ -1,0 +1,1744 @@
+{
+  "base_profile_id": "dcat-ap-1.1.0",
+  "base_profile_sha256": "47ec2d9ba984d2a10d3bdab87e5e5e659420a4a5d9d64bea233019617d641c9a",
+  "policy_version": "rq1-base-needs-catalogue-v2",
+  "phrasing": "deterministic labels; verbatim pinned definitions and usage notes",
+  "review": {
+    "status": "unreviewed",
+    "reviewer": null,
+    "reviewed_at": null
+  },
+  "entries": [
+    {
+      "id": "base-a1f2127c15ca60904495",
+      "need": "Identify and describe an identifier.",
+      "class": "adms:Identifier",
+      "property": null,
+      "rq2_term": "adms:Identifier",
+      "label": "identifier",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-47416ecefb01e2a2bfd6",
+      "need": "Find the notation of an identifier.",
+      "class": "adms:Identifier",
+      "property": "skos:notation",
+      "rq2_term": "skos:notation",
+      "label": "notation",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-c4e0853b8e20c3603540",
+      "need": "Identify and describe a catalog.",
+      "class": "dcat:Catalog",
+      "property": null,
+      "rq2_term": "dcat:Catalog",
+      "label": "catalog",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-6d14ce208a675d28beb4",
+      "need": "Find the dataset of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:dataset",
+      "rq2_term": "dcat:dataset",
+      "label": "dataset",
+      "definition": null,
+      "usage_notes": [
+        "This property links the Catalogue with a Dataset that is part of the Catalogue."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 12
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-1a088e69a8a92555b764",
+      "need": "Find the record of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:record",
+      "rq2_term": "dcat:record",
+      "label": "record",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a Catalogue Record that is part of the Catalogue"
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 12
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-a9ab7820d73ff2cfc021",
+      "need": "Find the themes of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dcat:themeTaxonomy",
+      "rq2_term": "dcat:themeTaxonomy",
+      "label": "themes",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a knowledge organization system used to classify the Catalogue's Datasets."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 12
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": "http://publications.europa.eu/resource/authority/data-theme"
+    },
+    {
+      "id": "base-6b26bdd8b730fcb8a6d8",
+      "need": "Find the description of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:description",
+      "rq2_term": "dct:description",
+      "label": "description",
+      "definition": null,
+      "usage_notes": [
+        "This property contains a free-text account of the Catalogue. This property can be repeated for parallel language versions of the description. For further information on multilingual issues, please refer to section 8."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 12
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-3e5e33729360a1bc8dca",
+      "need": "Find the has part of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:hasPart",
+      "rq2_term": "dct:hasPart",
+      "label": "has part",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a related Catalogue that is part of the described Catalogue"
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 12
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-606ce17200585e420ba2",
+      "need": "Find the is part of of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:isPartOf",
+      "rq2_term": "dct:isPartOf",
+      "label": "is part of",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a related Catalogue in which the described Catalogue is physically or logically included."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 12
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-66b14aabd2db6d505f58",
+      "need": "Find the release date of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:issued",
+      "rq2_term": "dct:issued",
+      "label": "release date",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-0fcbfef57a1fb1aabd49",
+      "need": "Find the language of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:language",
+      "rq2_term": "dct:language",
+      "label": "language",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a language used in the textual metadata describing titles, descriptions, etc. of the Datasets in the Catalogue. This property can be repeated if the metadata is provided in multiple languages."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 12
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": "http://publications.europa.eu/resource/authority/language"
+    },
+    {
+      "id": "base-b15f9613392d4daf47b6",
+      "need": "Find the licence of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:license",
+      "rq2_term": "dct:license",
+      "label": "licence",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to the licence under which the Catalogue can be used or reused."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 12
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-4161e09cfcf3496fe97a",
+      "need": "Find the update/ of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:modified",
+      "rq2_term": "dct:modified",
+      "label": "update/",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-aea0c7b652b1ee56e4bc",
+      "need": "Find the publisher of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:publisher",
+      "rq2_term": "dct:publisher",
+      "label": "publisher",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to an entity (organisation) responsible for making the Catalogue available."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 12
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-286042dc79a6d8120b30",
+      "need": "Find the rights of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:rights",
+      "rq2_term": "dct:rights",
+      "label": "rights",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a statement that specifies rights associated with the Catalogue."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 12
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-843582b5995c75134683",
+      "need": "Find the spatial / of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:spatial",
+      "rq2_term": "dct:spatial",
+      "label": "spatial /",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a geographical area covered by the Catalogue."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 12
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-86338872b8b1e3656bce",
+      "need": "Find the title of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "dct:title",
+      "rq2_term": "dct:title",
+      "label": "title",
+      "definition": null,
+      "usage_notes": [
+        "This property contains a name given to the Catalogue. This property can be repeated for parallel language versions of the name."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 12
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-5c26cce3ced476f47ba2",
+      "need": "Find the homepage of a catalog.",
+      "class": "dcat:Catalog",
+      "property": "foaf:homepage",
+      "rq2_term": "foaf:homepage",
+      "label": "homepage",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a web page that acts as the main page for the Catalogue."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 12
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-78969a0be907554bf552",
+      "need": "Identify and describe a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": null,
+      "rq2_term": "dcat:CatalogRecord",
+      "label": "catalog record",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-0780180464f03d62d92f",
+      "need": "Find the change type of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "adms:status",
+      "rq2_term": "adms:status",
+      "label": "change type",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to the type of the latest revision of a Dataset's entry in the Catalogue. It MUST take one of the values :created, :updated or :deleted depending on whether his latest revision is a result of a creation, update or deletion."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 13
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": "http://purl.org/adms/change-status"
+    },
+    {
+      "id": "base-35cc35fe2f83d0f4ee0a",
+      "need": "Find the application of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "dct:conformsTo",
+      "rq2_term": "dct:conformsTo",
+      "label": "application",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to an Application Profile hat the Dataset’s metadata conforms to"
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 13
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-9150cd2082a0b24760f3",
+      "need": "Find the description of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "dct:description",
+      "rq2_term": "dct:description",
+      "label": "description",
+      "definition": null,
+      "usage_notes": [
+        "This property contains a free-text account of the record. This property can be repeated for parallel language versions of the description."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 13
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-2d16e2fb79d40b864455",
+      "need": "Find the listing date of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "dct:issued",
+      "rq2_term": "dct:issued",
+      "label": "listing date",
+      "definition": null,
+      "usage_notes": [
+        "This property contains the date on which the description of the Dataset was included in the Catalogue."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 13
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-7542383efaba7f4f4ddb",
+      "need": "Find the language of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "dct:language",
+      "rq2_term": "dct:language",
+      "label": "language",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a language used in the textual metadata describing titles, descriptions, etc. of the Dataset. This property can be repeated if the metadata is provided in multiple languages."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 13
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-929f74bd034b1750fa3b",
+      "need": "Find the update/ of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "dct:modified",
+      "rq2_term": "dct:modified",
+      "label": "update/",
+      "definition": null,
+      "usage_notes": [
+        "This property contains the most recent date on which the Catalogue entry was changed or modified."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 12
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-81c2bb27447e87d76321",
+      "need": "Find the source metadata of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "dct:source",
+      "rq2_term": "dct:source",
+      "label": "source metadata",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to the original metadata that was used in creating metadata for the Dataset"
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 13
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-9f233be59faa4f5d0025",
+      "need": "Find the title of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "dct:title",
+      "rq2_term": "dct:title",
+      "label": "title",
+      "definition": null,
+      "usage_notes": [
+        "This property contains a name given to the Catalogue Record. This property can be repeated for parallel language versions of the name."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 13
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-d4336d48e3d7bb7cf4e2",
+      "need": "Find the primary of a catalog record.",
+      "class": "dcat:CatalogRecord",
+      "property": "foaf:primaryTopic",
+      "rq2_term": "foaf:primaryTopic",
+      "label": "primary",
+      "definition": null,
+      "usage_notes": [
+        "This property links the Catalogue Record to the Dataset described in the record."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 12
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-687378cb550bcaadbd06",
+      "need": "Identify and describe a dataset.",
+      "class": "dcat:Dataset",
+      "property": null,
+      "rq2_term": "dcat:Dataset",
+      "label": "dataset",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-248c110a369659fecab7",
+      "need": "Find the other identifier of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "adms:identifier",
+      "rq2_term": "adms:identifier",
+      "label": "other identifier",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a secondary identifier of the Dataset, such as MAST/ADS18, DataCite19, DOI20, EZID21 or W3ID22."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 14
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-4d6c99b2e4c61aa4b208",
+      "need": "Find the sample of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "adms:sample",
+      "rq2_term": "adms:sample",
+      "label": "sample",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a sample distribution of the dataset"
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 14
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-2388a306aba266468a85",
+      "need": "Find the version notes of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "adms:versionNotes",
+      "rq2_term": "adms:versionNotes",
+      "label": "version notes",
+      "definition": null,
+      "usage_notes": [
+        "This property contains a description of the differences between this version and a previous version of the Dataset. This property can be repeated for parallel language versions of the version notes."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 15
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-55c2aafc7a94306fbd74",
+      "need": "Find the contact point of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:contactPoint",
+      "rq2_term": "dcat:contactPoint",
+      "label": "contact point",
+      "definition": null,
+      "usage_notes": [
+        "This property contains contact information that can be used for sending comments about the Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 13
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-8a5e74bd105430f996a7",
+      "need": "Find the dataset of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:distribution",
+      "rq2_term": "dcat:distribution",
+      "label": "dataset",
+      "definition": null,
+      "usage_notes": [
+        "This property links the Dataset to an available Distribution."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 13
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-67fec8d5e063ea832091",
+      "need": "Find the keyword/ of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:keyword",
+      "rq2_term": "dcat:keyword",
+      "label": "keyword/",
+      "definition": null,
+      "usage_notes": [
+        "This property contains a keyword or tag describing the Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 13
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-64867a6c8a5c29eb76b0",
+      "need": "Find the landing page of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:landingPage",
+      "rq2_term": "dcat:landingPage",
+      "label": "landing page",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a web page that provides access to the Dataset, its Distributions and/or additional information. It is intended to point to a landing page at the original data provider, not to a page on a site of a third party, such as an aggregator."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 14
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-475c94cd395c1ca9f9c7",
+      "need": "Find the theme/ category of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dcat:theme",
+      "rq2_term": "dcat:theme",
+      "label": "theme/ category",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a category of the Dataset. A Dataset may be associated with multiple themes."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 13
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": "http://publications.europa.eu/resource/authority/data-theme"
+    },
+    {
+      "id": "base-7ad9d1893dbcfdd9de85",
+      "need": "Find the access rights of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:accessRights",
+      "rq2_term": "dct:accessRights",
+      "label": "access rights",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to information that indicates whether the Dataset is open data, has access restrictions or is not public. A controlled vocabulary with three members (:public, :restricted, :non-public) will be created and maintained by the Publications Office of the EU."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 14
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-a1db139baf04d36ec774",
+      "need": "Find the frequency of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:accrualPeriodicity",
+      "rq2_term": "dct:accrualPeriodicity",
+      "label": "frequency",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to the frequency at which the Dataset is updated."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 14
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": "http://publications.europa.eu/resource/authority/frequency"
+    },
+    {
+      "id": "base-7fea0f03d287ae3b49a3",
+      "need": "Find the conforms to of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:conformsTo",
+      "rq2_term": "dct:conformsTo",
+      "label": "conforms to",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to an implementing rule or other specification."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 14
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-2f6637e5f3a7d11c7b4d",
+      "need": "Find the description of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:description",
+      "rq2_term": "dct:description",
+      "label": "description",
+      "definition": null,
+      "usage_notes": [
+        "This property contains a free-text account of the Dataset. This property can be repeated for parallel language versions of the description."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 13
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-9613cc2511c872b6ed86",
+      "need": "Find the has version of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:hasVersion",
+      "rq2_term": "dct:hasVersion",
+      "label": "has version",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a related Dataset that is a version, edition, or adaptation of the described Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 14
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-27f2e40747c6ac2c1157",
+      "need": "Find the identifier of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:identifier",
+      "rq2_term": "dct:identifier",
+      "label": "identifier",
+      "definition": null,
+      "usage_notes": [
+        "This property contains the main identifier for the Dataset, e.g. the URI or other unique identifier in the context of the Catalogue."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 14
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-2063699d9b153244a0fb",
+      "need": "Find the is version of of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:isVersionOf",
+      "rq2_term": "dct:isVersionOf",
+      "label": "is version of",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a related Dataset of which the described Dataset is a version, edition, or adaptation."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 14
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-b9fd8228661b9b9394e6",
+      "need": "Find the release date of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:issued",
+      "rq2_term": "dct:issued",
+      "label": "release date",
+      "definition": null,
+      "usage_notes": [
+        "This property contains the date of formal issuance (e.g., publication) of the Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 14
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-b6264e89d3fa30a8d888",
+      "need": "Find the language of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:language",
+      "rq2_term": "dct:language",
+      "label": "language",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a language of the Dataset. This property can be repeated if there are multiple languages in the Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 14
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": "http://publications.europa.eu/resource/authority/language"
+    },
+    {
+      "id": "base-45ff06266da6c9ec4592",
+      "need": "Find the update/ of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:modified",
+      "rq2_term": "dct:modified",
+      "label": "update/",
+      "definition": null,
+      "usage_notes": [
+        "This property contains the most recent date on which the Dataset was changed or modified."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 14
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-b23b0f977a3e41346735",
+      "need": "Find the provenance of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:provenance",
+      "rq2_term": "dct:provenance",
+      "label": "provenance",
+      "definition": null,
+      "usage_notes": [
+        "This property contains a statement about the lineage of a Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 14
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-513474dee2203aa7c31e",
+      "need": "Find the publisher of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:publisher",
+      "rq2_term": "dct:publisher",
+      "label": "publisher",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to an entity (organisation) responsible for making the Dataset available."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 13
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-593484a1dec9281c4e00",
+      "need": "Find the related resource of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:relation",
+      "rq2_term": "dct:relation",
+      "label": "related resource",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a related resource."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 14
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-77bb9c1d01ff695d79d5",
+      "need": "Find the source of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:source",
+      "rq2_term": "dct:source",
+      "label": "source",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a related Dataset from which the described Dataset is derived."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 14
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-f5af5010fda985d53ea7",
+      "need": "Find the spatial/ of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:spatial",
+      "rq2_term": "dct:spatial",
+      "label": "spatial/",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a geographic region that is covered by the Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 14
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-07c0665568722c88a419",
+      "need": "Find the temporal of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:temporal",
+      "rq2_term": "dct:temporal",
+      "label": "temporal",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a temporal period that the Dataset covers."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 14
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-f6f668f58265955eac92",
+      "need": "Find the title of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:title",
+      "rq2_term": "dct:title",
+      "label": "title",
+      "definition": null,
+      "usage_notes": [
+        "This property contains a name given to the Dataset. This property can be repeated for parallel language versions of the name."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 13
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-6d0808f80ba150dbf29e",
+      "need": "Find the type of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "dct:type",
+      "rq2_term": "dct:type",
+      "label": "type",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to the type of the Dataset. A controlled vocabulary for the values has not been established."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 14
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-139e53c7765a9cd9b089",
+      "need": "Find the documentation of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "foaf:page",
+      "rq2_term": "foaf:page",
+      "label": "documentation",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a page or document about this Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 14
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-abf5abec715bbb62c822",
+      "need": "Find the version of a dataset.",
+      "class": "dcat:Dataset",
+      "property": "owl:versionInfo",
+      "rq2_term": "owl:versionInfo",
+      "label": "version",
+      "definition": null,
+      "usage_notes": [
+        "This property contains a version number or other version designation of the Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 15
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-913ee1aea43a3197434e",
+      "need": "Identify and describe a distribution.",
+      "class": "dcat:Distribution",
+      "property": null,
+      "rq2_term": "dcat:Distribution",
+      "label": "distribution",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-a043846837da33a05774",
+      "need": "Find the status of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "adms:status",
+      "rq2_term": "adms:status",
+      "label": "status",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to the maturity of the Distribution"
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 15
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": "http://purl.org/adms/status/"
+    },
+    {
+      "id": "base-be635ab478e8bcad7312",
+      "need": "Find the access url of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:accessURL",
+      "rq2_term": "dcat:accessURL",
+      "label": "access url",
+      "definition": null,
+      "usage_notes": [
+        "This property contains a URL that gives access to a Distribution of the Dataset. The resource at the access URL may contain information about how to get the Dataset."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 15
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-ca8facc4bc4f32e89b72",
+      "need": "Find the byte size of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:byteSize",
+      "rq2_term": "dcat:byteSize",
+      "label": "byte size",
+      "definition": null,
+      "usage_notes": [
+        "This property contains the size of a Distribution in bytes."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 15
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-aac6bf4c846108f9887f",
+      "need": "Find the download url of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:downloadURL",
+      "rq2_term": "dcat:downloadURL",
+      "label": "download url",
+      "definition": null,
+      "usage_notes": [
+        "This property contains a URL that is a direct link to a downloadable file in a given format."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 15
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-d1edd4b0e340a741ec10",
+      "need": "Find the media type of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dcat:mediaType",
+      "rq2_term": "dcat:mediaType",
+      "label": "media type",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to the media type of the Distribution as defined in the official register of media types managed by IANA."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 15
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": "http://www.iana.org/assignments/media-types/media-types.xhtml"
+    },
+    {
+      "id": "base-ab7bdf9082610f549574",
+      "need": "Find the linked schemas of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:conformsTo",
+      "rq2_term": "dct:conformsTo",
+      "label": "linked schemas",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to an established schema to which the described Distribution conforms."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 15
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-9feb59be7a1130fd80f4",
+      "need": "Find the description of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:description",
+      "rq2_term": "dct:description",
+      "label": "description",
+      "definition": null,
+      "usage_notes": [
+        "This property contains a free-text account of the Distribution. This property can be repeated for parallel language versions of the description."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 15
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-8c81adf110bd4eab253f",
+      "need": "Find the format of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:format",
+      "rq2_term": "dct:format",
+      "label": "format",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to the file format of the Distribution."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 15
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": "http://publications.europa.eu/resource/authority/file-type"
+    },
+    {
+      "id": "base-19d24f4abafd425bd785",
+      "need": "Find the release date of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:issued",
+      "rq2_term": "dct:issued",
+      "label": "release date",
+      "definition": null,
+      "usage_notes": [
+        "This property contains the date of formal issuance (e.g., publication) of the Distribution."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 15
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-18531a79c9bbbaebee5f",
+      "need": "Find the language of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:language",
+      "rq2_term": "dct:language",
+      "label": "language",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a language used in the Distribution. This property can be repeated if the metadata is provided in multiple languages."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 15
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-2192c59e4a9da7bd3033",
+      "need": "Find the licence of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:license",
+      "rq2_term": "dct:license",
+      "label": "licence",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to the licence under which the Distribution is made available."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 15
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": null
+    },
+    {
+      "id": "base-bb77c65642c9bb9e2f9f",
+      "need": "Find the update/ of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:modified",
+      "rq2_term": "dct:modified",
+      "label": "update/",
+      "definition": null,
+      "usage_notes": [
+        "This property contains the most recent date on which the Distribution was changed or modified."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 15
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-fb3ce2d5aba153e0e509",
+      "need": "Find the rights of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:rights",
+      "rq2_term": "dct:rights",
+      "label": "rights",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a statement that specifies rights associated with the Distribution."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 15
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-34573ecf73ba1fd52dcc",
+      "need": "Find the title of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "dct:title",
+      "rq2_term": "dct:title",
+      "label": "title",
+      "definition": null,
+      "usage_notes": [
+        "This property contains a name given to the Distribution. This property can be repeated for parallel language versions of the description."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 15
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-124a3dfa8a2d10450e3e",
+      "need": "Find the documentation of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "foaf:page",
+      "rq2_term": "foaf:page",
+      "label": "documentation",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a page or document about this Distribution."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 15
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-9aa6aa2b4782ecfcf2a0",
+      "need": "Find the checksum of a distribution.",
+      "class": "dcat:Distribution",
+      "property": "spdx:checksum",
+      "rq2_term": "spdx:checksum",
+      "label": "checksum",
+      "definition": null,
+      "usage_notes": [
+        "This property provides a mechanism that can be used to verify that the contents of a distribution have not changed"
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 15
+        }
+      ],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-ed6501794faffdfdbee4",
+      "need": "Identify and describe a license document.",
+      "class": "dct:LicenseDocument",
+      "property": null,
+      "rq2_term": "dct:LicenseDocument",
+      "label": "license document",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-10b705464579158b8ffb",
+      "need": "Find the licence type of a license document.",
+      "class": "dct:LicenseDocument",
+      "property": "dct:type",
+      "rq2_term": "dct:type",
+      "label": "licence type",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a type of licence, e.g. indicating ‘public domain’ or ‘royalties required’."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 16
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": "http://purl.org/adms/licencetype/"
+    },
+    {
+      "id": "base-12d543de9e1efa0fd4a5",
+      "need": "Identify and describe a period of time.",
+      "class": "dct:PeriodOfTime",
+      "property": null,
+      "rq2_term": "dct:PeriodOfTime",
+      "label": "period of time",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-e45e052169b89d2607e0",
+      "need": "Find the end date/time of a period of time.",
+      "class": "dct:PeriodOfTime",
+      "property": "schema:endDate",
+      "rq2_term": "schema:endDate",
+      "label": "end date/time",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-0d3a52d3afe0538a3be0",
+      "need": "Find the start date/time of a period of time.",
+      "class": "dct:PeriodOfTime",
+      "property": "schema:startDate",
+      "rq2_term": "schema:startDate",
+      "label": "start date/time",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": "optional",
+      "vocabulary": null
+    },
+    {
+      "id": "base-e6de3b0cdfadfed488ae",
+      "need": "Identify and describe an agent.",
+      "class": "foaf:Agent",
+      "property": null,
+      "rq2_term": "foaf:Agent",
+      "label": "agent",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-669922ecf891b3253f36",
+      "need": "Find the type of an agent.",
+      "class": "foaf:Agent",
+      "property": "dct:type",
+      "rq2_term": "dct:type",
+      "label": "type",
+      "definition": null,
+      "usage_notes": [
+        "This property refers to a type of the agent that makes the Catalogue or Dataset available"
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 16
+        }
+      ],
+      "base_obligation": "recommended",
+      "vocabulary": "http://purl.org/adms/publisherType/"
+    },
+    {
+      "id": "base-090fa9c680412e96cfb2",
+      "need": "Find the name of an agent.",
+      "class": "foaf:Agent",
+      "property": "foaf:name",
+      "rq2_term": "foaf:name",
+      "label": "name",
+      "definition": null,
+      "usage_notes": [
+        "This property contains a name of the agent. This property can be repeated for different versions of the name (e.g. the name in different languages)"
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 16
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-c90e2c23d860c033c25f",
+      "need": "Identify and describe a concept.",
+      "class": "skos:Concept",
+      "property": null,
+      "rq2_term": "skos:Concept",
+      "label": "concept",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-1e3f875bae2ba3714b9e",
+      "need": "Find the preferred label of a concept.",
+      "class": "skos:Concept",
+      "property": "skos:prefLabel",
+      "rq2_term": "skos:prefLabel",
+      "label": "preferred label",
+      "definition": null,
+      "usage_notes": [
+        "This property contains a preferred label of the category. This property can be repeated for parallel language versions of the label."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 16
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-d8c75d07441686df2d19",
+      "need": "Identify and describe a concept scheme.",
+      "class": "skos:ConceptScheme",
+      "property": null,
+      "rq2_term": "skos:ConceptScheme",
+      "label": "concept scheme",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-2766fe0d44cb303e9fd0",
+      "need": "Find the title of a concept scheme.",
+      "class": "skos:ConceptScheme",
+      "property": "dct:title",
+      "rq2_term": "dct:title",
+      "label": "title",
+      "definition": null,
+      "usage_notes": [
+        "This property contains a name of the category scheme. May be repeated for different versions of the name"
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 16
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-7ce20f3acf581844c790",
+      "need": "Identify and describe a checksum.",
+      "class": "spdx:Checksum",
+      "property": null,
+      "rq2_term": "spdx:Checksum",
+      "label": "checksum",
+      "definition": null,
+      "usage_notes": [],
+      "definition_sources": [],
+      "base_obligation": null
+    },
+    {
+      "id": "base-dc5fda6601982c0c40e4",
+      "need": "Find the algorithm of a checksum.",
+      "class": "spdx:Checksum",
+      "property": "spdx:algorithm",
+      "rq2_term": "spdx:algorithm",
+      "label": "algorithm",
+      "definition": null,
+      "usage_notes": [
+        "This property identifies the algorithm used to produce the subject Checksum. Currently, SHA-1 is the only supported algorithm. It is anticipated that other algorithms will be supported at a later time."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 16
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    },
+    {
+      "id": "base-001d766d9528af0d8005",
+      "need": "Find the checksum value of a checksum.",
+      "class": "spdx:Checksum",
+      "property": "spdx:checksumValue",
+      "rq2_term": "spdx:checksumValue",
+      "label": "checksum value",
+      "definition": null,
+      "usage_notes": [
+        "This property provides a lower case hexadecimal encoded digest value produced using a specific algorithm."
+      ],
+      "definition_sources": [
+        {
+          "file": "releases/1.1/dcat-ap_1.1.pdf",
+          "sha256": "7d1ab3eeef3fd832e3b289b664e9dedf61197c348a933d3ea0a9b7d685b9124d",
+          "page": 16
+        }
+      ],
+      "base_obligation": "mandatory",
+      "vocabulary": null
+    }
+  ],
+  "catalogue_hash": "e550c6f60397a99f159eff668574ed7fde891549caa8c02d8b034c582611a7ab"
+}

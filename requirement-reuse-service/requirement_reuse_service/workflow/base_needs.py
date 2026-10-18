@@ -5,7 +5,6 @@ from .base_profile import PROFILE_DIRECTORY, load_profile
 from .storage import digest
 
 POLICY = 'rq1-base-needs-catalogue-v2'
-MAX_OFFERED = 25
 
 
 def load_catalogue(profile_id, expected_profile_hash=None):
@@ -23,22 +22,25 @@ def load_catalogue(profile_id, expected_profile_hash=None):
 
 
 def offer_entries(needs, catalogue):
-    """Offer at most 25 entries, with round-robin coverage of the needs in a batch.
+    """Offer complete per-need catalogue coverage, with likely matches first.
 
-    Lexical retrieval is only a context bound: it does not decide coverage. A match
-    missed by retrieval remains a domain proposal rather than being discarded.
+    The former shared cap could spend the 25-entry budget on early needs and leave
+    later needs with no relevant entries. Callers now batch one need at a time, so
+    all base entries can be compared without a retrieval miss being mistaken for a
+    catalogue gap. Ordering is only a reading aid; it does not hide entries.
     """
+    if len(needs) > 1:
+        raise ValueError('Base comparison requires one need per complete-catalogue search.')
+    if not needs:
+        return []
     words=lambda text:set(re.findall(r'[a-z]+',text.casefold()))-set('the a an of for to users metadata find identify must should'.split())
     def content(entry):
-        return ' '.join([entry['need'], entry.get('definition') or '', *entry.get('usage_notes',[])])
-    rows=[]
-    for need in needs:
-        tokens=words(need.need_statement or need.normalized_statement)
-        ranked=sorted(catalogue['entries'],key=lambda e:(-len(tokens & words(content(e))),e['id']))
-        rows.append([e for e in ranked if tokens & words(content(e))][:5])
-    offered={}
-    for index in range(5):
-        for row in rows:
-            if index<len(row): offered.setdefault(row[index]['id'],row[index])
-            if len(offered)>=MAX_OFFERED: return list(offered.values())
-    return list(offered.values())
+        return ' '.join([entry.get('class') or '', entry.get('property') or '', entry['need'],
+                         entry.get('definition') or '', *entry.get('usage_notes',[])])
+    text=' '.join([needs[0].need_statement or '', needs[0].normalized_statement or '',
+                   getattr(needs[0], 'need_condition', '') or ''])
+    tokens=words(text)
+    # UK/US spelling is common in source material and must not hide an entry.
+    if 'license' in tokens: tokens.add('licence')
+    if 'licence' in tokens: tokens.add('license')
+    return sorted(catalogue['entries'], key=lambda e:(-len(tokens & words(content(e))),e['id']))

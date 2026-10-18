@@ -136,14 +136,15 @@ def test_complementary_failed_premises_stay_blocked_after_union(setup):
     assert client.count('Qualification') == 0
 
 
-@pytest.mark.parametrize('mode,fallback,calls', [('correct',False,2),('missing',True,2),('invalid',True,2)])
-def test_bounded_accounting_correction_and_exact_fallback(setup, mode, fallback, calls):
+@pytest.mark.parametrize('mode,fallback,salvaged,calls', [('correct',False,False,2),('missing',False,True,2),('invalid',True,False,2)])
+def test_bounded_accounting_correction_preserves_independent_groups(setup, mode, fallback, salvaged, calls):
     store, run, records = inputs(setup)
     client = GroupClient(mode)
     active, events, _ = semantic_consolidate(store, run, records, client)
     assert client.count('SemanticGrouping') == calls
     assert bool([e for e in events if e['action']=='semantic_grouping_unavailable']) == fallback
-    assert len(active) == (2 if fallback else 1)
+    assert bool([e for e in events if e['action']=='semantic_grouping_salvaged']) == salvaged
+    assert len(active) == (1 if mode == 'correct' else 2)
     assert [cap for _,cap in client.group_requests] == [4000,8000]
 
 
@@ -184,7 +185,7 @@ def test_negation_cannot_be_grouped_by_bad_model_answer(setup):
     store, run, records = inputs(setup)
     records[1].normalized_statement = 'Dataset title must not be published.'
     _, events, conflicts = semantic_consolidate(store,run,records,GroupClient())
-    assert any(e['action']=='semantic_grouping_unavailable' for e in events)
+    assert any(e['action']=='semantic_grouping_salvaged' for e in events)
     assert any(c['kind']=='potential_contradiction' for c in conflicts)
 
 
@@ -262,7 +263,8 @@ def test_invalid_grouping_fallback_completes_derived_pipeline(setup):
     engine.execute_run(store,derived['run_id'],GroupClient('missing'))
     saved=store.get('run',derived['run_id'])
     assert saved['status']=='awaiting_human' and saved['stages']['consolidation']=='completed'
-    assert workflow_metrics(saved)['consolidation']['fallback_chunks']==2
+    metrics=workflow_metrics(saved)['consolidation']
+    assert metrics['fallback_chunks']==0 and metrics['salvaged_chunks']==2
 
 
 def test_derived_assessment_snapshot_survives_source_changes(setup):
@@ -309,7 +311,9 @@ def test_consumer_capability_and_metadata_content_cannot_merge(setup):
     records[1].normalized_statement='A consumer must be able to process the Dataset title.'
     active,events,_=semantic_consolidate(store,run,records,GroupClient())
     assert len(active)==2
-    assert any('consumer/system capabilities' in e.get('reason','') for e in events)
+    assert any(group.get('reason')=='group_conflict'
+        for event in events if event['action']=='semantic_grouping_salvaged'
+        for group in event['audit']['groups'])
 
 
 def test_legacy_semantic_policy_retains_typed_payload_and_existing_checkpoints(setup):

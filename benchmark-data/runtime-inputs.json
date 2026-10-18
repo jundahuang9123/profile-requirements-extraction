@@ -29,6 +29,7 @@
       "consolidation": []
     },
     "statdcat": {
+      "base_profile": "dcat-ap-1.1.0",
       "raw": [
         "statdcat/input-raw/w3c-dcat-2014.html",
         "statdcat/input-raw/w3c-data-cube-2014.html"

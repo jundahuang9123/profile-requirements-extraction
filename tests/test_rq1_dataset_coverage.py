@@ -27,12 +27,12 @@ def category_source(setup):
 
 
 class CategoriesClient:
-    def __init__(self, bad=False): self.calls=[]; self.bad=bad
+    def __init__(self, bad=False, wrap=False): self.calls=[]; self.bad=bad; self.wrap=wrap
     def describe(self): return {'provider':'offline','model':'categories'}
     def generate_structured(self, **kw):
         data=json.loads(kw['user']); self.calls.append(data)
         return kw['output_model'].model_validate({'units':[
-            {'evidence_id':i,'categories':[{'label':label,'quote':text if not self.bad else 'Invented quote',
+            {'evidence_id':i,'categories':[{'label':label,'quote':text.replace('Parking datasets','Parking\n  datasets') if self.wrap and not self.bad else text if not self.bad else 'Invented quote',
                 'rationale':'The source explicitly names this kind of data.'} for label in ('Parking datasets','Traffic datasets') if label in text]}
             for i,text in data['evidence'].items()]})
 
@@ -59,6 +59,27 @@ def test_invalid_quotes_are_corrected_then_reported_as_unchecked(setup):
     assert len(client.calls)==2
     coverage.discover_categories(store,run,client)
     assert len(client.calls)==2
+
+
+def test_category_quote_linewrap_is_resolved_to_exact_original_span():
+    mention=coverage.CategoryMention(label='Traffic datasets',quote='Traffic\n  datasets describe traffic flows',
+        rationale='The source names this data kind.')
+    text='Intro. Traffic\n  datasets describe traffic flows in the source.'
+    assert coverage.mention_errors(mention,text)==[]
+    start,end,exact=coverage.resolve_exact_span(mention.quote,text)
+    assert text[start:end]==exact=='Traffic\n  datasets describe traffic flows'
+    assert coverage.mention_errors(mention,'Traffic representations describe traffic flows')
+
+
+def test_category_registry_saves_source_exact_text_after_linewrap_recovery(setup):
+    store,run=category_source(setup)
+    result=coverage.discover_categories(store,run,CategoriesClient(wrap=True))
+    parking=next(c for c in result['categories'] if c['label']=='Parking datasets')
+    citation=parking['citations'][0]
+    unit=store.get('evidence',citation['evidence_id'])
+    assert citation['quote']==unit['content'][citation['quote_start']:citation['quote_start']+len(citation['quote'])]
+    expected='Parking datasets describe parking facilities.'
+    assert coverage._normalized_span(citation['quote'])[0] == coverage._normalized_span(expected)[0]
 
 
 def test_transport_error_does_not_become_empty_taxonomy(setup):
@@ -107,7 +128,8 @@ def selection_inputs(setup):
     for rank,n in enumerate(made,1):
         n.rank=rank
         n.qualification=Qualification(support='explicit',rationale='Offline supported need.',findings=[],assessor='offline')
-        n.dataset_coverage={'category_ids':['parking'],'status':'source_linked','links':[]}
+        n.dataset_coverage={'category_ids':['parking'],'status':'source_linked','links':[],
+            'all_categories_offered':True,'scan_complete':True}
         n.processing_flags=[]
     family=[{'member_need_ids':[n.requirement_id for n in made]}]
     registry={'scan_complete':True,'categories':[{'category_id':'parking'},{'category_id':'traffic'}]}
@@ -147,7 +169,10 @@ def test_no_disappearance_of_distinct_constraints_or_specialised_categories(setu
     result=coverage.compact_selection(store,run,made,families,registry,EquivalenceClient())
     assert '3' in result['selected_need_ids']
     if difference!='use_case': assert len(result['selected_need_ids'])==2
-    assert result['rejected_equivalences']
+    if difference=='category':
+        assert result['review_only_equivalences']
+    else:
+        assert result['rejected_equivalences']
 
 
 def test_asymmetric_or_uncertain_equivalence_cannot_remove_needs(setup):
@@ -170,7 +195,9 @@ def test_incomplete_scan_allows_checked_equivalences_and_reports_coverage_gap(se
     store,run,made,families,registry=selection_inputs(setup); registry['scan_complete']=False
     client=EquivalenceClient()
     result=coverage.compact_selection(store,run,made,families,registry,client)
-    assert result['selected_count']==1 and client.calls
+    assert result['selected_count']==4 and client.calls
+    assert result['review_only_equivalences']
+    assert not result['accepted_equivalences']
     assert not result['category_scan_complete'] and not result['category_coverage_complete']
     assert result['uncovered_category_ids']==['traffic']
 

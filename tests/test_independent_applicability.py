@@ -127,15 +127,16 @@ def test_format_spelling_and_cited_aliases_join_but_dimensions_remain_separate(s
     assert coverage.category_key('CSV','format')!=coverage.category_key('CSV','structure')
 
 
-def test_partial_scan_protects_unresolved_need_but_allows_other_checked_equivalences(setup):
+def test_partial_scan_protects_unresolved_need_and_keeps_equivalences_review_only(setup):
     store,run,made,families,registry=selection_inputs(setup)
     registry.update(scan_complete=False,unchecked_evidence_ids=['unexamined-unit'])
     made[-1].dataset_coverage={'category_ids':[],'status':'unresolved','links':[]}
     result=coverage.compact_selection(store,run,made,families,registry,EquivalenceClient())
-    assert result['selected_count']==2 and '3' in result['selected_need_ids']
+    assert result['selected_count']==4 and '3' in result['selected_need_ids']
     assert result['protected_needs']['3']==['dataset_applicability_unresolved']
     assert not result['category_coverage_complete']
     assert result['unchecked_evidence_ids']==['unexamined-unit']
+    assert result['accepted_equivalences']==[] and result['review_only_equivalences']
 
 
 @pytest.mark.parametrize('bad_units', [None, 'not a list', {'not': 'rows'}])

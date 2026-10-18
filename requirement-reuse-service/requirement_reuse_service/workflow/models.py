@@ -322,8 +322,8 @@ class RequirementRecord(Contract):
     base_need_matches: list[dict[str, Any]] = Field(default_factory=list)
     # D5 profile-scope judgement of a source-derived need (rq1-profile-scope-v1/v2).
     profile_scope: dict[str, Any] | None = None
-    # Base-gap status from the classification (rq1-base-gap-status-v1): a miss among the
-    # offered catalogue entries is unresolved, not proof that the base lacks the capability.
+    # Base-gap status from versioned full-catalogue search: negative claims are only
+    # confirmed after every pinned entry was searched; positive base matches may stop early.
     base_gap: dict[str, Any] | None = None
     dataset_coverage: dict[str, Any] | None = None
     # Linker's necessity annotation per kept use-case link (task ID -> necessary).
@@ -362,7 +362,9 @@ class DeliberationCase(Contract):
     max_seconds: int = 300
     output_tokens_reserved: int = 0
     model_attempts: int = 0
+    model_seconds: float = 0
     frozen_requirements: list[dict[str, Any]] = Field(default_factory=list)
+    mediation: dict[str, Any] | None = None
 
 
 ShortRoleText = Annotated[str, Field(min_length=1, max_length=240)]
@@ -466,6 +468,7 @@ class StakeholderPanel(Contract):
 
 
 class RunRequest(Contract):
+    stakeholder_workflow: Literal['independent', 'routed_mediated'] = 'independent'
     step_models: dict[StepName, ModelID] = Field(default_factory=dict)
     output_form: Literal['needs', 'candidates'] | None = None
     scoping: Literal['use_cases', 'off'] | None = None
@@ -513,6 +516,7 @@ class RunRequest(Contract):
 
 
 class DeriveRequest(Contract):
+    stakeholder_workflow: Literal['independent', 'routed_mediated'] | None = None
     step_models: dict[StepName, ModelID] = Field(default_factory=dict)
     start_from: Literal['normalization', 'elicitation', 'role_selection'] = 'normalization'
     output_form: Literal['needs', 'candidates'] | None = None
@@ -531,6 +535,7 @@ class DeriveRequest(Contract):
 
 
 class WorkflowRun(Contract):
+    stakeholder_audit: dict[str, dict[str, Any]] = Field(default_factory=dict)
     step_models: dict[StepName, ModelID] = Field(default_factory=dict)
     run_id: str
     name: str

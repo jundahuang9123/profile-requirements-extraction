@@ -85,7 +85,7 @@ def test_only_dataset_level_and_discovery_set_aside_and_specialised_needs_stay(s
     assert kept.need_statement == STATEMENTS['need-0']
     assert engine.verify(store, kept, run['evidence_ids'])['status'] == 'pass'  # integrity binds the judgement
     step = store.get('run', run['run_id'])['need_steps']['profile_scope']
-    assert step['policy_version'] == 'rq1-profile-scope-v4'
+    assert step['policy_version'] == 'rq1-profile-scope-v5'
     assert step['retained_count'] == 3 and step['set_aside_count'] == 3
     assert step['set_aside_by_reason'] == {'not_catalogue_level': 2, 'not_find_or_access': 1}
     # Without category evidence, a model's confident common/specialized label remains review.
@@ -93,6 +93,23 @@ def test_only_dataset_level_and_discovery_set_aside_and_specialised_needs_stay(s
     before = len(client.calls)
     needs.judge_profile_scope(store, run, made, client)
     assert len(client.calls) == before  # resume reuses the saved judgement
+
+
+def test_explicit_processing_actions_do_not_become_catalogue_needs_from_hypothetical_filters(setup):
+    store, run, _, made = variants(setup, {
+        'need-process':'The system must validate observation-level integrity constraints.',
+        'need-structure':'Users can identify the data structure definition associated with a dataset.'})
+    client=ScopeJudge(verdicts={
+        'need-process':{'catalogue_level':True,'serves':'find','example':'Filter datasets by validation result.',
+                        'representativeness':'common'},
+        'need-structure':{'catalogue_level':True,'serves':'find','example':'Find datasets with a stated structure definition.',
+                          'representativeness':'specialized'}})
+    retained=needs.judge_profile_scope(store,run,made,client)
+    assert [item.requirement_id for item in retained]==['need-structure']
+    aside=next(item for item in store.get('run',run['run_id'])['set_aside_observations']
+               if item['need_id']=='need-process')
+    assert aside['reason']=='operational_data_processing'
+    assert aside['details']['profile_scope']['guardrail_flags']==['operational_data_processing']
 
 
 def test_contract_can_only_judge_offered_needs():

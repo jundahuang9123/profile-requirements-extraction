@@ -233,6 +233,12 @@ def build(path, input_dir=INPUTS, with_review=True):
         phrases = set()
         for prop, entry in sorted(properties.items()):
             info = descriptions.get((cls,prop),{})
+            usage_notes = info.get('usage_notes', [])
+            definition_sources = info.get('sources', [])
+            if not usage_notes and entry.get('usage_note'):
+                usage_notes = [entry['usage_note']]
+                if entry.get('usage_note_source'):
+                    definition_sources = [entry['usage_note_source']]
             same_class = [s for s in entry.get('labels',[]) if ' - ' in s and
                           re.sub(r'\W','',s.split(' - ',1)[0].lower()) in
                           {re.sub(r'\W','',resource), *(re.sub(r'\W','',k) for k,v in CLASS_NAMES.items() if v==cls)}]
@@ -244,8 +250,8 @@ def build(path, input_dir=INPUTS, with_review=True):
             phrases.add(phrase)
             entries.append({'id':'base-'+hashlib.sha256((cls+'/'+prop).encode()).hexdigest()[:20],
                 'need':phrase,'class':cls,'property':prop,'rq2_term':prop,'label':label,
-                'definition':'\n'.join(info.get('definitions',[])) or None,'usage_notes':info.get('usage_notes',[]),
-                'definition_sources':info.get('sources',[]),'base_obligation':entry.get('obligation'),'vocabulary':entry.get('vocabulary')})
+                'definition':'\n'.join(info.get('definitions',[])) or None,'usage_notes':usage_notes,
+                'definition_sources':definition_sources,'base_obligation':entry.get('obligation'),'vocabulary':entry.get('vocabulary')})
     result={'base_profile_id':profile['id'],'base_profile_sha256':hashlib.sha256(raw).hexdigest(),
         'policy_version':POLICY,'phrasing':'deterministic labels; verbatim pinned definitions and usage notes',
         'review':{'status':'unreviewed','reviewer':None,'reviewed_at':None},'entries':entries}

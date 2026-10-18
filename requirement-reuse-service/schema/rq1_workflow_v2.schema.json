@@ -30,6 +30,103 @@
       "title": "AdditionRequest",
       "type": "object"
     },
+    "AdditionalNeedAction": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "add",
+          "default": "add",
+          "title": "Action",
+          "type": "string"
+        },
+        "action_id": {
+          "title": "Action Id",
+          "type": "string"
+        },
+        "alternatives": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 6,
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "condition": {
+          "default": "",
+          "maxLength": 1200,
+          "title": "Condition",
+          "type": "string"
+        },
+        "evidence_links": {
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          },
+          "maxItems": 24,
+          "title": "Evidence Links",
+          "type": "array"
+        },
+        "human_question": {
+          "anyOf": [
+            {
+              "maxLength": 1600,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Human Question"
+        },
+        "parent_revision_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 0,
+          "title": "Parent Revision Ids",
+          "type": "array"
+        },
+        "priority_basis": {
+          "anyOf": [
+            {
+              "maxLength": 1200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Priority Basis"
+        },
+        "priority_links": {
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          },
+          "maxItems": 4,
+          "title": "Priority Links",
+          "type": "array"
+        },
+        "rationale": {
+          "maxLength": 1600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "statement": {
+          "default": "",
+          "maxLength": 2000,
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "action_id",
+        "rationale"
+      ],
+      "title": "AdditionalNeedAction",
+      "type": "object"
+    },
     "ApplicabilityDecision": {
       "additionalProperties": false,
       "properties": {
@@ -347,6 +444,116 @@
       "title": "CategoryUnit",
       "type": "object"
     },
+    "Concern": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 12,
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "kind": {
+          "enum": [
+            "satisfied",
+            "support",
+            "overlap",
+            "interference",
+            "missing_evidence",
+            "scope"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "proposed_statement": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Proposed Statement"
+        },
+        "revision_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Revision Ids",
+          "type": "array"
+        },
+        "statement": {
+          "maxLength": 1200,
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "revision_ids",
+        "kind",
+        "statement"
+      ],
+      "title": "Concern",
+      "type": "object"
+    },
+    "ConcernDisposition": {
+      "additionalProperties": false,
+      "properties": {
+        "action_ids": {
+          "description": "Explicit links to final need action IDs. Many concerns may link to the same retain action; rationale text does not replace these links.",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 8,
+          "title": "Action Ids",
+          "type": "array"
+        },
+        "concern_id": {
+          "title": "Concern Id",
+          "type": "string"
+        },
+        "question_ids": {
+          "description": "Explicit links to separate human-review questions. Questions are not additional need dispositions.",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 8,
+          "title": "Question Ids",
+          "type": "array"
+        },
+        "rationale": {
+          "maxLength": 1200,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "satisfied",
+            "addressed",
+            "unresolved",
+            "rejected_with_reason"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "concern_id",
+        "status",
+        "rationale"
+      ],
+      "title": "ConcernDisposition",
+      "type": "object"
+    },
     "ConflictRecord": {
       "additionalProperties": false,
       "properties": {
@@ -625,6 +832,18 @@
           "title": "Max Seconds",
           "type": "integer"
         },
+        "mediation": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mediation"
+        },
         "messages": {
           "items": {
             "type": "object"
@@ -648,6 +867,11 @@
           "default": 0,
           "title": "Model Attempts",
           "type": "integer"
+        },
+        "model_seconds": {
+          "default": 0,
+          "title": "Model Seconds",
+          "type": "number"
         },
         "output_tokens_reserved": {
           "default": 0,
@@ -830,6 +1054,22 @@
           ],
           "default": null,
           "title": "Scoping"
+        },
+        "stakeholder_workflow": {
+          "anyOf": [
+            {
+              "enum": [
+                "independent",
+                "routed_mediated"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stakeholder Workflow"
         },
         "start_from": {
           "default": "normalization",
@@ -1044,6 +1284,112 @@
       "title": "EvidenceUnit",
       "type": "object"
     },
+    "ExistingNeedAction": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": [
+            "retain",
+            "revise",
+            "merge",
+            "resolve",
+            "defer"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "action_id": {
+          "title": "Action Id",
+          "type": "string"
+        },
+        "alternatives": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 6,
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "condition": {
+          "default": "",
+          "maxLength": 1200,
+          "title": "Condition",
+          "type": "string"
+        },
+        "evidence_links": {
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          },
+          "maxItems": 24,
+          "title": "Evidence Links",
+          "type": "array"
+        },
+        "human_question": {
+          "anyOf": [
+            {
+              "maxLength": 1600,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Human Question"
+        },
+        "parent_revision_ids": {
+          "description": "Required current N IDs. Each N must occur in exactly one action overall. Do not create an action for a review question; use questions instead.",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Parent Revision Ids",
+          "type": "array"
+        },
+        "priority_basis": {
+          "anyOf": [
+            {
+              "maxLength": 1200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Priority Basis"
+        },
+        "priority_links": {
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          },
+          "maxItems": 4,
+          "title": "Priority Links",
+          "type": "array"
+        },
+        "rationale": {
+          "maxLength": 1600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "statement": {
+          "default": "",
+          "maxLength": 2000,
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "action_id",
+        "action",
+        "parent_revision_ids",
+        "rationale"
+      ],
+      "title": "ExistingNeedAction",
+      "type": "object"
+    },
     "ExtractionTaskJustification": {
       "additionalProperties": false,
       "description": "Untrusted extraction hint; empty reasons are audited and dropped before storage.",
@@ -1138,6 +1484,66 @@
         "rationale"
       ],
       "title": "GroundingCheck",
+      "type": "object"
+    },
+    "HumanReviewQuestion": {
+      "additionalProperties": false,
+      "properties": {
+        "alternatives": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 6,
+          "minItems": 1,
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "concern_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 64,
+          "minItems": 1,
+          "title": "Concern Ids",
+          "type": "array"
+        },
+        "question": {
+          "maxLength": 1600,
+          "minLength": 1,
+          "title": "Question",
+          "type": "string"
+        },
+        "question_id": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Question Id",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 1600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "revision_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Revision Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "question_id",
+        "revision_ids",
+        "concern_ids",
+        "question",
+        "alternatives",
+        "rationale"
+      ],
+      "title": "HumanReviewQuestion",
       "type": "object"
     },
     "IFCSelector": {
@@ -1236,6 +1642,268 @@
         "value_hash"
       ],
       "title": "JSONSelector",
+      "type": "object"
+    },
+    "MediationChecks": {
+      "additionalProperties": false,
+      "properties": {
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/MediatorCheck"
+          },
+          "maxItems": 12,
+          "title": "Checks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "checks"
+      ],
+      "title": "MediationChecks",
+      "type": "object"
+    },
+    "MediationDraft": {
+      "additionalProperties": false,
+      "description": "Wire contract separates need treatment, source-backed additions and review questions.",
+      "properties": {
+        "actions": {
+          "items": {
+            "$ref": "#/$defs/ExistingNeedAction"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Actions",
+          "type": "array"
+        },
+        "additions": {
+          "items": {
+            "$ref": "#/$defs/AdditionalNeedAction"
+          },
+          "maxItems": 4,
+          "title": "Additions",
+          "type": "array"
+        },
+        "concerns": {
+          "items": {
+            "$ref": "#/$defs/ConcernDisposition"
+          },
+          "maxItems": 64,
+          "title": "Concerns",
+          "type": "array"
+        },
+        "questions": {
+          "items": {
+            "$ref": "#/$defs/HumanReviewQuestion"
+          },
+          "maxItems": 32,
+          "title": "Questions",
+          "type": "array"
+        },
+        "summary": {
+          "maxLength": 1800,
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "actions",
+        "summary"
+      ],
+      "title": "MediationDraft",
+      "type": "object"
+    },
+    "MediationPlan": {
+      "additionalProperties": false,
+      "properties": {
+        "actions": {
+          "items": {
+            "$ref": "#/$defs/MediatorAction"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Actions",
+          "type": "array"
+        },
+        "concerns": {
+          "items": {
+            "$ref": "#/$defs/ConcernDisposition"
+          },
+          "maxItems": 64,
+          "title": "Concerns",
+          "type": "array"
+        },
+        "questions": {
+          "items": {
+            "$ref": "#/$defs/HumanReviewQuestion"
+          },
+          "maxItems": 32,
+          "title": "Questions",
+          "type": "array"
+        },
+        "summary": {
+          "maxLength": 1800,
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "actions",
+        "summary"
+      ],
+      "title": "MediationPlan",
+      "type": "object"
+    },
+    "MediatorAction": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": [
+            "retain",
+            "revise",
+            "merge",
+            "resolve",
+            "defer",
+            "add"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "action_id": {
+          "title": "Action Id",
+          "type": "string"
+        },
+        "alternatives": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 6,
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "condition": {
+          "default": "",
+          "maxLength": 1200,
+          "title": "Condition",
+          "type": "string"
+        },
+        "evidence_links": {
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          },
+          "maxItems": 24,
+          "title": "Evidence Links",
+          "type": "array"
+        },
+        "human_question": {
+          "anyOf": [
+            {
+              "maxLength": 1600,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Human Question"
+        },
+        "parent_revision_ids": {
+          "description": "Final need disposition: each current parent occurs once across actions, never once per concern.",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Parent Revision Ids",
+          "type": "array"
+        },
+        "priority_basis": {
+          "anyOf": [
+            {
+              "maxLength": 1200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Priority Basis"
+        },
+        "priority_links": {
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          },
+          "maxItems": 4,
+          "title": "Priority Links",
+          "type": "array"
+        },
+        "rationale": {
+          "maxLength": 1600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "statement": {
+          "default": "",
+          "maxLength": 2000,
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "action_id",
+        "action",
+        "rationale"
+      ],
+      "title": "MediatorAction",
+      "type": "object"
+    },
+    "MediatorCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "action_id": {
+          "title": "Action Id",
+          "type": "string"
+        },
+        "condition_supported": {
+          "title": "Condition Supported",
+          "type": "boolean"
+        },
+        "obligation_preserved": {
+          "title": "Obligation Preserved",
+          "type": "boolean"
+        },
+        "preserves_distinctions": {
+          "title": "Preserves Distinctions",
+          "type": "boolean"
+        },
+        "priority_supported": {
+          "title": "Priority Supported",
+          "type": "boolean"
+        },
+        "rationale": {
+          "maxLength": 1600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "supported": {
+          "title": "Supported",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "action_id",
+        "supported",
+        "preserves_distinctions",
+        "priority_supported",
+        "condition_supported",
+        "obligation_preserved",
+        "rationale"
+      ],
+      "title": "MediatorCheck",
       "type": "object"
     },
     "MemberCheck": {
@@ -2935,6 +3603,15 @@
           "title": "Snapshot Id",
           "type": "string"
         },
+        "stakeholder_workflow": {
+          "default": "independent",
+          "enum": [
+            "independent",
+            "routed_mediated"
+          ],
+          "title": "Stakeholder Workflow",
+          "type": "string"
+        },
         "step_models": {
           "additionalProperties": {
             "maxLength": 256,
@@ -3341,6 +4018,65 @@
       "title": "SourceRequest",
       "type": "object"
     },
+    "SourceRoute": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "stakeholder_specific",
+            "shared",
+            "uncertain"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 1200,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "role_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 9,
+          "minItems": 1,
+          "title": "Role Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "kind",
+        "role_ids",
+        "rationale"
+      ],
+      "title": "SourceRoute",
+      "type": "object"
+    },
+    "SourceRouting": {
+      "additionalProperties": false,
+      "properties": {
+        "routes": {
+          "items": {
+            "$ref": "#/$defs/SourceRoute"
+          },
+          "maxItems": 8,
+          "title": "Routes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "routes"
+      ],
+      "title": "SourceRouting",
+      "type": "object"
+    },
     "SourceSpanLink": {
       "additionalProperties": false,
       "properties": {
@@ -3542,6 +4278,35 @@
         "verdicts"
       ],
       "title": "StakeholderPanel",
+      "type": "object"
+    },
+    "StakeholderReview": {
+      "additionalProperties": false,
+      "properties": {
+        "concerns": {
+          "items": {
+            "$ref": "#/$defs/Concern"
+          },
+          "maxItems": 8,
+          "title": "Concerns",
+          "type": "array"
+        },
+        "finished": {
+          "default": false,
+          "title": "Finished",
+          "type": "boolean"
+        },
+        "summary": {
+          "maxLength": 1800,
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "summary"
+      ],
+      "title": "StakeholderReview",
       "type": "object"
     },
     "StakeholderVerdict": {
@@ -4153,6 +4918,13 @@
             "type": "string"
           },
           "title": "Stages",
+          "type": "object"
+        },
+        "stakeholder_audit": {
+          "additionalProperties": {
+            "type": "object"
+          },
+          "title": "Stakeholder Audit",
           "type": "object"
         },
         "status": {

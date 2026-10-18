@@ -6,16 +6,16 @@ checks and all lineage remain server-owned. Checkpoints survive transport failur
 from collections import Counter
 import json
 import re
-from .models import Observation, Qualification, SemanticGrouping
+from .models import CandidateGroup, Observation, Qualification, SemanticGrouping
 from .storage import canonical, digest, uid
 from ..llm.client import OutputTokenLimitError, OutputValidationError
 
 LEGACY_SEMANTIC_POLICY = 'rq1-semantic-consolidation-v1'
 SEMANTIC_POLICY = 'rq1-semantic-consolidation-v2'
-NEED_SEMANTIC_POLICY = 'rq1-semantic-consolidation-v3'
+NEED_SEMANTIC_POLICY = 'rq1-semantic-consolidation-v4'
 SEMANTIC_POLICIES = {LEGACY_SEMANTIC_POLICY, SEMANTIC_POLICY, NEED_SEMANTIC_POLICY}
 # Families of kept needs (D5): coarser than consolidation and not a consolidation policy.
-FAMILY_POLICY = 'rq1-need-families-v1'
+FAMILY_POLICY = 'rq1-need-families-v2'
 STATEMENT_POLICIES = {SEMANTIC_POLICY, NEED_SEMANTIC_POLICY, FAMILY_POLICY}
 EXACT_POLICY = 'rq1-exact-consolidation-v1'
 MAX_RECORDS = 40
@@ -151,6 +151,50 @@ def accounting_errors(answer, candidates, groups, policy=SEMANTIC_POLICY):
     return errors
 
 
+def salvage_independent_groups(answer, candidates, groups, policy=SEMANTIC_POLICY):
+    """Keep only independently valid groups; preserve every other candidate alone.
+
+    This is used only after a schema-valid model answer fails ID accounting even
+    after its one correction. It never guesses joins or drops candidate IDs.
+    """
+    raw=answer.model_dump(mode='json')
+    counts=Counter(identifier for group in answer.groups for identifier in group.member_ids)
+    joins=Counter(group.join_group_id for group in answer.groups if group.join_group_id is not None)
+    conflicted={identifier for identifier,count in counts.items() if count != 1}
+    accepted=[]; assigned=set(); audit=[]
+    for index,group in enumerate(answer.groups):
+        known=[identifier for identifier in group.member_ids if identifier in candidates]
+        unknown=sorted(set(group.member_ids)-set(candidates))
+        duplicate_inside=len(group.member_ids)!=len(set(group.member_ids))
+        invalid_join=(group.join_group_id is not None and
+            (group.join_group_id not in groups or joins[group.join_group_id]!=1))
+        available=[identifier for identifier in known if identifier not in conflicted and identifier not in assigned]
+        if duplicate_inside or invalid_join or not available:
+            audit.append({'group_index':index,'action':'kept_members_as_singletons',
+                'known_member_ids':known,'unknown_member_ids':unknown,
+                'reason':'duplicate_member' if duplicate_inside else 'invalid_join' if invalid_join else 'no_unambiguous_members'})
+            continue
+        members=[candidates[i] for i in available]
+        if group.join_group_id in groups:
+            members += groups[group.join_group_id]
+        if len({negated(r) for r in members})>1 or (policy==SEMANTIC_POLICY and len({capability(r) for r in members})>1):
+            audit.append({'group_index':index,'action':'kept_members_as_singletons',
+                'known_member_ids':known,'unknown_member_ids':unknown,'reason':'group_conflict'})
+            continue
+        clean=group.model_copy(update={'member_ids':available})
+        accepted.append(clean); assigned.update(available)
+        audit.append({'group_index':index,'action':'preserved_valid_group','member_ids':available,
+                      'unknown_member_ids':unknown,'join_group_id':group.join_group_id})
+    for identifier in sorted(candidates):
+        if identifier not in assigned:
+            accepted.append(CandidateGroup(member_ids=[identifier],join_group_id=None,
+                rationale='Unresolved member retained as its own group.'))
+    repaired=type(answer).model_validate({'groups':[group.model_dump(mode='json') for group in accepted]})
+    if accounting_errors(repaired,candidates,groups,policy):
+        return None, {'raw_response':raw,'groups':audit,'reason':'Salvaged decisions did not satisfy full accounting.'}
+    return repaired, {'raw_response':raw,'groups':audit,'reason':'Partial valid groups preserved; every uncertain candidate retained separately.'}
+
+
 def calls_after(store, run_id, sequence):
     with store.connect() as db:
         return [json.loads(row[0]) for row in db.execute(
@@ -196,6 +240,7 @@ def grouped_block(store, run, key, records, client, saved, policy=None, offered_
             with store.connect() as db:
                 sequence = db.execute("SELECT COALESCE(MAX(sequence),0) FROM run_parts WHERE run_id=?", (run['run_id'],)).fetchone()[0]
             answer, fallback, errors = None, None, []
+            salvage_audit=None
             try:
                 if len(canonical(payload)) > MAX_PAYLOAD:
                     fallback = 'Grouping input exceeds the bounded payload; exact grouping retained for this chunk.'
@@ -213,14 +258,19 @@ def grouped_block(store, run, key, records, client, saved, policy=None, offered_
                             answer = bounded_stage_output(client, system=system + ' Correct the listed ID accounting errors.',
                                 user=canonical(correction), output_model=SemanticGrouping, initial_tokens=8000, retry_tokens=0)
                             errors = accounting_errors(answer, candidates, existing, policy)
-                            if errors: fallback = '; '.join(errors)
+                            if errors:
+                                answer,salvage_audit=salvage_independent_groups(answer,candidates,existing,policy)
+                                if answer is None:
+                                    fallback = '; '.join(errors)
+                                else:
+                                    errors=[]
             except (OutputTokenLimitError, OutputValidationError) as exc:
                 fallback = f'{type(exc).__name__}: {exc}'
             # All transport/authentication and unexpected software errors propagate.
             checkpoint = {'chunk_key': chunk_key, 'block_key': key, 'revision_ids': [r.revision_id for r in chunk],
                 'provider': client.describe() if client is not None else 'offline',
                 'offered_groups': offered_groups, 'result': answer.model_dump(mode='json') if answer else None,
-                'fallback': fallback, 'validation_errors': errors,
+                'fallback': fallback, 'validation_errors': errors, 'salvage_audit':salvage_audit,
                 'call_ids': [c['call_id'] for c in calls_after(store, run['run_id'], sequence)]}
             checkpoint['checkpoint_hash'] = digest(checkpoint)
             store.mutate(run['run_id'], None, 'consolidation_chunk_saved', lambda r: r['consolidation_chunks'].__setitem__(chunk_key, checkpoint))
@@ -234,12 +284,18 @@ def grouped_block(store, run, key, records, client, saved, policy=None, offered_
             answer = SemanticGrouping.model_validate(checkpoint['result'])
             errors = accounting_errors(answer, candidates, existing, policy)
             if errors: raise ValueError('Saved semantic grouping violates ID accounting: ' + '; '.join(errors))
+            if checkpoint.get('salvage_audit'):
+                audit.append({'action':'semantic_grouping_salvaged','policy_version':policy,
+                    'block_key':key,'chunk_key':chunk_key,'inputs':checkpoint['revision_ids'],
+                    'reason':checkpoint['salvage_audit']['reason'],'audit':checkpoint['salvage_audit'],
+                    'model_call_ids':checkpoint['call_ids']})
             for group in answer.groups:
                 members = [candidates[i] for i in group.member_ids]
                 if group.join_group_id is None: groups.append(members)
                 else: existing[group.join_group_id].extend(members)
         audit.append({'action':'grouping_chunk', 'chunk_key':chunk_key, 'inputs':checkpoint['revision_ids'],
                       'model_call_ids':checkpoint['call_ids'],
+                      'salvage_audit':checkpoint.get('salvage_audit'),
                       'rationales':[g.get('rationale','') for g in (checkpoint.get('result') or {}).get('groups',[])]})
     return groups, audit
 
@@ -276,7 +332,7 @@ def semantic_consolidate(store, run, records, client=None, previous=None):
             groups = list(grouped.values())
         else:
             groups, audit = grouped_block(store, run, key, members, client, saved)
-        events.extend(e for e in audit if e['action'] == 'semantic_grouping_unavailable')
+        events.extend(e for e in audit if e['action'] in {'semantic_grouping_unavailable','semantic_grouping_salvaged'})
         for members in groups:
             members = sorted(members,key=lambda r:r.revision_id)
             group_id = uid('group', run['run_id'], [r.revision_id for r in members])

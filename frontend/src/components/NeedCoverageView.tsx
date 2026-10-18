@@ -3,13 +3,20 @@ import { Run } from '../lib/workflowApi';
 type Citation = { evidence_id: string; source_name: string; quote: string; rationale: string };
 type Category = { category_id: string; label: string; dimension?: string; labels?: string[]; citations: Citation[] };
 type Registry = { attempted_count?: number; rejected_mentions?: unknown[]; reason?: string; categories: Category[]; examined_count: number; input_count: number; unchecked_evidence_ids: string[]; scan_complete: boolean };
-type Selection = { selected_need_ids: string[]; selected_revision_ids: string[]; represented_need_ids: string[]; covered_by: Record<string,string>; protected_needs: Record<string,string[]>; uncovered_category_ids: string[]; optimal_for_recorded_coverage: boolean; input_count: number };
+type Selection = { selected_need_ids: string[]; selected_revision_ids: string[]; represented_need_ids: string[]; covered_by: Record<string,string>; protected_needs: Record<string,string[]>; uncovered_category_ids: string[]; optimal_for_recorded_coverage: boolean; input_count: number; review_only_equivalences?: { need_ids: string[]; reason: string; coverage_substitution: boolean }[]; comparison_need_count?: number };
 
 export function NeedCoverageView({ run, inspect, review }: { run: Run; inspect: (id: string) => void; review: (id: string) => void }) {
   const registry = run.need_steps?.dataset_categories as Registry | undefined;
   const selection = run.need_steps?.selection as Selection | undefined;
   if (!registry && !selection) return null;
   const categories = registry?.categories ?? [];
+  const steps = run.need_steps ?? {};
+  const classification = steps.classification as { input_count?: number; retained_count?: number; generic_count?: number; base_gap_counts?: Record<string,number>; decisions?: { search_complete?: boolean }[] } | undefined;
+  const scope = steps.profile_scope as { input_count?: number; retained_count?: number; set_aside_count?: number; set_aside_by_reason?: Record<string,number> } | undefined;
+  const applicability = steps.dataset_applicability as { input_count?: number; checked_count?: number; not_checked_ids?: string[] } | undefined;
+  const families = steps.families as { input_count?: number; grouped_count?: number; family_count?: number; grouping_unavailable_chunks?: number } | undefined;
+  const grouping = steps.grouping as { input_count?: number; group_count?: number; audit?: unknown[] } | undefined;
+  const rewrite = steps.need_statement as { input_count?: number; need_count?: number } | undefined;
   const categoryLabel = (id: string) => categories.find(c => c.category_id === id)?.label ?? id;
   const record = (id: string) => run.requirements.find(r => r.requirement_id === id && selection?.selected_revision_ids.includes(r.revision_id));
   return <section className="workflow-panel">
@@ -21,9 +28,16 @@ export function NeedCoverageView({ run, inspect, review }: { run: Run; inspect: 
           <p>{citation.quote}</p><p>{citation.rationale}</p><button onClick={() => inspect(citation.evidence_id)}>Inspect source · {citation.source_name}</button>
         </blockquote>)}
       </article>) : <p>No dataset kinds were identified. No applicability is assumed; all needs remain available for review.</p>}</details></>}
+    <details><summary>Stage counts and unresolved checks</summary>
+      <p>{grouping?.input_count ?? '—'} proposals entered semantic grouping; {grouping?.group_count ?? '—'} groups were produced. {rewrite?.need_count ?? '—'} rewritten needs entered base comparison.</p>
+      <p>Base comparison: {classification?.retained_count ?? '—'} retained from {classification?.input_count ?? '—'} rewritten needs. {classification?.base_gap_counts?.no_base_match ?? 0} no-match decisions followed complete catalogue searches; a positive full match can stop early. Dispositions: {Object.entries(classification?.base_gap_counts ?? {}).map(([key,value]) => `${key.replace(/_/g,' ')} ${value}`).join(' · ') || 'not saved'}.</p>
+      <p>Catalogue scope: {scope?.retained_count ?? '—'} retained and {scope?.set_aside_count ?? '—'} set aside from {scope?.input_count ?? '—'} judged. Reasons: {Object.entries(scope?.set_aside_by_reason ?? {}).map(([key,value]) => `${key.replace(/_/g,' ')} ${value}`).join(' · ') || 'none recorded'}.</p>
+      <p>Applicability: {applicability?.checked_count ?? '—'} checked of {applicability?.input_count ?? '—'}; {applicability?.not_checked_ids?.length ?? '—'} unresolved. Families: {families?.family_count ?? '—'} from {families?.grouped_count ?? families?.input_count ?? '—'} eligible needs; {families?.grouping_unavailable_chunks ?? 0} family-grouping chunks used exact-singleton fallback. Compact representatives: {selection?.selected_need_ids.length ?? '—'} of {selection?.input_count ?? '—'} atomic needs.</p>
+    </details>
     {selection && <>
-      <p><strong>{selection.selected_need_ids.length} selected from {selection.input_count} atomic needs.</strong> Every retained need has a representative; conditions, obligations, dataset applicability and use-case links are preserved by the recorded checks. The complete review list remains below.</p>
-      <p>This selection is frozen before human edits. {selection.optimal_for_recorded_coverage ? 'It is the smallest cover of the recorded equivalence links.' : 'It is a compact cover; the bounded search did not establish the smallest size.'} Unexamined equivalences and model errors can change the result.</p>
+      <p><strong>{selection.selected_need_ids.length} compact representatives from {selection.input_count} atomic needs.</strong> Needs with incomplete support or applicability remain separate for human review; selected counts are not an accuracy or minimality claim. The complete atomic review list remains available.</p>
+      <p>Equivalence comparisons covered {selection.comparison_need_count ?? 0} needs. {selection.optimal_for_recorded_coverage ? 'The selected cover is smallest for the safe equivalence links recorded.' : 'The bounded search did not establish the smallest cover.'} Unexamined comparisons and machine errors can change the result.</p>
+      {!!selection.review_only_equivalences?.length && <details><summary>{selection.review_only_equivalences.length} possible equivalent pairs need review; no coverage was substituted</summary>{selection.review_only_equivalences.map((pair,index) => <p key={`${pair.need_ids.join('-')}-${index}`}>{pair.need_ids.map(id => run.requirements.find(item => item.requirement_id === id)?.need_statement ?? id).join(' ↔ ')} · {pair.reason.replace(/_/g,' ')}.</p>)}</details>}
       {selection.uncovered_category_ids.length > 0 && <p>Dataset kinds with no retained linked need: {selection.uncovered_category_ids.map(categoryLabel).join(', ')}. This is a coverage gap to review, not a reason to invent a requirement.</p>}
       <ol>{selection.selected_need_ids.map(id => {
         const need = record(id);

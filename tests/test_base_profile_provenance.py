@@ -12,14 +12,17 @@ def profile_hash(identifier):
     return sha256(path.read_bytes()).hexdigest()
 
 
-def test_case_defaults_are_explicit_and_other_versions_remain_unset(setup):
+def test_case_defaults_are_explicit_and_statdcat_uses_its_historical_base(setup):
     _,run,_=setup
     request,metadata=engine.selected_base(RunRequest(output_form='candidates', snapshot_id=run['snapshot_id'],benchmark_case_id='mobilitydcat'))
     assert request.base_profile_id==metadata['base_profile_id']=='dcat-ap-2.0.1'
     assert metadata['base_profile_sha256']==profile_hash(request.base_profile_id)
-    for case in ['healthdcat','geodcat','statdcat','jrc-research','epos']:
+    for case in ['healthdcat','geodcat','jrc-research','epos']:
         selected,metadata=engine.selected_base(RunRequest(output_form='candidates', snapshot_id=run['snapshot_id'],benchmark_case_id=case))
         assert selected.base_profile_id is None and metadata=={}
+    selected,metadata=engine.selected_base(RunRequest(output_form='candidates', snapshot_id=run['snapshot_id'],benchmark_case_id='statdcat'))
+    assert selected.base_profile_id == metadata['base_profile_id'] == 'dcat-ap-1.1.0'
+    assert metadata['base_profile_sha256'] == profile_hash('dcat-ap-1.1.0')
 
 
 @pytest.mark.parametrize('identifier', ['dcat-ap-3.0.0', 'dcat-ap-3.0.1', 'dcat-2.0.0', 'dcat-3.0.0'])

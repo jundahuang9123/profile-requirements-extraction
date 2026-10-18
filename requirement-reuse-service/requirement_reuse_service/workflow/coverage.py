@@ -10,8 +10,8 @@ from pydantic import Field, ValidationError
 from .models import Contract
 from .storage import canonical, digest, uid
 
-CATEGORY_POLICY = 'rq1-dataset-categories-v2'
-SELECTION_POLICY = 'rq1-compact-coverage-v2'
+CATEGORY_POLICY = 'rq1-dataset-categories-v3'
+SELECTION_POLICY = 'rq1-compact-coverage-v3'
 MAX_PAYLOAD = 22000  # leave room for metadata and a bounded recovery request
 
 
@@ -60,7 +60,8 @@ CATEGORY_SYSTEM = (
     'class, metadata property, stakeholder job or organisation as a dataset kind. Dimensions can '
     'overlap: a dataset can be CSV-delivered and multidimensional. '
     'Copy a short label exactly from the source and cite a short contiguous verbatim substring '
-    'containing it. Preserve whitespace and punctuation; do not paraphrase or insert ellipses. '
+    'containing it. The server restores the exact original source span when only line-wrap whitespace '
+    'differs; do not paraphrase, change words or punctuation, or insert ellipses. '
     'Only supply aliases when the same quote explicitly names them as the same distinction; copy '
     'each alias verbatim from that quote. Do not invent synonyms. '
     'Do not invent categories from your domain knowledge or infer that the list is exhaustive. '
@@ -77,11 +78,41 @@ def category_key(label, dimension):
     return dimension, key
 
 
+def _normalized_span(text):
+    """Collapse whitespace while retaining an index back to the original text."""
+    chars=[]; offsets=[]; pending=False
+    for index,char in enumerate(text):
+        if char.isspace():
+            if chars and not pending:
+                chars.append(' '); offsets.append(index); pending=True
+            continue
+        chars.append(char); offsets.append(index); pending=False
+    if chars and chars[-1]==' ':
+        chars.pop(); offsets.pop()
+    return ''.join(chars), offsets
+
+
+def resolve_exact_span(quote, text):
+    normalized, offsets = _normalized_span(text)
+    needle, _ = _normalized_span(quote)
+    if not needle:
+        return None
+    start=normalized.find(needle)
+    if start < 0:
+        return None
+    end=start+len(needle)
+    original_start=offsets[start]
+    original_end=offsets[end-1]+1
+    return original_start, original_end, text[original_start:original_end]
+
+
 def mention_errors(mention, text):
-    if (not mention.label.strip() or not mention.quote.strip() or mention.quote not in text
-            or mention.label not in mention.quote
-            or any(not alias.strip() or alias not in mention.quote for alias in mention.aliases)):
-        return ['Label, aliases and quote must occur verbatim in this evidence unit.']
+    quote, _ = _normalized_span(mention.quote)
+    label, _ = _normalized_span(mention.label)
+    aliases=[_normalized_span(alias)[0] for alias in mention.aliases]
+    if (not label.strip() or not quote.strip() or resolve_exact_span(mention.quote,text) is None
+            or label not in quote or any(not alias or alias not in quote for alias in aliases)):
+        return ['Label and aliases must occur in the exact cited span; quotation matching permits whitespace-only line-wrap differences.']
     return []
 EQUIVALENCE_SYSTEM = (
     'For each offered atomic need, list only other offered IDs that express exactly the same '
@@ -149,9 +180,15 @@ def discover_categories(store, run, client):
                     if rejection not in rejected: rejected.append(rejection)
                     continue
                 source = store.get('source', unit['source_version_id'])
+                span=resolve_exact_span(mention.quote,unit['content'])
+                if span is None:
+                    rejected.append({'evidence_id':identifier,'mention':mention.model_dump(mode='json'),
+                                     'errors':['Could not resolve the exact original source span.']})
+                    continue
+                quote_start, _, exact_quote=span
                 citation = {'evidence_id': identifier, 'source_version_id': unit['source_version_id'],
-                    'source_name': source['name'], 'quote': mention.quote,
-                    'quote_start': unit['content'].index(mention.quote), 'rationale': mention.rationale,
+                    'source_name': source['name'], 'quote': exact_quote,
+                    'quote_start': quote_start, 'rationale': mention.rationale,
                     'source_label': mention.label, 'source_aliases': mention.aliases,
                     'unit_scan_complete': not partial}
                 mentions.append((mention, citation))
@@ -324,45 +361,87 @@ def compact_selection(store, run, needs, families, registry, client):
             reasons.append('category_context_incomplete')
         if reasons: protected[i] = reasons
         else: eligible.add(i)
-    rejected, pairs, unchecked = [], [], []
-    for family in families:
-        members = [by_id[i] for i in family['member_need_ids'] if i in eligible]
-        def payload_for(batch):
-            return {'needs': {n.requirement_id: {'statement':n.need_statement, 'condition':n.need_condition,
-                'scope':n.scope, 'obligation':obligation_key(n),
-                'category_ids':n.dataset_coverage['category_ids'],
-                'profile_wide':bool(n.dataset_coverage.get('profile_wide_links')),
-                'use_case_ids':n.supports_user_tasks}
-                for n in batch}}
-        for batch in batches(members, payload_for, maximum=20):
-            if len(batch) < 2: continue
-            payload = payload_for(batch); offered = set(payload['needs'])
-            def validate(answer):
-                errors = []
-                for row in answer.decisions:
-                    if (set(row.equivalent_to) - offered or row.need_id in row.equivalent_to
-                            or len(row.equivalent_to) != len(set(row.equivalent_to))):
-                        errors.append(row.need_id + ': use other offered IDs exactly once only.')
-                return errors
-            answer = cached_generation(store, run, 'selection', payload, NeedEquivalence,
-                                       EQUIVALENCE_SYSTEM, client, validate)
-            decisions = {d.need_id:d for d in answer.decisions}
-            unchecked.extend(sorted(offered-set(decisions)))
-            for left, decision in decisions.items():
-                for right in decision.equivalent_to:
-                    if right not in decisions or left not in decisions[right].equivalent_to:
-                        rejected.append({'left':left,'right':right,'reason':'not_reciprocal'}); continue
-                    a,b = by_id[left],by_id[right]
-                    if not compatible(a,b):
-                        rejected.append({'left':left,'right':right,'reason':'condition_scope_or_obligation_differs'}); continue
-                    if ((b.dataset_coverage.get('profile_wide_links') and not a.dataset_coverage.get('profile_wide_links'))
-                            or not set(a.dataset_coverage['category_ids']) >= set(b.dataset_coverage['category_ids'])):
-                        rejected.append({'left':left,'right':right,'reason':'dataset_applicability_not_covered'}); continue
-                    if not set(a.supports_user_tasks) >= set(b.supports_user_tasks):
-                        rejected.append({'left':left,'right':right,'reason':'use_case_links_not_covered'}); continue
-                    coverage[left].add(right)
-                    pairs.append({'representative_id':left,'covered_id':right,'rationale':decision.rationale,
-                                  'reciprocal_rationale':decisions[right].rationale})
+    rejected, pairs, review_only, unchecked, comparison_audit = [], [], [], [], []
+    # Compare each need with its nearest neighbours from the whole output, rather
+    # than only within a family or an arbitrary consecutive chunk. Unknown
+    # applicability no longer suppresses duplicate *review* comparisons.
+    comparable=[i for i in order if (by_id[i].verification or {}).get('status')=='pass'
+                and by_id[i].qualification and by_id[i].qualification.support in {'explicit','inferred'}]
+    token_stop=set('the a an and or to of for in on with is are be can must should users user metadata need dataset datasets data information'.split())
+    def token_set(identifier):
+        import re
+        return set(re.findall(r'[a-z0-9]+',(by_id[identifier].need_statement or '').casefold()))-token_stop
+    tokens={i:token_set(i) for i in comparable}
+    def similarity(left,right):
+        union=tokens[left]|tokens[right]
+        return len(tokens[left]&tokens[right])/max(1,len(union))
+    def payload_for(ids):
+        return {'needs':{i:{'statement':by_id[i].need_statement,'condition':by_id[i].need_condition,
+            'scope':by_id[i].scope,'obligation':obligation_key(by_id[i]),
+            'category_ids':(by_id[i].dataset_coverage or {}).get('category_ids',[]),
+            'applicability_status':(by_id[i].dataset_coverage or {}).get('status','unresolved'),
+            'all_categories_offered':(by_id[i].dataset_coverage or {}).get('all_categories_offered'),
+            'scan_complete':(by_id[i].dataset_coverage or {}).get('scan_complete'),
+            'profile_wide':bool((by_id[i].dataset_coverage or {}).get('profile_wide_links')),
+            'use_case_ids':by_id[i].supports_user_tasks}
+            for i in ids}}
+    seen_pairs=set()
+    for anchor in comparable:
+        neighbours=sorted((i for i in comparable if i!=anchor),key=lambda i:(-similarity(anchor,i),order.index(i)))[:19]
+        ids=[anchor,*neighbours]
+        if len(ids)<2: continue
+        payload=payload_for(ids); offered=set(payload['needs'])
+        def validate(answer):
+            counts=Counter(row.need_id for row in answer.decisions)
+            errors=[]
+            if set(counts)!=offered or any(count!=1 for count in counts.values()):
+                errors.append('Account for each offered need exactly once.')
+            for row in answer.decisions:
+                if (set(row.equivalent_to)-offered or row.need_id in row.equivalent_to
+                        or len(row.equivalent_to)!=len(set(row.equivalent_to))):
+                    errors.append(row.need_id+': use other offered IDs exactly once only.')
+            return errors
+        answer=cached_generation(store,run,'selection',payload,NeedEquivalence,EQUIVALENCE_SYSTEM,client,validate)
+        decisions={d.need_id:d for d in answer.decisions}
+        if anchor in getattr(answer,'_fallbacks',{}) or anchor not in decisions:
+            unchecked.append(anchor)
+            comparison_audit.append({'anchor_id':anchor,'offered_need_ids':ids,'status':'not_checked',
+                'reason':getattr(answer,'_fallbacks',{}).get(anchor,{}).get('reason','No decision returned.')})
+            continue
+        decision=decisions[anchor]
+        comparison_audit.append({'anchor_id':anchor,'offered_need_ids':ids,'status':'checked',
+            'nearest_neighbour_scores':{i:round(similarity(anchor,i),4) for i in neighbours}})
+        for right in decision.equivalent_to:
+            if right not in decisions or anchor not in decisions[right].equivalent_to:
+                rejected.append({'left':anchor,'right':right,'reason':'not_reciprocal'}); continue
+            key=tuple(sorted((anchor,right)))
+            if key in seen_pairs: continue
+            seen_pairs.add(key)
+            a,b=by_id[anchor],by_id[right]
+            if not compatible(a,b):
+                rejected.append({'left':anchor,'right':right,'reason':'condition_scope_or_obligation_differs'}); continue
+            ac,bc=a.dataset_coverage or {},b.dataset_coverage or {}
+            same_tasks=set(a.supports_user_tasks)==set(b.supports_user_tasks)
+            if not same_tasks:
+                rejected.append({'left':anchor,'right':right,'reason':'use_case_links_differ'}); continue
+            applicability_complete=(registry.get('scan_complete') is True and all(
+                c.get('status')!='unresolved' and c.get('all_categories_offered') is True
+                and c.get('scan_complete') is True for c in (ac,bc)))
+            same_applicability=(set(ac.get('category_ids',[]))==set(bc.get('category_ids',[]))
+                and bool(ac.get('profile_wide_links'))==bool(bc.get('profile_wide_links')))
+            rationale={'left':decision.rationale,'right':decisions[right].rationale}
+            if not applicability_complete or not same_applicability:
+                review_only.append({'need_ids':list(key),'reason':'applicability_unresolved_or_different',
+                                    'rationales':rationale,'coverage_substitution':False})
+                continue
+            if anchor not in eligible or right not in eligible:
+                review_only.append({'need_ids':list(key),'reason':'need_has_other_review_protection',
+                                    'rationales':rationale,'coverage_substitution':False})
+                continue
+            representative=min(key,key=lambda i:order.index(i)); covered=right if representative==anchor else anchor
+            coverage[representative].add(covered)
+            pairs.append({'representative_id':representative,'covered_id':covered,
+                          'rationale':rationale['left'],'reciprocal_rationale':rationale['right']})
     selected, optimal, nodes = minimum_cover(coverage, order)
     witnesses = {i:next(s for s in selected if i in coverage[s]) for i in order}
     selected_categories = set().union(*(set(by_id[i].dataset_coverage.get('category_ids', []))
@@ -373,13 +452,15 @@ def compact_selection(store, run, needs, families, registry, client):
         covered_by=witnesses, represented_need_ids=[i for i in order if i not in selected],
         protected_needs=protected, unchecked_need_ids=sorted(set(unchecked)),
         coverage={i:sorted(v) for i,v in coverage.items()}, accepted_equivalences=pairs,
-        rejected_equivalences=rejected, covered_category_ids=sorted(selected_categories),
+        rejected_equivalences=rejected, review_only_equivalences=review_only,
+        comparison_audit=comparison_audit, comparison_need_count=len(comparable),
+        covered_category_ids=sorted(selected_categories),
         uncovered_category_ids=sorted(all_categories-selected_categories),
         optimal_for_recorded_coverage=optimal, search_nodes=nodes,
         category_scan_complete=registry.get('scan_complete', False),
         unchecked_evidence_ids=registry.get('unchecked_evidence_ids', []),
         category_coverage_complete=bool(registry.get('scan_complete')) and not (all_categories-selected_categories),
         input_hash=digest([n.model_dump(mode='json') for n in needs]),
-        rule='Cover every retained atomic need; preserve category applicability, use-case links, conditions and obligations.',
+        rule='Compare nearest semantic neighbours across the full output. Preserve atomic needs with unresolved applicability; separately show equivalent review pairs without substituting them for coverage.',
         limitation='Machine-proposed compact cover. Pair search is bounded within families; global semantic minimality is not established. All atomic needs remain available.')
     return result

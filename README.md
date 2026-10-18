@@ -174,3 +174,6 @@ See [WORKFLOW_V2.md](docs/WORKFLOW_V2.md) for recovery limits and historical-run
 Completed extraction can be reprocessed in a **new run** using **Re-run steps 4–7 with new settings**. The source run stays unchanged; extraction is reused and compatible identical assessments can be reused. See [consolidation and downstream trials](docs/CONSOLIDATION.md).
 
 New agent runs default to **Merge candidates with the same meaning**; choose **Exact copies only** for the earlier comparison condition. Rules runs retain exact merging. Uncited proposals stay in the step 4 audit, and step 6 groups linked candidates with their original members and obligation variants. Human review remains required. Historical saved runs keep their original policies; no previous results are rewritten.
+
+For source-routed extraction, stakeholder discussion and mediator revisions, see
+[the protocol and traceability guide](docs/ROUTED_STAKEHOLDER_WORKFLOW.md).
