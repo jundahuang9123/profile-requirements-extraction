@@ -268,7 +268,7 @@ catalogue intact and save human review separately in the adjacent
 `<id>.needs-review.json`. It declares `base_profile_id`, `draft_catalogue_hash`,
 `status: reviewed`, `reviewer`, `reviewed_at` (YYYY-MM-DD), and `phrase_corrections`,
 keyed by entry ID with `need` and `note`. The draft hash binds review to the exact
-registry and pinned official prose. A changed draft requires a new human review.
+registry and pinned official prose. A changed draft requires a new explicit review.
 
 Use the worksheet without hand-editing the generated JSON:
 
@@ -289,7 +289,7 @@ duplicate phrases within a class. Review may
 have zero corrections: it still records who reviewed the unchanged draft.
 
 **Only phrases change.** A corrected entry retains its original text in
-`need_draft` and the human rationale in `review_note`. Definitions, usage notes,
+`need_draft` and the reviewer’s rationale in `review_note`. Definitions, usage notes,
 obligations, labels and IDs are untouched. The generated catalogue's `review`
 records status, reviewer, date, review filename, exact file SHA-256 and corrected
 count, and its catalogue hash is recomputed. `--check` now reproduces the reviewed
@@ -301,8 +301,11 @@ New needs runs and derived trials pin the current catalogue when created.
 Existing runs keep their saved catalogue hash and review metadata; classification
 refuses a changed catalogue. Derive a new trial after rebuilding a reviewed
 catalogue. The workbench shows its reviewer/date beside the reviewed status and
-provides a catalogue download. No human review or production phrase correction
-has been performed by the agent.
+provides a catalogue download. The saved reviewer identifies the author; an
+AI-assisted review is not human approval. On 19 October 2026, Codex reviewed the
+six remaining catalogues at Junda’s request, preserving the earlier DCAT-AP 2.0.1
+review. See [the review record](BASE-CATALOGUE-REVIEW-2026-10-19.md) for scope,
+counts, source limitations and use in future runs.
 
 Since `rq1-base-gap-status-v1`, each classified need records a `base_gap`:
 `served_by_base` (generic), `refines_base` (domain use of the base), `unresolved` (no
