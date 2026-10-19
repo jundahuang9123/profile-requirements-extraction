@@ -367,6 +367,9 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
         raise ConflictError('Source run changed. Refresh before deriving a run.')
     if source.get('worker_id') and source.get('job_lease_until', 0) > time.time():
         raise ConflictError('Wait for the source worker to finish before deriving a run.')
+    if request.start_from == 'base_review':
+        from .base_review import derive_base_review_run
+        return derive_base_review_run(store, source, request, actor)
     if request.start_from == 'deliberation':
         from .fa_discussion import derive_discussion_run
         return derive_discussion_run(store, source, request, actor)

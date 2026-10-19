@@ -196,7 +196,8 @@ def review_base(store,run,client,phase='before_discussion'):
     from .needs import refresh_need
     catalogue=pinned_catalogue(run)
     selected=[RequirementRecord.model_validate(r) for r in run['requirements'] if r['revision_id'] in run['active_revision_ids']
-        and (phase=='before_discussion' or 'base_recheck_required' in r.get('processing_flags',[]))]
+        and (phase=='before_discussion' or 'base_recheck_required' in r.get('processing_flags',[])
+             or (r.get('base_relation') or {}).get('phase')==phase)]
     selected.sort(key=lambda n:n.revision_id);results=[];questions=[]
     def process(batch):
         payload,aliases=make_payload(store,run,batch,catalogue,phase)
@@ -238,3 +239,68 @@ def review_base(store,run,client,phase='before_discussion'):
         stage['review_questions']=[q for q in stage['review_questions'] if q.get('phase')!=phase]+[{**q,'phase':phase} for q in questions]
     store.mutate(run['run_id'],None,'base_review_summary',summary,parts=True)
     return results
+
+
+def derive_base_review_run(store,source,request,actor):
+    """Restore the frozen machine inventory, never a partially mediated inventory."""
+    import time,uuid
+    from pathlib import Path
+    from .engine import freeze_step_models
+    from .models import RunRequest,WorkflowRun
+    from .storage import ConflictError
+    if source['request'].get('stakeholder_workflow')!='fa_mediated':raise ValueError('Base review derivation requires F/A.')
+    if source['status'] not in {'failed','interrupted','cancelled','awaiting_human'}:
+        raise ValueError('Base review derivation requires an inactive source run.')
+    if source.get('worker_id') and source.get('job_lease_until',0)>time.time():raise ConflictError('Source worker is active.')
+    upstream=('acquisition','decomposition','role_selection','elicitation','normalization','verification','consolidation')
+    if any(source['stages'].get(s)!='completed' for s in upstream) or not source.get('machine_snapshot'):
+        raise ValueError('Completed stages through consolidation and machine_snapshot required.')
+    if source.get('decisions') or source.get('baselines'):raise ValueError('Human decisions or baselines prevent derivation.')
+    pinned_catalogue(source)
+    allowed={'start_from','expected_version','name','rationale','execution_mode','allow_live_provider',
+        'mediation_timeout_fallback','step_models','step_model_options'}
+    for field in request.model_fields_set-allowed:
+        if getattr(request,field)!=source['request'].get(field):raise ValueError('Base review derivation cannot change setting: '+field)
+    slots={'base_review','base_review_check','stakeholder_review','mediation','mediation_check','assessment'}
+    for field in ('step_models','step_model_options'):
+        for step,value in getattr(request,field).items():
+            if hasattr(value,'model_dump'):value=value.model_dump(exclude_unset=True)
+            if step not in slots and value!=source.get(field,{}).get(step):
+                raise ValueError('Base review derivation cannot change model step: '+step)
+    options=deepcopy(source['request'])
+    for key in ('name','execution_mode','allow_live_provider','mediation_timeout_fallback'):
+        if key in request.model_fields_set:
+            value=getattr(request,key);options[key]=value.model_dump(mode='json') if hasattr(value,'model_dump') else value
+    options['base_review']='expert_v1'
+    # Use the run's resolved choices, not provider defaults that may have changed.
+    options['step_models']={**source.get('step_models',{}),**request.step_models}
+    options['step_model_options']={**source.get('step_model_options',{}),**{k:v.model_dump(exclude_unset=True) for k,v in request.step_model_options.items()}}
+    settings=freeze_step_models(RunRequest.model_validate(options))
+    child=deepcopy(source);snapshot=source['machine_snapshot']
+    for key in ('requirements','active_revision_ids','set_aside_observations','conflicts','consolidation_events'):
+        if key not in snapshot:raise ValueError('Machine snapshot lacks '+key)
+        child[key]=deepcopy(snapshot[key])
+    child['stakeholder_audit']={k:v for k,v in child.get('stakeholder_audit',{}).items() if not (
+        k.startswith(('fa_task_groups:','base_review')) or k in {'fa_discussion_plan','fa_coverage','post_discussion'})}
+    child['stage_results']={k:v for k,v in child.get('stage_results',{}).items() if k not in {'base_review','deliberation','adjudication','baseline'}}
+    child['stages'].update(base_review='pending',deliberation='pending',adjudication='pending',baseline='pending')
+    child.update(run_id='run-'+uuid.uuid4().hex,name=settings.name,version=1,created_at=now(),status='created',
+        request=settings.model_dump(mode='json'),step_models=settings.step_models,step_model_options=settings.model_dump(mode='json')['step_model_options'],
+        deliberations=[],diagnostics=[],worker_id=None,job_lease_until=0,model_calls=[],attempt_history=[],
+        implementation_hash=digest({p.name:digest(p.read_bytes()) for p in Path(__file__).parent.glob('*.py')}),
+        derived_from={'run_id':source['run_id'],'version':source['version'],'stage':'base_review','actor':actor,
+            'rationale':request.rationale,'restored_from':'machine_snapshot','restored_snapshot_hash':digest(snapshot),
+            'inherited_discussions_hash':digest(source['deliberations']),
+            'observations_hash':digest(source['observations']),'role_runs_hash':digest(source['role_runs']),
+            'elicitation_policy_version':source.get('elicitation_policy_version'),
+            'inherited_call_count':len(source.get('model_calls',[])),'inherited_calls_hash':digest(source.get('model_calls',[])),
+            'parent_implementation_hash':source.get('implementation_hash')})
+    # Working counters are recomputed from the restored inventory, never inherited discussion results.
+    for key in ('discussion_case_count','mediated_cases','pending_human_cases','mediated_changes'):
+        child['metrics'].pop(key,None)
+    WorkflowRun.model_validate(child)
+    fresh=store.get_run(source['run_id'],parts=False)
+    if fresh['version']!=source['version'] or (fresh.get('worker_id') and fresh.get('job_lease_until',0)>time.time()):
+        raise ConflictError('Source changed while deriving; refresh first.')
+    store.put('run',child['run_id'],child)
+    return store.get('run',child['run_id'])

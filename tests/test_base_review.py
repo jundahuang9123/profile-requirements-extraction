@@ -180,3 +180,56 @@ def test_v2_ledger_keeps_covered_in_inventory_and_excludes_working(setup):
     assert ledger['base_relation_counts']['before_discussion']['effect']=={'flag_added':1}
     saved['request']['base_review']='none';old=coverage_ledger(saved)
     assert 'base_relation_counts'not in old and old['contract_hash']!=ledger['contract_hash']
+
+
+def derivable(setup):
+    store,run,cat=prepared(setup)
+    def ready(r):
+        r.update(status='failed')
+        for s in ('acquisition','decomposition','role_selection','elicitation','normalization','verification','consolidation'):r['stages'][s]='completed'
+        r['machine_snapshot'].update(set_aside_observations=[],conflicts=[],consolidation_events=[])
+        r['deliberations']=[{'case_id':'historical','status':'mediated','discussion_trace':{}}]
+        r['stakeholder_audit'].update({'fa_discussion_plan':{'old':True},'fa_task_groups:0':{'old':True}})
+    store.mutate(run['run_id'],None,'ready',ready,parts=True)
+    return store,store.get('run',run['run_id'])
+
+
+def test_derive_restores_snapshot_and_stepwise_pauses_before_discussion(setup):
+    from requirement_reuse_service.workflow import engine
+    from requirement_reuse_service.workflow.models import DeriveRequest
+    store,source=derivable(setup);before=digest(source)
+    req=DeriveRequest(start_from='base_review',expected_version=source['version'],rationale='Independent base trial.',execution_mode='stepwise',
+        step_models={'base_review':'reviewer-a','base_review_check':'reviewer-b'})
+    child=engine.derive_run(store,source['run_id'],req)
+    assert digest(store.get('run',source['run_id']))==before
+    for key in ('requirements','active_revision_ids','conflicts','set_aside_observations','consolidation_events'):
+        assert child[key]==source['machine_snapshot'][key]
+    assert child['deliberations']==[] and 'fa_discussion_plan'not in child['stakeholder_audit']
+    assert child['derived_from']['restored_from']=='machine_snapshot'
+    assert child['derived_from']['inherited_discussions_hash']==digest(source['deliberations'])
+    engine.execute_run(store,child['run_id'],Reviewer())
+    saved=store.get('run',child['run_id'])
+    assert saved['status']=='paused',saved['diagnostics']
+    assert saved['stages']['base_review']=='completed' and saved['stages']['deliberation']=='pending'
+    assert saved['deliberations']==[]
+
+
+@pytest.mark.parametrize('change',[
+    {'status':'deliberating'}, {'decisions':[{'test':'decision'}]}, {'baselines':[{'id':'b'}]},
+    {'request':{'stakeholder_workflow':'independent'}},
+])
+def test_base_derivation_rejects_unsafe_source(setup,change):
+    from requirement_reuse_service.workflow.models import DeriveRequest
+    store,source=derivable(setup);source.update(change)
+    with pytest.raises(ValueError):br.derive_base_review_run(store,source,
+        DeriveRequest(start_from='base_review',expected_version=source['version'],rationale='Synthetic negative test.'),'fixture')
+
+
+@pytest.mark.parametrize('extra',[{'base_profile_id':'dcat-ap-2.1.1'},{'scoping':'use_cases'},
+    {'step_models':{'extraction':'other'}},{'step_model_options':{'writer':{'reasoning_effort':'low'}}}])
+def test_base_derivation_refuses_upstream_changes(setup,extra):
+    from requirement_reuse_service.workflow.models import DeriveRequest
+    store,source=derivable(setup)
+    with pytest.raises(ValueError,match='cannot change'):
+        br.derive_base_review_run(store,source,DeriveRequest(start_from='base_review',
+            expected_version=source['version'],rationale='Synthetic settings test.',**extra),'fixture')

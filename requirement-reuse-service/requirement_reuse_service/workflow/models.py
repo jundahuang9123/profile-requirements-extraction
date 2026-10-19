@@ -544,7 +544,7 @@ class DeriveRequest(Contract):
     requirements_scope: Literal['find_access_v1'] | None = None
     step_models: dict[StepName, ModelID] = Field(default_factory=dict)
     step_model_options: dict[StepName, StepModelOptions] = Field(default_factory=dict)
-    start_from: Literal['normalization', 'elicitation', 'role_selection', 'deliberation'] = 'normalization'
+    start_from: Literal['normalization', 'elicitation', 'role_selection', 'deliberation', 'base_review'] = 'normalization'
     output_form: Literal['needs', 'candidates'] | None = None
     scoping: Literal['use_cases', 'off'] | None = None
     expected_version: int = Field(ge=1)
