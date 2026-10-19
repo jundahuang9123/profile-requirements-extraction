@@ -330,6 +330,7 @@ class RequirementRecord(Contract):
     use_case_necessity: dict[str, bool] = Field(default_factory=dict)
     need_condition: str = ''
     need_integrity_hash: str | None = None
+    base_relation: dict[str, Any] | None = None
     fa_scope: dict[str, Any] | None = None
     rank: int | None = Field(default=None, ge=1)
     rank_keys: dict[str, Any] = Field(default_factory=dict)
