@@ -1201,6 +1201,17 @@
           "title": "Expected Version",
           "type": "integer"
         },
+        "mediation_timeout_fallback": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MediationTimeoutFallback"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "name": {
           "default": "Reprocessed requirements",
           "minLength": 1,
@@ -1285,7 +1296,8 @@
           "enum": [
             "normalization",
             "elicitation",
-            "role_selection"
+            "role_selection",
+            "deliberation"
           ],
           "title": "Start From",
           "type": "string"
@@ -2113,6 +2125,35 @@
         "summary"
       ],
       "title": "MediationPlan",
+      "type": "object"
+    },
+    "MediationTimeoutFallback": {
+      "additionalProperties": false,
+      "properties": {
+        "fallback_model": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Fallback Model",
+          "type": "string"
+        },
+        "policy_version": {
+          "const": "rq1-case-mediation-timeout-v1",
+          "default": "rq1-case-mediation-timeout-v1",
+          "title": "Policy Version",
+          "type": "string"
+        },
+        "timeout_seconds": {
+          "default": 300,
+          "maximum": 600,
+          "minimum": 30,
+          "title": "Timeout Seconds",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "fallback_model"
+      ],
+      "title": "MediationTimeoutFallback",
       "type": "object"
     },
     "MediatorAction": {
@@ -4033,6 +4074,17 @@
           "title": "Max Roles",
           "type": "integer"
         },
+        "mediation_timeout_fallback": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MediationTimeoutFallback"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "name": {
           "default": "RQ1 workflow",
           "title": "Name",
@@ -4324,7 +4376,8 @@
             "rewrite_rejected",
             "not_find_or_access",
             "not_catalogue_level",
-            "not_commonly_agreed"
+            "not_commonly_agreed",
+            "fa_scope_set_aside"
           ],
           "title": "Reason",
           "type": "string"

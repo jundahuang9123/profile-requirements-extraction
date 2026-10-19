@@ -75,3 +75,39 @@ No live inference was used to implement or test this change.
 5. Only then run a fresh small complete trial; evaluate extraction changes with fresh extraction. Health/JRC/Stat have informed development and are not untouched held-out sets. Larger corpus trials follow after the small trial is reliable.
 
 Offline tests use synthetic fixtures. Offline success establishes software behaviour, not improved requirement recall or model quality. Real role-selection/task coverage and distant case grouping still need human inspection; an absent perspective cannot be inferred solely from these tests.
+
+## Interrupted discussion replay
+
+Every accepted stakeholder phase now saves its complete message, including the original timestamp, before another phase consumes it. Resume reuses that message and its output rather than regenerating a timestamp and invalidating downstream input hashes. Transport tuning is excluded from model generation identity, so a longer HTTP wait can reuse compatible phase outputs; case call, token and elapsed-time budgets still apply.
+
+`rq1-fa-message-replay-v1` also supports one narrow legacy recovery: an interrupted final mediator phase with no accepted output, a saved draft and complete targeted role responses. The original draft input hash must still match exactly. Recovered responses are validated again; unavailable response timestamps are explicitly null. The saved trace records the recovery policy and each old/new downstream input hash while preserving outputs, attempts and budgets. This is an audited reconstruction, not a claim that the lost historical timestamps were recovered. Other mismatches or incomplete legacy transcript shapes remain errors. Completed cases and human decisions are not reopened.
+
+### Optional per-case timeout fallback
+
+A run may freeze `mediation_timeout_fallback` with policy
+`rq1-case-mediation-timeout-v1`, a provider-validated `fallback_model`, and
+`timeout_seconds` (300 by default). The primary mediation model remains in
+`step_models`. Each mediation HTTP request uses that timeout with transient and
+rate-limit retries disabled. This bounds an unanswered request, not the total
+case: a schema/length correction remains a separate, budgeted generation.
+
+Only an actual provider timeout triggers the fallback. The same case uses the
+fallback for its unfinished mediation phases, then the next case starts with the
+primary model again. Authentication, connection, HTTP, validation and budget
+errors do not trigger a model switch. A fallback timeout stops the run. Existing
+source validation and case budgets remain in force; timed-out attempts count.
+A client timeout does not prove the remote provider has stopped computing.
+
+The saved `mediator_routing` trace records the policy, primary/active model and
+switch time/reason. Each fallback phase has its own model-bound checkpoint key;
+accepted primary outputs and stakeholder messages are reused. Call audits show
+the actual model. The discussion page exposes this routing trace and exports
+retain it. No machine action constitutes human approval.
+
+`POST /runs/{id}/derive` with `start_from: deliberation` can continue a failed or
+interrupted F/A discussion under the new policy. It copies completed upstream
+outputs and all case checkpoints without replaying extraction or completed
+cases. The parent stays unchanged. Lineage records inherited call counts/hashes
+and the parent plan/implementation identity; the child's call log covers only
+new requests. Upstream settings and primary model choices cannot change in this
+operation. Totals must include parent calls when reporting the whole workflow.

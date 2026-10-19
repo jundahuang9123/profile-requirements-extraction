@@ -204,7 +204,7 @@ class SetAside(Contract):
     observation_id: str
     role_id: str
     reason: Literal['no_source_link', 'inherited_from_base', 'declared_not_extension', 'base_specification_only', 'generic_need_served_by_base', 'no_use_case', 'not_supported_by_quote', 'source_check_failed', 'rewrite_rejected',
-                    'not_find_or_access', 'not_catalogue_level', 'not_commonly_agreed'] = 'no_source_link'
+                    'not_find_or_access', 'not_catalogue_level', 'not_commonly_agreed', 'fa_scope_set_aside'] = 'no_source_link'
     base_check: dict[str, Any] | None = None
     revision_id: str | None = None
     need_id: str | None = None
@@ -473,7 +473,14 @@ class StepModelOptions(Contract):
     reasoning_effort: Literal['low', 'medium', 'high', 'xhigh'] | None = None
 
 
+class MediationTimeoutFallback(Contract):
+    policy_version: Literal['rq1-case-mediation-timeout-v1'] = 'rq1-case-mediation-timeout-v1'
+    fallback_model: ModelID
+    timeout_seconds: int = Field(default=300, ge=30, le=600)
+
+
 class RunRequest(Contract):
+    mediation_timeout_fallback: MediationTimeoutFallback | None = None
     stakeholder_workflow: Literal['independent', 'routed_mediated', 'fa_mediated'] = 'independent'
     requirements_scope: Literal['find_access_v1'] | None = None
     step_models: dict[StepName, ModelID] = Field(default_factory=dict)
@@ -503,6 +510,8 @@ class RunRequest(Contract):
 
     @model_validator(mode='after')
     def panel_mode(self) -> 'RunRequest':
+        if self.mediation_timeout_fallback and (self.strategy != 'multi_agent' or self.stakeholder_workflow != 'fa_mediated'):
+            raise ValueError('Case mediation fallback requires the F/A multi-agent workflow.')
         if self.stakeholder_workflow == 'fa_mediated':
             self.requirements_scope = 'find_access_v1'
         if (self.step_models or self.step_model_options) and self.strategy != 'multi_agent':
@@ -526,11 +535,12 @@ class RunRequest(Contract):
 
 
 class DeriveRequest(Contract):
+    mediation_timeout_fallback: MediationTimeoutFallback | None = None
     stakeholder_workflow: Literal['independent', 'routed_mediated', 'fa_mediated'] | None = None
     requirements_scope: Literal['find_access_v1'] | None = None
     step_models: dict[StepName, ModelID] = Field(default_factory=dict)
     step_model_options: dict[StepName, StepModelOptions] = Field(default_factory=dict)
-    start_from: Literal['normalization', 'elicitation', 'role_selection'] = 'normalization'
+    start_from: Literal['normalization', 'elicitation', 'role_selection', 'deliberation'] = 'normalization'
     output_form: Literal['needs', 'candidates'] | None = None
     scoping: Literal['use_cases', 'off'] | None = None
     expected_version: int = Field(ge=1)

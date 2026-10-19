@@ -100,6 +100,12 @@ class TrackedClient:
     def for_step(self, step):
         return TrackedClient(for_step(self.router, step), self.store, self.run_id, step, self.router)
 
+    def mediation_client(self, model, timeout_seconds):
+        if not hasattr(self.router, 'mediation_client'):
+            raise ValueError('Mediation fallback requires an explicitly routed provider.')
+        return TrackedClient(self.router.mediation_client(model, timeout_seconds),
+            self.store, self.run_id, 'mediation', self.router)
+
     def describe(self):
         return self.client.describe()
 
@@ -206,7 +212,11 @@ def freeze_step_models(request):
     # Creation reads /models only. Generation and resume use these frozen IDs.
     configured_client(request)  # Check explicit live permission before network I/O.
     if request.strategy == 'multi_agent':
-        request.step_models = resolve_models(LLMConfig.from_env(), request.step_models, request.step_model_options)
+        policy = request.mediation_timeout_fallback
+        request.step_models = resolve_models(LLMConfig.from_env(), request.step_models, request.step_model_options,
+            extra_models=[policy.fallback_model] if policy else [])
+        if policy and policy.fallback_model == request.step_models['mediation']:
+            raise ValueError('Mediation fallback must differ from the primary mediator.')
     return request
 
 
@@ -355,6 +365,11 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
         raise ConflictError('Source run changed. Refresh before deriving a run.')
     if source.get('worker_id') and source.get('job_lease_until', 0) > time.time():
         raise ConflictError('Wait for the source worker to finish before deriving a run.')
+    if request.start_from == 'deliberation':
+        from .fa_discussion import derive_discussion_run
+        return derive_discussion_run(store, source, request, actor)
+    if request.mediation_timeout_fallback:
+        raise ValueError('Add timeout fallback in a separate discussion trial or a fresh run.')
     manifest = source.get('role_manifest') or {}
     reselect_panel = request.start_from == 'role_selection'
     restart_extraction = request.start_from in {'role_selection', 'elicitation'}

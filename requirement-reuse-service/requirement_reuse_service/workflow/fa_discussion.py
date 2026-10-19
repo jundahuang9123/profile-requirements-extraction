@@ -12,6 +12,7 @@ from ..llm.step_models import for_step, model_identity
 from .fa_requirements import WRITE_GUIDANCE, coverage_ledger
 
 POLICY='rq1-fa-dialogue-v1'
+MESSAGE_REPLAY_POLICY='rq1-fa-message-replay-v1'
 MAX_CONTEXT=45000
 
 class DiscussionBudgetError(ValueError):
@@ -198,6 +199,29 @@ def execute_case(store,run_id,case_id,client,roles):
         raise ValueError('Frozen F/A discussion packet changed.')
     allowed={e['evidence_id'] for e in packet['excerpts']}
     phases=trace['phases'];attempts=case.get('model_attempts',0);reserved=case.get('output_tokens_reserved',0)
+    # The original protocol saved role outputs but lost response-message timestamps
+    # before a case committed. Only this interrupted-final shape can reconstruct
+    # its transcript. Anchor it to the exact saved draft input before rebinding any
+    # downstream hash; keep old hashes and mark unavailable timestamps as unknown.
+    if phases and not trace.get('message_replay_policy'):
+        final=phases.get('final',{})
+        initial=trace.get('initial_positions',[])
+        targeted=trace.get('targeted_roles',[])
+        if (final and not final.get('output') and not final.get('attempts')
+                and phases.get('draft',{}).get('output') and 'expanded_packet' in trace
+                and len(initial)==len(case['participants']) and targeted
+                and all(phases.get('response:'+rid,{}).get('output') for rid in targeted)):
+            trace['message_replay_recovery']={
+                'policy_version':MESSAGE_REPLAY_POLICY,'status':'in_progress',
+                'reason':'Legacy final interrupted after role responses; response timestamps were not saved.',
+                'allowed_phases':['response:'+rid for rid in targeted]+['final'],
+                'draft_input_hash':phases['draft']['input_hash'],'rebindings':[],
+                'created_at':now()}
+        elif any(k.startswith('response:') for k in phases):
+            raise ValueError('Legacy discussion transcript cannot be recovered from this checkpoint shape.')
+    trace['message_replay_policy']=MESSAGE_REPLAY_POLICY
+    recovery=trace.get('message_replay_recovery',{})
+    anchored=False
     seconds=case.get('model_seconds',0)
     def persist(event='fa_discussion_checkpoint'):
         def update(r):
@@ -206,16 +230,71 @@ def execute_case(store,run_id,case_id,client,roles):
             row.update(discussion_trace=deepcopy(trace),model_attempts=attempts,
                 output_tokens_reserved=reserved,model_seconds=seconds)
         store.mutate(run_id,None,event,update)
+    timeout_policy=run['request'].get('mediation_timeout_fallback')
+    if timeout_policy:
+        primary=run['step_models']['mediation']
+        route=trace.setdefault('mediator_routing',{
+            'policy':deepcopy(timeout_policy),'primary_model':primary,
+            'active_model':primary,'switches':[]})
+        if route['policy']!=timeout_policy or route['primary_model']!=primary:
+            raise ValueError('Case mediator routing policy changed.')
+        if route['active_model'] not in {primary,timeout_policy['fallback_model']}:
+            raise ValueError('Unknown active case mediator.')
+        persist('fa_mediator_routing_bound')
+
     def call(key,step,model,system,payload,validate=None):
-        nonlocal attempts,reserved,seconds
-        bound=for_step(client,step)
+        from ..llm.client import LLMRequestTimeoutError
+        if step!='mediation' or not timeout_policy:
+            return call_phase(key,step,model,system,payload,validate)
+        # Reuse accepted primary phases even after this case switched. A fallback
+        # phase has its own model-bound key; failed primary data is retained.
+        chosen=primary if phases.get(key,{}).get('output') else route['active_model']
+        saved_key=key if chosen==primary else key+':fallback'
+        try:
+            return call_phase(saved_key,step,model,system,payload,validate,chosen)
+        except LLMRequestTimeoutError as exc:
+            if chosen!=primary:raise  # No oscillation or hidden fallback retries.
+            route['active_model']=timeout_policy['fallback_model']
+            route['switches'].append({'phase':key,'from_model':primary,
+                'to_model':route['active_model'],'reason':'request_timeout',
+                'error_type':type(exc).__name__,'at':now(),
+                'failed_checkpoint':key,'fallback_checkpoint':key+':fallback'})
+            phases[key]['timeout']={'error_type':type(exc).__name__,
+                'timeout_seconds':timeout_policy['timeout_seconds'],'at':now()}
+            persist('fa_case_mediator_timeout_fallback')
+            return call_phase(key+':fallback',step,model,system,payload,validate,route['active_model'])
+
+    def call_phase(key,step,model,system,payload,validate=None,mediator_model=None):
+        nonlocal attempts,reserved,seconds,anchored
+        if mediator_model is not None:
+            if not hasattr(client,'mediation_client'):
+                raise ValueError('Case fallback requires an explicit mediation client binding.')
+            bound=client.mediation_client(mediator_model,timeout_policy['timeout_seconds'])
+        else:bound=for_step(client,step)
         aliases={f'N{i+1}':rid for i,rid in enumerate(case['revision_ids'])}
         aliases.update({f'E{i+1}':eid for i,eid in enumerate(sorted(allowed))})
         aliases.update({f'C{i+1}':cid for i,cid in enumerate(dict.fromkeys(c['concern_id'] for m in payload.get('messages',[]) for c in m.get('concerns',[])))})
         identity=digest([POLICY,key,step,system,payload,aliases,model.model_json_schema(),model_identity(bound)])
         saved=phases.get(key)
         if saved:
-            if saved['input_hash']!=identity: raise ValueError('F/A phase checkpoint mismatch: '+key)
+            if saved['input_hash']!=identity:
+                if not (anchored and recovery.get('status')=='in_progress'
+                        and key in recovery['allowed_phases'] and not saved.get('identity_recovery')
+                        and saved.get('step')==step and saved.get('model')==model_identity(bound)):
+                    raise ValueError('F/A phase checkpoint mismatch: '+key)
+                if saved.get('output'):
+                    previous=model.model_validate(saved['output'])
+                    if validate and validate(previous):
+                        raise ValueError('Recovered role output no longer validates: '+key)
+                migration={'phase':key,'old_input_hash':saved['input_hash'],'new_input_hash':identity,
+                    'reason':'Reconstructed legacy transcript; missing response timestamps are explicitly unknown.'}
+                saved.update(input_hash=identity,identity_recovery=deepcopy(migration))
+                recovery['rebindings'].append(migration)
+                persist('fa_message_replay_recovered')
+            if key=='draft' and recovery.get('status')=='in_progress':
+                if identity!=recovery['draft_input_hash']:
+                    raise ValueError('Legacy discussion draft anchor changed.')
+                anchored=True
             if saved.get('output'):return model.model_validate(saved['output'])
             if saved.get('status')=='invalid_output' or len(saved.get('attempts',[]))>=2:raise DiscussionValidationError('F/A phase exhausted its correction: '+key)
         else:
@@ -246,6 +325,24 @@ def execute_case(store,run_id,case_id,client,roles):
             persist()
             if not errors:return answer
         raise DiscussionValidationError('F/A phase remains invalid after bounded correction: '+key+' '+canonical(errors))
+    def saved_message(key,role_id,round_no,answer):
+        phase=phases[key]
+        row=phase.get('message')
+        if row is None and round_no==1:
+            row=next((m for m in trace.get('initial_positions',[])
+                      if m['role_id']==role_id and m['round']==1),None)
+        reconstructed=(row is None and round_no==2 and recovery.get('status')=='in_progress'
+                       and key in recovery['allowed_phases'])
+        expected=message(case_id,role_id,round_no,answer)
+        if row is not None:
+            if {k:v for k,v in row.items() if k!='created_at'}!={k:v for k,v in expected.items() if k!='created_at'}:
+                raise ValueError('Saved stakeholder message differs from its role output: '+key)
+        else:
+            row=expected
+            if reconstructed:row['created_at']=None
+        phase['message']=deepcopy(row)
+        persist('fa_stakeholder_message_saved')
+        return deepcopy(row)
     messages=[]
     role_map={r['id']:r for r in roles}
     for role_id in case['participants']:
@@ -256,7 +353,7 @@ def execute_case(store,run_id,case_id,client,roles):
             'Offer at most two specific queries if a missing source passage is needed. Return Review JSON.',
             {'role':role_map[role_id],'packet':packet,'messages':[]},
             lambda a:old.stakeholder_review_errors(a,case,allowed))
-        messages.append(message(case_id,role_id,1,answer))
+        messages.append(saved_message('initial:'+role_id,role_id,1,answer))
     trace['initial_positions']=deepcopy(messages)
     if 'expanded_packet' in trace:
         packet=deepcopy(trace['expanded_packet'])
@@ -291,9 +388,12 @@ def execute_case(store,run_id,case_id,client,roles):
                 'An earlier finished flag does not close a new issue. Return Review JSON.',
                 {'role':role_map[role_id],'packet':packet,'draft':draft.model_dump(mode='json'),'messages':messages},
                 lambda a:old.stakeholder_review_errors(a,case,allowed))
-            messages.append(message(case_id,role_id,2,answer));trace['targeted_roles'].append(role_id)
+            messages.append(saved_message('response:'+role_id,role_id,2,answer));trace['targeted_roles'].append(role_id)
     final=call('final','mediation',Plan,base_system,{'packet':packet,'draft':draft.model_dump(mode='json'),'messages':messages},
         lambda a:plan_errors(a,case,messages,allowed)) if trace['targeted_roles'] else draft
+    if recovery.get('status')=='in_progress':
+        recovery.update(status='completed',completed_at=now())
+        persist('fa_message_replay_recovery_completed')
     checks=call('check','mediation_check',Checks,WRITE_GUIDANCE+
         ' Independently check EVERY action including retain, defer and set_aside exactly once. '
         'Check semantic source support, F/A relevance, actor/condition/obligation/negation preservation, '
@@ -430,6 +530,8 @@ def deliberate(store,run_id,client):
     roles=[{**r.model_dump(mode='json'),'source_basis':{k:v for k,v in perspectives.get(r.id,{}).items() if k in {'basis','source_support','stakeholders','filled_via','rationale'}}} for r in panel_roles(run)]
     identity={'policy_version':POLICY,'roles_hash':digest(roles),
         'models':{s:model_identity(for_step(client,s)) for s in ('grouping','stakeholder_review','mediation','mediation_check','assessment')}}
+    if run['request'].get('mediation_timeout_fallback'):
+        identity['mediation_timeout_fallback']=deepcopy(run['request']['mediation_timeout_fallback'])
     saved=old.audit(store,run_id).get('fa_discussion_plan')
     if saved and any(saved.get(k)!=v for k,v in identity.items()):raise ValueError('F/A discussion policy, role or model mismatch.')
     if not run['deliberations']:
@@ -474,3 +576,67 @@ def question_groups(questions):
         row['revision_ids']=list(dict.fromkeys([*row['revision_ids'],*q.revision_ids]))
         row['concern_ids']=list(dict.fromkeys([*row['concern_ids'],*q.concern_ids]))
     return list(groups.values())
+
+
+def derive_discussion_run(store,source,request,actor):
+    """Keep upstream and completed cases; seal a new explicit transport policy.
+
+    Parent calls stay in the parent. Lineage records their count/hash; the child
+    call log contains only new requests. No evidence or accepted decision changes.
+    """
+    from .engine import freeze_step_models
+    from .models import RunRequest, WorkflowRun
+    import uuid
+    if source['request'].get('stakeholder_workflow')!='fa_mediated':
+        raise ValueError('Discussion continuation requires the F/A workflow.')
+    if source['status'] not in {'failed','interrupted'}:
+        raise ValueError('Discussion continuation requires an interrupted or failed run.')
+    if any(source['stages'].get(s)!='completed' for s in
+           ('acquisition','decomposition','role_selection','elicitation','normalization','verification','consolidation')):
+        raise ValueError('Discussion continuation requires completed upstream stages.')
+    if source.get('decisions') or source.get('baselines'):
+        raise ValueError('Cannot continue a run with human decisions or published baselines.')
+    if not source.get('deliberations') or not source.get('stakeholder_audit',{}).get('fa_discussion_plan'):
+        raise ValueError('No frozen discussion cases to continue.')
+    # Inherit every setting except the explicitly supported transport policy/name.
+    for field in request.model_fields_set-{'start_from','expected_version','name','rationale',
+            'allow_live_provider','mediation_timeout_fallback'}:
+        value=getattr(request,field)
+        if hasattr(value,'model_dump'):value=value.model_dump(mode='json')
+        if value!=source['request'].get(field):
+            raise ValueError('Discussion continuation cannot change upstream setting: '+field)
+    options=deepcopy(source['request'])
+    options.update(name=request.name,allow_live_provider=request.allow_live_provider,
+        mediation_timeout_fallback=request.mediation_timeout_fallback.model_dump(mode='json')
+            if request.mediation_timeout_fallback else options.get('mediation_timeout_fallback'))
+    settings=freeze_step_models(RunRequest.model_validate(options))
+    if settings.step_models!=source['step_models']:
+        raise ValueError('Discussion continuation cannot change frozen primary models.')
+    child=deepcopy(source)
+    from pathlib import Path
+    child.update(implementation_hash=digest({p.name:digest(p.read_bytes()) for p in Path(__file__).parent.glob('*.py')}),
+        run_id='run-'+uuid.uuid4().hex,name=request.name,version=1,
+        request=settings.model_dump(mode='json'),created_at=now(),status='created',
+        worker_id=None,job_lease_until=0,diagnostics=[],model_calls=[],attempt_history=[],
+        derived_from={'run_id':source['run_id'],'version':source['version'],
+            'stage':'deliberation','rationale':request.rationale,'actor':actor,
+            'observations_hash':digest(source['observations']),'role_runs_hash':digest(source['role_runs']),
+            'elicitation_policy_version':source.get('elicitation_policy_version'),
+            'inherited_call_count':len(source.get('model_calls',[])),
+            'inherited_calls_hash':digest(source.get('model_calls',[])),
+            'upstream_output_hash':digest({k:source.get(k) for k in
+                ('snapshot_id','evidence_ids','role_manifest','requirements','machine_snapshot','active_revision_ids')}),
+            'inherited_discussions_hash':digest(source['deliberations']),
+            'parent_plan_hash':digest(source['stakeholder_audit']['fa_discussion_plan']),
+            'parent_implementation_hash':source.get('implementation_hash'),
+            'changed_policy':options.get('mediation_timeout_fallback')})
+    child['stages']['deliberation']='pending'
+    plan=child['stakeholder_audit']['fa_discussion_plan']
+    if options.get('mediation_timeout_fallback'):
+        plan['mediation_timeout_fallback']=deepcopy(options['mediation_timeout_fallback'])
+    WorkflowRun.model_validate(child)
+    fresh=store.get_run(source['run_id'],parts=False)
+    if fresh['version']!=source['version'] or fresh.get('worker_id'):
+        raise ConflictError('Source changed while validating discussion continuation; refresh first.')
+    store.put('run',child['run_id'],child)
+    return store.get('run',child['run_id'])

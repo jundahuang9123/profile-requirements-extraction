@@ -33,18 +33,22 @@ CONTRACT_STEPS = {
 }
 
 
-def resolve_models(config, overrides, options=None):
+def resolve_models(config, overrides, options=None, extra_models=()):
     """Validate against the saved provider's catalogue; never generate an answer."""
     choices = {step: overrides.get(step, overrides.get('discussion', config.resolved_model())
         if step in {'stakeholder_review', 'mediation', 'mediation_check'} else config.resolved_model()) for step in STEPS}
     available = set(generation_models(config))
-    unknown = sorted(set(choices.values()) - available)
+    unknown = sorted((set(choices.values()) | set(extra_models)) - available)
     if unknown:
         raise ValueError('Models unavailable for text generation at this provider: ' + ', '.join(unknown))
     # Validate model-specific options now, before persisting a run.
     from .model_options import reasoning_effort_for
     for step, model in choices.items():
         opt = (options or {}).get(step, (options or {}).get('discussion', {}) if step in {'stakeholder_review','mediation','mediation_check'} else {})
+        if hasattr(opt, 'model_dump'): opt = opt.model_dump(exclude_unset=True)
+        reasoning_effort_for(model, opt.get('reasoning_effort', config.reasoning_effort))
+    for model in extra_models:
+        opt = (options or {}).get('mediation', (options or {}).get('discussion', {}))
         if hasattr(opt, 'model_dump'): opt = opt.model_dump(exclude_unset=True)
         reasoning_effort_for(model, opt.get('reasoning_effort', config.reasoning_effort))
     return choices
@@ -67,6 +71,17 @@ class StepModelRouter:
         with self._lock:
             if key not in self._clients:
                 self._clients[key] = self.factory(replace(self.config, model=model, reasoning_effort=effort))
+            return self._clients[key]
+
+    def mediation_client(self, model, timeout_seconds):
+        """Explicit per-case binding; does not mutate the run's primary route."""
+        option = self.options.get('mediation', self.options.get('discussion', {}))
+        effort = option.get('reasoning_effort', self.config.reasoning_effort)
+        key = ('mediation-timeout', model, effort, timeout_seconds)
+        with self._lock:
+            if key not in self._clients:
+                self._clients[key] = self.factory(replace(self.config, model=model,
+                    reasoning_effort=effort, timeout=timeout_seconds, transient_retries=0, rate_limit_retries=0))
             return self._clients[key]
 
     def describe(self):

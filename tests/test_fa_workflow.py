@@ -92,6 +92,86 @@ def test_reversible_set_aside_keeps_inventory_and_evidence(setup):
     assert fa.coverage_ledger(saved)['inventory']
 
 
+@pytest.mark.parametrize('legacy', [False, True])
+def test_final_mediator_transport_resume_reuses_saved_phases_with_longer_timeout(setup, legacy):
+    from requirement_reuse_service.llm.client import LLMError
+
+    class Interrupted(Dialogue):
+        def __init__(self):
+            super().__init__(objection=True)
+            self.timeout = 240
+            self.fail_final = True
+
+        def for_step(self, step):
+            parent = self
+            bound = super().for_step(step)
+            describe = bound.describe
+            bound.describe = lambda: {**describe(), 'timeout_seconds': parent.timeout}
+            return bound
+
+        def generate_structured(self, *, user, output_model, step=None, **kwargs):
+            data = json.loads(user)
+            if output_model.__name__ == 'Plan' and data.get('draft') and self.fail_final:
+                raise LLMError('ReadTimeout: no response accepted')
+            return super().generate_structured(user=user, output_model=output_model,
+                                               step=step, **kwargs)
+
+    store, run, units, _ = setup
+    run = enable(store, run)
+    run = install_records(store, run, [make_record(store, run, u, i) for i, u in enumerate(units)])
+    client = Interrupted()
+    with pytest.raises(LLMError, match='ReadTimeout'):
+        discussion.deliberate(store, run['run_id'], client)
+    if legacy:
+        def legacy_layout(row):
+            trace = row['deliberations'][0]['discussion_trace']
+            trace.pop('message_replay_policy')
+            for phase in trace['phases'].values():
+                phase.pop('message', None)
+        store.mutate(run['run_id'], None, 'fixture_legacy_message_layout', legacy_layout)
+    before = store.get('run', run['run_id'])
+    case = before['deliberations'][0]
+    phases = copy.deepcopy(case['discussion_trace']['phases'])
+    assert phases['draft']['output'] and not phases['final'].get('output')
+    assert case['status'] == 'queued'
+    completed_calls = len(client.calls)
+    client.timeout = 480
+    client.fail_final = False
+    if legacy:
+        original_trace = copy.deepcopy(before['deliberations'][0]['discussion_trace'])
+        def changed_anchor(row):
+            row['deliberations'][0]['discussion_trace']['phases']['draft']['input_hash'] = 'changed'
+        store.mutate(run['run_id'], None, 'fixture_changed_anchor', changed_anchor)
+        with pytest.raises(ValueError, match='checkpoint mismatch: draft'):
+            discussion.deliberate(store, run['run_id'], client)
+        assert len(client.calls) == completed_calls
+        store.mutate(run['run_id'], None, 'fixture_restore_anchor',
+            lambda row: row['deliberations'][0].update(discussion_trace=original_trace))
+    discussion.deliberate(store, run['run_id'], client)
+    after = store.get('run', run['run_id'])
+    assert after['status'] == 'awaiting_human'
+    assert [name for _, name, _ in client.calls[completed_calls:]] == ['Plan', 'Checks']
+    for key, value in phases.items():
+        if value.get('output'):
+            replayed = after['deliberations'][0]['discussion_trace']['phases'][key]
+            assert replayed['output'] == value['output']
+            assert replayed['attempts'] == value['attempts']
+            if not legacy:
+                assert replayed == value
+    replay = after['deliberations'][0]['discussion_trace']
+    if legacy:
+        recovery = replay['message_replay_recovery']
+        assert recovery['status'] == 'completed'
+        assert recovery['rebindings'] and recovery['draft_input_hash'] == phases['draft']['input_hash']
+        assert all(m['old_input_hash'] != m['new_input_hash'] for m in recovery['rebindings'])
+        assert all(p['message']['created_at'] is None for k, p in replay['phases'].items()
+                   if k.startswith('response:'))
+    else:
+        assert 'message_replay_recovery' not in replay
+    assert after['machine_snapshot'] == before['machine_snapshot']
+    assert not after['decisions']
+
+
 def test_retrieval_uses_only_frozen_ids_and_records_zero_results(setup):
     store,run,units,_=setup
     rows,audit=discussion.retrieve_frozen(store,run,['access conditions','nonexistentzxy'],set())

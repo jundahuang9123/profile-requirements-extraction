@@ -55,6 +55,10 @@ class LLMError(RuntimeError):
     """Raised when an LLM provider call fails or returns unusable output."""
 
 
+class LLMRequestTimeoutError(LLMError):
+    """A provider HTTP timeout, distinct from malformed answers or other failures."""
+
+
 class OutputTokenLimitError(LLMError):
     """Provider explicitly reported truncation; never accept its partial output."""
 
@@ -306,7 +310,8 @@ class OpenAICompatibleClient:
                         transient_count += 1
                         continue
                     attempt['action'] = 'transient_retries_exhausted' if transient_count else 'request_failed'
-                    raise LLMError(f'OpenAI-compatible request to {url} failed after '
+                    error_type = LLMRequestTimeoutError if isinstance(exc, self._httpx.TimeoutException) else LLMError
+                    raise error_type(f'OpenAI-compatible request to {url} failed after '
                                    f'{len(audit["http_attempts"])} attempt(s): {type(exc).__name__}: {exc}') from exc
                 except self._httpx.HTTPError as exc:
                     attempt.update(error=type(exc).__name__, action='request_failed')
