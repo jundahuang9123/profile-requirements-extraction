@@ -2143,7 +2143,7 @@
           "type": "string"
         },
         "timeout_seconds": {
-          "default": 300,
+          "default": 120,
           "maximum": 600,
           "minimum": 30,
           "title": "Timeout Seconds",

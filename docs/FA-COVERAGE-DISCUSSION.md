@@ -86,7 +86,7 @@ Every accepted stakeholder phase now saves its complete message, including the o
 
 A run may freeze `mediation_timeout_fallback` with policy
 `rq1-case-mediation-timeout-v1`, a provider-validated `fallback_model`, and
-`timeout_seconds` (300 by default). The primary mediation model remains in
+`timeout_seconds` (120 by default). The primary mediation model remains in
 `step_models`. Each mediation HTTP request uses that timeout with transient and
 rate-limit retries disabled. This bounds an unanswered request, not the total
 case: a schema/length correction remains a separate, budgeted generation.
@@ -97,6 +97,15 @@ primary model again. Authentication, connection, HTTP, validation and budget
 errors do not trigger a model switch. A fallback timeout stops the run. Existing
 source validation and case budgets remain in force; timed-out attempts count.
 A client timeout does not prove the remote provider has stopped computing.
+
+New timeout-fallback policies default to two minutes per request. Existing runs
+retain their explicitly saved timeout, including earlier 300-second policies;
+changing this default does not rewrite their checkpoints or resume them. A new
+discussion continuation must explicitly freeze `timeout_seconds: 120` when
+adopting the shorter wait. In the observed pilot, 20 of 25 successfully parsed
+Qwen mediation responses finished within 120 seconds. This is a timing
+observation, not evidence that those outputs passed semantic review or that
+future requests will have the same retention rate.
 
 The saved `mediator_routing` trace records the policy, primary/active model and
 switch time/reason. Each fallback phase has its own model-bound checkpoint key;

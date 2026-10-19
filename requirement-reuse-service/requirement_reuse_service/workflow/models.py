@@ -476,7 +476,7 @@ class StepModelOptions(Contract):
 class MediationTimeoutFallback(Contract):
     policy_version: Literal['rq1-case-mediation-timeout-v1'] = 'rq1-case-mediation-timeout-v1'
     fallback_model: ModelID
-    timeout_seconds: int = Field(default=300, ge=30, le=600)
+    timeout_seconds: int = Field(default=120, ge=30, le=600)
 
 
 class RunRequest(Contract):

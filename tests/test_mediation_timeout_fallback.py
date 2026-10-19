@@ -8,9 +8,9 @@ from requirement_reuse_service.llm.client import LLMError, LLMRequestTimeoutErro
 from requirement_reuse_service.llm.config import LLMConfig
 from requirement_reuse_service.llm.step_models import StepModelRouter
 from requirement_reuse_service.workflow import engine, fa_discussion as discussion
-from requirement_reuse_service.workflow.models import DeriveRequest, RunRequest
+from requirement_reuse_service.workflow.models import DeriveRequest, RunRequest, MediationTimeoutFallback
 
-POLICY={'policy_version':'rq1-case-mediation-timeout-v1','fallback_model':'model-gptoss','timeout_seconds':300}
+POLICY={'policy_version':'rq1-case-mediation-timeout-v1','fallback_model':'model-gptoss','timeout_seconds':120}
 
 class RoutedDialogue(Dialogue):
     def __init__(self, *, fail_model='model-mediation', error=LLMRequestTimeoutError,
@@ -51,12 +51,22 @@ def prepare(setup):
     return store,store.get('run',run['run_id'])
 
 
-def test_timeout_switches_only_one_case_and_next_case_uses_primary(setup):
+def test_timeout_default_is_two_minutes_and_explicit_legacy_value_is_preserved():
+    default=MediationTimeoutFallback(fallback_model='model-gptoss')
+    assert default.timeout_seconds==120
+    legacy=MediationTimeoutFallback.model_validate({**POLICY,'timeout_seconds':300})
+    assert legacy.model_dump()['timeout_seconds']==300
+
+
+@pytest.mark.parametrize('timeout_seconds',[120,300])
+def test_timeout_switches_only_one_case_and_next_case_uses_primary(setup,timeout_seconds):
     store,run=prepare(setup);client=RoutedDialogue()
+    store.mutate(run['run_id'],None,'fixture_timeout',
+        lambda r:r['request']['mediation_timeout_fallback'].update(timeout_seconds=timeout_seconds))
     discussion.deliberate(store,run['run_id'],client)
     saved=store.get('run',run['run_id'])
     assert [model for model,_,_ in client.routes]==['model-mediation','model-gptoss','model-mediation']
-    assert all(seconds==300 for _,seconds,_ in client.routes)
+    assert all(seconds==timeout_seconds for _,seconds,_ in client.routes)
     first,second=saved['deliberations']
     route=first['discussion_trace']['mediator_routing']
     assert route['active_model']=='model-gptoss' and len(route['switches'])==1
@@ -110,10 +120,10 @@ def test_explicit_router_binding_has_single_attempt_and_audits_actual_model(setu
         {'mediation':'primary'},Fake)
     tracked=engine.TrackedClient(router,store,run['run_id'])
     for model in ['primary','fallback','primary']:
-        tracked.mediation_client(model,300).generate_structured(system='fixture',user='{}',
+        tracked.mediation_client(model,120).generate_structured(system='fixture',user='{}',
             output_model=create_model('Plan',value=(str,...)),max_tokens=10)
     assert [c['model'] for c in store.get('run',run['run_id'])['model_calls']]==['primary','fallback','primary']
-    assert all(c.timeout==300 and c.transient_retries==0 for c in configs)
+    assert all(c.timeout==120 and c.transient_retries==0 for c in configs)
     assert router.for_step('mediation').config.timeout==480
 
 
