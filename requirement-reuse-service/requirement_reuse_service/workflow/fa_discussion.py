@@ -589,8 +589,8 @@ def derive_discussion_run(store,source,request,actor):
     import uuid
     if source['request'].get('stakeholder_workflow')!='fa_mediated':
         raise ValueError('Discussion continuation requires the F/A workflow.')
-    if source['status'] not in {'failed','interrupted'}:
-        raise ValueError('Discussion continuation requires an interrupted or failed run.')
+    if source['status'] not in {'failed','interrupted','cancelled'}:
+        raise ValueError('Discussion continuation requires an interrupted, failed or cancelled run.')
     if any(source['stages'].get(s)!='completed' for s in
            ('acquisition','decomposition','role_selection','elicitation','normalization','verification','consolidation')):
         raise ValueError('Discussion continuation requires completed upstream stages.')
@@ -609,6 +609,18 @@ def derive_discussion_run(store,source,request,actor):
     options.update(name=request.name,allow_live_provider=request.allow_live_provider,
         mediation_timeout_fallback=request.mediation_timeout_fallback.model_dump(mode='json')
             if request.mediation_timeout_fallback else options.get('mediation_timeout_fallback'))
+    previous_policy=source['request'].get('mediation_timeout_fallback')
+    next_policy=options.get('mediation_timeout_fallback')
+    if previous_policy and next_policy!=previous_policy:
+        if (not next_policy or
+                {k:v for k,v in previous_policy.items() if k!='timeout_seconds'}!=
+                {k:v for k,v in next_policy.items() if k!='timeout_seconds'} or
+                next_policy['timeout_seconds']>previous_policy['timeout_seconds']):
+            raise ValueError('Existing case fallback policy permits only a shorter request timeout.')
+    if source['status']=='cancelled' and not any(
+            c['status']=='cancelled' and c.get('stop_reason')=='human_cancelled'
+            for c in source['deliberations']):
+        raise ValueError('Cancelled discussion has no unfinished user-cancelled cases.')
     settings=freeze_step_models(RunRequest.model_validate(options))
     if settings.step_models!=source['step_models']:
         raise ValueError('Discussion continuation cannot change frozen primary models.')
@@ -634,6 +646,31 @@ def derive_discussion_run(store,source,request,actor):
     plan=child['stakeholder_audit']['fa_discussion_plan']
     if options.get('mediation_timeout_fallback'):
         plan['mediation_timeout_fallback']=deepcopy(options['mediation_timeout_fallback'])
+    continued=[];policy_changes=[]
+    for case in child['deliberations']:
+        if case['status']=='mediated':continue
+        if case['status']=='cancelled':
+            if case.get('stop_reason')!='human_cancelled':
+                raise ValueError('Only user-cancelled unfinished cases can be continued.')
+            continued.append(case['case_id'])
+            case.update(status='queued',stop_reason=None)
+        route=case['discussion_trace'].get('mediator_routing')
+        if route and route['policy']!=next_policy:
+            primary=source['step_models']['mediation']
+            if (route['policy']!=previous_policy or route['primary_model']!=primary or
+                    route['active_model'] not in {primary,previous_policy['fallback_model']}):
+                raise ValueError('Cannot rebind an inconsistent unfinished case route.')
+            change={'policy_version':'rq1-shorter-timeout-continuation-v1',
+                'parent_run_id':source['run_id'],'parent_version':source['version'],
+                'case_id':case['case_id'],'from_policy':deepcopy(route['policy']),
+                'to_policy':deepcopy(next_policy),'at':now(),
+                'reason':request.rationale,'retained_phases_hash':digest(case['discussion_trace']['phases']),
+                'retained_attempts':case['model_attempts'],'retained_seconds':case['model_seconds']}
+            route.setdefault('policy_changes',[]).append(deepcopy(change))
+            route['policy']=deepcopy(next_policy)
+            policy_changes.append(change)
+    child['derived_from'].update(continued_cancelled_case_ids=continued,
+        unfinished_case_policy_changes=policy_changes)
     WorkflowRun.model_validate(child)
     fresh=store.get_run(source['run_id'],parts=False)
     if fresh['version']!=source['version'] or fresh.get('worker_id'):

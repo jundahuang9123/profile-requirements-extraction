@@ -219,3 +219,56 @@ def test_fa_set_aside_reason_matches_existing_writer():
     from requirement_reuse_service.workflow.models import SetAside
     assert SetAside(observation_id='o',role_id='r',reason='fa_scope_set_aside').reason=='fa_scope_set_aside'
     with pytest.raises(ValueError):SetAside(observation_id='o',role_id='r',reason='made_up')
+
+
+def test_cancelled_child_shortens_timeout_without_repeating_completed_work(setup):
+    store,run=prepare(setup)
+    store.mutate(run['run_id'],None,'fixture_legacy_timeout',
+        lambda r:r['request']['mediation_timeout_fallback'].update(timeout_seconds=300))
+    class StopSecond(RoutedDialogue):
+        plans=0
+        def generate_structured(self,**kw):
+            if kw['output_model'].__name__=='Plan':
+                self.plans+=1
+                if self.plans==2:raise LLMError('fixture interruption before second draft')
+            return super().generate_structured(**kw)
+    with pytest.raises(LLMError,match='fixture interruption'):
+        discussion.deliberate(store,run['run_id'],StopSecond(fail_model='never'))
+    def cancel(r):
+        r.update(status='cancelled',worker_id=None,job_lease_until=0)
+        r['stages'].update({s:'completed' for s in
+            ('acquisition','decomposition','role_selection','elicitation','normalization','verification','consolidation','deliberation')})
+        for c in r['deliberations']:
+            if c['status'] in {'queued','running'}:c.update(status='cancelled',stop_reason='human_cancelled')
+    store.mutate(run['run_id'],None,'fixture_user_cancelled',cancel)
+    parent=store.get('run',run['run_id']);before=deepcopy(parent)
+    complete,unfinished=before['deliberations']
+    assert complete['status']=='mediated' and unfinished['status']=='cancelled'
+    request=DeriveRequest(start_from='deliberation',expected_version=parent['version'],
+        name='Two-minute continuation',rationale='User explicitly requests shorter timeout',
+        mediation_timeout_fallback=POLICY)
+    child=engine.derive_run(store,parent['run_id'],request)
+    assert store.get('run',parent['run_id'])==before
+    assert child['deliberations'][0]==complete
+    continued=child['deliberations'][1]
+    assert continued['status']=='queued' and continued['stop_reason'] is None
+    assert continued['model_attempts']==unfinished['model_attempts']
+    assert continued['model_seconds']==unfinished['model_seconds']
+    assert continued['output_tokens_reserved']==unfinished['output_tokens_reserved']
+    assert continued['discussion_trace']['phases']==unfinished['discussion_trace']['phases']
+    route=continued['discussion_trace']['mediator_routing']
+    assert route['policy']['timeout_seconds']==120
+    assert route['policy_changes'][0]['from_policy']['timeout_seconds']==300
+    assert child['derived_from']['continued_cancelled_case_ids']==[unfinished['case_id']]
+    for policy in [{**POLICY,'timeout_seconds':400},{**POLICY,'fallback_model':'different'}]:
+        with pytest.raises(ValueError,match='only a shorter'):
+            engine.derive_run(store,parent['run_id'],request.model_copy(update={
+                'mediation_timeout_fallback':MediationTimeoutFallback.model_validate(policy)}))
+    client=RoutedDialogue(fail_model='never')
+    engine.execute_run(store,child['run_id'],client)
+    finished=store.get('run',child['run_id'])
+    assert finished['status']=='awaiting_human',finished['diagnostics']
+    assert finished['deliberations'][0]==complete
+    assert len(client.routes)==1 and client.routes[0][1]==120
+    assert not any(step=='stakeholder_review' for step,_,_ in client.calls)
+    assert finished['deliberations'][1]['discussion_trace']['mediator_routing']['policy_changes']==route['policy_changes']

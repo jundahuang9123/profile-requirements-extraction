@@ -113,10 +113,18 @@ accepted primary outputs and stakeholder messages are reused. Call audits show
 the actual model. The discussion page exposes this routing trace and exports
 retain it. No machine action constitutes human approval.
 
-`POST /runs/{id}/derive` with `start_from: deliberation` can continue a failed or
-interrupted F/A discussion under the new policy. It copies completed upstream
+`POST /runs/{id}/derive` with `start_from: deliberation` can continue a failed,
+interrupted or user-cancelled F/A discussion under the new policy. It copies completed upstream
 outputs and all case checkpoints without replaying extraction or completed
 cases. The parent stays unchanged. Lineage records inherited call counts/hashes
 and the parent plan/implementation identity; the child's call log covers only
 new requests. Upstream settings and primary model choices cannot change in this
 operation. Totals must include parent calls when reporting the whole workflow.
+
+A user-cancelled parent can produce a linked continuation only when unfinished
+user-cancelled cases remain and no human decisions or baseline exist. Only those
+unfinished cancelled cases return to the queue. An existing fallback policy may
+shorten its request timeout while retaining its models and protocol. Completed
+cases keep their historical policies; unfinished routes record the old/new
+policy, retained phase hash and unchanged attempt/time budgets. Accepted outputs,
+existing fallback switches and exhausted corrections are not reset.
