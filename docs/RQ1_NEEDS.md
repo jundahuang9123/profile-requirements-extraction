@@ -130,11 +130,17 @@ that covers their different kinds. A need that matters for one kind of dataset i
 1. **Dataset-level relevance (C1, `catalogue_level`).** The need concerns what a
    record states about a catalogued resource as a whole. Since `rq1-profile-scope-v6`
    the judge names that resource (`record_resource`: catalogue, dataset, distribution,
-   data service or none) and what its record would state (`record_statement`, for
-   example "dataset: the dimensions its observations use"). With no named resource the
-   need fails C1: a catalogue record does not state facts or rules about people, legal
-   procedures or data processing, nor facts about the source document itself. Describing
-   a resource's structure (its dimensions, attributes, units or code lists) passes. It fails when it prescribes
+   data service, another kind the profile catalogues such as a facility, equipment or
+   software, or none) and what its record would state (`record_statement`, for example
+   "dataset: the dimensions its observations use"; for another kind it starts with the
+   kind, as in "facility: the instruments it hosts"). With no named resource the need
+   fails C1: a catalogue record does not state rules about how people or organisations
+   must act or how data must be processed, legal or administrative procedures, or facts
+   about the source document itself. A resource's properties that concern such rules
+   pass when a record can state them, such as the legal basis or purpose under which a
+   dataset's personal data are processed, the categories of personal data it holds, or
+   who may grant access. Describing a resource's structure (its dimensions, attributes,
+   units or code lists) passes. It fails when it prescribes
    what the data must be or contain (content, structure, values, quality level, update
    interval, licence choice) or how the data is produced or delivered, or when it
    describes individual records, fields or values. Pointing to where such details are
@@ -595,9 +601,13 @@ sources rather than information a catalogue holds about a dataset:
   proposal and mention no dataset, distribution, catalogue, metadata or record.
 
 `rq1-profile-scope-v6` therefore asks the judge for the catalogue record (resource and
-statement) before C1 can pass. The judgement still only keeps or sets aside offered
-needs; set-asides stay visible and restorable. A missing record statement gets one
-bounded correction for that need only.
+statement) before C1 can pass. The resource may be any kind the profile catalogues; a
+record for another kind names it ("facility: …"). Properties of a dataset that concern
+processing (legal basis, purpose, personal-data categories, who grants access) are
+record statements; rules about how processing must be done are not. The judgement still
+only keeps or sets aside offered needs; set-asides stay visible and restorable. A
+missing record statement, or an "other" record without its kind, gets one bounded
+correction for that need only.
 
 The base search (`rq1-base-needs-full-search-v3`) changes in three ways:
 

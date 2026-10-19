@@ -241,5 +241,28 @@ def test_the_scope_prompt_asks_for_the_record_and_names_what_has_none():
     prompt = ' '.join(needs.SCOPE_SYSTEM.split())
     assert 'record_resource' in prompt and 'record_statement' in prompt
     assert 'a statement about the source document itself' in prompt
-    assert 'legal procedures or data processing' in prompt
+    assert 'how data must be processed, for a legal or administrative procedure' in prompt
+    # A dataset's properties about processing stay: they are what a record can state.
+    assert "the legal basis or purpose under which a dataset's personal data are processed" in prompt
+    assert 'such as a facility, equipment or software' in prompt
     assert 'its dimensions, attributes, units of measure or code lists' in prompt
+
+
+def test_another_catalogued_resource_kind_is_kept_when_its_record_is_named(setup):
+    """Profiles such as EPOS catalogue more than datasets (facilities, equipment, software)."""
+    store, run, _, made = variants(setup, {
+        'need-facility': 'Users can find which instruments a research facility hosts.',
+        'need-unnamed': 'Users can find the software a laboratory provides.'})
+    client = ScopeJudge(verdicts={
+        'need-facility': {'record_resource': 'other', 'record_statement': 'facility: the instruments it hosts',
+                          'catalogue_level': True, 'serves': 'find', 'example': 'Find facilities hosting seismometers.'},
+        'need-unnamed': {'record_resource': 'other', 'record_statement': 'the software it provides',
+                         'catalogue_level': True, 'serves': 'find', 'example': 'Find laboratories providing software.'}})
+    retained = needs.judge_profile_scope(store, run, made, client)
+    assert [n.requirement_id for n in retained] == ['need-facility', 'need-unnamed']
+    assert retained[0].profile_scope['record_resource'] == 'other'
+    # An 'other' record without its kind gets one correction, then stays for review.
+    assert judged(client) == ['need-facility', 'need-unnamed', 'need-unnamed']
+    assert retained[1].profile_scope['status'] == 'not_checked'
+    assert needs.other_record_kind('facility: the instruments it hosts') == 'facility'
+    assert needs.other_record_kind('the software it provides') is None

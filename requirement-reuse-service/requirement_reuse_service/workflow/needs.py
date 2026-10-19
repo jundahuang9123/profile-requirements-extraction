@@ -751,7 +751,7 @@ def classify_needs(store, run, needs, client):
 
 class ScopeDecision(Contract):
     need_id: str
-    record_resource: Literal['catalogue', 'dataset', 'distribution', 'data_service', 'none']
+    record_resource: Literal['catalogue', 'dataset', 'distribution', 'data_service', 'other', 'none']
     record_statement: str = Field(default='', max_length=240)
     catalogue_level: bool
     serves: Literal['find', 'access', 'both', 'neither']
@@ -781,13 +781,18 @@ SCOPE_SYSTEM = (
     'on two criteria. You can only judge: never add, merge, broaden or rewrite a need, and a topic that '
     'no offered need states is not your concern. '
     'catalogue_level (dataset-level relevance): first name in record_resource the catalogued resource whose '
-    'catalogue record would hold the information: catalogue, dataset, distribution or data_service, or none. '
-    'Unless none, write in record_statement what that record would state, as "<resource>: <what it states>", '
-    'for example "dataset: the dimensions its observations use, such as time period, region and sex". '
-    'record_resource is none for a fact, rule or obligation the source states about people, organisations, '
-    'legal procedures or data processing, and for a statement about the source document itself (its status, '
-    'authors, purpose, scope, review, examples or terminology): a catalogue record does not state these, and '
-    'wording a need as "Users can know that ..." does not make it one. catalogue_level is true only when the '
+    'catalogue record would hold the information: catalogue, dataset, distribution, data_service, other (another '
+    'kind of resource the profile catalogues, such as a facility, equipment or software) or none. Unless none, '
+    'write in record_statement what that record would state, as "<resource>: <what it states>", for example '
+    '"dataset: the dimensions its observations use, such as time period, region and sex"; for other, start with '
+    'the resource kind, as in "facility: the instruments it hosts". record_resource is none for a rule or '
+    'obligation about how people or organisations must act or how data must be processed, for a legal or '
+    'administrative procedure, and for a statement about the source document itself (its status, authors, '
+    'purpose, scope, review, examples or terminology): a catalogue record does not state these, and wording a '
+    'need as "Users can know that ..." does not make it one. A property of a resource that concerns such rules is '
+    'different when a record can state it for that resource, for example the legal basis or purpose under which a '
+    'dataset\'s personal data are processed, the categories of personal data it holds, or who may grant access '
+    'to it. catalogue_level is true only when the '
     'record statement describes the resource as a whole. It is false when the need prescribes what the data '
     'itself must be or contain (its content, structure, values, quality level, update interval or licence '
     'choice) or how it is produced or delivered, or when it describes individual records, fields or values. '
@@ -861,6 +866,13 @@ _OPERATIONAL_SCOPE_PATTERNS = (
     re.compile(r'\b(?:execute|run|perform|apply|implement|enforce|validate|check|verify|normalize|normalise|transform|convert|insert|delete|update|push\s+down)\b.{0,90}\b(?:sparql|query|integrity\s+constraints?|observations?|records?|fields?|values?|data\s+cube|data\s+structure)\b', re.I),
     re.compile(r'\b(?:sparql\s+(?:insert|update|delete|construct)|shacl\s+(?:validation|check)|observation[- ]level\s+integrity)\b', re.I),
 )
+
+
+def other_record_kind(statement):
+    """The resource kind an 'other' record statement starts with, as in 'facility: ...'."""
+    kind, separator, rest = (statement or '').partition(':')
+    kind = kind.strip()
+    return kind if separator and kind and rest.strip() and len(kind) <= 60 else None
 
 
 def operational_scope_reason(need):
@@ -960,6 +972,9 @@ def judge_profile_scope(store, run, needs, client, registry=None):
             errors += [d.need_id + ': give in record_statement what the named record would state.'
                        for d in result.decisions if d.record_resource != 'none' and d.catalogue_level
                        and not d.record_statement.strip()]
+            errors += [d.need_id + ': for other, start record_statement with the resource kind, as "<kind>: <what it states>".'
+                       for d in result.decisions if d.record_resource == 'other' and d.catalogue_level
+                       and d.record_statement.strip() and not other_record_kind(d.record_statement)]
             return errors
         result = cached_generation(store, run, 'profile_scope', payload, ProfileScope, SCOPE_SYSTEM, client, validate)
         fallbacks = getattr(result, '_fallbacks', {})

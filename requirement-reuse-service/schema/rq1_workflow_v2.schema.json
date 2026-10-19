@@ -3686,6 +3686,7 @@
             "dataset",
             "distribution",
             "data_service",
+            "other",
             "none"
           ],
           "title": "Record Resource",
