@@ -166,3 +166,17 @@ def test_v1_packet_is_exactly_unchanged_and_has_no_base_block(setup):
     assert fd.freeze_packet(store,run,records)==old_packet
     assert digest(fd.freeze_packet(store,run,records))==hash_before
     assert 'base_entries'not in old_packet
+
+
+def test_v2_ledger_keeps_covered_in_inventory_and_excludes_working(setup):
+    from requirement_reuse_service.workflow.fa_requirements import coverage_ledger
+    store,run,_=prepared(setup)
+    store.mutate(run['run_id'],None,'expert',lambda r:r['request'].update(base_review='expert_v1'))
+    br.review_base(store,store.get('run',run['run_id']),Reviewer('restates_base'))
+    saved=store.get('run',run['run_id']);ledger=coverage_ledger(saved);rid=run['requirements'][0]['revision_id']
+    assert rid in [r['revision_id'] for r in ledger['inventory']]
+    assert rid not in ledger['working_revision_ids'] and rid in ledger['covered_by_base_revision_ids']
+    assert ledger['covered_by_base_by_source']['base_review']==[rid]
+    assert ledger['base_relation_counts']['before_discussion']['effect']=={'flag_added':1}
+    saved['request']['base_review']='none';old=coverage_ledger(saved)
+    assert 'base_relation_counts'not in old and old['contract_hash']!=ledger['contract_hash']

@@ -183,7 +183,8 @@ def apply_verdict(n,verdict,check,phase,catalogue,key,model,payload):
         effect='agree'
     n.processing_flags=list(dict.fromkeys(f for f in flags if f!='base_review_pending'))
     n.base_relation={'policy':POLICY,'phase':phase,'status':status,**verdict.model_dump(mode='json'),
-        'entry_ids':list(verdict.entry_ids),'evidence_ids':list(dict.fromkeys(payload['excerpts'][i]['evidence_id'] for i in verdict.evidence_ids)),
+        'entry_ids':list(verdict.entry_ids),'entries':[deepcopy(payload['base']['entries'][i]) for i in verdict.entry_ids],
+        'evidence_ids':list(dict.fromkeys(payload['excerpts'][i]['evidence_id'] for i in verdict.evidence_ids)),
         'excerpt_ids':list(verdict.evidence_ids),'check':check.model_dump(mode='json') if check else None,
         'classifier_state':state,'effect':effect,'catalogue_hash':catalogue['catalogue_hash'],
         'batch_key':key,'model':model,'human_accepted':False}

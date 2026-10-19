@@ -128,7 +128,7 @@ def coverage_ledger(run):
             'disposition':'linked' if linked else ('set_aside' if aside else 'unresolved_unaccounted')})
     inventory=[{**deepcopy(r),'discussion_case_ids':[c['case_id'] for c in run.get('deliberations',[]) if r['revision_id'] in c['revision_ids'] or any(r['revision_id'] in o.get('result_revision_ids',[]) or r['revision_id']==o.get('result_revision_id') for o in (c.get('mediation') or {}).get('outcomes',[]))],
         'human_decision_ids':[d.get('decision_id') for d in run.get('decisions',[]) if r['revision_id'] in [*d.get('revision_ids',[]),*d.get('result_revision_ids',[])]]} for r in records if r.get('need_statement')]
-    return {'policy_version':POLICY,'run_id':run['run_id'],'source_units':source_rows,
+    result = {'policy_version':POLICY,'run_id':run['run_id'],'source_units':source_rows,
         'observations':observation_rows,'inventory':inventory,
         'working_revision_ids':[r['revision_id'] for r in inventory if r['revision_id'] in active and 'covered_by_base' not in r.get('processing_flags',[])],
         'covered_by_base_revision_ids':[r['revision_id'] for r in inventory if 'covered_by_base' in r.get('processing_flags',[])],
@@ -139,6 +139,23 @@ def coverage_ledger(run):
         'human_decisions':deepcopy(run.get('decisions',[])),'discussion_outcomes':[{'case_id':c['case_id'],'revision_ids':c['revision_ids'],'mediation':deepcopy(c.get('mediation',{}))} for c in run.get('deliberations',[])],
         'source_snapshot_id':run.get('snapshot_id'),'contract_hash':digest([POLICY,EXTRACTION_GUIDANCE,WRITE_GUIDANCE,SCOPE_SYSTEM]),
         'limitations':['Processing coverage is not semantic requirement completeness.','Machine judgements are not human acceptance.']}
+
+    if run['request'].get('base_review')=='expert_v1':
+        from .base_review import POLICY as BASE_POLICY, REVIEW_SYSTEM, CHECK_SYSTEM
+        phases=run.get('stage_results',{}).get('base_review',{}).get('phases',{})
+        result['base_relation_counts']={phase:{
+            'verdict':dict(Counter(row.get('verdict','not_reviewed') for row in data.get('results',[]))),
+            'effect':dict(Counter(row.get('effect',row.get('status')) for row in data.get('results',[])))}
+            for phase,data in phases.items()}
+        covered=[r for r in inventory if 'covered_by_base' in r.get('processing_flags',[])]
+        result['covered_by_base_by_source']={
+            'classifier':[r['revision_id'] for r in covered if not r.get('base_relation') or r['base_relation'].get('classifier_state',{}).get('covered_by_base')],
+            'base_review':[r['revision_id'] for r in covered if r.get('base_relation',{}).get('effect')=='flag_added']}
+        result['base_dispute_revision_ids']=[r['revision_id'] for r in inventory if (r.get('base_relation') or {}).get('effect')=='dispute']
+        result['base_recheck_revision_ids']=[r['revision_id'] for r in inventory if 'base_recheck_required' in r.get('processing_flags',[])]
+        result['base_review_pending_revision_ids']=[r['revision_id'] for r in inventory if 'base_review_pending' in r.get('processing_flags',[])]
+        result['contract_hash']=digest([result['contract_hash'],BASE_POLICY,REVIEW_SYSTEM,CHECK_SYSTEM])
+    return result
 
 class PreservationCheck(Contract):
     group_id: str
