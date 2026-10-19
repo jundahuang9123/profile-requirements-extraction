@@ -92,3 +92,56 @@ def test_without_a_base_the_gap_is_not_checked(setup):
     run['base_profile_id']=None
     kept=needs.classify_needs(store,run,originals,ClassClient())
     assert all(n.need_class=='domain' and n.base_gap['status']=='not_checked' for n in kept)
+
+
+def _three_proposals(setup):
+    store,run,records=need_inputs(setup)
+    originals,_=needs.write_needs(store,run,[records],NeedsClient(),None)
+    proposals=[]
+    for index in range(3):
+        r=originals[0].model_copy(deep=True);r.requirement_id=f'need-{index}';needs.refresh_need(r);proposals.append(r)
+    profile,fingerprint=load_profile('dcat-ap-2.0.1')
+    run.update(base_profile_id=profile['id'],base_profile_sha256=fingerprint)
+    return store,run,proposals
+
+
+def test_a_match_that_names_no_entry_is_no_match_in_that_chunk_without_a_retry(setup):
+    """rq1-base-needs-full-search-v3: the Health run spent about 2,300 retries on this."""
+    store,run,proposals=_three_proposals(setup)
+    class Unnamed(NeedsClient):
+        def generate_structured(self, **kwargs):
+            if kwargs['output_model'].__name__!='NeedClassifications': return super().generate_structured(**kwargs)
+            data=json.loads(kwargs['user']);self.calls.append(('NeedClassifications',data))
+            return kwargs['output_model'].model_validate({'classifications':[{'need_id':i,
+                'classification':'domain_use_of_base','base_need_ids':[],'rationale':'Refines the base.'}
+                for i in data['needs']]})
+    client=Unnamed()
+    retained=needs.classify_needs(store,run,proposals[:1],client)
+    need=retained[0]
+    chunks=need.base_gap['search_chunks']
+    # One call per chunk and no correction; every chunk counts as searched without a match.
+    assert sum(name=='NeedClassifications' for name,_ in client.calls)==len(chunks)
+    assert all(c['unnamed_match']=='domain_use_of_base' and c['status']=='checked' for c in chunks)
+    assert need.need_class=='domain' and need.base_gap['status']=='no_base_match'
+    assert need.base_gap['search_complete'] and need.matched_base_need_ids==[]
+
+
+def test_a_need_listing_several_items_is_generic_when_each_item_has_a_listed_entry(setup):
+    store,run,proposals=_three_proposals(setup)
+    proposals[0].need_statement=proposals[0].normalized_statement='Users can know the title, keywords and release date of a dataset.'
+    needs.refresh_need(proposals[0])
+    items={'Find the title of a dataset.','Find the keyword/ tag of a dataset.','Find the release date of a dataset.'}
+    class Listed(NeedsClient):
+        def generate_structured(self, **kwargs):
+            if kwargs['output_model'].__name__!='NeedClassifications': return super().generate_structured(**kwargs)
+            data=json.loads(kwargs['user']);self.calls.append(('NeedClassifications',data))
+            ids=sorted(k for k,v in data['base_needs'].items() if v['need'] in items)
+            return kwargs['output_model'].model_validate({'classifications':[{'need_id':i,
+                'classification':'generic' if len(ids)==3 else 'domain','base_need_ids':ids if len(ids)==3 else [],
+                'rationale':'Each listed item has a base entry.'} for i in data['needs']]})
+    retained=needs.classify_needs(store,run,proposals[:1],Listed())
+    assert retained==[]
+    aside=store.get('run',run['run_id'])['set_aside_observations'][-1]
+    assert aside['reason']=='generic_need_served_by_base' and len(aside['matched_base_need_ids'])==3
+    assert 'one listed entry for each item' in ' '.join(needs.BASE_SEARCH_SYSTEM.split())
+    assert 'a match always names a listed entry' in needs.BASE_SEARCH_SYSTEM
