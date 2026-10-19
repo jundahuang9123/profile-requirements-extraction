@@ -5,10 +5,10 @@
   "phrasing": "deterministic labels; verbatim pinned definitions and usage notes",
   "review": {
     "status": "reviewed",
-    "reviewer": "Codex (AI-assisted phrase review; not human approval)",
+    "reviewer": "Codex and Claude (AI-assisted phrase review; not human approval)",
     "reviewed_at": "2026-10-19",
     "review_file": "dcat-3.0.0.needs-review.json",
-    "review_file_sha256": "73ab8990fe11dc7b5d4308d1a650b5a171a3e21e26c93d3583808d6b1c723d6f",
+    "review_file_sha256": "878195a03989447cf2748ffca3419397adbd0b52a22290438623ce2b3a1c5d55",
     "corrected_count": 147
   },
   "entries": [
@@ -80,7 +80,7 @@
     },
     {
       "id": "base-50792ccc53b1f41d32a0",
-      "need": "Find the other catalogs whose contents are of interest in a catalog.",
+      "need": "Find the other catalogs listed in a catalog.",
       "class": "dcat:Catalog",
       "property": "dcat:catalog",
       "rq2_term": "dcat:catalog",
@@ -97,7 +97,7 @@
       "base_obligation": null,
       "vocabulary": null,
       "need_draft": "Find the catalog of a catalog.",
-      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve interest in another catalog; do not equate this with a part-of relationship. Basis: pinned definition."
+      "review_note": "AI-assisted correction by Claude, 2026-10-19. The 19 October phrase was shared across versions and carried another version's meaning; rephrased to this version's pinned definition. Not human approval."
     },
     {
       "id": "base-466520721d24ccc5673c",
@@ -5589,5 +5589,5 @@
       "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     }
   ],
-  "catalogue_hash": "8e14e60e45e6e1971c1369568baeaa0ab8d338f47efdf3c19aa9bf265a74ce84"
+  "catalogue_hash": "0179217b212f75db3d10d42653bb6b424fb202b7dcdb7d74957330c15547e02a"
 }

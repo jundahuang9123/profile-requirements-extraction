@@ -5,10 +5,10 @@
   "phrasing": "deterministic labels; verbatim pinned definitions and usage notes",
   "review": {
     "status": "reviewed",
-    "reviewer": "Codex (AI-assisted phrase review; not human approval)",
+    "reviewer": "Codex and Claude (AI-assisted phrase review; not human approval)",
     "reviewed_at": "2026-10-19",
     "review_file": "dcat-ap-2.1.1.needs-review.json",
-    "review_file_sha256": "c38ec8cd09e9c50280d3c94c60b92fe91053895e3cb3efefd04742d93c8e81a8",
+    "review_file_sha256": "65a614555cf79f387d2bb16221cc5b70fd236b8c7c92b0e96a597ee4ba5b1d91",
     "corrected_count": 67
   },
   "entries": [
@@ -218,7 +218,7 @@
     },
     {
       "id": "base-3e5e33729360a1bc8dca",
-      "need": "Find the resources listed as members of a catalog.",
+      "need": "Find the catalogs that are part of a catalog.",
       "class": "dcat:Catalog",
       "property": "dct:hasPart",
       "rq2_term": "dct:hasPart",
@@ -237,7 +237,7 @@
       "base_obligation": "optional",
       "vocabulary": null,
       "need_draft": "Find the has part of a catalog.",
-      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+      "review_note": "AI-assisted correction by Claude, 2026-10-19. The 19 October phrase was shared across versions and carried another version's meaning; rephrased to this version's pinned definition and usage note. Not human approval."
     },
     {
       "id": "base-606ce17200585e420ba2",
@@ -2574,5 +2574,5 @@
       "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     }
   ],
-  "catalogue_hash": "95900a61736c20cc2cbbb641209c505eaa64985248a363ebe8545e22113b12b8"
+  "catalogue_hash": "e10b51897363300d9c2c26b0ae986cc801f3a12220fb226e05082eb460533217"
 }

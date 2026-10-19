@@ -5,10 +5,10 @@
   "phrasing": "deterministic labels; verbatim pinned definitions and usage notes",
   "review": {
     "status": "reviewed",
-    "reviewer": "Codex (AI-assisted phrase review; not human approval)",
+    "reviewer": "Codex and Claude (AI-assisted phrase review; not human approval)",
     "reviewed_at": "2026-10-19",
     "review_file": "dcat-ap-3.0.1.needs-review.json",
-    "review_file_sha256": "36f51e82a187702cd8347f5c649e4f09285f6756cd9b72f781de69caf4cd777e",
+    "review_file_sha256": "dc2ae0b6a864e30ae44d6a666083586365ce1355050ec81633824a374b7c74fb",
     "corrected_count": 75
   },
   "entries": [
@@ -229,7 +229,7 @@
     },
     {
       "id": "base-3e5e33729360a1bc8dca",
-      "need": "Find the resources listed as members of a catalog.",
+      "need": "Find the catalogs that are part of a catalog.",
       "class": "dcat:Catalog",
       "property": "dct:hasPart",
       "rq2_term": "dct:hasPart",
@@ -246,7 +246,7 @@
       "base_obligation": "optional",
       "vocabulary": null,
       "need_draft": "Find the has part of a catalog.",
-      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
+      "review_note": "AI-assisted correction by Claude, 2026-10-19. The 19 October phrase was shared across versions and carried another version's meaning; rephrased to this version's pinned definition. Not human approval."
     },
     {
       "id": "base-66b14aabd2db6d505f58",
@@ -468,7 +468,7 @@
     },
     {
       "id": "base-0780180464f03d62d92f",
-      "need": "Find the type of the latest change to a catalog record.",
+      "need": "Find the editorial status of a catalog record.",
       "class": "dcat:CatalogRecord",
       "property": "adms:status",
       "rq2_term": "adms:status",
@@ -485,7 +485,7 @@
       "base_obligation": "recommended",
       "vocabulary": null,
       "need_draft": "Find the change type of a catalog record.",
-      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve the context-specific meaning: change type, maturity or workflow status. Basis: pinned definition."
+      "review_note": "AI-assisted correction by Claude, 2026-10-19. The 19 October phrase was shared across versions and carried another version's meaning; rephrased to this version's pinned definition. Not human approval."
     },
     {
       "id": "base-35cc35fe2f83d0f4ee0a",
@@ -1118,7 +1118,7 @@
     },
     {
       "id": "base-693585d66ee23b95e53f",
-      "need": "Find the versioned snapshots of a dataset.",
+      "need": "Find the versions, editions or adaptations of a dataset.",
       "class": "dcat:Dataset",
       "property": "dcat:hasVersion",
       "rq2_term": "dcat:hasVersion",
@@ -1135,7 +1135,7 @@
       "base_obligation": "optional",
       "vocabulary": null,
       "need_draft": "Find the has version of a dataset.",
-      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve versioned snapshots; this is narrower than versions, editions or adaptations. Basis: pinned definition."
+      "review_note": "AI-assisted correction by Claude, 2026-10-19. The 19 October phrase was shared across versions and carried another version's meaning; rephrased to this version's pinned definition. Not human approval."
     },
     {
       "id": "base-c896409302acf05da2df",
@@ -2918,5 +2918,5 @@
       "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     }
   ],
-  "catalogue_hash": "cbb4ac2c1d50b1fbfc58c4d5e1cd0297cd1b65cd8a07d0e806d5ef890725cfbc"
+  "catalogue_hash": "b39c8898096b22fe825a267ec704a88a9854128d6cfbc991a3d9ad89ce84e40c"
 }

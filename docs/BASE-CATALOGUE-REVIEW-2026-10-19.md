@@ -73,3 +73,26 @@ Existing runs keep their saved catalogue and hash. Do not overwrite their saved 
 - `dcat-ap-2.1.1`: `95900a61736c20cc2cbbb641209c505eaa64985248a363ebe8545e22113b12b8`
 - `dcat-ap-3.0.0`: `9308f2747cc78582bf65aa27f8fc1b4ec5d3fbd53b215e8e0e957cb09e7e9967`
 - `dcat-ap-3.0.1`: `cbb4ac2c1d50b1fbfc58c4d5e1cd0297cd1b65cd8a07d0e806d5ef890725cfbc`
+
+## Version-specific corrections (Claude, 19 October 2026)
+
+Reviewer: **Claude (AI-assisted correction; not human approval)**, after a cross-version comparison. Some phrases were reviewed once and shared across releases, but the releases define the term differently. Nine corrections in five catalogues restore each release's own pinned meaning. Entry IDs and all non-phrase fields are unchanged, and the five review files now name "Codex and Claude".
+
+| Entry | Catalogues | 19 October phrase (meaning of another release) | Corrected phrase (this release's definition) |
+|---|---|---|---|
+| Catalog `dct:hasPart` | dcat-ap-1.1.0, dcat-ap-2.1.1, dcat-ap-3.0.0, dcat-ap-3.0.1 | Find the resources listed as members of a catalog. (DCAT 2) | Find the catalogs that are part of a catalog. (a related Catalogue that is part of the described Catalogue; as in the DCAT-AP 2.0.1 review) |
+| CatalogRecord `adms:status` | dcat-ap-3.0.0, dcat-ap-3.0.1 | Find the type of the latest change to a catalog record. (DCAT-AP 1.1) | Find the editorial status of a catalog record. |
+| Dataset `dcat:hasVersion` | dcat-ap-3.0.0, dcat-ap-3.0.1 | Find the versioned snapshots of a dataset. (DCAT 3) | Find the versions, editions or adaptations of a dataset. |
+| Catalog `dcat:catalog` | dcat-3.0.0 | Find the other catalogs whose contents are of interest in a catalog. (DCAT 2) | Find the other catalogs listed in a catalog. |
+
+Not changed: 62 entries whose identical definitions are worded differently across releases (mostly the DCAT-AP 2.0.1 human review against the 2.1.1 AI review). Within a run only one catalogue is used. Most differences are stylistic; they were not each checked for meaning.
+
+These corrections change five catalogue hashes. Runs pinned to the earlier hashes refuse the corrected files (the guard above), so a running base-review trial or discussion that reads its pinned catalogue must finish before these files are deployed to its service.
+
+Catalogue hashes after these corrections:
+
+- `dcat-3.0.0`: `0179217b212f75db3d10d42653bb6b424fb202b7dcdb7d74957330c15547e02a`
+- `dcat-ap-1.1.0`: `1f9ea599452ab06883c223c3aa5f8c3b86378c475b0ce43e3e1b4fae21e248de`
+- `dcat-ap-2.1.1`: `e10b51897363300d9c2c26b0ae986cc801f3a12220fb226e05082eb460533217`
+- `dcat-ap-3.0.0`: `b7adf1b2b55559b0b528984d57ff00c3e3461510422fb86f15a1fb792482ab95`
+- `dcat-ap-3.0.1`: `b39c8898096b22fe825a267ec704a88a9854128d6cfbc991a3d9ad89ce84e40c`
