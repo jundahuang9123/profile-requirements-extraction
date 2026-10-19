@@ -253,7 +253,7 @@ def test_new_step_checkpoints_are_model_specific(setup,contract,step,payload,ans
     for model in ('model-a','model-b'):
         router=StepModelRouter(LLMConfig(provider='mock'),{step:model},BoundClient)
         for _ in range(2): needs.cached_generation(store,run,step,payload,contract,'Offline contract.',router)
-        assert router._clients[model].calls==1
+        assert router._clients[(model, router.config.reasoning_effort)].calls==1
     saved=store.get('run',run['run_id'])['need_chunks']
     assert {row['provider']['model'] for row in saved.values()}=={'model-a','model-b'}
 

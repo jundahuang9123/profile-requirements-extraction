@@ -10,10 +10,11 @@ from .model_catalog import generation_models
 
 StepName = Literal['role_selection', 'extraction', 'proposal_support', 'grouping',
     'writer', 'rewrite_critic', 'membership', 'classification', 'profile_scope', 'use_case_linker',
-    'link_critic', 'assessment', 'discussion', 'dataset_categories', 'selection']
+    'link_critic', 'assessment', 'discussion', 'dataset_categories', 'selection',
+    'stakeholder_review', 'mediation', 'mediation_check']
 STEPS = ('role_selection', 'extraction', 'proposal_support', 'grouping', 'writer',
     'rewrite_critic', 'membership', 'classification', 'profile_scope', 'use_case_linker', 'link_critic',
-    'assessment', 'discussion', 'dataset_categories', 'selection')
+    'assessment', 'discussion', 'dataset_categories', 'selection', 'stakeholder_review', 'mediation', 'mediation_check')
 ModelID = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=256)]
 
 # Writer and critic deliberately have separate keys although they share a saved stage.
@@ -24,43 +25,52 @@ CONTRACT_STEPS = {
     'ProposalSupport': 'proposal_support', 'SemanticGrouping': 'grouping',
     'NeedStatements': 'writer', 'NeedGrounding': 'rewrite_critic',
     'NeedMembership': 'membership', 'NeedClassifications': 'classification',
-    'ProfileScope': 'profile_scope', 'NeedApplicability': 'profile_scope',
+    'FAPreservation':'rewrite_critic', 'FAScopeResult': 'profile_scope', 'ProfileScope': 'profile_scope', 'NeedApplicability': 'profile_scope',
     'DatasetCategories': 'dataset_categories', 'NeedEquivalence': 'selection',
     'NeedUseCaseLinks': 'use_case_linker', 'UseCaseCritic': 'link_critic',
-    'Qualification': 'assessment',
+    'Qualification': 'assessment', 'TaskGroups':'grouping',
+    'Review':'stakeholder_review','Plan':'mediation','Checks':'mediation_check',
 }
 
 
-def resolve_models(config, overrides):
+def resolve_models(config, overrides, options=None):
     """Validate against the saved provider's catalogue; never generate an answer."""
-    choices = {step: overrides.get(step, config.resolved_model()) for step in STEPS}
+    choices = {step: overrides.get(step, overrides.get('discussion', config.resolved_model())
+        if step in {'stakeholder_review', 'mediation', 'mediation_check'} else config.resolved_model()) for step in STEPS}
     available = set(generation_models(config))
     unknown = sorted(set(choices.values()) - available)
     if unknown:
         raise ValueError('Models unavailable for text generation at this provider: ' + ', '.join(unknown))
     # Validate model-specific options now, before persisting a run.
     from .model_options import reasoning_effort_for
-    for model in set(choices.values()):
-        reasoning_effort_for(model, config.reasoning_effort)
+    for step, model in choices.items():
+        opt = (options or {}).get(step, (options or {}).get('discussion', {}) if step in {'stakeholder_review','mediation','mediation_check'} else {})
+        if hasattr(opt, 'model_dump'): opt = opt.model_dump(exclude_unset=True)
+        reasoning_effort_for(model, opt.get('reasoning_effort', config.reasoning_effort))
     return choices
 
 
 class StepModelRouter:
-    def __init__(self, config, choices, factory=create_client):
+    def __init__(self, config, choices, factory=create_client, options=None):
         self.config, self.choices, self.factory = config, dict(choices), factory
+        self.options = {k: (v.model_dump(exclude_unset=True) if hasattr(v, "model_dump") else dict(v)) for k,v in (options or {}).items()}
         self._clients, self._lock = {}, Lock()
 
     def for_step(self, step):
         if step not in STEPS:
             raise ValueError('Unknown model step: ' + step)
-        model = self.choices.get(step, self.config.resolved_model())
+        model = self.choices.get(step, self.choices.get('discussion', self.config.resolved_model())
+            if step in {'stakeholder_review', 'mediation', 'mediation_check'} else self.config.resolved_model())
+        option = self.options.get(step, self.options.get('discussion', {}) if step in {'stakeholder_review','mediation','mediation_check'} else {})
+        effort = option.get('reasoning_effort', self.config.reasoning_effort)
+        key = (model, effort)
         with self._lock:
-            if model not in self._clients:
-                self._clients[model] = self.factory(replace(self.config, model=model))
-            return self._clients[model]
+            if key not in self._clients:
+                self._clients[key] = self.factory(replace(self.config, model=model, reasoning_effort=effort))
+            return self._clients[key]
 
     def describe(self):
-        return {'provider': self.config.provider, 'step_models': dict(self.choices)}
+        return {'provider': self.config.provider, 'step_models': dict(self.choices), 'step_model_options': self.options}
 
     def generate_structured(self, **kwargs):
         step = contract_step(kwargs['output_model'])

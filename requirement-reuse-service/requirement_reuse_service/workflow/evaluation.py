@@ -61,10 +61,13 @@ def workflow_metrics(run: dict) -> dict:
     consolidation_events = frozen.get('consolidation_events', run.get('consolidation_events', []))
     grouping_calls = [c for c in calls if c.get('output_contract') == 'SemanticGrouping']
     semantic_events = [e for e in consolidation_events if e.get('action') == 'semantic_merge']
+    from .fa_requirements import coverage_ledger
     return {'schema_version': 'rq1-workflow-evaluation-v2', 'run_id': run['run_id'],
         'snapshot_id': run['snapshot_id'], 'strategy': run['strategy'], 'implementation_hash': run['implementation_hash'],
         'elicitation_policy_version': run.get('elicitation_policy_version'),
         'derived_from': run.get('derived_from'),
+        'step_models':run.get('step_models',{}),'step_model_options':run.get('step_model_options',{}),
+        'fa_processing_coverage':coverage_ledger(run)['counts'],
         'extraction_reused': bool(run.get('derived_from')) and run['derived_from'].get('stage') != 'role_selection',
         'assessments_reused': run.get('metrics', {}).get('assessments_reused', 0),
         'normalization_policy_version': run.get('normalization_policy_version'),

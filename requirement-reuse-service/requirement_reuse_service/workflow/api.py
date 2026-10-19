@@ -529,6 +529,12 @@ def base_needs_catalogue(profile_id: str, download: bool = False):
     return downloadable(translate(lambda: load_catalogue(profile_id)), download, profile_id+'.needs.json')
 
 
+@router.get('/runs/{run_id}/coverage')
+def export_coverage(run_id: str):
+    from .fa_requirements import coverage_ledger
+    return translate(lambda: coverage_ledger(Store().get('run',run_id)))
+
+
 @router.get('/runs/{run_id}/needs')
 def export_needs(run_id: str, download: bool = False):
     from .needs import needs_export
