@@ -534,8 +534,9 @@ def apply(store,run,case,plan,checks,client,allowed):
                             if not link.quote or u['content'].count(link.quote)!=1:raise ValueError('Ambiguous or unmatched source quotation.')
                             repaired=u['content'].index(link.quote)
                             item.setdefault('citation_repairs',[]).append({'evidence_id':link.evidence_id,'from':start,'to':repaired,'quote_hash':digest(link.quote)})
+                            # EvidenceLink has no end offset (extra fields are forbidden); reading one
+                            # raised AttributeError and stopped v1 runs at their first repaired citation.
                             link.quote_start=repaired
-                            if policy!='rq1-fa-dialogue-v2' and link.quote_end is not None:link.quote_end=repaired+len(link.quote)
                     subcase=deepcopy(case)
                     oldcheck=old.MediatorCheck.model_validate(check.model_dump(exclude={'fa_relevant','disposition_justified'}))
                     oldcheck.action_id=wire.action_id

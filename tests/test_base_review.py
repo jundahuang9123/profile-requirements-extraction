@@ -358,3 +358,51 @@ def test_large_check_splits_without_repeating_accepted_review(setup,monkeypatch)
     assert all(len(br.canonical(p))<=br.MAX_PAYLOAD for _,p in client.calls)
     before=len(client.calls);br.review_base(store,store.get('run',run['run_id']),client)
     assert len(client.calls)==before
+
+
+def test_any_pinned_entry_is_citable_beyond_ranked_candidates(setup):
+    # Word-overlap ranking misses paraphrases; the index keeps every pinned entry citable.
+    store,run,cat=prepared(setup);n=RequirementRecord.model_validate(run['requirements'][0])
+    n.need_statement=n.normalized_statement='Users can know the year of public release of the resource.'
+    n.need_condition='';n.matched_base_need_ids=[]
+    issued=next(e['id'] for e in cat['entries'] if (e['class'],e.get('property'))==('dcat:Dataset','dct:issued'))
+    payload,aliases=br.make_payload(store,run,[n],cat,'before_discussion')
+    assert issued not in payload['needs'][n.revision_id]['offered_entry_ids']
+    assert set(payload['base']['index'])=={e['id'] for e in cat['entries']}
+    wire=br.translate_ids(payload,{v:k for k,v in aliases.items()})
+    assert all(k.startswith('B') for k in wire['base']['index'])
+    verdict=br.BaseReview(verdicts=[dict(item_id=n.revision_id,verdict='restates_base',entry_ids=[issued],rationale='Release year is the issue date.')])
+    assert br.verdict_errors(verdict,[n],payload,cat)==[]
+    check=br.BaseVerdictCheck(item_id=n.revision_id,entries_express_need=True,nothing_lost=True,rationale='Checked.')
+    br.apply_verdict(n,verdict.verdicts[0],check,'before_discussion',cat,'key',{},payload)
+    assert n.base_relation['entries'][0]['property']=='dct:issued' and 'covered_by_base' in n.processing_flags
+    other=next(e['id'] for e in load_catalogue('dcat-ap-2.1.1')['entries'] if e.get('property')=='dct:creator')
+    bad=br.BaseReview(verdicts=[dict(item_id=n.revision_id,verdict='restates_base',entry_ids=[other],rationale='Wrong version.')])
+    assert br.verdict_errors(bad,[n],payload,cat)
+
+
+def test_payload_carries_only_the_classifier_search_status(setup):
+    store,run,cat=prepared(setup);n=RequirementRecord.model_validate(run['requirements'][0])
+    ids=[e['id'] for e in cat['entries']]
+    n.base_gap={'status':'no_base_match','checked_entry_ids':ids,'search_chunks':[{'chunk':1,'entry_ids':ids}]}
+    payload,aliases=br.make_payload(store,run,[n],cat,'before_discussion')
+    state=payload['needs'][n.revision_id]['classifier']
+    assert state['base_gap_status']=='no_base_match' and 'base_gap' not in state
+    assert 'checked_entry_ids' not in br.canonical(br.translate_ids(payload,{v:k for k,v in aliases.items()}))
+
+
+def test_v1_citation_repair_no_longer_stops_the_run(setup,monkeypatch):
+    from requirement_reuse_service.workflow import fa_discussion as fd,stakeholder_workflow as old
+    from test_fa_workflow import Dialogue
+    store,run,_=prepared(setup);assert fd.discussion_policy(run)=='rq1-fa-dialogue-v1'
+    record=run['requirements'][0];case=fd.build_cases(store,run,[],Dialogue())[0]
+    revised=deepcopy(record);revised['revision_id']='synthetic-new-revision'
+    monkeypatch.setattr(old,'apply_plan',lambda *a,**kw:([{'applied':True}],[deepcopy(revised)],{record['revision_id']:revised['revision_id']}))
+    link=deepcopy(record['evidence_links'][0]);link['quote_start']=None
+    plan=fd.Plan(actions=[{'action_id':'rev','action':'revise','parent_revision_ids':[record['revision_id']],
+        'statement':'Users can identify resource access conditions.','evidence_links':[link],'rationale':'Cited wording.'}],summary='Synthetic revision.')
+    checks=fd.Checks(checks=[dict(action_id='rev',supported=True,fa_relevant=True,disposition_justified=True,
+        preserves_distinctions=True,priority_supported=False,condition_supported=True,obligation_preserved=True,rationale='Checked.')])
+    outcomes,added,_,_=fd.apply(store,run,case,plan,checks,None,set(run['evidence_ids']))
+    assert outcomes[0]['applied'] and outcomes[0]['citation_repairs'][0]['from'] is None
+    assert 'base_recheck_required' not in added[0]['processing_flags']

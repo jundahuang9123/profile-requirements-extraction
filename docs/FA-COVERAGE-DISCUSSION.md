@@ -150,18 +150,24 @@ and actual model; accepted outputs are reused and changed identities are refused
 
 Review inputs are **only** the run's pinned catalogue and authentic cited source
 passages, with up to 600 characters of surrounding frozen context on each side.
-The offered entries include classifier matches first, followed by ranked entries
-(up to ten per need). Each supplies class, property, label, need phrase,
-definition, up to two usage notes of 300 characters, and obligation. Local N/B/E
-aliases are scoped to identifier fields; quotations are not rewritten. An entry
-not offered is unavailable to that judgement. Another version and model memory
-cannot supply missing base knowledge. A changed catalogue pin refuses review.
+Every batch carries the catalogue **index**: class, property and need phrase of
+every pinned entry, so any entry of the base can be cited. Likely candidates
+(classifier matches first, then lexically ranked entries, up to ten per need)
+also supply label, definition, up to two usage notes of 300 characters, and
+obligation. Ranking only orders these details: on the JRC development run it
+missed paraphrases such as "year of public release" for `dct:issued` and
+"thematic classification" for `dcat:theme`. The classifier state is its result
+and search status only, not its search audit. The checker receives the index and
+the full text of each cited entry. Local N/B/E aliases are scoped to identifier
+fields; quotations are not rewritten. A property not in the index is not in this
+base; another version and model memory cannot supply missing base knowledge. A
+changed catalogue pin refuses review.
 
 | Verdict | Meaning |
 | --- | --- |
-| `restates_base` | The offered entries express the whole need without an added constraint |
-| `domain_use_of_base` | An offered entry is used with a cited addition: condition, value set/unit, obligation, resource or meaning |
-| `new` | No offered entry expresses the need |
+| `restates_base` | Cited index entries express the whole need without an added constraint |
+| `domain_use_of_base` | A cited entry is used with a cited addition: condition, value set/unit, obligation, resource or meaning |
+| `new` | No index entry expresses the need |
 | `uncertain` | The supplied text is insufficient |
 
 Wording, synonyms, examples, actor and purpose alone are not additions. A
@@ -231,8 +237,15 @@ inference or changes the run.
 
 This labels needs the pipeline produced; it cannot recover a base term that
 extraction never proposed. The original classifier already reads full entry text
-with strict condition and obligation guards, so changes to original needs may be
-modest. The larger gap addressed is newly written discussion revisions. The
-`dcat-ap-1.1.0` catalogue has no definitions, so that version relies on phrases
-and usage notes. The reviewer, checker and classifier are all model judgements,
-not ground truth, benchmark accuracy or evidence of effort savings.
+with strict condition and obligation guards. Still, a manual inspection of the
+JRC development run (19 October 2026, pipeline output only) found about 11 of its
+38 working needs restating a DCAT-AP 1.1 entry the classifier had not matched.
+Ranked candidates alone would have let the reviewer cite the right entry for 6
+of them, and the guards admit 4; with the index the guards admit 9. The shared
+condition guard still refuses the 2 whose condition repeats DCAT's own usage
+guidance (for example "when a download URL is provided"); changing it would also
+change classification. Newly written discussion revisions are the other gap
+addressed. The `dcat-ap-1.1.0` catalogue has no definitions, so that version
+relies on phrases and usage notes. The reviewer, checker and classifier are all
+model judgements, not ground truth, benchmark accuracy or evidence of effort
+savings.
