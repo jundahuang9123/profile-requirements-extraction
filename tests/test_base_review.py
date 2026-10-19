@@ -125,3 +125,44 @@ def test_request_opt_in_requires_fa_and_base_and_policy_is_per_run():
     r=RunRequest(snapshot_id='s',strategy='multi_agent',stakeholder_workflow='fa_mediated',base_profile_id='dcat-ap-1.1.0',base_review='expert_v1')
     assert discussion_policy({'request':r.model_dump()})=='rq1-fa-dialogue-v2'
     assert discussion_policy({'request':{}})=='rq1-fa-dialogue-v1'
+
+
+def test_v2_packet_aliases_prompts_and_after_pass(setup):
+    from requirement_reuse_service.workflow import fa_discussion as fd
+    from test_fa_workflow import Dialogue
+    store,run,cat=prepared(setup)
+    def opt(r):r['request']['base_review']='expert_v1'
+    store.mutate(run['run_id'],None,'fixture_expert',opt);run=store.get('run',run['run_id'])
+    br.review_base(store,run,Reviewer('restates_base'));run=store.get('run',run['run_id'])
+    packet=fd.freeze_packet(store,run,run['requirements'])
+    assert packet['needs'][0]['base_relation']['verdict']=='restates_base'
+    assert packet['base_entries'] and packet['base_catalogue_hash']==cat['catalogue_hash']
+    class Both(Dialogue):
+        def __init__(self):super().__init__();self.systems=[];self.wires=[]
+        def generate_structured(self,*,user,output_model,system='',**kw):
+            self.systems.append(system);self.wires.append(json.loads(user))
+            if output_model in (br.BaseReview,br.BaseReviewChecks):return Reviewer('new').generate_structured(user=user,output_model=output_model,**kw)
+            return super().generate_structured(user=user,output_model=output_model,**kw)
+    client=Both();fd.deliberate(store,run['run_id'],client)
+    saved=store.get('run',run['run_id']);assert saved['status']=='awaiting_human'
+    assert any(fd.V2_ROLE_GUIDANCE in s for s in client.systems)
+    assert any(fd.V2_MEDIATOR_GUIDANCE in s for s in client.systems)
+    assert any(fd.V2_CHECK_GUIDANCE in s for s in client.systems)
+    assert any(any(k.startswith('B') for k in p.get('packet',{}).get('base_entries',{})) for p in client.wires)
+    # A newly written revision is rechecked, and coverage changes only its working label.
+    def recheck(r):r['requirements'][0]['processing_flags']=['base_recheck_required'];r['requirements'][0]['base_relation']=None
+    store.mutate(run['run_id'],None,'fixture_revision',recheck)
+    br.review_base(store,store.get('run',run['run_id']),Reviewer('restates_base'),phase='after_discussion')
+    n=store.get('run',run['run_id'])['requirements'][0]
+    assert 'base_recheck_required'not in n['processing_flags'] and 'covered_by_base'in n['processing_flags']
+    assert n['base_relation']['phase']=='after_discussion'
+
+
+def test_v1_packet_is_exactly_unchanged_and_has_no_base_block(setup):
+    from requirement_reuse_service.workflow import fa_discussion as fd
+    store,run,_=prepared(setup);records=run['requirements']
+    old_packet=fd.freeze_packet(store,run,records);hash_before=digest(old_packet)
+    records[0]['base_relation']={'policy':br.POLICY,'verdict':'new'}
+    assert fd.freeze_packet(store,run,records)==old_packet
+    assert digest(fd.freeze_packet(store,run,records))==hash_before
+    assert 'base_entries'not in old_packet

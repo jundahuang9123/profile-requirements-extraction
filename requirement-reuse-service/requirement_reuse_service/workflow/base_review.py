@@ -7,7 +7,7 @@ from pydantic import Field
 from .models import Contract, RequirementRecord
 from .storage import canonical, digest, now
 from .base_needs import load_catalogue, offer_entries, item_picks
-from .stakeholder_workflow import audit, save, translate_ids
+from .stakeholder_workflow import audit, save
 from ..llm.step_models import for_step, model_identity
 from ..llm.client import OutputValidationError, OutputTokenLimitError
 
@@ -47,6 +47,18 @@ class BaseVerdictCheck(Contract):
     rationale: str = Field(min_length=1,max_length=600)
 class BaseReviewChecks(Contract):
     checks: list[BaseVerdictCheck] = Field(min_length=1,max_length=4)
+
+
+def translate_ids(value,mapping,field=None):
+    """Translate identifier fields and keyed maps only; source text stays byte-for-byte."""
+    keyed={'needs','entries','excerpts','base_entries'}
+    ids={'id','item_id','entry_ids','offered_entry_ids','matched_entry_ids','matched_base_need_ids',
+        'excerpt_ids','evidence_ids','evidence_id','revision_id','revision_ids','parent_revision_ids',
+        'need_id','requirement_id','concern_id','concern_ids','action_id','action_ids'}
+    if isinstance(value,dict):
+        return {mapping.get(k,k) if field in keyed else k:translate_ids(v,mapping,k) for k,v in value.items()}
+    if isinstance(value,list):return [translate_ids(v,mapping,field) for v in value]
+    return mapping.get(value,value) if isinstance(value,str) and field in ids else value
 
 
 def pinned_catalogue(run):

@@ -17,6 +17,13 @@ def discussion_policy(run):
 
 MESSAGE_REPLAY_POLICY='rq1-fa-message-replay-v1'
 MAX_CONTEXT=45000
+V2_ROLE_GUIDANCE=(' The base entries show what the selected base already provides. Say when your task needs '
+    'something a listed entry lacks; do not ask for a listed base property as a new requirement.')
+V2_MEDIATOR_GUIDANCE=(' A need labelled covered_by_base is disposed covered_by_base or retained; it stays visible. '
+    'Do not reword a need only to restate a base entry. Base coverage alone never justifies set_aside '
+    'or merging into a different need. Where the base reviewer and base classifier disagree, defer with a question.')
+V2_CHECK_GUIDANCE=' A set_aside or merge justified only by base coverage is not justified.'
+
 
 class DiscussionBudgetError(ValueError):
     pass
@@ -53,6 +60,13 @@ class Checks(Contract):
 def plan_errors(plan,case,messages,allowed):
     errors=old.mediation_errors(plan,case['frozen_requirements'],messages,allowed)
     for a in plan.actions:
+        if case.get('policy_version')=='rq1-fa-dialogue-v2':
+            parents=[r for r in case['frozen_requirements'] if r['revision_id'] in a.parent_revision_ids]
+            if any((r.get('base_relation') or {}).get('effect')=='dispute' for r in parents):
+                if a.action!='defer' or not a.human_question:
+                    errors.append('Base classifier/reviewer dispute requires defer with a human question.')
+            elif any('covered_by_base' in r.get('processing_flags',[]) for r in parents) and a.action not in {'covered_by_base','retain'}:
+                errors.append('A labelled base-covered need must stay visible as retained or covered_by_base.')
         if a.action in {'recover','split'} and (not a.statement.strip() or not a.evidence_links):
             errors.append('Recovery/split requires source-supported statement and links.')
         if a.action=='split' and len(a.children)<2: errors.append('Split requires at least two supported children.')
@@ -89,6 +103,20 @@ def freeze_packet(store,run,records):
     context['source_snapshot_id']=run['snapshot_id']
     context['prior_set_asides']=[deepcopy(a) for a in run.get('set_aside_observations',[])
         if a.get('revision_id') in {r['revision_id'] for r in records}]
+    if discussion_policy(run)=='rq1-fa-dialogue-v2':
+        from .base_review import pinned_catalogue, compact_entry
+        catalogue=pinned_catalogue(run);entries={e['id']:e for e in catalogue['entries']}
+        used=set()
+        for need,record in zip(context['needs'],records):
+            relation=record.get('base_relation')
+            need['base_relation']=({k:deepcopy(relation.get(k)) for k in (
+                'policy','status','verdict','entry_ids','addition_kind','addition','rationale','check','effect','human_accepted')}
+                if relation else None)
+            used.update(record.get('matched_base_need_ids',[]))
+            used.update((relation or {}).get('entry_ids',[]))
+        if used-set(entries):raise ValueError('Discussion base entry is outside pinned catalogue.')
+        context['base_entries']={eid:compact_entry(entries[eid]) for eid in sorted(used)}
+        context['base_catalogue_hash']=catalogue['catalogue_hash']
     return context
 
 
@@ -276,9 +304,16 @@ def execute_case(store,run_id,case_id,client,roles):
                 raise ValueError('Case fallback requires an explicit mediation client binding.')
             bound=client.mediation_client(mediator_model,timeout_policy['timeout_seconds'])
         else:bound=for_step(client,step)
+        translate=old.translate_ids
+        if policy=='rq1-fa-dialogue-v2':
+            from .base_review import translate_ids as translate
         aliases={f'N{i+1}':rid for i,rid in enumerate(case['revision_ids'])}
+        if policy=='rq1-fa-dialogue-v2':
+            aliases.update({f'B{i+1}':eid for i,eid in enumerate(sorted(packet.get('base_entries',{})))})
         aliases.update({f'E{i+1}':eid for i,eid in enumerate(sorted(allowed))})
         aliases.update({f'C{i+1}':cid for i,cid in enumerate(dict.fromkeys(c['concern_id'] for m in payload.get('messages',[]) for c in m.get('concerns',[])))})
+        if policy=='rq1-fa-dialogue-v2':
+            system += V2_ROLE_GUIDANCE if step=='stakeholder_review' else V2_MEDIATOR_GUIDANCE if step=='mediation' else V2_CHECK_GUIDANCE if step=='mediation_check' else ''
         identity=digest([policy,key,step,system,payload,aliases,model.model_json_schema(),model_identity(bound)])
         saved=phases.get(key)
         if saved:
@@ -316,8 +351,8 @@ def execute_case(store,run_id,case_id,client,roles):
             start=monotonic()
             try:
                 answer=bounded_stage_output(bound,system=system+(' Correct only these validation errors: '+canonical(errors) if errors else ''),
-                    user=canonical(old.translate_ids(payload,{v:k for k,v in aliases.items()})),output_model=model,initial_tokens=4000,retry_tokens=8000,before_attempt=before)
-                answer=model.model_validate(old.translate_ids(answer.model_dump(mode='json'),aliases))
+                    user=canonical(translate(payload,{v:k for k,v in aliases.items()})),output_model=model,initial_tokens=4000,retry_tokens=8000,before_attempt=before)
+                answer=model.model_validate(translate(answer.model_dump(mode='json'),aliases))
             except (OutputValidationError,OutputTokenLimitError) as exc:
                 saved.update(status='invalid_output',validation_error={'type':type(exc).__name__,'message':str(exc)})
                 persist()
@@ -517,6 +552,11 @@ def apply(store,run,case,plan,checks,client,allowed):
                     rec['observation_ids']=list(dict.fromkeys([*rec.get('observation_ids',[]),*lineage]))
                     if a.action=='split':rec['parent_revision_ids']=list(a.parent_revision_ids)
                     # New wording invalidates old base and scope judgements; machine review remains explicit.
+                    if policy=='rq1-fa-dialogue-v2':
+                        rec['processing_flags']=list(dict.fromkeys([*rec.get('processing_flags',[]),'base_recheck_required']))
+                        # A revision needs its own judgement; never inherit a parent's coverage label.
+                        rec['processing_flags']=[f for f in rec['processing_flags'] if f!='covered_by_base']
+                        rec['base_relation']=None
                     rec['fa_scope']={'policy_version':policy,'status':'checked_mediation','rationale':'Independent mediation check passed; base relationship requires rechecking.'}
                     from .needs import refresh_need
                     checked_record=RequirementRecord.model_validate(rec);refresh_need(checked_record);rec.update(checked_record.model_dump(mode='json'))
@@ -557,6 +597,9 @@ def deliberate(store,run_id,client):
                 row['mediation'].update(phase='human_review',human_questions=[{'question_id':'budget','question':str(exc),
                     'revision_ids':list(row['revision_ids']),'concern_ids':[],'rationale':'No unvalidated revisions applied.','alternatives':['Retain original needs','Prepare a separately budgeted review']}])
             store.mutate(run_id,None,'fa_discussion_budget_review',pending)
+    if policy=='rq1-fa-dialogue-v2':
+        from .base_review import review_base
+        review_base(store,store.get('run',run_id),client,phase='after_discussion')
     final_coverage=coverage_ledger(store.get('run',run_id))
     def finish(r):
         r.update(status='awaiting_human');r['stages']['deliberation']='completed'
