@@ -101,7 +101,8 @@ def test_effect_table_preserves_inventory(setup,state,verdict):
     br.apply_verdict(n,v,check,'before_discussion',cat,'key',{},p);refresh_need(n)
     assert n.revision_id==rid and n.content_hash==h
     assert ('covered_by_base'in n.processing_flags)==(state=='covered' or verdict=='restates_base')
-    assert (n.base_relation['effect']=='dispute')==(state=='covered' and verdict in {'new','domain_use_of_base'})
+    expected = ('confirmed' if state=='covered' else 'flag_added') if verdict=='restates_base' else 'dispute' if state=='covered' and verdict in {'new','domain_use_of_base'} else 'agree' if (state=='domain_use_of_base' and verdict=='domain_use_of_base') or (state in {'domain',None} and verdict=='new') else 'note'
+    assert n.base_relation['effect']==expected
 
 
 def test_failed_check_keeps_labels_and_surfaces_review(setup):
@@ -233,3 +234,127 @@ def test_base_derivation_refuses_upstream_changes(setup,extra):
     with pytest.raises(ValueError,match='cannot change'):
         br.derive_base_review_run(store,source,DeriveRequest(start_from='base_review',
             expected_version=source['version'],rationale='Synthetic settings test.',**extra),'fixture')
+
+
+def test_batch_splits_successfully_without_repeating_work(setup,monkeypatch):
+    store,run,cat=prepared(setup,4)
+    records=[RequirementRecord.model_validate(r) for r in run['requirements']]
+    payload,aliases=br.make_payload(store,run,records,cat,'before_discussion')
+    size=len(br.canonical(br.translate_ids(payload,{v:k for k,v in aliases.items()})))
+    # The full review splits, but each smaller review/check payload fits.
+    monkeypatch.setattr(br,'MAX_PAYLOAD',size-1)
+    client=Reviewer();br.review_base(store,run,client)
+    assert len(client.calls)>2
+    assert all(r['base_relation']['status']=='checked' for r in store.get('run',run['run_id'])['requirements'])
+    seen=[n for kind,p in client.calls if kind=='BaseReview' for n in p['needs']]
+    assert len(seen)==4
+    for _,p in client.calls:assert len(br.canonical(p))<=br.MAX_PAYLOAD
+    br.review_base(store,store.get('run',run['run_id']),client)
+    assert len([n for kind,p in client.calls if kind=='BaseReview' for n in p['needs']])==4
+
+
+def test_dispute_keeps_classifier_flag_and_saves_question(setup):
+    store,run,_=prepared(setup)
+    store.mutate(run['run_id'],None,'covered',lambda r:r['requirements'][0].update(processing_flags=['covered_by_base']))
+    br.review_base(store,store.get('run',run['run_id']),Reviewer('new'))
+    saved=store.get('run',run['run_id'])
+    assert 'covered_by_base'in saved['requirements'][0]['processing_flags']
+    question=saved['stage_results']['base_review']['review_questions'][0]
+    assert question['revision_id']==saved['requirements'][0]['revision_id']
+    assert 'classifier'in question['question'] and 'new'in question['question']
+
+
+def test_stronger_obligation_cannot_be_restated(setup):
+    store,run,cat=prepared(setup);n=RequirementRecord.model_validate(run['requirements'][0])
+    n.normalized_intent.obligation_hint='mandatory'
+    payload,aliases=br.make_payload(store,run,[n],cat,'before_discussion')
+    entry=payload['needs'][n.revision_id]['offered_entry_ids'][0]
+    payload['base']['entries'][entry]['base_obligation']='optional'
+    verdict=br.BaseReview(verdicts=[dict(item_id=n.revision_id,verdict='restates_base',entry_ids=[entry],rationale='Wrong obligation.')])
+    assert any('stronger obligation'in e for e in br.verdict_errors(verdict,[n],payload))
+
+
+def test_reviewer_slots_do_not_inherit_discussion_model(monkeypatch):
+    from requirement_reuse_service.llm import step_models
+    from requirement_reuse_service.llm.config import LLMConfig
+    monkeypatch.setattr(step_models,'generation_models',lambda config:['default-model','discussion-model'])
+    choices=step_models.resolve_models(LLMConfig(provider='openai-compatible',model='default-model'),{'discussion':'discussion-model'})
+    assert choices['base_review']==choices['base_review_check']=='default-model'
+    assert choices['mediation']=='discussion-model'
+
+
+def test_v2_created_revision_requires_a_procedural_recheck(setup,monkeypatch):
+    from requirement_reuse_service.workflow import fa_discussion as fd,stakeholder_workflow as old
+    store,run,cat=prepared(setup)
+    run['request']['base_review']='expert_v1'
+    record=run['requirements'][0];case=fd.build_cases(store,run,[],__import__('test_fa_workflow').Dialogue())[0]
+    revised=deepcopy(record);revised['revision_id']='synthetic-new-revision';revised['base_relation']={'status':'checked'}
+    revised['processing_flags']=['covered_by_base']
+    monkeypatch.setattr(old,'apply_plan',lambda *a,**kw:([{'applied':True}],[deepcopy(revised)],{record['revision_id']:revised['revision_id']}))
+    link=deepcopy(record['evidence_links'][0]);link['quote_start']=None
+    action={'action_id':'rev','action':'revise','parent_revision_ids':[record['revision_id']],
+        'statement':'Users can identify resource access conditions.','evidence_links':[link],'rationale':'Cited wording.'}
+    plan=fd.Plan(actions=[action],summary='Synthetic revision.')
+    checks=fd.Checks(checks=[dict(action_id='rev',supported=True,fa_relevant=True,disposition_justified=True,
+        preserves_distinctions=True,priority_supported=False,condition_supported=True,obligation_preserved=True,rationale='Checked.')])
+    outcomes,added,_,_=fd.apply(store,run,case,plan,checks,None,set(run['evidence_ids']))
+    assert outcomes[0]['applied'] and 'base_recheck_required'in added[0]['processing_flags']
+    assert 'covered_by_base'not in added[0]['processing_flags'] and added[0]['base_relation'] is None
+    assert outcomes[0]['citation_repairs']
+
+
+def test_new_module_has_no_evaluation_reference_paths():
+    from pathlib import Path
+    text=Path(br.__file__).read_text()
+    assert 'benchmark-data'not in text
+
+
+def test_legacy_discussion_continuation_keeps_its_frozen_model_map(setup,monkeypatch):
+    from requirement_reuse_service.workflow import engine,fa_discussion as fd
+    from requirement_reuse_service.workflow.models import DeriveRequest
+    from test_mediation_timeout_fallback import prepare,RoutedDialogue
+    store,run=prepare(setup);fd.deliberate(store,run['run_id'],RoutedDialogue())
+    def inactive(r):
+        r['status']='failed'
+        for stage in ('acquisition','decomposition','role_selection','elicitation','normalization','verification','consolidation'):r['stages'][stage]='completed'
+    store.mutate(run['run_id'],None,'interrupted_fixture',inactive)
+    source=store.get('run',run['run_id']);frozen=deepcopy(source['step_models'])
+    def freeze(req):
+        req.step_models={**req.step_models,'base_review':'default','base_review_check':'default'}
+        return req
+    monkeypatch.setattr(engine,'freeze_step_models',freeze)
+    child=fd.derive_discussion_run(store,source,DeriveRequest(start_from='deliberation',
+        expected_version=source['version'],rationale='Legacy continuation.'),'fixture')
+    assert child['step_models']==child['request']['step_models']==frozen
+
+
+def test_aliases_never_rewrite_quoted_text(setup):
+    store,run,cat=prepared(setup);n=RequirementRecord.model_validate(run['requirements'][0])
+    payload,aliases=br.make_payload(store,run,[n],cat,'before_discussion')
+    payload['excerpts'][next(iter(payload['excerpts']))]['quote']='N1 B1 E1 '+n.revision_id
+    wire=br.translate_ids(payload,{v:k for k,v in aliases.items()})
+    assert next(iter(wire['excerpts'].values()))['quote']=='N1 B1 E1 '+n.revision_id
+
+
+def test_v2_ledger_handles_classifier_covered_before_any_review(setup):
+    from requirement_reuse_service.workflow.fa_requirements import coverage_ledger
+    store,run,_=prepared(setup)
+    run['request']['base_review']='expert_v1';run['requirements'][0]['processing_flags']=['covered_by_base']
+    ledger=coverage_ledger(run)
+    assert ledger['covered_by_base_by_source']['classifier']==run['active_revision_ids']
+    assert ledger['covered_by_base_by_source']['base_review']==[]
+
+
+def test_large_check_splits_without_repeating_accepted_review(setup,monkeypatch):
+    store,run,cat=prepared(setup,4)
+    records=[RequirementRecord.model_validate(r) for r in run['requirements']]
+    payload,aliases=br.make_payload(store,run,records,cat,'before_discussion')
+    size=len(br.canonical(br.translate_ids(payload,{v:k for k,v in aliases.items()})))
+    monkeypatch.setattr(br,'MAX_PAYLOAD',size+8000)
+    client=Reviewer('new',lambda v,n:v.update(rationale='\x00'*600))
+    br.review_base(store,run,client)
+    assert len([p for name,p in client.calls if name=='BaseReview'])==1
+    assert len([p for name,p in client.calls if name=='BaseReviewChecks'])>1
+    assert all(len(br.canonical(p))<=br.MAX_PAYLOAD for _,p in client.calls)
+    before=len(client.calls);br.review_base(store,store.get('run',run['run_id']),client)
+    assert len(client.calls)==before

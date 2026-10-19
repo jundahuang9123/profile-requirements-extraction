@@ -342,7 +342,8 @@ def execute_case(store,run_id,case_id,client,roles):
             phases[key]=saved
         errors=[]
         for _ in range(len(saved['attempts']),2):
-            if len(canonical(payload))>MAX_CONTEXT:raise ValueError('F/A discussion input exceeds budget.')
+            wire=canonical(translate(payload,{v:k for k,v in aliases.items()}))
+            if len(wire if policy=='rq1-fa-dialogue-v2' else canonical(payload))>MAX_CONTEXT:raise ValueError('F/A discussion input exceeds budget.')
             def before(cap):
                 nonlocal attempts,reserved
                 if attempts>=14 or reserved+cap>112000 or seconds>=1800:
@@ -351,7 +352,7 @@ def execute_case(store,run_id,case_id,client,roles):
             start=monotonic()
             try:
                 answer=bounded_stage_output(bound,system=system+(' Correct only these validation errors: '+canonical(errors) if errors else ''),
-                    user=canonical(translate(payload,{v:k for k,v in aliases.items()})),output_model=model,initial_tokens=4000,retry_tokens=8000,before_attempt=before)
+                    user=wire,output_model=model,initial_tokens=4000,retry_tokens=8000,before_attempt=before)
                 answer=model.model_validate(translate(answer.model_dump(mode='json'),aliases))
             except (OutputValidationError,OutputTokenLimitError) as exc:
                 saved.update(status='invalid_output',validation_error={'type':type(exc).__name__,'message':str(exc)})
@@ -534,7 +535,7 @@ def apply(store,run,case,plan,checks,client,allowed):
                             repaired=u['content'].index(link.quote)
                             item.setdefault('citation_repairs',[]).append({'evidence_id':link.evidence_id,'from':start,'to':repaired,'quote_hash':digest(link.quote)})
                             link.quote_start=repaired
-                            if link.quote_end is not None:link.quote_end=repaired+len(link.quote)
+                            if policy!='rq1-fa-dialogue-v2' and link.quote_end is not None:link.quote_end=repaired+len(link.quote)
                     subcase=deepcopy(case)
                     oldcheck=old.MediatorCheck.model_validate(check.model_dump(exclude={'fa_relevant','disposition_justified'}))
                     oldcheck.action_id=wire.action_id
@@ -672,6 +673,11 @@ def derive_discussion_run(store,source,request,actor):
             for c in source['deliberations']):
         raise ValueError('Cancelled discussion has no unfinished user-cancelled cases.')
     settings=freeze_step_models(RunRequest.model_validate(options))
+    if discussion_policy(source)=='rq1-fa-dialogue-v1':
+        # Newly introduced opt-in slots must not alter a legacy continuation's
+        # frozen model map (or its checkpoint identities). They are never called.
+        for slot in ('base_review','base_review_check'):
+            if slot not in source['step_models']:settings.step_models.pop(slot,None)
     if settings.step_models!=source['step_models']:
         raise ValueError('Discussion continuation cannot change frozen primary models.')
     child=deepcopy(source)

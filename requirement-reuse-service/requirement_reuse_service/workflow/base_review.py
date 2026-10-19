@@ -179,7 +179,7 @@ def apply_verdict(n,verdict,check,phase,catalogue,key,model,payload):
         effect='confirmed' if state['covered_by_base'] else 'flag_added';flags.append('covered_by_base')
     elif state['covered_by_base'] and verdict.verdict in {'domain_use_of_base','new'}:
         effect='dispute';flags.append('base_relation_review')
-    elif (state['need_class']=='domain_use_of_base' and verdict.verdict=='domain_use_of_base') or (state['need_class']=='domain' and verdict.verdict=='new'):
+    elif (state['need_class']=='domain_use_of_base' and verdict.verdict=='domain_use_of_base') or (state['need_class'] in {'domain',None} and verdict.verdict=='new'):
         effect='agree'
     n.processing_flags=list(dict.fromkeys(f for f in flags if f!='base_review_pending'))
     n.base_relation={'policy':POLICY,'phase':phase,'status':status,**verdict.model_dump(mode='json'),
@@ -208,13 +208,25 @@ def review_base(store,run,client,phase='before_discussion'):
         key='base_review:'+phase+':'+digest([n.revision_id for n in batch])
         verdict,saved=generation(store,run,key,'base_review',BaseReview,REVIEW_SYSTEM,payload,aliases,client,
             lambda a:verdict_errors(a,batch,payload))
-        checks=None
         if verdict:
-            check_payload={**payload,'verdicts':verdict.model_dump(mode='json')['verdicts']}
-            checks,_=generation(store,run,'base_review_check:'+phase+':'+digest([n.revision_id for n in batch]),
-                'base_review_check',BaseReviewChecks,CHECK_SYSTEM,check_payload,aliases,client,
-                lambda a:[] if Counter(c.item_id for c in a.checks)==Counter(n.revision_id for n in batch) else ['Check every item exactly once.'])
-        finish(batch,verdict,checks,None if verdict and checks else 'invalid_output',payload,aliases,key,saved['model'])
+            check_batch(batch,verdict,key,saved['model'])
+        else:
+            finish(batch,None,None,'invalid_output',payload,aliases,key,saved['model'])
+    def check_batch(batch,verdict,key,model):
+        payload,aliases=make_payload(store,run,batch,catalogue,phase)
+        ids={n.revision_id for n in batch}
+        selected_verdict=BaseReview(verdicts=[v for v in verdict.verdicts if v.item_id in ids])
+        check_payload={**payload,'verdicts':selected_verdict.model_dump(mode='json')['verdicts']}
+        if len(canonical(translate_ids(check_payload,{v:k for k,v in aliases.items()})))>MAX_PAYLOAD:
+            if len(batch)>1:
+                half=len(batch)//2
+                # Split the independent checks only; never repeat an accepted review.
+                check_batch(batch[:half],verdict,key,model);check_batch(batch[half:],verdict,key,model);return
+            finish(batch,None,None,'payload_budget',payload,aliases,key,model);return
+        checks,_=generation(store,run,'base_review_check:'+phase+':'+digest([n.revision_id for n in batch]),
+            'base_review_check',BaseReviewChecks,CHECK_SYSTEM,check_payload,aliases,client,
+            lambda a:[] if Counter(c.item_id for c in a.checks)==Counter(n.revision_id for n in batch) else ['Check every item exactly once.'])
+        finish(batch,selected_verdict,checks,None if checks else 'invalid_output',payload,aliases,key,model)
     def finish(batch,answer,checks,reason,payload,aliases,key=None,model=None):
         by_id={v.item_id:v for v in answer.verdicts} if answer else {};checked={c.item_id:c for c in checks.checks} if checks else {}
         updates={}
@@ -281,7 +293,7 @@ def derive_base_review_run(store,source,request,actor):
         if key not in snapshot:raise ValueError('Machine snapshot lacks '+key)
         child[key]=deepcopy(snapshot[key])
     child['stakeholder_audit']={k:v for k,v in child.get('stakeholder_audit',{}).items() if not (
-        k.startswith(('fa_task_groups:','base_review')) or k in {'fa_discussion_plan','fa_coverage','post_discussion'})}
+        k.startswith(('fa_task_groups:','base_review','stage:base_review','stage:deliberation')) or k in {'fa_discussion_plan','fa_coverage','post_discussion'})}
     child['stage_results']={k:v for k,v in child.get('stage_results',{}).items() if k not in {'base_review','deliberation','adjudication','baseline'}}
     child['stages'].update(base_review='pending',deliberation='pending',adjudication='pending',baseline='pending')
     child.update(run_id='run-'+uuid.uuid4().hex,name=settings.name,version=1,created_at=now(),status='created',
@@ -294,7 +306,11 @@ def derive_base_review_run(store,source,request,actor):
             'observations_hash':digest(source['observations']),'role_runs_hash':digest(source['role_runs']),
             'elicitation_policy_version':source.get('elicitation_policy_version'),
             'inherited_call_count':len(source.get('model_calls',[])),'inherited_calls_hash':digest(source.get('model_calls',[])),
-            'parent_implementation_hash':source.get('implementation_hash')})
+            'parent_implementation_hash':source.get('implementation_hash'),
+            'upstream_output_hash':digest({k:source.get(k) for k in
+                ('snapshot_id','evidence_ids','role_manifest','requirements','machine_snapshot','active_revision_ids')}),
+            'parent_plan_hash':digest(source.get('stakeholder_audit',{}).get('fa_discussion_plan')),
+            'changed_policy':options.get('mediation_timeout_fallback')})
     # Working counters are recomputed from the restored inventory, never inherited discussion results.
     for key in ('discussion_case_count','mediated_cases','pending_human_cases','mediated_changes'):
         child['metrics'].pop(key,None)

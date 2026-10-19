@@ -387,6 +387,143 @@
       "title": "AssessmentRequest",
       "type": "object"
     },
+    "BaseReview": {
+      "additionalProperties": false,
+      "properties": {
+        "verdicts": {
+          "items": {
+            "$ref": "#/$defs/BaseVerdict"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Verdicts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "verdicts"
+      ],
+      "title": "BaseReview",
+      "type": "object"
+    },
+    "BaseReviewChecks": {
+      "additionalProperties": false,
+      "properties": {
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/BaseVerdictCheck"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Checks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "checks"
+      ],
+      "title": "BaseReviewChecks",
+      "type": "object"
+    },
+    "BaseVerdict": {
+      "additionalProperties": false,
+      "properties": {
+        "addition": {
+          "default": "",
+          "maxLength": 400,
+          "title": "Addition",
+          "type": "string"
+        },
+        "addition_kind": {
+          "default": "none",
+          "enum": [
+            "none",
+            "condition",
+            "value_set",
+            "obligation",
+            "resource",
+            "meaning",
+            "other"
+          ],
+          "title": "Addition Kind",
+          "type": "string"
+        },
+        "entry_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Entry Ids",
+          "type": "array"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "item_id": {
+          "title": "Item Id",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "verdict": {
+          "enum": [
+            "restates_base",
+            "domain_use_of_base",
+            "new",
+            "uncertain"
+          ],
+          "title": "Verdict",
+          "type": "string"
+        }
+      },
+      "required": [
+        "item_id",
+        "verdict",
+        "rationale"
+      ],
+      "title": "BaseVerdict",
+      "type": "object"
+    },
+    "BaseVerdictCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "entries_express_need": {
+          "title": "Entries Express Need",
+          "type": "boolean"
+        },
+        "item_id": {
+          "title": "Item Id",
+          "type": "string"
+        },
+        "nothing_lost": {
+          "title": "Nothing Lost",
+          "type": "boolean"
+        },
+        "rationale": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "item_id",
+        "entries_express_need",
+        "nothing_lost",
+        "rationale"
+      ],
+      "title": "BaseVerdictCheck",
+      "type": "object"
+    },
     "BaselineRequest": {
       "additionalProperties": false,
       "properties": {
@@ -1297,7 +1434,8 @@
             "normalization",
             "elicitation",
             "role_selection",
-            "deliberation"
+            "deliberation",
+            "base_review"
           ],
           "title": "Start From",
           "type": "string"
@@ -1325,7 +1463,9 @@
               "selection",
               "stakeholder_review",
               "mediation",
-              "mediation_check"
+              "mediation_check",
+              "base_review",
+              "base_review_check"
             ]
           },
           "title": "Step Model Options",
@@ -1356,7 +1496,9 @@
               "selection",
               "stakeholder_review",
               "mediation",
-              "mediation_check"
+              "mediation_check",
+              "base_review",
+              "base_review_check"
             ]
           },
           "title": "Step Models",
@@ -3349,6 +3491,18 @@
           "default": null,
           "title": "Base Property"
         },
+        "base_relation": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Relation"
+        },
         "conflict_ids": {
           "items": {
             "type": "string"
@@ -4016,6 +4170,15 @@
           "default": null,
           "title": "Base Profile Id"
         },
+        "base_review": {
+          "default": "none",
+          "enum": [
+            "none",
+            "expert_v1"
+          ],
+          "title": "Base Review",
+          "type": "string"
+        },
         "based_on_run_id": {
           "anyOf": [
             {
@@ -4203,7 +4366,9 @@
               "selection",
               "stakeholder_review",
               "mediation",
-              "mediation_check"
+              "mediation_check",
+              "base_review",
+              "base_review_check"
             ]
           },
           "title": "Step Model Options",
@@ -4234,7 +4399,9 @@
               "selection",
               "stakeholder_review",
               "mediation",
-              "mediation_check"
+              "mediation_check",
+              "base_review",
+              "base_review_check"
             ]
           },
           "title": "Step Models",
@@ -5652,7 +5819,9 @@
               "selection",
               "stakeholder_review",
               "mediation",
-              "mediation_check"
+              "mediation_check",
+              "base_review",
+              "base_review_check"
             ]
           },
           "title": "Step Model Options",
@@ -5683,7 +5852,9 @@
               "selection",
               "stakeholder_review",
               "mediation",
-              "mediation_check"
+              "mediation_check",
+              "base_review",
+              "base_review_check"
             ]
           },
           "title": "Step Models",

@@ -140,7 +140,7 @@ def coverage_ledger(run):
         'source_snapshot_id':run.get('snapshot_id'),'contract_hash':digest([POLICY,EXTRACTION_GUIDANCE,WRITE_GUIDANCE,SCOPE_SYSTEM]),
         'limitations':['Processing coverage is not semantic requirement completeness.','Machine judgements are not human acceptance.']}
 
-    if run['request'].get('base_review')=='expert_v1':
+    if run.get('request',{}).get('base_review')=='expert_v1':
         from .base_review import POLICY as BASE_POLICY, REVIEW_SYSTEM, CHECK_SYSTEM
         phases=run.get('stage_results',{}).get('base_review',{}).get('phases',{})
         result['base_relation_counts']={phase:{
@@ -150,7 +150,7 @@ def coverage_ledger(run):
         covered=[r for r in inventory if 'covered_by_base' in r.get('processing_flags',[])]
         result['covered_by_base_by_source']={
             'classifier':[r['revision_id'] for r in covered if not r.get('base_relation') or r['base_relation'].get('classifier_state',{}).get('covered_by_base')],
-            'base_review':[r['revision_id'] for r in covered if r.get('base_relation',{}).get('effect')=='flag_added']}
+            'base_review':[r['revision_id'] for r in covered if (r.get('base_relation') or {}).get('effect')=='flag_added']}
         result['base_dispute_revision_ids']=[r['revision_id'] for r in inventory if (r.get('base_relation') or {}).get('effect')=='dispute']
         result['base_recheck_revision_ids']=[r['revision_id'] for r in inventory if 'base_recheck_required' in r.get('processing_flags',[])]
         result['base_review_pending_revision_ids']=[r['revision_id'] for r in inventory if 'base_review_pending' in r.get('processing_flags',[])]
