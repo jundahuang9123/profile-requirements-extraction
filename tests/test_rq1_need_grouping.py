@@ -38,7 +38,8 @@ class NeedsClient:
                 'no_added_actor':True,'no_added_obligation':True,'no_added_condition':True,'no_added_scope':True,
                 'rationale':'Scripted independent rewrite check.'} for g in data['groups']]})
         if name == 'ProfileScope':
-            return output_model.model_validate({'decisions':[{'need_id':i,'catalogue_level':True,'serves':'find',
+            return output_model.model_validate({'decisions':[{'need_id':i,'record_resource':'dataset',
+                'record_statement':'dataset: its title','catalogue_level':True,'serves':'find',
                 'example':'Find datasets by their title.',
                 'rationale':'Scripted in-scope judgement.'} for i in data['needs']]})
         raise AssertionError(name)

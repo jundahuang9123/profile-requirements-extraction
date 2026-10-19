@@ -128,7 +128,13 @@ that covers their different kinds. A need that matters for one kind of dataset i
 **specialised**, not out of scope. The judgement has three criteria:
 
 1. **Dataset-level relevance (C1, `catalogue_level`).** The need concerns what a
-   record states about a catalogued resource as a whole. It fails when it prescribes
+   record states about a catalogued resource as a whole. Since `rq1-profile-scope-v6`
+   the judge names that resource (`record_resource`: catalogue, dataset, distribution,
+   data service or none) and what its record would state (`record_statement`, for
+   example "dataset: the dimensions its observations use"). With no named resource the
+   need fails C1: a catalogue record does not state facts or rules about people, legal
+   procedures or data processing, nor facts about the source document itself. Describing
+   a resource's structure (its dimensions, attributes, units or code lists) passes. It fails when it prescribes
    what the data must be or contain (content, structure, values, quality level, update
    interval, licence choice) or how the data is produced or delivered, or when it
    describes individual records, fields or values. Pointing to where such details are
@@ -335,11 +341,11 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Need writing / rewrite critic | `rq1-need-statement-v2` | At most 20 groups; 24,000 writer input characters; independent critic up to 48,000 characters; initial response plus one output correction |
 | Additional member checking | `rq1-need-membership-v1` | Large groups use a bounded writing basis (up to 20 members / 16,000 statement characters); every remaining member checked in batches up to 40 / 24,000 characters |
 | Base catalogue | `rq1-base-needs-catalogue-v2` | Frozen base-only file and checksum; optional hash-bound human phrase review |
-| Generic/domain | `rq1-generic-domain-v1` | Up to 25 needs / 24,000 input characters |
+| Generic/domain and base search | `rq1-generic-domain-v3`, `rq1-base-needs-full-search-v3` | One need per call against the complete catalogue in chunks (first chunk 10–20 entries, then 20); a need listing several items is generic when one listed entry covers each item; a match without an entry ID counts as no match in that chunk |
 | Dataset categories | `rq1-dataset-categories-v1` | Up to 12 evidence rows / 22,000 input characters; exact source citations; partial scans explicit |
 | Compact selection | `rq1-compact-coverage-v1` | Up to 20 needs / 22,000 input characters per equivalence call; bounded exact cover; all retained needs preserved |
 | Base-gap status | `rq1-base-gap-status-v1` | Deterministic; from the classification and the number of entries compared |
-| Profile scope (D5) | `rq1-profile-scope-v3` | Up to 25 needs / 24,000 input characters; statement, condition, scope, supporting excerpts and source-linked dataset categories; one verdict per offered need ID; an example is required unless serves is neither |
+| Profile scope (D5) | `rq1-profile-scope-v6` (named catalogue record) | Up to 25 needs / 24,000 input characters; statement, condition, scope, supporting excerpts and source-linked dataset categories; one verdict per offered need ID; an example is required unless serves is neither |
 | Contribution linking | `rq1-use-case-contribution-v1` | Up to 25 needs / 24,000 input characters; at most 32 task links per response row; necessity as an annotation |
 | Link critic | `rq1-use-case-contribution-critic-v1` | Up to 25 links / 24,000 input characters; judges contribution only |
 | Need assessment | `rq1-need-support-v1` | One logical assessment per kept need; complete selected excerpts, max 45,000 input characters; at most two generations for schema/cutoff recovery |
@@ -574,3 +580,37 @@ Earlier saved runs and their results are unchanged. Policy changes require a sep
 trial from a fully completed extraction. A run with failed extraction roles cannot seed such a
 trial. No live replay or new run is part of this change. Base selection remains explicit (or a
 configured case default): selecting no base performs no inherited-base comparison.
+
+
+## Named catalogue records and listed base items (19 October 2026)
+
+The routed runs of 18 October kept many needs that restate facts and rules from the
+sources rather than information a catalogue holds about a dataset:
+
+- JRC: 25 of 56 kept needs were about the JRC data policy itself, 10 about DCAT.
+- Stat: 11 of 39 were about the specifications themselves (W3C Recommendation status,
+  contributors, namespaces). The C1 judge also set aside a dataset's dimensions and the
+  unit attached at dataset level, which are what StatDCAT-AP adds.
+- Health (held out; counts only): of 576 kept needs, about 400 cite GDPR or the EHDS
+  proposal and mention no dataset, distribution, catalogue, metadata or record.
+
+`rq1-profile-scope-v6` therefore asks the judge for the catalogue record (resource and
+statement) before C1 can pass. The judgement still only keeps or sets aside offered
+needs; set-asides stay visible and restorable. A missing record statement gets one
+bounded correction for that need only.
+
+The base search (`rq1-base-needs-full-search-v3`) changes in three ways:
+
+1. A need that lists several items (the title, keywords and release date of a dataset)
+   is generic when the listed entries cover every item; before, one entry had to cover
+   the whole need, so such needs stayed as "no base match" (14 in the JRC run).
+2. The entries that the need's words name come first, so the items of such a need are
+   usually offered in the first chunk. Items named differently from the base (accrual
+   periodicity for frequency) can still fall into different chunks; then the need is
+   not found generic.
+3. A "match" that names no listed entry counts as no match in that chunk and is
+   recorded (`unnamed_match` in the search audit) instead of being sent back for a
+   correction. In the Health run this correction made up 2,341 of 6,618 base-search
+   generations.
+
+Runs saved under earlier policies need a derived trial from their extraction.

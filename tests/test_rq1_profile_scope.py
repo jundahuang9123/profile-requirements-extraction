@@ -1,7 +1,8 @@
-"""D5 profile scope (v2): a judgement over source-derived needs that can only keep or set aside.
+"""D5 profile scope: a judgement over source-derived needs that can only keep or set aside.
 
 Dataset-level relevance and discovery contribution can set a need aside; representativeness
-only labels a kept need common, specialized or for review.
+only labels a kept need common, specialized or for review. Since v6 dataset-level relevance
+names the catalogued resource whose record would state the need.
 """
 import json
 from test_resume_discussions import setup
@@ -18,23 +19,29 @@ STATEMENTS = {
     'need-5': 'Users can find parking datasets by the type of parking facility.',
 }
 VERDICTS = {
-    'need-0': {'catalogue_level': True, 'serves': 'find', 'example': 'Find datasets covering Bavaria.',
+    'need-0': {'record_resource': 'dataset', 'record_statement': 'dataset: the area it covers',
+               'catalogue_level': True, 'serves': 'find', 'example': 'Find datasets covering Bavaria.',
                'representativeness': 'common'},
-    'need-1': {'catalogue_level': True, 'serves': 'neither', 'example': '', 'representativeness': 'common'},
-    'need-2': {'catalogue_level': False, 'serves': 'access', 'example': 'Get data with timestamps.',
-               'representativeness': 'common'},
-    'need-3': {'catalogue_level': True, 'serves': 'both', 'example': 'Filter datasets by stated accuracy.',
+    'need-1': {'record_resource': 'dataset', 'record_statement': 'dataset: the providers of its data',
+               'catalogue_level': True, 'serves': 'neither', 'example': '', 'representativeness': 'common'},
+    'need-2': {'record_resource': 'dataset', 'catalogue_level': False, 'serves': 'access',
+               'example': 'Get data with timestamps.', 'representativeness': 'common'},
+    'need-3': {'record_resource': 'dataset', 'record_statement': 'dataset: its positional accuracy in metres',
+               'catalogue_level': True, 'serves': 'both', 'example': 'Filter datasets by stated accuracy.',
                'representativeness': 'single_case'},
-    'need-4': {'catalogue_level': False, 'serves': 'neither', 'example': '', 'representativeness': 'uncertain'},
-    'need-5': {'catalogue_level': True, 'serves': 'find', 'example': 'Find datasets about multi-storey car parks.',
+    'need-4': {'record_resource': 'none', 'catalogue_level': False, 'serves': 'neither', 'example': '',
+               'representativeness': 'uncertain'},
+    'need-5': {'record_resource': 'dataset', 'record_statement': 'dataset: the type of parking facility it covers',
+               'catalogue_level': True, 'serves': 'find', 'example': 'Find datasets about multi-storey car parks.',
                'representativeness': 'specialized'},
 }
 
 
 class ScopeJudge(NeedsClient):
-    def __init__(self, verdicts=VERDICTS, default=VERDICTS['need-0'], extra=(), omit=(), blank_once=()):
+    def __init__(self, verdicts=VERDICTS, default=VERDICTS['need-0'], extra=(), omit=(), blank_once=(),
+                 blank_record_once=()):
         super().__init__(); self.verdicts, self.default, self.extra, self.omit = verdicts, default, extra, omit
-        self.blank_once = set(blank_once)
+        self.blank_once, self.blank_record_once = set(blank_once), set(blank_record_once)
     def generate_structured(self, **kwargs):
         if kwargs['output_model'].__name__ != 'ProfileScope':
             return super().generate_structured(**kwargs)
@@ -42,9 +49,15 @@ class ScopeJudge(NeedsClient):
         rows = []
         for i in [*data['needs'], *self.extra]:
             if i in self.omit: continue
-            row = {'need_id': i, **{k:v for k,v in self.verdicts.get(i, self.default).items() if k not in {'representativeness', 'category_links'}}, 'rationale': 'Scripted scope judgement.'}
+            verdict = self.verdicts.get(i, self.default)
+            row = {'need_id': i, 'record_resource': 'dataset' if verdict['catalogue_level'] else 'none',
+                   'record_statement': 'dataset: as stated' if verdict['catalogue_level'] else '',
+                   **{k:v for k,v in verdict.items() if k not in {'representativeness', 'category_links'}},
+                   'rationale': 'Scripted scope judgement.'}
             if i in self.blank_once:
                 self.blank_once.discard(i); row['example'] = ''
+            if i in self.blank_record_once:
+                self.blank_record_once.discard(i); row['record_statement'] = ''
             rows.append(row)
         return kwargs['output_model'].model_validate({'decisions': rows})
 
@@ -82,10 +95,11 @@ def test_only_dataset_level_and_discovery_set_aside_and_specialised_needs_stay(s
     assert all(set(row) == {'statement', 'condition', 'scope', 'excerpts'} for batch in offered for row in batch.values())
     kept = retained[0]
     assert kept.profile_scope['status'] == 'checked' and kept.profile_scope['example'] == VERDICTS['need-0']['example']
+    assert kept.profile_scope['record_statement'] == VERDICTS['need-0']['record_statement']
     assert kept.need_statement == STATEMENTS['need-0']
     assert engine.verify(store, kept, run['evidence_ids'])['status'] == 'pass'  # integrity binds the judgement
     step = store.get('run', run['run_id'])['need_steps']['profile_scope']
-    assert step['policy_version'] == 'rq1-profile-scope-v5'
+    assert step['policy_version'] == 'rq1-profile-scope-v6'
     assert step['retained_count'] == 3 and step['set_aside_count'] == 3
     assert step['set_aside_by_reason'] == {'not_catalogue_level': 2, 'not_find_or_access': 1}
     # Without category evidence, a model's confident common/specialized label remains review.
@@ -115,7 +129,7 @@ def test_explicit_processing_actions_do_not_become_catalogue_needs_from_hypothet
 def test_contract_can_only_judge_offered_needs():
     assert set(needs.ProfileScope.model_fields) == {'decisions'}
     assert set(needs.ScopeDecision.model_fields) == {
-        'need_id', 'catalogue_level', 'serves', 'example', 'rationale'}
+        'need_id', 'record_resource', 'record_statement', 'catalogue_level', 'serves', 'example', 'rationale'}
     assert 'never add, merge, broaden or rewrite a need' in needs.SCOPE_SYSTEM
     # Representativeness is a label, never a set-aside test.
     assert [reason for reason, _ in needs.SCOPE_TESTS] == ['not_catalogue_level', 'not_find_or_access']
@@ -188,3 +202,44 @@ def test_runs_saved_under_earlier_policies_need_a_derived_trial():
     with pytest.raises(ValueError, match='derive a separate trial'):
         needs.run_needs_policies({'needs_policies': earlier})
     assert needs.run_needs_policies({'needs_policies': dict(needs.POLICIES)}) == needs.POLICIES
+
+
+def test_a_need_no_catalogue_record_would_state_is_not_catalogue_level(setup):
+    """v6: a fact about the source document has no record; a dataset's structure has one."""
+    store, run, _, made = variants(setup, {
+        'need-document': 'Users can know that the document is a W3C Recommendation.',
+        'need-structure': 'Users can find which dimensions a statistical dataset uses.'})
+    client = ScopeJudge(verdicts={
+        # The judge still calls the first one catalogue level, but can name no record for it.
+        'need-document': {'record_resource': 'none', 'catalogue_level': True, 'serves': 'find',
+                          'example': 'Find W3C Recommendations.'},
+        'need-structure': {'record_resource': 'dataset',
+                           'record_statement': 'dataset: the dimensions its observations use, such as time period and region',
+                           'catalogue_level': True, 'serves': 'find',
+                           'example': 'Find datasets broken down by region.'}})
+    retained = needs.judge_profile_scope(store, run, made, client)
+    assert [n.requirement_id for n in retained] == ['need-structure']
+    assert retained[0].profile_scope['record_resource'] == 'dataset'
+    assert retained[0].profile_scope['record_statement'].startswith('dataset: the dimensions')
+    aside = next(a for a in store.get('run', run['run_id'])['set_aside_observations'] if a['need_id'] == 'need-document')
+    assert aside['reason'] == 'not_catalogue_level'
+    assert aside['details']['profile_scope']['record_resource'] == 'none'
+    assert aside['details']['profile_scope']['failed_tests'] == ['not_catalogue_level']
+    assert len(client.calls) == 1  # a named-none record is judged, not retried
+
+
+def test_a_missing_record_statement_gets_one_correction_for_that_need_only(setup):
+    store, run, _, made = variants(setup, {'need-0': STATEMENTS['need-0'], 'need-5': STATEMENTS['need-5']})
+    client = ScopeJudge(blank_record_once=('need-5',))
+    retained = needs.judge_profile_scope(store, run, made, client)
+    assert [n.requirement_id for n in retained] == ['need-0', 'need-5']
+    assert judged(client) == ['need-0', 'need-5', 'need-5']
+    assert retained[1].profile_scope['record_statement'] == VERDICTS['need-5']['record_statement']
+
+
+def test_the_scope_prompt_asks_for_the_record_and_names_what_has_none():
+    prompt = ' '.join(needs.SCOPE_SYSTEM.split())
+    assert 'record_resource' in prompt and 'record_statement' in prompt
+    assert 'a statement about the source document itself' in prompt
+    assert 'legal procedures or data processing' in prompt
+    assert 'its dimensions, attributes, units of measure or code lists' in prompt

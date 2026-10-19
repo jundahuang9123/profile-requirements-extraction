@@ -3680,6 +3680,23 @@
           "title": "Rationale",
           "type": "string"
         },
+        "record_resource": {
+          "enum": [
+            "catalogue",
+            "dataset",
+            "distribution",
+            "data_service",
+            "none"
+          ],
+          "title": "Record Resource",
+          "type": "string"
+        },
+        "record_statement": {
+          "default": "",
+          "maxLength": 240,
+          "title": "Record Statement",
+          "type": "string"
+        },
         "serves": {
           "enum": [
             "find",
@@ -3693,6 +3710,7 @@
       },
       "required": [
         "need_id",
+        "record_resource",
         "catalogue_level",
         "serves",
         "rationale"

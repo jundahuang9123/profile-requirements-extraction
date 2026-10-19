@@ -12,6 +12,7 @@ export function NeedSummaryView({ record, run, inspect }: { record: Requirement;
     {!!claims.length && <p>{[...new Set(claims.map(r => r.unbacked_obligation!.label))].map(label => `${claims.filter(r => r.unbacked_obligation!.label === label).length} proposals claimed ${label} without a quote stating that level`).join('; ')}.</p>}
     {record.need_condition && <p>Condition: {record.need_condition}</p>}
     {record.profile_scope?.status === 'checked' && <p>Catalogue relevance: {record.profile_scope.catalogue_level === undefined ? 'see recorded judgement' : record.profile_scope.catalogue_level ? 'yes' : 'no'} · Discovery/access contribution: {record.profile_scope.serves ?? 'see recorded judgement'}. Applicability: {record.profile_scope.applicability_status?.replace(/_/g, ' ') ?? 'see recorded judgement'}.</p>}
+    {record.profile_scope?.record_statement && <p>Catalogue record: {record.profile_scope.record_statement}</p>}
     {record.profile_scope?.example && <p>Discovery example: {record.profile_scope.example}</p>}
     {record.dataset_coverage && <details><summary>Dataset applicability · {record.dataset_coverage.status.replace(/_/g, ' ')}</summary>
       <p>Applicability is proposed from source evidence and requires review. It is checked independently of catalogue relevance and discovery contribution.</p>
