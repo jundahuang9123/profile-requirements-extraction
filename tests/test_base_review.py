@@ -116,3 +116,12 @@ def test_size_splits_and_single_need_pending(setup,monkeypatch):
     br.review_base(store,run,client)
     assert client.calls==[]
     assert all(n['base_relation']['reason']=='payload_budget' for n in store.get('run',run['run_id'])['requirements'])
+
+
+def test_request_opt_in_requires_fa_and_base_and_policy_is_per_run():
+    from requirement_reuse_service.workflow.fa_discussion import discussion_policy
+    with pytest.raises(ValueError,match='requires the F/A'):
+        RunRequest(snapshot_id='s',base_review='expert_v1')
+    r=RunRequest(snapshot_id='s',strategy='multi_agent',stakeholder_workflow='fa_mediated',base_profile_id='dcat-ap-1.1.0',base_review='expert_v1')
+    assert discussion_policy({'request':r.model_dump()})=='rq1-fa-dialogue-v2'
+    assert discussion_policy({'request':{}})=='rq1-fa-dialogue-v1'

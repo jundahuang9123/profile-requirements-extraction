@@ -20,7 +20,7 @@ WorkflowResourceType = Literal['Catalog', 'CatalogRecord', 'Dataset', 'DatasetSe
     'Relationship', 'Role', 'PeriodOfTime', 'Location', 'Checksum', 'Identifier',
     'LicenseDocument', 'Unknown']
 STAGES = ['acquisition', 'decomposition', 'role_selection', 'elicitation', 'normalization',
-          'verification', 'consolidation', 'deliberation', 'adjudication', 'baseline']
+          'verification', 'consolidation', 'base_review', 'deliberation', 'adjudication', 'baseline']
 
 
 class Contract(BaseModel):
@@ -481,6 +481,7 @@ class MediationTimeoutFallback(Contract):
 
 
 class RunRequest(Contract):
+    base_review: Literal['none', 'expert_v1'] = 'none'
     mediation_timeout_fallback: MediationTimeoutFallback | None = None
     stakeholder_workflow: Literal['independent', 'routed_mediated', 'fa_mediated'] = 'independent'
     requirements_scope: Literal['find_access_v1'] | None = None
@@ -511,6 +512,8 @@ class RunRequest(Contract):
 
     @model_validator(mode='after')
     def panel_mode(self) -> 'RunRequest':
+        if self.base_review != 'none' and (self.stakeholder_workflow != 'fa_mediated' or not self.base_profile_id):
+            raise ValueError('Base expert review requires the F/A workflow and a selected base profile.')
         if self.mediation_timeout_fallback and (self.strategy != 'multi_agent' or self.stakeholder_workflow != 'fa_mediated'):
             raise ValueError('Case mediation fallback requires the F/A multi-agent workflow.')
         if self.stakeholder_workflow == 'fa_mediated':
@@ -585,7 +588,7 @@ class WorkflowRun(Contract):
     status: str = 'created'
     version: int = 1
     stage_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
-    stages: dict[str, str] = Field(default_factory=lambda: {stage: 'pending' for stage in STAGES})
+    stages: dict[str, str] = Field(default_factory=lambda: {stage: ('skipped' if stage == 'base_review' else 'pending') for stage in STAGES})
     evidence_ids: list[str] = Field(default_factory=list)
     observations: list[Observation] = Field(default_factory=list)
     set_aside_observations: list[SetAside] = Field(default_factory=list)

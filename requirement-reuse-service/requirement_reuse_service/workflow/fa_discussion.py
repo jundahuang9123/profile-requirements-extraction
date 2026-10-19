@@ -12,6 +12,9 @@ from ..llm.step_models import for_step, model_identity
 from .fa_requirements import WRITE_GUIDANCE, coverage_ledger
 
 POLICY='rq1-fa-dialogue-v1'
+def discussion_policy(run):
+    return 'rq1-fa-dialogue-v2' if run['request'].get('base_review') == 'expert_v1' else POLICY
+
 MESSAGE_REPLAY_POLICY='rq1-fa-message-replay-v1'
 MAX_CONTEXT=45000
 
@@ -126,6 +129,7 @@ def retrieve_frozen(store,run,queries,existing):
 
 
 def build_cases(store,run,roles,client):
+    policy=discussion_policy(run)
     # Include latest set-asides as review material, not already superseded duplicates.
     latest={}
     for r in run['requirements']:
@@ -139,7 +143,7 @@ def build_cases(store,run,roles,client):
         batch=eligible[i:i+12]
         payload={'needs':[{k:r.get(k) for k in ('revision_id','need_statement','normalized_statement','need_condition','fa_scope','classification','processing_flags')} for r in batch]}
         key='fa_task_groups:'+str(i//12)
-        identity=digest([POLICY,payload,model_identity(for_step(client,'grouping'))])
+        identity=digest([policy,payload,model_identity(for_step(client,'grouping'))])
         saved=old.audit(store,run['run_id']).get(key)
         if saved and saved['input_hash']!=identity: raise ValueError('Task grouping checkpoint mismatch.')
         if not saved:
@@ -171,12 +175,12 @@ def build_cases(store,run,roles,client):
             if len(canonical(packet))>26000 and len(records)>1:
                 mid=len(records)//2;pending.extend([records[:mid],records[mid:]]);continue
             ids=[r['revision_id'] for r in records]
-            case=DeliberationCase(case_id=uid('case',run['run_id'],POLICY,digest(records)),revision_ids=ids,
+            case=DeliberationCase(case_id=uid('case',run['run_id'],policy,digest(records)),revision_ids=ids,
                 triggers=['fa_task_review'],context_hash=digest(records),participants=[r['id'] for r in roles],
-                policy_version=POLICY,max_rounds=2,max_calls=14,max_output_tokens=4000,max_retry_output_tokens=8000,
+                policy_version=policy,max_rounds=2,max_calls=14,max_output_tokens=4000,max_retry_output_tokens=8000,
                 total_output_budget=112000,max_seconds=1800,frozen_requirements=records,
                 model=run.get('step_models',{}).get('mediation')).model_dump(mode='json')
-            case['discussion_trace']={'policy_version':POLICY,'task':g['task'],'group_rationale':g['rationale'],
+            case['discussion_trace']={'policy_version':policy,'task':g['task'],'group_rationale':g['rationale'],
                 'group_hash':digest(g),'packet':packet,'packet_hash':digest(packet),'phases':{},'retrieval':[],
                 'before_revision_ids':ids,'working_before_revision_ids':[rid for rid in ids if rid in run['active_revision_ids']],'human_accepted':False}
             case['mediation']={'phase':'pending','context_hash':digest(packet),'related_conflicts':[
@@ -192,6 +196,7 @@ def execute_case(store,run_id,case_id,client,roles):
     from .engine import bounded_stage_output
     from ..llm.client import OutputValidationError, OutputTokenLimitError
     run=store.get_run(run_id,parts=False)
+    policy=discussion_policy(run)
     case=next(c for c in run['deliberations'] if c['case_id']==case_id)
     if case['status']=='mediated':return
     trace=deepcopy(case['discussion_trace']);packet=deepcopy(trace['packet'])
@@ -274,7 +279,7 @@ def execute_case(store,run_id,case_id,client,roles):
         aliases={f'N{i+1}':rid for i,rid in enumerate(case['revision_ids'])}
         aliases.update({f'E{i+1}':eid for i,eid in enumerate(sorted(allowed))})
         aliases.update({f'C{i+1}':cid for i,cid in enumerate(dict.fromkeys(c['concern_id'] for m in payload.get('messages',[]) for c in m.get('concerns',[])))})
-        identity=digest([POLICY,key,step,system,payload,aliases,model.model_json_schema(),model_identity(bound)])
+        identity=digest([policy,key,step,system,payload,aliases,model.model_json_schema(),model_identity(bound)])
         saved=phases.get(key)
         if saved:
             if saved['input_hash']!=identity:
@@ -333,7 +338,7 @@ def execute_case(store,run_id,case_id,client,roles):
                       if m['role_id']==role_id and m['round']==1),None)
         reconstructed=(row is None and round_no==2 and recovery.get('status')=='in_progress'
                        and key in recovery['allowed_phases'])
-        expected=message(case_id,role_id,round_no,answer)
+        expected=message(case_id,role_id,round_no,answer,policy=policy)
         if row is not None:
             if {k:v for k,v in row.items() if k!='created_at'}!={k:v for k,v in expected.items() if k!='created_at'}:
                 raise ValueError('Saved stakeholder message differs from its role output: '+key)
@@ -446,15 +451,16 @@ def execute_case(store,run_id,case_id,client,roles):
     store.mutate(run_id,None,'fa_mediation_transaction',commit)
 
 
-def message(case_id,role_id,round_no,answer):
+def message(case_id,role_id,round_no,answer,policy=POLICY):
     return {'message_id':uid('message',case_id,round_no,role_id),'role_id':role_id,'round':round_no,
-        'body':answer.summary,'finished':answer.finished,'policy_version':POLICY,
+        'body':answer.summary,'finished':answer.finished,'policy_version':policy,
         'evidence_ids':sorted({e for c in answer.concerns for e in c.evidence_ids}),
         'concerns':[{**c.model_dump(mode='json'),'concern_id':uid('concern',case_id,round_no,role_id,i)} for i,c in enumerate(answer.concerns)],'created_at':now()}
 
 
 def apply(store,run,case,plan,checks,client,allowed):
     """Gate every disposition, preserve failed parents and use the strict existing revision verifier."""
+    policy=discussion_policy(run)
     outcomes=[];additions=[];replacements={};asides={}
     by_check={c.action_id:c for c in checks.checks}
     for a in plan.actions:
@@ -511,7 +517,7 @@ def apply(store,run,case,plan,checks,client,allowed):
                     rec['observation_ids']=list(dict.fromkeys([*rec.get('observation_ids',[]),*lineage]))
                     if a.action=='split':rec['parent_revision_ids']=list(a.parent_revision_ids)
                     # New wording invalidates old base and scope judgements; machine review remains explicit.
-                    rec['fa_scope']={'policy_version':POLICY,'status':'checked_mediation','rationale':'Independent mediation check passed; base relationship requires rechecking.'}
+                    rec['fa_scope']={'policy_version':policy,'status':'checked_mediation','rationale':'Independent mediation check passed; base relationship requires rechecking.'}
                     from .needs import refresh_need
                     checked_record=RequirementRecord.model_validate(rec);refresh_need(checked_record);rec.update(checked_record.model_dump(mode='json'))
                 additions.extend(temporary);replacements.update(local_replacements)
@@ -525,10 +531,11 @@ def apply(store,run,case,plan,checks,client,allowed):
 def deliberate(store,run_id,client):
     from .role_selection import panel_roles
     run=store.get_run(run_id,parts=False)
+    policy=discussion_policy(run)
     if run['stages'].get('deliberation')=='completed':return
     perspectives={r['role_id']:r for r in (run.get('role_manifest') or {}).get('selected_roles',[])}
     roles=[{**r.model_dump(mode='json'),'source_basis':{k:v for k,v in perspectives.get(r.id,{}).items() if k in {'basis','source_support','stakeholders','filled_via','rationale'}}} for r in panel_roles(run)]
-    identity={'policy_version':POLICY,'roles_hash':digest(roles),
+    identity={'policy_version':policy,'roles_hash':digest(roles),
         'models':{s:model_identity(for_step(client,s)) for s in ('grouping','stakeholder_review','mediation','mediation_check','assessment')}}
     if run['request'].get('mediation_timeout_fallback'):
         identity['mediation_timeout_fallback']=deepcopy(run['request']['mediation_timeout_fallback'])
@@ -560,9 +567,9 @@ def deliberate(store,run_id,client):
         pending=sum(c.get('mediation',{}).get('phase')!='completed' for c in r['deliberations'])
         if pending:r['diagnostics']=list(dict.fromkeys([*r.get('diagnostics',[]),f'{pending} discussion case(s) require preparation or additional review; no unsupported revision was applied.']))
         r['stakeholder_audit']['fa_coverage']=final_coverage
-        r['stakeholder_audit']['post_discussion']={'policy_version':POLICY,'active_revision_ids':list(r['active_revision_ids']),
+        r['stakeholder_audit']['post_discussion']={'policy_version':policy,'active_revision_ids':list(r['active_revision_ids']),
             'active_output_hash':digest([x for x in r['requirements'] if x['revision_id'] in r['active_revision_ids']]),'human_accepted':False,'completed_at':now()}
-        r['stage_results']['deliberation']={'policy_version':POLICY,'saved_at':now(),'deliberations':deepcopy(r['deliberations']),
+        r['stage_results']['deliberation']={'policy_version':policy,'saved_at':now(),'deliberations':deepcopy(r['deliberations']),
             'active_revision_ids':list(r['active_revision_ids']),'requirements':deepcopy(r['requirements']),'human_accepted':False}
     store.mutate(run_id,None,'fa_workflow_completed',finish)
 
