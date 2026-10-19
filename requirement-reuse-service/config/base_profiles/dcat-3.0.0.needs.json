@@ -4,9 +4,12 @@
   "policy_version": "rq1-base-needs-catalogue-v2",
   "phrasing": "deterministic labels; verbatim pinned definitions and usage notes",
   "review": {
-    "status": "unreviewed",
-    "reviewer": null,
-    "reviewed_at": null
+    "status": "reviewed",
+    "reviewer": "Codex (AI-assisted phrase review; not human approval)",
+    "reviewed_at": "2026-10-19",
+    "review_file": "dcat-3.0.0.needs-review.json",
+    "review_file_sha256": "73ab8990fe11dc7b5d4308d1a650b5a171a3e21e26c93d3583808d6b1c723d6f",
+    "corrected_count": 147
   },
   "entries": [
     {
@@ -31,7 +34,7 @@
     },
     {
       "id": "base-470a659df6d9aa964dc2",
-      "need": "Find the status of a catalog.",
+      "need": "Find the status of a catalog in its workflow process.",
       "class": "dcat:Catalog",
       "property": "adms:status",
       "rq2_term": "adms:status",
@@ -49,7 +52,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the status of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve the context-specific meaning: change type, maturity or workflow status. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-2dd3be00ce97d69c365b",
@@ -75,7 +80,7 @@
     },
     {
       "id": "base-50792ccc53b1f41d32a0",
-      "need": "Find the catalog of a catalog.",
+      "need": "Find the other catalogs whose contents are of interest in a catalog.",
       "class": "dcat:Catalog",
       "property": "dcat:catalog",
       "rq2_term": "dcat:catalog",
@@ -90,7 +95,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the catalog of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve interest in another catalog; do not equate this with a part-of relationship. Basis: pinned definition."
     },
     {
       "id": "base-466520721d24ccc5673c",
@@ -114,7 +121,7 @@
     },
     {
       "id": "base-6d14ce208a675d28beb4",
-      "need": "Find the dataset of a catalog.",
+      "need": "Find the datasets listed in a catalog.",
       "class": "dcat:Catalog",
       "property": "dcat:dataset",
       "rq2_term": "dcat:dataset",
@@ -129,11 +136,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the dataset of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-4ea2a466f66e3482e083",
-      "need": "Find the distribution of a catalog.",
+      "need": "Find the available distributions of a catalog.",
       "class": "dcat:Catalog",
       "property": "dcat:distribution",
       "rq2_term": "dcat:distribution",
@@ -149,11 +158,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the distribution of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-f91e400b8eac8392ff28",
-      "need": "Find the first of a catalog.",
+      "need": "Find the first resource in the ordered collection or series that a catalog belongs to.",
       "class": "dcat:Catalog",
       "property": "dcat:first",
       "rq2_term": "dcat:first",
@@ -171,11 +182,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the first of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve ordered-collection membership; this does not mean first version. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-0fe2ab6ed7b4cfd4bf58",
-      "need": "Find the has current version of a catalog.",
+      "need": "Find the current version of a catalog.",
       "class": "dcat:Catalog",
       "property": "dcat:hasCurrentVersion",
       "rq2_term": "dcat:hasCurrentVersion",
@@ -193,11 +206,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has current version of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-9d6cb74ab76d011a847a",
-      "need": "Find the has version of a catalog.",
+      "need": "Find the versioned snapshots of a catalog.",
       "class": "dcat:Catalog",
       "property": "dcat:hasVersion",
       "rq2_term": "dcat:hasVersion",
@@ -215,11 +230,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has version of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve versioned snapshots; this is narrower than versions, editions or adaptations. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-ba0100297ef48b5d221a",
-      "need": "Find the in series of a catalog.",
+      "need": "Find the dataset series that a catalog belongs to.",
       "class": "dcat:Catalog",
       "property": "dcat:inSeries",
       "rq2_term": "dcat:inSeries",
@@ -235,11 +252,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the in series of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-09be5f7e303dec685010",
-      "need": "Find the keyword of a catalog.",
+      "need": "Find the keywords or tags describing a catalog.",
       "class": "dcat:Catalog",
       "property": "dcat:keyword",
       "rq2_term": "dcat:keyword",
@@ -255,7 +274,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the keyword of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-3842886e5857561626d0",
@@ -281,7 +302,7 @@
     },
     {
       "id": "base-54557051b43588332e7a",
-      "need": "Find the last of a catalog.",
+      "need": "Find the last resource in the ordered collection or series that a catalog belongs to.",
       "class": "dcat:Catalog",
       "property": "dcat:last",
       "rq2_term": "dcat:last",
@@ -299,11 +320,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the last of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve ordered-collection membership; this does not mean latest version. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-110f2cbd3b1145bc12b0",
-      "need": "Find the prev of a catalog.",
+      "need": "Find the resource immediately preceding a catalog in its ordered collection or series.",
       "class": "dcat:Catalog",
       "property": "dcat:prev",
       "rq2_term": "dcat:prev",
@@ -321,7 +344,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the prev of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve sequence order; this is distinct from previous version. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-1f8195be9e00670cbba4",
@@ -347,7 +372,7 @@
     },
     {
       "id": "base-19018ecd7a5b58070008",
-      "need": "Find the qualified relation of a catalog.",
+      "need": "Find descriptions of the relationships between a catalog and other resources.",
       "class": "dcat:Catalog",
       "property": "dcat:qualifiedRelation",
       "rq2_term": "dcat:qualifiedRelation",
@@ -365,11 +390,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the qualified relation of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-1a088e69a8a92555b764",
-      "need": "Find the record of a catalog.",
+      "need": "Find the records describing resources listed in a catalog.",
       "class": "dcat:Catalog",
       "property": "dcat:record",
       "rq2_term": "dcat:record",
@@ -384,11 +411,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the record of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-26341af6136f5931c3e7",
-      "need": "Find the resource of a catalog.",
+      "need": "Find the resources listed in a catalog.",
       "class": "dcat:Catalog",
       "property": "dcat:resource",
       "rq2_term": "dcat:resource",
@@ -405,11 +434,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the resource of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-1bff4976ea3c1be34693",
-      "need": "Find the service of a catalog.",
+      "need": "Find the data services listed in a catalog.",
       "class": "dcat:Catalog",
       "property": "dcat:service",
       "rq2_term": "dcat:service",
@@ -424,11 +455,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the service of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-73dd0dcf6ec19757ab98",
-      "need": "Find the spatial resolution in meters of a catalog.",
+      "need": "Find the minimum spatial separation resolvable in a catalog, measured in meters.",
       "class": "dcat:Catalog",
       "property": "dcat:spatialResolutionInMeters",
       "rq2_term": "dcat:spatialResolutionInMeters",
@@ -446,11 +479,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the spatial resolution in meters of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve resolvable separation and meters, distinct from geographic coverage. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-a022c0953d3892f0e6e0",
-      "need": "Find the temporal resolution of a catalog.",
+      "need": "Find the minimum time interval resolvable in a catalog.",
       "class": "dcat:Catalog",
       "property": "dcat:temporalResolution",
       "rq2_term": "dcat:temporalResolution",
@@ -468,11 +503,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the temporal resolution of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve resolvable interval, distinct from temporal coverage. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-f574ba605ccf3119cdd7",
-      "need": "Find the theme of a catalog.",
+      "need": "Find the subject categories of a catalog.",
       "class": "dcat:Catalog",
       "property": "dcat:theme",
       "rq2_term": "dcat:theme",
@@ -490,11 +527,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the theme of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-a9ab7820d73ff2cfc021",
-      "need": "Find the theme taxonomy of a catalog.",
+      "need": "Find the classification scheme used by a catalog.",
       "class": "dcat:Catalog",
       "property": "dcat:themeTaxonomy",
       "rq2_term": "dcat:themeTaxonomy",
@@ -511,7 +550,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the theme taxonomy of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. The classification scheme is distinct from the categories assigned to a resource. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-4815835338b4934f89c7",
@@ -559,7 +600,7 @@
     },
     {
       "id": "base-a9af83b38b46e8cb9e4c",
-      "need": "Find the accrual periodicity of a catalog.",
+      "need": "Find how often a catalog is published or updated.",
       "class": "dcat:Catalog",
       "property": "dct:accrualPeriodicity",
       "rq2_term": "dct:accrualPeriodicity",
@@ -577,11 +618,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the accrual periodicity of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-8b21777000a0010d567e",
-      "need": "Find the conformance of a catalog.",
+      "need": "Find the standard or specification that a catalog conforms to.",
       "class": "dcat:Catalog",
       "property": "dct:conformsTo",
       "rq2_term": "dct:conformsTo",
@@ -599,7 +642,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the conformance of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-33d991ad8d0704925ca0",
@@ -645,7 +690,7 @@
     },
     {
       "id": "base-3e5e33729360a1bc8dca",
-      "need": "Find the has part of a catalog.",
+      "need": "Find the resources listed as members of a catalog.",
       "class": "dcat:Catalog",
       "property": "dct:hasPart",
       "rq2_term": "dct:hasPart",
@@ -661,7 +706,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has part of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-0014e445f2cf69f29297",
@@ -687,7 +734,7 @@
     },
     {
       "id": "base-ca805a3ab3ef40b3b6fd",
-      "need": "Find the is referenced by of a catalog.",
+      "need": "Find the resources that refer to a catalog.",
       "class": "dcat:Catalog",
       "property": "dct:isReferencedBy",
       "rq2_term": "dct:isReferencedBy",
@@ -705,11 +752,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the is referenced by of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-66b14aabd2db6d505f58",
-      "need": "Find the issued of a catalog.",
+      "need": "Find the date when a catalog was formally issued or published.",
       "class": "dcat:Catalog",
       "property": "dct:issued",
       "rq2_term": "dct:issued",
@@ -727,11 +776,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the issued of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-0fcbfef57a1fb1aabd49",
-      "need": "Find the language of a catalog.",
+      "need": "Find the languages used in the textual metadata of a catalog.",
       "class": "dcat:Catalog",
       "property": "dct:language",
       "rq2_term": "dct:language",
@@ -749,7 +800,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the language of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Metadata language must not be confused with the language of the data values. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-b15f9613392d4daf47b6",
@@ -775,7 +828,7 @@
     },
     {
       "id": "base-4161e09cfcf3496fe97a",
-      "need": "Find the last modified of a catalog.",
+      "need": "Find the most recent date when a catalog was changed or modified.",
       "class": "dcat:Catalog",
       "property": "dct:modified",
       "rq2_term": "dct:modified",
@@ -793,7 +846,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the last modified of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve the subject of modification; a record date is not the underlying dataset date. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-aea0c7b652b1ee56e4bc",
@@ -819,7 +874,7 @@
     },
     {
       "id": "base-6034d80b5ea8e8aece28",
-      "need": "Find the relation of a catalog.",
+      "need": "Find the resources related to a catalog.",
       "class": "dcat:Catalog",
       "property": "dct:relation",
       "rq2_term": "dct:relation",
@@ -837,11 +892,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the relation of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-832630f2d32ccd3883eb",
-      "need": "Find the replaces of a catalog.",
+      "need": "Find the resources superseded by a catalog.",
       "class": "dcat:Catalog",
       "property": "dct:replaces",
       "rq2_term": "dct:replaces",
@@ -857,7 +914,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the replaces of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-286042dc79a6d8120b30",
@@ -883,7 +942,7 @@
     },
     {
       "id": "base-843582b5995c75134683",
-      "need": "Find the geographic coverage of a catalog.",
+      "need": "Find the geographic area covered by a catalog.",
       "class": "dcat:Catalog",
       "property": "dct:spatial",
       "rq2_term": "dct:spatial",
@@ -901,11 +960,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the geographic coverage of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-81e37bfb9237c5c44fe0",
-      "need": "Find the temporal of a catalog.",
+      "need": "Find the time period covered by a catalog.",
       "class": "dcat:Catalog",
       "property": "dct:temporal",
       "rq2_term": "dct:temporal",
@@ -923,7 +984,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the temporal of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-86338872b8b1e3656bce",
@@ -990,7 +1053,7 @@
     },
     {
       "id": "base-a9c4a71627d0be0004e5",
-      "need": "Find the has policy of a catalog.",
+      "need": "Find the machine-readable policy expressing the rights associated with a catalog.",
       "class": "dcat:Catalog",
       "property": "odrl:hasPolicy",
       "rq2_term": "odrl:hasPolicy",
@@ -1008,11 +1071,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has policy of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-693c9d860fdc1f56ede0",
-      "need": "Find the qualified attribution of a catalog.",
+      "need": "Find the agents with responsibility for a catalog and their roles.",
       "class": "dcat:Catalog",
       "property": "prov:qualifiedAttribution",
       "rq2_term": "prov:qualifiedAttribution",
@@ -1030,11 +1095,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the qualified attribution of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve responsibility and the role described by qualified attribution. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-ddf5ba28a9493d01cc07",
-      "need": "Find the was generated by of a catalog.",
+      "need": "Find the activity that generated or provides the business context for creating a catalog.",
       "class": "dcat:Catalog",
       "property": "prov:wasGeneratedBy",
       "rq2_term": "prov:wasGeneratedBy",
@@ -1052,7 +1119,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the was generated by of a catalog.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-78969a0be907554bf552",
@@ -1076,7 +1145,7 @@
     },
     {
       "id": "base-35cc35fe2f83d0f4ee0a",
-      "need": "Find the conformance of a catalog record.",
+      "need": "Find the standard or profile that the metadata in a catalog record conforms to.",
       "class": "dcat:CatalogRecord",
       "property": "dct:conformsTo",
       "rq2_term": "dct:conformsTo",
@@ -1093,7 +1162,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the conformance of a catalog record.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-9150cd2082a0b24760f3",
@@ -1116,7 +1187,7 @@
     },
     {
       "id": "base-2d16e2fb79d40b864455",
-      "need": "Find the issued of a catalog record.",
+      "need": "Find the date when the resource described by a catalog record was listed in the catalog.",
       "class": "dcat:CatalogRecord",
       "property": "dct:issued",
       "rq2_term": "dct:issued",
@@ -1133,11 +1204,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the issued of a catalog record.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-929f74bd034b1750fa3b",
-      "need": "Find the last modified of a catalog record.",
+      "need": "Find the most recent date when a catalog record was changed or modified.",
       "class": "dcat:CatalogRecord",
       "property": "dct:modified",
       "rq2_term": "dct:modified",
@@ -1154,7 +1227,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the last modified of a catalog record.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve the subject of modification; a record date is not the underlying dataset date. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-9f233be59faa4f5d0025",
@@ -1177,7 +1252,7 @@
     },
     {
       "id": "base-d4336d48e3d7bb7cf4e2",
-      "need": "Find the primary topic of a catalog record.",
+      "need": "Find the resource described by a catalog record.",
       "class": "dcat:CatalogRecord",
       "property": "foaf:primaryTopic",
       "rq2_term": "foaf:primaryTopic",
@@ -1194,7 +1269,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the primary topic of a catalog record.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Keep the described resource distinct from the metadata record; retain the release-specific range in the unchanged source material. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-4f067c81f1d429294126",
@@ -1218,7 +1295,7 @@
     },
     {
       "id": "base-b3d62a9903893f76edf2",
-      "need": "Find the status of a data service.",
+      "need": "Find the status of a data service in its workflow process.",
       "class": "dcat:DataService",
       "property": "adms:status",
       "rq2_term": "adms:status",
@@ -1236,7 +1313,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the status of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve the context-specific meaning: change type, maturity or workflow status. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-2eac3626df6df6f66c4f",
@@ -1282,7 +1361,7 @@
     },
     {
       "id": "base-a1a499fec578f4a4710d",
-      "need": "Find the api description of a data service.",
+      "need": "Find a description of the operations and parameters available through a data service.",
       "class": "dcat:DataService",
       "property": "dcat:endpointDescription",
       "rq2_term": "dcat:endpointDescription",
@@ -1299,7 +1378,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the api description of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-0ab2b856d358ff2a3e2c",
@@ -1322,7 +1403,7 @@
     },
     {
       "id": "base-cf4d8db90fbfdb54b08f",
-      "need": "Find the first of a data service.",
+      "need": "Find the first resource in the ordered collection or series that a data service belongs to.",
       "class": "dcat:DataService",
       "property": "dcat:first",
       "rq2_term": "dcat:first",
@@ -1340,11 +1421,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the first of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve ordered-collection membership; this does not mean first version. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-5681821ef1313c48f911",
-      "need": "Find the has current version of a data service.",
+      "need": "Find the current version of a data service.",
       "class": "dcat:DataService",
       "property": "dcat:hasCurrentVersion",
       "rq2_term": "dcat:hasCurrentVersion",
@@ -1362,11 +1445,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has current version of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-e2ca08efc54ada7e31ee",
-      "need": "Find the has version of a data service.",
+      "need": "Find the versioned snapshots of a data service.",
       "class": "dcat:DataService",
       "property": "dcat:hasVersion",
       "rq2_term": "dcat:hasVersion",
@@ -1384,11 +1469,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has version of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve versioned snapshots; this is narrower than versions, editions or adaptations. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-225a944cf5700262a174",
-      "need": "Find the keyword of a data service.",
+      "need": "Find the keywords or tags describing a data service.",
       "class": "dcat:DataService",
       "property": "dcat:keyword",
       "rq2_term": "dcat:keyword",
@@ -1404,7 +1491,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the keyword of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-90c655d022c6c16c3b48",
@@ -1430,7 +1519,7 @@
     },
     {
       "id": "base-02fae8ac8ae01eb5b62a",
-      "need": "Find the last of a data service.",
+      "need": "Find the last resource in the ordered collection or series that a data service belongs to.",
       "class": "dcat:DataService",
       "property": "dcat:last",
       "rq2_term": "dcat:last",
@@ -1448,11 +1537,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the last of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve ordered-collection membership; this does not mean latest version. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-23b807efddddbdf57ca2",
-      "need": "Find the prev of a data service.",
+      "need": "Find the resource immediately preceding a data service in its ordered collection or series.",
       "class": "dcat:DataService",
       "property": "dcat:prev",
       "rq2_term": "dcat:prev",
@@ -1470,7 +1561,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the prev of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve sequence order; this is distinct from previous version. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-d77aaad78da75fe7feea",
@@ -1496,7 +1589,7 @@
     },
     {
       "id": "base-0430572cc27abd846be5",
-      "need": "Find the qualified relation of a data service.",
+      "need": "Find descriptions of the relationships between a data service and other resources.",
       "class": "dcat:DataService",
       "property": "dcat:qualifiedRelation",
       "rq2_term": "dcat:qualifiedRelation",
@@ -1514,11 +1607,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the qualified relation of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-bc8fc964bb1b14fb2ff5",
-      "need": "Find the datasets it serves of a data service.",
+      "need": "Find the datasets that a data service provides access to.",
       "class": "dcat:DataService",
       "property": "dcat:servesDataset",
       "rq2_term": "dcat:servesDataset",
@@ -1533,11 +1628,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the datasets it serves of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-c57c3a7e159932a32857",
-      "need": "Find the theme of a data service.",
+      "need": "Find the subject categories of a data service.",
       "class": "dcat:DataService",
       "property": "dcat:theme",
       "rq2_term": "dcat:theme",
@@ -1555,7 +1652,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the theme of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-7385e260413db22cd8ef",
@@ -1603,7 +1702,7 @@
     },
     {
       "id": "base-2cf2976a6775ac199fee",
-      "need": "Find the conformance of a data service.",
+      "need": "Find the standard or specification that a data service conforms to.",
       "class": "dcat:DataService",
       "property": "dct:conformsTo",
       "rq2_term": "dct:conformsTo",
@@ -1621,7 +1720,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the conformance of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-dfb4e8dc9a8bc888a0ed",
@@ -1667,7 +1768,7 @@
     },
     {
       "id": "base-b3dd4dad81da755dafef",
-      "need": "Find the has part of a data service.",
+      "need": "Find the resources included as parts of a data service.",
       "class": "dcat:DataService",
       "property": "dct:hasPart",
       "rq2_term": "dct:hasPart",
@@ -1683,7 +1784,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has part of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-4f286bafc219c9310738",
@@ -1709,7 +1812,7 @@
     },
     {
       "id": "base-92f5f70b8700107521fb",
-      "need": "Find the is referenced by of a data service.",
+      "need": "Find the resources that refer to a data service.",
       "class": "dcat:DataService",
       "property": "dct:isReferencedBy",
       "rq2_term": "dct:isReferencedBy",
@@ -1727,11 +1830,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the is referenced by of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-34f4670db24a63c57a5b",
-      "need": "Find the issued of a data service.",
+      "need": "Find the date when a data service was formally issued or published.",
       "class": "dcat:DataService",
       "property": "dct:issued",
       "rq2_term": "dct:issued",
@@ -1749,7 +1854,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the issued of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-8c3e125d86659408f13c",
@@ -1797,7 +1904,7 @@
     },
     {
       "id": "base-26bc9e66a7067f06c544",
-      "need": "Find the last modified of a data service.",
+      "need": "Find the most recent date when a data service was changed or modified.",
       "class": "dcat:DataService",
       "property": "dct:modified",
       "rq2_term": "dct:modified",
@@ -1815,7 +1922,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the last modified of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve the subject of modification; a record date is not the underlying dataset date. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-ed04ae7d669e4fb139d3",
@@ -1841,7 +1950,7 @@
     },
     {
       "id": "base-5375b9bafed8a94ce8b8",
-      "need": "Find the relation of a data service.",
+      "need": "Find the resources related to a data service.",
       "class": "dcat:DataService",
       "property": "dct:relation",
       "rq2_term": "dct:relation",
@@ -1859,11 +1968,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the relation of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-e564a3169b26e5a194ec",
-      "need": "Find the replaces of a data service.",
+      "need": "Find the resources superseded by a data service.",
       "class": "dcat:DataService",
       "property": "dct:replaces",
       "rq2_term": "dct:replaces",
@@ -1879,7 +1990,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the replaces of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-bd174eab4f19a1009a1c",
@@ -1947,7 +2060,7 @@
     },
     {
       "id": "base-3209a2a6aa86fe36b05f",
-      "need": "Find the has policy of a data service.",
+      "need": "Find the machine-readable policy expressing the rights associated with a data service.",
       "class": "dcat:DataService",
       "property": "odrl:hasPolicy",
       "rq2_term": "odrl:hasPolicy",
@@ -1965,11 +2078,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has policy of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-749a1e63a227a1720e0b",
-      "need": "Find the qualified attribution of a data service.",
+      "need": "Find the agents with responsibility for a data service and their roles.",
       "class": "dcat:DataService",
       "property": "prov:qualifiedAttribution",
       "rq2_term": "prov:qualifiedAttribution",
@@ -1987,7 +2102,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the qualified attribution of a data service.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve responsibility and the role described by qualified attribution. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-687378cb550bcaadbd06",
@@ -2011,7 +2128,7 @@
     },
     {
       "id": "base-f56886df05139e64fb18",
-      "need": "Find the status of a dataset.",
+      "need": "Find the status of a dataset in its workflow process.",
       "class": "dcat:Dataset",
       "property": "adms:status",
       "rq2_term": "adms:status",
@@ -2029,7 +2146,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the status of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve the context-specific meaning: change type, maturity or workflow status. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-2388a306aba266468a85",
@@ -2075,7 +2194,7 @@
     },
     {
       "id": "base-8a5e74bd105430f996a7",
-      "need": "Find the distribution of a dataset.",
+      "need": "Find the available distributions of a dataset.",
       "class": "dcat:Dataset",
       "property": "dcat:distribution",
       "rq2_term": "dcat:distribution",
@@ -2090,11 +2209,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the distribution of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-187b9d71d3c15d4a5dea",
-      "need": "Find the first of a dataset.",
+      "need": "Find the first resource in the ordered collection or series that a dataset belongs to.",
       "class": "dcat:Dataset",
       "property": "dcat:first",
       "rq2_term": "dcat:first",
@@ -2112,11 +2233,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the first of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve ordered-collection membership; this does not mean first version. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-52a4ed81c965a8081116",
-      "need": "Find the has current version of a dataset.",
+      "need": "Find the current version of a dataset.",
       "class": "dcat:Dataset",
       "property": "dcat:hasCurrentVersion",
       "rq2_term": "dcat:hasCurrentVersion",
@@ -2134,11 +2257,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has current version of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-693585d66ee23b95e53f",
-      "need": "Find the has version of a dataset.",
+      "need": "Find the versioned snapshots of a dataset.",
       "class": "dcat:Dataset",
       "property": "dcat:hasVersion",
       "rq2_term": "dcat:hasVersion",
@@ -2156,11 +2281,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has version of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve versioned snapshots; this is narrower than versions, editions or adaptations. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-c896409302acf05da2df",
-      "need": "Find the in series of a dataset.",
+      "need": "Find the dataset series that a dataset belongs to.",
       "class": "dcat:Dataset",
       "property": "dcat:inSeries",
       "rq2_term": "dcat:inSeries",
@@ -2175,11 +2302,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the in series of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-67fec8d5e063ea832091",
-      "need": "Find the keyword of a dataset.",
+      "need": "Find the keywords or tags describing a dataset.",
       "class": "dcat:Dataset",
       "property": "dcat:keyword",
       "rq2_term": "dcat:keyword",
@@ -2195,7 +2324,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the keyword of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-64867a6c8a5c29eb76b0",
@@ -2221,7 +2352,7 @@
     },
     {
       "id": "base-01e86bf550f7ca93951b",
-      "need": "Find the last of a dataset.",
+      "need": "Find the last resource in the ordered collection or series that a dataset belongs to.",
       "class": "dcat:Dataset",
       "property": "dcat:last",
       "rq2_term": "dcat:last",
@@ -2239,11 +2370,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the last of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve ordered-collection membership; this does not mean latest version. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-e76a37e6ee9fcded876a",
-      "need": "Find the prev of a dataset.",
+      "need": "Find the resource immediately preceding a dataset in its ordered collection or series.",
       "class": "dcat:Dataset",
       "property": "dcat:prev",
       "rq2_term": "dcat:prev",
@@ -2261,7 +2394,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the prev of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve sequence order; this is distinct from previous version. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-fbfb973a96450e68251b",
@@ -2287,7 +2422,7 @@
     },
     {
       "id": "base-b917a9578323263cd8e0",
-      "need": "Find the qualified relation of a dataset.",
+      "need": "Find descriptions of the relationships between a dataset and other resources.",
       "class": "dcat:Dataset",
       "property": "dcat:qualifiedRelation",
       "rq2_term": "dcat:qualifiedRelation",
@@ -2305,11 +2440,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the qualified relation of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-545540ea9df198ca48fe",
-      "need": "Find the spatial resolution in meters of a dataset.",
+      "need": "Find the minimum spatial separation resolvable in a dataset, measured in meters.",
       "class": "dcat:Dataset",
       "property": "dcat:spatialResolutionInMeters",
       "rq2_term": "dcat:spatialResolutionInMeters",
@@ -2326,11 +2463,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the spatial resolution in meters of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve resolvable separation and meters, distinct from geographic coverage. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-9c691f9fa7c21ed0bdd3",
-      "need": "Find the temporal resolution of a dataset.",
+      "need": "Find the minimum time interval resolvable in a dataset.",
       "class": "dcat:Dataset",
       "property": "dcat:temporalResolution",
       "rq2_term": "dcat:temporalResolution",
@@ -2347,11 +2486,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the temporal resolution of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve resolvable interval, distinct from temporal coverage. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-475c94cd395c1ca9f9c7",
-      "need": "Find the theme of a dataset.",
+      "need": "Find the subject categories of a dataset.",
       "class": "dcat:Dataset",
       "property": "dcat:theme",
       "rq2_term": "dcat:theme",
@@ -2369,7 +2510,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the theme of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-135608c5fa50ae3ca01a",
@@ -2417,7 +2560,7 @@
     },
     {
       "id": "base-a1db139baf04d36ec774",
-      "need": "Find the accrual periodicity of a dataset.",
+      "need": "Find how often a dataset is published or updated.",
       "class": "dcat:Dataset",
       "property": "dct:accrualPeriodicity",
       "rq2_term": "dct:accrualPeriodicity",
@@ -2434,11 +2577,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the accrual periodicity of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-7fea0f03d287ae3b49a3",
-      "need": "Find the conformance of a dataset.",
+      "need": "Find the standard or specification that a dataset conforms to.",
       "class": "dcat:Dataset",
       "property": "dct:conformsTo",
       "rq2_term": "dct:conformsTo",
@@ -2456,7 +2601,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the conformance of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-f943d2f2c85d497967a5",
@@ -2502,7 +2649,7 @@
     },
     {
       "id": "base-5b78e852cac3bb3d727b",
-      "need": "Find the has part of a dataset.",
+      "need": "Find the resources included as parts of a dataset.",
       "class": "dcat:Dataset",
       "property": "dct:hasPart",
       "rq2_term": "dct:hasPart",
@@ -2518,7 +2665,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has part of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-27f2e40747c6ac2c1157",
@@ -2544,7 +2693,7 @@
     },
     {
       "id": "base-c31ad2fbeaa725539c6f",
-      "need": "Find the is referenced by of a dataset.",
+      "need": "Find the resources that refer to a dataset.",
       "class": "dcat:Dataset",
       "property": "dct:isReferencedBy",
       "rq2_term": "dct:isReferencedBy",
@@ -2562,11 +2711,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the is referenced by of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-b9fd8228661b9b9394e6",
-      "need": "Find the issued of a dataset.",
+      "need": "Find the date when a dataset was formally issued or published.",
       "class": "dcat:Dataset",
       "property": "dct:issued",
       "rq2_term": "dct:issued",
@@ -2584,7 +2735,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the issued of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-b6264e89d3fa30a8d888",
@@ -2632,7 +2785,7 @@
     },
     {
       "id": "base-45ff06266da6c9ec4592",
-      "need": "Find the last modified of a dataset.",
+      "need": "Find the most recent date when a dataset was changed or modified.",
       "class": "dcat:Dataset",
       "property": "dct:modified",
       "rq2_term": "dct:modified",
@@ -2650,7 +2803,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the last modified of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve the subject of modification; a record date is not the underlying dataset date. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-513474dee2203aa7c31e",
@@ -2676,7 +2831,7 @@
     },
     {
       "id": "base-593484a1dec9281c4e00",
-      "need": "Find the relation of a dataset.",
+      "need": "Find the resources related to a dataset.",
       "class": "dcat:Dataset",
       "property": "dct:relation",
       "rq2_term": "dct:relation",
@@ -2694,11 +2849,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the relation of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-da9e71a9dde1ee9201f9",
-      "need": "Find the replaces of a dataset.",
+      "need": "Find the resources superseded by a dataset.",
       "class": "dcat:Dataset",
       "property": "dct:replaces",
       "rq2_term": "dct:replaces",
@@ -2714,7 +2871,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the replaces of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-eab5be5d6a33fd63699b",
@@ -2740,7 +2899,7 @@
     },
     {
       "id": "base-f5af5010fda985d53ea7",
-      "need": "Find the geographic coverage of a dataset.",
+      "need": "Find the geographic area covered by a dataset.",
       "class": "dcat:Dataset",
       "property": "dct:spatial",
       "rq2_term": "dct:spatial",
@@ -2757,11 +2916,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the geographic coverage of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-07c0665568722c88a419",
-      "need": "Find the temporal of a dataset.",
+      "need": "Find the time period covered by a dataset.",
       "class": "dcat:Dataset",
       "property": "dct:temporal",
       "rq2_term": "dct:temporal",
@@ -2778,7 +2939,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the temporal of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-f6f668f58265955eac92",
@@ -2824,7 +2987,7 @@
     },
     {
       "id": "base-dbac78d353d7da0bf9c6",
-      "need": "Find the has policy of a dataset.",
+      "need": "Find the machine-readable policy expressing the rights associated with a dataset.",
       "class": "dcat:Dataset",
       "property": "odrl:hasPolicy",
       "rq2_term": "odrl:hasPolicy",
@@ -2842,11 +3005,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has policy of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-42f032ec072969d34fec",
-      "need": "Find the qualified attribution of a dataset.",
+      "need": "Find the agents with responsibility for a dataset and their roles.",
       "class": "dcat:Dataset",
       "property": "prov:qualifiedAttribution",
       "rq2_term": "prov:qualifiedAttribution",
@@ -2864,11 +3029,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the qualified attribution of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve responsibility and the role described by qualified attribution. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-abad4728ad347f53ad25",
-      "need": "Find the was generated by of a dataset.",
+      "need": "Find the activity that generated or provides the business context for creating a dataset.",
       "class": "dcat:Dataset",
       "property": "prov:wasGeneratedBy",
       "rq2_term": "prov:wasGeneratedBy",
@@ -2885,7 +3052,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the was generated by of a dataset.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-ed15b567008bd37ab1ed",
@@ -2909,7 +3078,7 @@
     },
     {
       "id": "base-e7a77d9638077e08efcd",
-      "need": "Find the status of a dataset series.",
+      "need": "Find the status of a dataset series in its workflow process.",
       "class": "dcat:DatasetSeries",
       "property": "adms:status",
       "rq2_term": "adms:status",
@@ -2927,7 +3096,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the status of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve the context-specific meaning: change type, maturity or workflow status. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-46aceb5b4f3758e38e7f",
@@ -2973,7 +3144,7 @@
     },
     {
       "id": "base-286b4e0a22de433c626d",
-      "need": "Find the distribution of a dataset series.",
+      "need": "Find the available distributions of a dataset series.",
       "class": "dcat:DatasetSeries",
       "property": "dcat:distribution",
       "rq2_term": "dcat:distribution",
@@ -2989,11 +3160,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the distribution of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-ca510f553fb8c8453b0e",
-      "need": "Find the first of a dataset series.",
+      "need": "Find the first resource in the ordered collection or series that a dataset series belongs to.",
       "class": "dcat:DatasetSeries",
       "property": "dcat:first",
       "rq2_term": "dcat:first",
@@ -3011,11 +3184,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the first of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve ordered-collection membership; this does not mean first version. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-667ea2de3cb6c70f89fe",
-      "need": "Find the has current version of a dataset series.",
+      "need": "Find the current version of a dataset series.",
       "class": "dcat:DatasetSeries",
       "property": "dcat:hasCurrentVersion",
       "rq2_term": "dcat:hasCurrentVersion",
@@ -3033,11 +3208,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has current version of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-6266cdd34d64b159bd13",
-      "need": "Find the has version of a dataset series.",
+      "need": "Find the versioned snapshots of a dataset series.",
       "class": "dcat:DatasetSeries",
       "property": "dcat:hasVersion",
       "rq2_term": "dcat:hasVersion",
@@ -3055,11 +3232,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has version of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve versioned snapshots; this is narrower than versions, editions or adaptations. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-9570f85c2ad9e0e608a2",
-      "need": "Find the in series of a dataset series.",
+      "need": "Find the dataset series that a dataset series belongs to.",
       "class": "dcat:DatasetSeries",
       "property": "dcat:inSeries",
       "rq2_term": "dcat:inSeries",
@@ -3075,11 +3254,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the in series of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-506c890aa9ff23bdb184",
-      "need": "Find the keyword of a dataset series.",
+      "need": "Find the keywords or tags describing a dataset series.",
       "class": "dcat:DatasetSeries",
       "property": "dcat:keyword",
       "rq2_term": "dcat:keyword",
@@ -3095,7 +3276,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the keyword of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-ad20dac7b1fb5fe08d8d",
@@ -3121,7 +3304,7 @@
     },
     {
       "id": "base-1929cf5373fb6094617e",
-      "need": "Find the last of a dataset series.",
+      "need": "Find the last resource in the ordered collection or series that a dataset series belongs to.",
       "class": "dcat:DatasetSeries",
       "property": "dcat:last",
       "rq2_term": "dcat:last",
@@ -3139,11 +3322,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the last of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve ordered-collection membership; this does not mean latest version. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-c9fa85f41781b3cb571b",
-      "need": "Find the prev of a dataset series.",
+      "need": "Find the resource immediately preceding a dataset series in its ordered collection or series.",
       "class": "dcat:DatasetSeries",
       "property": "dcat:prev",
       "rq2_term": "dcat:prev",
@@ -3161,7 +3346,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the prev of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve sequence order; this is distinct from previous version. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-e5604920cc72c511208e",
@@ -3187,7 +3374,7 @@
     },
     {
       "id": "base-89ed932139b9b192946d",
-      "need": "Find the qualified relation of a dataset series.",
+      "need": "Find descriptions of the relationships between a dataset series and other resources.",
       "class": "dcat:DatasetSeries",
       "property": "dcat:qualifiedRelation",
       "rq2_term": "dcat:qualifiedRelation",
@@ -3205,11 +3392,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the qualified relation of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-12c057dc118ffeb0067e",
-      "need": "Find the spatial resolution in meters of a dataset series.",
+      "need": "Find the minimum spatial separation resolvable in a dataset series, measured in meters.",
       "class": "dcat:DatasetSeries",
       "property": "dcat:spatialResolutionInMeters",
       "rq2_term": "dcat:spatialResolutionInMeters",
@@ -3227,11 +3416,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the spatial resolution in meters of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve resolvable separation and meters, distinct from geographic coverage. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-5a13726aef4a2e72666b",
-      "need": "Find the temporal resolution of a dataset series.",
+      "need": "Find the minimum time interval resolvable in a dataset series.",
       "class": "dcat:DatasetSeries",
       "property": "dcat:temporalResolution",
       "rq2_term": "dcat:temporalResolution",
@@ -3249,11 +3440,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the temporal resolution of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve resolvable interval, distinct from temporal coverage. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-24c23befed16f8f6661b",
-      "need": "Find the theme of a dataset series.",
+      "need": "Find the subject categories of a dataset series.",
       "class": "dcat:DatasetSeries",
       "property": "dcat:theme",
       "rq2_term": "dcat:theme",
@@ -3271,7 +3464,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the theme of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-d5bd78fbb50f55dae5c3",
@@ -3319,7 +3514,7 @@
     },
     {
       "id": "base-b119f4e480659cc697d2",
-      "need": "Find the accrual periodicity of a dataset series.",
+      "need": "Find how often a dataset series is published or updated.",
       "class": "dcat:DatasetSeries",
       "property": "dct:accrualPeriodicity",
       "rq2_term": "dct:accrualPeriodicity",
@@ -3337,11 +3532,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the accrual periodicity of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-64643adc368a25344dd9",
-      "need": "Find the conformance of a dataset series.",
+      "need": "Find the standard or specification that a dataset series conforms to.",
       "class": "dcat:DatasetSeries",
       "property": "dct:conformsTo",
       "rq2_term": "dct:conformsTo",
@@ -3359,7 +3556,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the conformance of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-0a50d247056e57c2b262",
@@ -3405,7 +3604,7 @@
     },
     {
       "id": "base-0505b4044afd7af2d2d4",
-      "need": "Find the has part of a dataset series.",
+      "need": "Find the resources included as parts of a dataset series.",
       "class": "dcat:DatasetSeries",
       "property": "dct:hasPart",
       "rq2_term": "dct:hasPart",
@@ -3421,7 +3620,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has part of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-a9e1d4ac3482b64d16a6",
@@ -3447,7 +3648,7 @@
     },
     {
       "id": "base-e210e2ef8053fd7b896f",
-      "need": "Find the is referenced by of a dataset series.",
+      "need": "Find the resources that refer to a dataset series.",
       "class": "dcat:DatasetSeries",
       "property": "dct:isReferencedBy",
       "rq2_term": "dct:isReferencedBy",
@@ -3465,11 +3666,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the is referenced by of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-6ac58c0687232c2cac48",
-      "need": "Find the issued of a dataset series.",
+      "need": "Find the date when a dataset series was formally issued or published.",
       "class": "dcat:DatasetSeries",
       "property": "dct:issued",
       "rq2_term": "dct:issued",
@@ -3487,7 +3690,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the issued of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-30c67b87a30987910247",
@@ -3535,7 +3740,7 @@
     },
     {
       "id": "base-6da8a0e34ebc5aba1be0",
-      "need": "Find the last modified of a dataset series.",
+      "need": "Find the most recent date when a dataset series was changed or modified.",
       "class": "dcat:DatasetSeries",
       "property": "dct:modified",
       "rq2_term": "dct:modified",
@@ -3553,7 +3758,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the last modified of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve the subject of modification; a record date is not the underlying dataset date. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-51d0a5778dcd9421dbde",
@@ -3579,7 +3786,7 @@
     },
     {
       "id": "base-cb2983b79ace45d68d33",
-      "need": "Find the relation of a dataset series.",
+      "need": "Find the resources related to a dataset series.",
       "class": "dcat:DatasetSeries",
       "property": "dct:relation",
       "rq2_term": "dct:relation",
@@ -3597,11 +3804,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the relation of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-bf6272ce1d66344c80d2",
-      "need": "Find the replaces of a dataset series.",
+      "need": "Find the resources superseded by a dataset series.",
       "class": "dcat:DatasetSeries",
       "property": "dct:replaces",
       "rq2_term": "dct:replaces",
@@ -3617,7 +3826,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the replaces of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-cafb9bb6f361d7620857",
@@ -3643,7 +3854,7 @@
     },
     {
       "id": "base-765d86ed38f8853e0dd5",
-      "need": "Find the geographic coverage of a dataset series.",
+      "need": "Find the geographic area covered by a dataset series.",
       "class": "dcat:DatasetSeries",
       "property": "dct:spatial",
       "rq2_term": "dct:spatial",
@@ -3661,11 +3872,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the geographic coverage of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-0eb03f4dc1ff17aae52f",
-      "need": "Find the temporal of a dataset series.",
+      "need": "Find the time period covered by a dataset series.",
       "class": "dcat:DatasetSeries",
       "property": "dct:temporal",
       "rq2_term": "dct:temporal",
@@ -3683,7 +3896,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the temporal of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-90ed0e397bd8b2c9896c",
@@ -3729,7 +3944,7 @@
     },
     {
       "id": "base-6f68df97f6fa53b15290",
-      "need": "Find the has policy of a dataset series.",
+      "need": "Find the machine-readable policy expressing the rights associated with a dataset series.",
       "class": "dcat:DatasetSeries",
       "property": "odrl:hasPolicy",
       "rq2_term": "odrl:hasPolicy",
@@ -3747,11 +3962,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has policy of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-b1d79952e8d50e4a2223",
-      "need": "Find the qualified attribution of a dataset series.",
+      "need": "Find the agents with responsibility for a dataset series and their roles.",
       "class": "dcat:DatasetSeries",
       "property": "prov:qualifiedAttribution",
       "rq2_term": "prov:qualifiedAttribution",
@@ -3769,11 +3986,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the qualified attribution of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve responsibility and the role described by qualified attribution. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-56a793064c73b0e982dc",
-      "need": "Find the was generated by of a dataset series.",
+      "need": "Find the activity that generated or provides the business context for creating a dataset series.",
       "class": "dcat:DatasetSeries",
       "property": "prov:wasGeneratedBy",
       "rq2_term": "prov:wasGeneratedBy",
@@ -3791,7 +4010,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the was generated by of a dataset series.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-913ee1aea43a3197434e",
@@ -3815,7 +4036,7 @@
     },
     {
       "id": "base-f1d8451dc2dcb6ac8575",
-      "need": "Find the access service of a distribution.",
+      "need": "Find a data service that provides access to a distribution.",
       "class": "dcat:Distribution",
       "property": "dcat:accessService",
       "rq2_term": "dcat:accessService",
@@ -3832,11 +4053,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the access service of a distribution.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-be635ab478e8bcad7312",
-      "need": "Find the access url of a distribution.",
+      "need": "Find an address that provides access to a distribution.",
       "class": "dcat:Distribution",
       "property": "dcat:accessURL",
       "rq2_term": "dcat:accessURL",
@@ -3853,11 +4076,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the access url of a distribution.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Access may be through a page, form or service; direct download is a separate entry. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-ca8facc4bc4f32e89b72",
-      "need": "Find the byte size of a distribution.",
+      "need": "Find the size in bytes of a distribution.",
       "class": "dcat:Distribution",
       "property": "dcat:byteSize",
       "rq2_term": "dcat:byteSize",
@@ -3874,11 +4099,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the byte size of a distribution.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-119cd64f546c03949708",
-      "need": "Find the compress format of a distribution.",
+      "need": "Find the compression format used for a distribution.",
       "class": "dcat:Distribution",
       "property": "dcat:compressFormat",
       "rq2_term": "dcat:compressFormat",
@@ -3895,11 +4122,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the compress format of a distribution.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-aac6bf4c846108f9887f",
-      "need": "Find the download url of a distribution.",
+      "need": "Find an address for directly downloading a distribution.",
       "class": "dcat:Distribution",
       "property": "dcat:downloadURL",
       "rq2_term": "dcat:downloadURL",
@@ -3916,7 +4145,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the download url of a distribution.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve direct-download meaning, distinct from a general access address. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-d1edd4b0e340a741ec10",
@@ -3941,7 +4172,7 @@
     },
     {
       "id": "base-3e05051c558d0500fd3b",
-      "need": "Find the package format of a distribution.",
+      "need": "Find the packaging format used for a distribution.",
       "class": "dcat:Distribution",
       "property": "dcat:packageFormat",
       "rq2_term": "dcat:packageFormat",
@@ -3958,11 +4189,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the package format of a distribution.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-751b2b74ced287d58c1f",
-      "need": "Find the spatial resolution in meters of a distribution.",
+      "need": "Find the minimum spatial separation resolvable in a distribution, measured in meters.",
       "class": "dcat:Distribution",
       "property": "dcat:spatialResolutionInMeters",
       "rq2_term": "dcat:spatialResolutionInMeters",
@@ -3979,11 +4212,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the spatial resolution in meters of a distribution.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve resolvable separation and meters, distinct from geographic coverage. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-4b412c2a4a50e7fb2722",
-      "need": "Find the temporal resolution of a distribution.",
+      "need": "Find the minimum time interval resolvable in a distribution.",
       "class": "dcat:Distribution",
       "property": "dcat:temporalResolution",
       "rq2_term": "dcat:temporalResolution",
@@ -4000,7 +4235,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the temporal resolution of a distribution.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve resolvable interval, distinct from temporal coverage. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-f3c5870447b61303a78c",
@@ -4025,7 +4262,7 @@
     },
     {
       "id": "base-ab7bdf9082610f549574",
-      "need": "Find the conformance of a distribution.",
+      "need": "Find the standard or specification that a distribution conforms to.",
       "class": "dcat:Distribution",
       "property": "dct:conformsTo",
       "rq2_term": "dct:conformsTo",
@@ -4042,7 +4279,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the conformance of a distribution.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-9feb59be7a1130fd80f4",
@@ -4086,7 +4325,7 @@
     },
     {
       "id": "base-19d24f4abafd425bd785",
-      "need": "Find the issued of a distribution.",
+      "need": "Find the date when a distribution was formally issued or published.",
       "class": "dcat:Distribution",
       "property": "dct:issued",
       "rq2_term": "dct:issued",
@@ -4103,7 +4342,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the issued of a distribution.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-2192c59e4a9da7bd3033",
@@ -4128,7 +4369,7 @@
     },
     {
       "id": "base-bb77c65642c9bb9e2f9f",
-      "need": "Find the last modified of a distribution.",
+      "need": "Find the most recent date when a distribution was changed or modified.",
       "class": "dcat:Distribution",
       "property": "dct:modified",
       "rq2_term": "dct:modified",
@@ -4143,7 +4384,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the last modified of a distribution.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve the subject of modification; a record date is not the underlying dataset date. Basis: pinned definition."
     },
     {
       "id": "base-fb3ce2d5aba153e0e509",
@@ -4187,7 +4430,7 @@
     },
     {
       "id": "base-8ea7a03bbceee6018f95",
-      "need": "Find the has policy of a distribution.",
+      "need": "Find the machine-readable policy expressing the rights associated with a distribution.",
       "class": "dcat:Distribution",
       "property": "odrl:hasPolicy",
       "rq2_term": "odrl:hasPolicy",
@@ -4204,7 +4447,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has policy of a distribution.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-9aa6aa2b4782ecfcf2a0",
@@ -4249,7 +4494,7 @@
     },
     {
       "id": "base-a87f3ed2ea9e5790052f",
-      "need": "Find the had role of a relationship.",
+      "need": "Find the role of the related entity or agent in a relationship.",
       "class": "dcat:Relationship",
       "property": "dcat:hadRole",
       "rq2_term": "dcat:hadRole",
@@ -4266,11 +4511,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the had role of a relationship.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-c9e239c1fca79ad465fc",
-      "need": "Find the relation of a relationship.",
+      "need": "Find the related resource described by a relationship.",
       "class": "dcat:Relationship",
       "property": "dct:relation",
       "rq2_term": "dct:relation",
@@ -4287,7 +4534,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the relation of a relationship.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-a41c1bb8b210a3cee88e",
@@ -4311,7 +4560,7 @@
     },
     {
       "id": "base-be31b0f08276574f1cbb",
-      "need": "Find the status of a resource.",
+      "need": "Find the status of a resource in its workflow process.",
       "class": "dcat:Resource",
       "property": "adms:status",
       "rq2_term": "adms:status",
@@ -4328,7 +4577,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the status of a resource.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve the context-specific meaning: change type, maturity or workflow status. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-00942a1fbb4bbb26c79a",
@@ -4372,7 +4623,7 @@
     },
     {
       "id": "base-e67cca18cbbcce2b2159",
-      "need": "Find the first of a resource.",
+      "need": "Find the first resource in the ordered collection or series that a resource belongs to.",
       "class": "dcat:Resource",
       "property": "dcat:first",
       "rq2_term": "dcat:first",
@@ -4389,11 +4640,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the first of a resource.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve ordered-collection membership; this does not mean first version. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-988ef6d21b2209899e80",
-      "need": "Find the has current version of a resource.",
+      "need": "Find the current version of a resource.",
       "class": "dcat:Resource",
       "property": "dcat:hasCurrentVersion",
       "rq2_term": "dcat:hasCurrentVersion",
@@ -4410,11 +4663,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has current version of a resource.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-4c57b49c11dc06087831",
-      "need": "Find the has version of a resource.",
+      "need": "Find the versioned snapshots of a resource.",
       "class": "dcat:Resource",
       "property": "dcat:hasVersion",
       "rq2_term": "dcat:hasVersion",
@@ -4431,11 +4686,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has version of a resource.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve versioned snapshots; this is narrower than versions, editions or adaptations. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-1e44ab98b96fafdb23ac",
-      "need": "Find the keyword of a resource.",
+      "need": "Find the keywords or tags describing a resource.",
       "class": "dcat:Resource",
       "property": "dcat:keyword",
       "rq2_term": "dcat:keyword",
@@ -4450,7 +4707,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the keyword of a resource.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-460e3716bf28e792b10f",
@@ -4475,7 +4734,7 @@
     },
     {
       "id": "base-b662e5550ff76aeb53c5",
-      "need": "Find the last of a resource.",
+      "need": "Find the last resource in the ordered collection or series that a resource belongs to.",
       "class": "dcat:Resource",
       "property": "dcat:last",
       "rq2_term": "dcat:last",
@@ -4492,11 +4751,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the last of a resource.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve ordered-collection membership; this does not mean latest version. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-3947556f349e3c0f97ab",
-      "need": "Find the prev of a resource.",
+      "need": "Find the resource immediately preceding a resource in its ordered collection or series.",
       "class": "dcat:Resource",
       "property": "dcat:prev",
       "rq2_term": "dcat:prev",
@@ -4513,7 +4774,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the prev of a resource.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve sequence order; this is distinct from previous version. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-12f8b5e9707d03d3de27",
@@ -4538,7 +4801,7 @@
     },
     {
       "id": "base-dc9a488dc1a9765c9d65",
-      "need": "Find the qualified relation of a resource.",
+      "need": "Find descriptions of the relationships between a resource and other resources.",
       "class": "dcat:Resource",
       "property": "dcat:qualifiedRelation",
       "rq2_term": "dcat:qualifiedRelation",
@@ -4555,11 +4818,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the qualified relation of a resource.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-728b90518d52c655866c",
-      "need": "Find the theme of a resource.",
+      "need": "Find the subject categories of a resource.",
       "class": "dcat:Resource",
       "property": "dcat:theme",
       "rq2_term": "dcat:theme",
@@ -4576,7 +4841,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the theme of a resource.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-186d8b794784eea09796",
@@ -4622,7 +4889,7 @@
     },
     {
       "id": "base-e2e8fe045044491d49f8",
-      "need": "Find the conformance of a resource.",
+      "need": "Find the standard or specification that a resource conforms to.",
       "class": "dcat:Resource",
       "property": "dct:conformsTo",
       "rq2_term": "dct:conformsTo",
@@ -4639,7 +4906,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the conformance of a resource.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-13925accba712735e74a",
@@ -4683,7 +4952,7 @@
     },
     {
       "id": "base-944ff168a882631b9c2f",
-      "need": "Find the has part of a resource.",
+      "need": "Find the resources included as parts of a resource.",
       "class": "dcat:Resource",
       "property": "dct:hasPart",
       "rq2_term": "dct:hasPart",
@@ -4698,7 +4967,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has part of a resource.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-bdd0aba2ff35331f63f7",
@@ -4723,7 +4994,7 @@
     },
     {
       "id": "base-33c80183496c50b8b57e",
-      "need": "Find the is referenced by of a resource.",
+      "need": "Find the resources that refer to a resource.",
       "class": "dcat:Resource",
       "property": "dct:isReferencedBy",
       "rq2_term": "dct:isReferencedBy",
@@ -4740,11 +5011,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the is referenced by of a resource.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-735c095fdb874b6a40c9",
-      "need": "Find the issued of a resource.",
+      "need": "Find the date when a resource was formally issued or published.",
       "class": "dcat:Resource",
       "property": "dct:issued",
       "rq2_term": "dct:issued",
@@ -4761,7 +5034,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the issued of a resource.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-d2dc6a4d14fb32052548",
@@ -4807,7 +5082,7 @@
     },
     {
       "id": "base-a3cc79dc9088deb6b0ae",
-      "need": "Find the last modified of a resource.",
+      "need": "Find the most recent date when a resource was changed or modified.",
       "class": "dcat:Resource",
       "property": "dct:modified",
       "rq2_term": "dct:modified",
@@ -4824,7 +5099,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the last modified of a resource.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve the subject of modification; a record date is not the underlying dataset date. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-e92f4d93c958049eceba",
@@ -4849,7 +5126,7 @@
     },
     {
       "id": "base-6c024959ec0ea2d3f226",
-      "need": "Find the relation of a resource.",
+      "need": "Find the resources related to a resource.",
       "class": "dcat:Resource",
       "property": "dct:relation",
       "rq2_term": "dct:relation",
@@ -4866,11 +5143,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the relation of a resource.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-1bb7764e63482d449507",
-      "need": "Find the replaces of a resource.",
+      "need": "Find the resources superseded by a resource.",
       "class": "dcat:Resource",
       "property": "dct:replaces",
       "rq2_term": "dct:replaces",
@@ -4885,7 +5164,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the replaces of a resource.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     {
       "id": "base-af32ceeb75ca2e4a81e0",
@@ -4950,7 +5231,7 @@
     },
     {
       "id": "base-23e056306128db8dab6c",
-      "need": "Find the has policy of a resource.",
+      "need": "Find the machine-readable policy expressing the rights associated with a resource.",
       "class": "dcat:Resource",
       "property": "odrl:hasPolicy",
       "rq2_term": "odrl:hasPolicy",
@@ -4967,11 +5248,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has policy of a resource.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-4b0cea239a4e61368487",
-      "need": "Find the qualified attribution of a resource.",
+      "need": "Find the agents with responsibility for a resource and their roles.",
       "class": "dcat:Resource",
       "property": "prov:qualifiedAttribution",
       "rq2_term": "prov:qualifiedAttribution",
@@ -4988,7 +5271,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the qualified attribution of a resource.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Preserve responsibility and the role described by qualified attribution. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-9c2d1c9969963863e814",
@@ -5032,7 +5317,7 @@
     },
     {
       "id": "base-a0465116110b650b45bf",
-      "need": "Find the bbox of a location.",
+      "need": "Find the geographic bounding box of a location.",
       "class": "dct:Location",
       "property": "dcat:bbox",
       "rq2_term": "dcat:bbox",
@@ -5049,7 +5334,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the bbox of a location.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-675cfff421bf56b90d04",
@@ -5074,7 +5361,7 @@
     },
     {
       "id": "base-91c5470b88ebd9c9afde",
-      "need": "Find the geometry of a location.",
+      "need": "Find the geometry describing a location.",
       "class": "dct:Location",
       "property": "locn:geometry",
       "rq2_term": "locn:geometry",
@@ -5091,7 +5378,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the geometry of a location.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-12d543de9e1efa0fd4a5",
@@ -5153,7 +5442,7 @@
     },
     {
       "id": "base-ec016e602192eac20f28",
-      "need": "Find the has beginning of a period of time.",
+      "need": "Find the beginning of a period of time.",
       "class": "dct:PeriodOfTime",
       "property": "time:hasBeginning",
       "rq2_term": "time:hasBeginning",
@@ -5170,11 +5459,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has beginning of a period of time.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-84cfe03d492fb72447b9",
-      "need": "Find the has end of a period of time.",
+      "need": "Find the end of a period of time.",
       "class": "dct:PeriodOfTime",
       "property": "time:hasEnd",
       "rq2_term": "time:hasEnd",
@@ -5191,7 +5482,9 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the has end of a period of time.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-c90e2c23d860c033c25f",
@@ -5253,7 +5546,7 @@
     },
     {
       "id": "base-dc5fda6601982c0c40e4",
-      "need": "Find the algorithm of a checksum.",
+      "need": "Find the algorithm used to calculate a checksum.",
       "class": "spdx:Checksum",
       "property": "spdx:algorithm",
       "rq2_term": "spdx:algorithm",
@@ -5270,11 +5563,13 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the algorithm of a checksum.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
     },
     {
       "id": "base-001d766d9528af0d8005",
-      "need": "Find the checksum value of a checksum.",
+      "need": "Find the calculated digest value of a checksum.",
       "class": "spdx:Checksum",
       "property": "spdx:checksumValue",
       "rq2_term": "spdx:checksumValue",
@@ -5289,8 +5584,10 @@
         }
       ],
       "base_obligation": null,
-      "vocabulary": null
+      "vocabulary": null,
+      "need_draft": "Find the checksum value of a checksum.",
+      "review_note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     }
   ],
-  "catalogue_hash": "a0adca070184b70d43a25b5c15e3310fda08550442f53de468f11fb8695e0aa8"
+  "catalogue_hash": "8e14e60e45e6e1971c1369568baeaa0ab8d338f47efdf3c19aa9bf265a74ce84"
 }

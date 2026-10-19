@@ -18,6 +18,8 @@ POLICY = 'rq1-needs-row-recovery-v2'
 class InputBoundError(ValueError):
     """Deterministic local failure; a retry cannot change the input size."""
 SPECS = {
+    'FAPreservation': ('checks','group_id','groups'),
+    'FAScopeResult': ('decisions', 'need_id', 'needs'),
     'DatasetCategories':('units','evidence_id','evidence'),
     'NeedEquivalence':('decisions','need_id','needs'),
     'NeedStatements':('needs','group_id','groups'),
@@ -46,6 +48,7 @@ def subset(payload, input_field, id_field, ids):
 
 def fallback_row(name, identifier):
     why='Technical output failure: no checked judgement; human review required.'
+    if name=='FAScopeResult': return {'need_id':identifier,'support':'uncertain','serves':'unresolved','nature':'uncertain','actor':'','task':'','example':'','rationale':why,'evidence_ids':[]}
     if name=='NeedClassifications': return {'need_id':identifier,'classification':'domain','base_need_ids':[],'rationale':why}
     if name=='NeedUseCaseLinks': return {'need_id':identifier,'links':[]}
     if name=='UseCaseCritic': return {'link_id':identifier,'keep':False,'rationale':why}

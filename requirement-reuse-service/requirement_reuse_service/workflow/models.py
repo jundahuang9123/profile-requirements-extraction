@@ -204,7 +204,7 @@ class SetAside(Contract):
     observation_id: str
     role_id: str
     reason: Literal['no_source_link', 'inherited_from_base', 'declared_not_extension', 'base_specification_only', 'generic_need_served_by_base', 'no_use_case', 'not_supported_by_quote', 'source_check_failed', 'rewrite_rejected',
-                    'not_find_or_access', 'not_catalogue_level', 'not_commonly_agreed'] = 'no_source_link'
+                    'not_find_or_access', 'not_catalogue_level', 'not_commonly_agreed', 'fa_scope_set_aside'] = 'no_source_link'
     base_check: dict[str, Any] | None = None
     revision_id: str | None = None
     need_id: str | None = None
@@ -330,6 +330,7 @@ class RequirementRecord(Contract):
     use_case_necessity: dict[str, bool] = Field(default_factory=dict)
     need_condition: str = ''
     need_integrity_hash: str | None = None
+    fa_scope: dict[str, Any] | None = None
     rank: int | None = Field(default=None, ge=1)
     rank_keys: dict[str, Any] = Field(default_factory=dict)
 
@@ -365,6 +366,7 @@ class DeliberationCase(Contract):
     model_seconds: float = 0
     frozen_requirements: list[dict[str, Any]] = Field(default_factory=list)
     mediation: dict[str, Any] | None = None
+    discussion_trace: dict[str, Any] = Field(default_factory=dict)
 
 
 ShortRoleText = Annotated[str, Field(min_length=1, max_length=240)]
@@ -467,9 +469,22 @@ class StakeholderPanel(Contract):
     kept_ids: list[str] = Field(default_factory=list, max_length=8)
 
 
+class StepModelOptions(Contract):
+    reasoning_effort: Literal['low', 'medium', 'high', 'xhigh'] | None = None
+
+
+class MediationTimeoutFallback(Contract):
+    policy_version: Literal['rq1-case-mediation-timeout-v1'] = 'rq1-case-mediation-timeout-v1'
+    fallback_model: ModelID
+    timeout_seconds: int = Field(default=300, ge=30, le=600)
+
+
 class RunRequest(Contract):
-    stakeholder_workflow: Literal['independent', 'routed_mediated'] = 'independent'
+    mediation_timeout_fallback: MediationTimeoutFallback | None = None
+    stakeholder_workflow: Literal['independent', 'routed_mediated', 'fa_mediated'] = 'independent'
+    requirements_scope: Literal['find_access_v1'] | None = None
     step_models: dict[StepName, ModelID] = Field(default_factory=dict)
+    step_model_options: dict[StepName, StepModelOptions] = Field(default_factory=dict)
     output_form: Literal['needs', 'candidates'] | None = None
     scoping: Literal['use_cases', 'off'] | None = None
     snapshot_id: str
@@ -495,7 +510,11 @@ class RunRequest(Contract):
 
     @model_validator(mode='after')
     def panel_mode(self) -> 'RunRequest':
-        if self.step_models and self.strategy != 'multi_agent':
+        if self.mediation_timeout_fallback and (self.strategy != 'multi_agent' or self.stakeholder_workflow != 'fa_mediated'):
+            raise ValueError('Case mediation fallback requires the F/A multi-agent workflow.')
+        if self.stakeholder_workflow == 'fa_mediated':
+            self.requirements_scope = 'find_access_v1'
+        if (self.step_models or self.step_model_options) and self.strategy != 'multi_agent':
             raise ValueError('Per-step model choices require the multi_agent strategy.')
         if self.output_form is None:
             self.output_form = 'needs' if self.strategy == 'multi_agent' else 'candidates'
@@ -516,9 +535,12 @@ class RunRequest(Contract):
 
 
 class DeriveRequest(Contract):
-    stakeholder_workflow: Literal['independent', 'routed_mediated'] | None = None
+    mediation_timeout_fallback: MediationTimeoutFallback | None = None
+    stakeholder_workflow: Literal['independent', 'routed_mediated', 'fa_mediated'] | None = None
+    requirements_scope: Literal['find_access_v1'] | None = None
     step_models: dict[StepName, ModelID] = Field(default_factory=dict)
-    start_from: Literal['normalization', 'elicitation', 'role_selection'] = 'normalization'
+    step_model_options: dict[StepName, StepModelOptions] = Field(default_factory=dict)
+    start_from: Literal['normalization', 'elicitation', 'role_selection', 'deliberation'] = 'normalization'
     output_form: Literal['needs', 'candidates'] | None = None
     scoping: Literal['use_cases', 'off'] | None = None
     expected_version: int = Field(ge=1)
@@ -537,6 +559,7 @@ class DeriveRequest(Contract):
 class WorkflowRun(Contract):
     stakeholder_audit: dict[str, dict[str, Any]] = Field(default_factory=dict)
     step_models: dict[StepName, ModelID] = Field(default_factory=dict)
+    step_model_options: dict[StepName, StepModelOptions] = Field(default_factory=dict)
     run_id: str
     name: str
     snapshot_id: str

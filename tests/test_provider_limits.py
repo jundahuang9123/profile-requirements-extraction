@@ -14,7 +14,7 @@ from pydantic import BaseModel
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'requirement-reuse-service'))
 from requirement_reuse_service.llm import client as module
-from requirement_reuse_service.llm.client import LLMError, OutputTokenLimitError, OpenAICompatibleClient, retry_after_seconds
+from requirement_reuse_service.llm.client import LLMError, LLMRequestTimeoutError, OutputTokenLimitError, OpenAICompatibleClient, retry_after_seconds
 from requirement_reuse_service.llm.config import LLMConfig
 
 
@@ -139,7 +139,7 @@ def test_transient_retries_can_be_disabled_and_honor_retry_after(config, monkeyp
     monkeypatch.setattr(module.time, 'sleep', lambda _: pytest.fail('Disabled retries must not wait'))
     config.transient_retries = 0
     client = OpenAICompatibleClient(config)
-    with pytest.raises(LLMError, match='ReadTimeout'):
+    with pytest.raises(LLMRequestTimeoutError, match='ReadTimeout'):
         invoke(client)
     assert len(count) == 1
     assert client.last_call_metadata()['http_attempts'][0]['action'] == 'request_failed'

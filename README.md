@@ -177,3 +177,7 @@ New agent runs default to **Merge candidates with the same meaning**; choose **E
 
 For source-routed extraction, stakeholder discussion and mediator revisions, see
 [the protocol and traceability guide](docs/ROUTED_STAKEHOLDER_WORKFLOW.md).
+
+## F/A coverage and stakeholder dialogue
+
+New F/A runs preserve the complete traced inventory and use independent stakeholder positions, mediator drafts, targeted responses and independent checks. See [the workflow and model guide](docs/FA-COVERAGE-DISCUSSION.md). Historical runs remain versioned; live model comparisons are separate from offline implementation tests.

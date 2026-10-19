@@ -1,0 +1,345 @@
+{
+  "base_profile_id": "dcat-2.0.0",
+  "draft_catalogue_hash": "be8d565a1682a4139f9b0dd99bb2152729442160a8d53c591b4ed2968ad4c2f5",
+  "status": "reviewed",
+  "reviewer": "Codex (AI-assisted phrase review; not human approval)",
+  "reviewed_at": "2026-10-19",
+  "phrase_corrections": {
+    "base-50792ccc53b1f41d32a0": {
+      "need": "Find the other catalogs whose contents are of interest in a catalog.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Preserve interest in another catalog; do not equate this with a part-of relationship. Basis: pinned definition."
+    },
+    "base-6d14ce208a675d28beb4": {
+      "need": "Find the datasets listed in a catalog.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
+    },
+    "base-4ea2a466f66e3482e083": {
+      "need": "Find the available distributions of a catalog.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
+    },
+    "base-09be5f7e303dec685010": {
+      "need": "Find the keywords or tags describing a catalog.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
+    },
+    "base-19018ecd7a5b58070008": {
+      "need": "Find descriptions of the relationships between a catalog and other resources.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-1a088e69a8a92555b764": {
+      "need": "Find the records describing resources listed in a catalog.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
+    },
+    "base-1bff4976ea3c1be34693": {
+      "need": "Find the data services listed in a catalog.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
+    },
+    "base-73dd0dcf6ec19757ab98": {
+      "need": "Find the minimum spatial separation resolvable in a catalog, measured in meters.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Preserve resolvable separation and meters, distinct from geographic coverage. Basis: pinned definition and usage notes."
+    },
+    "base-a022c0953d3892f0e6e0": {
+      "need": "Find the minimum time interval resolvable in a catalog.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Preserve resolvable interval, distinct from temporal coverage. Basis: pinned definition and usage notes."
+    },
+    "base-f574ba605ccf3119cdd7": {
+      "need": "Find the subject categories of a catalog.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-a9ab7820d73ff2cfc021": {
+      "need": "Find the classification scheme used by a catalog.",
+      "note": "AI-assisted review by Codex, 2026-10-19. The classification scheme is distinct from the categories assigned to a resource. Basis: pinned definition and usage notes."
+    },
+    "base-a9af83b38b46e8cb9e4c": {
+      "need": "Find how often a catalog is published or updated.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-8b21777000a0010d567e": {
+      "need": "Find the standard or specification that a catalog conforms to.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-3e5e33729360a1bc8dca": {
+      "need": "Find the resources listed as members of a catalog.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-ca805a3ab3ef40b3b6fd": {
+      "need": "Find the resources that refer to a catalog.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-66b14aabd2db6d505f58": {
+      "need": "Find the date when a catalog was formally issued or published.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-0fcbfef57a1fb1aabd49": {
+      "need": "Find the languages used in the textual metadata of a catalog.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Metadata language must not be confused with the language of the data values. Basis: pinned definition and usage notes."
+    },
+    "base-4161e09cfcf3496fe97a": {
+      "need": "Find the most recent date when a catalog was changed or modified.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Preserve the subject of modification; a record date is not the underlying dataset date. Basis: pinned definition and usage notes."
+    },
+    "base-6034d80b5ea8e8aece28": {
+      "need": "Find the resources related to a catalog.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-843582b5995c75134683": {
+      "need": "Find the geographic area covered by a catalog.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-81e37bfb9237c5c44fe0": {
+      "need": "Find the time period covered by a catalog.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-a9c4a71627d0be0004e5": {
+      "need": "Find the machine-readable policy expressing the rights associated with a catalog.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-693c9d860fdc1f56ede0": {
+      "need": "Find the agents with responsibility for a catalog and their roles.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Preserve responsibility and the role described by qualified attribution. Basis: pinned definition and usage notes."
+    },
+    "base-ddf5ba28a9493d01cc07": {
+      "need": "Find the activity that generated or provides the business context for creating a catalog.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-35cc35fe2f83d0f4ee0a": {
+      "need": "Find the standard or profile that the metadata in a catalog record conforms to.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-2d16e2fb79d40b864455": {
+      "need": "Find the date when the resource described by a catalog record was listed in the catalog.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-929f74bd034b1750fa3b": {
+      "need": "Find the most recent date when a catalog record was changed or modified.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Preserve the subject of modification; a record date is not the underlying dataset date. Basis: pinned definition and usage notes."
+    },
+    "base-d4336d48e3d7bb7cf4e2": {
+      "need": "Find the resource described by a catalog record.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Keep the described resource distinct from the metadata record; retain the release-specific range in the unchanged source material. Basis: pinned definition and usage notes."
+    },
+    "base-a1a499fec578f4a4710d": {
+      "need": "Find a description of the operations and parameters available through a data service.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-0ab2b856d358ff2a3e2c": {
+      "need": "Find the endpoint address of a data service.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
+    },
+    "base-225a944cf5700262a174": {
+      "need": "Find the keywords or tags describing a data service.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
+    },
+    "base-0430572cc27abd846be5": {
+      "need": "Find descriptions of the relationships between a data service and other resources.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-bc8fc964bb1b14fb2ff5": {
+      "need": "Find the datasets that a data service provides access to.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
+    },
+    "base-c57c3a7e159932a32857": {
+      "need": "Find the subject categories of a data service.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-2cf2976a6775ac199fee": {
+      "need": "Find the standard or specification that a data service conforms to.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-92f5f70b8700107521fb": {
+      "need": "Find the resources that refer to a data service.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-34f4670db24a63c57a5b": {
+      "need": "Find the date when a data service was formally issued or published.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-26bc9e66a7067f06c544": {
+      "need": "Find the most recent date when a data service was changed or modified.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Preserve the subject of modification; a record date is not the underlying dataset date. Basis: pinned definition and usage notes."
+    },
+    "base-5375b9bafed8a94ce8b8": {
+      "need": "Find the resources related to a data service.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-3209a2a6aa86fe36b05f": {
+      "need": "Find the machine-readable policy expressing the rights associated with a data service.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-749a1e63a227a1720e0b": {
+      "need": "Find the agents with responsibility for a data service and their roles.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Preserve responsibility and the role described by qualified attribution. Basis: pinned definition and usage notes."
+    },
+    "base-8a5e74bd105430f996a7": {
+      "need": "Find the available distributions of a dataset.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
+    },
+    "base-67fec8d5e063ea832091": {
+      "need": "Find the keywords or tags describing a dataset.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
+    },
+    "base-b917a9578323263cd8e0": {
+      "need": "Find descriptions of the relationships between a dataset and other resources.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-545540ea9df198ca48fe": {
+      "need": "Find the minimum spatial separation resolvable in a dataset, measured in meters.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Preserve resolvable separation and meters, distinct from geographic coverage. Basis: pinned definition and usage notes."
+    },
+    "base-9c691f9fa7c21ed0bdd3": {
+      "need": "Find the minimum time interval resolvable in a dataset.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Preserve resolvable interval, distinct from temporal coverage. Basis: pinned definition and usage notes."
+    },
+    "base-475c94cd395c1ca9f9c7": {
+      "need": "Find the subject categories of a dataset.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-a1db139baf04d36ec774": {
+      "need": "Find how often a dataset is published or updated.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-7fea0f03d287ae3b49a3": {
+      "need": "Find the standard or specification that a dataset conforms to.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-c31ad2fbeaa725539c6f": {
+      "need": "Find the resources that refer to a dataset.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-b9fd8228661b9b9394e6": {
+      "need": "Find the date when a dataset was formally issued or published.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-45ff06266da6c9ec4592": {
+      "need": "Find the most recent date when a dataset was changed or modified.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Preserve the subject of modification; a record date is not the underlying dataset date. Basis: pinned definition and usage notes."
+    },
+    "base-593484a1dec9281c4e00": {
+      "need": "Find the resources related to a dataset.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-f5af5010fda985d53ea7": {
+      "need": "Find the geographic area covered by a dataset.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-07c0665568722c88a419": {
+      "need": "Find the time period covered by a dataset.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-dbac78d353d7da0bf9c6": {
+      "need": "Find the machine-readable policy expressing the rights associated with a dataset.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-42f032ec072969d34fec": {
+      "need": "Find the agents with responsibility for a dataset and their roles.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Preserve responsibility and the role described by qualified attribution. Basis: pinned definition and usage notes."
+    },
+    "base-abad4728ad347f53ad25": {
+      "need": "Find the activity that generated or provides the business context for creating a dataset.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-f1d8451dc2dcb6ac8575": {
+      "need": "Find a data service that provides access to a distribution.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-be635ab478e8bcad7312": {
+      "need": "Find an address that provides access to a distribution.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Access may be through a page, form or service; direct download is a separate entry. Basis: pinned definition and usage notes."
+    },
+    "base-ca8facc4bc4f32e89b72": {
+      "need": "Find the size in bytes of a distribution.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-119cd64f546c03949708": {
+      "need": "Find the compression format used for a distribution.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-aac6bf4c846108f9887f": {
+      "need": "Find an address for directly downloading a distribution.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Preserve direct-download meaning, distinct from a general access address. Basis: pinned definition and usage notes."
+    },
+    "base-3e05051c558d0500fd3b": {
+      "need": "Find the packaging format used for a distribution.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-751b2b74ced287d58c1f": {
+      "need": "Find the minimum spatial separation resolvable in a distribution, measured in meters.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Preserve resolvable separation and meters, distinct from geographic coverage. Basis: pinned definition and usage notes."
+    },
+    "base-4b412c2a4a50e7fb2722": {
+      "need": "Find the minimum time interval resolvable in a distribution.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Preserve resolvable interval, distinct from temporal coverage. Basis: pinned definition and usage notes."
+    },
+    "base-ab7bdf9082610f549574": {
+      "need": "Find the standard or specification that a distribution conforms to.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-19d24f4abafd425bd785": {
+      "need": "Find the date when a distribution was formally issued or published.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-bb77c65642c9bb9e2f9f": {
+      "need": "Find the most recent date when a distribution was changed or modified.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Preserve the subject of modification; a record date is not the underlying dataset date. Basis: pinned definition."
+    },
+    "base-8ea7a03bbceee6018f95": {
+      "need": "Find the machine-readable policy expressing the rights associated with a distribution.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-a87f3ed2ea9e5790052f": {
+      "need": "Find the role of the related entity or agent in a relationship.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-c9e239c1fca79ad465fc": {
+      "need": "Find the related resource described by a relationship.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-1e44ab98b96fafdb23ac": {
+      "need": "Find the keywords or tags describing a resource.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
+    },
+    "base-dc9a488dc1a9765c9d65": {
+      "need": "Find descriptions of the relationships between a resource and other resources.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-728b90518d52c655866c": {
+      "need": "Find the subject categories of a resource.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-e2e8fe045044491d49f8": {
+      "need": "Find the standard or specification that a resource conforms to.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-33c80183496c50b8b57e": {
+      "need": "Find the resources that refer to a resource.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-735c095fdb874b6a40c9": {
+      "need": "Find the date when a resource was formally issued or published.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-a3cc79dc9088deb6b0ae": {
+      "need": "Find the most recent date when a resource was changed or modified.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Preserve the subject of modification; a record date is not the underlying dataset date. Basis: pinned definition and usage notes."
+    },
+    "base-6c024959ec0ea2d3f226": {
+      "need": "Find the resources related to a resource.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-23e056306128db8dab6c": {
+      "need": "Find the machine-readable policy expressing the rights associated with a resource.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-4b0cea239a4e61368487": {
+      "need": "Find the agents with responsibility for a resource and their roles.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Preserve responsibility and the role described by qualified attribution. Basis: pinned definition and usage notes."
+    },
+    "base-a0465116110b650b45bf": {
+      "need": "Find the geographic bounding box of a location.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    },
+    "base-91c5470b88ebd9c9afde": {
+      "need": "Find the geometry describing a location.",
+      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition and usage notes."
+    }
+  }
+}

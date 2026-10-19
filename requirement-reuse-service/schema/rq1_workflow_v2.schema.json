@@ -1,5 +1,122 @@
 {
   "$defs": {
+    "Action": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": [
+            "retain",
+            "revise",
+            "merge",
+            "resolve",
+            "defer",
+            "add",
+            "split",
+            "recover",
+            "covered_by_base",
+            "set_aside"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "action_id": {
+          "title": "Action Id",
+          "type": "string"
+        },
+        "alternatives": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 6,
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "children": {
+          "items": {
+            "$ref": "#/$defs/AdditionalNeedAction"
+          },
+          "maxItems": 4,
+          "title": "Children",
+          "type": "array"
+        },
+        "condition": {
+          "default": "",
+          "maxLength": 1200,
+          "title": "Condition",
+          "type": "string"
+        },
+        "evidence_links": {
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          },
+          "maxItems": 24,
+          "title": "Evidence Links",
+          "type": "array"
+        },
+        "human_question": {
+          "anyOf": [
+            {
+              "maxLength": 1600,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Human Question"
+        },
+        "parent_revision_ids": {
+          "description": "Final need disposition: each current parent occurs once across actions, never once per concern.",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Parent Revision Ids",
+          "type": "array"
+        },
+        "priority_basis": {
+          "anyOf": [
+            {
+              "maxLength": 1200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Priority Basis"
+        },
+        "priority_links": {
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          },
+          "maxItems": 4,
+          "title": "Priority Links",
+          "type": "array"
+        },
+        "rationale": {
+          "maxLength": 1600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "statement": {
+          "default": "",
+          "maxLength": 2000,
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "action_id",
+        "action",
+        "rationale"
+      ],
+      "title": "Action",
+      "type": "object"
+    },
     "AdditionRequest": {
       "additionalProperties": false,
       "properties": {
@@ -444,6 +561,80 @@
       "title": "CategoryUnit",
       "type": "object"
     },
+    "Check": {
+      "additionalProperties": false,
+      "properties": {
+        "action_id": {
+          "title": "Action Id",
+          "type": "string"
+        },
+        "condition_supported": {
+          "title": "Condition Supported",
+          "type": "boolean"
+        },
+        "disposition_justified": {
+          "title": "Disposition Justified",
+          "type": "boolean"
+        },
+        "fa_relevant": {
+          "title": "Fa Relevant",
+          "type": "boolean"
+        },
+        "obligation_preserved": {
+          "title": "Obligation Preserved",
+          "type": "boolean"
+        },
+        "preserves_distinctions": {
+          "title": "Preserves Distinctions",
+          "type": "boolean"
+        },
+        "priority_supported": {
+          "title": "Priority Supported",
+          "type": "boolean"
+        },
+        "rationale": {
+          "maxLength": 1600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "supported": {
+          "title": "Supported",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "action_id",
+        "supported",
+        "preserves_distinctions",
+        "priority_supported",
+        "condition_supported",
+        "obligation_preserved",
+        "rationale",
+        "fa_relevant",
+        "disposition_justified"
+      ],
+      "title": "Check",
+      "type": "object"
+    },
+    "Checks": {
+      "additionalProperties": false,
+      "properties": {
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/Check"
+          },
+          "maxItems": 12,
+          "title": "Checks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "checks"
+      ],
+      "title": "Checks",
+      "type": "object"
+    },
     "Concern": {
       "additionalProperties": false,
       "properties": {
@@ -800,6 +991,10 @@
           "title": "Context Hash",
           "type": "string"
         },
+        "discussion_trace": {
+          "title": "Discussion Trace",
+          "type": "object"
+        },
         "frozen_requirements": {
           "items": {
             "type": "object"
@@ -1006,6 +1201,17 @@
           "title": "Expected Version",
           "type": "integer"
         },
+        "mediation_timeout_fallback": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MediationTimeoutFallback"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "name": {
           "default": "Reprocessed requirements",
           "minLength": 1,
@@ -1034,6 +1240,19 @@
           "title": "Rationale",
           "type": "string"
         },
+        "requirements_scope": {
+          "anyOf": [
+            {
+              "const": "find_access_v1",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requirements Scope"
+        },
         "reuse_assessments": {
           "default": true,
           "title": "Reuse Assessments",
@@ -1060,7 +1279,8 @@
             {
               "enum": [
                 "independent",
-                "routed_mediated"
+                "routed_mediated",
+                "fa_mediated"
               ],
               "type": "string"
             },
@@ -1076,10 +1296,40 @@
           "enum": [
             "normalization",
             "elicitation",
-            "role_selection"
+            "role_selection",
+            "deliberation"
           ],
           "title": "Start From",
           "type": "string"
+        },
+        "step_model_options": {
+          "additionalProperties": {
+            "$ref": "#/$defs/StepModelOptions"
+          },
+          "propertyNames": {
+            "enum": [
+              "role_selection",
+              "extraction",
+              "proposal_support",
+              "grouping",
+              "writer",
+              "rewrite_critic",
+              "membership",
+              "classification",
+              "profile_scope",
+              "use_case_linker",
+              "link_critic",
+              "assessment",
+              "discussion",
+              "dataset_categories",
+              "selection",
+              "stakeholder_review",
+              "mediation",
+              "mediation_check"
+            ]
+          },
+          "title": "Step Model Options",
+          "type": "object"
         },
         "step_models": {
           "additionalProperties": {
@@ -1103,7 +1353,10 @@
               "assessment",
               "discussion",
               "dataset_categories",
-              "selection"
+              "selection",
+              "stakeholder_review",
+              "mediation",
+              "mediation_check"
             ]
           },
           "title": "Step Models",
@@ -1409,6 +1662,125 @@
         "task_id"
       ],
       "title": "ExtractionTaskJustification",
+      "type": "object"
+    },
+    "FAPreservation": {
+      "additionalProperties": false,
+      "properties": {
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/PreservationCheck"
+          },
+          "maxItems": 20,
+          "title": "Checks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "checks"
+      ],
+      "title": "FAPreservation",
+      "type": "object"
+    },
+    "FAScopeDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "actor": {
+          "maxLength": 1000,
+          "title": "Actor",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 24,
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "example": {
+          "maxLength": 1500,
+          "title": "Example",
+          "type": "string"
+        },
+        "nature": {
+          "enum": [
+            "information_requirement",
+            "operational_obligation",
+            "implementation_detail",
+            "background",
+            "uncertain"
+          ],
+          "title": "Nature",
+          "type": "string"
+        },
+        "need_id": {
+          "title": "Need Id",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 1800,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "serves": {
+          "enum": [
+            "find",
+            "access",
+            "both",
+            "neither",
+            "unresolved"
+          ],
+          "title": "Serves",
+          "type": "string"
+        },
+        "support": {
+          "enum": [
+            "explicit",
+            "supported_inference",
+            "disputed",
+            "unsupported",
+            "uncertain"
+          ],
+          "title": "Support",
+          "type": "string"
+        },
+        "task": {
+          "maxLength": 1500,
+          "title": "Task",
+          "type": "string"
+        }
+      },
+      "required": [
+        "need_id",
+        "support",
+        "serves",
+        "nature",
+        "actor",
+        "task",
+        "example",
+        "rationale"
+      ],
+      "title": "FAScopeDecision",
+      "type": "object"
+    },
+    "FAScopeResult": {
+      "additionalProperties": false,
+      "properties": {
+        "decisions": {
+          "items": {
+            "$ref": "#/$defs/FAScopeDecision"
+          },
+          "maxItems": 25,
+          "title": "Decisions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "decisions"
+      ],
+      "title": "FAScopeResult",
       "type": "object"
     },
     "Finding": {
@@ -1753,6 +2125,35 @@
         "summary"
       ],
       "title": "MediationPlan",
+      "type": "object"
+    },
+    "MediationTimeoutFallback": {
+      "additionalProperties": false,
+      "properties": {
+        "fallback_model": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Fallback Model",
+          "type": "string"
+        },
+        "policy_version": {
+          "const": "rq1-case-mediation-timeout-v1",
+          "default": "rq1-case-mediation-timeout-v1",
+          "title": "Policy Version",
+          "type": "string"
+        },
+        "timeout_seconds": {
+          "default": 300,
+          "maximum": 600,
+          "minimum": 30,
+          "title": "Timeout Seconds",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "fallback_model"
+      ],
+      "title": "MediationTimeoutFallback",
       "type": "object"
     },
     "MediatorAction": {
@@ -2547,6 +2948,99 @@
       "title": "OmittedRole",
       "type": "object"
     },
+    "Plan": {
+      "additionalProperties": false,
+      "properties": {
+        "actions": {
+          "items": {
+            "$ref": "#/$defs/Action"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Actions",
+          "type": "array"
+        },
+        "concerns": {
+          "items": {
+            "$ref": "#/$defs/ConcernDisposition"
+          },
+          "maxItems": 64,
+          "title": "Concerns",
+          "type": "array"
+        },
+        "questions": {
+          "items": {
+            "$ref": "#/$defs/HumanReviewQuestion"
+          },
+          "maxItems": 32,
+          "title": "Questions",
+          "type": "array"
+        },
+        "summary": {
+          "maxLength": 1800,
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "actions",
+        "summary"
+      ],
+      "title": "Plan",
+      "type": "object"
+    },
+    "PreservationCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "actor_preserved": {
+          "title": "Actor Preserved",
+          "type": "boolean"
+        },
+        "conditions_preserved": {
+          "title": "Conditions Preserved",
+          "type": "boolean"
+        },
+        "group_id": {
+          "title": "Group Id",
+          "type": "string"
+        },
+        "information_preserved": {
+          "title": "Information Preserved",
+          "type": "boolean"
+        },
+        "negation_preserved": {
+          "title": "Negation Preserved",
+          "type": "boolean"
+        },
+        "obligation_preserved": {
+          "title": "Obligation Preserved",
+          "type": "boolean"
+        },
+        "purpose_preserved": {
+          "title": "Purpose Preserved",
+          "type": "boolean"
+        },
+        "rationale": {
+          "maxLength": 1500,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "group_id",
+        "information_preserved",
+        "actor_preserved",
+        "purpose_preserved",
+        "conditions_preserved",
+        "obligation_preserved",
+        "negation_preserved",
+        "rationale"
+      ],
+      "title": "PreservationCheck",
+      "type": "object"
+    },
     "ProfileScope": {
       "additionalProperties": false,
       "properties": {
@@ -2923,6 +3417,18 @@
           "default": null,
           "title": "Extension Kind"
         },
+        "fa_scope": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fa Scope"
+        },
         "group_id": {
           "anyOf": [
             {
@@ -3244,6 +3750,43 @@
       "title": "RestoreRequest",
       "type": "object"
     },
+    "Review": {
+      "additionalProperties": false,
+      "properties": {
+        "concerns": {
+          "items": {
+            "$ref": "#/$defs/Concern"
+          },
+          "maxItems": 8,
+          "title": "Concerns",
+          "type": "array"
+        },
+        "evidence_queries": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 2,
+          "title": "Evidence Queries",
+          "type": "array"
+        },
+        "finished": {
+          "default": false,
+          "title": "Finished",
+          "type": "boolean"
+        },
+        "summary": {
+          "maxLength": 1800,
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "summary"
+      ],
+      "title": "Review",
+      "type": "object"
+    },
     "RevisionDraft": {
       "additionalProperties": false,
       "properties": {
@@ -3531,6 +4074,17 @@
           "title": "Max Roles",
           "type": "integer"
         },
+        "mediation_timeout_fallback": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MediationTimeoutFallback"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "name": {
           "default": "RQ1 workflow",
           "title": "Name",
@@ -3557,6 +4111,19 @@
           "maxLength": 2000,
           "title": "Override Rationale",
           "type": "string"
+        },
+        "requirements_scope": {
+          "anyOf": [
+            {
+              "const": "find_access_v1",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requirements Scope"
         },
         "role_ids": {
           "items": {
@@ -3607,10 +4174,40 @@
           "default": "independent",
           "enum": [
             "independent",
-            "routed_mediated"
+            "routed_mediated",
+            "fa_mediated"
           ],
           "title": "Stakeholder Workflow",
           "type": "string"
+        },
+        "step_model_options": {
+          "additionalProperties": {
+            "$ref": "#/$defs/StepModelOptions"
+          },
+          "propertyNames": {
+            "enum": [
+              "role_selection",
+              "extraction",
+              "proposal_support",
+              "grouping",
+              "writer",
+              "rewrite_critic",
+              "membership",
+              "classification",
+              "profile_scope",
+              "use_case_linker",
+              "link_critic",
+              "assessment",
+              "discussion",
+              "dataset_categories",
+              "selection",
+              "stakeholder_review",
+              "mediation",
+              "mediation_check"
+            ]
+          },
+          "title": "Step Model Options",
+          "type": "object"
         },
         "step_models": {
           "additionalProperties": {
@@ -3634,7 +4231,10 @@
               "assessment",
               "discussion",
               "dataset_categories",
-              "selection"
+              "selection",
+              "stakeholder_review",
+              "mediation",
+              "mediation_check"
             ]
           },
           "title": "Step Models",
@@ -3795,7 +4395,8 @@
             "rewrite_rejected",
             "not_find_or_access",
             "not_catalogue_level",
-            "not_commonly_agreed"
+            "not_commonly_agreed",
+            "fa_scope_set_aside"
           ],
           "title": "Reason",
           "type": "string"
@@ -4366,6 +4967,83 @@
         "reason"
       ],
       "title": "StakeholderVerdict",
+      "type": "object"
+    },
+    "StepModelOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "reasoning_effort": {
+          "anyOf": [
+            {
+              "enum": [
+                "low",
+                "medium",
+                "high",
+                "xhigh"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning Effort"
+        }
+      },
+      "title": "StepModelOptions",
+      "type": "object"
+    },
+    "TaskGroup": {
+      "additionalProperties": false,
+      "properties": {
+        "rationale": {
+          "maxLength": 1200,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "revision_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Revision Ids",
+          "type": "array"
+        },
+        "task": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Task",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task",
+        "revision_ids",
+        "rationale"
+      ],
+      "title": "TaskGroup",
+      "type": "object"
+    },
+    "TaskGroups": {
+      "additionalProperties": false,
+      "properties": {
+        "groups": {
+          "items": {
+            "$ref": "#/$defs/TaskGroup"
+          },
+          "maxItems": 16,
+          "minItems": 1,
+          "title": "Groups",
+          "type": "array"
+        }
+      },
+      "required": [
+        "groups"
+      ],
+      "title": "TaskGroups",
       "type": "object"
     },
     "TaskJustification": {
@@ -4951,6 +5629,35 @@
           "title": "Status",
           "type": "string"
         },
+        "step_model_options": {
+          "additionalProperties": {
+            "$ref": "#/$defs/StepModelOptions"
+          },
+          "propertyNames": {
+            "enum": [
+              "role_selection",
+              "extraction",
+              "proposal_support",
+              "grouping",
+              "writer",
+              "rewrite_critic",
+              "membership",
+              "classification",
+              "profile_scope",
+              "use_case_linker",
+              "link_critic",
+              "assessment",
+              "discussion",
+              "dataset_categories",
+              "selection",
+              "stakeholder_review",
+              "mediation",
+              "mediation_check"
+            ]
+          },
+          "title": "Step Model Options",
+          "type": "object"
+        },
         "step_models": {
           "additionalProperties": {
             "maxLength": 256,
@@ -4973,7 +5680,10 @@
               "assessment",
               "discussion",
               "dataset_categories",
-              "selection"
+              "selection",
+              "stakeholder_review",
+              "mediation",
+              "mediation_check"
             ]
           },
           "title": "Step Models",

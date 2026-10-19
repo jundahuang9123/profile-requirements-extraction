@@ -33,10 +33,12 @@ MAX_CASE_NEEDS = 4
 
 
 def enabled(run):
-    return run.get('request', run).get('stakeholder_workflow') == 'routed_mediated'
+    return run.get('request', run).get('stakeholder_workflow') in {'routed_mediated', 'fa_mediated'}
 
 
 def extraction_policy(request, legacy):
+    if request.get('requirements_scope') == 'find_access_v1' or request.get('stakeholder_workflow') == 'fa_mediated':
+        return 'rq1-fa-elicitation-v1'
     return EXTRACTION_POLICY if enabled(request) else legacy
 
 
@@ -420,13 +422,16 @@ def checked_links(store, links, allowed):
             raise ValueError('Repeated mediator quote requires its source offset.')
 
 
-def apply_plan(store, run, case, plan, checks, client):
+def apply_plan(store, run, case, plan, checks, client, allowed_evidence_ids=None, fresh_requirement_ids=False):
     """Prepare all revisions before one transactional commit; failed changes retain parents."""
     from .engine import record_from_observation, verify, assess
     from .needs import prepare_human_need, refresh_need
     from .models import Qualification
     parents={r['revision_id']:RequirementRecord.model_validate(r) for r in case['frozen_requirements']}
     allowed={l['evidence_id'] for r in case['frozen_requirements'] for l in r['evidence_links']}
+    if allowed_evidence_ids is not None:
+        if set(allowed_evidence_ids)-set(run['evidence_ids']): raise ValueError('Expanded evidence is outside frozen inputs.')
+        allowed.update(allowed_evidence_ids)
     ids=[check.action_id for check in checks.checks]
     changed=[a for a in plan.actions if a.action in {'revise','merge','resolve','add'}]
     if Counter(ids)!=Counter(a.action_id for a in changed):
@@ -474,7 +479,7 @@ def apply_plan(store, run, case, plan, checks, client):
                 support_level='evidence_supported_inference')
             record=record_from_observation(run['run_id'],obs,parents=action.parent_revision_ids,
                 number=max((p.revision_number for p in group),default=0)+1,
-                requirement_id=group[0].requirement_id if action.action=='revise' else None)
+                requirement_id=group[0].requirement_id if action.action=='revise' and not fresh_requirement_ids else None)
             prepare_human_need(store,run,record,group)
             record.need_condition=action.condition
             record.processing_flags=['mediated_machine_proposal','base_and_scope_recheck_required']
@@ -1024,6 +1029,7 @@ def deliberate(store, run_id, client):
 
 def trace_run(store, run_id):
     """Public audit graph; no credentials or hidden model reasoning."""
+    from .fa_requirements import coverage_ledger
     run=store.get('run',run_id)
     snapshot=store.get('snapshot',run['snapshot_id'])
     sources=[]
@@ -1035,7 +1041,8 @@ def trace_run(store, run_id):
         'workflow':run['request'].get('stakeholder_workflow','independent'),
         'source_snapshot':snapshot,'sources':sources,'base_profile_id':run.get('base_profile_id'),
         'base_profile_sha256':run.get('base_profile_sha256'),'step_models':run.get('step_models'),
-        'stage_results':run.get('stage_results',{}),'stakeholder_audit':run.get('stakeholder_audit',{}),
+        'fa_coverage': coverage_ledger(run),
+        'step_model_options':run.get('step_model_options',{}),'stage_results':run.get('stage_results',{}),'stakeholder_audit':run.get('stakeholder_audit',{}),
         'extraction_assignments':run['role_runs'],'observations':run['observations'],
         'candidate_genealogy':[{k:r.get(k) for k in ('requirement_id','revision_id','parent_revision_ids',
             'observation_ids','contributing_roles','need_statement','need_condition','evidence_links',

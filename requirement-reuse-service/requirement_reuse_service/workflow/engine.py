@@ -88,7 +88,7 @@ STAGE_RESULT_FIELDS = {
 }
 RUN_POLICY_FIELDS = ('elicitation_policy_version', 'normalization_policy_version',
                      'consolidation_policy_version', 'base_profile_id', 'base_profile_sha256',
-                     'base_registry_policy_version', 'base_check_policy_version', 'needs_policies', 'step_models')
+                     'base_registry_policy_version', 'base_check_policy_version', 'needs_policies', 'step_models', 'step_model_options')
 
 
 class TrackedClient:
@@ -99,6 +99,12 @@ class TrackedClient:
 
     def for_step(self, step):
         return TrackedClient(for_step(self.router, step), self.store, self.run_id, step, self.router)
+
+    def mediation_client(self, model, timeout_seconds):
+        if not hasattr(self.router, 'mediation_client'):
+            raise ValueError('Mediation fallback requires an explicitly routed provider.')
+        return TrackedClient(self.router.mediation_client(model, timeout_seconds),
+            self.store, self.run_id, 'mediation', self.router)
 
     def describe(self):
         return self.client.describe()
@@ -199,14 +205,18 @@ def configured_client(request: RunRequest) -> LLMClient | None:
         raise ValueError('Multi-agent execution needs a configured provider. Choose rules or mock for an offline run.')
     if config.provider not in {'mock', 'disabled'} and not request.allow_live_provider:
         raise ValueError('Live provider calls require explicit allow_live_provider; no automatic API fallback.')
-    return StepModelRouter(config, request.step_models) if request.step_models else create_client(config)
+    return StepModelRouter(config, request.step_models, options=request.step_model_options) if request.step_models else create_client(config)
 
 
 def freeze_step_models(request):
     # Creation reads /models only. Generation and resume use these frozen IDs.
     configured_client(request)  # Check explicit live permission before network I/O.
     if request.strategy == 'multi_agent':
-        request.step_models = resolve_models(LLMConfig.from_env(), request.step_models)
+        policy = request.mediation_timeout_fallback
+        request.step_models = resolve_models(LLMConfig.from_env(), request.step_models, request.step_model_options,
+            extra_models=[policy.fallback_model] if policy else [])
+        if policy and policy.fallback_model == request.step_models['mediation']:
+            raise ValueError('Mediation fallback must differ from the primary mediator.')
     return request
 
 
@@ -315,7 +325,7 @@ def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') ->
     request = freeze_step_models(request)
     role_manifest = initial_manifest(store, request, actor)
     run = WorkflowRun(run_id=f'run-{uuid.uuid4().hex}', name=request.name, snapshot_id=request.snapshot_id,
-                      strategy=request.strategy, request=request, step_models=request.step_models,
+                      strategy=request.strategy, request=request, step_models=request.step_models, step_model_options=request.step_model_options,
                       evidence_ids=snapshot['evidence_ids'], created_at=now(),
                       role_manifest=role_manifest,
                       elicitation_policy_version=extraction_policy(request.model_dump(), NEEDS_ELICITATION_POLICY if request.output_form == 'needs' else PROMPT_VERSION),
@@ -334,6 +344,8 @@ def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') ->
         for stage in ('acquisition', 'decomposition'):
             run.stage_results[stage] = {**{key: getattr(run, key) for key in STAGE_RESULT_FIELDS[stage]}, **base_metadata,
                                        **{key: getattr(run, key) for key in RUN_POLICY_FIELDS}}
+    from .fa_requirements import enabled as fa_enabled, contract
+    if fa_enabled(run.request.model_dump()): run.stakeholder_audit['fa_contract']=contract()
     store.put('run', run.run_id, run.model_dump(mode='json'))
     return run.model_dump(mode='json')
 
@@ -353,6 +365,11 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
         raise ConflictError('Source run changed. Refresh before deriving a run.')
     if source.get('worker_id') and source.get('job_lease_until', 0) > time.time():
         raise ConflictError('Wait for the source worker to finish before deriving a run.')
+    if request.start_from == 'deliberation':
+        from .fa_discussion import derive_discussion_run
+        return derive_discussion_run(store, source, request, actor)
+    if request.mediation_timeout_fallback:
+        raise ValueError('Add timeout fallback in a separate discussion trial or a fresh run.')
     manifest = source.get('role_manifest') or {}
     reselect_panel = request.start_from == 'role_selection'
     restart_extraction = request.start_from in {'role_selection', 'elicitation'}
@@ -373,7 +390,7 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
         raise ValueError('Derivation requires a complete extraction and stakeholder panel.')
     options = deepcopy(source['request'])
     options.update({k: getattr(request, k) for k in
-                    ('name', 'consolidation', 'discussion', 'execution_mode', 'allow_live_provider', 'output_form', 'scoping', 'step_models')})
+                    ('name', 'consolidation', 'discussion', 'execution_mode', 'allow_live_provider', 'output_form', 'scoping', 'step_models', 'step_model_options')})
     if restart_extraction:
         for key in ('output_form', 'scoping'):
             if key not in request.model_fields_set:
@@ -390,6 +407,10 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
         options.pop('base_profile_id', None)
     if request.stakeholder_workflow is not None:
         options['stakeholder_workflow'] = request.stakeholder_workflow
+    if request.requirements_scope is not None:
+        options['requirements_scope'] = request.requirements_scope
+    if options.get('requirements_scope') != source['request'].get('requirements_scope') and not restart_extraction:
+        raise ValueError('Changing the F/A extraction contract requires restarting from elicitation.')
     if options.get('stakeholder_workflow') != source['request'].get('stakeholder_workflow', 'independent') and not restart_extraction:
         raise ValueError('Changing stakeholder extraction protocol requires restarting from elicitation.')
     settings, base_metadata = selected_base(RunRequest.model_validate(options))
@@ -404,7 +425,7 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
         from .role_selection import reuse_discovery
         manifest = reuse_discovery(store, source, settings, actor)
     run = WorkflowRun(run_id=f'run-{uuid.uuid4().hex}', name=settings.name,
-        snapshot_id=source['snapshot_id'], strategy=source['strategy'], request=settings, step_models=settings.step_models,
+        snapshot_id=source['snapshot_id'], strategy=source['strategy'], request=settings, step_models=settings.step_models, step_model_options=settings.step_model_options,
         evidence_ids=source['evidence_ids'], observations=[] if restart_extraction else source['observations'],
         role_runs=[] if restart_extraction else source['role_runs'], role_manifest=manifest or None, created_at=now(),
         elicitation_policy_version=extraction_policy(settings.model_dump(), NEEDS_ELICITATION_POLICY if settings.output_form == 'needs' else PROMPT_VERSION)
@@ -450,6 +471,8 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
     run.derived_from['assessments_hash'] = digest(run.assessment_reuse)
     if store.get_run(source_run_id, parts=False)['version'] != source['version']:
         raise ConflictError('Source run changed while copying extraction. Refresh and retry.')
+    from .fa_requirements import enabled as fa_enabled, contract
+    if fa_enabled(run.request.model_dump()): run.stakeholder_audit['fa_contract']=contract()
     value = run.model_dump(mode='json')
     # Optional v3 annotations must not appear retroactively in the copied v2.11
     # extraction: its exact source representation is bound by the lineage hash.
@@ -1029,6 +1052,10 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
                     'document layout and implementation mechanics are not automatically catalogue metadata needs. '
                     'When a passage has no supported information need, return an empty observation list. '
                     'Later stakeholder discussion reviews this common pool; no completeness extraction loop follows.')
+            from .fa_requirements import enabled as fa_enabled, EXTRACTION_GUIDANCE
+            if fa_enabled(run):
+                extraction_system = extraction_system.replace('Never put the whole words must, shall or should in the need statement.', 'Preserve source modality; never add or strengthen obligation.')
+                extraction_system += EXTRACTION_GUIDANCE
             pending = [(f'{len(previous_selections)}:{index}', batch, EXTRACTION_RESPONSE_TOKENS, False)
                        for index, batch in enumerate(batches) if batch]
 
@@ -1433,6 +1460,10 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             return
         if run.get('base_check_policy_version'):
             active_stage = 'normalization'
+        from .fa_requirements import enabled as fa_enabled, contract
+        if fa_enabled(run):
+            saved_contract=store.get_run(run_id,omit=tuple(p for p in RUN_PARTS if p!='stakeholder_audit'))['stakeholder_audit'].get('fa_contract')
+            if saved_contract!=contract(): raise ValueError('Frozen F/A scope contract changed or missing; create a new extraction trial.')
         selected_profile = checked_base_profile(run)
         need_profile = (_load_pinned_profile(run['base_profile_id'], run.get('base_profile_sha256'))[0]
                         if run['request'].get('output_form') == 'needs' and run.get('base_profile_id') else selected_profile)
@@ -1488,6 +1519,11 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             run = patch('role_selection', {'role_manifest': manifest, 'status': 'eliciting'})
             if pause('role_selection'):
                 return
+        from .fa_requirements import enabled as fa_enabled, panel_task_coverage
+        if fa_enabled(run):
+            coverage=panel_task_coverage(store,run)
+            from .stakeholder_workflow import save as save_stakeholder_audit
+            save_stakeholder_audit(store,run_id,'panel_task_coverage',coverage)
         active_stage = 'elicitation'
         if run['stages']['elicitation'] != 'completed':
             ensure_elicitation_resumable(run)
@@ -1645,6 +1681,8 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
         active_stage = 'deliberation'
         if routed_workflow(run):
             from .stakeholder_workflow import deliberate
+            if request.stakeholder_workflow == 'fa_mediated':
+                from .fa_discussion import deliberate
             start_stage('deliberation', 'deliberating')
             deliberate(store, run_id, client)
             return
