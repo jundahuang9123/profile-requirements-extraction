@@ -12,8 +12,18 @@ from ..llm.step_models import for_step, model_identity
 from .fa_requirements import WRITE_GUIDANCE, coverage_ledger
 
 POLICY='rq1-fa-dialogue-v1'
+def discussion_policy(run):
+    return 'rq1-fa-dialogue-v2' if run['request'].get('base_review') == 'expert_v1' else POLICY
+
 MESSAGE_REPLAY_POLICY='rq1-fa-message-replay-v1'
 MAX_CONTEXT=45000
+V2_ROLE_GUIDANCE=(' The base entries show what the selected base already provides. Say when your task needs '
+    'something a listed entry lacks; do not ask for a listed base property as a new requirement.')
+V2_MEDIATOR_GUIDANCE=(' A need labelled covered_by_base is disposed covered_by_base or retained; it stays visible. '
+    'Do not reword a need only to restate a base entry. Base coverage alone never justifies set_aside '
+    'or merging into a different need. Where the base reviewer and base classifier disagree, defer with a question.')
+V2_CHECK_GUIDANCE=' A set_aside or merge justified only by base coverage is not justified.'
+
 
 class DiscussionBudgetError(ValueError):
     pass
@@ -50,6 +60,13 @@ class Checks(Contract):
 def plan_errors(plan,case,messages,allowed):
     errors=old.mediation_errors(plan,case['frozen_requirements'],messages,allowed)
     for a in plan.actions:
+        if case.get('policy_version')=='rq1-fa-dialogue-v2':
+            parents=[r for r in case['frozen_requirements'] if r['revision_id'] in a.parent_revision_ids]
+            if any((r.get('base_relation') or {}).get('effect')=='dispute' for r in parents):
+                if a.action!='defer' or not a.human_question:
+                    errors.append('Base classifier/reviewer dispute requires defer with a human question.')
+            elif any('covered_by_base' in r.get('processing_flags',[]) for r in parents) and a.action not in {'covered_by_base','retain'}:
+                errors.append('A labelled base-covered need must stay visible as retained or covered_by_base.')
         if a.action in {'recover','split'} and (not a.statement.strip() or not a.evidence_links):
             errors.append('Recovery/split requires source-supported statement and links.')
         if a.action=='split' and len(a.children)<2: errors.append('Split requires at least two supported children.')
@@ -86,6 +103,20 @@ def freeze_packet(store,run,records):
     context['source_snapshot_id']=run['snapshot_id']
     context['prior_set_asides']=[deepcopy(a) for a in run.get('set_aside_observations',[])
         if a.get('revision_id') in {r['revision_id'] for r in records}]
+    if discussion_policy(run)=='rq1-fa-dialogue-v2':
+        from .base_review import pinned_catalogue, compact_entry
+        catalogue=pinned_catalogue(run);entries={e['id']:e for e in catalogue['entries']}
+        used=set()
+        for need,record in zip(context['needs'],records):
+            relation=record.get('base_relation')
+            need['base_relation']=({k:deepcopy(relation.get(k)) for k in (
+                'policy','status','verdict','entry_ids','addition_kind','addition','rationale','check','effect','human_accepted')}
+                if relation else None)
+            used.update(record.get('matched_base_need_ids',[]))
+            used.update((relation or {}).get('entry_ids',[]))
+        if used-set(entries):raise ValueError('Discussion base entry is outside pinned catalogue.')
+        context['base_entries']={eid:compact_entry(entries[eid]) for eid in sorted(used)}
+        context['base_catalogue_hash']=catalogue['catalogue_hash']
     return context
 
 
@@ -126,6 +157,7 @@ def retrieve_frozen(store,run,queries,existing):
 
 
 def build_cases(store,run,roles,client):
+    policy=discussion_policy(run)
     # Include latest set-asides as review material, not already superseded duplicates.
     latest={}
     for r in run['requirements']:
@@ -139,7 +171,7 @@ def build_cases(store,run,roles,client):
         batch=eligible[i:i+12]
         payload={'needs':[{k:r.get(k) for k in ('revision_id','need_statement','normalized_statement','need_condition','fa_scope','classification','processing_flags')} for r in batch]}
         key='fa_task_groups:'+str(i//12)
-        identity=digest([POLICY,payload,model_identity(for_step(client,'grouping'))])
+        identity=digest([policy,payload,model_identity(for_step(client,'grouping'))])
         saved=old.audit(store,run['run_id']).get(key)
         if saved and saved['input_hash']!=identity: raise ValueError('Task grouping checkpoint mismatch.')
         if not saved:
@@ -171,12 +203,12 @@ def build_cases(store,run,roles,client):
             if len(canonical(packet))>26000 and len(records)>1:
                 mid=len(records)//2;pending.extend([records[:mid],records[mid:]]);continue
             ids=[r['revision_id'] for r in records]
-            case=DeliberationCase(case_id=uid('case',run['run_id'],POLICY,digest(records)),revision_ids=ids,
+            case=DeliberationCase(case_id=uid('case',run['run_id'],policy,digest(records)),revision_ids=ids,
                 triggers=['fa_task_review'],context_hash=digest(records),participants=[r['id'] for r in roles],
-                policy_version=POLICY,max_rounds=2,max_calls=14,max_output_tokens=4000,max_retry_output_tokens=8000,
+                policy_version=policy,max_rounds=2,max_calls=14,max_output_tokens=4000,max_retry_output_tokens=8000,
                 total_output_budget=112000,max_seconds=1800,frozen_requirements=records,
                 model=run.get('step_models',{}).get('mediation')).model_dump(mode='json')
-            case['discussion_trace']={'policy_version':POLICY,'task':g['task'],'group_rationale':g['rationale'],
+            case['discussion_trace']={'policy_version':policy,'task':g['task'],'group_rationale':g['rationale'],
                 'group_hash':digest(g),'packet':packet,'packet_hash':digest(packet),'phases':{},'retrieval':[],
                 'before_revision_ids':ids,'working_before_revision_ids':[rid for rid in ids if rid in run['active_revision_ids']],'human_accepted':False}
             case['mediation']={'phase':'pending','context_hash':digest(packet),'related_conflicts':[
@@ -192,6 +224,7 @@ def execute_case(store,run_id,case_id,client,roles):
     from .engine import bounded_stage_output
     from ..llm.client import OutputValidationError, OutputTokenLimitError
     run=store.get_run(run_id,parts=False)
+    policy=discussion_policy(run)
     case=next(c for c in run['deliberations'] if c['case_id']==case_id)
     if case['status']=='mediated':return
     trace=deepcopy(case['discussion_trace']);packet=deepcopy(trace['packet'])
@@ -271,10 +304,17 @@ def execute_case(store,run_id,case_id,client,roles):
                 raise ValueError('Case fallback requires an explicit mediation client binding.')
             bound=client.mediation_client(mediator_model,timeout_policy['timeout_seconds'])
         else:bound=for_step(client,step)
+        translate=old.translate_ids
+        if policy=='rq1-fa-dialogue-v2':
+            from .base_review import translate_ids as translate
         aliases={f'N{i+1}':rid for i,rid in enumerate(case['revision_ids'])}
+        if policy=='rq1-fa-dialogue-v2':
+            aliases.update({f'B{i+1}':eid for i,eid in enumerate(sorted(packet.get('base_entries',{})))})
         aliases.update({f'E{i+1}':eid for i,eid in enumerate(sorted(allowed))})
         aliases.update({f'C{i+1}':cid for i,cid in enumerate(dict.fromkeys(c['concern_id'] for m in payload.get('messages',[]) for c in m.get('concerns',[])))})
-        identity=digest([POLICY,key,step,system,payload,aliases,model.model_json_schema(),model_identity(bound)])
+        if policy=='rq1-fa-dialogue-v2':
+            system += V2_ROLE_GUIDANCE if step=='stakeholder_review' else V2_MEDIATOR_GUIDANCE if step=='mediation' else V2_CHECK_GUIDANCE if step=='mediation_check' else ''
+        identity=digest([policy,key,step,system,payload,aliases,model.model_json_schema(),model_identity(bound)])
         saved=phases.get(key)
         if saved:
             if saved['input_hash']!=identity:
@@ -302,7 +342,14 @@ def execute_case(store,run_id,case_id,client,roles):
             phases[key]=saved
         errors=[]
         for _ in range(len(saved['attempts']),2):
-            if len(canonical(payload))>MAX_CONTEXT:raise ValueError('F/A discussion input exceeds budget.')
+            wire=canonical(translate(payload,{v:k for k,v in aliases.items()}))
+            measured=len(wire if policy=='rq1-fa-dialogue-v2' else canonical(payload))
+            saved['context_budget']={'policy_version':'rq1-fa-context-budget-case-v1',
+                'internal_characters':len(canonical(payload)),'wire_characters':len(wire),
+                'measured_characters':measured,'limit_characters':MAX_CONTEXT,'wire_hash':digest(wire)}
+            if measured>MAX_CONTEXT:
+                persist('fa_context_budget_exceeded')
+                raise DiscussionBudgetError('F/A discussion input exceeds context budget; original needs and saved phases retained for human review.')
             def before(cap):
                 nonlocal attempts,reserved
                 if attempts>=14 or reserved+cap>112000 or seconds>=1800:
@@ -311,8 +358,8 @@ def execute_case(store,run_id,case_id,client,roles):
             start=monotonic()
             try:
                 answer=bounded_stage_output(bound,system=system+(' Correct only these validation errors: '+canonical(errors) if errors else ''),
-                    user=canonical(old.translate_ids(payload,{v:k for k,v in aliases.items()})),output_model=model,initial_tokens=4000,retry_tokens=8000,before_attempt=before)
-                answer=model.model_validate(old.translate_ids(answer.model_dump(mode='json'),aliases))
+                    user=wire,output_model=model,initial_tokens=4000,retry_tokens=8000,before_attempt=before)
+                answer=model.model_validate(translate(answer.model_dump(mode='json'),aliases))
             except (OutputValidationError,OutputTokenLimitError) as exc:
                 saved.update(status='invalid_output',validation_error={'type':type(exc).__name__,'message':str(exc)})
                 persist()
@@ -333,7 +380,7 @@ def execute_case(store,run_id,case_id,client,roles):
                       if m['role_id']==role_id and m['round']==1),None)
         reconstructed=(row is None and round_no==2 and recovery.get('status')=='in_progress'
                        and key in recovery['allowed_phases'])
-        expected=message(case_id,role_id,round_no,answer)
+        expected=message(case_id,role_id,round_no,answer,policy=policy)
         if row is not None:
             if {k:v for k,v in row.items() if k!='created_at'}!={k:v for k,v in expected.items() if k!='created_at'}:
                 raise ValueError('Saved stakeholder message differs from its role output: '+key)
@@ -446,15 +493,16 @@ def execute_case(store,run_id,case_id,client,roles):
     store.mutate(run_id,None,'fa_mediation_transaction',commit)
 
 
-def message(case_id,role_id,round_no,answer):
+def message(case_id,role_id,round_no,answer,policy=POLICY):
     return {'message_id':uid('message',case_id,round_no,role_id),'role_id':role_id,'round':round_no,
-        'body':answer.summary,'finished':answer.finished,'policy_version':POLICY,
+        'body':answer.summary,'finished':answer.finished,'policy_version':policy,
         'evidence_ids':sorted({e for c in answer.concerns for e in c.evidence_ids}),
         'concerns':[{**c.model_dump(mode='json'),'concern_id':uid('concern',case_id,round_no,role_id,i)} for i,c in enumerate(answer.concerns)],'created_at':now()}
 
 
 def apply(store,run,case,plan,checks,client,allowed):
     """Gate every disposition, preserve failed parents and use the strict existing revision verifier."""
+    policy=discussion_policy(run)
     outcomes=[];additions=[];replacements={};asides={}
     by_check={c.action_id:c for c in checks.checks}
     for a in plan.actions:
@@ -492,8 +540,9 @@ def apply(store,run,case,plan,checks,client,allowed):
                             if not link.quote or u['content'].count(link.quote)!=1:raise ValueError('Ambiguous or unmatched source quotation.')
                             repaired=u['content'].index(link.quote)
                             item.setdefault('citation_repairs',[]).append({'evidence_id':link.evidence_id,'from':start,'to':repaired,'quote_hash':digest(link.quote)})
+                            # EvidenceLink has no end offset (extra fields are forbidden); reading one
+                            # raised AttributeError and stopped v1 runs at their first repaired citation.
                             link.quote_start=repaired
-                            if link.quote_end is not None:link.quote_end=repaired+len(link.quote)
                     subcase=deepcopy(case)
                     oldcheck=old.MediatorCheck.model_validate(check.model_dump(exclude={'fa_relevant','disposition_justified'}))
                     oldcheck.action_id=wire.action_id
@@ -511,7 +560,12 @@ def apply(store,run,case,plan,checks,client,allowed):
                     rec['observation_ids']=list(dict.fromkeys([*rec.get('observation_ids',[]),*lineage]))
                     if a.action=='split':rec['parent_revision_ids']=list(a.parent_revision_ids)
                     # New wording invalidates old base and scope judgements; machine review remains explicit.
-                    rec['fa_scope']={'policy_version':POLICY,'status':'checked_mediation','rationale':'Independent mediation check passed; base relationship requires rechecking.'}
+                    if policy=='rq1-fa-dialogue-v2':
+                        rec['processing_flags']=list(dict.fromkeys([*rec.get('processing_flags',[]),'base_recheck_required']))
+                        # A revision needs its own judgement; never inherit a parent's coverage label.
+                        rec['processing_flags']=[f for f in rec['processing_flags'] if f!='covered_by_base']
+                        rec['base_relation']=None
+                    rec['fa_scope']={'policy_version':policy,'status':'checked_mediation','rationale':'Independent mediation check passed; base relationship requires rechecking.'}
                     from .needs import refresh_need
                     checked_record=RequirementRecord.model_validate(rec);refresh_need(checked_record);rec.update(checked_record.model_dump(mode='json'))
                 additions.extend(temporary);replacements.update(local_replacements)
@@ -525,10 +579,11 @@ def apply(store,run,case,plan,checks,client,allowed):
 def deliberate(store,run_id,client):
     from .role_selection import panel_roles
     run=store.get_run(run_id,parts=False)
+    policy=discussion_policy(run)
     if run['stages'].get('deliberation')=='completed':return
     perspectives={r['role_id']:r for r in (run.get('role_manifest') or {}).get('selected_roles',[])}
     roles=[{**r.model_dump(mode='json'),'source_basis':{k:v for k,v in perspectives.get(r.id,{}).items() if k in {'basis','source_support','stakeholders','filled_via','rationale'}}} for r in panel_roles(run)]
-    identity={'policy_version':POLICY,'roles_hash':digest(roles),
+    identity={'policy_version':policy,'roles_hash':digest(roles),
         'models':{s:model_identity(for_step(client,s)) for s in ('grouping','stakeholder_review','mediation','mediation_check','assessment')}}
     if run['request'].get('mediation_timeout_fallback'):
         identity['mediation_timeout_fallback']=deepcopy(run['request']['mediation_timeout_fallback'])
@@ -550,6 +605,9 @@ def deliberate(store,run_id,client):
                 row['mediation'].update(phase='human_review',human_questions=[{'question_id':'budget','question':str(exc),
                     'revision_ids':list(row['revision_ids']),'concern_ids':[],'rationale':'No unvalidated revisions applied.','alternatives':['Retain original needs','Prepare a separately budgeted review']}])
             store.mutate(run_id,None,'fa_discussion_budget_review',pending)
+    if policy=='rq1-fa-dialogue-v2':
+        from .base_review import review_base
+        review_base(store,store.get('run',run_id),client,phase='after_discussion')
     final_coverage=coverage_ledger(store.get('run',run_id))
     def finish(r):
         r.update(status='awaiting_human');r['stages']['deliberation']='completed'
@@ -560,9 +618,9 @@ def deliberate(store,run_id,client):
         pending=sum(c.get('mediation',{}).get('phase')!='completed' for c in r['deliberations'])
         if pending:r['diagnostics']=list(dict.fromkeys([*r.get('diagnostics',[]),f'{pending} discussion case(s) require preparation or additional review; no unsupported revision was applied.']))
         r['stakeholder_audit']['fa_coverage']=final_coverage
-        r['stakeholder_audit']['post_discussion']={'policy_version':POLICY,'active_revision_ids':list(r['active_revision_ids']),
+        r['stakeholder_audit']['post_discussion']={'policy_version':policy,'active_revision_ids':list(r['active_revision_ids']),
             'active_output_hash':digest([x for x in r['requirements'] if x['revision_id'] in r['active_revision_ids']]),'human_accepted':False,'completed_at':now()}
-        r['stage_results']['deliberation']={'policy_version':POLICY,'saved_at':now(),'deliberations':deepcopy(r['deliberations']),
+        r['stage_results']['deliberation']={'policy_version':policy,'saved_at':now(),'deliberations':deepcopy(r['deliberations']),
             'active_revision_ids':list(r['active_revision_ids']),'requirements':deepcopy(r['requirements']),'human_accepted':False}
     store.mutate(run_id,None,'fa_workflow_completed',finish)
 
@@ -622,6 +680,11 @@ def derive_discussion_run(store,source,request,actor):
             for c in source['deliberations']):
         raise ValueError('Cancelled discussion has no unfinished user-cancelled cases.')
     settings=freeze_step_models(RunRequest.model_validate(options))
+    if discussion_policy(source)=='rq1-fa-dialogue-v1':
+        # Newly introduced opt-in slots must not alter a legacy continuation's
+        # frozen model map (or its checkpoint identities). They are never called.
+        for slot in ('base_review','base_review_check'):
+            if slot not in source['step_models']:settings.step_models.pop(slot,None)
     if settings.step_models!=source['step_models']:
         raise ValueError('Discussion continuation cannot change frozen primary models.')
     child=deepcopy(source)

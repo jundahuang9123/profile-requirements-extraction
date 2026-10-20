@@ -128,3 +128,124 @@ shorten its request timeout while retaining its models and protocol. Completed
 cases keep their historical policies; unfinished routes record the old/new
 policy, retained phase hash and unchanged attempt/time budgets. Accepted outputs,
 existing fallback switches and exhausted corrections are not reset.
+
+## Optional procedural base reviewer (discussion v2)
+
+Set `base_review: "expert_v1"` on a new F/A run with a selected base profile.
+The default is `none`: existing v1 packet, phase and grouping identities and
+recovery rules remain unchanged. The advanced option is initially collapsed in
+the Stakeholder roles setup. It does not add a stakeholder or a vote.
+
+The new **Base review** stage runs after consolidation (and its stepwise pause),
+before discussion. Policy `rq1-base-expert-v1` reviews current revisions sorted
+by ID, in batches of up to four: one review generation and one independent check
+per batch. Each generation allows at most one correction. Oversized payloads
+split; a single need that cannot fit the 30,000-character payload budget is
+marked `not_reviewed` / `payload_budget`. An oversized independent-check payload splits its checks without repeating the
+already accepted review. Invalid
+batches remain visible as `not_reviewed` with `base_review_pending`; other
+batches continue. Transport failures stop the stage rather than inventing a
+result. Checkpoint identities bind the policy, prompts, payload, aliases, schema
+and actual model; accepted outputs are reused and changed identities are refused.
+
+Review inputs are **only** the run's pinned catalogue and authentic cited source
+passages, with up to 600 characters of surrounding frozen context on each side.
+Every batch carries the catalogue **index**: class, property and need phrase of
+every pinned entry, so any entry of the base can be cited. Likely candidates
+(classifier matches first, then lexically ranked entries, up to ten per need)
+also supply label, definition, up to two usage notes of 300 characters, and
+obligation. Ranking only orders these details: on the JRC development run it
+missed paraphrases such as "year of public release" for `dct:issued` and
+"thematic classification" for `dcat:theme`. The classifier state is its result
+and search status only, not its search audit. The checker receives the index and
+the full text of each cited entry. Local N/B/E aliases are scoped to identifier
+fields; quotations are not rewritten. A property not in the index is not in this
+base; another version and model memory cannot supply missing base knowledge. A
+changed catalogue pin refuses review.
+
+| Verdict | Meaning |
+| --- | --- |
+| `restates_base` | Cited index entries express the whole need without an added constraint |
+| `domain_use_of_base` | A cited entry is used with a cited addition: condition, value set/unit, obligation, resource or meaning |
+| `new` | No index entry expresses the need |
+| `uncertain` | The supplied text is insufficient |
+
+Wording, synonyms, examples, actor and purpose alone are not additions. A
+restatement must also pass the classifier's condition and stronger-obligation
+guards. The independent check assesses entry meaning and whether anything was
+lost. Both booleans must be true before labels change; a failed check adds
+`base_relation_review` and leaves labels unchanged.
+
+| Classifier at review time | Checked restatement | Checked domain use | Checked new | Uncertain |
+| --- | --- | --- | --- | --- |
+| Already `covered_by_base` | Confirm | Dispute | Dispute | Note |
+| Domain use | Add flag | Agree | Note | Note |
+| Domain / unchecked / newly written | Add flag | Note | Agree | Note |
+
+A dispute preserves the classifier's flag and records both judgements and a
+human-review question. **No need is deleted or set aside by this reviewer.**
+`covered_by_base` stays in the complete inventory and is excluded only from the
+working count. `base_relation` records the phase, verdict, effect, check,
+classifier state, exact entry and evidence IDs, pin, checkpoint and model, with
+`human_accepted: false`. Metadata refresh changes the integrity hash but not the
+need's content hash or revision ID.
+
+For opt-in runs, `rq1-fa-dialogue-v2` gives each discussion packet the compact
+review and pinned classifier-matched/reviewer-cited entry text. Stakeholders can
+identify additions the base lacks; the mediator cannot discard or merge a need
+solely because it is base-covered. A classifier/reviewer disagreement requires
+a human question. Cases and their budgets are unchanged. Every revision created
+by revise, merge, add, recover or split requires a new base check. After all
+cases, a second procedural pass reviews those current revisions before the final
+coverage ledger. Reviewed revisions clear `base_recheck_required`; unreviewed
+ones retain it. Neither procedural review nor mediation is human approval.
+
+The ledger adds verdict/effect counts by phase, coverage-label provenance split
+between classifier and reviewer, disputes, pending rechecks and unreviewed IDs.
+Its v2 contract hash includes the reviewer prompts. Need cards, the Base review
+page and discussion view show these judgements; the coverage panel exposes the
+counts and the complete ledger remains downloadable.
+
+### Cheap trial from a saved machine inventory
+
+`POST /api/rq1/v2/runs/{id}/derive` accepts `start_from: "base_review"` with a
+fresh `expected_version` and rationale. The source must be inactive, F/A, have
+completed stages through consolidation, a machine snapshot and a valid catalogue
+pin, and have no human decisions or baselines. The child restores the snapshot's
+requirements, active IDs, set-asides, conflicts and consolidation events. It
+clears discussion/base-review audit state and preserves source and call lineage,
+the snapshot hash and the parent's discussion hash. The parent is unchanged.
+
+Only name, rationale, execution mode, timeout fallback and models/options for
+`base_review`, `base_review_check`, `stakeholder_review`, `mediation`,
+`mediation_check` and `assessment` may change. `execution_mode: "stepwise"`
+pauses after the procedural stage: inspect that cheap result before resuming v2
+discussion. The two reviewer model slots default to the configured model,
+independently of the discussion default. At four needs per batch, 64 needs cost
+32 calls and 49 cost 26, before corrections or size splitting. Later discussion
+revisions add their own review calls; per-case discussion budgets do not grow.
+
+A separate, deliberately uncommitted `scripts/fa_base_report.py` reads the run
+and coverage through GET requests and produces Markdown and CSV. It reports the
+classifier/reviewer matrix, added flags and entry terms, checks, disputes,
+source-stated additions, pending/after-discussion results, accepted/refused
+base dispositions, reviewer usage and case stop reasons. Legacy v1 reports leave
+reviewer columns empty. Run this helper against a saved trial; it never starts
+inference or changes the run.
+
+### Limits
+
+This labels needs the pipeline produced; it cannot recover a base term that
+extraction never proposed. The original classifier already reads full entry text
+with strict condition and obligation guards. Still, a manual inspection of the
+JRC development run (19 October 2026, pipeline output only) found about 11 of its
+38 working needs restating a DCAT-AP 1.1 entry the classifier had not matched.
+Ranked candidates alone would have let the reviewer cite the right entry for 6
+of them, and the guards admit 4; with the index the guards admit 9. The shared
+condition guard still refuses the 2 whose condition repeats DCAT's own usage
+guidance (for example "when a download URL is provided"); changing it would also
+change classification. Newly written discussion revisions are the other gap
+addressed. The `dcat-ap-1.1.0` catalogue has no definitions, so that version
+relies on phrases and usage notes. The reviewer, checker and classifier are all
+model judgements, not ground truth, benchmark accuracy or evidence of effort
+savings.

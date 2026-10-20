@@ -1,7 +1,7 @@
 # Model choice per workflow step
 
 New agent runs and derived trials accept `step_models`. Leave it empty to use the
-configured provider model everywhere. The service resolves all fifteen defaults,
+configured provider model everywhere. The service resolves every step default,
 reads that provider's `/models` catalogue, rejects unavailable and embedding
 models, and saves the resolved mapping in both `run.step_models` and
 `run.request.step_models` before creating the run. Exact provider IDs are used,
@@ -174,3 +174,18 @@ reasoning payloads and Qwen thinking/token-limit handling. HTTP replies and mode
 answers are scripted; the test suite forbids external network calls. Frontend,
 schema and catalogue checks accompany the tests. No current service, key, saved
 run or reference corpus is modified by the feature's tests.
+
+## Procedural base review
+
+Two additional model slots are `base_review` (pinned-catalogue comparison of up
+to four needs) and `base_review_check` (independent verdict check). Both inherit
+the configured model when unset, **not** the discussion default. They appear in
+the collapsed advanced control and are frozen/validated like other slots. They
+run only when `base_review: "expert_v1"` is enabled on an F/A run with a base.
+
+A `start_from: "base_review"` trial preserves the source's resolved upstream
+models and permits overrides only for these two slots, `stakeholder_review`,
+`mediation`, `mediation_check` and `assessment`, including their options. It
+restores the machine snapshot rather than partially discussed requirements.
+See [the base-review design](FA-COVERAGE-DISCUSSION.md#optional-procedural-base-reviewer-discussion-v2)
+for the independent check, checkpoint identities and stepwise trial.

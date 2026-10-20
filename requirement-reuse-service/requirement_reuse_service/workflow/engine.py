@@ -83,6 +83,7 @@ STAGE_RESULT_FIELDS = {
     'role_selection': ['role_manifest'], 'elicitation': ['observations', 'role_runs'],
     'normalization': ['requirements', 'set_aside_observations', 'normalization_policy_version', 'base_check_audit', 'base_check_policy_version'], 'verification': ['requirements'],
     'consolidation': ['requirements', 'active_revision_ids', 'consolidation_events', 'conflicts', 'consolidation_policy_version'],
+    'base_review': ['requirements', 'active_revision_ids'],
     'deliberation': ['deliberations'], 'adjudication': ['requirements', 'decisions', 'assessment_history'],
     'baseline': ['baselines'],
 }
@@ -338,6 +339,7 @@ def new_run(store: Store, request: RunRequest, actor: str = 'local-reviewer') ->
         from .needs import POLICIES
         run.needs_policies = dict(POLICIES)
         pin_base_needs_catalogue(run)
+    run.stages['base_review'] = 'pending' if request.base_review == 'expert_v1' else 'skipped'
     run.stages['acquisition'] = 'completed'
     run.stages['decomposition'] = 'completed'
     if base_metadata or request.output_form == 'needs':
@@ -365,6 +367,9 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
         raise ConflictError('Source run changed. Refresh before deriving a run.')
     if source.get('worker_id') and source.get('job_lease_until', 0) > time.time():
         raise ConflictError('Wait for the source worker to finish before deriving a run.')
+    if request.start_from == 'base_review':
+        from .base_review import derive_base_review_run
+        return derive_base_review_run(store, source, request, actor)
     if request.start_from == 'deliberation':
         from .fa_discussion import derive_discussion_run
         return derive_discussion_run(store, source, request, actor)
@@ -1675,6 +1680,17 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
                     base_check_audit=frozen_base_audit, base_check=base_summary, **{k:v for k,v in needs_extras.items() if k!='set_aside_observations'})
             store.mutate(run_id, None, 'machine_output_frozen', freeze_machine)
             if pause('consolidation'):
+                return
+        if request.base_review == 'expert_v1' and run['stages'].get('base_review') != 'completed':
+            from .base_review import review_base
+            active_stage = 'base_review'
+            start_stage('base_review', 'reviewing_base')
+            review_base(store, store.get('run', run_id), client, phase='before_discussion')
+            # Rehydrate revisions changed by the procedural reviewer before discussion.
+            run = store.get('run', run_id)
+            run = patch('base_review', {'requirements': run['requirements'], 'status': 'routing'},
+                result_extras=run['stage_results']['base_review'])
+            if pause('base_review'):
                 return
         active = [RequirementRecord.model_validate(r) for r in run['requirements'] if r['revision_id'] in run['active_revision_ids']]
         conflicts = run['conflicts']

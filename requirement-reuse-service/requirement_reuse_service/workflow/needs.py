@@ -115,6 +115,8 @@ def need_integrity(record):
         content['processing_flags'] = record.processing_flags
     if record.unbacked_obligation is not None:
         content['unbacked_obligation'] = record.unbacked_obligation.model_dump(mode='json')
+    if record.base_relation is not None:
+        content['base_relation'] = record.base_relation
     if record.fa_scope is not None:
         content['fa_scope'] = record.fa_scope
     if record.profile_scope is not None:

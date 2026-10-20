@@ -9,6 +9,7 @@ const steps = [
   ['dataset_categories', 'Dataset categories from sources'], ['profile_scope', 'Profile scope and category applicability'],
   ['selection', 'Compact coverage selection'],
   ['use_case_linker', 'Use-case linking'], ['link_critic', 'Use-case link critic'],
+  ['base_review', 'Procedural base reviewer'], ['base_review_check', 'Independent base-review check'],
   ['assessment', 'Support assessment'], ['discussion', 'Discussion default'],
   ['stakeholder_review', 'Stakeholder positions and responses'], ['mediation', 'Mediator'], ['mediation_check', 'Independent mediation check'],
 ];

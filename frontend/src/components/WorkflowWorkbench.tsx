@@ -8,9 +8,9 @@ import { RoleManifestView } from './RoleManifestView';
 import { StepModelsSettings } from './StepModelsSettings';
 import { BaseCheck, BaseProfileSummary, Baseline, BenchmarkImport, BenchmarkSummary, Case, commandKey, Evidence, EvidenceSummary, Snapshot, Link, Requirement, Run, RunSummary, SetAside, Source, workflowApi } from '../lib/workflowApi';
 
-const stages = ['acquisition', 'decomposition', 'role_selection', 'elicitation', 'normalization', 'verification', 'consolidation', 'deliberation', 'adjudication', 'baseline'];
-const labels = ['Sources & scope', 'Evidence units', 'Stakeholder roles', 'Candidate extraction', 'Normalized candidates', 'Original-source checks', 'Grouped needs & scope', 'Discussion', 'Human review', 'Validated baseline'];
-const stageNumbers = ['1', '2', '3a', '3b', '4', '5', '6', '7', '8', '9'];
+const stages = ['acquisition', 'decomposition', 'role_selection', 'elicitation', 'normalization', 'verification', 'consolidation', 'base_review', 'deliberation', 'adjudication', 'baseline'];
+const labels = ['Sources & scope', 'Evidence units', 'Stakeholder roles', 'Candidate extraction', 'Normalized candidates', 'Original-source checks', 'Grouped needs & scope', 'Base review', 'Discussion', 'Human review', 'Validated baseline'];
+const stageNumbers = ['1', '2', '3a', '3b', '4', '5', '6', '6a', '7', '8', '9'];
 const perspectives = ['standards_conformance', 'dcat_reuse', 'construction_domain', 'aas_idta', 'ifc_bim', 'dataspace_interoperability', 'publisher_feasibility', 'consumer_discovery', 'stewardship_governance', 'access_rights_policy', 'fair_quality_provenance', 'minimality_scope'];
 const humanLabel = (value: string) => value.replace(/_/g, ' ');
 const roleLabel = (run: Run, id: string) => run.role_manifest?.selected_roles.find(role => role.role_id === id)?.label ?? humanLabel(id);
@@ -21,7 +21,7 @@ const leaseActive = (run: Run) => Boolean(run.worker_id) && (run.job_lease_until
 const resumable = (run: Run) => ['failed', 'cancelled'].includes(run.status)
   || (run.status === 'awaiting_human' && !run.decisions?.length && !leaseActive(run)
       && (run.role_runs.some(role => role.status === 'failed') || run.deliberations.some(unfinishedCase)));
-const stageState = (run: Run, stage: string) => stage === 'elicitation' && run.stages[stage] === 'completed' && run.role_runs.some(role => role.status === 'failed') ? 'partial' : stage === 'role_selection' && run.stages[stage] !== 'completed' && ['failed', 'cancelled'].includes(run.status) ? run.status : run.stages[stage] ?? 'pending';
+const stageState = (run: Run, stage: string) => stage === 'elicitation' && run.stages[stage] === 'completed' && run.role_runs.some(role => role.status === 'failed') ? 'partial' : stage === 'role_selection' && run.stages[stage] !== 'completed' && ['failed', 'cancelled'].includes(run.status) ? run.status : run.stages[stage] ?? (stage === 'base_review' ? 'skipped' : 'pending');
 
 function savedSetup() {
   try { return JSON.parse(localStorage.getItem('rq1-needs-setup') ?? '{}'); } catch { return {}; }
@@ -69,6 +69,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
   const [deriveDiscussion, setDeriveDiscussion] = useState('on_request');
   const [deriveConsolidation, setDeriveConsolidation] = useState('semantic');
   const [deriveLive, setDeriveLive] = useState(false);
+  const [baseReview, setBaseReview] = useState<string>(setup.baseReview ?? 'none');
   const [stepModels, setStepModels] = useState<Record<string, string>>(setup.stepModels ?? {});
   const [stepOptions, setStepOptions] = useState<Record<string, { reasoning_effort?: string | null }>>(setup.stepOptions ?? {});
   const [deriveStepOptions, setDeriveStepOptions] = useState<Record<string, { reasoning_effort?: string | null }>>({});
@@ -107,7 +108,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
   }); }, []);
 
   useEffect(() => {
-    if (!run || (!['created', 'selecting_roles', 'eliciting', 'normalizing', 'verifying', 'consolidating', 'routing', 'deliberating'].includes(run.status)
+    if (!run || (!['created', 'selecting_roles', 'eliciting', 'normalizing', 'verifying', 'consolidating', 'reviewing_base', 'routing', 'deliberating'].includes(run.status)
       && !run.deliberations.some(item => item.status === 'running') && !run.worker_id)) return;
     // Poll again only after the previous response arrived, so slow responses never pile up.
     let stopped = false; let timer: number | undefined;
@@ -133,7 +134,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     window.addEventListener('hashchange', change);
     return () => window.removeEventListener('hashchange', change);
   }, [run?.run_id]);
-  useEffect(() => { localStorage.setItem('rq1-needs-setup', JSON.stringify({ protocolVersion: 'fa-mediated-v1', selectedSources, tasks, stepModels, stepOptions, scoping, strategy, roles, roleSelection, maxRoles, sourceRole, authority, executionMode, discussion, consolidation, benchmarkCaseId, baseProfileId, baseCheck, treatBaseAsBackground, benchmarkImport })); }, [selectedSources, tasks, stepModels, stepOptions, scoping, strategy, roles, roleSelection, maxRoles, sourceRole, authority, executionMode, discussion, consolidation, benchmarkCaseId, baseProfileId, baseCheck, treatBaseAsBackground, benchmarkImport]);
+  useEffect(() => { localStorage.setItem('rq1-needs-setup', JSON.stringify({ protocolVersion: 'fa-mediated-v1', selectedSources, tasks, baseReview, stepModels, stepOptions, scoping, strategy, roles, roleSelection, maxRoles, sourceRole, authority, executionMode, discussion, consolidation, benchmarkCaseId, baseProfileId, baseCheck, treatBaseAsBackground, benchmarkImport })); }, [selectedSources, tasks, baseReview, stepModels, stepOptions, scoping, strategy, roles, roleSelection, maxRoles, sourceRole, authority, executionMode, discussion, consolidation, benchmarkCaseId, baseProfileId, baseCheck, treatBaseAsBackground, benchmarkImport]);
   useEffect(() => {
     setShowDerive(false); setAsideFilter('all');
     setDeriveStepModels({});
@@ -197,7 +198,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     });
     // The single-analyst comparison condition is a fixed panel of one neutral extraction role.
     const singleAnalyst = strategy !== 'rules' && roleSelection === 'single';
-    const created = await workflowApi<Run>('/runs', { stakeholder_workflow: strategy === 'multi_agent' && !singleAnalyst && discussion === 'automatic' ? 'fa_mediated' : 'independent', requirements_scope: strategy === 'multi_agent' ? 'find_access_v1' : null, output_form: strategy === 'multi_agent' ? 'needs' : 'candidates', scoping: scoping === 'auto' ? null : scoping, snapshot_id: snapshot.snapshot_id, step_models: strategy === 'multi_agent' ? stepModels : {}, step_model_options: strategy === 'multi_agent' ? stepOptions : {}, execution_mode: executionMode, strategy, role_ids: singleAnalyst ? ['single_analyst'] : roles, role_selection: strategy === 'rules' || singleAnalyst ? 'manual' : roleSelection, max_roles: maxRoles, consolidation: strategy === 'rules' ? 'exact' : consolidation, discussion: strategy === 'multi_agent' ? discussion : 'automatic', base_profile_id: baseProfileId || null, base_check: Boolean(baseProfileId) && baseCheck, benchmark_case_id: benchmarkCaseId || null, allow_live_provider: allowLive, name: singleAnalyst ? 'Requirements extraction · single analyst' : 'Requirements extraction' });
+    const created = await workflowApi<Run>('/runs', { base_review: strategy === 'multi_agent' && !singleAnalyst && discussion === 'automatic' && baseProfileId ? baseReview : 'none', stakeholder_workflow: strategy === 'multi_agent' && !singleAnalyst && discussion === 'automatic' ? 'fa_mediated' : 'independent', requirements_scope: strategy === 'multi_agent' ? 'find_access_v1' : null, output_form: strategy === 'multi_agent' ? 'needs' : 'candidates', scoping: scoping === 'auto' ? null : scoping, snapshot_id: snapshot.snapshot_id, step_models: strategy === 'multi_agent' ? stepModels : {}, step_model_options: strategy === 'multi_agent' ? stepOptions : {}, execution_mode: executionMode, strategy, role_ids: singleAnalyst ? ['single_analyst'] : roles, role_selection: strategy === 'rules' || singleAnalyst ? 'manual' : roleSelection, max_roles: maxRoles, consolidation: strategy === 'rules' ? 'exact' : consolidation, discussion: strategy === 'multi_agent' ? discussion : 'automatic', base_profile_id: baseProfileId || null, base_check: Boolean(baseProfileId) && baseCheck, benchmark_case_id: benchmarkCaseId || null, allow_live_provider: allowLive, name: singleAnalyst ? 'Requirements extraction · single analyst' : 'Requirements extraction' });
     setSelectedRevisions([]); setActiveRecord(null); await loadRun(created.run_id); await refreshLists(); navigate('role_selection', created.run_id); onStatus('Workflow saved. Results persist while you browse the steps.');
   });
   const command = async (path: string, payload: unknown) => {
@@ -211,8 +212,8 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
 
   const pageIndex = stages.indexOf(page);
   const savedStageRecords = run?.stage_results?.[page]?.requirements;
-  const resultRecords = page === 'consolidation' && savedStageRecords
-    ? savedStageRecords.filter(item => (run?.stage_results?.consolidation?.active_revision_ids ?? run?.active_revision_ids ?? []).includes(item.revision_id))
+  const resultRecords = ['consolidation','base_review'].includes(page) && savedStageRecords
+    ? savedStageRecords.filter(item => (run?.stage_results?.[page]?.active_revision_ids ?? run?.active_revision_ids ?? []).includes(item.revision_id))
     : ['normalization', 'verification'].includes(page) && savedStageRecords ? savedStageRecords : ['normalization', 'verification'].includes(page) ? run?.requirements.filter(item => !item.parent_revision_ids.length) ?? [] : currentRecords;
   const consolidationEvents = run?.stage_results?.consolidation?.consolidation_events ?? run?.consolidation_events ?? [];
   const mergeEvents = consolidationEvents.filter(event => event.action === 'semantic_merge');
@@ -305,7 +306,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     </section>}
     {page === 'role_selection' && (run ? <>
           <RoleManifestView key={`${run.run_id}-${run.role_manifest?.manifest_hash ?? 'pending'}`} run={run} busy={busy} inspect={id => void inspectEvidence(id)} override={(roleOverrides, rationale, limit, live) => act(async () => {
-            const created = await workflowApi<Run>('/runs', { stakeholder_workflow: run.request?.stakeholder_workflow ?? 'independent', output_form: 'needs', scoping: run.request?.scoping ?? null, snapshot_id: run.snapshot_id, execution_mode: run.request?.execution_mode ?? 'stepwise', discussion: run.request?.discussion ?? 'automatic', consolidation: run.request?.consolidation ?? 'exact', base_profile_id: run.base_profile_id ?? null, base_check: run.request?.base_check ?? false, benchmark_case_id: run.request?.benchmark_case_id ?? null, strategy: run.strategy, role_selection: 'override', role_overrides: roleOverrides, based_on_run_id: run.run_id, override_rationale: rationale, max_roles: limit, allow_live_provider: live, name: 'Requirements extraction · edited panel' });
+            const created = await workflowApi<Run>('/runs', { base_review: run.request?.base_review ?? 'none', stakeholder_workflow: run.request?.stakeholder_workflow ?? 'independent', output_form: 'needs', scoping: run.request?.scoping ?? null, snapshot_id: run.snapshot_id, execution_mode: run.request?.execution_mode ?? 'stepwise', discussion: run.request?.discussion ?? 'automatic', consolidation: run.request?.consolidation ?? 'exact', base_profile_id: run.base_profile_id ?? null, base_check: run.request?.base_check ?? false, benchmark_case_id: run.request?.benchmark_case_id ?? null, strategy: run.strategy, role_selection: 'override', role_overrides: roleOverrides, based_on_run_id: run.run_id, override_rationale: rationale, max_roles: limit, allow_live_provider: live, name: 'Requirements extraction · edited panel' });
             setActiveRecord(null); setSelectedRevisions([]); await loadRun(created.run_id); await refreshLists(); onStatus('New run saved with your panel override.');
           })} />
       {run.role_manifest?.status === 'not_applicable' && <section className="workflow-panel"><h2>Rules baseline</h2><p>This offline baseline does not select stakeholder agents. Continue to extract rule-based observations.</p></section>}
@@ -322,6 +323,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
         {strategy !== 'rules' && <label>Consolidation<select value={consolidation} onChange={event => setConsolidation(event.target.value)}><option value="semantic">Merge candidates with the same meaning</option><option value="exact">Exact copies only (earlier behaviour)</option></select></label>}
         {strategy === 'multi_agent' && <label>Discussion<select value={discussion} onChange={event => setDiscussion(event.target.value)}><option value="automatic">Route sources, discuss stakeholder concerns and mediate</option><option value="on_request">Independent extraction with discussion on request</option></select></label>}
         {strategy === 'multi_agent' && <label className="workflow-check"><input type="checkbox" checked={allowLive} onChange={event => setAllowLive(event.target.checked)} />Allow calls to the configured model provider for this run</label>}
+        {strategy === 'multi_agent' && <details><summary>Advanced · procedural base reviewer</summary><p>Optional independent review against this run’s pinned base catalogue. Checked restatements stay visible and leave only the working count. Every result remains a machine judgement.</p><label>Base review<select disabled={!baseProfileId || discussion !== 'automatic' || roleSelection === 'single'} value={baseReview} onChange={event => setBaseReview(event.target.value)}><option value="none">Off · existing discussion behaviour</option><option value="expert_v1">Review before and after discussion</option></select></label><p>Requires a selected base and automatic stakeholder discussion. Up to four needs share one review call and one independent check, plus at most one correction per call.</p></details>}
         {strategy === 'multi_agent' && <StepModelsSettings value={stepModels} onChange={setStepModels} options={stepOptions} onOptionsChange={setStepOptions} />}
         <p className="workflow-muted">Offline modes require human semantic and quality assessment. Agent mode sends the selected corpus to your configured provider.</p>
         <p className="workflow-muted">Upload original documents and describe your scope or tasks. Check parsing diagnostics and proposed stakeholder perspectives; you do not need to extract roles or retype PDF passages first.</p>
@@ -347,7 +349,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
         {members.map(item => <article key={item.revision_id}><strong>{item.normalized_statement}</strong><p>Source {item.verification?.status ?? 'pending'} · {humanLabel(item.normalized_intent.obligation_hint)} · {item.contributing_roles.map(role => roleLabel(run, role)).join(', ')}</p>{item.base_check && <BaseCheckView check={item.base_check} />}</article>)}
       </details>; })}
     </section>}
-    {run && ['normalization', 'verification', 'consolidation', 'adjudication'].includes(page) && <>
+    {run && ['normalization', 'verification', 'consolidation', 'base_review', 'adjudication'].includes(page) && <>
           <section className="workflow-panel"><h2>{labels[stages.indexOf(page)]}</h2>
             {!resultRecords.length && <p>No saved candidates for this step yet. Empty outputs and source evidence remain available for review.</p>}
             <div className="workflow-candidates">{resultRecords.map(item => <article key={item.revision_id} data-selected={activeRecord === item.revision_id}>
@@ -369,7 +371,9 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     </div>
     {run?.request?.output_form === 'needs' && ['consolidation','adjudication'].includes(page) && <NeedCoverageView run={run} inspect={id => void inspectEvidence(id)} review={id => { setActiveRecord(id); navigate('adjudication'); }} />}
     {run?.request?.output_form === 'needs' && ['normalization','consolidation','adjudication'].includes(page) && <NeedAsidesView run={run} busy={busy} review={id => { setActiveRecord(id); navigate('adjudication'); }} restore={(item,rationale) => act(async () => { await command('/restore', { expected_version:run.version, idempotency_key:commandKey(), observation_id:item.observation_id, reason:item.reason, need_id:item.need_id ?? null, rationale }); })} />}
+    {run && page === 'base_review' && <BaseReviewerView run={run} />}
     {run && page === 'deliberation' && <>
+          {run.request?.base_review === 'expert_v1' && <BaseReviewerView run={run} />}
           <section className="workflow-panel"><h2>Discussion & disagreement</h2>
             {run.request?.discussion === 'on_request' && <p className="workflow-notice">Automatic discussion is off for this run. Candidates with review findings and flagged pairs went straight to human review with their reasons. A reviewer can still request a targeted discussion for a candidate.</p>}
             {!run.conflicts.length && <p>No potential conflicts detected by the current policy.</p>}
@@ -482,13 +486,23 @@ function CaseView({ item, run, busy, submit, inspect }: { item: Case; run: Run; 
 }
 
 function FACoverageView({ run }: { run: Run }) {
-  const [ledger, setLedger] = useState<{ counts: Record<string, number>; working_revision_ids: string[]; covered_by_base_revision_ids: string[] } | null>(null);
+  const [ledger, setLedger] = useState<{ counts: Record<string, number>; working_revision_ids: string[]; covered_by_base_revision_ids: string[]; base_relation_counts?: Record<string, {verdict: Record<string,number>; effect: Record<string,number>}>; base_dispute_revision_ids?: string[]; base_recheck_revision_ids?: string[]; base_review_pending_revision_ids?: string[] } | null>(null);
   const [error, setError] = useState('');
   return <details><summary>Coverage, complete inventory and working list</summary>
     <p>Processed passages show what was read. Proposal accounting shows where extracted observations went. Neither measures how many real requirements were found.</p>
     <button onClick={() => { void workflowApi<typeof ledger>(`/runs/${run.run_id}/coverage`).then(setLedger).catch(error => setError(String(error))); }}>Load saved coverage</button>
     {error && <p role="alert">{error}</p>}
-    {ledger && <><p>{ledger.counts.processed_units} / {ledger.counts.source_units} source units processed · {ledger.counts.accounted_observations} / {ledger.counts.observations} observations accounted for · {ledger.counts.unaccounted_observations} unresolved accounting gaps</p><p>{ledger.working_revision_ids.length} working revisions · {ledger.covered_by_base_revision_ids.length} inventory revisions labelled covered by base</p></>}
+    {ledger && <><p>{ledger.counts.processed_units} / {ledger.counts.source_units} source units processed · {ledger.counts.accounted_observations} / {ledger.counts.observations} observations accounted for · {ledger.counts.unaccounted_observations} unresolved accounting gaps</p><p>{ledger.working_revision_ids.length} working revisions · {ledger.covered_by_base_revision_ids.length} inventory revisions labelled covered by base</p>{ledger.base_relation_counts && <><h3>Procedural base review</h3>{Object.entries(ledger.base_relation_counts).map(([phase, counts]) => <p key={phase}>{humanLabel(phase)} · {Object.entries(counts.verdict).map(([key,n]) => `${humanLabel(key)}: ${n}`).join(' · ')}<br />{Object.entries(counts.effect).map(([key,n]) => `${humanLabel(key)}: ${n}`).join(' · ')}</p>)}<p>{ledger.base_dispute_revision_ids?.length ?? 0} disputes · {ledger.base_recheck_revision_ids?.length ?? 0} rechecks required · {ledger.base_review_pending_revision_ids?.length ?? 0} not reviewed.</p></>}</>}
     <a href={`/api/rq1/v2/runs/${run.run_id}/coverage`} target="_blank" rel="noreferrer">Open complete source-to-output ledger and inventory</a>
   </details>;
+}
+
+function BaseReviewerView({ run }: { run: Run }) {
+  const result = run.stage_results?.base_review;
+  return <section className="workflow-panel"><h2>Base reviewer (procedural, not a stakeholder)</h2>
+    <p>Compares the current needs with the run’s pinned catalogue and cited source passages. An independent check must agree before labels change. No need is removed; these are machine judgements, not human approval.</p>
+    <p>Stage: {humanLabel(run.stages.base_review ?? 'skipped')}. Discussion-created revisions are reviewed again before the final coverage ledger.</p>
+    {Object.entries(result?.phases ?? {}).map(([phase, data]) => <p key={phase}>{humanLabel(phase)} · {Object.entries(data.counts).map(([key,n]) => `${humanLabel(key)}: ${n}`).join(' · ')}</p>)}
+    {!!result?.review_questions?.length && <details><summary>{result.review_questions.length} disagreements need human review</summary>{result.review_questions.map(q => <p key={`${q.phase}-${q.revision_id}`}>{run.requirements.find(r => r.revision_id === q.revision_id)?.need_statement ?? q.revision_id}: {q.question}</p>)}</details>}
+  </section>;
 }
