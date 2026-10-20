@@ -315,6 +315,34 @@ def test_material_case_budget_is_bounded_without_restarting_work(setup,monkeypat
     assert saved['deliberations'][0]['stop_reason']=='budget_pending_human_review'
 
 
+def test_context_budget_is_case_scoped_audited_and_preserves_saved_phases(setup,monkeypatch):
+    store,run,units,_=setup;run=enable(store,run)
+    run=install_records(store,run,[make_record(store,run,units[0])])
+    client=Dialogue()
+    original=engine.bounded_stage_output
+    def bounded(*args,**kwargs):
+        result=original(*args,**kwargs)
+        if kwargs['output_model'] is discussion.Plan:
+            monkeypatch.setattr(discussion,'MAX_CONTEXT',1)
+        return result
+    monkeypatch.setattr(engine,'bounded_stage_output',bounded)
+    discussion.deliberate(store,run['run_id'],client)
+    saved=store.get('run',run['run_id']);case=saved['deliberations'][0]
+    assert saved['status']=='awaiting_human'
+    assert case['stop_reason']=='budget_pending_human_review'
+    phases=case['discussion_trace']['phases']
+    assert phases['draft']['output']
+    assert not phases['check'].get('output') and not phases['check']['attempts']
+    budget=phases['check']['context_budget']
+    assert budget['measured_characters']>budget['limit_characters']==1
+    assert budget['wire_hash'] and budget['policy_version']=='rq1-fa-context-budget-case-v1'
+    assert saved['active_revision_ids']==run['active_revision_ids']
+    assert saved['machine_snapshot']==run['machine_snapshot']
+    calls=len(client.calls)
+    discussion.deliberate(store,run['run_id'],client)
+    assert len(client.calls)==calls
+
+
 def test_modality_only_allowed_when_separately_source_checked():
     data=NeedStatements(needs=[{'group_id':'g','statement':'The metadata must let users find an access condition.',
         'members':[{'member_id':'m','expresses_need':True}]}])

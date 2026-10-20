@@ -343,7 +343,13 @@ def execute_case(store,run_id,case_id,client,roles):
         errors=[]
         for _ in range(len(saved['attempts']),2):
             wire=canonical(translate(payload,{v:k for k,v in aliases.items()}))
-            if len(wire if policy=='rq1-fa-dialogue-v2' else canonical(payload))>MAX_CONTEXT:raise ValueError('F/A discussion input exceeds budget.')
+            measured=len(wire if policy=='rq1-fa-dialogue-v2' else canonical(payload))
+            saved['context_budget']={'policy_version':'rq1-fa-context-budget-case-v1',
+                'internal_characters':len(canonical(payload)),'wire_characters':len(wire),
+                'measured_characters':measured,'limit_characters':MAX_CONTEXT,'wire_hash':digest(wire)}
+            if measured>MAX_CONTEXT:
+                persist('fa_context_budget_exceeded')
+                raise DiscussionBudgetError('F/A discussion input exceeds context budget; original needs and saved phases retained for human review.')
             def before(cap):
                 nonlocal attempts,reserved
                 if attempts>=14 or reserved+cap>112000 or seconds>=1800:
