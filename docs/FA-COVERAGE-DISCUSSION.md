@@ -122,6 +122,8 @@ cases. The parent stays unchanged. Lineage records inherited call counts/hashes
 and the parent plan/implementation identity; the child's call log covers only
 new requests. Upstream settings and primary model choices cannot change in this
 operation. Totals must include parent calls when reporting the whole workflow.
+A discussion planned under another protocol, such as `rq1-fa-dialogue-v2`, is
+refused; derive a base-review trial instead (see below).
 
 A user-cancelled parent can produce a linked continuation only when unfinished
 user-cancelled cases remain and no human decisions or baseline exist. Only those
@@ -158,8 +160,9 @@ excerpts) is still read row by row: its parsed JSON is saved on the attempt, so
 a resumed run makes the same decisions. Checks are isolated the same way. Kept
 results record `isolated_from_failed_batch`. Only a need whose own review stays
 invalid remains `not_reviewed` / `invalid_output` with `base_review_pending` and
-its validation `errors`; a need whose own check stays invalid is
-`check_invalid_output`, with no verdict recorded. v2 marked whole batches: 10 of
+its validation `errors`; a need whose own check stays invalid is `not_reviewed` /
+`check_invalid_output`, also with its errors, and its unchecked verdict is not
+recorded as a judgement. v2 marked whole batches: 10 of
 46 JRC needs in three batches. A verdict may cite up to 12 entries (one per item
 of a need that lists items) and up to 12 of the need's own excerpts; the old
 limit of 4 excerpts rejected a review call in JRC `run-fd39639e`. Transport
@@ -215,8 +218,7 @@ Policy v2 instead kept the classifier's label as a `dispute`, and its discussion
 had to defer such needs. `rq1-base-expert-v3` removed the label but still wrote
 `dispute`; the ledger, report and need cards decide by the recorded policy
 (`base_review.label_removed`), so its records count as removed labels and a v1/v2
-`dispute` still means the label was kept. A failed check adds
-`base_relation_review` and changes no label. **No need is deleted or set aside by this reviewer.**
+`dispute` still means the label was kept. **No need is deleted or set aside by this reviewer.**
 `covered_by_base` stays in the complete inventory and is excluded only from the
 working count. `base_relation` records the phase, verdict, effect, check,
 classifier state, exact entry and evidence IDs, pin, checkpoint and model, with
@@ -240,9 +242,13 @@ ones retain it. Neither procedural review nor mediation is human approval.
 
 The ledger adds verdict/effect counts by phase, coverage-label provenance split
 between classifier and reviewer, removed labels, legacy disputes, pending rechecks
-and unreviewed IDs. Its contract hash includes the reviewer prompts. Need cards, the Base review
-page and discussion view show these judgements; the coverage panel exposes the
-counts and the complete ledger remains downloadable.
+and unreviewed IDs. Its contract hash includes the current reviewer prompts
+unless stage 6a recorded another policy: a run reviewed under another policy
+(such as `run-fd39639e`) binds only that recorded policy name, so it never
+reports the current contract. Need cards, the Base review
+page and discussion view show these judgements, and need cards show a need's
+validation errors; the coverage panel exposes the counts (legacy disputes only
+when present) and the complete ledger remains downloadable.
 
 ### Mediator plan bookkeeping and salvage (v3)
 
@@ -280,11 +286,14 @@ revisions by internal IDs the model had never seen, and omitted the rejected pla
   dispositions (retain, covered_by_base, defer) name one need, its single valid
   deferral is kept. Additions are never kept: the invalid plan may have meant to
   withdraw them. Every other need receives a marked system deferral (`salvage-N`)
-  that retains the original for a person; concern dispositions that are
+  that retains the original for a person. Its question offers to apply a rejected
+  action after review only when a dropped action named that need; otherwise it
+  offers a separately reviewed revision. Concern dispositions that are
   inconsistent with what was kept become unresolved under one system review
-  question. Every dropped action keeps its full proposal and appears in the case
-  outcomes as an unapplied `human_review` row (`salvage_rejected`) with its
-  problems. Nothing is written or cited by salvage, and the result must pass the
+  question. Every action dropped from the applied plan keeps its full proposal and
+  appears in the case outcomes as an unapplied `human_review` row
+  (`salvage_rejected`) with its problems; the discussion view labels it "rejected,
+  not applied". Nothing is written or cited by salvage, and the result must pass the
   normal plan validators. A salvaged draft goes through the normal response round
   and final mediation; kept actions are then independently checked and applied
   like any others. Salvage needs at least one valid disposition of an existing
@@ -319,7 +328,9 @@ Only name, rationale, execution mode, timeout fallback and models/options for
 pauses after the procedural stage: inspect that cheap result before resuming the
 discussion. The two reviewer model slots default to the configured model,
 independently of the discussion default. At four needs per batch, 64 needs cost
-32 calls and 49 cost 26, before corrections or size splitting. Later discussion
+32 calls and 49 cost 26, before corrections or size splitting. A need reviewed
+alone after its batch stayed invalid adds up to two review and two check calls,
+and the batch's kept judgements need their own check. Later discussion
 revisions add their own review calls; per-case discussion budgets do not grow.
 
 `scripts/fa_base_report.py` reads the run
@@ -351,8 +362,9 @@ discussion.
 | JRC `run-fd39639e` | 41 | 19 | 41 | 0 | 0 | 8 confirmed, 2 added, 11 removed, 17 agree, 3 note | 31 |
 | StatDCAT `run-7211c6ec` | 61 | 16 | 58 | 1 | 2 | 6 confirmed, 6 added, 8 removed, 36 agree, 4 note | 47 |
 
-The final label set of each run equals its checked `restates_base` verdicts. In
-StatDCAT the one invalid verdict left only its own need unreviewed. Both runs'
+In JRC the labels after 6a are exactly its 10 checked restatements (8 confirmed,
+2 added). In StatDCAT 2 of the 16 classifier labels were neither confirmed (6)
+nor removed (8), and the one invalid verdict left only its own need unreviewed. Both runs'
 6a labels come from v3 prompts, so a v3 discussion refuses them; derive a
 base-review trial from them to continue under v4 (about 22 and 32 review and
 check calls before corrections).
@@ -368,7 +380,9 @@ Ranked candidates alone would have let the reviewer cite the right entry for 6
 of them, and the guards admit 4; with the index the guards admit 9. The shared
 condition guard still refuses the 2 whose condition repeats DCAT's own usage
 guidance (for example "when a download URL is provided"); changing it would also
-change classification. Newly written discussion revisions are the other gap
+change classification. Its error now tells the reviewer to cite the entries that
+state the condition or to answer `domain_use_of_base`, and a refusal that stays
+leaves only that need unreviewed. Newly written discussion revisions are the other gap
 addressed. The `dcat-ap-1.1.0` catalogue has no definitions, so that version
 relies on phrases and usage notes. The reviewer, checker and classifier are all
 model judgements, not ground truth, benchmark accuracy or evidence of effort
