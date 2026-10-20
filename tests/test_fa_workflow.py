@@ -411,3 +411,34 @@ def test_split_uses_distinct_child_identities_and_original_obligation(setup,monk
     assert all(r['parent_revision_ids']==[rec.revision_id] for r in added)
     assert all(r['normalized_intent']['obligation_hint']==rec.normalized_intent.obligation_hint for r in added)
     assert all(set(rec.observation_ids)<=set(r['observation_ids']) for r in added)
+
+
+@pytest.mark.parametrize('offset',[None,999])
+@pytest.mark.parametrize('link_kind',['evidence_links','priority_links'])
+def test_unique_citation_offset_repair_uses_evidence_link_contract(setup,monkeypatch,offset,link_kind):
+    store,run,units,_=setup
+    rec=make_record(store,run,units[0]);parent=rec.model_dump(mode='json')
+    quote=units[0]['content'][6:]
+    action={'action_id':'repair','action':'revise','parent_revision_ids':[rec.revision_id],
+            'statement':rec.need_statement,'rationale':'Keep exact source support.',
+            link_kind:[{'evidence_id':units[0]['evidence_id'],'quote':quote,'quote_start':offset}]}
+    plan=discussion.Plan(actions=[action],summary='Source-anchored repair.')
+    checks=discussion.Checks(checks=[{'action_id':'repair','supported':True,'preserves_distinctions':True,
+        'priority_supported':True,'condition_supported':True,'obligation_preserved':True,
+        'fa_relevant':True,'disposition_justified':True,'rationale':'Verified synthetic source.'}])
+    called=[]
+    def downstream(store,run,case,plan,checks,client,**kwargs):
+        link=getattr(plan.actions[0],link_kind)[0]
+        assert link.quote_start==6
+        assert units[0]['content'][link.quote_start:link.quote_start+len(link.quote)]==quote
+        assert 'quote_end' not in link.model_dump()
+        called.append(True)
+        return [{'applied':False}],[],{}
+    monkeypatch.setattr(discussion.old,'apply_plan',downstream)
+    case={'frozen_requirements':[parent],'mediation':{'related_conflicts':[]}}
+    outcomes,additions,replacements,asides=discussion.apply(store,run,case,plan,checks,Dialogue(),{units[0]['evidence_id']})
+    assert called==[True]
+    assert outcomes[0]['citation_repairs'][0]['from']==offset
+    assert outcomes[0]['citation_repairs'][0]['to']==6
+    assert not additions and not replacements and not asides
+    assert plan.actions[0].model_dump()[link_kind][0]['quote_start']==offset
