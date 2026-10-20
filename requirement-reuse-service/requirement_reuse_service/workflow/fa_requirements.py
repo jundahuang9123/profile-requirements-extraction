@@ -152,6 +152,8 @@ def coverage_ledger(run):
             'classifier':[r['revision_id'] for r in covered if not r.get('base_relation') or r['base_relation'].get('classifier_state',{}).get('covered_by_base')],
             'base_review':[r['revision_id'] for r in covered if (r.get('base_relation') or {}).get('effect')=='flag_added']}
         result['base_dispute_revision_ids']=[r['revision_id'] for r in inventory if (r.get('base_relation') or {}).get('effect')=='dispute']
+        # rq1-base-expert-v3: a checked new/domain-use verdict removes the classifier's label.
+        result['base_label_removed_revision_ids']=[r['revision_id'] for r in inventory if (r.get('base_relation') or {}).get('effect')=='flag_removed']
         result['base_recheck_revision_ids']=[r['revision_id'] for r in inventory if 'base_recheck_required' in r.get('processing_flags',[])]
         result['base_review_pending_revision_ids']=[r['revision_id'] for r in inventory if 'base_review_pending' in r.get('processing_flags',[])]
         result['contract_hash']=digest([result['contract_hash'],BASE_POLICY,REVIEW_SYSTEM,CHECK_SYSTEM])

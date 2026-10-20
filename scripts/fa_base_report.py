@@ -38,7 +38,8 @@ def main():
     lines=['# Procedural base review',f'Run: `{a.run}` · status: {run["status"]}',
         'Machine judgements only; no human acceptance or accuracy claim. CSV includes historical need revisions with an active column. Usage below covers this run’s new calls, not ancestral calls.','\n## Classifier × reviewer (current inventory)',
         *[f'- {c or "not checked"} × {v or "not reviewed"}: {n}' for (c,v),n in sorted(matrix.items(),key=lambda x:str(x[0]))]]
-    for title,predicate in [('Flags added',lambda r:r['effect']=='flag_added'),('Disputes',lambda r:r['effect']=='dispute'),
+    for title,predicate in [('Flags added',lambda r:r['effect']=='flag_added'),('Labels removed',lambda r:r['effect']=='flag_removed'),
+        ('Disputes (rq1-base-expert-v2 only)',lambda r:r['effect']=='dispute'),
         ('Domain uses',lambda r:r['reviewer']=='domain_use_of_base'),('Not reviewed',lambda r:r['status']=='not_reviewed'),
         ('After discussion',lambda r:r['phase']=='after_discussion')]:
         lines+=['\n## '+title]
@@ -53,6 +54,6 @@ def main():
     calls=[c for c in run.get('model_calls',[]) if c.get('step') in {'base_review','base_review_check'}]
     lines+=['\n## Reviewer usage',f'{len(calls)} calls ({dict(Counter(c.get("step") for c in calls))}); {sum((c.get("token_usage") or {}).get("total_tokens",0) or 0 for c in calls)} reported tokens ({sum(bool(c.get("token_usage")) for c in calls)} calls supplied usage); {sum(c.get("latency_seconds",0) or 0 for c in calls):.1f} seconds.',
         '\n## Case stop reasons',json.dumps(dict(Counter(c.get('stop_reason') for c in run.get('deliberations',[]))),indent=2),
-        '\n## Coverage',json.dumps({k:coverage.get(k) for k in ['counts','base_relation_counts','base_dispute_revision_ids','base_recheck_revision_ids','base_review_pending_revision_ids']},indent=2)]
+        '\n## Coverage',json.dumps({k:coverage.get(k) for k in ['counts','base_relation_counts','base_dispute_revision_ids','base_label_removed_revision_ids','base_recheck_revision_ids','base_review_pending_revision_ids']},indent=2)]
     (out/'base-review.md').write_text('\n\n'.join(lines)+'\n',encoding='utf-8')
 if __name__=='__main__':main()

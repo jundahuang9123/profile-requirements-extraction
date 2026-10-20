@@ -68,7 +68,9 @@ def test_invalid_restating_verdict_gets_one_correction_then_pending(setup,invali
 def test_domain_addition_requires_source_and_other_batches_continue(setup):
     store,run,_=prepared(setup,5)
     client=Reviewer('domain_use_of_base',lambda v,n:v.update(evidence_ids=[]) if len(n['offered_entry_ids']) else None)
-    br.review_base(store,run,client);assert len(client.calls)==4
+    br.review_base(store,run,client)
+    # The failed batch of four, then each of its needs alone; then the fifth need.
+    assert [len(p['needs']) for _,p in client.calls]==[4,4]+[1]*10
     assert all(n['base_relation']['status']=='not_reviewed' for n in store.get('run',run['run_id'])['requirements'])
 
 
@@ -100,8 +102,10 @@ def test_effect_table_preserves_inventory(setup,state,verdict):
     check=br.BaseVerdictCheck(item_id=rid,verdict_supported=True,nothing_lost=True,rationale='Checked.')
     br.apply_verdict(n,v,check,'before_discussion',cat,'key',{},p);refresh_need(n)
     assert n.revision_id==rid and n.content_hash==h
-    assert ('covered_by_base'in n.processing_flags)==(state=='covered' or verdict=='restates_base')
-    expected = ('confirmed' if state=='covered' else 'flag_added') if verdict=='restates_base' else 'dispute' if state=='covered' and verdict in {'new','domain_use_of_base'} else 'agree' if (state=='domain_use_of_base' and verdict=='domain_use_of_base') or (state in {'domain',None} and verdict=='new') else 'note'
+    # The label follows a checked verdict in both directions; uncertainty changes nothing.
+    assert ('covered_by_base'in n.processing_flags)==(verdict=='restates_base' or (state=='covered' and verdict=='uncertain'))
+    expected = ('confirmed' if state=='covered' else 'flag_added') if verdict=='restates_base' else 'flag_removed' if state=='covered' and verdict in {'new','domain_use_of_base'} else 'agree' if (state=='domain_use_of_base' and verdict=='domain_use_of_base') or (state in {'domain',None} and verdict=='new') else 'note'
+    assert n.base_relation['classifier_state']['covered_by_base']==(state=='covered')
     assert n.base_relation['effect']==expected
 
 
@@ -124,7 +128,7 @@ def test_request_opt_in_requires_fa_and_base_and_policy_is_per_run():
     with pytest.raises(ValueError,match='requires the F/A'):
         RunRequest(snapshot_id='s',base_review='expert_v1')
     r=RunRequest(snapshot_id='s',strategy='multi_agent',stakeholder_workflow='fa_mediated',base_profile_id='dcat-ap-1.1.0',base_review='expert_v1')
-    assert discussion_policy({'request':r.model_dump()})=='rq1-fa-dialogue-v2'
+    assert discussion_policy({'request':r.model_dump()})=='rq1-fa-dialogue-v3'
     assert discussion_policy({'request':{}})=='rq1-fa-dialogue-v1'
 
 
@@ -146,9 +150,9 @@ def test_v2_packet_aliases_prompts_and_after_pass(setup):
             return super().generate_structured(user=user,output_model=output_model,**kw)
     client=Both();fd.deliberate(store,run['run_id'],client)
     saved=store.get('run',run['run_id']);assert saved['status']=='awaiting_human'
-    assert any(fd.V2_ROLE_GUIDANCE in s for s in client.systems)
-    assert any(fd.V2_MEDIATOR_GUIDANCE in s for s in client.systems)
-    assert any(fd.V2_CHECK_GUIDANCE in s for s in client.systems)
+    assert any(fd.BASE_ROLE_GUIDANCE in s for s in client.systems)
+    assert any(fd.BASE_MEDIATOR_GUIDANCE in s for s in client.systems)
+    assert any(fd.BASE_CHECK_GUIDANCE in s for s in client.systems)
     assert any(any(k.startswith('B') for k in p.get('packet',{}).get('base_entries',{})) for p in client.wires)
     # A newly written revision is rechecked, and coverage changes only its working label.
     def recheck(r):r['requirements'][0]['processing_flags']=['base_recheck_required'];r['requirements'][0]['base_relation']=None
@@ -253,15 +257,24 @@ def test_batch_splits_successfully_without_repeating_work(setup,monkeypatch):
     assert len([n for kind,p in client.calls if kind=='BaseReview' for n in p['needs']])==4
 
 
-def test_dispute_keeps_classifier_flag_and_saves_question(setup):
+def test_checked_new_verdict_removes_the_classifier_label_and_saves_question(setup):
+    from requirement_reuse_service.workflow.fa_requirements import coverage_ledger
     store,run,_=prepared(setup)
-    store.mutate(run['run_id'],None,'covered',lambda r:r['requirements'][0].update(processing_flags=['covered_by_base']))
+    def covered(r):
+        r['requirements'][0].update(processing_flags=['covered_by_base']);r['request']['base_review']='expert_v1'
+    store.mutate(run['run_id'],None,'covered',covered)
     br.review_base(store,store.get('run',run['run_id']),Reviewer('new'))
-    saved=store.get('run',run['run_id'])
-    assert 'covered_by_base'in saved['requirements'][0]['processing_flags']
+    saved=store.get('run',run['run_id']);n=saved['requirements'][0]
+    assert 'covered_by_base'not in n['processing_flags'] and n['base_relation']['effect']=='flag_removed'
+    assert n['base_relation']['classifier_state']['covered_by_base'] is True and n['base_relation']['human_accepted'] is False
     question=saved['stage_results']['base_review']['review_questions'][0]
-    assert question['revision_id']==saved['requirements'][0]['revision_id']
-    assert 'classifier'in question['question'] and 'new'in question['question']
+    assert question['revision_id']==n['revision_id'] and question['effect']=='flag_removed'
+    assert 'classifier'in question['question'] and 'new'in question['question'] and 'removed'in question['question']
+    ledger=coverage_ledger(saved)
+    assert ledger['base_label_removed_revision_ids']==[n['revision_id']] and n['revision_id'] in ledger['working_revision_ids']
+    # Resuming re-applies the same saved judgement against the classifier's original label.
+    br.review_base(store,saved,Reviewer('new'))
+    assert store.get('run',run['run_id'])['requirements'][0]['base_relation']['effect']=='flag_removed'
 
 
 def test_stronger_obligation_cannot_be_restated(setup):
@@ -414,7 +427,7 @@ def test_a_supported_new_verdict_is_an_agreement_not_a_failed_check(setup):
     store,run,_=prepared(setup);br.review_base(store,run,Reviewer('new'))
     n=store.get('run',run['run_id'])['requirements'][0]
     assert n['base_relation']['status']=='checked' and n['base_relation']['effect']=='agree'
-    assert n['base_relation']['policy']=='rq1-base-expert-v2' and 'base_relation_review' not in n['processing_flags']
+    assert n['base_relation']['policy']==br.POLICY=='rq1-base-expert-v3' and 'base_relation_review' not in n['processing_flags']
     assert n['base_relation']['check']['verdict_supported'] is True
     assert 'verdict_supported' in br.CHECK_SYSTEM and 'entries_express_need' not in br.CHECK_SYSTEM
     with pytest.raises(Exception):
@@ -427,7 +440,7 @@ def test_v2_mediator_may_defer_a_labelled_need_but_not_set_it_aside(setup):
     store,run,_=prepared(setup);run['request']['base_review']='expert_v1'
     run['requirements'][0]['processing_flags']=['covered_by_base']
     case=fd.build_cases(store,run,[],Dialogue())[0];rid=run['requirements'][0]['revision_id']
-    assert case['policy_version']=='rq1-fa-dialogue-v2'
+    assert case['policy_version']=='rq1-fa-dialogue-v3'
     rule='A labelled base-covered need must stay visible'
     def errors(action,**extra):
         plan=fd.Plan(actions=[{'action_id':'a','action':action,'parent_revision_ids':[rid],'rationale':'Synthetic disposition.',**extra}],summary='Synthetic plan.')
@@ -435,4 +448,81 @@ def test_v2_mediator_may_defer_a_labelled_need_but_not_set_it_aside(setup):
     assert not any(rule in e for e in errors('defer',human_question='Is the base entry enough for this task?',alternatives=['Keep as covered by base','Treat as a domain requirement']))
     assert not any(rule in e for e in errors('retain'))
     assert any(rule in e for e in errors('set_aside',human_question='Restore?'))
-    assert 'deferred with a question' in fd.V2_MEDIATOR_GUIDANCE
+    assert 'deferred with a question' in fd.BASE_MEDIATOR_GUIDANCE
+
+
+def test_one_invalid_judgement_leaves_its_batch_mates_reviewed(setup):
+    store,run,_=prepared(setup,4)
+    # A source condition that no entry states makes this need's restatement invalid,
+    # in its batch and alone; v2 marked all four needs not reviewed.
+    bad=sorted(r['revision_id'] for r in run['requirements'])[1]
+    def mark(r):next(x for x in r['requirements'] if x['revision_id']==bad)['need_condition']='Only if an authorised recipient has signed a special agreement.'
+    store.mutate(run['run_id'],None,'fixture_condition',mark);run=store.get('run',run['run_id'])
+    client=Reviewer('restates_base');br.review_base(store,run,client)
+    saved=store.get('run',run['run_id']);rows={r['revision_id']:r for r in saved['requirements']}
+    assert rows[bad]['base_relation']['status']=='not_reviewed' and 'base_review_pending' in rows[bad]['processing_flags']
+    others=[r for rid,r in rows.items() if rid!=bad]
+    assert all(r['base_relation']['status']=='checked' and r['base_relation']['effect']=='flag_added' for r in others)
+    assert all(r['base_relation']['isolated_from_failed_batch']['review']==r['base_relation']['batch_key'] for r in others)
+    assert [(name,len(p['needs'])) for name,p in client.calls]==[('BaseReview',4),('BaseReview',4),('BaseReviewChecks',3),('BaseReview',1),('BaseReview',1)]
+    assert {q['effect'] for q in saved['stage_results']['base_review']['review_questions']}=={'flag_added'}
+    assert len(saved['stage_results']['base_review']['review_questions'])==3
+    before=len(client.calls);br.review_base(store,saved,client);assert len(client.calls)==before
+
+
+def test_a_missing_check_is_repeated_for_that_need_alone(setup):
+    store,run,_=prepared(setup,4)
+    class DropsFirstCheck(Reviewer):
+        def generate_structured(self,*,user,output_model,**kw):
+            result=super().generate_structured(user=user,output_model=output_model,**kw)
+            return output_model(checks=result.checks[1:]) if output_model==br.BaseReviewChecks and len(result.checks)>1 else result
+    client=DropsFirstCheck('new');br.review_base(store,run,client)
+    saved=store.get('run',run['run_id'])
+    assert all(r['base_relation']['status']=='checked' for r in saved['requirements'])
+    assert [(name,len(p['needs'])) for name,p in client.calls]==[('BaseReview',4),('BaseReviewChecks',4),('BaseReviewChecks',4),('BaseReviewChecks',1)]
+    isolated=[r['base_relation'].get('isolated_from_failed_batch') for r in saved['requirements']]
+    assert sum(bool(i) for i in isolated)==3 and all(i['check'].startswith('base_review_check:') for i in isolated if i)
+
+
+def test_correction_names_the_model_aliases_and_shows_the_rejected_answer(setup):
+    store,run,_=prepared(setup)
+    class Recorder(Reviewer):
+        def __init__(self):super().__init__('restates_base',lambda v,n:v.update(entry_ids=['B999']) if not self.calls[:-1] else None);self.systems=[]
+        def generate_structured(self,*,system,**kw):
+            self.systems.append(system);return super().generate_structured(**kw)
+    client=Recorder();br.review_base(store,run,client)
+    rid=run['requirements'][0]['revision_id'];second=client.systems[1]
+    assert 'Your previous answer was rejected: {' in second and 'N1: cite only entries' in second and '"B999"' in second
+    assert rid not in second and 'rev-' not in second
+    assert store.get('run',run['run_id'])['requirements'][0]['base_relation']['status']=='checked'
+
+
+def test_a_listed_items_need_may_cite_up_to_twelve_entries():
+    rows=[f'base-{i}' for i in range(13)]
+    assert br.BaseVerdict(item_id='n',verdict='restates_base',entry_ids=rows[:12],rationale='Twelve items.')
+    with pytest.raises(Exception):br.BaseVerdict(item_id='n',verdict='restates_base',entry_ids=rows,rationale='Thirteen items.')
+
+
+def test_derived_opt_in_run_shows_stage_6a_pending(setup):
+    from requirement_reuse_service.workflow import engine
+    from requirement_reuse_service.workflow.models import DeriveRequest
+    store,source=derivable(setup)
+    def opt_in(r):
+        r['request']['base_review']='expert_v1';r['stages']['base_review']='completed'
+        r['role_runs']=[{'role_id':'consumer_discovery','status':'completed'}]
+    store.mutate(source['run_id'],None,'fixture_opt_in',opt_in);source=store.get('run',source['run_id'])
+    child=engine.derive_run(store,source['run_id'],DeriveRequest(expected_version=source['version'],
+        rationale='Downstream trial.',output_form='needs',scoping='off',base_check=False,discussion='automatic'))
+    assert child['request']['base_review']=='expert_v1' and child['stages']['base_review']=='pending'
+
+
+def test_the_checker_reads_the_entry_the_classifier_relied_on(setup):
+    store,run,cat=prepared(setup);n=RequirementRecord.model_validate(run['requirements'][0])
+    access=next(e['id'] for e in cat['entries'] if (e['class'],e.get('property'))==('dcat:Dataset','dct:accessRights'))
+    n.matched_base_need_ids=[access];n.processing_flags=['covered_by_base']
+    payload,aliases=br.make_payload(store,run,[n],cat,'before_discussion')
+    verdict=br.BaseVerdict(item_id=n.revision_id,verdict='new',rationale='No entry names it.').model_dump(mode='json')
+    check=br.make_check_payload(payload,[verdict],cat)
+    # v2 showed no entry text for a "new" verdict, so its checker could not weigh the match.
+    assert list(check['base']['entries'])==[access] and check['base']['entries'][access]['usage_notes']
+    assert 'classifier' in br.CHECK_SYSTEM and 'domain_use_of_base' in br.REVIEW_SYSTEM.split('new:')[1]
