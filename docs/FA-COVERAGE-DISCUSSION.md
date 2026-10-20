@@ -15,7 +15,7 @@ New UI runs use the `find_access_v1` requirements contract. Automatic stakeholde
 5. **Independent scope axes:** record source support, find/access relevance, statement nature, actor/task/example and cited evidence separately. Unchecked or disputed rows retain a review flag. A definite unsupported/out-of-scope judgement is reversible, with evidence and rationale retained. Category/applicability failure cannot erase these axes. Base-covered domain needs remain in the inventory with their domain evidence and base matches.
 6. **Cases:** task-based grouping can combine needs from different source files. Bounded windows and packet size limits are recorded; this does not guarantee all distant related needs meet. Include latest set-asides and unresolved proposals, labelled as such. Oversized cases split with a shared group hash; an oversized singleton remains pending human preparation.
 7. **Discussion:** save independent initial positions without peer answers; aggregate issues; obtain a mediator draft; solicit responses to proposed changes or material objections even from a role previously marked finished; obtain final mediation when responses occurred; independently check every disposition, including retain and set-aside. No concern is a valid response; silence or repetition does not establish consensus or weight.
-8. **Persistence/review:** apply source-checked machine revisions transactionally. Preserve before/after revision IDs, parents, evidence and observations. Invalid changes retain parents and a review question. A case whose structured output remains invalid after bounded correction is explicitly queued for human review; the run can continue with other cases. Transport failures still stop unfinished work for supported resume. Machine outcomes are never human acceptance. The pre-discussion machine snapshot remains unchanged.
+8. **Persistence/review:** apply source-checked machine revisions transactionally. Preserve before/after revision IDs, parents, evidence and observations. Invalid changes retain parents and a review question. A case whose structured output remains invalid after bounded correction is explicitly queued for human review; under `rq1-fa-dialogue-v3` the valid parts of its plan are salvaged first (see below). The run can continue with other cases. Transport failures still stop unfinished work for supported resume. Machine outcomes are never human acceptance. The pre-discussion machine snapshot remains unchanged.
 
 The mediator can propose retain, revise, split, merge, add/recover, covered-by-base, reversible set-aside or defer. Priority requires explicit applicable source support. Cross-case conflicts require joint review rather than a decision that cannot see both sides. New wording invalidates old base comparisons and shows a recheck flag. A covered-by-base label cannot be manufactured without an existing checked match.
 
@@ -141,19 +141,29 @@ the Stakeholder roles setup. It does not add a stakeholder or a vote.
 The new **Base review** stage runs after consolidation (and its stepwise pause),
 before discussion. Policy `rq1-base-expert-v4` reviews current revisions sorted
 by ID, in batches of up to four: one review generation and one independent check
-per batch. Each generation allows at most one correction, which shows the
-rejected answer and names its problems by the N/B/E aliases the model saw (v2
-sent internal revision IDs and no previous answer). Oversized payloads
-split; a single need that cannot fit the 30,000-character payload budget is
-marked `not_reviewed` / `payload_budget`. An oversized independent-check payload splits its checks without repeating the
-already accepted review. When a batch stays invalid after its correction, each
-judgement in its latest answer that is valid on its own is kept, and still
-independently checked; every other need is reviewed alone. Checks are isolated
-the same way. Only a need whose own review stays invalid remains visible as
-`not_reviewed` with `base_review_pending` (v2 marked whole batches: 10 of 46 JRC
-needs in three batches). Kept results record `isolated_from_failed_batch`. A
-restatement of a listed-items need may cite up to 12 entries (v2: 4). Transport failures stop the stage rather than inventing a
-result. Checkpoint identities bind the policy, prompts, payload, aliases, schema
+per batch. (`rq1-base-expert-v3` names an earlier version of these fixes whose
+prompts differ; only JRC `run-fd39639e` and StatDCAT `run-7211c6ec` used it.)
+Each generation allows at most one correction, which shows the rejected answer
+and names its problems by the N/B/E aliases the model saw (v2 sent internal
+revision IDs and no previous answer). Oversized payloads split; a single need
+that cannot fit the 30,000-character payload budget is marked `not_reviewed` /
+`payload_budget`. An oversized independent-check payload splits its checks
+without repeating the already accepted review.
+
+One need no longer sinks its batch. When a batch stays invalid after its
+correction, each judgement in its newest parsed answer that is valid on its own
+is kept, and still independently checked; every other need is reviewed alone.
+An answer that fails the output schema (for example one row citing too many
+excerpts) is still read row by row: its parsed JSON is saved on the attempt, so
+a resumed run makes the same decisions. Checks are isolated the same way. Kept
+results record `isolated_from_failed_batch`. Only a need whose own review stays
+invalid remains `not_reviewed` / `invalid_output` with `base_review_pending` and
+its validation `errors`; a need whose own check stays invalid is
+`check_invalid_output`, with no verdict recorded. v2 marked whole batches: 10 of
+46 JRC needs in three batches. A verdict may cite up to 12 entries (one per item
+of a need that lists items) and up to 12 of the need's own excerpts; the old
+limit of 4 excerpts rejected a review call in JRC `run-fd39639e`. Transport
+failures stop the stage rather than inventing a result. Checkpoint identities bind the policy, prompts, payload, aliases, schema
 and actual model; accepted outputs are reused and changed identities are refused.
 
 Review inputs are **only** the run's pinned catalogue and authentic cited source
@@ -166,7 +176,9 @@ obligation. Ranking only orders these details: on the JRC development run it
 missed paraphrases such as "year of public release" for `dct:issued` and
 "thematic classification" for `dcat:theme`. The classifier state is its result
 and search status only, not its search audit. The checker receives the index and
-the full text of each cited entry. Local N/B/E aliases are scoped to identifier
+the full text of each cited entry and of each entry the base classifier matched,
+so a verdict that contradicts the classifier is checked against the entry the
+classifier relied on. Local N/B/E aliases are scoped to identifier
 fields; quotations are not rewritten. A property not in the index is not in this
 base; another version and model memory cannot supply missing base knowledge. A
 changed catalogue pin refuses review.
@@ -175,14 +187,15 @@ changed catalogue pin refuses review.
 | --- | --- |
 | `restates_base` | Cited index entries express the whole need without an added constraint |
 | `domain_use_of_base` | A cited entry is used with a cited addition: condition, value set/unit, obligation, resource or meaning |
-| `new` | No index entry expresses the need |
+| `new` | No index entry names the information the need asks for; when an entry names it and the need adds a value, condition or narrower meaning, the verdict is `domain_use_of_base` |
 | `uncertain` | The supplied text is insufficient |
 
 Wording, synonyms, examples, actor and purpose alone are not additions. A
 restatement must also pass the classifier's condition and stronger-obligation
 guards. The independent check answers two questions: `verdict_supported` (the
 verdict is right: cited entries share the resource and property meaning, no index
-entry expresses a new need, or the catalogue text is indeed insufficient) and
+entry (including a classifier match) names the information of a new need, or the
+catalogue text is indeed insufficient) and
 `nothing_lost`. Both must be true before labels change; a failed check adds
 `base_relation_review` and leaves labels unchanged. Policy v1 asked instead
 whether the entries express the need, which is false for a correct `new`
@@ -199,7 +212,11 @@ The label follows the checked conclusion in both directions. A removed label
 (`flag_removed`) keeps the classifier's original judgement in `classifier_state`;
 an added or removed label records both judgements and a human-review question.
 Policy v2 instead kept the classifier's label as a `dispute`, and its discussion
-had to defer such needs. **No need is deleted or set aside by this reviewer.**
+had to defer such needs. `rq1-base-expert-v3` removed the label but still wrote
+`dispute`; the ledger, report and need cards decide by the recorded policy
+(`base_review.label_removed`), so its records count as removed labels and a v1/v2
+`dispute` still means the label was kept. A failed check adds
+`base_relation_review` and changes no label. **No need is deleted or set aside by this reviewer.**
 `covered_by_base` stays in the complete inventory and is excluded only from the
 working count. `base_relation` records the phase, verdict, effect, check,
 classifier state, exact entry and evidence IDs, pin, checkpoint and model, with
@@ -212,10 +229,10 @@ identify additions the base lacks. A need labelled `covered_by_base` may be
 retained, disposed `covered_by_base` or deferred with a human question and
 alternatives; any other action on it (revise, merge, split, resolve, recover,
 set aside) is refused. A need whose label the checked review removed is an
-ordinary working need. Only labels of `rq1-base-expert-v2` can carry a `dispute`,
-which requires a deferral with a human question. Until 20 October 2026 deferral of a
-labelled need was refused too; in the JRC trial that rejected
-mediator drafts in 18 cases. Cases and their budgets are unchanged. Every revision created
+ordinary working need and is not forced into deferral. The rule that a `dispute`
+requires a deferral with a human question applies only to cases planned under
+`rq1-fa-dialogue-v2`. Until 20 October 2026 deferral of a labelled need was
+refused too; in the JRC trial that rejected mediator drafts in 18 cases. Cases and their budgets are unchanged. Every revision created
 by revise, merge, add, recover or split requires a new base check. After all
 cases, a second procedural pass reviews those current revisions before the final
 coverage ledger. Reviewed revisions clear `base_recheck_required`; unreviewed
@@ -239,25 +256,35 @@ revisions by internal IDs the model had never seen, and omitted the rejected pla
 
 - **Guidance.** The mediator prompt states that an action disposes needs and is
   never a reply to a concern, that each need occurs in exactly one action, how
-  each concern is answered, and that a question lists need and concern IDs only.
+  each concern is answered, that a question lists need and concern IDs only, and
+  that an idea to drop is left out rather than added and then set aside or
+  deferred (18 of the 27 JRC actions that named no need did that).
 - **Repairs.** Before validation, four deterministic repairs: a question that lists
   an action ID gets that action's needs; question/concern links are made
-  reciprocal when one side names the other; an action without a need that no
-  concern links is dropped (additions are kept); empty deferral fields are copied
-  from their unique fully linked question. An action without a need is never
-  guessed onto one. Each attempt keeps the model's plan (`model_output`) beside
+  reciprocal when one side names the other; in a plan without additions, an
+  action without a need that no concern links and that carries no statement,
+  source, child or question is an empty note and is dropped; empty deferral fields
+  are copied from their unique fully linked question. An action without a need is
+  never guessed onto one, and one with content goes to correction and, if it
+  stays, to review. (Dropping every unlinked parentless action, as first written,
+  could apply an addition whose set-aside withdrew it.) Each attempt keeps the model's plan (`model_output`) beside
   the repaired plan and lists the `repairs`.
 - **Corrections.** A rejected plan is shown again with item-level problems
-  (`feedback`), all named by the aliases the model saw. The validators still
-  decide validity. A resumed second attempt also receives its correction.
+  (`feedback`), all named by the aliases the model saw, including IDs repeated
+  inside one list; when more than 30 problems exist, the correction says how many
+  were not shown. The validators still decide validity. A resumed second attempt
+  also receives its correction.
 - **Salvage** (`rq1-fa-salvage-v1`). When a plan stays invalid after its
   correction, its latest parsed version keeps each action that passes every
   one-action rule and names needs no other action names. When several unchanged
   dispositions (retain, covered_by_base, defer) name one need, its single valid
-  deferral is kept. Every other need receives a marked system deferral
-  (`salvage-N`) that retains the original for a person; concern dispositions that
-  are inconsistent with what was kept become unresolved under one system review
-  question. Nothing is written or cited by salvage, and the result must pass the
+  deferral is kept. Additions are never kept: the invalid plan may have meant to
+  withdraw them. Every other need receives a marked system deferral (`salvage-N`)
+  that retains the original for a person; concern dispositions that are
+  inconsistent with what was kept become unresolved under one system review
+  question. Every dropped action keeps its full proposal and appears in the case
+  outcomes as an unapplied `human_review` row (`salvage_rejected`) with its
+  problems. Nothing is written or cited by salvage, and the result must pass the
   normal plan validators. A salvaged draft goes through the normal response round
   and final mediation; kept actions are then independently checked and applied
   like any others. Salvage needs at least one valid disposition of an existing
@@ -266,10 +293,12 @@ revisions by internal IDs the model had never seen, and omitted the rejected pla
   mediation lists `salvage` audits by phase, and metrics count `salvaged_cases`.
 
 Offline replay of the 57 saved invalid plans (no model calls; the latest parsed
-plan of each case) gives: 10 valid after repairs, 14 salvaged (each keeping the
+plan of each case) gave: 10 valid after repairs, 14 salvaged (each keeping the
 mediator's disposition of every need; 67 concerns left to a person), 26 without
-a valid need disposition, and 7 without a parseable plan. The guidance and
-corrections can only be measured in a live run. v3 refuses to continue a
+a valid need disposition, and 7 without a parseable plan. That replay predates
+the narrower repair 3 and the rule that salvage keeps no addition, so fewer
+plans may now be valid after repairs. The guidance, corrections and salvage have
+not yet run live. v3 refuses to continue a
 discussion planned under v2 and refuses labels from an earlier base-review
 policy; derive a separate base-review trial instead. The legacy v1 protocol is
 unchanged.
@@ -295,9 +324,11 @@ revisions add their own review calls; per-case discussion budgets do not grow.
 
 `scripts/fa_base_report.py` reads the run
 and coverage through GET requests and produces Markdown and CSV. It reports the
-classifier/reviewer matrix, added flags and entry terms, checks, disputes,
-source-stated additions, pending/after-discussion results, accepted/refused
-base dispositions, reviewer usage and case stop reasons. Legacy v1 reports leave
+classifier/reviewer matrix, added flags and entry terms, checks, removed labels,
+disputes with the label kept (v1/v2), source-stated additions, not-reviewed needs
+with their errors, after-discussion results, discussion actions on labelled needs,
+mediator actions rejected by salvage, reviewer usage and case stop reasons. The
+CSV has `policy`, `errors` and `isolated` columns. Legacy v1 reports leave
 reviewer columns empty. Run this helper against a saved trial; it never starts
 inference or changes the run.
 
@@ -308,6 +339,23 @@ its readable summary labels the actual field rather than reinterpreting old resu
 ```sh
 python scripts/fa_base_report.py --api http://127.0.0.1:8013 --run <run-id> --out <report-directory>
 ```
+
+### Live results so far
+
+Two live runs (20 October 2026, KI:connect) used `rq1-base-expert-v3`, the
+earlier version of these fixes, and stopped after 6a; neither reached the
+discussion.
+
+| Run | Needs into 6a | Labelled by base check | Checked | Not reviewed | Check failed | Effects | Working after 6a |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| JRC `run-fd39639e` | 41 | 19 | 41 | 0 | 0 | 8 confirmed, 2 added, 11 removed, 17 agree, 3 note | 31 |
+| StatDCAT `run-7211c6ec` | 61 | 16 | 58 | 1 | 2 | 6 confirmed, 6 added, 8 removed, 36 agree, 4 note | 47 |
+
+The final label set of each run equals its checked `restates_base` verdicts. In
+StatDCAT the one invalid verdict left only its own need unreviewed. Both runs'
+6a labels come from v3 prompts, so a v3 discussion refuses them; derive a
+base-review trial from them to continue under v4 (about 22 and 32 review and
+check calls before corrections).
 
 ### Limits
 

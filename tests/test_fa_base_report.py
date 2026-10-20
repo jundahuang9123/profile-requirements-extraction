@@ -52,3 +52,38 @@ def test_saved_report_preserves_check_semantics_and_only_reads_api(tmp_path, mon
         assert row['reviewer'] == row['check_summary'] == ''
     assert 'Machine judgements only' in markdown
     assert 'not ancestral calls' in markdown
+
+
+def test_report_separates_removed_labels_from_kept_disputes_and_lists_salvage(tmp_path, monkeypatch):
+    # rq1-base-expert-v3 wrote "dispute" for a removed label; v4 writes flag_removed.
+    path = Path(__file__).resolve().parents[1] / 'scripts' / 'fa_base_report.py'
+    spec = importlib.util.spec_from_file_location('fa_base_report', path)
+    report = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(report)
+    def need(i, **relation):
+        return {'revision_id': f'revision-{i}', 'need_statement': f'Need {i}.', 'normalized_statement': f'Need {i}.',
+                'need_class': 'domain', 'base_relation': {'phase': 'before_discussion', 'classifier_state': {}, **relation}}
+    run = {'run_id': 'report-test', 'status': 'awaiting_human', 'model_calls': [],
+           'active_revision_ids': [f'revision-{i}' for i in range(1, 5)],
+           'requirements': [need(1, policy='rq1-base-expert-v4', effect='flag_removed', status='checked', verdict='new'),
+                            need(2, policy='rq1-base-expert-v3', effect='dispute', status='checked', verdict='new'),
+                            need(3, policy='rq1-base-expert-v2', effect='dispute', status='checked', verdict='new'),
+                            need(4, policy='rq1-base-expert-v4', status='not_reviewed', reason='invalid_output',
+                                 errors=['N1: cite only entries of this base’s index.'], isolated_from_failed_batch={'review': 'k'})],
+           'deliberations': [{'case_id': 'case-1', 'stop_reason': 'bounded_fa_dialogue_salvaged', 'frozen_requirements': [],
+                              'mediation': {'outcomes': [{'action_id': 'A2', 'action': 'add', 'salvage_rejected': True,
+                                  'validation_errors': ['Additions are not applied from a salvaged plan.']}]}}]}
+    monkeypatch.setattr(report, 'get', lambda url: run if url.endswith('?audit=true') else {'counts': {}})
+    monkeypatch.setattr(sys, 'argv', ['fa_base_report.py', '--api', 'http://local-test', '--run', 'report-test', '--out', str(tmp_path)])
+    report.main()
+    markdown = (tmp_path / 'base-review.md').read_text()
+    removed = markdown.split('## Labels removed')[1].split('\n## ')[0]
+    kept = markdown.split('## Disputes (label kept; rq1-base-expert-v1/v2)')[1].split('\n## ')[0]
+    assert 'Need 1.' in removed and 'Need 2.' in removed and 'Need 3.' not in removed
+    assert 'Need 3.' in kept and 'Need 1.' not in kept and 'Need 2.' not in kept
+    assert 'errors: N1: cite only entries' in markdown.split('## Not reviewed')[1].split('\n## ')[0]
+    assert 'case-1 · add A2: Additions are not applied from a salvaged plan.' in markdown
+    with (tmp_path / 'base-review.csv').open(encoding='utf-8-sig', newline='') as f:
+        rows = {r['revision_id']: r for r in csv.DictReader(f)}
+    assert rows['revision-2']['policy'] == 'rq1-base-expert-v3' and rows['revision-4']['errors'].startswith('N1:')
+    assert json.loads(rows['revision-4']['isolated']) == {'review': 'k'}

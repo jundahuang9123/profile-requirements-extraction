@@ -13,6 +13,11 @@ def check_summary(check):
     field='verdict_supported' if 'verdict_supported' in check else 'entries_express_need'
     return f'{field}: {check.get(field)}; nothing_lost: {check.get("nothing_lost")}; {check.get("rationale", "")}'
 
+def label_removed(r):
+    # rq1-base-expert-v3 wrote "dispute" for a removed label (JRC run-fd39639e: 11); later
+    # policies write flag_removed and keep "dispute" for a kept label (v1/v2).
+    return r['effect']=='flag_removed' or (r['effect']=='dispute' and r['policy']=='rq1-base-expert-v3')
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--api',required=True);p.add_argument('--run',required=True);p.add_argument('--out',required=True);a=p.parse_args()
     root=a.api.rstrip('/')+'/api/rq1/v2/runs/'+a.run
@@ -29,7 +34,8 @@ def main():
         relation=r.get('base_relation') or {};state=relation.get('classifier_state',{})
         rows.append({'revision_id':r['revision_id'],'need':r.get('need_statement') or r['normalized_statement'],
             'classifier':state.get('need_class',r.get('need_class')),'reviewer':relation.get('verdict',''),
-            'active':r['revision_id'] in run.get('active_revision_ids',[]),'reason':relation.get('reason',''),'phase':relation.get('phase',''),'status':relation.get('status',''),'effect':relation.get('effect',''),
+            'active':r['revision_id'] in run.get('active_revision_ids',[]),'policy':relation.get('policy',''),'reason':relation.get('reason',''),'phase':relation.get('phase',''),'status':relation.get('status',''),'effect':relation.get('effect',''),
+            'errors':'; '.join(relation.get('errors',[])),'isolated':json.dumps(relation['isolated_from_failed_batch']) if relation.get('isolated_from_failed_batch') else '',
             'flags':', '.join(r.get('processing_flags',[])),'entries':'; '.join(' '.join(filter(None,[entries.get(i,{}).get('class'),entries.get(i,{}).get('property')])) or i for i in relation.get('entry_ids',[])),
             'addition':relation.get('addition',''),'rationale':relation.get('rationale',''),'check':json.dumps(relation.get('check')) if relation else '','check_summary':check_summary(relation.get('check'))})
     with (out/'base-review.csv').open('w',newline='',encoding='utf-8-sig') as f:
@@ -38,19 +44,24 @@ def main():
     lines=['# Procedural base review',f'Run: `{a.run}` · status: {run["status"]}',
         'Machine judgements only; no human acceptance or accuracy claim. CSV includes historical need revisions with an active column. Usage below covers this run’s new calls, not ancestral calls.','\n## Classifier × reviewer (current inventory)',
         *[f'- {c or "not checked"} × {v or "not reviewed"}: {n}' for (c,v),n in sorted(matrix.items(),key=lambda x:str(x[0]))]]
-    for title,predicate in [('Flags added',lambda r:r['effect']=='flag_added'),('Labels removed',lambda r:r['effect']=='flag_removed'),
-        ('Disputes (rq1-base-expert-v2 only)',lambda r:r['effect']=='dispute'),
+    for title,predicate in [('Flags added',lambda r:r['effect']=='flag_added'),('Labels removed',label_removed),
+        ('Disputes (label kept; rq1-base-expert-v1/v2)',lambda r:r['effect']=='dispute' and not label_removed(r)),
         ('Domain uses',lambda r:r['reviewer']=='domain_use_of_base'),('Not reviewed',lambda r:r['status']=='not_reviewed'),
         ('After discussion',lambda r:r['phase']=='after_discussion')]:
         lines+=['\n## '+title]
         for r in rows:
-            if predicate(r):lines += [f'- {r["need"]} — {r["entries"]}; {r["addition"]}; {r["rationale"] or r["reason"]}; check: {r["check_summary"]}']
+            if predicate(r):lines += [f'- {r["need"]} — {r["entries"]}; {r["addition"]}; {r["rationale"] or r["reason"]}; check: {r["check_summary"]}'+(f'; errors: {r["errors"]}' if r['errors'] else '')]
     lines+=['\n## Discussion actions on labelled needs']
     for c in run.get('deliberations',[]):
         frozen={r['revision_id']:r for r in c.get('frozen_requirements',[])}
         for action in (c.get('mediation') or {}).get('outcomes',[]):
             if action.get('action')=='covered_by_base' or any('covered_by_base' in frozen.get(i,{}).get('processing_flags',[]) for i in action.get('parent_revision_ids',[])):
                 lines.append('- '+json.dumps({'case':c['case_id'],**action},ensure_ascii=False))
+    # Salvage (rq1-fa-salvage-v1) shows the actions it dropped as unapplied review rows.
+    lines+=['\n## Mediator actions rejected by salvage (not applied)']
+    for c in run.get('deliberations',[]):
+        for action in (c.get('mediation') or {}).get('outcomes',[]):
+            if action.get('salvage_rejected'):lines.append(f'- {c["case_id"]} · {action.get("action")} {action.get("action_id")}: '+'; '.join(action.get('validation_errors',[])))
     calls=[c for c in run.get('model_calls',[]) if c.get('step') in {'base_review','base_review_check'}]
     lines+=['\n## Reviewer usage',f'{len(calls)} calls ({dict(Counter(c.get("step") for c in calls))}); {sum((c.get("token_usage") or {}).get("total_tokens",0) or 0 for c in calls)} reported tokens ({sum(bool(c.get("token_usage")) for c in calls)} calls supplied usage); {sum(c.get("latency_seconds",0) or 0 for c in calls):.1f} seconds.',
         '\n## Case stop reasons',json.dumps(dict(Counter(c.get('stop_reason') for c in run.get('deliberations',[]))),indent=2),
