@@ -2,7 +2,7 @@
   "base_profile_id": "dcat-ap-1.1.0",
   "draft_catalogue_hash": "e550c6f60397a99f159eff668574ed7fde891549caa8c02d8b034c582611a7ab",
   "status": "reviewed",
-  "reviewer": "Codex (AI-assisted phrase review; not human approval)",
+  "reviewer": "Codex and Claude (AI-assisted phrase review; not human approval)",
   "reviewed_at": "2026-10-19",
   "phrase_corrections": {
     "base-47416ecefb01e2a2bfd6": {
@@ -22,8 +22,8 @@
       "note": "AI-assisted review by Codex, 2026-10-19. The classification scheme is distinct from the categories assigned to a resource. Basis: pinned usage notes."
     },
     "base-3e5e33729360a1bc8dca": {
-      "need": "Find the resources listed as members of a catalog.",
-      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned usage notes."
+      "need": "Find the catalogs that are part of a catalog.",
+      "note": "AI-assisted correction by Claude, 2026-10-19. The 19 October phrase was shared across versions and carried another version's meaning; rephrased to this version's pinned usage note. Not human approval."
     },
     "base-606ce17200585e420ba2": {
       "need": "Find the catalog that includes a catalog.",

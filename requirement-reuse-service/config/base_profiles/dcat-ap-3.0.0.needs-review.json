@@ -2,7 +2,7 @@
   "base_profile_id": "dcat-ap-3.0.0",
   "draft_catalogue_hash": "3a52261ac0c1be6f98087867c25ec8953a75384b1e7f27dd32f982e76e34bd42",
   "status": "reviewed",
-  "reviewer": "Codex (AI-assisted phrase review; not human approval)",
+  "reviewer": "Codex and Claude (AI-assisted phrase review; not human approval)",
   "reviewed_at": "2026-10-19",
   "phrase_corrections": {
     "base-47416ecefb01e2a2bfd6": {
@@ -30,8 +30,8 @@
       "note": "AI-assisted review by Codex, 2026-10-19. The classification scheme is distinct from the categories assigned to a resource. Basis: pinned definition and usage notes."
     },
     "base-3e5e33729360a1bc8dca": {
-      "need": "Find the resources listed as members of a catalog.",
-      "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
+      "need": "Find the catalogs that are part of a catalog.",
+      "note": "AI-assisted correction by Claude, 2026-10-19. The 19 October phrase was shared across versions and carried another version's meaning; rephrased to this version's pinned definition. Not human approval."
     },
     "base-66b14aabd2db6d505f58": {
       "need": "Find the date when a catalog was formally issued or published.",
@@ -54,8 +54,8 @@
       "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     "base-0780180464f03d62d92f": {
-      "need": "Find the type of the latest change to a catalog record.",
-      "note": "AI-assisted review by Codex, 2026-10-19. Preserve the context-specific meaning: change type, maturity or workflow status. Basis: pinned definition."
+      "need": "Find the editorial status of a catalog record.",
+      "note": "AI-assisted correction by Claude, 2026-10-19. The 19 October phrase was shared across versions and carried another version's meaning; rephrased to this version's pinned definition. Not human approval."
     },
     "base-35cc35fe2f83d0f4ee0a": {
       "need": "Find the application profile that the metadata in a catalog record conforms to.",
@@ -122,8 +122,8 @@
       "note": "AI-assisted review by Codex, 2026-10-19. Clarify the existing property meaning without adding a task, obligation or constraint. Basis: pinned definition."
     },
     "base-693585d66ee23b95e53f": {
-      "need": "Find the versioned snapshots of a dataset.",
-      "note": "AI-assisted review by Codex, 2026-10-19. Preserve versioned snapshots; this is narrower than versions, editions or adaptations. Basis: pinned definition."
+      "need": "Find the versions, editions or adaptations of a dataset.",
+      "note": "AI-assisted correction by Claude, 2026-10-19. The 19 October phrase was shared across versions and carried another version's meaning; rephrased to this version's pinned definition. Not human approval."
     },
     "base-c896409302acf05da2df": {
       "need": "Find the dataset series that a dataset belongs to.",

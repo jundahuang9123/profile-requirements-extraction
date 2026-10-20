@@ -2,7 +2,7 @@
   "base_profile_id": "dcat-3.0.0",
   "draft_catalogue_hash": "a0adca070184b70d43a25b5c15e3310fda08550442f53de468f11fb8695e0aa8",
   "status": "reviewed",
-  "reviewer": "Codex (AI-assisted phrase review; not human approval)",
+  "reviewer": "Codex and Claude (AI-assisted phrase review; not human approval)",
   "reviewed_at": "2026-10-19",
   "phrase_corrections": {
     "base-470a659df6d9aa964dc2": {
@@ -10,8 +10,8 @@
       "note": "AI-assisted review by Codex, 2026-10-19. Preserve the context-specific meaning: change type, maturity or workflow status. Basis: pinned definition and usage notes."
     },
     "base-50792ccc53b1f41d32a0": {
-      "need": "Find the other catalogs whose contents are of interest in a catalog.",
-      "note": "AI-assisted review by Codex, 2026-10-19. Preserve interest in another catalog; do not equate this with a part-of relationship. Basis: pinned definition."
+      "need": "Find the other catalogs listed in a catalog.",
+      "note": "AI-assisted correction by Claude, 2026-10-19. The 19 October phrase was shared across versions and carried another version's meaning; rephrased to this version's pinned definition. Not human approval."
     },
     "base-6d14ce208a675d28beb4": {
       "need": "Find the datasets listed in a catalog.",
