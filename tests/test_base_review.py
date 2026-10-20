@@ -38,7 +38,7 @@ class Reviewer:
                 if self.invalid:self.invalid(v,n)
                 rows.append(v)
             return output_model(verdicts=rows)
-        return output_model(checks=[{'item_id':key,'entries_express_need':self.checked,'nothing_lost':self.checked,'rationale':'Independent synthetic check.'} for key in p['needs']])
+        return output_model(checks=[{'item_id':key,'verdict_supported':self.checked,'nothing_lost':self.checked,'rationale':'Independent synthetic check.'} for key in p['needs']])
 
 
 def test_pin_and_effect_checkpoint_resume_without_changing_revision(setup,monkeypatch):
@@ -97,7 +97,7 @@ def test_effect_table_preserves_inventory(setup,state,verdict):
     if state=='covered':n.processing_flags=['covered_by_base']
     p,a=br.make_payload(store,run,[n],cat,'before_discussion');rid=n.revision_id;h=n.content_hash
     v=br.BaseVerdict(item_id=rid,verdict=verdict,entry_ids=[],rationale='Synthetic judgement.')
-    check=br.BaseVerdictCheck(item_id=rid,entries_express_need=True,nothing_lost=True,rationale='Checked.')
+    check=br.BaseVerdictCheck(item_id=rid,verdict_supported=True,nothing_lost=True,rationale='Checked.')
     br.apply_verdict(n,v,check,'before_discussion',cat,'key',{},p);refresh_need(n)
     assert n.revision_id==rid and n.content_hash==h
     assert ('covered_by_base'in n.processing_flags)==(state=='covered' or verdict=='restates_base')
@@ -373,7 +373,7 @@ def test_any_pinned_entry_is_citable_beyond_ranked_candidates(setup):
     assert all(k.startswith('B') for k in wire['base']['index'])
     verdict=br.BaseReview(verdicts=[dict(item_id=n.revision_id,verdict='restates_base',entry_ids=[issued],rationale='Release year is the issue date.')])
     assert br.verdict_errors(verdict,[n],payload,cat)==[]
-    check=br.BaseVerdictCheck(item_id=n.revision_id,entries_express_need=True,nothing_lost=True,rationale='Checked.')
+    check=br.BaseVerdictCheck(item_id=n.revision_id,verdict_supported=True,nothing_lost=True,rationale='Checked.')
     br.apply_verdict(n,verdict.verdicts[0],check,'before_discussion',cat,'key',{},payload)
     assert n.base_relation['entries'][0]['property']=='dct:issued' and 'covered_by_base' in n.processing_flags
     other=next(e['id'] for e in load_catalogue('dcat-ap-2.1.1')['entries'] if e.get('property')=='dct:creator')
@@ -406,3 +406,33 @@ def test_v1_citation_repair_no_longer_stops_the_run(setup,monkeypatch):
     outcomes,added,_,_=fd.apply(store,run,case,plan,checks,None,set(run['evidence_ids']))
     assert outcomes[0]['applied'] and outcomes[0]['citation_repairs'][0]['from'] is None
     assert 'base_recheck_required' not in added[0]['processing_flags']
+
+
+def test_a_supported_new_verdict_is_an_agreement_not_a_failed_check(setup):
+    # rq1-base-expert-v1 asked whether the entries express the need; for a correct "new"
+    # verdict the honest answer is no, and 31 of 35 JRC trial checks "failed" that way.
+    store,run,_=prepared(setup);br.review_base(store,run,Reviewer('new'))
+    n=store.get('run',run['run_id'])['requirements'][0]
+    assert n['base_relation']['status']=='checked' and n['base_relation']['effect']=='agree'
+    assert n['base_relation']['policy']=='rq1-base-expert-v2' and 'base_relation_review' not in n['processing_flags']
+    assert n['base_relation']['check']['verdict_supported'] is True
+    assert 'verdict_supported' in br.CHECK_SYSTEM and 'entries_express_need' not in br.CHECK_SYSTEM
+    with pytest.raises(Exception):
+        br.BaseVerdictCheck.model_validate({'item_id':'x','entries_express_need':False,'nothing_lost':True,'rationale':'Old field.'})
+
+
+def test_v2_mediator_may_defer_a_labelled_need_but_not_set_it_aside(setup):
+    from requirement_reuse_service.workflow import fa_discussion as fd
+    from test_fa_workflow import Dialogue
+    store,run,_=prepared(setup);run['request']['base_review']='expert_v1'
+    run['requirements'][0]['processing_flags']=['covered_by_base']
+    case=fd.build_cases(store,run,[],Dialogue())[0];rid=run['requirements'][0]['revision_id']
+    assert case['policy_version']=='rq1-fa-dialogue-v2'
+    rule='A labelled base-covered need must stay visible'
+    def errors(action,**extra):
+        plan=fd.Plan(actions=[{'action_id':'a','action':action,'parent_revision_ids':[rid],'rationale':'Synthetic disposition.',**extra}],summary='Synthetic plan.')
+        return fd.plan_errors(plan,case,[],set(run['evidence_ids']))
+    assert not any(rule in e for e in errors('defer',human_question='Is the base entry enough for this task?',alternatives=['Keep as covered by base','Treat as a domain requirement']))
+    assert not any(rule in e for e in errors('retain'))
+    assert any(rule in e for e in errors('set_aside',human_question='Restore?'))
+    assert 'deferred with a question' in fd.V2_MEDIATOR_GUIDANCE
