@@ -63,7 +63,7 @@ def test_report_separates_removed_labels_from_kept_disputes_and_lists_salvage(tm
     def need(i, **relation):
         return {'revision_id': f'revision-{i}', 'need_statement': f'Need {i}.', 'normalized_statement': f'Need {i}.',
                 'need_class': 'domain', 'base_relation': {'phase': 'before_discussion', 'classifier_state': {}, **relation}}
-    run = {'run_id': 'report-test', 'status': 'awaiting_human', 'model_calls': [],
+    run = {'run_id': 'report-test', 'status': 'awaiting_human', 'model_calls': [], 'metrics': {'salvaged_cases': 1},
            'active_revision_ids': [f'revision-{i}' for i in range(1, 5)],
            'requirements': [need(1, policy='rq1-base-expert-v4', effect='flag_removed', status='checked', verdict='new'),
                             need(2, policy='rq1-base-expert-v3', effect='dispute', status='checked', verdict='new'),
@@ -83,6 +83,7 @@ def test_report_separates_removed_labels_from_kept_disputes_and_lists_salvage(tm
     assert 'Need 3.' in kept and 'Need 1.' not in kept and 'Need 2.' not in kept
     assert 'errors: N1: cite only entries' in markdown.split('## Not reviewed')[1].split('\n## ')[0]
     assert 'case-1 · add A2: Additions are not applied from a salvaged plan.' in markdown
+    assert 'Salvaged cases (metrics): 1; mediator actions rejected by salvage: 1.' in markdown
     with (tmp_path / 'base-review.csv').open(encoding='utf-8-sig', newline='') as f:
         rows = {r['revision_id']: r for r in csv.DictReader(f)}
     assert rows['revision-2']['policy'] == 'rq1-base-expert-v3' and rows['revision-4']['errors'].startswith('N1:')

@@ -302,7 +302,10 @@ def test_only_an_empty_note_without_a_need_is_dropped(setup):
     # Content, a question, a concern link, or an addition anywhere in the plan keeps it for correction.
     link=deepcopy(case['frozen_requirements'][0]['evidence_links'][0])
     addition={'action_id':'A4','action':'add','statement':'Users need to find the contact point of a dataset.','evidence_links':[link],'rationale':'Idea.'}
-    for extra,also in [({'statement':'Users need a licence.'},[]),({'evidence_links':[link]},[]),({'human_question':'Restore?'},[]),({},[addition])]:
+    # A priority source, a condition or alternatives are content too (review probe: each was dropped).
+    for extra,also in [({'statement':'Users need a licence.'},[]),({'evidence_links':[link]},[]),({'human_question':'Restore?'},[]),({},[addition]),
+            ({'priority_links':[link]},[]),({'priority_basis':'The access passage comes first.'},[]),
+            ({'condition':'Only for datasets with restricted access.'},[]),({'alternatives':['Keep the wording','Add the access condition']},[])]:
         data=kept([n1,n2]);data['actions']+=[{**note,**extra},*also]
         before,fixed,repairs,after=repaired(data,case,messages,allowed)
         assert 'A3' in [a.action_id for a in fixed.actions] and repairs==[] and 'Non-addition requires a current parent.' in after
@@ -330,6 +333,12 @@ def test_a_repeated_need_in_a_question_is_not_silently_deduplicated(setup):
     before,fixed,repairs,after=repaired(data,case,messages,allowed)
     assert repairs==[] and fixed.questions[0].revision_ids==[n1,n1]
     assert before==after and 'Human question must link only distinct current needs.' in after
+    # Mapping an action to its need removes no ID the model repeated, a need or an action (review probe).
+    for written,expected in [([n1,n1,'A2'],[n1,n1,n2]),(['A1','A1'],[n1,n1])]:
+        data['questions'][0]['revision_ids']=written
+        before,fixed,repairs,after=repaired(data,case,messages,allowed)
+        assert fixed.questions[0].revision_ids==expected and 'Human question must link only distinct current needs.' in after
+        assert repairs==[{'kind':'question_need_from_action','question_id':'Q1','action_id':i} for i in dict.fromkeys(written) if i.startswith('A')]
 
 
 def test_feedback_names_repeated_links(setup):

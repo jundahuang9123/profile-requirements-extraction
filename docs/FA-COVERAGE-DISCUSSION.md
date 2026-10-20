@@ -145,9 +145,10 @@ before discussion. Policy `rq1-base-expert-v4` reviews current revisions sorted
 by ID, in batches of up to four: one review generation and one independent check
 per batch. (`rq1-base-expert-v3` names an earlier version of these fixes whose
 prompts differ; only JRC `run-fd39639e` and StatDCAT `run-7211c6ec` used it.)
-Each generation allows at most one correction, which shows the rejected answer
-and names its problems by the N/B/E aliases the model saw (v2 sent internal
-revision IDs and no previous answer). Oversized payloads split; a single need
+Each generation allows at most one correction. It names the problems by the
+N/B/E aliases the model saw and shows the rejected answer when that answer met
+the output contract; an answer that failed the schema gets only its schema
+errors (v2 sent internal revision IDs and no previous answer). Oversized payloads split; a single need
 that cannot fit the 30,000-character payload budget is marked `not_reviewed` /
 `payload_budget`. An oversized independent-check payload splits its checks
 without repeating the already accepted review.
@@ -156,15 +157,17 @@ One need no longer sinks its batch. When a batch stays invalid after its
 correction, each judgement in its newest parsed answer that is valid on its own
 is kept, and still independently checked; every other need is reviewed alone.
 An answer that fails the output schema (for example one row citing too many
-excerpts) is still read row by row: its parsed JSON is saved on the attempt, so
-a resumed run makes the same decisions. Checks are isolated the same way. Kept
-results record `isolated_from_failed_batch`. Only a need whose own review stays
+excerpts, or more rows than needs) is still read row by row, each row against
+its own contract: its parsed JSON is saved on the attempt, so a resumed run makes
+the same decisions. Checks are isolated the same way. Kept results record
+`isolated_from_failed_batch` (`review` and/or `check` names the failed batch); a
+need reviewed or checked alone carries no marker. Only a need whose own review stays
 invalid remains `not_reviewed` / `invalid_output` with `base_review_pending` and
 its validation `errors`; a need whose own check stays invalid is `not_reviewed` /
 `check_invalid_output`, also with its errors, and its unchecked verdict is not
 recorded as a judgement. v2 marked whole batches: 10 of
 46 JRC needs in three batches. A verdict may cite up to 12 entries (one per item
-of a need that lists items) and up to 12 of the need's own excerpts; the old
+of a need that lists items) and up to 12 of the need's own excerpts, each once; the old
 limit of 4 excerpts rejected a review call in JRC `run-fd39639e`. Transport
 failures stop the stage rather than inventing a result. Checkpoint identities bind the policy, prompts, payload, aliases, schema
 and actual model; accepted outputs are reused and changed identities are refused.
@@ -240,7 +243,8 @@ cases, a second procedural pass reviews those current revisions before the final
 coverage ledger. Reviewed revisions clear `base_recheck_required`; unreviewed
 ones retain it. Neither procedural review nor mediation is human approval.
 
-The ledger adds verdict/effect counts by phase, coverage-label provenance split
+The ledger adds verdict/effect counts by phase (read by the recorded policy, so a
+`rq1-base-expert-v3` `dispute` counts as `flag_removed`), coverage-label provenance split
 between classifier and reviewer, removed labels, legacy disputes, pending rechecks
 and unreviewed IDs. Its contract hash includes the current reviewer prompts
 unless stage 6a recorded another policy: a run reviewed under another policy
@@ -266,10 +270,12 @@ revisions by internal IDs the model had never seen, and omitted the rejected pla
   that an idea to drop is left out rather than added and then set aside or
   deferred (18 of the 27 JRC actions that named no need did that).
 - **Repairs.** Before validation, four deterministic repairs: a question that lists
-  an action ID gets that action's needs; question/concern links are made
+  an action ID gets that action's needs (an ID the model repeated stays repeated
+  and invalid); question/concern links are made
   reciprocal when one side names the other; in a plan without additions, an
   action without a need that no concern links and that carries no statement,
-  source, child or question is an empty note and is dropped; empty deferral fields
+  condition, source, priority, alternative, child or question is an empty note
+  and is dropped; empty deferral fields
   are copied from their unique fully linked question. An action without a need is
   never guessed onto one, and one with content goes to correction and, if it
   stays, to review. (Dropping every unlinked parentless action, as first written,
@@ -338,7 +344,8 @@ and coverage through GET requests and produces Markdown and CSV. It reports the
 classifier/reviewer matrix, added flags and entry terms, checks, removed labels,
 disputes with the label kept (v1/v2), source-stated additions, not-reviewed needs
 with their errors, after-discussion results, discussion actions on labelled needs,
-mediator actions rejected by salvage, reviewer usage and case stop reasons. The
+salvaged cases and mediator actions rejected by salvage, reviewer usage and case
+stop reasons. The
 CSV has `policy`, `errors` and `isolated` columns. Legacy v1 reports leave
 reviewer columns empty. Run this helper against a saved trial; it never starts
 inference or changes the run.

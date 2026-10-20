@@ -573,12 +573,16 @@ def test_a_verdict_may_cite_up_to_twelve_of_its_own_excerpts(setup):
         addition_kind='condition',addition='A stated source condition.',rationale='The addition is spread over passages.')
     assert len(own)==13 and br.verdict_errors(br.BaseReview(verdicts=[{**row,'evidence_ids':own[:5]}]),[n],payload,cat)==[]
     with pytest.raises(Exception):br.BaseVerdict(**row,evidence_ids=own)
+    # Repeating one excerpt is not more evidence (review probe: 12 copies of one passed).
+    assert br.verdict_errors(br.BaseReview(verdicts=[{**row,'evidence_ids':own[:1]*12}]),[n],payload,cat)==[n.revision_id+': cite only this item’s excerpts, each once.']
 
 
 @pytest.mark.parametrize('fault',[
     lambda rows:rows[0].update(evidence_ids=['E1']*13),
     lambda rows:rows.append({**rows[0],'rationale':''}),
-],ids=['thirteen_excerpts','invalid_second_row'])
+    # Five rows for four needs fail the contract's row limit; the unrepeated rows are still valid.
+    lambda rows:rows.append(dict(rows[0])),
+],ids=['thirteen_excerpts','invalid_second_row','five_rows_one_repeated'])
 def test_valid_rows_of_a_schema_invalid_answer_are_kept(setup,fault):
     # One row over a schema limit failed the whole call of four; its batch-mates' rows are valid.
     store,run,_=prepared(setup,4)
@@ -642,9 +646,12 @@ def test_ledger_reads_label_removal_by_the_recorded_policy(setup,monkeypatch):
     run['request']['base_review']='expert_v1'
     for r in run['requirements']:
         policy,effect,flags=relations[r['revision_id']];r.update(processing_flags=flags,base_relation={'policy':policy,'effect':effect,'status':'checked'})
-    run['stage_results']={'base_review':{'policy_version':'rq1-base-expert-v3','phases':{},'review_questions':[]}}
+    results=[{**r['base_relation'],'revision_id':r['revision_id']} for r in run['requirements']]
+    run['stage_results']={'base_review':{'policy_version':'rq1-base-expert-v3','phases':{'before_discussion':{'results':results}},'review_questions':[]}}
     ledger=coverage_ledger(run)
     assert sorted(ledger['base_label_removed_revision_ids'])==[ids[0],ids[2]] and ledger['base_dispute_revision_ids']==[ids[1]]
+    # The per-phase effect counts read the policy as well; the saved results keep "dispute".
+    assert ledger['base_relation_counts']['before_discussion']['effect']=={'flag_removed':2,'dispute':1} and results[0]['effect']=='dispute'
     assert not br.label_removed(None) and not br.legacy_dispute(None) and br.legacy_dispute({'effect':'dispute','policy':'rq1-base-expert-v1'})
     # The current prompts are bound only to records made under them; a run not yet reviewed will be.
     current=dict(run,stage_results={'base_review':{'policy_version':br.POLICY}});v4=coverage_ledger(current)['contract_hash']

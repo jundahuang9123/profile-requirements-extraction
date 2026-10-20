@@ -3,14 +3,13 @@ from collections import Counter
 from copy import deepcopy
 from types import SimpleNamespace
 from typing import Literal
-from pydantic import Field
+from pydantic import Field, ValidationError
 from .models import Contract, RequirementRecord
 from .storage import canonical, digest, now
 from .base_needs import load_catalogue, offer_entries, item_picks
 from .stakeholder_workflow import audit, save
 from ..llm.step_models import for_step, model_identity
 from ..llm.client import OutputValidationError, OutputTokenLimitError
-from .output_recovery import salvage_rows
 
 # v4 (20 Oct 2026, merged policy): a checked verdict sets the covered_by_base label in both
 # directions (JRC run-fd39639e removed 11 classifier labels this way); one invalid judgement
@@ -214,7 +213,9 @@ def verdict_errors(answer,records,payload,catalogue=None):
         if len(v.entry_ids)!=len(set(v.entry_ids)) or set(v.entry_ids)-set(payload['base']['index']) or set(v.entry_ids)-set(entries):
             errors.append(v.item_id+': cite only entries of this base’s index.');continue
         # E aliases resolve to excerpt keys, not arbitrary source IDs.
-        if set(v.evidence_ids)-set(row['excerpt_ids']):errors.append(v.item_id+': cite only this item’s excerpts.')
+        # Repeats are not more evidence; at up to 12 they passed as padding (review probe).
+        if len(v.evidence_ids)!=len(set(v.evidence_ids)) or set(v.evidence_ids)-set(row['excerpt_ids']):
+            errors.append(v.item_id+': cite only this item’s excerpts, each once.')
         if v.verdict in {'restates_base','domain_use_of_base'} and not v.entry_ids:errors.append(v.item_id+': entry required.')
         if v.verdict=='restates_base':
             # Guards read the full pinned entry (all usage notes, vocabulary), as the classifier does.
@@ -269,14 +270,18 @@ def isolated(saved,batch,valid,field):
     one row citing more than 4 excerpts failed its whole call). An older answer is read only
     when the newer one did not parse, never for a row the model replaced in its correction.
     """
-    contract,model=(BaseReview,BaseVerdict) if field=='verdicts' else (BaseReviewChecks,BaseVerdictCheck)
+    model=BaseVerdict if field=='verdicts' else BaseVerdictCheck
     attempt=next((a for a in reversed(saved['attempts']) if a.get('output') or isinstance(a.get('parsed'),dict)),None)
     if attempt is None:return {}
     answer=attempt.get('output') or attempt['parsed']
-    if attempt.get('output'):rows=[model.model_validate(row) for row in answer[field]]
-    else:recovered,_=salvage_rows(contract,answer);rows=list(getattr(recovered,field)) if recovered else []
-    # Every row the model gave counts, so a need with a valid and an invalid row is reviewed alone.
     raw=answer.get(field) if isinstance(answer.get(field),list) else []
+    # Each row against its own contract only: the answer's limit of 4 rows rejected all five
+    # rows of an answer that repeated one need, so none was kept (review probe).
+    def row_of(r):
+        try:return model.model_validate(r)
+        except ValidationError:return None
+    rows=[r for r in map(row_of,raw) if r is not None]
+    # Every row the model gave counts, so a need with a valid and an invalid row is reviewed alone.
     counts=Counter(r['item_id'] for r in raw if isinstance(r,dict) and isinstance(r.get('item_id'),str));kept={}
     for n in batch:
         row=next((r for r in rows if r.item_id==n.revision_id),None)

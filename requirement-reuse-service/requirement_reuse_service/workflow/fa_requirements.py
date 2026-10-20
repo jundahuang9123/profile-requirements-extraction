@@ -145,7 +145,8 @@ def coverage_ledger(run):
         phases=run.get('stage_results',{}).get('base_review',{}).get('phases',{})
         result['base_relation_counts']={phase:{
             'verdict':dict(Counter(row.get('verdict','not_reviewed') for row in data.get('results',[]))),
-            'effect':dict(Counter(row.get('effect',row.get('status')) for row in data.get('results',[])))}
+            # Effects by the recorded policy too: run-fd39639e's 11 v3 "dispute" results are removed labels.
+            'effect':dict(Counter('flag_removed' if label_removed(row) else row.get('effect',row.get('status')) for row in data.get('results',[])))}
             for phase,data in phases.items()}
         covered=[r for r in inventory if 'covered_by_base' in r.get('processing_flags',[])]
         result['covered_by_base_by_source']={

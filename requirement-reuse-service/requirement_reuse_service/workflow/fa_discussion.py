@@ -80,11 +80,12 @@ def repair_plan(plan,case,messages):
 
     In the JRC discussions of 19-20 October 2026 many invalid plans were bookkeeping
     slips around a sound disposition. Only these are repaired:
-    1. a question that links a plan action ID instead of a need gets that action's needs;
+    1. a question that links a plan action ID instead of a need gets that action's needs
+       (only what the mapping adds is deduplicated; an ID the model repeated stays repeated);
     2. question/concern links are made reciprocal when one side already names the other;
     3. in a plan without additions, an action without a need that no concern disposition
-       links and that carries no statement, source, child or question is a note rather
-       than a disposition, and is dropped;
+       links and that carries no statement, condition, source, priority, alternative, child
+       or question is a note rather than a disposition, and is dropped;
     4. empty defer fields are copied from their unique, fully linked question (the
        routed workflow's existing rule).
     Anything else, including unclear parents or missing alternatives, stays invalid: an
@@ -99,12 +100,14 @@ def repair_plan(plan,case,messages):
         for rid in q['revision_ids']:
             target=actions.get(rid) if rid not in parents else None
             if target and target['parent_revision_ids'] and set(target['parent_revision_ids'])<=parents:
-                linked.extend(target['parent_revision_ids']);mapped.append(rid)
+                # Deduplicate only what the mapping adds: a repeated need or action the model wrote
+                # stays repeated and invalid (review probe: [N1, N1, A2] became valid, unaudited).
+                linked+=[p for p in target['parent_revision_ids'] if rid in mapped or (p not in linked and p not in q['revision_ids'])]
+                mapped.append(rid)
             else:linked.append(rid)
-        linked=list(dict.fromkeys(linked))
         if mapped and len(linked)<=4:
             q['revision_ids']=linked
-            repairs.extend({'kind':'question_need_from_action','question_id':q['question_id'],'action_id':rid} for rid in mapped)
+            repairs.extend({'kind':'question_need_from_action','question_id':q['question_id'],'action_id':rid} for rid in dict.fromkeys(mapped))
     by_question={q['question_id']:q for q in data.get('questions',[])}
     by_concern={c['concern_id']:c for c in data.get('concerns',[])}
     for q in data.get('questions',[]):
@@ -123,8 +126,10 @@ def repair_plan(plan,case,messages):
     # Only an empty note is dropped. Dropping any unlinked parentless action applied an
     # addition whose set-aside withdrew it (scenario s1) and removed a sourced revise with
     # its human question, unreviewed (probe R5).
+    # A priority source, condition or alternatives are content too (review probe: each was dropped).
     note=lambda a:(not a['parent_revision_ids'] and a['action_id'] not in referenced and not a['statement'].strip()
-        and not a['evidence_links'] and not a.get('children') and not a.get('human_question'))
+        and not a['evidence_links'] and not a.get('children') and not a.get('human_question') and not a['priority_links']
+        and not (a.get('priority_basis') or '').strip() and not a['condition'].strip() and not a['alternatives'])
     kept=data['actions'] if any(a['action']=='add' for a in data['actions']) else [a for a in data['actions'] if not note(a)]
     if kept and len(kept)<len(data['actions']):
         repairs.extend({'kind':'dropped_unlinked_action_without_need','action_id':a['action_id'],'action':a['action']}
