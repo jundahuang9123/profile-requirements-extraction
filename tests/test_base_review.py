@@ -651,7 +651,9 @@ def test_ledger_reads_label_removal_by_the_recorded_policy(setup,monkeypatch):
     ledger=coverage_ledger(run)
     assert sorted(ledger['base_label_removed_revision_ids'])==[ids[0],ids[2]] and ledger['base_dispute_revision_ids']==[ids[1]]
     # The per-phase effect counts read the policy as well; the saved results keep "dispute".
-    assert ledger['base_relation_counts']['before_discussion']['effect']=={'flag_removed':2,'dispute':1} and results[0]['effect']=='dispute'
+    # Rows are in creation order and revision IDs are random, so look the v3 row up by ID.
+    saved={x['revision_id']:x['effect'] for x in results}
+    assert ledger['base_relation_counts']['before_discussion']['effect']=={'flag_removed':2,'dispute':1} and saved[ids[0]]=='dispute'
     assert not br.label_removed(None) and not br.legacy_dispute(None) and br.legacy_dispute({'effect':'dispute','policy':'rq1-base-expert-v1'})
     # The current prompts are bound only to records made under them; a run not yet reviewed will be.
     current=dict(run,stage_results={'base_review':{'policy_version':br.POLICY}});v4=coverage_ledger(current)['contract_hash']
