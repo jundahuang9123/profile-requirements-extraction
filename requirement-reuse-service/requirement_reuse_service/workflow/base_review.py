@@ -104,8 +104,11 @@ def correction(attempt,aliases,translate=translate_ids):
     to repair an answer it could not see."""
     previous=translate(attempt['output'],{v:k for k,v in aliases.items()}) if attempt.get('output') else None
     problems=attempt.get('feedback') or attempt['errors']
+    # Say when problems were cut: a plan missing 40 concern dispositions showed 30 notes and
+    # nothing else (probe R7).
     return (' Your previous answer was rejected'+(': '+canonical(previous) if previous is not None else '')+
-        '. Return the complete corrected JSON. Fix only these problems: '+canonical(alias_text(problems[:30],aliases)))
+        '. Return the complete corrected JSON. Fix only these problems: '+canonical(alias_text(problems[:30],aliases))+
+        (f' ({len(problems)-30} more problems not shown)' if len(problems)>30 else ''))
 
 
 def accounting_error(prefix,counts,expected):
