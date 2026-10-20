@@ -139,14 +139,17 @@ recovery rules remain unchanged. The advanced option is initially collapsed in
 the Stakeholder roles setup. It does not add a stakeholder or a vote.
 
 The new **Base review** stage runs after consolidation (and its stepwise pause),
-before discussion. Policy `rq1-base-expert-v2` reviews current revisions sorted
+before discussion. Policy `rq1-base-expert-v3` reviews current revisions sorted
 by ID, in batches of up to four: one review generation and one independent check
 per batch. Each generation allows at most one correction. Oversized payloads
 split; a single need that cannot fit the 30,000-character payload budget is
 marked `not_reviewed` / `payload_budget`. An oversized independent-check payload splits its checks without repeating the
-already accepted review. Invalid
-batches remain visible as `not_reviewed` with `base_review_pending`; other
-batches continue. Transport failures stop the stage rather than inventing a
+already accepted review. Verdicts are validated per need: when the corrected
+answer is still invalid, its valid verdicts go on to the check and only the
+needs with errors stay `not_reviewed` / `invalid_output` with
+`base_review_pending` and their errors. Until 20 October 2026 one need's error
+left its whole batch unreviewed (10 of 46 JRC needs). A verdict may cite up to
+12 entries, one per item of a need that lists items. Other batches continue. Transport failures stop the stage rather than inventing a
 result. Checkpoint identities bind the policy, prompts, payload, aliases, schema
 and actual model; accepted outputs are reused and changed identities are refused.
 
@@ -185,12 +188,15 @@ were such agreements.
 
 | Classifier at review time | Checked restatement | Checked domain use | Checked new | Uncertain |
 | --- | --- | --- | --- | --- |
-| Already `covered_by_base` | Confirm | Dispute | Dispute | Note |
+| Already `covered_by_base` | Confirm | Dispute (label removed) | Dispute (label removed) | Note |
 | Domain use | Add flag | Agree | Note | Note |
 | Domain / unchecked / newly written | Add flag | Note | Agree | Note |
 
-A dispute preserves the classifier's flag and records both judgements and a
-human-review question. **No need is deleted or set aside by this reviewer.**
+The checked reviewer sets the label in both directions: a dispute removes the
+classifier's `covered_by_base` flag, so the need counts as working, adds
+`base_relation_review`, keeps the classifier's judgement in `classifier_state`
+and saves a human-review question. Policy v2 kept the flag, so 12 checked JRC
+disputes did not count as new. **No need is deleted or set aside by this reviewer.**
 `covered_by_base` stays in the complete inventory and is excluded only from the
 working count. `base_relation` records the phase, verdict, effect, check,
 classifier state, exact entry and evidence IDs, pin, checkpoint and model, with
@@ -202,10 +208,28 @@ review and pinned classifier-matched/reviewer-cited entry text. Stakeholders can
 identify additions the base lacks. A need labelled `covered_by_base` may be
 retained, disposed `covered_by_base` or deferred with a human question and
 alternatives; any other action on it (revise, merge, split, resolve, recover,
-set aside) is refused. A
-classifier/reviewer disagreement requires a deferral with a human question.
-Until 20 October 2026 deferral was refused too; in the JRC trial that rejected
-mediator drafts in 18 cases. Cases and their budgets are unchanged. Every revision created
+set aside) is refused. Until 20 October 2026 deferral was refused too; in the
+JRC trial that rejected mediator drafts in 18 cases. A classifier/reviewer
+dispute is already a review question and is no longer forced into deferral.
+
+The mediator prompt and every correction state the plan rules plainly: each
+action except `add` names the current need IDs (N…) it disposes; questions link
+need IDs and concern IDs (C…), never action IDs; an idea to drop is left out
+rather than added and then set aside. Corrections name IDs by the same N/B/E/C
+aliases the model sees. A question that links an action ID is mapped to that
+action's need (`link_repairs` on the attempt). In the JRC re-normalized run most
+invalid drafts linked a question to an action ID (24) or wrote actions that
+named no need (27).
+
+When a draft or final plan is still invalid after its correction,
+`rq1-fa-plan-salvage-v1` keeps its valid actions on current needs. A need
+without a valid action is deferred to a person with its original kept. Rejected
+actions are listed as unapplied `human_review` outcomes with their errors. That
+includes every addition, since a rejected action may have been meant to dispose
+it. Concern links that no longer validate move to one review question. The
+salvaged plan must pass the full validation and still goes through the
+independent check; with no valid action left, the case goes to human review as
+before. The salvage record is saved on the phase and in the trace. Cases and their budgets are unchanged. Every revision created
 by revise, merge, add, recover or split requires a new base check. After all
 cases, a second procedural pass reviews those current revisions before the final
 coverage ledger. Reviewed revisions clear `base_recheck_required`; unreviewed

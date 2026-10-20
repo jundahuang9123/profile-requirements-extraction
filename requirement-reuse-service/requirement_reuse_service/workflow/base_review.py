@@ -11,11 +11,13 @@ from .stakeholder_workflow import audit, save
 from ..llm.step_models import for_step, model_identity
 from ..llm.client import OutputValidationError, OutputTokenLimitError
 
-POLICY='rq1-base-expert-v2'
+POLICY='rq1-base-expert-v3'
+MAX_ENTRIES=12
 MAX_PAYLOAD=30000
 REVIEW_SYSTEM=('Judge each offered need only against the pinned base catalogue and its cited passages. '
     'base.index lists every entry of this base (class, property, need phrase); base.entries adds definition, '
-    'usage notes and obligation for likely candidates. Cite any index entry by its B ID. '
+    'usage notes and obligation for likely candidates. Cite any index entry by its B ID; '
+    'a need that lists several items cites one entry per item (at most 12). '
     'restates_base: entries express every listed item as stated, with nothing added. '
     'domain_use_of_base: an entry plus a source-stated condition, value set or unit, stronger obligation, '
     'other resource class or narrower meaning. Cite the passage stating the addition. '
@@ -36,7 +38,9 @@ CHECK_SYSTEM=('Independently check each verdict against the pinned catalogue (ba
 class BaseVerdict(Contract):
     item_id: str
     verdict: Literal['restates_base','domain_use_of_base','new','uncertain']
-    entry_ids: list[str] = Field(default_factory=list,max_length=4)
+    # A need that lists items cites one entry per item; four rejected a JRC need
+    # listing ten distribution properties and sank its whole batch.
+    entry_ids: list[str] = Field(default_factory=list,max_length=MAX_ENTRIES)
     addition_kind: Literal['none','condition','value_set','obligation','resource','meaning','other']='none'
     addition: str = Field(default='',max_length=400)
     evidence_ids: list[str] = Field(default_factory=list,max_length=4)
@@ -149,31 +153,49 @@ def make_check_payload(payload,verdicts,catalogue):
         'verdicts':verdicts}
 
 
-def verdict_errors(answer,records,payload,catalogue=None):
+def item_errors(answer,records,payload,catalogue=None):
+    """Errors per offered item, so one invalid verdict cannot sink a whole batch."""
     from .needs import _condition_is_in_base, conditions
-    errors=[];by_id={n.revision_id:n for n in records};entries=cited_entries(payload,catalogue)
-    if Counter(v.item_id for v in answer.verdicts)!=Counter(by_id.keys()):errors.append('Judge every offered item exactly once.')
+    by_id={n.revision_id:n for n in records};entries=cited_entries(payload,catalogue)
+    errors={rid:[] for rid in by_id};counts=Counter(v.item_id for v in answer.verdicts)
+    for rid in by_id:
+        if counts[rid]!=1:errors[rid].append('Judge every offered item exactly once.')
     rank={'mandatory':3,'recommended':2,'optional':1,'unknown':0}
     for v in answer.verdicts:
-        if v.item_id not in by_id:continue
-        n=by_id[v.item_id];row=payload['needs'][v.item_id]
+        if v.item_id not in by_id or counts[v.item_id]!=1:continue
+        n=by_id[v.item_id];row=payload['needs'][v.item_id];add=errors[v.item_id].append
         if len(v.entry_ids)!=len(set(v.entry_ids)) or set(v.entry_ids)-set(payload['base']['index']) or set(v.entry_ids)-set(entries):
-            errors.append(v.item_id+': cite only entries of this base’s index.');continue
+            add(v.item_id+': cite only entries of this base’s index.');continue
         # E aliases resolve to excerpt keys, not arbitrary source IDs.
-        if set(v.evidence_ids)-set(row['excerpt_ids']):errors.append(v.item_id+': cite only this item’s excerpts.')
-        if v.verdict in {'restates_base','domain_use_of_base'} and not v.entry_ids:errors.append(v.item_id+': entry required.')
+        if set(v.evidence_ids)-set(row['excerpt_ids']):add(v.item_id+': cite only this item’s excerpts.')
+        if v.verdict in {'restates_base','domain_use_of_base'} and not v.entry_ids:add(v.item_id+': entry required.')
         if v.verdict=='restates_base':
             # Guards read the full pinned entry (all usage notes, vocabulary), as the classifier does.
             full={e['id']:e for e in (catalogue or {}).get('entries',[])}
             matched=[full.get(i) or entries[i] for i in v.entry_ids]
-            if v.addition_kind!='none' or v.addition.strip():errors.append(v.item_id+': restatement cannot add meaning.')
+            if v.addition_kind!='none' or v.addition.strip():add(v.item_id+': restatement cannot add meaning.')
             if any(c and not _condition_is_in_base(c,matched) for c in [n.need_condition,*conditions(n.need_statement or n.normalized_statement)]):
-                errors.append(v.item_id+': matched entries omit a condition.')
+                add(v.item_id+': matched entries omit a condition. Cite the entries that state it, or answer '
+                    'domain_use_of_base with the condition as a cited addition.')
             source=max([rank.get(x.obligation,0) for x in n.obligation_alternatives]+[rank.get(n.normalized_intent.obligation_hint,0)])
-            if source>max((rank.get(e.get('base_obligation'),0) for e in matched),default=0):errors.append(v.item_id+': stronger obligation is not in the base.')
+            if source>max((rank.get(e.get('base_obligation'),0) for e in matched),default=0):add(v.item_id+': stronger obligation is not in the base.')
         if v.verdict=='domain_use_of_base' and (v.addition_kind=='none' or not v.addition.strip() or not v.evidence_ids):
-            errors.append(v.item_id+': source-cited addition and kind required.')
+            add(v.item_id+': source-cited addition and kind required.')
     return errors
+
+
+def verdict_errors(answer,records,payload,catalogue=None):
+    errors=item_errors(answer,records,payload,catalogue)
+    return list(dict.fromkeys(e for rid in sorted(errors) for e in errors[rid]))
+
+
+def partial_review(saved,records,payload,catalogue):
+    """Valid verdicts of the last corrected attempt; the rest stay not reviewed."""
+    last=(saved['attempts'] or [{}])[-1].get('output')
+    if not last:return None,{}
+    answer=BaseReview.model_validate(last);errors=item_errors(answer,records,payload,catalogue)
+    rows=[v for v in answer.verdicts if v.item_id in errors and not errors[v.item_id]]
+    return (BaseReview(verdicts=rows) if rows else None),{k:v for k,v in errors.items() if v}
 
 
 def generation(store,run,key,step,contract,system,payload,aliases,client,validate):
@@ -207,7 +229,9 @@ def apply_verdict(n,verdict,check,phase,catalogue,key,model,payload):
     elif verdict.verdict=='restates_base':
         effect='confirmed' if state['covered_by_base'] else 'flag_added';flags.append('covered_by_base')
     elif state['covered_by_base'] and verdict.verdict in {'domain_use_of_base','new'}:
-        effect='dispute';flags.append('base_relation_review')
+        # The checked reviewer sets the label in both directions; classifier_state keeps
+        # the classifier's judgement and the disagreement stays a review question.
+        effect='dispute';flags=[f for f in flags if f!='covered_by_base']+['base_relation_review']
     elif (state['need_class']=='domain_use_of_base' and verdict.verdict=='domain_use_of_base') or (state['need_class'] in {'domain',None} and verdict.verdict=='new'):
         effect='agree'
     n.processing_flags=list(dict.fromkeys(f for f in flags if f!='base_review_pending'))
@@ -239,9 +263,11 @@ def review_base(store,run,client,phase='before_discussion'):
         verdict,saved=generation(store,run,key,'base_review',BaseReview,REVIEW_SYSTEM,payload,aliases,client,
             lambda a:verdict_errors(a,batch,payload,catalogue))
         if verdict:
-            check_batch(batch,verdict,key,saved['model'])
-        else:
-            finish(batch,None,None,'invalid_output',payload,aliases,key,saved['model'])
+            check_batch(batch,verdict,key,saved['model']);return
+        verdict,errors=partial_review(saved,batch,payload,catalogue)
+        rejected=[n for n in batch if not verdict or n.revision_id in errors]
+        if verdict:check_batch([n for n in batch if n not in rejected],verdict,key,saved['model'])
+        finish(rejected,None,None,'invalid_output',payload,aliases,key,saved['model'],errors)
     def check_batch(batch,verdict,key,model):
         payload,aliases=make_payload(store,run,batch,catalogue,phase)
         ids={n.revision_id for n in batch}
@@ -257,7 +283,8 @@ def review_base(store,run,client,phase='before_discussion'):
             'base_review_check',BaseReviewChecks,CHECK_SYSTEM,check_payload,aliases,client,
             lambda a:[] if Counter(c.item_id for c in a.checks)==Counter(n.revision_id for n in batch) else ['Check every item exactly once.'])
         finish(batch,selected_verdict,checks,None if checks else 'invalid_output',payload,aliases,key,model)
-    def finish(batch,answer,checks,reason,payload,aliases,key=None,model=None):
+    def finish(batch,answer,checks,reason,payload,aliases,key=None,model=None,errors=None):
+        if not batch:return
         by_id={v.item_id:v for v in answer.verdicts} if answer else {};checked={c.item_id:c for c in checks.checks} if checks else {}
         updates={}
         for n in batch:
@@ -265,11 +292,13 @@ def review_base(store,run,client,phase='before_discussion'):
                 n.base_relation={'policy':POLICY,'phase':phase,'status':'not_reviewed','reason':reason,
                     'classifier_state':classifier_state(n,phase),'catalogue_hash':catalogue['catalogue_hash'],
                     'batch_key':key,'model':model,'human_accepted':False}
+                if (errors or {}).get(n.revision_id):n.base_relation['errors']=list(errors[n.revision_id])
                 n.processing_flags=list(dict.fromkeys([*n.processing_flags,'base_review_pending']))
             else:apply_verdict(n,by_id[n.revision_id],checked.get(n.revision_id),phase,catalogue,key,model,payload)
             refresh_need(n);updates[n.revision_id]=n.model_dump(mode='json');results.append(deepcopy(n.base_relation)|{'revision_id':n.revision_id})
             if n.base_relation.get('effect')=='dispute':questions.append({'revision_id':n.revision_id,'question':
-                'Base classifier labelled this covered_by_base; procedural reviewer judged '+n.base_relation['verdict']+'. Compare both machine judgements.', 'human_accepted':False})
+                'Base classifier labelled this covered_by_base; the checked procedural reviewer judged '+n.base_relation['verdict']+
+                ', so it now counts as working. Compare both machine judgements.', 'human_accepted':False})
         def commit(r):
             for i,row in enumerate(r['requirements']):
                 if row['revision_id'] in updates:r['requirements'][i]=updates[row['revision_id']]
