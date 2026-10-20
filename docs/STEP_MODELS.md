@@ -187,5 +187,5 @@ A `start_from: "base_review"` trial preserves the source's resolved upstream
 models and permits overrides only for these two slots, `stakeholder_review`,
 `mediation`, `mediation_check` and `assessment`, including their options. It
 restores the machine snapshot rather than partially discussed requirements.
-See [the base-review design](FA-COVERAGE-DISCUSSION.md#optional-procedural-base-reviewer-discussion-v2)
+See [the base-review design](FA-COVERAGE-DISCUSSION.md#optional-procedural-base-reviewer)
 for the independent check, checkpoint identities and stepwise trial.
