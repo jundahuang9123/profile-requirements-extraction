@@ -29,6 +29,8 @@ Processing every passage is not evidence of finding every requirement. Accounted
 
 ## Evidence expansion and budgets
 
+Both dialogue protocols measure the exact JSON sent after reversible identifier aliases against the unchanged 45,000-character context limit. The `rq1-fa-context-budget-case-v1` phase audit records internal, wire and measured sizes plus the wire hash. An oversized case retains its original needs and accepted phases and is deferred visibly to human review; later cases continue. Full internal payloads still determine checkpoint identity.
+
 A stakeholder may request a specific missing passage. Bounded lexical retrieval searches only the frozen run evidence IDs: up to eight distinct queries, two passages per query and four new passages overall. It records query, exact selected location, source/content hash, eligible-ID hash and excluded count. No benchmark/reference file or web retrieval is available to discussion. A no-result query remains visible as unresolved.
 
 A case permits at most 14 model generations including schema/semantic corrections and revision assessments, 112,000 reserved output tokens and 1,800 seconds of accumulated model-call time. Primary calls reserve 4,000 tokens and truncation correction may reserve 8,000. The time guard prevents starting another request after the recorded budget; the provider transport timeout bounds an in-flight request. With many revisions or corrections, some work can remain for human review. It is not reported as successful mediation.

@@ -272,3 +272,35 @@ def test_cancelled_child_shortens_timeout_without_repeating_completed_work(setup
     assert len(client.routes)==1 and client.routes[0][1]==120
     assert not any(step=='stakeholder_review' for step,_,_ in client.calls)
     assert finished['deliberations'][1]['discussion_trace']['mediator_routing']['policy_changes']==route['policy_changes']
+
+
+def test_context_guard_measures_reversible_wire_ids_not_internal_payload(setup, monkeypatch):
+    store,run=prepare(setup)
+    seen=[]
+    class WireClient(RoutedDialogue):
+        def generate_structured(self, *, user, output_model, **kw):
+            if output_model.__name__=='Review':seen.append(len(user))
+            return super().generate_structured(user=user,output_model=output_model,**kw)
+    client=WireClient(fail_model='never')
+    discussion.deliberate(store,run['run_id'],client)
+    saved=store.get('run',run['run_id'])
+    budgets=[p['context_budget'] for c in saved['deliberations']
+             for p in c['discussion_trace']['phases'].values() if 'context_budget' in p]
+    assert budgets and seen
+    assert all(b['wire_characters']<=b['internal_characters'] for b in budgets)
+    assert all(b['measured_characters']==b['wire_characters'] for b in budgets)
+    assert any(b['wire_characters']<b['internal_characters'] for b in budgets)
+    assert all(b['policy_version']=='rq1-fa-context-budget-case-v1' for b in budgets)
+    assert all(b['wire_hash'] for b in budgets)
+
+
+def test_real_wire_overflow_goes_to_visible_review_without_stopping_run(setup,monkeypatch):
+    store,run=prepare(setup);client=RoutedDialogue(fail_model='never')
+    monkeypatch.setattr(discussion,'MAX_CONTEXT',1)
+    discussion.deliberate(store,run['run_id'],client)
+    saved=store.get('run',run['run_id'])
+    assert saved['status']=='awaiting_human'
+    assert saved['active_revision_ids']==run['active_revision_ids']
+    assert all(c['stop_reason']=='budget_pending_human_review' for c in saved['deliberations'])
+    assert all('context budget' in c['mediation']['human_questions'][0]['question'] for c in saved['deliberations'])
+    assert client.routes==[]
