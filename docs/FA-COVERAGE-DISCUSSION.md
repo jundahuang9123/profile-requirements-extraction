@@ -236,13 +236,21 @@ independently of the discussion default. At four needs per batch, 64 needs cost
 32 calls and 49 cost 26, before corrections or size splitting. Later discussion
 revisions add their own review calls; per-case discussion budgets do not grow.
 
-A separate, deliberately uncommitted `scripts/fa_base_report.py` reads the run
+`scripts/fa_base_report.py` reads the run
 and coverage through GET requests and produces Markdown and CSV. It reports the
 classifier/reviewer matrix, added flags and entry terms, checks, disputes,
 source-stated additions, pending/after-discussion results, accepted/refused
 base dispositions, reviewer usage and case stop reasons. Legacy v1 reports leave
 reviewer columns empty. Run this helper against a saved trial; it never starts
 inference or changes the run.
+
+The helper preserves legacy `entries_express_need` checks under that name and uses
+`verdict_supported` for the newer reviewer. Raw check JSON remains in the CSV;
+its readable summary labels the actual field rather than reinterpreting old results.
+
+```sh
+python scripts/fa_base_report.py --api http://127.0.0.1:8013 --run <run-id> --out <report-directory>
+```
 
 ### Limits
 
