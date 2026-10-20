@@ -137,7 +137,7 @@ recovery rules remain unchanged. The advanced option is initially collapsed in
 the Stakeholder roles setup. It does not add a stakeholder or a vote.
 
 The new **Base review** stage runs after consolidation (and its stepwise pause),
-before discussion. Policy `rq1-base-expert-v1` reviews current revisions sorted
+before discussion. Policy `rq1-base-expert-v2` reviews current revisions sorted
 by ID, in batches of up to four: one review generation and one independent check
 per batch. Each generation allows at most one correction. Oversized payloads
 split; a single need that cannot fit the 30,000-character payload budget is
@@ -172,9 +172,14 @@ changed catalogue pin refuses review.
 
 Wording, synonyms, examples, actor and purpose alone are not additions. A
 restatement must also pass the classifier's condition and stronger-obligation
-guards. The independent check assesses entry meaning and whether anything was
-lost. Both booleans must be true before labels change; a failed check adds
-`base_relation_review` and leaves labels unchanged.
+guards. The independent check answers two questions: `verdict_supported` (the
+verdict is right: cited entries share the resource and property meaning, no index
+entry expresses a new need, or the catalogue text is indeed insufficient) and
+`nothing_lost`. Both must be true before labels change; a failed check adds
+`base_relation_review` and leaves labels unchanged. Policy v1 asked instead
+whether the entries express the need, which is false for a correct `new`
+verdict: in the JRC trial of 19–20 October 2026, 31 of its 35 failed checks
+were such agreements.
 
 | Classifier at review time | Checked restatement | Checked domain use | Checked new | Uncertain |
 | --- | --- | --- | --- | --- |
@@ -192,9 +197,13 @@ need's content hash or revision ID.
 
 For opt-in runs, `rq1-fa-dialogue-v2` gives each discussion packet the compact
 review and pinned classifier-matched/reviewer-cited entry text. Stakeholders can
-identify additions the base lacks; the mediator cannot discard or merge a need
-solely because it is base-covered. A classifier/reviewer disagreement requires
-a human question. Cases and their budgets are unchanged. Every revision created
+identify additions the base lacks. A need labelled `covered_by_base` may be
+retained, disposed `covered_by_base` or deferred with a human question and
+alternatives; any other action on it (revise, merge, split, resolve, recover,
+set aside) is refused. A
+classifier/reviewer disagreement requires a deferral with a human question.
+Until 20 October 2026 deferral was refused too; in the JRC trial that rejected
+mediator drafts in 18 cases. Cases and their budgets are unchanged. Every revision created
 by revise, merge, add, recover or split requires a new base check. After all
 cases, a second procedural pass reviews those current revisions before the final
 coverage ledger. Reviewed revisions clear `base_recheck_required`; unreviewed

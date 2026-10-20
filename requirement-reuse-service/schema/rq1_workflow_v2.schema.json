@@ -496,10 +496,6 @@
     "BaseVerdictCheck": {
       "additionalProperties": false,
       "properties": {
-        "entries_express_need": {
-          "title": "Entries Express Need",
-          "type": "boolean"
-        },
         "item_id": {
           "title": "Item Id",
           "type": "string"
@@ -513,11 +509,15 @@
           "minLength": 1,
           "title": "Rationale",
           "type": "string"
+        },
+        "verdict_supported": {
+          "title": "Verdict Supported",
+          "type": "boolean"
         }
       },
       "required": [
         "item_id",
-        "entries_express_need",
+        "verdict_supported",
         "nothing_lost",
         "rationale"
       ],

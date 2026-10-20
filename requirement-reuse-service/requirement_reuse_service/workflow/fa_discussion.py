@@ -19,7 +19,7 @@ MESSAGE_REPLAY_POLICY='rq1-fa-message-replay-v1'
 MAX_CONTEXT=45000
 V2_ROLE_GUIDANCE=(' The base entries show what the selected base already provides. Say when your task needs '
     'something a listed entry lacks; do not ask for a listed base property as a new requirement.')
-V2_MEDIATOR_GUIDANCE=(' A need labelled covered_by_base is disposed covered_by_base or retained; it stays visible. '
+V2_MEDIATOR_GUIDANCE=(' A need labelled covered_by_base is disposed covered_by_base, retained, or deferred with a question; it stays visible. '
     'Do not reword a need only to restate a base entry. Base coverage alone never justifies set_aside '
     'or merging into a different need. Where the base reviewer and base classifier disagree, defer with a question.')
 V2_CHECK_GUIDANCE=' A set_aside or merge justified only by base coverage is not justified.'
@@ -65,8 +65,10 @@ def plan_errors(plan,case,messages,allowed):
             if any((r.get('base_relation') or {}).get('effect')=='dispute' for r in parents):
                 if a.action!='defer' or not a.human_question:
                     errors.append('Base classifier/reviewer dispute requires defer with a human question.')
-            elif any('covered_by_base' in r.get('processing_flags',[]) for r in parents) and a.action not in {'covered_by_base','retain'}:
-                errors.append('A labelled base-covered need must stay visible as retained or covered_by_base.')
+            # Deferral keeps the need visible and asks a person (defer still needs its question and
+            # alternatives). Refusing it rejected mediator drafts in 18 JRC trial cases.
+            elif any('covered_by_base' in r.get('processing_flags',[]) for r in parents) and a.action not in {'covered_by_base','retain','defer'}:
+                errors.append('A labelled base-covered need must stay visible as retained, covered_by_base or deferred.')
         if a.action in {'recover','split'} and (not a.statement.strip() or not a.evidence_links):
             errors.append('Recovery/split requires source-supported statement and links.')
         if a.action=='split' and len(a.children)<2: errors.append('Split requires at least two supported children.')
