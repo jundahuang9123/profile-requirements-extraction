@@ -10,6 +10,7 @@ from .base_needs import load_catalogue, offer_entries, item_picks
 from .stakeholder_workflow import audit, save
 from ..llm.step_models import for_step, model_identity
 from ..llm.client import OutputValidationError, OutputTokenLimitError
+from .output_recovery import salvage_rows
 
 # v4 (20 Oct 2026, merged policy): a checked verdict sets the covered_by_base label in both
 # directions (JRC run-fd39639e removed 11 classifier labels this way); one invalid judgement
@@ -56,7 +57,9 @@ class BaseVerdict(Contract):
     entry_ids: list[str] = Field(default_factory=list,max_length=MAX_ENTRIES)
     addition_kind: Literal['none','condition','value_set','obligation','resource','meaning','other']='none'
     addition: str = Field(default='',max_length=400)
-    evidence_ids: list[str] = Field(default_factory=list,max_length=4)
+    # JRC run-fd39639e: one review call failed the schema for citing more than 4 excerpts;
+    # verdict_errors already limits citations to the need's own excerpts.
+    evidence_ids: list[str] = Field(default_factory=list,max_length=MAX_ENTRIES)
     rationale: str = Field(min_length=1,max_length=600)
 class BaseReview(Contract):
     verdicts: list[BaseVerdict] = Field(min_length=1,max_length=4)
@@ -232,7 +235,7 @@ def generation(store,run,key,step,contract,system,payload,aliases,client,validat
     if not saved:saved={'identity':identity,'model':model_identity(bound),'attempts':[]}
     if saved.get('output'):return contract.model_validate(saved['output']),saved
     while len(saved['attempts'])<2:
-        errors=[]
+        errors=[];parsed=None
         try:
             result=bound.generate_structured(system=system+(correction(saved['attempts'][-1],aliases) if saved['attempts'] else ''),
                 user=canonical(translate_ids(payload,{v:k for k,v in aliases.items()})),output_model=contract,max_tokens=4000)
@@ -240,8 +243,11 @@ def generation(store,run,key,step,contract,system,payload,aliases,client,validat
             errors=validate(result)
             output=result.model_dump(mode='json')
         except (OutputValidationError,OutputTokenLimitError) as exc:
-            errors=[str(exc)];output=None
-        saved['attempts'].append({'output':output,'errors':errors})
+            errors=[str(exc)];output=None;parsed=getattr(exc,'parsed_payload',None)
+        attempt={'output':output,'errors':errors}
+        # The complete JSON of a schema-invalid answer, saved for row recovery on resume too.
+        if isinstance(parsed,dict):attempt['parsed']=translate_ids(parsed,aliases)
+        saved['attempts'].append(attempt)
         if not errors:saved['output']=output
         save(store,run['run_id'],key,saved)
         if not errors:return result,saved
@@ -254,14 +260,24 @@ def check_errors(answer,records):
 
 
 def isolated(saved,batch,valid,field):
-    """Items of a failed batch whose latest parsed answer is valid on its own."""
-    output=next((a['output'] for a in reversed(saved['attempts']) if a.get('output')),None)
-    if output is None:return {}
-    rows=[(BaseVerdict if field=='verdicts' else BaseVerdictCheck).model_validate(row) for row in output[field]]
-    counts=Counter(r.item_id for r in rows);kept={}
+    """Items of a failed batch whose row in the newest parsed answer is valid on its own.
+
+    A schema-invalid answer keeps the rows that pass their own contract (JRC run-fd39639e:
+    one row citing more than 4 excerpts failed its whole call). An older answer is read only
+    when the newer one did not parse, never for a row the model replaced in its correction.
+    """
+    contract,model=(BaseReview,BaseVerdict) if field=='verdicts' else (BaseReviewChecks,BaseVerdictCheck)
+    attempt=next((a for a in reversed(saved['attempts']) if a.get('output') or isinstance(a.get('parsed'),dict)),None)
+    if attempt is None:return {}
+    answer=attempt.get('output') or attempt['parsed']
+    if attempt.get('output'):rows=[model.model_validate(row) for row in answer[field]]
+    else:recovered,_=salvage_rows(contract,answer);rows=list(getattr(recovered,field)) if recovered else []
+    # Every row the model gave counts, so a need with a valid and an invalid row is reviewed alone.
+    raw=answer.get(field) if isinstance(answer.get(field),list) else []
+    counts=Counter(r['item_id'] for r in raw if isinstance(r,dict) and isinstance(r.get('item_id'),str));kept={}
     for n in batch:
         row=next((r for r in rows if r.item_id==n.revision_id),None)
-        if counts[n.revision_id]==1 and valid(row,n):kept[n.revision_id]=row
+        if counts[n.revision_id]==1 and row is not None and valid(row,n):kept[n.revision_id]=row
     return kept
 
 
@@ -291,6 +307,23 @@ def apply_verdict(n,verdict,check,phase,catalogue,key,model,payload):
     return n
 
 
+def label_removed(rel):
+    """A checked new/domain-use verdict removed the classifier's covered_by_base label.
+
+    rq1-base-expert-v3 recorded that as "dispute" (JRC run-fd39639e: 11, StatDCAT: 8), which
+    means "label kept" under v1/v2. The recorded policy decides, not the flags: the discussion
+    and the recheck change flags, the policy never changes.
+    """
+    rel=rel or {}
+    return rel.get('effect')=='flag_removed' or (rel.get('effect')=='dispute' and rel.get('policy')=='rq1-base-expert-v3')
+
+
+def legacy_dispute(rel):
+    """The classifier's label was kept against a checked verdict (rq1-base-expert-v1/v2)."""
+    rel=rel or {}
+    return rel.get('effect')=='dispute' and rel.get('policy')!='rq1-base-expert-v3'
+
+
 def review_base(store,run,client,phase='before_discussion'):
     from .needs import refresh_need
     catalogue=pinned_catalogue(run)
@@ -310,7 +343,7 @@ def review_base(store,run,client,phase='before_discussion'):
         if verdict:
             check_batch(batch,verdict,key,saved['model']);return
         if len(batch)==1:
-            finish(batch,None,None,'invalid_output',payload,aliases,key,saved['model']);return
+            finish(batch,None,None,'invalid_output',payload,aliases,key,saved['model'],errors=saved['attempts'][-1]['errors']);return
         # One invalid judgement no longer leaves its batch-mates unreviewed (v2: 10 of 46
         # JRC needs in 3 batches). Judgements that are valid on their own are kept and
         # still independently checked; each other need is reviewed alone.
@@ -329,19 +362,21 @@ def review_base(store,run,client,phase='before_discussion'):
                 half=len(batch)//2
                 # Split the independent checks only; never repeat an accepted review.
                 check_batch(batch[:half],verdict,key,model,isolation);check_batch(batch[half:],verdict,key,model,isolation);return
-            finish(batch,None,None,'payload_budget',payload,aliases,key,model);return
+            finish(batch,None,None,'payload_budget',payload,aliases,key,model,isolation);return
         check_key='base_review_check:'+phase+':'+digest([n.revision_id for n in batch])
         checks,saved=generation(store,run,check_key,'base_review_check',BaseReviewChecks,CHECK_SYSTEM,check_payload,aliases,client,
             lambda a:check_errors(a,batch))
         if checks or len(batch)==1:
-            finish(batch,selected_verdict,checks,None if checks else 'invalid_output',payload,aliases,key,model,isolation);return
+            # An unchecked verdict is not stored as a judgement; the report reads 'verdict' as reviewed.
+            finish(batch,selected_verdict,checks,None if checks else 'check_invalid_output',payload,aliases,key,model,isolation,
+                None if checks else saved['attempts'][-1]['errors']);return
         kept=isolated(saved,batch,lambda c,n:True,'checks')
         accepted=[n for n in batch if n.revision_id in kept]
         if accepted:finish(accepted,selected_verdict,BaseReviewChecks(checks=[kept[n.revision_id] for n in accepted]),None,
             payload,aliases,key,model,{**(isolation or {}),'check':check_key})
         for n in batch:
             if n.revision_id not in kept:check_batch([n],verdict,key,model,isolation)
-    def finish(batch,answer,checks,reason,payload,aliases,key=None,model=None,isolation=None):
+    def finish(batch,answer,checks,reason,payload,aliases,key=None,model=None,isolation=None,errors=None):
         by_id={v.item_id:v for v in answer.verdicts} if answer else {};checked={c.item_id:c for c in checks.checks} if checks else {}
         updates={}
         for n in batch:
@@ -349,6 +384,8 @@ def review_base(store,run,client,phase='before_discussion'):
                 n.base_relation={'policy':POLICY,'phase':phase,'status':'not_reviewed','reason':reason,
                     'classifier_state':classifier_state(n,phase),'catalogue_hash':catalogue['catalogue_hash'],
                     'batch_key':key,'model':model,'human_accepted':False}
+                # The last attempt's problems (internal IDs); otherwise they are only in the audit checkpoint.
+                if errors:n.base_relation['errors']=list(errors)
                 n.processing_flags=list(dict.fromkeys([*n.processing_flags,'base_review_pending']))
             else:apply_verdict(n,by_id[n.revision_id],checked.get(n.revision_id),phase,catalogue,key,model,payload)
             if isolation:n.base_relation['isolated_from_failed_batch']=dict(isolation)

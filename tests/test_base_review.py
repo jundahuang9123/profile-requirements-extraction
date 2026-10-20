@@ -11,6 +11,7 @@ from requirement_reuse_service.workflow.base_profile import load_profile
 from requirement_reuse_service.workflow.models import RequirementRecord,RunRequest
 from requirement_reuse_service.workflow.needs import refresh_need,need_integrity
 from requirement_reuse_service.workflow.storage import digest
+from requirement_reuse_service.llm.client import OutputValidationError,validate_json_payload
 
 
 def prepared(setup,count=1):
@@ -39,6 +40,14 @@ class Reviewer:
                 rows.append(v)
             return output_model(verdicts=rows)
         return output_model(checks=[{'item_id':key,'verdict_supported':self.checked,'nothing_lost':self.checked,'rationale':'Independent synthetic check.'} for key in p['needs']])
+
+class Raw(Reviewer):
+    """Answers as a provider client does: the contract, or OutputValidationError with the parsed JSON."""
+    def __init__(self,edit,verdict='new'):super().__init__(verdict);self.edit=edit
+    def generate_structured(self,*,user,output_model,**kw):
+        out=super().generate_structured(user=user,output_model=output_model,**kw).model_dump(mode='json')
+        self.edit(len(self.calls)-1,output_model.__name__,self.calls[-1][1],out)
+        return validate_json_payload(json.dumps(out),output_model)
 
 
 def test_pin_and_effect_checkpoint_resume_without_changing_revision(setup,monkeypatch):
@@ -480,6 +489,7 @@ def test_a_need_invalid_alone_keeps_its_errors(setup):
     rows={r['revision_id']:r['base_relation'] for r in store.get('run',run['run_id'])['requirements']}
     first=sorted(rows)[0]
     assert rows[first]['status']=='not_reviewed' and rows[first]['reason']=='invalid_output'
+    assert any('cite only entries' in e for e in rows[first]['errors'])
     assert all(rows[rid]['status']=='checked' for rid in sorted(rows)[1:])
     before=len(client.calls);br.review_base(store,store.get('run',run['run_id']),client)
     assert len(client.calls)==before
@@ -550,3 +560,94 @@ def test_the_checker_reads_the_entry_the_classifier_relied_on(setup):
     # v2 showed no entry text for a "new" verdict, so its checker could not weigh the match.
     assert list(check['base']['entries'])==[access] and check['base']['entries'][access]['usage_notes']
     assert 'classifier' in br.CHECK_SYSTEM and 'domain_use_of_base' in br.REVIEW_SYSTEM.split('new:')[1]
+
+
+def test_a_verdict_may_cite_up_to_twelve_of_its_own_excerpts(setup):
+    # JRC run-fd39639e: one review call failed the schema for citing more than 4 excerpts.
+    from requirement_reuse_service.workflow.models import EvidenceLink
+    store,run,cat=prepared(setup);n=RequirementRecord.model_validate(run['requirements'][0])
+    unit=store.get('evidence',n.evidence_links[0].evidence_id)
+    n.evidence_links=[EvidenceLink(evidence_id=unit['evidence_id'],quote=unit['content'][i:i+10],quote_start=i) for i in range(0,39,3)]
+    payload,_=br.make_payload(store,run,[n],cat,'before_discussion');own=payload['needs'][n.revision_id]['excerpt_ids']
+    row=dict(item_id=n.revision_id,verdict='domain_use_of_base',entry_ids=payload['needs'][n.revision_id]['offered_entry_ids'][:1],
+        addition_kind='condition',addition='A stated source condition.',rationale='The addition is spread over passages.')
+    assert len(own)==13 and br.verdict_errors(br.BaseReview(verdicts=[{**row,'evidence_ids':own[:5]}]),[n],payload,cat)==[]
+    with pytest.raises(Exception):br.BaseVerdict(**row,evidence_ids=own)
+
+
+@pytest.mark.parametrize('fault',[
+    lambda rows:rows[0].update(evidence_ids=['E1']*13),
+    lambda rows:rows.append({**rows[0],'rationale':''}),
+],ids=['thirteen_excerpts','invalid_second_row'])
+def test_valid_rows_of_a_schema_invalid_answer_are_kept(setup,fault):
+    # One row over a schema limit failed the whole call of four; its batch-mates' rows are valid.
+    store,run,_=prepared(setup,4)
+    client=Raw(lambda i,kind,p,out:fault(out['verdicts']) if kind=='BaseReview' and len(p['needs'])==4 else None)
+    br.review_base(store,run,client)
+    saved=store.get('run',run['run_id']);rows={r['revision_id']:r['base_relation'] for r in saved['requirements']};ids=sorted(rows)
+    assert [(name,len(p['needs'])) for name,p in client.calls]==[('BaseReview',4),('BaseReview',4),('BaseReviewChecks',3),('BaseReview',1),('BaseReviewChecks',1)]
+    assert all(r['status']=='checked' for r in rows.values()) and 'isolated_from_failed_batch' not in rows[ids[0]]
+    assert all(rows[rid]['isolated_from_failed_batch']=={'review':rows[rid]['batch_key']} for rid in ids[1:])
+    # The parsed answer is saved with internal IDs, so a resumed pass recovers the same rows.
+    attempts=saved['stakeholder_audit'][rows[ids[1]]['batch_key']]['attempts']
+    assert [a['output'] for a in attempts]==[None,None] and {v['item_id'] for v in attempts[-1]['parsed']['verdicts']}==set(ids)
+    before=len(client.calls);br.review_base(store,saved,client);assert len(client.calls)==before
+
+
+@pytest.mark.parametrize('second,alone',[('unparsed',0),('parsed',1)])
+def test_isolation_reads_the_newest_answer_that_parsed(setup,second,alone):
+    # A correction that does not parse falls back to the parsed first answer (P1); a parsed
+    # correction is never mixed with a row the model replaced in it.
+    store,run,_=prepared(setup,4)
+    def edit(i,kind,p,out):
+        if kind!='BaseReview' or len(p['needs'])!=4:return
+        if i==0:out['verdicts'][0].update(verdict='restates_base',entry_ids=['B999'])
+        elif second=='unparsed':raise OutputValidationError('BaseReview',[{'loc':[],'type':'json_object_missing'}])
+        else:out['verdicts'][1].update(evidence_ids=['E1']*13)
+    client=Raw(edit);br.review_base(store,run,client)
+    rows={r['revision_id']:r['base_relation'] for r in store.get('run',run['run_id'])['requirements']};ids=sorted(rows)
+    assert [(name,len(p['needs'])) for name,p in client.calls]==[('BaseReview',4),('BaseReview',4),('BaseReviewChecks',3),('BaseReview',1),('BaseReviewChecks',1)]
+    assert all(r['status']=='checked' for r in rows.values())
+    assert [rid for rid in ids if 'isolated_from_failed_batch' not in rows[rid]]==[ids[alone]]
+    before=len(client.calls);br.review_base(store,store.get('run',run['run_id']),client);assert len(client.calls)==before
+
+
+def test_a_check_that_stays_invalid_keeps_its_errors_and_no_verdict(setup):
+    store,run,_=prepared(setup)
+    client=Raw(lambda i,kind,p,out:out['checks'][0].update(item_id='N9') if kind=='BaseReviewChecks' else None)
+    br.review_base(store,run,client)
+    n=store.get('run',run['run_id'])['requirements'][0];rel=n['base_relation']
+    assert [name for name,_ in client.calls]==['BaseReview','BaseReviewChecks','BaseReviewChecks']
+    # The report reads 'verdict' as a reviewed judgement; this one was never checked.
+    assert rel['status']=='not_reviewed' and rel['reason']=='check_invalid_output' and 'verdict' not in rel
+    assert any('Check every item exactly once' in e for e in rel['errors']) and 'base_review_pending' in n['processing_flags']
+
+
+def test_an_isolated_need_too_large_to_check_keeps_its_provenance(setup,monkeypatch):
+    store,run,_=prepared(setup,4);make=br.make_check_payload
+    monkeypatch.setattr(br,'make_check_payload',lambda *a:{**make(*a),'padding':'x'*br.MAX_PAYLOAD})
+    client=Reviewer('new',lambda v,n:v.update(verdict='restates_base',entry_ids=['B999']) if v['item_id']=='N1' else None)
+    br.review_base(store,run,client)
+    rows={r['revision_id']:r['base_relation'] for r in store.get('run',run['run_id'])['requirements']};ids=sorted(rows)
+    assert [(name,len(p['needs'])) for name,p in client.calls]==[('BaseReview',4),('BaseReview',4),('BaseReview',1),('BaseReview',1)]
+    assert rows[ids[0]]['reason']=='invalid_output' and 'isolated_from_failed_batch' not in rows[ids[0]]
+    assert all(rows[rid]['reason']=='payload_budget' and rows[rid]['isolated_from_failed_batch']=={'review':rows[rid]['batch_key']} for rid in ids[1:])
+
+
+def test_ledger_reads_label_removal_by_the_recorded_policy(setup,monkeypatch):
+    from requirement_reuse_service.workflow.fa_requirements import coverage_ledger
+    store,run,_=prepared(setup,3);ids=sorted(r['revision_id'] for r in run['requirements'])
+    # rq1-base-expert-v3 (run-fd39639e) wrote "dispute" for a removed label; v1/v2 for a kept one.
+    relations={ids[0]:('rq1-base-expert-v3','dispute',[]),ids[1]:('rq1-base-expert-v2','dispute',['covered_by_base']),ids[2]:(br.POLICY,'flag_removed',[])}
+    run['request']['base_review']='expert_v1'
+    for r in run['requirements']:
+        policy,effect,flags=relations[r['revision_id']];r.update(processing_flags=flags,base_relation={'policy':policy,'effect':effect,'status':'checked'})
+    run['stage_results']={'base_review':{'policy_version':'rq1-base-expert-v3','phases':{},'review_questions':[]}}
+    ledger=coverage_ledger(run)
+    assert sorted(ledger['base_label_removed_revision_ids'])==[ids[0],ids[2]] and ledger['base_dispute_revision_ids']==[ids[1]]
+    assert not br.label_removed(None) and not br.legacy_dispute(None) and br.legacy_dispute({'effect':'dispute','policy':'rq1-base-expert-v1'})
+    # The current prompts are bound only to records made under them; a run not yet reviewed will be.
+    current=dict(run,stage_results={'base_review':{'policy_version':br.POLICY}});v4=coverage_ledger(current)['contract_hash']
+    assert coverage_ledger(dict(run,stage_results={}))['contract_hash']==v4!=ledger['contract_hash']
+    monkeypatch.setattr(br,'REVIEW_SYSTEM',br.REVIEW_SYSTEM+' changed')
+    assert coverage_ledger(run)['contract_hash']==ledger['contract_hash'] and coverage_ledger(current)['contract_hash']!=v4
