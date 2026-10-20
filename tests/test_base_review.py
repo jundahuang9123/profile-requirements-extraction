@@ -658,3 +658,9 @@ def test_ledger_reads_label_removal_by_the_recorded_policy(setup,monkeypatch):
     assert coverage_ledger(dict(run,stage_results={}))['contract_hash']==v4!=ledger['contract_hash']
     monkeypatch.setattr(br,'REVIEW_SYSTEM',br.REVIEW_SYSTEM+' changed')
     assert coverage_ledger(run)['contract_hash']==ledger['contract_hash'] and coverage_ledger(current)['contract_hash']!=v4
+
+
+def test_correction_aliases_ids_inside_structured_problems():
+    problems=[{'concern_index':0,'unknown_need_ids':['N9'],'known':['rev-1']},'rev-1: cite only entries']
+    text=br.correction({'output':None,'errors':problems},{'N1':'rev-1'})
+    assert '"known":["N1"]' in text and 'N1: cite only entries' in text and 'rev-1' not in text

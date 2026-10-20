@@ -92,10 +92,15 @@ def alias_text(value,aliases):
     revisions ("rev-…") the model had never seen.
     """
     pairs=sorted(((internal,alias) for alias,internal in aliases.items()),key=lambda p:-len(p[0]))
-    def one(text):
-        for internal,alias in pairs:text=text.replace(internal,alias)
-        return text
-    return [one(t) for t in value] if isinstance(value,list) else one(value)
+    # Stakeholder review problems are dicts of unknown IDs, not text.
+    def one(item):
+        if isinstance(item,str):
+            for internal,alias in pairs:item=item.replace(internal,alias)
+            return item
+        if isinstance(item,dict):return {k:one(v) for k,v in item.items()}
+        if isinstance(item,list):return [one(v) for v in item]
+        return item
+    return one(value)
 
 
 def correction(attempt,aliases,translate=translate_ids):

@@ -546,3 +546,20 @@ def test_a_discussion_planned_under_v2_is_refused_by_name(setup):
     old.save(store,run['run_id'],'fa_discussion_plan',{'policy_version':'rq1-fa-dialogue-v2'})
     with pytest.raises(ValueError,match='planned under rq1-fa-dialogue-v2; the current protocol is rq1-fa-dialogue-v3. Derive a separate base-review trial'):
         fd.deliberate(store,run['run_id'],Mediator(retain_all))
+
+
+def test_a_stakeholder_review_with_structured_errors_gets_its_correction(setup):
+    # Stakeholder review errors are dicts (unknown need/evidence IDs); the v3 correction crashed on them.
+    store,run=opted_in(setup)
+    class UnknownNeedFirst(Mediator):
+        def __init__(self):super().__init__(retain_all);self.review_systems=[]
+        def generate_structured(self,*,user,output_model,system='',step=None,**kw):
+            if output_model.__name__!='Review':return super().generate_structured(user=user,output_model=output_model,system=system,step=step,**kw)
+            self.review_systems.append(system)
+            raw=super().generate_structured(user=user,output_model=output_model,step=step,**kw).model_dump(mode='json')
+            if len(self.review_systems)==1:raw['concerns'][0]['revision_ids']=['N99']
+            return output_model.model_validate(raw)
+    client=UnknownNeedFirst();fd.deliberate(store,run['run_id'],client)
+    assert 'Your previous answer was rejected: {' in client.review_systems[1] and '"unknown_need_ids":["N99"]' in client.review_systems[1]
+    saved,case=case_of(store,run)
+    assert case['stop_reason']=='bounded_fa_dialogue_complete'
