@@ -12,21 +12,46 @@ from ..llm.step_models import for_step, model_identity
 from .fa_requirements import WRITE_GUIDANCE, coverage_ledger
 
 POLICY='rq1-fa-dialogue-v1'
-# Base-aware dialogue for runs with the procedural base review. v2 (19 Oct 2026) is
-# superseded by v3: audited bookkeeping repairs, corrections that show the rejected
-# plan with item-level problems in the model's own aliases, explicit plan bookkeeping
-# guidance, and salvage of valid need dispositions. A v2 discussion cannot continue
-# under v3; derive a separate base-review trial.
-BASE_POLICY='rq1-fa-dialogue-v3'
-BASE_POLICIES={'rq1-fa-dialogue-v2',BASE_POLICY}
+# Base-aware dialogue for runs with the procedural base review. v2 (19 Oct 2026) was
+# superseded by v3 (20 Oct): audited bookkeeping repairs, corrections that show the
+# rejected plan with item-level problems in the model's own aliases, explicit plan
+# bookkeeping guidance, and salvage of valid need dispositions. v4 (21 Oct) adds
+# stakeholder concern rules, repairs of draft references in concerns, correction
+# sentences that name the valid IDs, the mediator rule that a need the base lacks is
+# no reason to set it aside, and larger per-case limits. A discussion planned under an
+# earlier version cannot continue; derive a separate base-review trial.
+BASE_POLICY='rq1-fa-dialogue-v4'
+BASE_POLICIES={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3',BASE_POLICY}
 SALVAGE_POLICY='rq1-fa-salvage-v1'
 def discussion_policy(run):
     return BASE_POLICY if run['request'].get('base_review') == 'expert_v1' else POLICY
 
 MESSAGE_REPLAY_POLICY='rq1-fa-message-replay-v1'
 MAX_CONTEXT=45000
+# v4 limits, from the first live v3 discussion (JRC run-934df8ba, 91 cases; PR #33):
+# - 14 of 19 budget stops were aliased inputs of 45,118-50,262 characters (about 15k
+#   prompt tokens), far inside gpt-oss-120b's context; 53,000 admits 13 of them;
+# - all 38 cut-off answers were mediation plans at the 4,000-token first cap, and every
+#   8,000-token retry finished; 5 cases ran out of their 14 generations.
+# 16 generations at caps of at most 8,000 tokens keep the generation count the binding
+# limit, as 14 x 8,000 = 112,000 did before.
+BASE_MAX_CONTEXT=53000
+BASE_MEDIATION_FIRST_CAP=8000
+BASE_CASE_LIMITS={'max_calls':16,'total_output_budget':128000,'max_seconds':1800}
 BASE_ROLE_GUIDANCE=(' The base entries show what the selected base already provides. Say when your task needs '
     'something a listed entry lacks; do not ask for a listed base property as a new requirement.')
+# v4: in JRC run-934df8ba, 15 of the 48 pending cases ended on a stakeholder review that
+# named a need the case does not have (N2-N5 in a one-need case, "M1", "rev-licensing", the
+# draft's action IDs, the salvage question ID), apparently to propose a missing need.
+# Completed cases carried a median of 15 concerns (up to 38), many saying that a "current
+# catalog" lacks a property, asking for MUST/SHOULD wording, or repeating round-1 concerns.
+CONCERN_GUIDANCE=(' Concern rules: revision_ids name only the needs N of this case; never invent a need ID or '
+    'list an action, question or concern ID there. To propose a need the case lacks, raise a scope concern on '
+    'the closest need and write the new need in proposed_statement. missing_evidence means the packet lacks a '
+    'source passage for a listed need. No data catalogue or catalogue records are given to you, so do not '
+    'report that a catalogue or its records lack a property unless a source passage says so. Do not ask for '
+    'MUST or SHOULD wording unless a source passage states that obligation. Raise each issue once, in at most '
+    'four concerns; in a response, raise only issues that the messages do not already contain.')
 # In the JRC trials of 19-20 Oct 2026, 57 of 84 cases ended with an invalid plan; most
 # plans answered each stakeholder concern with an action that named no need, often a
 # set-aside or deferral of an addition the same plan had just invented.
@@ -38,9 +63,13 @@ BASE_MEDIATOR_GUIDANCE=(' Plan bookkeeping: an action is the disposition of need
     'that question in its question_ids. '
     'A need labelled covered_by_base is disposed covered_by_base, retained, or deferred with a question; it stays visible. '
     'Do not reword a need only to restate a base entry. Base coverage alone never justifies set_aside '
-    'or merging into a different need. Propose add only for a source-supported need you keep; to drop an idea, '
-    'leave it out instead of adding it and then setting it aside or deferring it.')
-BASE_CHECK_GUIDANCE=' A set_aside or merge justified only by base coverage is not justified.'
+    'or merging into a different need. A need the base does not provide is a candidate requirement of the '
+    'profile; that absence never justifies set_aside. Propose add only for a source-supported need you keep; '
+    'to drop an idea, leave it out instead of adding it and then setting it aside or deferring it.')
+# v4: a JRC mediator set three needs aside "because the current DCAT-AP 1.1.0 catalogue
+# lacks the necessary dct:rights property" (run-934df8ba); the checker blocked it.
+BASE_CHECK_GUIDANCE=(' A set_aside or merge justified only by base coverage is not justified, nor is a set_aside '
+    'justified by the base lacking the need.')
 
 
 class DiscussionBudgetError(ValueError):
@@ -207,9 +236,15 @@ def plan_feedback(plan,case,messages,allowed):
         for field in fields:
             twice=[i for i,c in Counter(getattr(row,field)).items() if c>1]
             if twice:notes.append(f'{kind} {item} lists {", ".join(twice)} more than once in {field}; list each ID once.')
+    # In the GPT-OSS-only JRC replay (run-4b8eaaca), 8 of 13 drafts that stayed invalid wrote
+    # one add that left the need out, then answered "N1 is in no action" by naming N1 in it.
+    adds=[a.action_id for a in plan.actions if a.action=='add' and not a.parent_revision_ids]
     for n in needs:
         named=[a.action_id for a in plan.actions if n in a.parent_revision_ids]
-        if not named:notes.append(f'{n} is in no action: write exactly one action that names {n} in parent_revision_ids.')
+        if not named:
+            notes.append(f'{n} is in no action: write exactly one action that names {n} in parent_revision_ids.'+(
+                f' An add never names an existing need: if {", ".join(adds)} rewords {n}, write it as revise of {n} '
+                f'with the statement and its sources; if it is a further need, keep {n} with its own retain action.' if adds else ''))
         elif len(named)>1:notes.append(f'{n} is named by actions {", ".join(named)}: name it in exactly one action.')
     for a in plan.actions:
         unknown=[p for p in a.parent_revision_ids if p not in needs]
@@ -218,8 +253,17 @@ def plan_feedback(plan,case,messages,allowed):
             notes.append(f'Action {a.action_id} ({a.action}) names no need. Name the need it disposes, or remove it and '
                 'answer the concern in concerns (rejected_with_reason, or unresolved with a question). '
                 'To drop a proposed addition, omit its add action.')
+        if a.action=='add' and a.parent_revision_ids:
+            named=", ".join(a.parent_revision_ids)
+            notes.append(f'Action {a.action_id} (add) names {named}, but an add never names an existing need. '+(
+                f'To reword {named}, make {a.action_id} a revise of {named} with the statement and its sources; to keep '
+                f'{named} and propose a further need, retain {named} in its own action'
+                if len(a.parent_revision_ids)==1 else
+                f'To combine {named} into one reworded need, make {a.action_id} a merge of them with the statement and its '
+                'sources; to keep them and propose a further need, retain each in its own action')+
+                f' and give {a.action_id} no parent_revision_ids.')
         notes+=[f'Action {a.action_id} ({a.action}): {e}' for e in action_errors(a,case,allowed)
-            if e!='Non-addition requires a current parent.']
+            if e not in {'Non-addition requires a current parent.','Addition cannot replace an existing parent.'}]
     notes+=[f'Action ID {i} is used {c} times; action IDs must be unique.' for i,c in Counter(a.action_id for a in plan.actions).items() if c>1]
     stated=Counter(d.concern_id for d in plan.concerns)
     for c in concerns:
@@ -354,6 +398,60 @@ def salvage_plan(plan,case,messages,allowed):
     return partial,audit
 
 
+def repair_review(answer,case,draft):
+    """Map draft references in stakeholder concerns to the needs they name; audited.
+
+    In a response round a concern sometimes names a draft action ("A5") or a draft question,
+    including a salvage review question, where a need belongs (JRC run-934df8ba). Only IDs
+    of the draft shown to the role are mapped, to exactly the needs that action or question
+    names. An ID the model invented ("N4" in a one-need case, "M1") is never guessed.
+    """
+    data=answer.model_dump(mode='json');repairs=[]
+    # The needs the validator accepts (stakeholder_review_errors).
+    needs=set(case['revision_ids'])
+    targets={}
+    for key,field,rows in (('action_id','parent_revision_ids',(draft or {}).get('actions',[])),
+                           ('question_id','revision_ids',(draft or {}).get('questions',[]))):
+        for row in rows:
+            ids=list(row.get(field) or [])
+            # An ID used twice in the draft with different needs is ambiguous and not mapped.
+            targets[row[key]]=ids if targets.get(row[key],ids)==ids else None
+    for i,concern in enumerate(data['concerns']):
+        linked=[];mapped=[]
+        for rid in concern['revision_ids']:
+            to=targets.get(rid) if rid not in needs else None
+            if to and set(to)<=needs:
+                # As in repair_plan: deduplicate only what the mapping adds.
+                linked+=[p for p in to if rid in mapped or (p not in linked and p not in concern['revision_ids'])]
+                mapped.append(rid)
+            else:linked.append(rid)
+        if mapped and len(linked)<=4:
+            concern['revision_ids']=linked
+            repairs.extend({'kind':'concern_need_from_draft','concern_index':i,'from':rid,'to':list(targets[rid])}
+                for rid in dict.fromkeys(mapped))
+    return Review.model_validate(data),repairs
+
+
+def review_feedback(answer,case,allowed):
+    """Correction sentences that name the valid IDs.
+
+    The validator reports {"concern_index", "unknown_need_ids", "unknown_evidence_ids"}; in
+    JRC run-934df8ba such corrections fixed 10 of 25 stakeholder reviews, and in one case the
+    model copied the keys into its answer. Validity is still decided by the validator.
+    """
+    needs=list(case['revision_ids']);notes=[]
+    # Excerpt aliases E1..En follow the sorted packet excerpts (see call_phase).
+    excerpts='none' if not allowed else 'E1' if len(allowed)==1 else f'E1 to E{len(allowed)}'
+    for i,concern in enumerate(answer.concerns):
+        bad=list(dict.fromkeys(r for r in concern.revision_ids if r not in needs))
+        if bad:notes.append(f'Concern {i+1} lists {", ".join(bad)} in revision_ids, but the needs of this case are only '
+            f'{", ".join(needs)}. To propose a need the case lacks, write it in proposed_statement of a scope concern '
+            'on the closest need.')
+        bad=list(dict.fromkeys(e for e in concern.evidence_ids if e not in allowed))
+        if bad:notes.append(f'Concern {i+1} cites {", ".join(bad)}, but the excerpts of this packet are only {excerpts}.')
+    return notes or None
+
+
 def freeze_packet(store,run,records):
     context=old.case_context(store,records)
     excerpts=[]
@@ -475,10 +573,12 @@ def build_cases(store,run,roles,client):
             if len(canonical(packet))>26000 and len(records)>1:
                 mid=len(records)//2;pending.extend([records[:mid],records[mid:]]);continue
             ids=[r['revision_id'] for r in records]
+            # The case records its limits; execute_case reads them, so older cases keep theirs.
+            limits=BASE_CASE_LIMITS if policy==BASE_POLICY else {'max_calls':14,'total_output_budget':112000,'max_seconds':1800}
             case=DeliberationCase(case_id=uid('case',run['run_id'],policy,digest(records)),revision_ids=ids,
                 triggers=['fa_task_review'],context_hash=digest(records),participants=[r['id'] for r in roles],
-                policy_version=policy,max_rounds=2,max_calls=14,max_output_tokens=4000,max_retry_output_tokens=8000,
-                total_output_budget=112000,max_seconds=1800,frozen_requirements=records,
+                policy_version=policy,max_rounds=2,max_output_tokens=4000,max_retry_output_tokens=8000,
+                frozen_requirements=records,**limits,
                 model=run.get('step_models',{}).get('mediation')).model_dump(mode='json')
             case['discussion_trace']={'policy_version':policy,'task':g['task'],'group_rationale':g['rationale'],
                 'group_hash':digest(g),'packet':packet,'packet_hash':digest(packet),'phases':{},'retrieval':[],
@@ -585,7 +685,7 @@ def execute_case(store,run_id,case_id,client,roles):
         aliases.update({f'E{i+1}':eid for i,eid in enumerate(sorted(allowed))})
         aliases.update({f'C{i+1}':cid for i,cid in enumerate(dict.fromkeys(c['concern_id'] for m in payload.get('messages',[]) for c in m.get('concerns',[])))})
         if policy in BASE_POLICIES:
-            system += BASE_ROLE_GUIDANCE if step=='stakeholder_review' else BASE_MEDIATOR_GUIDANCE if step=='mediation' else BASE_CHECK_GUIDANCE if step=='mediation_check' else ''
+            system += BASE_ROLE_GUIDANCE+CONCERN_GUIDANCE if step=='stakeholder_review' else BASE_MEDIATOR_GUIDANCE if step=='mediation' else BASE_CHECK_GUIDANCE if step=='mediation_check' else ''
         identity=digest([policy,key,step,system,payload,aliases,model.model_json_schema(),model_identity(bound)])
         saved=phases.get(key)
         if saved:
@@ -620,15 +720,18 @@ def execute_case(store,run_id,case_id,client,roles):
             # Measure the exact aliased request in both protocols; checkpoint identity
             # still includes the full internal payload and no evidence is removed.
             measured=len(wire)
-            saved['context_budget']={'policy_version':'rq1-fa-context-budget-case-v1',
+            limit=BASE_MAX_CONTEXT if policy==BASE_POLICY else MAX_CONTEXT
+            first_cap=BASE_MEDIATION_FIRST_CAP if policy==BASE_POLICY and step=='mediation' else 4000
+            saved['context_budget']={'policy_version':'rq1-fa-context-budget-case-v2' if policy==BASE_POLICY else 'rq1-fa-context-budget-case-v1',
                 'internal_characters':len(canonical(payload)),'wire_characters':len(wire),
-                'measured_characters':measured,'limit_characters':MAX_CONTEXT,'wire_hash':digest(wire)}
-            if measured>MAX_CONTEXT:
+                'measured_characters':measured,'limit_characters':limit,'wire_hash':digest(wire),
+                **({'output_tokens':{'first':first_cap,'retry':8000}} if policy==BASE_POLICY else {})}
+            if measured>limit:
                 persist('fa_context_budget_exceeded')
                 raise DiscussionBudgetError('F/A discussion input exceeds context budget; original needs and saved phases retained for human review.')
             def before(cap):
                 nonlocal attempts,reserved
-                if attempts>=14 or reserved+cap>112000 or seconds>=1800:
+                if attempts>=case['max_calls'] or reserved+cap>case['total_output_budget'] or seconds>=case['max_seconds']:
                     raise DiscussionBudgetError('F/A per-case discussion budget exhausted; human review required.')
                 attempts+=1;reserved+=cap;persist('fa_attempt_reserved')
             if not errors:note=''
@@ -640,7 +743,7 @@ def execute_case(store,run_id,case_id,client,roles):
             start=monotonic()
             try:
                 answer=bounded_stage_output(bound,system=system+note,
-                    user=wire,output_model=model,initial_tokens=4000,retry_tokens=8000,before_attempt=before)
+                    user=wire,output_model=model,initial_tokens=first_cap,retry_tokens=8000,before_attempt=before)
                 answer=model.model_validate(translate(answer.model_dump(mode='json'),aliases))
             except (OutputValidationError,OutputTokenLimitError) as exc:
                 saved.update(status='invalid_output',validation_error={'type':type(exc).__name__,'message':str(exc)})
@@ -652,6 +755,10 @@ def execute_case(store,run_id,case_id,client,roles):
             if policy==BASE_POLICY and step=='mediation':
                 # Audited bookkeeping repairs; the model's own plan is kept beside the repaired one.
                 raw=answer.model_dump(mode='json');answer,repairs=repair_plan(answer,case,payload.get('messages',[]))
+                if repairs:attempt.update(model_output=raw,repairs=repairs)
+            elif policy==BASE_POLICY and step=='stakeholder_review' and payload.get('draft'):
+                # A response may name the draft's action or question where a need belongs.
+                raw=answer.model_dump(mode='json');answer,repairs=repair_review(answer,case,payload['draft'])
                 if repairs:attempt.update(model_output=raw,repairs=repairs)
             errors=validate(answer) if validate else []
             attempt={'output':answer.model_dump(mode='json'),'errors':errors,**attempt}
@@ -688,7 +795,7 @@ def execute_case(store,run_id,case_id,client,roles):
             'interference and remedy. No invented weights or endorsement. No concern is valid. '
             'Offer at most two specific queries if a missing source passage is needed. Return Review JSON.',
             {'role':role_map[role_id],'packet':packet,'messages':[]},
-            lambda a:old.stakeholder_review_errors(a,case,allowed))
+            lambda a:old.stakeholder_review_errors(a,case,allowed),lambda a:review_feedback(a,case,allowed))
         messages.append(saved_message('initial:'+role_id,role_id,1,answer))
     trace['initial_positions']=deepcopy(messages)
     if 'expanded_packet' in trace:
@@ -738,7 +845,7 @@ def execute_case(store,run_id,case_id,client,roles):
                 'interference, unsupported changes or satisfaction; do not repeat approval of unchanged issues. '
                 'An earlier finished flag does not close a new issue. Return Review JSON.',
                 {'role':role_map[role_id],'packet':packet,'draft':draft.model_dump(mode='json'),'messages':messages},
-                lambda a:old.stakeholder_review_errors(a,case,allowed))
+                lambda a:old.stakeholder_review_errors(a,case,allowed),lambda a:review_feedback(a,case,allowed))
             messages.append(saved_message('response:'+role_id,role_id,2,answer));trace['targeted_roles'].append(role_id)
     final=mediate('final',{'packet':packet,'draft':draft.model_dump(mode='json'),'messages':messages}) if trace['targeted_roles'] else draft
     if recovery.get('status')=='in_progress':
@@ -760,7 +867,8 @@ def execute_case(store,run_id,case_id,client,roles):
         def generate_structured(self,**kwargs):
             nonlocal attempts,reserved,seconds
             cap=kwargs.get('max_tokens',4000)
-            if attempts>=14 or reserved+cap>112000 or seconds>=1800:raise DiscussionBudgetError('F/A assessment budget exhausted; original needs retained.')
+            if attempts>=case['max_calls'] or reserved+cap>case['total_output_budget'] or seconds>=case['max_seconds']:
+                raise DiscussionBudgetError('F/A assessment budget exhausted; original needs retained.')
             attempts+=1;reserved+=cap;persist('fa_assessment_reserved');started=monotonic()
             try:return for_step(client,'assessment').generate_structured(**kwargs)
             finally:seconds+=monotonic()-started;persist()
@@ -775,7 +883,9 @@ def execute_case(store,run_id,case_id,client,roles):
             outcomes.append({**deepcopy(d['proposal']),'status':'human_review','applied':False,'human_accepted':False,
                 'salvage_rejected':True,'validation_errors':list(d['problems']),
                 'human_question':'This mediator action failed validation and was not applied: '+'; '.join(d['problems'])+(' Its question: '+hq if hq else '')})
-    trace['after_revision_ids']=[rid for rid in case['revision_ids'] if rid not in asides and rid not in replacements]+[r['revision_id'] for r in additions]
+    # A need that stays set aside is listed as before, when it was set aside again.
+    unchanged={p for o in outcomes if o.get('status')=='already_set_aside' for p in o['parent_revision_ids']}
+    trace['after_revision_ids']=[rid for rid in case['revision_ids'] if rid not in asides and rid not in replacements and rid not in unchanged]+[r['revision_id'] for r in additions]
     trace['working_after_revision_ids']=[rid for rid in trace.get('working_before_revision_ids',[]) if rid not in replacements and rid not in asides]+[r['revision_id'] for r in additions]
     trace['completed_at']=now();persist()
     def commit(r):
@@ -833,6 +943,11 @@ def apply(store,run,case,plan,checks,client,allowed):
         elif a.action in {'retain','defer','covered_by_base','set_aside'}:
             if a.action=='covered_by_base' and not all('covered_by_base' in p.get('processing_flags',[]) for p in parents):
                 item.update(status='human_review',human_question='Base coverage is not independently established. Review the base comparison.')
+            elif a.action=='set_aside' and policy==BASE_POLICY and parents and all(p.get('lifecycle_state')=='set_aside' for p in parents):
+                # Cases include earlier set-asides for review. Setting one aside again changed
+                # nothing but was counted as a mediated change and recorded a second set-aside
+                # (JRC run-934df8ba: 5 of 7 applied changes).
+                item['status']='already_set_aside'
             elif a.action=='set_aside':
                 asides.update({p['revision_id']:a.rationale for p in parents});item.update(status='set_aside',applied=True)
             else:item['status']='human_review' if a.action=='defer' else 'retained'
@@ -901,7 +1016,8 @@ def deliberate(store,run_id,client):
         # A v2 discussion cannot continue under v3; without this the refusal was the generic
         # identity mismatch below (probe R6).
         planned=(old.audit(store,run_id).get('fa_discussion_plan') or {}).get('policy_version')
-        if planned=='rq1-fa-dialogue-v2':raise ValueError('This discussion was planned under '+planned+
+        # Prompts and limits differ between versions, so a v3 plan cannot continue under v4 either.
+        if planned in BASE_POLICIES and planned!=BASE_POLICY:raise ValueError('This discussion was planned under '+planned+
             '; the current protocol is '+BASE_POLICY+'. Derive a separate base-review trial instead.')
         # Labels of another base-review policy mean something else: rq1-base-expert-v2 kept a
         # disputed label, and rq1-base-expert-v3 removed labels (JRC run-fd39639e: 11) after a
@@ -929,12 +1045,17 @@ def deliberate(store,run_id,client):
     for case in run['deliberations']:
         try:execute_case(store,run_id,case['case_id'],client,roles)
         except (DiscussionBudgetError,DiscussionValidationError) as exc:
-            reason='budget_pending_human_review' if isinstance(exc,DiscussionBudgetError) else 'invalid_output_pending_human_review'
+            budget=isinstance(exc,DiscussionBudgetError)
+            reason='budget_pending_human_review' if budget else 'invalid_output_pending_human_review'
+            # v4 names an invalid answer as such; earlier versions called every stop "budget"
+            # (JRC run-934df8ba: 27 of 48 pending cases were invalid output).
+            qid='budget' if budget or policy!=BASE_POLICY else 'invalid_output'
+            options=['Retain original needs','Prepare a separately budgeted review'] if qid=='budget' else ['Retain original needs','Prepare a separate review']
             def pending(r):
                 row=next(c for c in r['deliberations'] if c['case_id']==case['case_id'])
                 row.update(status='mediated',stop_reason=reason)
-                row['mediation'].update(phase='human_review',human_questions=[{'question_id':'budget','question':str(exc),
-                    'revision_ids':list(row['revision_ids']),'concern_ids':[],'rationale':'No unvalidated revisions applied.','alternatives':['Retain original needs','Prepare a separately budgeted review']}])
+                row['mediation'].update(phase='human_review',human_questions=[{'question_id':qid,'question':str(exc),
+                    'revision_ids':list(row['revision_ids']),'concern_ids':[],'rationale':'No unvalidated revisions applied.','alternatives':options}])
             store.mutate(run_id,None,'fa_discussion_budget_review',pending)
     if policy in BASE_POLICIES:
         from .base_review import review_base
@@ -1029,7 +1150,7 @@ def derive_discussion_run(store,source,request,actor):
     child.update(implementation_hash=digest({p.name:digest(p.read_bytes()) for p in Path(__file__).parent.glob('*.py')}),
         run_id='run-'+uuid.uuid4().hex,name=request.name,version=1,
         request=settings.model_dump(mode='json'),created_at=now(),status='created',
-        worker_id=None,job_lease_until=0,diagnostics=[],model_calls=[],attempt_history=[],
+        worker_id=None,job_lease_until=0,diagnostics=[],model_calls=[],attempt_history=[],code_history=[],
         derived_from={'run_id':source['run_id'],'version':source['version'],
             'stage':'deliberation','rationale':request.rationale,'actor':actor,
             'observations_hash':digest(source['observations']),'role_runs_hash':digest(source['role_runs']),
@@ -1041,6 +1162,7 @@ def derive_discussion_run(store,source,request,actor):
             'inherited_discussions_hash':digest(source['deliberations']),
             'parent_plan_hash':digest(source['stakeholder_audit']['fa_discussion_plan']),
             'parent_implementation_hash':source.get('implementation_hash'),
+            'parent_code_history':deepcopy(source.get('code_history',[])),
             'changed_policy':options.get('mediation_timeout_fallback')})
     child['stages']['deliberation']='pending'
     plan=child['stakeholder_audit']['fa_discussion_plan']

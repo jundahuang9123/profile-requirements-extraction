@@ -1426,6 +1426,11 @@ def make_case(run: dict, records: list[RequirementRecord], triggers: list[str]) 
     return case.model_dump(mode='json')
 
 
+def implementation_identity() -> str:
+    """Hash of the workflow modules, as recorded in implementation_hash."""
+    return digest({path.name: digest(path.read_bytes()) for path in Path(__file__).parent.glob('*.py')})
+
+
 def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
     """Checkpoint each stage; provider failures retain completed independent artifacts."""
     worker_id = uuid.uuid4().hex
@@ -1494,9 +1499,15 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             active_stage = 'elicitation'
             ensure_elicitation_resumable(run)
             active_stage = 'role_selection'
+        code = implementation_identity()
         def claim(r):
             if r.get('worker_id') and r.get('job_lease_until', 0) > time.time():
                 raise ConflictError('A worker already owns this run.')
+            # implementation_hash names the code that created the run; a run resumed under
+            # other code did not say so. Each change is listed with the stages it found.
+            history = r.setdefault('code_history', [])
+            if code != (history[-1]['implementation_hash'] if history else r.get('implementation_hash')):
+                history.append({'implementation_hash': code, 'claimed_at': now(), 'stages': dict(r['stages'])})
             r.update(status='selecting_roles', worker_id=worker_id, job_lease_until=time.time() + 900)
             if r['stages'].get('role_selection') != 'completed':
                 r['stages']['role_selection'] = 'running'

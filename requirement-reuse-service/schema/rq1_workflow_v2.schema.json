@@ -4563,7 +4563,8 @@
             "not_find_or_access",
             "not_catalogue_level",
             "not_commonly_agreed",
-            "fa_scope_set_aside"
+            "fa_scope_set_aside",
+            "mediated_fa_set_aside"
           ],
           "title": "Reason",
           "type": "string"
@@ -4572,6 +4573,18 @@
           "default": false,
           "title": "Restored",
           "type": "boolean"
+        },
+        "reversible": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reversible"
         },
         "revision_id": {
           "anyOf": [
@@ -5569,6 +5582,14 @@
           "description": "Extraction excerpt catalogues by catalogue hash, as referenced by role reports.",
           "title": "Catalogues",
           "type": "object"
+        },
+        "code_history": {
+          "description": "Each start of the run under code other than the last recorded: implementation_hash, claimed_at and the stage states it found. implementation_hash stays the code that created the run.",
+          "items": {
+            "type": "object"
+          },
+          "title": "Code History",
+          "type": "array"
         },
         "conflicts": {
           "items": {

@@ -137,8 +137,8 @@ def test_request_opt_in_requires_fa_and_base_and_policy_is_per_run():
     with pytest.raises(ValueError,match='requires the F/A'):
         RunRequest(snapshot_id='s',base_review='expert_v1')
     r=RunRequest(snapshot_id='s',strategy='multi_agent',stakeholder_workflow='fa_mediated',base_profile_id='dcat-ap-1.1.0',base_review='expert_v1')
-    assert discussion_policy({'request':r.model_dump()})=='rq1-fa-dialogue-v3'
-    assert br.POLICY=='rq1-base-expert-v4'
+    assert discussion_policy({'request':r.model_dump()})=='rq1-fa-dialogue-v4'
+    assert br.POLICY=='rq1-base-expert-v5'
     assert discussion_policy({'request':{}})=='rq1-fa-dialogue-v1'
 
 
@@ -450,7 +450,7 @@ def test_v2_mediator_may_defer_a_labelled_need_but_not_set_it_aside(setup):
     store,run,_=prepared(setup);run['request']['base_review']='expert_v1'
     run['requirements'][0]['processing_flags']=['covered_by_base']
     case=fd.build_cases(store,run,[],Dialogue())[0];rid=run['requirements'][0]['revision_id']
-    assert case['policy_version']=='rq1-fa-dialogue-v3'
+    assert case['policy_version']==fd.BASE_POLICY
     rule='A labelled base-covered need must stay visible'
     def errors(action,**extra):
         plan=fd.Plan(actions=[{'action_id':'a','action':action,'parent_revision_ids':[rid],'rationale':'Synthetic disposition.',**extra}],summary='Synthetic plan.')
@@ -666,3 +666,35 @@ def test_correction_aliases_ids_inside_structured_problems():
     problems=[{'concern_index':0,'unknown_need_ids':['N9'],'known':['rev-1']},'rev-1: cite only entries']
     text=br.correction({'output':None,'errors':problems},{'N1':'rev-1'})
     assert '"known":["N1"]' in text and 'N1: cite only entries' in text and 'rev-1' not in text
+
+
+def test_the_check_lets_a_domain_use_be_on_another_resource_class():
+    # REVIEW_SYSTEM allows a domain use on another resource class; the v4 check required the
+    # same resource for it, so such verdicts could only fail (JRC run-934df8ba: 2 of 4 failed checks).
+    assert 'other resource class' in br.REVIEW_SYSTEM
+    assert 'for restates_base the cited entries are about the same resource and property meaning' in br.CHECK_SYSTEM
+    assert 'for domain_use_of_base they have the same property meaning, on the same resource unless the stated addition is another resource class' in br.CHECK_SYSTEM
+    assert 'restates_base and domain_use_of_base' not in br.CHECK_SYSTEM
+
+
+class SupportedButLost(Reviewer):
+    """The checker agrees with the verdict but answers nothing_lost=false (JRC run-e1e4810f)."""
+    def generate_structured(self,*,user,output_model,**kw):
+        out=super().generate_structured(user=user,output_model=output_model,**kw)
+        if output_model==br.BaseReviewChecks:
+            return output_model(checks=[{**c.model_dump(),'nothing_lost':False} for c in out.checks])
+        return out
+
+
+@pytest.mark.parametrize('verdict,status',[('new','checked'),('uncertain','checked'),
+    ('restates_base','check_failed'),('domain_use_of_base','check_failed')])
+def test_nothing_lost_decides_only_restatements_and_domain_uses(setup,verdict,status):
+    store,run,_=prepared(setup)
+    def label(r):r['requirements'][0]['processing_flags']=[*r['requirements'][0].get('processing_flags',[]),'covered_by_base']
+    store.mutate(run['run_id'],None,'fixture_label',label)
+    br.review_base(store,store.get('run',run['run_id']),SupportedButLost(verdict))
+    n=store.get('run',run['run_id'])['requirements'][0]
+    assert n['base_relation']['status']==status and n['base_relation']['check']['nothing_lost'] is False
+    # A checked new verdict removes the label; a failed check keeps it.
+    assert ('covered_by_base' in n['processing_flags'])==(verdict!='new')
+    assert 'for new and uncertain always true' in br.CHECK_SYSTEM

@@ -204,7 +204,8 @@ class SetAside(Contract):
     observation_id: str
     role_id: str
     reason: Literal['no_source_link', 'inherited_from_base', 'declared_not_extension', 'base_specification_only', 'generic_need_served_by_base', 'no_use_case', 'not_supported_by_quote', 'source_check_failed', 'rewrite_rejected',
-                    'not_find_or_access', 'not_catalogue_level', 'not_commonly_agreed', 'fa_scope_set_aside'] = 'no_source_link'
+                    'not_find_or_access', 'not_catalogue_level', 'not_commonly_agreed', 'fa_scope_set_aside',
+                    'mediated_fa_set_aside'] = 'no_source_link'
     base_check: dict[str, Any] | None = None
     revision_id: str | None = None
     need_id: str | None = None
@@ -212,6 +213,10 @@ class SetAside(Contract):
     matched_base_need_ids: list[str] = Field(default_factory=list)
     details: dict[str, Any] = Field(default_factory=dict)
     restored: bool = False
+    # A mediated F/A set-aside (fa_discussion.execute_case) writes reason
+    # 'mediated_fa_set_aside' and reversible=True. Without both in this contract, a run with
+    # such a record failed WorkflowRun validation, which a discussion continuation performs.
+    reversible: bool | None = None
 
 
 class CandidateGroup(Contract):
@@ -605,6 +610,9 @@ class WorkflowRun(Contract):
     diagnostics: list[str] = Field(default_factory=list)
     created_at: str
     implementation_hash: str = ''
+    code_history: list[dict[str, Any]] = Field(default_factory=list, description=(
+        'Each start of the run under code other than the last recorded: implementation_hash, claimed_at '
+        'and the stage states it found. implementation_hash stays the code that created the run.'))
     assessment_history: list[dict[str, Any]] = Field(default_factory=list)
     attempt_history: list[dict[str, Any]] = Field(default_factory=list)
     baselines: list[dict[str, Any]] = Field(default_factory=list)
