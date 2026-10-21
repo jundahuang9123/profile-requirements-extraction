@@ -5677,7 +5677,7 @@
           "items": {
             "$ref": "#/$defs/TaskLabel"
           },
-          "maxItems": 60,
+          "maxItems": 120,
           "minItems": 1,
           "title": "Labels",
           "type": "array"

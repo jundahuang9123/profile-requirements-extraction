@@ -393,15 +393,24 @@ never discussed together, so the discussion could not merge, compare or filter
 them.
 
 `rq1-fa-dialogue-v5` forms cases by task across the whole inventory
-(`rq1-fa-task-labels-v1`). Needs, including set-aside proposals, are labelled in
-order of revision ID in chunks of 60; each chunk sees the labels given so far and
+(`rq1-fa-task-labels-v2`). Needs, including set-aside proposals, are labelled in
+order of revision ID in chunks of 30; each chunk sees the labels given so far and
 reuses them for needs about the same task. A need that states a fact about a
 document, organisation or specification is labelled "statement about the
 sources". Needs with the same label (ignoring case and spacing) form a case of at
 most six needs; a larger group is split in order into parts that keep the task.
-An invalid labelling answer leaves its chunk's needs in single cases and records
-the failure; no need is dropped. Labels only group needs: the discussion decides
-what happens to each.
+Labels only group needs: the discussion decides what happens to each.
+
+Each labelling answer is checked after audited repairs: a label for an ID outside
+the chunk is dropped, and a need labelled twice with the same label keeps one. A
+need without a label or with different labels gets one correction that names it.
+A rejected answer is checked from its complete JSON, row by row. The answer with
+the fewest problems is kept; a need still unlabelled is discussed alone, and the
+chunk records why. An invalid answer never fails the stage; a provider failure
+still stops it for resume. Labels v1 (chunks of 60, no repair or correction)
+failed the first v6 JRC trial (`run-a89957db`, 21 October): both generations for a
+60-need chunk returned more labels than the contract allowed, and the stage
+stopped. A run whose labels were saved under v1 is refused by name.
 
 Each case names its task in `packet.task`, and the mediator is told that needs
 stating the same information, also from different sources, are merged into one

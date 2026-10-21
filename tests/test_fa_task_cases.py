@@ -5,6 +5,7 @@ from test_routed_stakeholder_workflow import setup  # noqa: F401  (pytest fixtur
 from test_base_review import prepared
 from test_fa_dialogue_v3 import Mediator, opted_in, retain_all, case_of
 from requirement_reuse_service.workflow import fa_discussion as fd
+from requirement_reuse_service.llm.client import LLMError, OutputValidationError
 
 
 class Labeller(Mediator):
@@ -34,7 +35,7 @@ def test_needs_with_one_task_share_a_case_across_label_chunks(setup,monkeypatch)
     ordered=sorted(r['revision_id'] for r in run['requirements'])
     assert [c['revision_ids'] for c in cases]==[[ordered[0],ordered[2],ordered[4]],[ordered[1],ordered[3]]]
     assert [c['discussion_trace']['packet']['task'] for c in cases]==['Know the licence','Know the access conditions']
-    assert cases[0]['discussion_trace']['group_rationale']=='Same task label (rq1-fa-task-labels-v1).'
+    assert cases[0]['discussion_trace']['group_rationale']=='Same task label (rq1-fa-task-labels-v2).'
     # Each extra need adds its share to the case limits.
     assert (cases[0]['max_calls'],cases[0]['total_output_budget'],cases[0]['max_seconds'])==(18,144000,2400)
     audit=store.get('run',run['run_id'])['stakeholder_audit']
@@ -51,16 +52,102 @@ def test_a_task_group_over_the_case_size_is_split_in_parts(setup,monkeypatch):
     cases=fd.build_cases(store,run,[],Labeller(lambda data:[(a,'Know the licence') for a in data['needs']]))
     assert [len(c['revision_ids']) for c in cases]==[2,2,1]
     assert [c['discussion_trace']['group_rationale'] for c in cases]==[
-        f'Same task label (rq1-fa-task-labels-v1); part {i} of 3.' for i in (1,2,3)]
+        f'Same task label (rq1-fa-task-labels-v2); part {i} of 3.' for i in (1,2,3)]
     assert sorted(r for c in cases for r in c['revision_ids'])==sorted(r['revision_id'] for r in run['requirements'])
 
 
-def test_an_invalid_labelling_leaves_its_needs_in_single_cases(setup):
-    store,run=opted_in(setup,3)
-    cases=fd.build_cases(store,run,[],Labeller(lambda data:[('N1','Know the licence')]))
+def test_needs_still_unlabelled_after_the_correction_are_discussed_alone(setup):
+    store,run=opted_in(setup,3);client=Labeller(lambda data:[('N1','Know the licence')])
+    cases=fd.build_cases(store,run,[],client)
+    # One correction names the needs without a label; the label given is kept.
+    assert len(client.payloads)==2
     assert [len(c['revision_ids']) for c in cases]==[1,1,1]
-    assert {c['discussion_trace']['group_rationale'] for c in cases}=={'Isolated for review after a labelling failure.'}
-    assert store.get('run',run['run_id'])['stakeholder_audit']['fa_task_labels:0']['fallback']=='Task labelling did not label each need exactly once.'
+    assert sorted(c['discussion_trace']['group_rationale'] for c in cases)==['Isolated for review after a labelling failure.']*2+[
+        'No other need has this task label (rq1-fa-task-labels-v2).']
+    saved=store.get('run',run['run_id'])['stakeholder_audit']['fa_task_labels:0']
+    assert saved['fallback']=='2 of 3 needs stayed unlabelled after correction and are discussed alone.'
+    assert [p['need'] for p in saved['attempts'][0]['problems']]==['N2','N3'] and saved['kept_attempt']==2
+
+
+class Recorded(Labeller):
+    """Also records the system prompt of every labelling call."""
+    def __init__(self,label):super().__init__(label);self.systems=[]
+    def generate_structured(self,*,user,output_model,system='',step=None,**kw):
+        if output_model.__name__=='TaskLabels':self.systems.append(system)
+        return super().generate_structured(user=user,output_model=output_model,system=system,step=step,**kw)
+
+
+def test_repeated_and_stray_labels_are_repaired_without_a_correction(setup):
+    store,run=opted_in(setup,3)
+    client=Recorded(lambda data:[('N1','Know the licence'),('N1','know the  licence'),('N2','Know the access conditions'),
+        ('N3','Know the licence'),('N9','A need that is not in this chunk')])
+    cases=fd.build_cases(store,run,[],client)
+    assert len(client.payloads)==1
+    ordered=sorted(r['revision_id'] for r in run['requirements'])
+    assert [c['revision_ids'] for c in cases]==[[ordered[0],ordered[2]],[ordered[1]]]
+    saved=store.get('run',run['run_id'])['stakeholder_audit']['fa_task_labels:0']
+    assert saved['fallback'] is None and saved['attempts'][0]['problems']==[]
+    assert [r['kind'] for r in saved['attempts'][0]['repairs']]==['repeated_label_dropped','label_outside_chunk_dropped']
+
+
+def test_different_labels_for_one_need_get_one_correction(setup):
+    store,run=opted_in(setup,2)
+    answers=iter([[('N1','Know the licence'),('N1','Know the rights'),('N2','Know the licence')],
+        [('N1','Know the licence'),('N2','Know the licence')]])
+    client=Recorded(lambda data:next(answers))
+    cases=fd.build_cases(store,run,[],client)
+    assert len(cases)==1 and len(cases[0]['revision_ids'])==2
+    assert 'N1 has different labels (Know the licence; Know the rights): give it one.' in client.systems[1]
+    assert 'Your previous answer was rejected: {' in client.systems[1]
+
+
+class Rejecting(Labeller):
+    """Answers the first `bad` labelling calls with an OutputValidationError carrying raw(wire) as its JSON."""
+    def __init__(self,label,raw,bad):super().__init__(label);self.raw=raw;self.bad=bad
+    def generate_structured(self,*,user,output_model,system='',step=None,**kw):
+        if output_model.__name__=='TaskLabels' and self.bad:
+            self.bad-=1;data=json.loads(user);self.payloads.append(data)
+            raise OutputValidationError('TaskLabels',[{'loc':['labels'],'type':'too_long'}],'stop',parsed_payload=self.raw(data))
+        return super().generate_structured(user=user,output_model=output_model,system=system,step=step,**kw)
+
+
+def test_a_rejected_answer_is_checked_from_its_json_and_never_fails_the_stage(setup):
+    # JRC run-a89957db: both generations of a 60-need chunk gave more labels than the contract allowed.
+    store,run=opted_in(setup,3)
+    raw=lambda data:{'labels':[{'need':a,'task':'Know the licence'} for a in data['needs']]+[{'need':'N1','task':'Know the licence'},
+        {'need':'N2','task':'x'*200}]}
+    client=Rejecting(lambda data:[(a,'Know the licence') for a in data['needs']],raw,bad=2)
+    cases=fd.build_cases(store,run,[],client)
+    assert len(client.payloads)==2 and len(cases)==1 and len(cases[0]['revision_ids'])==3
+    saved=store.get('run',run['run_id'])['stakeholder_audit']['fa_task_labels:0']
+    first=saved['attempts'][0]
+    assert first['error'].startswith('OutputValidationError') and first['problems']==[] and saved['fallback'] is None
+    assert [r['kind'] for r in first['repairs']]==['invalid_label_dropped','repeated_label_dropped']
+
+
+def test_a_chunk_with_nothing_parseable_gets_one_correction_then_single_cases(setup):
+    store,run=opted_in(setup,2)
+    cases=fd.build_cases(store,run,[],Rejecting(lambda data:[],lambda data:None,bad=4))
+    assert [len(c['revision_ids']) for c in cases]==[1,1]
+    assert store.get('run',run['run_id'])['stakeholder_audit']['fa_task_labels:0']['fallback']=='2 of 2 needs stayed unlabelled after correction and are discussed alone.'
+
+
+def test_a_provider_failure_still_stops_the_labelling_for_resume(setup):
+    store,run=opted_in(setup,2)
+    class Down(Labeller):
+        def generate_structured(self,*,user,output_model,**kw):
+            if output_model.__name__=='TaskLabels':raise LLMError('scripted connection failure')
+            return super().generate_structured(user=user,output_model=output_model,**kw)
+    with pytest.raises(LLMError,match='scripted connection failure'):fd.build_cases(store,run,[],Down(lambda data:[]))
+    assert 'fa_task_labels:0' not in store.get('run',run['run_id'])['stakeholder_audit']
+
+
+def test_labels_saved_under_v1_are_refused_by_name(setup):
+    store,run=opted_in(setup,2)
+    from requirement_reuse_service.workflow import stakeholder_workflow as old
+    old.save(store,run['run_id'],'fa_task_labels:0',{'input_hash':'x','policy_version':'rq1-fa-task-labels-v1','labels':{}})
+    with pytest.raises(ValueError,match='Task labels were saved under rq1-fa-task-labels-v1'):
+        fd.build_cases(store,store.get('run',run['run_id']),[],Labeller(lambda data:[]))
 
 
 def test_a_task_case_is_discussed_with_its_task(setup):
