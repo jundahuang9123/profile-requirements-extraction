@@ -15,7 +15,7 @@ New UI runs use the `find_access_v1` requirements contract. Automatic stakeholde
 5. **Independent scope axes:** record source support, find/access relevance, statement nature, actor/task/example and cited evidence separately. Unchecked or disputed rows retain a review flag. A definite unsupported/out-of-scope judgement is reversible, with evidence and rationale retained. Category/applicability failure cannot erase these axes. Base-covered domain needs remain in the inventory with their domain evidence and base matches.
 6. **Cases:** task-based grouping can combine needs from different source files. Bounded windows and packet size limits are recorded; this does not guarantee all distant related needs meet. Include latest set-asides and unresolved proposals, labelled as such. Oversized cases split with a shared group hash; an oversized singleton remains pending human preparation.
 7. **Discussion:** save independent initial positions without peer answers; aggregate issues; obtain a mediator draft; solicit responses to proposed changes or material objections even from a role previously marked finished; obtain final mediation when responses occurred; independently check every disposition, including retain and set-aside. No concern is a valid response; silence or repetition does not establish consensus or weight.
-8. **Persistence/review:** apply source-checked machine revisions transactionally. Preserve before/after revision IDs, parents, evidence and observations. Invalid changes retain parents and a review question. A case whose structured output remains invalid after bounded correction is explicitly queued for human review; under `rq1-fa-dialogue-v3` the valid parts of its plan are salvaged first (see below). The run can continue with other cases. Transport failures still stop unfinished work for supported resume. Machine outcomes are never human acceptance. The pre-discussion machine snapshot remains unchanged.
+8. **Persistence/review:** apply source-checked machine revisions transactionally. Preserve before/after revision IDs, parents, evidence and observations. Invalid changes retain parents and a review question. A case whose structured output remains invalid after bounded correction is explicitly queued for human review; since `rq1-fa-dialogue-v3` the valid parts of its plan are salvaged first (see below). The run can continue with other cases. Transport failures still stop unfinished work for supported resume. Machine outcomes are never human acceptance. The pre-discussion machine snapshot remains unchanged.
 
 The mediator can propose retain, revise, split, merge, add/recover, covered-by-base, reversible set-aside or defer. Priority requires explicit applicable source support. Cross-case conflicts require joint review rather than a decision that cannot see both sides. New wording invalidates old base comparisons and shows a recheck flag. A covered-by-base label cannot be manufactured without an existing checked match.
 
@@ -29,11 +29,11 @@ Processing every passage is not evidence of finding every requirement. Accounted
 
 ## Evidence expansion and budgets
 
-Both dialogue protocols measure the exact JSON sent after reversible identifier aliases against the unchanged 45,000-character context limit. The `rq1-fa-context-budget-case-v1` phase audit records internal, wire and measured sizes plus the wire hash. An oversized case retains its original needs and accepted phases and is deferred visibly to human review; later cases continue. Full internal payloads still determine checkpoint identity.
+Every dialogue protocol measures the exact JSON sent after reversible identifier aliases against a context limit: 45,000 characters (`rq1-fa-context-budget-case-v1`), or 53,000 under `rq1-fa-dialogue-v4` (`rq1-fa-context-budget-case-v2`). The phase audit records internal, wire and measured sizes, the limit and the wire hash; v2 also records the phase's output-token caps. An oversized case retains its original needs and accepted phases and is deferred visibly to human review; later cases continue. Full internal payloads still determine checkpoint identity.
 
 A stakeholder may request a specific missing passage. Bounded lexical retrieval searches only the frozen run evidence IDs: up to eight distinct queries, two passages per query and four new passages overall. It records query, exact selected location, source/content hash, eligible-ID hash and excluded count. No benchmark/reference file or web retrieval is available to discussion. A no-result query remains visible as unresolved.
 
-A case permits at most 14 model generations including schema/semantic corrections and revision assessments, 112,000 reserved output tokens and 1,800 seconds of accumulated model-call time. Primary calls reserve 4,000 tokens and truncation correction may reserve 8,000. The time guard prevents starting another request after the recorded budget; the provider transport timeout bounds an in-flight request. With many revisions or corrections, some work can remain for human review. It is not reported as successful mediation.
+A case permits at most 14 model generations including schema/semantic corrections and revision assessments, 112,000 reserved output tokens and 1,800 seconds of accumulated model-call time. Primary calls reserve 4,000 tokens and truncation correction may reserve 8,000. Under `rq1-fa-dialogue-v4` a case permits 16 generations and 128,000 tokens, and a mediation plan starts at 8,000 tokens. Each case records its limits when it is built, and execution reads them from the case, so a case keeps the limits it was planned with. The time guard prevents starting another request after the recorded budget; the provider transport timeout bounds an in-flight request. With many revisions or corrections, some work can remain for human review. It is not reported as successful mediation.
 
 Phase checkpoints bind policy, prompt, packet, schema, aliases and effective model/reasoning options. Finished phases resume without new calls. Exact field-scoped local IDs avoid fuzzy identifier repair. An absent/wrong quotation offset can be repaired only when the exact quotation occurs once in the frozen source; the repair is audited. Repeated/ambiguous text still needs a valid offset. No source is rewritten.
 
@@ -119,11 +119,13 @@ retain it. No machine action constitutes human approval.
 interrupted or user-cancelled F/A discussion under the new policy. It copies completed upstream
 outputs and all case checkpoints without replaying extraction or completed
 cases. The parent stays unchanged. Lineage records inherited call counts/hashes
-and the parent plan/implementation identity; the child's call log covers only
-new requests. Upstream settings and primary model choices cannot change in this
+and the parent plan/implementation identity and code history; the child's call
+log covers only new requests. `implementation_hash` names the code that created a
+run; `code_history` lists each later start under other code, with the stage
+states that start found. Upstream settings and primary model choices cannot change in this
 operation. Totals must include parent calls when reporting the whole workflow.
-A discussion planned under another protocol, such as `rq1-fa-dialogue-v2`, is
-refused; derive a base-review trial instead (see below).
+A discussion planned under another protocol, such as `rq1-fa-dialogue-v2` or
+`rq1-fa-dialogue-v3`, is refused; derive a base-review trial instead (see below).
 
 A user-cancelled parent can produce a linked continuation only when unfinished
 user-cancelled cases remain and no human decisions or baseline exist. Only those
@@ -141,10 +143,11 @@ recovery rules remain unchanged. The advanced option is initially collapsed in
 the Stakeholder roles setup. It does not add a stakeholder or a vote.
 
 The new **Base review** stage runs after consolidation (and its stepwise pause),
-before discussion. Policy `rq1-base-expert-v4` reviews current revisions sorted
+before discussion. Policy `rq1-base-expert-v5` reviews current revisions sorted
 by ID, in batches of up to four: one review generation and one independent check
 per batch. (`rq1-base-expert-v3` names an earlier version of these fixes whose
-prompts differ; only JRC `run-fd39639e` and StatDCAT `run-7211c6ec` used it.)
+prompts differ; only JRC `run-fd39639e` and StatDCAT `run-7211c6ec` used it.
+`rq1-base-expert-v4` differs from v5 only in the check of a domain use, see below.)
 Each generation allows at most one correction. It names the problems by the
 N/B/E aliases the model saw and shows the rejected answer when that answer met
 the output contract; an answer that failed the schema gets only its schema
@@ -199,10 +202,15 @@ changed catalogue pin refuses review.
 Wording, synonyms, examples, actor and purpose alone are not additions. A
 restatement must also pass the classifier's condition and stronger-obligation
 guards. The independent check answers two questions: `verdict_supported` (the
-verdict is right: cited entries share the resource and property meaning, no index
-entry (including a classifier match) names the information of a new need, or the
+verdict is right: the cited entries of a restatement share the resource and
+property meaning; those of a domain use share the property meaning, on the same
+resource unless the stated addition is another resource class; no index entry
+(including a classifier match) names the information of a new need; or the
 catalogue text is indeed insufficient) and
-`nothing_lost`. Both must be true before labels change; a failed check adds
+`nothing_lost`. Under `rq1-base-expert-v4` the check required the same resource
+for a domain use too, although the review prompt allows a domain use on another
+resource class, so such verdicts could only fail (2 of the 4 failed checks of JRC
+`run-934df8ba`, see Live results). Both must be true before labels change; a failed check adds
 `base_relation_review` and leaves labels unchanged. Policy v1 asked instead
 whether the entries express the need, which is false for a correct `new`
 verdict: in the JRC trial of 19–20 October 2026, 31 of its 35 failed checks
@@ -228,7 +236,7 @@ classifier state, exact entry and evidence IDs, pin, checkpoint and model, with
 `human_accepted: false`. Metadata refresh changes the integrity hash but not the
 need's content hash or revision ID.
 
-For opt-in runs, `rq1-fa-dialogue-v3` gives each discussion packet the compact
+For opt-in runs, the base-aware dialogue (`rq1-fa-dialogue-v2` to `-v4`) gives each discussion packet the compact
 review and pinned classifier-matched/reviewer-cited entry text. Stakeholders can
 identify additions the base lacks. A need labelled `covered_by_base` may be
 retained, disposed `covered_by_base` or deferred with a human question and
@@ -237,7 +245,7 @@ set aside) is refused. A need whose label the checked review removed is an
 ordinary working need and is not forced into deferral. The rule that a `dispute`
 requires a deferral with a human question applies only to cases planned under
 `rq1-fa-dialogue-v2`. Until 20 October 2026 deferral of a labelled need was
-refused too; in the JRC trial that rejected mediator drafts in 18 cases. Cases and their budgets are unchanged. Every revision created
+refused too; in the JRC trial that rejected mediator drafts in 18 cases. Cases are grouped as in v1; v4 budgets are described above. Every revision created
 by revise, merge, add, recover or split requires a new base check. After all
 cases, a second procedural pass reviews those current revisions before the final
 coverage ledger. Reviewed revisions clear `base_recheck_required`; unreviewed
@@ -308,15 +316,64 @@ revisions by internal IDs the model had never seen, and omitted the rejected pla
   mediation lists `salvage` audits by phase, and metrics count `salvaged_cases`.
 
 Offline replay of the 57 saved invalid plans (no model calls; the latest parsed
-plan of each case) gave: 10 valid after repairs, 14 salvaged (each keeping the
-mediator's disposition of every need; 67 concerns left to a person), 26 without
-a valid need disposition, and 7 without a parseable plan. That replay predates
-the narrower repair 3 and the rule that salvage keeps no addition, so fewer
-plans may now be valid after repairs. The guidance, corrections and salvage have
-not yet run live. v3 refuses to continue a
-discussion planned under v2 and refuses labels from an earlier base-review
-policy; derive a separate base-review trial instead. The legacy v1 protocol is
-unchanged.
+plan of each case) on the merged v3 code gave: 9 valid after repairs, 15 salvaged
+(no addition kept), 26 without a valid need disposition, and 7 without a
+parseable plan. (Before the narrower repair 3 and the rule that salvage keeps no
+addition, it gave 10 and 14.) The first live v3 discussion is reported under Live
+results. A discussion planned under an earlier version cannot continue, and
+labels from another base-review policy are refused; derive a separate
+base-review trial instead. The legacy v1 protocol is unchanged.
+
+### Stakeholder concerns, limits and set-asides (v4)
+
+`rq1-fa-dialogue-v4` keeps the v3 bookkeeping and changes what the first live v3
+discussion (JRC `run-934df8ba`, below) showed:
+
+- **Concern rules.** Every stakeholder prompt says that `revision_ids` name only
+  the needs N of the case, never an invented need or an action, question or
+  concern ID; that a missing need is proposed in `proposed_statement` of a scope
+  concern on the closest need; that `missing_evidence` means a missing source
+  passage, and no data catalogue or its records are given, so a role reports a
+  catalogue lacking a property only when a source passage says so; that MUST or
+  SHOULD wording is asked for only when a source passage states the obligation;
+  and that each issue is raised once, in at most four concerns, and a response
+  raises only new issues. In the v3 run 15 cases ended on a stakeholder review
+  that named IDs that are not needs of the case, and completed cases carried a
+  median of 15 concerns, many saying that "the current catalog" lacks a property.
+- **Draft references.** In a response round, a concern that names an action or
+  question of the draft it was shown (including a salvage review question) gets
+  the needs that action or question names, when they are needs of the case. The
+  attempt keeps the model's answer (`model_output`) and lists the
+  `concern_need_from_draft` repairs. An ID used twice in the draft with
+  different needs, an invented ID, or a mapping beyond four needs is not
+  repaired.
+- **Corrections.** A rejected stakeholder review gets sentences that name the
+  needs and excerpts it may cite, in its own aliases (for example "Concern 2
+  lists N4 in revision_ids, but the needs of this case are only N1, N2"). The
+  v3 correction showed only the validator's records; it fixed 10 of 25 reviews.
+- **Base absence.** The mediator and checker prompts say that a need the base
+  does not provide is a candidate requirement of the profile, never a reason to
+  set it aside; one v3 mediator set three needs aside because the base lacked
+  the property (the checker blocked it).
+- **Limits.** 53,000 characters of input (13 of the 14 v3 input-size stops were
+  45,118–50,262 characters), 16 generations (5 v3 cases ran out of 14), 128,000
+  reserved output tokens, and an 8,000-token first cap for mediation plans (all
+  38 v3 cut-off answers were plans at the 4,000-token cap; every 8,000-token
+  retry finished). The case and each phase record the limits used.
+- **Set-asides.** Cases include earlier set-asides for review. A set-aside of a
+  need that is already set aside is recorded as `already_set_aside`: not applied,
+  not counted as a mediated change, and no second set-aside record (in the v3
+  run, 5 of the 7 applied changes were such repeats). The set-aside contract now
+  admits the record a mediated set-aside writes (`mediated_fa_set_aside`,
+  `reversible`); before, a run holding one failed the validation of a discussion
+  continuation (any F/A protocol).
+- **Pending questions.** A case stopped by invalid output asks under
+  `invalid_output`; `budget` now names budget and input-size stops only.
+
+v4 refuses to continue a discussion planned under v2 or v3, and needs stage 6a
+labels of `rq1-base-expert-v5`: derive a base-review trial from an earlier run.
+These changes are tested offline only; their effect on live cases is not yet
+measured.
 
 ### Cheap trial from a saved machine inventory
 
@@ -360,21 +417,40 @@ python scripts/fa_base_report.py --api http://127.0.0.1:8013 --run <run-id> --ou
 
 ### Live results so far
 
-Two live runs (20 October 2026, KI:connect) used `rq1-base-expert-v3`, the
-earlier version of these fixes, and stopped after 6a; neither reached the
-discussion.
+All on KI:connect with `inferenz-gpt-oss-120b` for every step. Two runs (20
+October 2026) used `rq1-base-expert-v3`, the earlier version of these fixes, and
+stopped after 6a. JRC `run-934df8ba` was derived from `run-fd39639e` at 6a,
+reviewed under `rq1-base-expert-v4` and ran the first live discussion
+(`rq1-fa-dialogue-v3`, 20–21 October).
 
 | Run | Needs into 6a | Labelled by base check | Checked | Not reviewed | Check failed | Effects | Working after 6a |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| JRC `run-fd39639e` | 41 | 19 | 41 | 0 | 0 | 8 confirmed, 2 added, 11 removed, 17 agree, 3 note | 31 |
-| StatDCAT `run-7211c6ec` | 61 | 16 | 58 | 1 | 2 | 6 confirmed, 6 added, 8 removed, 36 agree, 4 note | 47 |
+| JRC `run-fd39639e` (v3) | 41 | 19 | 41 | 0 | 0 | 8 confirmed, 2 added, 11 removed, 17 agree, 3 note | 31 |
+| StatDCAT `run-7211c6ec` (v3) | 61 | 16 | 58 | 1 | 2 | 6 confirmed, 6 added, 8 removed, 36 agree, 4 note | 47 |
+| JRC `run-934df8ba` (v4) | 41 | 19 | 37 | 0 | 4 | 8 confirmed, 2 added, 10 removed, 15 agree, 6 note | 30 |
 
-In JRC the labels after 6a are exactly its 10 checked restatements (8 confirmed,
-2 added). In StatDCAT 2 of the 16 classifier labels were neither confirmed (6)
-nor removed (8), and the one invalid verdict left only its own need unreviewed. Both runs'
-6a labels come from v3 prompts, so a v3 discussion refuses them; derive a
-base-review trial from them to continue under v4 (about 22 and 32 review and
-check calls before corrections).
+In `run-fd39639e` the labels after 6a are exactly its 10 checked restatements (8
+confirmed, 2 added). In StatDCAT 2 of the 16 classifier labels were neither
+confirmed (6) nor removed (8), and the one invalid verdict left only its own need
+unreviewed. In `run-934df8ba` 2 of the 4 failed checks were domain uses on
+another resource class, which the v4 check could not pass (fixed in v5).
+
+The discussion of `run-934df8ba` built 91 cases: 38 completed, 5 salvaged (2
+additions rejected, not applied) and 48 pending human review (27 invalid output,
+19 budget, 2 single-need packets over the packet bound). Of the 19 budget stops,
+14 were inputs over 45,000 characters and 5 ran out of generations. 7 changes
+were applied, 5 of them set-asides of needs already set aside. It took 962
+calls (649 stakeholder review, 246 mediation, 52 checks), about 8.9M tokens and
+about 3 h 20 min. The v4 changes above address the 15 stakeholder reviews that
+named IDs outside the case, the input-size and generation stops, the cut-off
+plans and the repeated set-asides. They do not address the 6 draft plans that
+stayed invalid after correction, the 4 final plans that regressed to the
+round-1 concerns, or the check that returned the wrong number of checks. They
+are not yet run live.
+
+Labels of `rq1-base-expert-v3` or `-v4` are refused by the v4 discussion; derive
+a base-review trial from those runs to continue under v5 (27 review and check
+calls for JRC under v4; StatDCAT about 32 before corrections).
 
 ### Limits
 

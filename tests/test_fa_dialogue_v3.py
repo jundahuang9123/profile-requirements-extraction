@@ -1,4 +1,4 @@
-"""Synthetic tests of the rq1-fa-dialogue-v3 bookkeeping: no evaluation answers or live generation."""
+"""Synthetic tests of the bookkeeping added in rq1-fa-dialogue-v3 (kept in v4): no evaluation answers or live generation."""
 import json
 from copy import deepcopy
 import pytest
@@ -56,9 +56,9 @@ def sourced(data):
 
 
 def built(setup,count=2):
-    """A v3 case, its two needs, two saved concerns and the allowed evidence, for direct plan checks."""
+    """A base-aware case, its two needs, two saved concerns and the allowed evidence, for direct plan checks."""
     store,run=opted_in(setup,count);case=fd.build_cases(store,run,[],Dialogue())[0]
-    assert case['policy_version']=='rq1-fa-dialogue-v3'
+    assert case['policy_version']==fd.BASE_POLICY
     rids=case['revision_ids'];messages=[{'concerns':[{'concern_id':f'c{i+1}','revision_ids':[r]} for i,r in enumerate(rids)]}]
     return case,rids,messages,set(run['evidence_ids'])
 
@@ -88,7 +88,7 @@ def test_bookkeeping_slips_are_repaired_and_audited(setup):
             'summary':'Retained with an open question.'}
     client=Mediator(plans);fd.deliberate(store,run['run_id'],client)
     saved,case=case_of(store,run)
-    assert case['stop_reason']=='bounded_fa_dialogue_complete' and case['policy_version']=='rq1-fa-dialogue-v3'
+    assert case['stop_reason']=='bounded_fa_dialogue_complete' and case['policy_version']==fd.BASE_POLICY
     first=case['discussion_trace']['phases']['draft']['attempts'][0]
     assert first['errors']==[] and {r['kind'] for r in first['repairs']}=={'question_need_from_action','concern_links_question'}
     assert first['model_output']['questions'][0]['revision_ids']==['A1']
@@ -531,20 +531,21 @@ def test_a_v3_case_does_not_force_a_removed_label_to_defer(setup):
     assert fd.plan_errors(fd.Plan.model_validate(kept([n1,n2])),case,messages,allowed)==[]
 
 
-def test_v3_discussion_refuses_labels_of_rq1_base_expert_v3(setup):
+def test_the_discussion_refuses_labels_of_rq1_base_expert_v3(setup):
     store,run=opted_in(setup)
     def label(r):
         r['requirements'][0].update(base_relation={'policy':'rq1-base-expert-v3','status':'checked','verdict':'new','effect':'dispute'})
         r['requirements'][1].update(base_relation={'status':'not_reviewed'})  # no policy: reported, not a TypeError
     store.mutate(run['run_id'],None,'fixture_v3_label',label)
-    with pytest.raises(ValueError,match='Stage 6a ran under None, rq1-base-expert-v3; rq1-fa-dialogue-v3 needs rq1-base-expert-v4'):
+    with pytest.raises(ValueError,match='Stage 6a ran under None, rq1-base-expert-v3; rq1-fa-dialogue-v4 needs rq1-base-expert-v5'):
         fd.deliberate(store,run['run_id'],Mediator(retain_all))
 
 
-def test_a_discussion_planned_under_v2_is_refused_by_name(setup):
+@pytest.mark.parametrize('planned',['rq1-fa-dialogue-v2','rq1-fa-dialogue-v3'])
+def test_a_discussion_planned_under_an_earlier_version_is_refused_by_name(setup,planned):
     store,run=opted_in(setup)
-    old.save(store,run['run_id'],'fa_discussion_plan',{'policy_version':'rq1-fa-dialogue-v2'})
-    with pytest.raises(ValueError,match='planned under rq1-fa-dialogue-v2; the current protocol is rq1-fa-dialogue-v3. Derive a separate base-review trial'):
+    old.save(store,run['run_id'],'fa_discussion_plan',{'policy_version':planned})
+    with pytest.raises(ValueError,match=f'planned under {planned}; the current protocol is rq1-fa-dialogue-v4. Derive a separate base-review trial'):
         fd.deliberate(store,run['run_id'],Mediator(retain_all))
 
 
@@ -560,6 +561,9 @@ def test_a_stakeholder_review_with_structured_errors_gets_its_correction(setup):
             if len(self.review_systems)==1:raw['concerns'][0]['revision_ids']=['N99']
             return output_model.model_validate(raw)
     client=UnknownNeedFirst();fd.deliberate(store,run['run_id'],client)
-    assert 'Your previous answer was rejected: {' in client.review_systems[1] and '"unknown_need_ids":["N99"]' in client.review_systems[1]
+    # v4 names the valid IDs in the model's aliases (fd.review_feedback).
+    assert 'Your previous answer was rejected: {' in client.review_systems[1]
+    assert 'Concern 1 lists N99 in revision_ids, but the needs of this case are only N1, N2.' in client.review_systems[1]
+    assert 'rev-' not in client.review_systems[1].split('Your previous answer was rejected')[1]
     saved,case=case_of(store,run)
     assert case['stop_reason']=='bounded_fa_dialogue_complete'
