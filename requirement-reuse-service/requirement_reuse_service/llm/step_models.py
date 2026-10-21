@@ -31,6 +31,8 @@ CONTRACT_STEPS = {
     'Qualification': 'assessment', 'TaskGroups':'grouping',
     'BaseReview':'base_review', 'BaseReviewChecks':'base_review_check',
     'Review':'stakeholder_review','Plan':'mediation','Checks':'mediation_check',
+    # Task labels (rq1-fa-dialogue-v5) and the v6 contracts that extend Review and Plan.
+    'TaskLabels':'grouping','ExperienceReview':'stakeholder_review','ExperiencePlan':'mediation',
 }
 
 

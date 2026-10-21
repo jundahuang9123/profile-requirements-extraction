@@ -19,10 +19,13 @@ POLICY='rq1-fa-dialogue-v1'
 # stakeholder concern rules, repairs of draft references in concerns, correction
 # sentences that name the valid IDs, the mediator rule that a need the base lacks is
 # no reason to set it aside, and larger per-case limits. v5 forms cases by task across
-# the whole inventory, with shorter source windows (see task_groups). A discussion
-# planned under an earlier version cannot continue; derive a separate base-review trial.
-BASE_POLICY='rq1-fa-dialogue-v5'
-BASE_POLICIES={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4',BASE_POLICY}
+# the whole inventory, with shorter source windows (see task_groups). v6 lets roles add
+# claims from the practice of their role, which the mediator admits or excludes, and
+# records concerns the mediator does not answer as noted (see ExperienceReview). A
+# discussion planned under an earlier version cannot continue; derive a separate
+# base-review trial.
+BASE_POLICY='rq1-fa-dialogue-v6'
+BASE_POLICIES={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5',BASE_POLICY}
 SALVAGE_POLICY='rq1-fa-salvage-v1'
 def discussion_policy(run):
     return BASE_POLICY if run['request'].get('base_review') == 'expert_v1' else POLICY
@@ -36,7 +39,11 @@ MAX_CONTEXT=45000
 #   8,000-token retry finished; 5 cases ran out of their 14 generations.
 # 16 generations at caps of at most 8,000 tokens keep the generation count the binding
 # limit, as 14 x 8,000 = 112,000 did before.
-BASE_MAX_CONTEXT=53000
+# v6 adds the role cards (1,263 characters for the four roles of JRC run-e1e4810f) and,
+# with four roles, up to 16 experience claims and their decisions (about 11,000 at an
+# estimated 600 characters a claim) to discussion inputs. The claim size is an estimate,
+# not measured; each phase records its measured size, limit and wire hash.
+BASE_MAX_CONTEXT=66000
 BASE_MEDIATION_FIRST_CAP=8000
 BASE_CASE_LIMITS={'max_calls':16,'total_output_budget':128000,'max_seconds':1800}
 # v5 task cases. In JRC run-e1e4810f, 70 of 74 cases held a single need: grouping saw
@@ -73,13 +80,33 @@ CONCERN_GUIDANCE=(' Concern rules: revision_ids name only the needs N of this ca
     'report that a catalogue or its records lack a property unless a source passage says so. Do not ask for '
     'MUST or SHOULD wording unless a source passage states that obligation. Raise each issue once, in at most '
     'four concerns; in a response, raise only issues that the messages do not already contain.')
+# v6: in an expert discussion people bring their experience; the sources alone gave the
+# roles little to add (JRC run-e1e4810f and its GPT-OSS replay: about 1,000 concerns per
+# run, 50-60% of them missing_evidence). Experience is a separate kind of argument, never
+# a source.
+EXPERIENCE_GUIDANCE=(' Experience: besides concerns, you may add at most two experience claims from the practice of your '
+    'role, as your role card describes it (purpose, focus questions, stakeholders). Each names the task of your role it '
+    'comes from, describes your practice in that task ("When I ..., I ..."), and says what follows for the needs of this '
+    'case: keep, merge, split, drop, or missing_need with a proposed_statement. Speak only for your own role. Never name '
+    'or quote an existing application profile or vocabulary other than the base entries shown, and never invent laws, '
+    'figures, documents or citations. Add a query when the sources might support the claim. In a response, add only '
+    'claims that the messages do not already contain. An experience claim is not a source: the mediator decides whether '
+    'it belongs in this discussion.')
+# A claim that names a DCAT-AP extension or a national profile (HealthDCAT-AP, GeoDCAT-AP,
+# DCAT-AP-HVD, DCAT-AP-NO, DCAT-AP_IT, DCAT-AP.de, "Health DCAT-AP", "healthdcat-ap") is
+# rejected: experience must come from the role's practice, not from existing profiles. This
+# catches naming only, not recall in other words. "DCAT-AP-compliant" and the base itself
+# are not names of other profiles.
+PROFILE_NAME=re.compile(r'\b[A-Za-z]+DCAT(?:-AP)?\b|\bDCAT-AP(?:[-_][A-Z]{2,3}|\.de)\b'
+    r'|(?i:\b(?:health|geo|stat|mobility|breg)[ -]?dcat(?:-ap)?\b)')
 # In the JRC trials of 19-20 Oct 2026, 57 of 84 cases ended with an invalid plan; most
 # plans answered each stakeholder concern with an action that named no need, often a
 # set-aside or deferral of an addition the same plan had just invented.
 BASE_MEDIATOR_GUIDANCE=(' Plan bookkeeping: an action is the disposition of needs, never a reply to a concern. '
     'Name every need N in exactly one action\'s parent_revision_ids (merge and resolve name several needs); '
-    'only add names none. Answer every concern C exactly once in concerns: satisfied or addressed with the '
-    'action of its need, rejected_with_reason, or unresolved with a question. A question lists need IDs N in '
+    'only add names none. Answer a concern C in concerns only to reject it (rejected_with_reason) or to leave it '
+    'open with a question (unresolved); every other concern is recorded as noted against the action on its need. '
+    'A question lists need IDs N in '
     'revision_ids, never action or concern IDs, and concern IDs C in concern_ids; each listed concern lists '
     'that question in its question_ids. '
     'A need labelled covered_by_base is disposed covered_by_base, retained, or deferred with a question; it stays visible. '
@@ -89,11 +116,21 @@ BASE_MEDIATOR_GUIDANCE=(' Plan bookkeeping: an action is the disposition of need
     'to drop an idea, leave it out instead of adding it and then setting it aside or deferring it. '
     'The needs of a case share the task in packet.task: needs that state the same information, also from different '
     'sources, are merged into one need that keeps every condition, actor and source; needs that differ in information, '
-    'actor or condition stay separate.')
+    'actor or condition stay separate. '
+    'Experience claims X: decide each exactly once in experience. Admit a claim when it fits the task of this case and '
+    'the role card of the role that made it (roles), and no source passage contradicts it; exclude it otherwise, with the reason. '
+    'Only admitted claims may be cited in an action (experience_ids), and experience never replaces a source for a '
+    'changed need. A need proposed from experience alone goes to proposals (statement, experience_ids, closest needs N), '
+    'never to actions: it stays a proposal for a person. When a source passage in the packet supports it, write it as '
+    'an add with that source instead.')
 # v4: a JRC mediator set three needs aside "because the current DCAT-AP 1.1.0 catalogue
 # lacks the necessary dct:rights property" (run-934df8ba); the checker blocked it.
 BASE_CHECK_GUIDANCE=(' A set_aside or merge justified only by base coverage is not justified, nor is a set_aside '
     'justified by the base lacking the need.')
+# v6: the checker sees the experience claims in the messages and the mediator's decisions.
+EXPERIENCE_CHECK_GUIDANCE=(' Experience claims X in messages are arguments from practice, not sources: they never make a '
+    'changed need source-supported, and a disposition that relies on an admitted claim is justified only when no source '
+    'passage contradicts it.')
 
 
 class DiscussionBudgetError(ValueError):
@@ -126,6 +163,44 @@ class Action(old.MediatorAction):
 
 class Plan(old.MediationPlan):
     actions: list[Action] = Field(min_length=1,max_length=12)
+
+class ExperienceClaim(Contract):
+    kind: Literal['keep','merge','split','drop','missing_need']
+    revision_ids: list[str] = Field(default_factory=list,max_length=4,description='Needs N of this case the claim is about; '
+        'for missing_need the closest needs, possibly none.')
+    task: str = Field(min_length=1,max_length=240,description='The task of your role this experience comes from, as your role card states it.')
+    experience: str = Field(min_length=1,max_length=800,description='Your practice in that task ("When I ..., I ..."); not a source quote.')
+    claim: str = Field(min_length=1,max_length=800,description='What follows for the needs of this case.')
+    proposed_statement: str | None = Field(default=None,max_length=600,description='The missing need, for missing_need.')
+    query: str | None = Field(default=None,max_length=200,description='Words to search the frozen sources for support.')
+
+class ExperienceReview(Review):
+    """v6 stakeholder review: source-backed concerns plus at most two experience claims."""
+    experience: list[ExperienceClaim] = Field(default_factory=list,max_length=2)
+
+class ExperienceAction(Action):
+    experience_ids: list[str] = Field(default_factory=list,max_length=4,description='Admitted experience claims X this action relies on.')
+
+class ExperienceDecision(Contract):
+    claim_id: str
+    decision: Literal['admit','exclude']
+    rationale: str = Field(min_length=1,max_length=600)
+
+class ExperienceProposal(Contract):
+    proposal_id: str = Field(min_length=1,max_length=40)
+    statement: str = Field(min_length=1,max_length=600)
+    experience_ids: list[str] = Field(min_length=1,max_length=4)
+    revision_ids: list[str] = Field(default_factory=list,max_length=4,description='Closest needs N of this case.')
+    rationale: str = Field(min_length=1,max_length=600)
+
+class ExperiencePlan(Plan):
+    """v6 plan: need dispositions, a decision on every experience claim, and needs proposed from
+    experience alone, which are never applied."""
+    actions: list[ExperienceAction] = Field(min_length=1,max_length=12)
+    # Two claims per review in each of the two rounds: 64 covers 16 roles (panels select at
+    # most 8; a manual panel may name more).
+    experience: list[ExperienceDecision] = Field(default_factory=list,max_length=64)
+    proposals: list[ExperienceProposal] = Field(default_factory=list,max_length=4)
 
 class Check(old.MediatorCheck):
     fa_relevant: bool
@@ -211,11 +286,48 @@ def repair_plan(plan,case,messages):
         if not action.get('alternatives'):action['alternatives']=deepcopy(candidates[0]['alternatives']);filled.append('alternatives')
         repairs.append({'kind':'defer_fields_copied_from_linked_question','action_id':action['action_id'],
             'question_id':candidates[0]['question_id'],'fields':filled})
-    return Plan.model_validate(data),repairs
+    return type(plan).model_validate(data),repairs
+
+
+def noted_concern_errors(plan,messages,errors):
+    """v6: a concern the mediator does not answer is recorded as noted, so only an unknown or
+    repeated answer is an error, and question links are reciprocal for answered concerns."""
+    kept=[e for e in errors if not e.startswith('Account for every saved stakeholder concern exactly once')
+        and e!='Question and concern links must be reciprocal.']
+    concerns={c['concern_id'] for m in messages for c in m.get('concerns',[])}
+    stated=Counter(d.concern_id for d in plan.concerns)
+    unknown=sorted(set(stated)-concerns);repeated=sorted(k for k,v in stated.items() if v>1)
+    if unknown or repeated:
+        kept.append('Answer a saved stakeholder concern at most once: '+canonical({'unknown':unknown,'repeated':repeated}))
+    by_concern={d.concern_id:d for d in plan.concerns}
+    kept+=['Question and concern links must be reciprocal.' for q in plan.questions
+        if any(c in by_concern and q.question_id not in by_concern[c].question_ids for c in q.concern_ids)]
+    return kept
+
+
+def experience_plan_errors(plan,case,messages):
+    """v6: every experience claim is admitted or excluded once; only admitted claims support an
+    action or a proposal."""
+    claims=[x['claim_id'] for m in messages for x in m.get('experience',[])]
+    decided=Counter(d.claim_id for d in plan.experience);errors=[]
+    if set(decided)!=set(claims) or any(v!=1 for v in decided.values()):
+        errors.append('Decide every experience claim exactly once: '+canonical({'missing':sorted(set(claims)-set(decided)),
+            'unknown':sorted(set(decided)-set(claims)),'repeated':sorted(k for k,v in decided.items() if v>1)}))
+    admitted={d.claim_id for d in plan.experience if d.decision=='admit'}
+    if any(set(a.experience_ids)-admitted for a in plan.actions):errors.append('An action may cite only admitted experience claims.')
+    if any(v>1 for v in Counter(p.proposal_id for p in plan.proposals).values()):errors.append('Proposal IDs must be unique.')
+    # A proposal becomes an outcome row beside the actions, under its own ID.
+    if {p.proposal_id for p in plan.proposals}&{a.action_id for a in plan.actions}:errors.append('A proposal ID must differ from every action ID.')
+    for p in plan.proposals:
+        if set(p.experience_ids)-admitted:errors.append('A proposal needs admitted experience claims.')
+        if set(p.revision_ids)-set(case['revision_ids']):errors.append('A proposal names a need outside this case.')
+    return errors
 
 
 def plan_errors(plan,case,messages,allowed):
     errors=old.mediation_errors(plan,case['frozen_requirements'],messages,allowed)
+    if isinstance(plan,ExperiencePlan):
+        errors=noted_concern_errors(plan,messages,errors)+experience_plan_errors(plan,case,messages)
     for a in plan.actions:
         if case.get('policy_version') in BASE_POLICIES:
             parents=[r for r in case['frozen_requirements'] if r['revision_id'] in a.parent_revision_ids]
@@ -248,6 +360,36 @@ def action_errors(action,case,allowed):
     """The rules that concern one action alone: the same validators on a one-action plan."""
     alone=Plan(actions=[action],concerns=[],questions=[],summary='One action.')
     return [e for e in plan_errors(alone,case,[],allowed) if not e.startswith('Every current case parent')]
+
+
+def experience_feedback(plan,needs,messages):
+    """v6 correction notes on experience decisions, cited claims and proposals."""
+    claims=[x['claim_id'] for m in messages for x in m.get('experience',[])]
+    decided=Counter(d.claim_id for d in plan.experience)
+    admitted={d.claim_id for d in plan.experience if d.decision=='admit'};notes=[]
+    # An addition from experience alone has no passage to cite; it belongs in proposals.
+    notes+=[f'Action {a.action_id} (add) cites no source passage: a need proposed from experience alone goes to proposals, '
+        'with its experience_ids and closest needs, not to actions.' for a in plan.actions if a.action=='add' and not a.evidence_links]
+    for x in claims:
+        if not decided[x]:notes.append(f'Experience claim {x} has no decision: add exactly one experience entry for {x} '
+            '(admit or exclude, with the reason).')
+        elif decided[x]>1:notes.append(f'Experience claim {x} has {decided[x]} decisions: keep exactly one.')
+    notes+=[f'Decision {x} names no experience claim; remove it.' for x in decided if x not in claims]
+    for a in plan.actions:
+        bad=[x for x in dict.fromkeys(a.experience_ids) if x not in admitted]
+        if bad:notes.append(f'Action {a.action_id} cites {", ".join(bad)} in experience_ids, but the plan does not admit '
+            f'{"it" if len(bad)==1 else "them"}: cite only admitted claims.')
+    notes+=[f'Proposal ID {i} is used {c} times; proposal IDs must be unique.' for i,c in Counter(p.proposal_id for p in plan.proposals).items() if c>1]
+    notes+=[f'Proposal ID {p.proposal_id} is also an action ID; give the proposal its own ID.' for p in plan.proposals
+        if p.proposal_id in {a.action_id for a in plan.actions}]
+    for p in plan.proposals:
+        bad=[x for x in dict.fromkeys(p.experience_ids) if x not in admitted]
+        if bad:notes.append(f'Proposal {p.proposal_id} cites {", ".join(bad)}, which the plan does not admit: a proposal needs '
+            'admitted claims; otherwise leave it out.')
+        bad=[r for r in dict.fromkeys(p.revision_ids) if r not in needs]
+        if bad:notes.append(f'Proposal {p.proposal_id} lists {", ".join(bad)} in revision_ids, but the needs of this case are '
+            f'only {", ".join(needs)}.')
+    return notes
 
 
 def plan_feedback(plan,case,messages,allowed):
@@ -297,9 +439,12 @@ def plan_feedback(plan,case,messages,allowed):
             if e not in {'Non-addition requires a current parent.','Addition cannot replace an existing parent.'}]
     notes+=[f'Action ID {i} is used {c} times; action IDs must be unique.' for i,c in Counter(a.action_id for a in plan.actions).items() if c>1]
     stated=Counter(d.concern_id for d in plan.concerns)
+    # v6 records a concern the plan does not answer as noted, so only a repeated answer is a problem.
+    noted=isinstance(plan,ExperiencePlan)
     for c in concerns:
-        if not stated[c]:notes.append(f'Concern {c} has no disposition: add exactly one concerns entry for {c}.')
-        elif stated[c]>1:notes.append(f'Concern {c} has {stated[c]} dispositions: keep exactly one.')
+        if not stated[c] and not noted:notes.append(f'Concern {c} has no disposition: add exactly one concerns entry for {c}.')
+        elif stated[c]>1:notes.append(f'Concern {c} has {stated[c]} dispositions: keep '+('at most one.' if noted else 'exactly one.'))
+    if noted:notes+=experience_feedback(plan,needs,messages)
     notes+=[f'Disposition {c} names no saved concern; remove it.' for c in stated if c not in concerns]
     notes+=[f'Question ID {i} is used {c} times; question IDs must be unique.' for i,c in Counter(q.question_id for q in plan.questions).items() if c>1]
     for q in plan.questions:
@@ -339,18 +484,27 @@ def salvage_plan(plan,case,messages,allowed):
     person. Concern dispositions consistent with what was kept are kept; every other
     concern is left unresolved for a person. No statement or source is written here.
     Dropped actions keep their full proposal in the audit and are shown for review.
+    v6 (ExperiencePlan): only a concern the plan answered inconsistently goes to the system
+    question, since an unanswered concern is noted as in a valid plan; a claim without exactly
+    one decision is excluded by the system; an action or proposal that cites a claim the plan
+    does not validly admit is dropped.
     Returns (plan or None, audit).
     """
-    data=plan.model_dump(mode='json')
+    data=plan.model_dump(mode='json');v6=isinstance(plan,ExperiencePlan)
     needs=[r['revision_id'] for r in case['frozen_requirements']]
+    claims=list(dict.fromkeys(x['claim_id'] for m in messages for x in m.get('experience',[])))
+    decided=Counter(d['claim_id'] for d in data.get('experience',[]))
+    valid={d['claim_id']:d for d in data.get('experience',[]) if d['claim_id'] in claims and decided[d['claim_id']]==1}
+    admitted={x for x,d in valid.items() if d['decision']=='admit'}
     rows=data['actions'];ids=Counter(a['action_id'] for a in rows);problems=[]
     for a in rows:
-        found=action_errors(Action.model_validate(a),case,allowed)
+        found=action_errors((ExperienceAction if v6 else Action).model_validate(a),case,allowed)
         # In the JRC trials 18 of 27 actions that named no need set aside or deferred an
         # invented addition; applying an addition from the rest of the plan can undo that.
         if a['action']=='add':found.append('Additions are not applied from a salvaged plan.')
         if ids[a['action_id']]>1:found.append('Repeated action ID.')
         if set(a['parent_revision_ids'])-set(needs):found.append('Names a need outside this case.')
+        if set(a.get('experience_ids',[]))-admitted:found.append('Cites experience the plan does not validly admit.')
         problems.append(found)
     for n in needs:
         naming=[i for i,a in enumerate(rows) if n in a['parent_revision_ids']]
@@ -370,7 +524,8 @@ def salvage_plan(plan,case,messages,allowed):
         'human_accepted':False}
     if not covered:
         return None,{**audit,'status':'not_salvaged','reason':'No need has a valid disposition.'}
-    used=set(ids);used_questions={q['question_id'] for q in data['questions']}
+    # System IDs avoid the plan's proposal IDs too, since proposals become outcome rows.
+    used=set(ids)|{p['proposal_id'] for p in data.get('proposals',[])};used_questions={q['question_id'] for q in data['questions']}
     def fresh(prefix,taken):
         i=1
         while f'{prefix}-{i}' in taken:i+=1
@@ -403,9 +558,11 @@ def salvage_plan(plan,case,messages,allowed):
             kept_rows[cid]=d
     kept_questions=[]
     for q in data['questions']:
-        listed=[c for c in q['concern_ids'] if c in kept_rows and q['question_id'] in kept_rows[c]['question_ids']]
+        # v6: a question may also list a concern the plan does not answer (it is noted).
+        listed=[c for c in q['concern_ids'] if (c in kept_rows and q['question_id'] in kept_rows[c]['question_ids'])
+            or (v6 and c not in stated)]
         if q['question_id'] in questions and listed:kept_questions.append({**q,'concern_ids':listed})
-    replaced=[c for c in concern_ids if c not in kept_rows]
+    replaced=[c for c in concern_ids if c not in kept_rows and (not v6 or c in stated)]
     review=None
     if replaced:
         related=[n for n in needs if any(n in c['revision_ids'] for c in saved if c['concern_id'] in replaced)] or deferred or needs
@@ -414,14 +571,27 @@ def salvage_plan(plan,case,messages,allowed):
             'alternatives':['Keep the needs as they are','Revise the needs to answer the concerns'],
             'rationale':'System salvage: these concern dispositions were missing or inconsistent with the kept actions.'}
     concerns=[kept_rows.get(c) or {'concern_id':c,'status':'unresolved','action_ids':[],'question_ids':[review['question_id']],
-        'rationale':'System salvage: the mediator gave this concern no valid disposition; a person reviews it.'} for c in concern_ids]
+        'rationale':'System salvage: the mediator gave this concern no valid disposition; a person reviews it.'}
+        for c in concern_ids if c in kept_rows or c in replaced]
     audit.update(status='salvaged',deferred_revision_ids=deferred,system_action_ids=[d['action_id'] for d in defers],
         replaced_concern_ids=replaced,system_question_id=review['question_id'] if review else None,
         dropped_question_ids=[q['question_id'] for q in data['questions'] if q['question_id'] not in {k['question_id'] for k in kept_questions}])
     note=' [Salvaged: invalid parts are deferred to human review.]'
+    body={'actions':kept+defers,'concerns':concerns,'questions':kept_questions+([review] if review else []),
+        'summary':data['summary'][:1800-len(note)]+note}
+    if v6:
+        # A claim keeps its one valid decision; any other claim is excluded, and a proposal
+        # stays only on admitted claims and needs of this case.
+        listed=Counter(p['proposal_id'] for p in data['proposals'])
+        proposals=[p for p in data['proposals'] if listed[p['proposal_id']]==1 and set(p['experience_ids'])<=admitted
+            and set(p['revision_ids'])<=set(needs) and p['proposal_id'] not in ids]
+        body.update(experience=[valid.get(x) or {'claim_id':x,'decision':'exclude','rationale':'System salvage: the '
+            'mediator plan gave this claim no valid decision; it is excluded from this discussion.'} for x in claims],
+            proposals=proposals)
+        audit.update(system_excluded_claim_ids=[x for x in claims if x not in valid],
+            dropped_proposal_ids=[p['proposal_id'] for p in data['proposals'] if p not in proposals])
     try:
-        partial=Plan.model_validate({'actions':kept+defers,'concerns':concerns,'questions':kept_questions+([review] if review else []),
-            'summary':data['summary'][:1800-len(note)]+note})
+        partial=type(plan).model_validate(body)
     except ValueError as exc:
         return None,{**audit,'status':'not_salvaged','reason':'Salvaged plan exceeds the plan contract: '+str(exc)[:300]}
     errors=plan_errors(partial,case,messages,allowed)
@@ -436,31 +606,59 @@ def repair_review(answer,case,draft):
     including a salvage review question, where a need belongs (JRC run-934df8ba). Only IDs
     of the draft shown to the role are mapped, to exactly the needs that action or question
     names. An ID the model invented ("N4" in a one-need case, "M1") is never guessed.
+    v6 experience claims name needs the same way and are mapped by the same rule, and a v6
+    draft's proposal ("P1") maps to the closest needs it names, when it names any.
     """
     data=answer.model_dump(mode='json');repairs=[]
     # The needs the validator accepts (stakeholder_review_errors).
     needs=set(case['revision_ids'])
     targets={}
     for key,field,rows in (('action_id','parent_revision_ids',(draft or {}).get('actions',[])),
-                           ('question_id','revision_ids',(draft or {}).get('questions',[]))):
+                           ('question_id','revision_ids',(draft or {}).get('questions',[])),
+                           ('proposal_id','revision_ids',(draft or {}).get('proposals',[]))):
         for row in rows:
             ids=list(row.get(field) or [])
             # An ID used twice in the draft with different needs is ambiguous and not mapped.
             targets[row[key]]=ids if targets.get(row[key],ids)==ids else None
-    for i,concern in enumerate(data['concerns']):
-        linked=[];mapped=[]
-        for rid in concern['revision_ids']:
-            to=targets.get(rid) if rid not in needs else None
-            if to and set(to)<=needs:
-                # As in repair_plan: deduplicate only what the mapping adds.
-                linked+=[p for p in to if rid in mapped or (p not in linked and p not in concern['revision_ids'])]
-                mapped.append(rid)
-            else:linked.append(rid)
-        if mapped and len(linked)<=4:
-            concern['revision_ids']=linked
-            repairs.extend({'kind':'concern_need_from_draft','concern_index':i,'from':rid,'to':list(targets[rid])}
-                for rid in dict.fromkeys(mapped))
-    return Review.model_validate(data),repairs
+    for kind,index,items in (('concern_need_from_draft','concern_index',data['concerns']),
+                             ('experience_need_from_draft','experience_index',data.get('experience',[]))):
+        for i,item in enumerate(items):
+            linked=[];mapped=[]
+            for rid in item['revision_ids']:
+                to=targets.get(rid) if rid not in needs else None
+                if to and set(to)<=needs:
+                    # As in repair_plan: deduplicate only what the mapping adds.
+                    linked+=[p for p in to if rid in mapped or (p not in linked and p not in item['revision_ids'])]
+                    mapped.append(rid)
+                else:linked.append(rid)
+            if mapped and len(linked)<=4:
+                item['revision_ids']=linked
+                repairs.extend({'kind':kind,index:i,'from':rid,'to':list(targets[rid])} for rid in dict.fromkeys(mapped))
+    return type(answer).model_validate(data),repairs
+
+
+def experience_problems(answer,needs):
+    """v6: problems of a role's experience claims, as (index, sentence); Review has none."""
+    problems=[]
+    for i,x in enumerate(getattr(answer,'experience',[])):
+        bad=list(dict.fromkeys(r for r in x.revision_ids if r not in needs))
+        if bad:problems.append((i,f'it lists {", ".join(bad)} in revision_ids, but the needs of this case are only '
+            f'{", ".join(needs)}; for a need the case lacks, use kind missing_need with proposed_statement.'))
+        if x.kind=='missing_need' and not (x.proposed_statement or '').strip():
+            problems.append((i,'it is missing_need but has no proposed_statement: write the missing need there.'))
+        if x.kind!='missing_need' and not x.revision_ids:
+            problems.append((i,f'it is {x.kind} but names no need: list the needs N it is about.'))
+        if x.kind=='merge' and len(set(x.revision_ids))<2:
+            problems.append((i,'it is merge but names fewer than two needs: list the needs to merge, or use another kind.'))
+        named=sorted({m.group() for text in (x.task,x.experience,x.claim,x.proposed_statement or '',x.query or '')
+            for m in PROFILE_NAME.finditer(text)})
+        if named:problems.append((i,f'it names {", ".join(named)}: never name an existing application profile; describe '
+            'the practice of your own role.'))
+    return problems
+
+
+def experience_errors(answer,case):
+    return [f'Experience claim {i+1}: {p}' for i,p in experience_problems(answer,list(case['revision_ids']))]
 
 
 def review_feedback(answer,case,allowed):
@@ -480,6 +678,7 @@ def review_feedback(answer,case,allowed):
             'on the closest need.')
         bad=list(dict.fromkeys(e for e in concern.evidence_ids if e not in allowed))
         if bad:notes.append(f'Concern {i+1} cites {", ".join(bad)}, but the excerpts of this packet are only {excerpts}.')
+    notes+=[f'Experience claim {i+1}: {problem}' for i,problem in experience_problems(answer,needs)]
     return notes or None
 
 
@@ -700,6 +899,9 @@ def execute_case(store,run_id,case_id,client,roles):
     from ..llm.client import OutputValidationError, OutputTokenLimitError
     run=store.get_run(run_id,parts=False)
     policy=discussion_policy(run)
+    # v6 roles may add experience claims, which the mediator decides on.
+    v6=policy==BASE_POLICY
+    review_model=ExperienceReview if v6 else Review;plan_model=ExperiencePlan if v6 else Plan
     case=next(c for c in run['deliberations'] if c['case_id']==case_id)
     if case['status']=='mediated':return
     trace=deepcopy(case['discussion_trace']);packet=deepcopy(trace['packet'])
@@ -787,8 +989,11 @@ def execute_case(store,run_id,case_id,client,roles):
             aliases.update({f'B{i+1}':eid for i,eid in enumerate(sorted(packet.get('base_entries',{})))})
         aliases.update({f'E{i+1}':eid for i,eid in enumerate(sorted(allowed))})
         aliases.update({f'C{i+1}':cid for i,cid in enumerate(dict.fromkeys(c['concern_id'] for m in payload.get('messages',[]) for c in m.get('concerns',[])))})
+        if v6:aliases.update({f'X{i+1}':xid for i,xid in enumerate(dict.fromkeys(
+            x['claim_id'] for m in payload.get('messages',[]) for x in m.get('experience',[])))})
         if policy in BASE_POLICIES:
             system += BASE_ROLE_GUIDANCE+CONCERN_GUIDANCE if step=='stakeholder_review' else BASE_MEDIATOR_GUIDANCE if step=='mediation' else BASE_CHECK_GUIDANCE if step=='mediation_check' else ''
+        if v6:system += EXPERIENCE_GUIDANCE if step=='stakeholder_review' else EXPERIENCE_CHECK_GUIDANCE if step=='mediation_check' else ''
         identity=digest([policy,key,step,system,payload,aliases,model.model_json_schema(),model_identity(bound)])
         saved=phases.get(key)
         if saved:
@@ -825,7 +1030,7 @@ def execute_case(store,run_id,case_id,client,roles):
             measured=len(wire)
             limit=BASE_MAX_CONTEXT if policy==BASE_POLICY else MAX_CONTEXT
             first_cap=BASE_MEDIATION_FIRST_CAP if policy==BASE_POLICY and step=='mediation' else 4000
-            saved['context_budget']={'policy_version':'rq1-fa-context-budget-case-v2' if policy==BASE_POLICY else 'rq1-fa-context-budget-case-v1',
+            saved['context_budget']={'policy_version':'rq1-fa-context-budget-case-v3' if policy==BASE_POLICY else 'rq1-fa-context-budget-case-v1',
                 'internal_characters':len(canonical(payload)),'wire_characters':len(wire),
                 'measured_characters':measured,'limit_characters':limit,'wire_hash':digest(wire),
                 **({'output_tokens':{'first':first_cap,'retry':8000}} if policy==BASE_POLICY else {})}
@@ -864,6 +1069,17 @@ def execute_case(store,run_id,case_id,client,roles):
                 raw=answer.model_dump(mode='json');answer,repairs=repair_review(answer,case,payload['draft'])
                 if repairs:attempt.update(model_output=raw,repairs=repairs)
             errors=validate(answer) if validate else []
+            if errors and v6 and step=='stakeholder_review' and len(saved['attempts'])==1:
+                # Last attempt: experience claims that stay invalid are left out, so an optional
+                # claim cannot take the role's source-backed concerns, and the case, with it.
+                problems=experience_problems(answer,list(case['revision_ids']))
+                removed=sorted({i for i,_ in problems})
+                kept=answer.model_copy(update={'experience':[x for i,x in enumerate(answer.experience) if i not in removed]})
+                if removed and not validate(kept):
+                    attempt.setdefault('model_output',answer.model_dump(mode='json'))
+                    attempt.update(rejected_errors=errors,experience_removed=[{'index':i,'claim':answer.experience[i].model_dump(mode='json'),
+                        'problems':[p for j,p in problems if j==i]} for i in removed])
+                    answer,errors=kept,[]
             attempt={'output':answer.model_dump(mode='json'),'errors':errors,**attempt}
             if errors and policy==BASE_POLICY:attempt['feedback']=(explain(answer) if explain else None) or errors
             saved['attempts'].append(attempt)
@@ -891,33 +1107,46 @@ def execute_case(store,run_id,case_id,client,roles):
         return deepcopy(row)
     messages=[]
     role_map={r['id']:r for r in roles}
+    review_errors=lambda a:old.stakeholder_review_errors(a,case,allowed)+experience_errors(a,case)
     for role_id in case['participants']:
         # Independent positions: never include earlier roles' answers.
-        answer=call('initial:'+role_id,'stakeholder_review',Review,WRITE_GUIDANCE+
+        answer=call('initial:'+role_id,'stakeholder_review',review_model,WRITE_GUIDANCE+
             ' Give an independent stakeholder position: source-supported task, satisfaction, missing distinction, '
             'interference and remedy. No invented weights or endorsement. No concern is valid. '
             'Offer at most two specific queries if a missing source passage is needed. Return Review JSON.',
             {'role':role_map[role_id],'packet':packet,'messages':[]},
-            lambda a:old.stakeholder_review_errors(a,case,allowed),lambda a:review_feedback(a,case,allowed))
+            review_errors,lambda a:review_feedback(a,case,allowed))
         messages.append(saved_message('initial:'+role_id,role_id,1,answer))
     trace['initial_positions']=deepcopy(messages)
     if 'expanded_packet' in trace:
         packet=deepcopy(trace['expanded_packet'])
     else:
-        queries=list(dict.fromkeys(q for role_id in case['participants'] for q in phases['initial:'+role_id]['output'].get('evidence_queries',[])))
+        outputs=[phases['initial:'+role_id]['output'] for role_id in case['participants']]
+        if v6:
+            # Each role's source queries, then the queries of its experience claims, taken in turn
+            # across roles so that every role is searched within the bound of retrieve_frozen.
+            asked=[[*o.get('evidence_queries',[]),*[x['query'] for x in o.get('experience',[]) if (x.get('query') or '').strip()]] for o in outputs]
+            queries=list(dict.fromkeys(row[i] for i in range(max(map(len,asked),default=0)) for row in asked if i<len(row)))
+        else:queries=list(dict.fromkeys(q for o in outputs for q in o.get('evidence_queries',[])))
         rows,retrieval=retrieve_frozen(store,run,queries,packet['excerpts'])
         packet['excerpts'].extend(rows);trace.update(expanded_packet=deepcopy(packet),retrieval=retrieval)
         persist()
     allowed={e['evidence_id'] for e in packet['excerpts']}
     trace['issues']=[deepcopy(c) for m in messages for c in m['concerns']]
-    base_system=WRITE_GUIDANCE+(' Mediate needs, not stakeholder rank. Account for every current need exactly once and '
-        'every concern exactly once with reciprocal action/question links. Preserve conditions and distinct needs. '
+    if v6:trace['experience_claims']=[deepcopy(x) for m in messages for x in m.get('experience',[])]
+    accounting=('Account for every current need exactly once; answer concerns and decide experience claims as the plan '
+        'bookkeeping says. ' if v6 else 'Account for every current need exactly once and every concern exactly once with '
+        'reciprocal action/question links. ')
+    base_system=WRITE_GUIDANCE+(' Mediate needs, not stakeholder rank. '+accounting+'Preserve conditions and distinct needs. '
         'Use source-supported priority only; otherwise defer with alternatives and a human question. '
         'retain/revise/split/merge/add/recover/covered_by_base/reversible set_aside/defer are provisional. '
         'A set-aside must have a review question. A covered_by_base decision requires an existing checked base match. '
         'Do not force consensus or interpret silence as approval. Return Plan JSON.')
+    # v6: the mediator judges whether a claim fits the role that made it, so it sees the role cards.
+    cards={'roles':[{'id':r['id'],'label':r.get('label'),'purpose':r.get('purpose'),'focus_questions':r.get('focus_questions',[]),
+        'stakeholders':(r.get('source_basis') or {}).get('stakeholders',[])} for r in (role_map[i] for i in case['participants'])]} if v6 else {}
     def mediate(key,payload):
-        try:return call(key,'mediation',Plan,base_system,payload,lambda a:plan_errors(a,case,messages,allowed),
+        try:return call(key,'mediation',plan_model,base_system,{**payload,**cards},lambda a:plan_errors(a,case,messages,allowed),
             lambda a:plan_feedback(a,case,messages,allowed))
         except DiscussionValidationError as exc:
             if policy!=BASE_POLICY:raise
@@ -926,7 +1155,7 @@ def execute_case(store,run_id,case_id,client,roles):
             if not latest:raise
             source,index,output=latest[-1]
             # Deterministic from the saved attempts, so a resumed case rebuilds the same plan.
-            partial,audit=salvage_plan(Plan.model_validate(output),case,messages,allowed)
+            partial,audit=salvage_plan(plan_model.model_validate(output),case,messages,allowed)
             if key not in trace.setdefault('salvage',{}):
                 trace['salvage'][key]={**audit,'phase':key,'source_phase':source,'source_attempt':index+1,'error':str(exc)[:600]}
                 persist('fa_mediation_salvage')
@@ -937,18 +1166,22 @@ def execute_case(store,run_id,case_id,client,roles):
     # New objections or proposed changes trigger a response even if the initial role said finished.
     changed={p for a in draft.actions if a.action not in {'retain','covered_by_base'} for p in a.parent_revision_ids}
     objections={p for m in messages for c in m['concerns'] if c['kind'] not in {'satisfied','support'} for p in c['revision_ids']}
+    # v6: experience that would change a need counts as an objection, and a need proposed from
+    # experience is put to every role.
+    objections|={p for m in messages for x in m.get('experience',[]) if x['kind']!='keep' for p in x['revision_ids']}
+    proposed=bool(getattr(draft,'proposals',None))
     target=changed|objections
-    if target:
+    if target or proposed:
         for role_id in case['participants']:
-            own=[c for m in messages if m['role_id']==role_id for c in m['concerns']]
+            own=[c for m in messages if m['role_id']==role_id for c in [*m['concerns'],*m.get('experience',[])]]
             # Every stakeholder may be affected by another stakeholder's interference claim.
-            if not changed and not any(c['kind']=='interference' for c in trace['issues']) and not any(set(c['revision_ids'])&target for c in own):continue
-            answer=call('response:'+role_id,'stakeholder_review',Review,WRITE_GUIDANCE+
+            if not changed and not proposed and not any(c['kind']=='interference' for c in trace['issues']) and not any(set(c['revision_ids'])&target for c in own):continue
+            answer=call('response:'+role_id,'stakeholder_review',review_model,WRITE_GUIDANCE+
                 ' Review the mediator draft and peer issues for your documented task. Identify new or unresolved '
                 'interference, unsupported changes or satisfaction; do not repeat approval of unchanged issues. '
                 'An earlier finished flag does not close a new issue. Return Review JSON.',
                 {'role':role_map[role_id],'packet':packet,'draft':draft.model_dump(mode='json'),'messages':messages},
-                lambda a:old.stakeholder_review_errors(a,case,allowed),lambda a:review_feedback(a,case,allowed))
+                review_errors,lambda a:review_feedback(a,case,allowed))
             messages.append(saved_message('response:'+role_id,role_id,2,answer));trace['targeted_roles'].append(role_id)
     final=mediate('final',{'packet':packet,'draft':draft.model_dump(mode='json'),'messages':messages}) if trace['targeted_roles'] else draft
     if recovery.get('status')=='in_progress':
@@ -986,6 +1219,11 @@ def execute_case(store,run_id,case_id,client,roles):
             outcomes.append({**deepcopy(d['proposal']),'status':'human_review','applied':False,'human_accepted':False,
                 'salvage_rejected':True,'validation_errors':list(d['problems']),
                 'human_question':'This mediator action failed validation and was not applied: '+'; '.join(d['problems'])+(' Its question: '+hq if hq else '')})
+    if v6:outcomes+=proposal_rows(final,messages)
+    # v6: a set-aside that rests on admitted experience says so in its observation, so results
+    # can be reported without experience.
+    aside_experience={p:list(o['experience_ids']) for o in outcomes if o.get('status')=='set_aside' and o.get('applied')
+        and o.get('experience_ids') for p in o['parent_revision_ids']}
     # A need that stays set aside is listed as before, when it was set aside again.
     unchanged={p for o in outcomes if o.get('status')=='already_set_aside' for p in o['parent_revision_ids']}
     trace['after_revision_ids']=[rid for rid in case['revision_ids'] if rid not in asides and rid not in replacements and rid not in unchanged]+[r['revision_id'] for r in additions]
@@ -1006,27 +1244,62 @@ def execute_case(store,run_id,case_id,client,roles):
                 rec['lifecycle_state']='set_aside'
                 r['set_aside_observations'].append({'revision_id':rid,'need_id':rec['requirement_id'],
                     'observation_id':(rec.get('observation_ids') or [''])[0],'role_id':'evidence_mediator',
-                    'reason':'mediated_fa_set_aside','rationale':asides[rid],'reversible':True,'restored':False})
+                    'reason':'mediated_fa_set_aside','rationale':asides[rid],'reversible':True,'restored':False,
+                    **({'experience_ids':aside_experience[rid]} if rid in aside_experience else {})})
         r['requirements'].extend(additions)
         r['active_revision_ids']=[rid for rid in r['active_revision_ids'] if rid not in replacements and rid not in asides]+[x['revision_id'] for x in additions]
         for conflict in r['conflicts']:
             if set(conflict['revision_ids'])&set(replacements):conflict['status']='open'
         salvaged={k:v for k,v in trace.get('salvage',{}).items() if v.get('status')=='salvaged'}
+        # Exclusions the salvage made, not the mediator, are marked as the system's.
+        system=set(salvaged.get(applied,{}).get('system_excluded_claim_ids',[]))
         row.update(messages=deepcopy(messages),status='mediated',
             stop_reason='bounded_fa_dialogue_salvaged' if applied in salvaged else 'bounded_fa_dialogue_complete',
             mediation={**row['mediation'],'phase':'completed','summary':final.summary,'outcomes':outcomes,
                 'human_questions':[q.model_dump(mode='json') for q in final.questions],
-                'concern_dispositions':[c.model_dump(mode='json') for c in final.concerns],
+                'concern_dispositions':[c.model_dump(mode='json') for c in final.concerns]+(noted_concerns(final,messages) if v6 else []),
+                **({'experience_decisions':[{**d.model_dump(mode='json'),**({'system':True} if d.claim_id in system else {})}
+                    for d in final.experience]} if v6 else {}),
                 **({'salvage':deepcopy(salvaged)} if salvaged else {}),
                 'completed_at':now(),'human_accepted':False})
     store.mutate(run_id,None,'fa_mediation_transaction',commit)
 
 
+def noted_concerns(plan,messages):
+    """v6: each concern the plan does not answer. One that a question lists stays open
+    (unresolved); any other is noted against the actions on its needs."""
+    answered={d.concern_id for d in plan.concerns};rows=[]
+    for m in messages:
+        for c in m.get('concerns',[]):
+            if c['concern_id'] in answered:continue
+            asked=[q.question_id for q in plan.questions if c['concern_id'] in q.concern_ids]
+            rows.append({'concern_id':c['concern_id'],'status':'unresolved' if asked else 'noted','derived':True,
+                'action_ids':[a.action_id for a in plan.actions if set(a.parent_revision_ids)&set(c['revision_ids'])],
+                'question_ids':asked,'rationale':'Recorded by the system: the mediator did not answer this concern'+(
+                    ' but asks about it, so it stays open.' if asked else ', so it is noted against the actions on its needs.')})
+    return rows
+
+
+def proposal_rows(plan,messages):
+    """v6: needs proposed from admitted experience alone, as review rows that are never applied."""
+    roles={x['claim_id']:m['role_id'] for m in messages for x in m.get('experience',[])}
+    return [{'action_id':p.proposal_id,'action':'experience_proposal','status':'experience_proposal','parent_revision_ids':[],
+        'related_revision_ids':list(p.revision_ids),'statement':p.statement,'rationale':p.rationale,
+        'experience_ids':list(p.experience_ids),'role_ids':sorted({roles[x] for x in p.experience_ids if x in roles}),
+        'applied':False,'human_accepted':False,
+        'human_question':'Roles proposed this need from their experience; no source passage in the case supports it. Add it after review, or leave it out?',
+        'alternatives':['Leave it out','Add it after review']} for p in plan.proposals]
+
+
 def message(case_id,role_id,round_no,answer,policy=POLICY):
-    return {'message_id':uid('message',case_id,round_no,role_id),'role_id':role_id,'round':round_no,
+    row={'message_id':uid('message',case_id,round_no,role_id),'role_id':role_id,'round':round_no,
         'body':answer.summary,'finished':answer.finished,'policy_version':policy,
         'evidence_ids':sorted({e for c in answer.concerns for e in c.evidence_ids}),
         'concerns':[{**c.model_dump(mode='json'),'concern_id':uid('concern',case_id,round_no,role_id,i)} for i,c in enumerate(answer.concerns)],'created_at':now()}
+    # v6: experience claims are kept apart from concerns; they cite no source.
+    if isinstance(answer,ExperienceReview):
+        row['experience']=[{**x.model_dump(mode='json'),'claim_id':uid('experience',case_id,round_no,role_id,i)} for i,x in enumerate(answer.experience)]
+    return row
 
 
 def apply(store,run,case,plan,checks,client,allowed):
@@ -1061,7 +1334,8 @@ def apply(store,run,case,plan,checks,client,allowed):
                 expanded=[Action(**{**child.model_dump(mode='json'),'action':'revise','parent_revision_ids':list(a.parent_revision_ids)}) for child in a.children]
             temporary=[];local_replacements={};failed=False
             for action in expanded:
-                data=action.model_dump(mode='json',exclude={'children'})
+                # Experience links stay on the outcome row; the routed verifier sees the change alone.
+                data=action.model_dump(mode='json',exclude={'children','experience_ids'})
                 data['action']='revise' if action.action=='recover' else action.action
                 wire=old.MediatorAction.model_validate(data)
                 try:
@@ -1172,6 +1446,19 @@ def deliberate(store,run_id,client):
             mediated_changes=sum(o.get('applied',False) for o in outcomes),active_count=len(r['active_revision_ids']),accepted_count=0)
         if policy==BASE_POLICY:
             r['metrics']['salvaged_cases']=sum(c.get('stop_reason')=='bounded_fa_dialogue_salvaged' for c in r['deliberations'])
+            # Experience is a separate kind of argument; its use is counted apart, over completed cases.
+            done=[c for c in r['deliberations'] if c.get('mediation',{}).get('phase')=='completed']
+            decisions=[d for c in done for d in c['mediation'].get('experience_decisions',[])]
+            r['metrics'].update(experience_claims=sum(len(m.get('experience',[])) for c in done for m in c.get('messages',[])),
+                experience_admitted=sum(d['decision']=='admit' for d in decisions),
+                experience_excluded=sum(d['decision']=='exclude' and not d.get('system') for d in decisions),
+                experience_excluded_by_system=sum(bool(d.get('system')) for d in decisions),
+                # Rows a salvage rejected keep the claims they cited but were never applied.
+                experience_actions=sum(bool(o.get('experience_ids')) for o in outcomes
+                    if o.get('action')!='experience_proposal' and not o.get('salvage_rejected')),
+                experience_applied_changes=sum(bool(o.get('experience_ids')) and o.get('applied',False) for o in outcomes),
+                experience_proposals=sum(o.get('status')=='experience_proposal' for o in outcomes),
+                noted_concerns=sum(d.get('status')=='noted' for c in done for d in c['mediation'].get('concern_dispositions',[])))
         pending=sum(c.get('mediation',{}).get('phase')!='completed' for c in r['deliberations'])
         if pending:r['diagnostics']=list(dict.fromkeys([*r.get('diagnostics',[]),f'{pending} discussion case(s) require preparation or additional review; no unsupported revision was applied.']))
         r['stakeholder_audit']['fa_coverage']=final_coverage

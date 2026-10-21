@@ -1,10 +1,10 @@
-"""Synthetic tests of the rules added in rq1-fa-dialogue-v4 (kept in v5): no evaluation answers or live generation."""
+"""Synthetic tests of the rules added in rq1-fa-dialogue-v4 (kept through v6): no evaluation answers or live generation."""
 import json
 import pytest
 from test_routed_stakeholder_workflow import setup  # noqa: F401  (pytest fixture)
-from test_fa_workflow import Dialogue
+from test_fa_workflow import Dialogue, contract_name
 from test_base_review import prepared
-from test_fa_dialogue_v3 import Mediator, opted_in, retain_all, ids, case_of, built
+from test_fa_dialogue_v3 import Mediator, opted_in, retain_all, ids, case_of, built, plan_model  # noqa: F401  (fixture)
 from requirement_reuse_service.workflow import base_review as br, fa_discussion as fd, stakeholder_workflow as old
 from requirement_reuse_service.workflow.models import WorkflowRun
 
@@ -13,8 +13,8 @@ class Recording(Mediator):
     """Records the system prompt of every stakeholder review and the output cap of every call."""
     def __init__(self,plans,objection=True):super().__init__(plans,objection=objection);self.review_systems=[];self.caps=[]
     def generate_structured(self,*,user,output_model,system='',step=None,**kw):
-        self.caps.append((output_model.__name__,kw.get('max_tokens')))
-        if output_model.__name__=='Review':self.review_systems.append(system)
+        self.caps.append((contract_name(output_model),kw.get('max_tokens')))
+        if contract_name(output_model)=='Review':self.review_systems.append(system)
         return super().generate_structured(user=user,output_model=output_model,system=system,step=step,**kw)
 
 
@@ -23,8 +23,8 @@ def caps(client,*names):
 
 
 def test_policy_names():
-    assert fd.BASE_POLICY=='rq1-fa-dialogue-v5' and br.POLICY=='rq1-base-expert-v5'
-    assert fd.BASE_POLICIES=={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5'}
+    assert fd.BASE_POLICY=='rq1-fa-dialogue-v6' and br.POLICY=='rq1-base-expert-v5'
+    assert fd.BASE_POLICIES=={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5','rq1-fa-dialogue-v6'}
 
 
 def test_stakeholders_get_the_concern_rules_and_plans_start_at_8000_tokens(setup):
@@ -37,7 +37,7 @@ def test_stakeholders_get_the_concern_rules_and_plans_start_at_8000_tokens(setup
     assert caps(client,'Plan')=={8000} and caps(client,'Review','Checks')=={4000}
     phases=case['discussion_trace']['phases']
     draft=phases['draft']['context_budget']
-    assert draft['policy_version']=='rq1-fa-context-budget-case-v2' and draft['limit_characters']==53000
+    assert draft['policy_version']=='rq1-fa-context-budget-case-v3' and draft['limit_characters']==66000
     assert draft['output_tokens']=={'first':8000,'retry':8000}
     assert phases['check']['context_budget']['output_tokens']=={'first':4000,'retry':8000}
     # Two needs: the v4 limits plus one extra need's share (v5).
@@ -112,7 +112,7 @@ class NamesDraftAction(Mediator):
     """In its response, the first concern names the draft's action A2 instead of the need."""
     def generate_structured(self,*,user,output_model,system='',step=None,**kw):
         answer=super().generate_structured(user=user,output_model=output_model,system=system,step=step,**kw)
-        if output_model.__name__!='Review' or not json.loads(user).get('draft'):return answer
+        if contract_name(output_model)!='Review' or not json.loads(user).get('draft'):return answer
         raw=answer.model_dump(mode='json')
         raw['concerns'][0].update(revision_ids=['A2'],kind='scope',proposed_statement='Users can find the licence of a distribution.')
         return output_model.model_validate(raw)
@@ -224,12 +224,12 @@ def test_a_mediated_set_aside_is_applied_and_its_record_validates(setup):
     WorkflowRun.model_validate(saved)
 
 
-def test_feedback_tells_an_add_that_rewords_a_need_to_revise_it(setup):
+def test_feedback_tells_an_add_that_rewords_a_need_to_revise_it(setup,plan_model):
     # GPT-OSS-only JRC replay: 8 of 13 drafts that stayed invalid wrote a lone add, were told
     # "N1 is in no action", then named N1 in the add ("Addition cannot replace an existing parent").
     case,(n1,n2),messages,allowed=built(setup)
     link=dict(case['frozen_requirements'][0]['evidence_links'][0])
-    lone=fd.Plan.model_validate({'actions':[{'action_id':'A1','action':'add','statement':'Users can find the licence of a dataset.',
+    lone=plan_model.model_validate({'actions':[{'action_id':'A1','action':'add','statement':'Users can find the licence of a dataset.',
             'evidence_links':[link],'rationale':'Reworded.'},{'action_id':'A2','action':'retain','parent_revision_ids':[n2],'rationale':'Kept.'}],
         'concerns':[{'concern_id':'c1','status':'addressed','action_ids':['A1'],'rationale':'Reworded.'},
             {'concern_id':'c2','status':'satisfied','action_ids':['A2'],'rationale':'Kept.'}],'summary':'Draft.'})
@@ -238,7 +238,7 @@ def test_feedback_tells_an_add_that_rewords_a_need_to_revise_it(setup):
         f'existing need: if A1 rewords {n1}, write it as revise of {n1} with the statement and its sources; if it is a further '
         f'need, keep {n1} with its own retain action.') in notes
     data=lone.model_dump(mode='json');data['actions'][0]['parent_revision_ids']=[n1]
-    named=fd.Plan.model_validate(data)
+    named=plan_model.model_validate(data)
     assert 'Addition cannot replace an existing parent.' in fd.plan_errors(named,case,messages,allowed)
     notes=fd.plan_feedback(named,case,messages,allowed)
     assert (f'Action A1 (add) names {n1}, but an add never names an existing need. To reword {n1}, make A1 a revise of {n1} '
@@ -246,7 +246,7 @@ def test_feedback_tells_an_add_that_rewords_a_need_to_revise_it(setup):
         'A1 no parent_revision_ids.') in notes
     assert not any('Addition cannot replace an existing parent.' in x for x in notes)
     data['actions'][0]['parent_revision_ids']=[n1,n2];data['actions']=data['actions'][:1]
-    assert any('make A1 a merge of them' in x for x in fd.plan_feedback(fd.Plan.model_validate(data),case,messages,allowed))
+    assert any('make A1 a merge of them' in x for x in fd.plan_feedback(plan_model.model_validate(data),case,messages,allowed))
     # A plan without additions keeps the plain note.
     assert f'{n1} is in no action: write exactly one action that names {n1} in parent_revision_ids.' in fd.plan_feedback(
-        fd.Plan.model_validate({**lone.model_dump(mode='json'),'actions':[lone.actions[1].model_dump(mode='json')]}),case,messages,allowed)
+        plan_model.model_validate({**lone.model_dump(mode='json'),'actions':[lone.actions[1].model_dump(mode='json')]}),case,messages,allowed)

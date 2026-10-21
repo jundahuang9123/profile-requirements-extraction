@@ -18,6 +18,12 @@ def enable(store,run):
     store.mutate(run['run_id'],None,'fixture_fa',change)
     return store.get('run',run['run_id'])
 
+def contract_name(model):
+    """rq1-fa-dialogue-v6 asks for ExperienceReview and ExperiencePlan, which extend Review and
+    Plan; scripted clients answer them alike."""
+    return {'ExperienceReview':'Review','ExperiencePlan':'Plan'}.get(model.__name__,model.__name__)
+
+
 class Dialogue:
     def __init__(self,objection=False,set_aside=False):self.calls=[];self.objection=objection;self.set_aside=set_aside;self.step=None
     def describe(self):return {'provider':'scripted','model':self.step or 'fixture'}
@@ -28,7 +34,7 @@ class Dialogue:
             def generate_structured(self,**kw):return parent.generate_structured(**kw,step=step)
         return Bound()
     def generate_structured(self,*,user,output_model,step=None,**kwargs):
-        data=json.loads(user);name=output_model.__name__;self.calls.append((step,name,data))
+        data=json.loads(user);name=contract_name(output_model);self.calls.append((step,name,data))
         if name=='TaskGroups':raw={'groups':[{'task':'Find contact and access conditions','revision_ids':[n['revision_id'] for n in data['needs']], 'rationale':'Same source-supported dataset selection task.'}]}
         # rq1-fa-dialogue-v5 labels needs by task; one shared label gives the same single case.
         elif name=='TaskLabels':raw={'labels':[{'need':a,'task':'Find contact and access conditions'} for a in data['needs']]}
@@ -113,7 +119,7 @@ def test_final_mediator_transport_resume_reuses_saved_phases_with_longer_timeout
 
         def generate_structured(self, *, user, output_model, step=None, **kwargs):
             data = json.loads(user)
-            if output_model.__name__ == 'Plan' and data.get('draft') and self.fail_final:
+            if contract_name(output_model) == 'Plan' and data.get('draft') and self.fail_final:
                 raise LLMError('ReadTimeout: no response accepted')
             return super().generate_structured(user=user, output_model=output_model,
                                                step=step, **kwargs)
