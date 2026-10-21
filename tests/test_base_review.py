@@ -675,3 +675,26 @@ def test_the_check_lets_a_domain_use_be_on_another_resource_class():
     assert 'for restates_base the cited entries are about the same resource and property meaning' in br.CHECK_SYSTEM
     assert 'for domain_use_of_base they have the same property meaning, on the same resource unless the stated addition is another resource class' in br.CHECK_SYSTEM
     assert 'restates_base and domain_use_of_base' not in br.CHECK_SYSTEM
+
+
+class SupportedButLost(Reviewer):
+    """The checker agrees with the verdict but answers nothing_lost=false (JRC run-e1e4810f)."""
+    def generate_structured(self,*,user,output_model,**kw):
+        out=super().generate_structured(user=user,output_model=output_model,**kw)
+        if output_model==br.BaseReviewChecks:
+            return output_model(checks=[{**c.model_dump(),'nothing_lost':False} for c in out.checks])
+        return out
+
+
+@pytest.mark.parametrize('verdict,status',[('new','checked'),('uncertain','checked'),
+    ('restates_base','check_failed'),('domain_use_of_base','check_failed')])
+def test_nothing_lost_decides_only_restatements_and_domain_uses(setup,verdict,status):
+    store,run,_=prepared(setup)
+    def label(r):r['requirements'][0]['processing_flags']=[*r['requirements'][0].get('processing_flags',[]),'covered_by_base']
+    store.mutate(run['run_id'],None,'fixture_label',label)
+    br.review_base(store,store.get('run',run['run_id']),SupportedButLost(verdict))
+    n=store.get('run',run['run_id'])['requirements'][0]
+    assert n['base_relation']['status']==status and n['base_relation']['check']['nothing_lost'] is False
+    # A checked new verdict removes the label; a failed check keeps it.
+    assert ('covered_by_base' in n['processing_flags'])==(verdict!='new')
+    assert 'for new and uncertain always true' in br.CHECK_SYSTEM

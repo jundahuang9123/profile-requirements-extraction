@@ -210,7 +210,10 @@ catalogue text is indeed insufficient) and
 `nothing_lost`. Under `rq1-base-expert-v4` the check required the same resource
 for a domain use too, although the review prompt allows a domain use on another
 resource class, so such verdicts could only fail (2 of the 4 failed checks of JRC
-`run-934df8ba`, see Live results). Both must be true before labels change; a failed check adds
+`run-934df8ba`, see Live results). For `new` and `uncertain` verdicts v5 uses
+`verdict_supported` alone: `nothing_lost` adds nothing there, and in JRC
+`run-e1e4810f` 3 of 6 failed checks agreed with a new verdict but answered
+`nothing_lost=false`, which kept a wrong label. Otherwise both must be true before labels change; a failed check adds
 `base_relation_review` and leaves labels unchanged. Policy v1 asked instead
 whether the entries express the need, which is false for a correct `new`
 verdict: in the JRC trial of 19–20 October 2026, 31 of its 35 failed checks
