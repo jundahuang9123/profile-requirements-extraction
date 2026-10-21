@@ -628,7 +628,7 @@ The base search (`rq1-base-needs-full-search-v3`) changes in three ways:
 
 Runs saved under earlier policies need a derived trial from their extraction.
 
-The opt-in [procedural base reviewer](FA-COVERAGE-DISCUSSION.md#optional-procedural-base-reviewer-discussion-v2)
+The opt-in [procedural base reviewer](FA-COVERAGE-DISCUSSION.md#optional-procedural-base-reviewer)
 labels restatements against the run's pinned base catalogue before discussion,
 then rechecks discussion-created revisions. It keeps every reviewed need in the
 inventory; checked restatements leave only the working count. Legacy v1 runs

@@ -141,20 +141,25 @@ def coverage_ledger(run):
         'limitations':['Processing coverage is not semantic requirement completeness.','Machine judgements are not human acceptance.']}
 
     if run.get('request',{}).get('base_review')=='expert_v1':
-        from .base_review import POLICY as BASE_POLICY, REVIEW_SYSTEM, CHECK_SYSTEM
+        from .base_review import POLICY as BASE_POLICY, REVIEW_SYSTEM, CHECK_SYSTEM, label_removed, legacy_dispute
         phases=run.get('stage_results',{}).get('base_review',{}).get('phases',{})
         result['base_relation_counts']={phase:{
             'verdict':dict(Counter(row.get('verdict','not_reviewed') for row in data.get('results',[]))),
-            'effect':dict(Counter(row.get('effect',row.get('status')) for row in data.get('results',[])))}
+            # Effects by the recorded policy too: run-fd39639e's 11 v3 "dispute" results are removed labels.
+            'effect':dict(Counter('flag_removed' if label_removed(row) else row.get('effect',row.get('status')) for row in data.get('results',[])))}
             for phase,data in phases.items()}
         covered=[r for r in inventory if 'covered_by_base' in r.get('processing_flags',[])]
         result['covered_by_base_by_source']={
             'classifier':[r['revision_id'] for r in covered if not r.get('base_relation') or r['base_relation'].get('classifier_state',{}).get('covered_by_base')],
             'base_review':[r['revision_id'] for r in covered if (r.get('base_relation') or {}).get('effect')=='flag_added']}
-        result['base_dispute_revision_ids']=[r['revision_id'] for r in inventory if (r.get('base_relation') or {}).get('effect')=='dispute']
+        # Read by the recorded policy: rq1-base-expert-v3 wrote "dispute" for a removed label (JRC run-fd39639e: 11).
+        result['base_dispute_revision_ids']=[r['revision_id'] for r in inventory if legacy_dispute(r.get('base_relation'))]
+        result['base_label_removed_revision_ids']=[r['revision_id'] for r in inventory if label_removed(r.get('base_relation'))]
         result['base_recheck_revision_ids']=[r['revision_id'] for r in inventory if 'base_recheck_required' in r.get('processing_flags',[])]
         result['base_review_pending_revision_ids']=[r['revision_id'] for r in inventory if 'base_review_pending' in r.get('processing_flags',[])]
-        result['contract_hash']=digest([result['contract_hash'],BASE_POLICY,REVIEW_SYSTEM,CHECK_SYSTEM])
+        # Bind the current prompts only to records made under them; run-fd39639e ran rq1-base-expert-v3 prompts.
+        recorded=run.get('stage_results',{}).get('base_review',{}).get('policy_version') or BASE_POLICY
+        result['contract_hash']=digest([result['contract_hash'],BASE_POLICY,REVIEW_SYSTEM,CHECK_SYSTEM] if recorded==BASE_POLICY else [result['contract_hash'],recorded])
     return result
 
 class PreservationCheck(Contract):

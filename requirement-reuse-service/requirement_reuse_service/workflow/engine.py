@@ -455,6 +455,9 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
         from .needs import POLICIES
         run.needs_policies = dict(POLICIES)
         pin_base_needs_catalogue(run)
+    # The model default is 'skipped'; a derived opt-in run showed stage 6a as skipped
+    # although it ran the review.
+    run.stages['base_review'] = 'pending' if settings.base_review == 'expert_v1' else 'skipped'
     for stage in ('acquisition', 'decomposition', 'role_selection', 'elicitation'):
         if (restart_extraction and stage == 'elicitation') or (reselect_panel and stage == 'role_selection'):
             continue

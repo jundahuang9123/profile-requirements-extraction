@@ -452,7 +452,7 @@
           "items": {
             "type": "string"
           },
-          "maxItems": 4,
+          "maxItems": 12,
           "title": "Entry Ids",
           "type": "array"
         },
@@ -460,7 +460,7 @@
           "items": {
             "type": "string"
           },
-          "maxItems": 4,
+          "maxItems": 12,
           "title": "Evidence Ids",
           "type": "array"
         },

@@ -12,17 +12,35 @@ from ..llm.step_models import for_step, model_identity
 from .fa_requirements import WRITE_GUIDANCE, coverage_ledger
 
 POLICY='rq1-fa-dialogue-v1'
+# Base-aware dialogue for runs with the procedural base review. v2 (19 Oct 2026) is
+# superseded by v3: audited bookkeeping repairs, corrections that show the rejected
+# plan with item-level problems in the model's own aliases, explicit plan bookkeeping
+# guidance, and salvage of valid need dispositions. A v2 discussion cannot continue
+# under v3; derive a separate base-review trial.
+BASE_POLICY='rq1-fa-dialogue-v3'
+BASE_POLICIES={'rq1-fa-dialogue-v2',BASE_POLICY}
+SALVAGE_POLICY='rq1-fa-salvage-v1'
 def discussion_policy(run):
-    return 'rq1-fa-dialogue-v2' if run['request'].get('base_review') == 'expert_v1' else POLICY
+    return BASE_POLICY if run['request'].get('base_review') == 'expert_v1' else POLICY
 
 MESSAGE_REPLAY_POLICY='rq1-fa-message-replay-v1'
 MAX_CONTEXT=45000
-V2_ROLE_GUIDANCE=(' The base entries show what the selected base already provides. Say when your task needs '
+BASE_ROLE_GUIDANCE=(' The base entries show what the selected base already provides. Say when your task needs '
     'something a listed entry lacks; do not ask for a listed base property as a new requirement.')
-V2_MEDIATOR_GUIDANCE=(' A need labelled covered_by_base is disposed covered_by_base, retained, or deferred with a question; it stays visible. '
+# In the JRC trials of 19-20 Oct 2026, 57 of 84 cases ended with an invalid plan; most
+# plans answered each stakeholder concern with an action that named no need, often a
+# set-aside or deferral of an addition the same plan had just invented.
+BASE_MEDIATOR_GUIDANCE=(' Plan bookkeeping: an action is the disposition of needs, never a reply to a concern. '
+    'Name every need N in exactly one action\'s parent_revision_ids (merge and resolve name several needs); '
+    'only add names none. Answer every concern C exactly once in concerns: satisfied or addressed with the '
+    'action of its need, rejected_with_reason, or unresolved with a question. A question lists need IDs N in '
+    'revision_ids, never action or concern IDs, and concern IDs C in concern_ids; each listed concern lists '
+    'that question in its question_ids. '
+    'A need labelled covered_by_base is disposed covered_by_base, retained, or deferred with a question; it stays visible. '
     'Do not reword a need only to restate a base entry. Base coverage alone never justifies set_aside '
-    'or merging into a different need. Where the base reviewer and base classifier disagree, defer with a question.')
-V2_CHECK_GUIDANCE=' A set_aside or merge justified only by base coverage is not justified.'
+    'or merging into a different need. Propose add only for a source-supported need you keep; to drop an idea, '
+    'leave it out instead of adding it and then setting it aside or deferring it.')
+BASE_CHECK_GUIDANCE=' A set_aside or merge justified only by base coverage is not justified.'
 
 
 class DiscussionBudgetError(ValueError):
@@ -57,12 +75,94 @@ class Checks(Contract):
     checks: list[Check] = Field(max_length=12)
 
 
+def repair_plan(plan,case,messages):
+    """Deterministic bookkeeping repairs of a mediator plan; audited, never new content.
+
+    In the JRC discussions of 19-20 October 2026 many invalid plans were bookkeeping
+    slips around a sound disposition. Only these are repaired:
+    1. a question that links a plan action ID instead of a need gets that action's needs
+       (only what the mapping adds is deduplicated; an ID the model repeated stays repeated);
+    2. question/concern links are made reciprocal when one side already names the other;
+    3. in a plan without additions, an action without a need that no concern disposition
+       links and that carries no statement, condition, source, priority, alternative, child
+       or question is a note rather than a disposition, and is dropped;
+    4. empty defer fields are copied from their unique, fully linked question (the
+       routed workflow's existing rule).
+    Anything else, including unclear parents or missing alternatives, stays invalid: an
+    action that names no need is never guessed onto one, and a parentless action with
+    content goes to correction and, if it stays, to review.
+    """
+    data=plan.model_dump(mode='json');repairs=[]
+    parents={r['revision_id'] for r in case['frozen_requirements']}
+    actions={a['action_id']:a for a in data['actions']}
+    for q in data.get('questions',[]):
+        linked=[];mapped=[]
+        for rid in q['revision_ids']:
+            target=actions.get(rid) if rid not in parents else None
+            if target and target['parent_revision_ids'] and set(target['parent_revision_ids'])<=parents:
+                # Deduplicate only what the mapping adds: a repeated need or action the model wrote
+                # stays repeated and invalid (review probe: [N1, N1, A2] became valid, unaudited).
+                linked+=[p for p in target['parent_revision_ids'] if rid in mapped or (p not in linked and p not in q['revision_ids'])]
+                mapped.append(rid)
+            else:linked.append(rid)
+        if mapped and len(linked)<=4:
+            q['revision_ids']=linked
+            repairs.extend({'kind':'question_need_from_action','question_id':q['question_id'],'action_id':rid} for rid in dict.fromkeys(mapped))
+    by_question={q['question_id']:q for q in data.get('questions',[])}
+    by_concern={c['concern_id']:c for c in data.get('concerns',[])}
+    for q in data.get('questions',[]):
+        for cid in q['concern_ids']:
+            row=by_concern.get(cid)
+            if row is not None and q['question_id'] not in row['question_ids'] and len(row['question_ids'])<8:
+                row['question_ids'].append(q['question_id'])
+                repairs.append({'kind':'concern_links_question','concern_id':cid,'question_id':q['question_id']})
+    for row in data.get('concerns',[]):
+        for qid in row['question_ids']:
+            q=by_question.get(qid)
+            if q is not None and row['concern_id'] not in q['concern_ids'] and len(q['concern_ids'])<64:
+                q['concern_ids'].append(row['concern_id'])
+                repairs.append({'kind':'question_links_concern','concern_id':row['concern_id'],'question_id':qid})
+    referenced={i for row in data.get('concerns',[]) for i in row['action_ids']}
+    # Only an empty note is dropped. Dropping any unlinked parentless action applied an
+    # addition whose set-aside withdrew it (scenario s1) and removed a sourced revise with
+    # its human question, unreviewed (probe R5).
+    # A priority source, condition or alternatives are content too (review probe: each was dropped).
+    note=lambda a:(not a['parent_revision_ids'] and a['action_id'] not in referenced and not a['statement'].strip()
+        and not a['evidence_links'] and not a.get('children') and not a.get('human_question') and not a['priority_links']
+        and not (a.get('priority_basis') or '').strip() and not a['condition'].strip() and not a['alternatives'])
+    kept=data['actions'] if any(a['action']=='add' for a in data['actions']) else [a for a in data['actions'] if not note(a)]
+    if kept and len(kept)<len(data['actions']):
+        repairs.extend({'kind':'dropped_unlinked_action_without_need','action_id':a['action_id'],'action':a['action']}
+            for a in data['actions'] if a not in kept)
+        data['actions']=kept
+    # Same rule as stakeholder_workflow.repair_defer_from_linked_question, on F/A actions
+    # (which carry split children that the routed contract does not allow).
+    for action in data['actions']:
+        if action['action']!='defer' or (action.get('human_question') and action.get('alternatives')):continue
+        needs=set(action.get('parent_revision_ids') or [])
+        if not needs:continue
+        candidates=[q for q in data.get('questions',[]) if set(q.get('revision_ids') or [])==needs and q.get('concern_ids')
+            and q.get('question') and q.get('alternatives') and {row['concern_id'] for row in data.get('concerns',[])
+                if action['action_id'] in row.get('action_ids',[]) and q['question_id'] in row.get('question_ids',[])
+                and row['concern_id'] in q['concern_ids']}==set(q['concern_ids'])]
+        if len(candidates)!=1:continue
+        filled=[]
+        if not action.get('human_question'):action['human_question']=candidates[0]['question'];filled.append('human_question')
+        if not action.get('alternatives'):action['alternatives']=deepcopy(candidates[0]['alternatives']);filled.append('alternatives')
+        repairs.append({'kind':'defer_fields_copied_from_linked_question','action_id':action['action_id'],
+            'question_id':candidates[0]['question_id'],'fields':filled})
+    return Plan.model_validate(data),repairs
+
+
 def plan_errors(plan,case,messages,allowed):
     errors=old.mediation_errors(plan,case['frozen_requirements'],messages,allowed)
     for a in plan.actions:
-        if case.get('policy_version')=='rq1-fa-dialogue-v2':
+        if case.get('policy_version') in BASE_POLICIES:
             parents=[r for r in case['frozen_requirements'] if r['revision_id'] in a.parent_revision_ids]
-            if any((r.get('base_relation') or {}).get('effect')=='dispute' for r in parents):
+            # Only rq1-base-expert-v2 kept a disputed label, so only a v2 case defers a dispute.
+            # rq1-base-expert-v3 saved 'dispute' with the label already removed (JRC run-fd39639e:
+            # 11 needs); keyed on the effect alone, every such need was forced to defer.
+            if case.get('policy_version')=='rq1-fa-dialogue-v2' and any((r.get('base_relation') or {}).get('effect')=='dispute' for r in parents):
                 if a.action!='defer' or not a.human_question:
                     errors.append('Base classifier/reviewer dispute requires defer with a human question.')
             # Deferral keeps the need visible and asks a person (defer still needs its question and
@@ -82,6 +182,176 @@ def plan_errors(plan,case,messages,allowed):
         if a.action=='set_aside' and not a.human_question:
             errors.append('Reversible set-aside needs a visible review question.')
     return errors
+
+
+def action_errors(action,case,allowed):
+    """The rules that concern one action alone: the same validators on a one-action plan."""
+    alone=Plan(actions=[action],concerns=[],questions=[],summary='One action.')
+    return [e for e in plan_errors(alone,case,[],allowed) if not e.startswith('Every current case parent')]
+
+
+def plan_feedback(plan,case,messages,allowed):
+    """Item-level correction notes; the validators above still decide validity.
+
+    v2 returned rule names only ("Question and concern links must be reciprocal.") with
+    internal revision IDs and without the rejected plan; 12 of 61 corrected JRC plans
+    became valid.
+    """
+    needs=[r['revision_id'] for r in case['frozen_requirements']]
+    concerns=[c['concern_id'] for m in messages for c in m.get('concerns',[])]
+    actions={a.action_id:a for a in plan.actions};questions={q.question_id:q for q in plan.questions}
+    dispositions={d.concern_id:d for d in plan.concerns};notes=[]
+    # A repeated link inside one list fails its validator but had no note, so the
+    # correction never named it beside the other notes (scenario s4).
+    def repeated(kind,item,row,fields):
+        for field in fields:
+            twice=[i for i,c in Counter(getattr(row,field)).items() if c>1]
+            if twice:notes.append(f'{kind} {item} lists {", ".join(twice)} more than once in {field}; list each ID once.')
+    for n in needs:
+        named=[a.action_id for a in plan.actions if n in a.parent_revision_ids]
+        if not named:notes.append(f'{n} is in no action: write exactly one action that names {n} in parent_revision_ids.')
+        elif len(named)>1:notes.append(f'{n} is named by actions {", ".join(named)}: name it in exactly one action.')
+    for a in plan.actions:
+        unknown=[p for p in a.parent_revision_ids if p not in needs]
+        if unknown:notes.append(f'Action {a.action_id} names {", ".join(unknown)}, which is not a need of this case.')
+        if a.action!='add' and not a.parent_revision_ids:
+            notes.append(f'Action {a.action_id} ({a.action}) names no need. Name the need it disposes, or remove it and '
+                'answer the concern in concerns (rejected_with_reason, or unresolved with a question). '
+                'To drop a proposed addition, omit its add action.')
+        notes+=[f'Action {a.action_id} ({a.action}): {e}' for e in action_errors(a,case,allowed)
+            if e!='Non-addition requires a current parent.']
+    notes+=[f'Action ID {i} is used {c} times; action IDs must be unique.' for i,c in Counter(a.action_id for a in plan.actions).items() if c>1]
+    stated=Counter(d.concern_id for d in plan.concerns)
+    for c in concerns:
+        if not stated[c]:notes.append(f'Concern {c} has no disposition: add exactly one concerns entry for {c}.')
+        elif stated[c]>1:notes.append(f'Concern {c} has {stated[c]} dispositions: keep exactly one.')
+    notes+=[f'Disposition {c} names no saved concern; remove it.' for c in stated if c not in concerns]
+    notes+=[f'Question ID {i} is used {c} times; question IDs must be unique.' for i,c in Counter(q.question_id for q in plan.questions).items() if c>1]
+    for q in plan.questions:
+        repeated('Question',q.question_id,q,('revision_ids','concern_ids'))
+        bad=[r for r in q.revision_ids if r not in needs]
+        if bad:notes.append(f'Question {q.question_id} lists {", ".join(bad)} in revision_ids; list only need IDs there.')
+        bad=[c for c in q.concern_ids if c not in concerns]
+        if bad:notes.append(f'Question {q.question_id} lists {", ".join(bad)} in concern_ids, which are not saved concerns.')
+        for c in q.concern_ids:
+            if c in dispositions and q.question_id not in dispositions[c].question_ids:
+                notes.append(f'Question {q.question_id} lists {c}, so the disposition of {c} must list {q.question_id} in question_ids.')
+    for d in plan.concerns:
+        repeated('Concern',d.concern_id,d,('action_ids','question_ids'))
+        bad=[i for i in d.action_ids if i not in actions]
+        if bad:notes.append(f'Concern {d.concern_id} links {", ".join(bad)}, which is not an action ID of this plan.')
+        bad=[i for i in d.question_ids if i not in questions]
+        if bad:notes.append(f'Concern {d.concern_id} links {", ".join(bad)}, which is not a question ID of this plan.')
+        for qid in d.question_ids:
+            if qid in questions and d.concern_id not in questions[qid].concern_ids:
+                notes.append(f'Concern {d.concern_id} lists question {qid}, so {qid} must list {d.concern_id} in concern_ids.')
+        if d.status=='unresolved' and not (any(actions[i].human_question for i in d.action_ids if i in actions)
+                or any(d.concern_id in questions[q].concern_ids for q in d.question_ids if q in questions)):
+            notes.append(f'Concern {d.concern_id} is unresolved but no linked question lists it: link a question that lists {d.concern_id}.')
+        if d.status in {'addressed','satisfied'} and not d.action_ids:
+            notes.append(f'Concern {d.concern_id} is {d.status} but links no action: link the action of its need.')
+    return list(dict.fromkeys(notes))
+
+
+def salvage_plan(plan,case,messages,allowed):
+    """Keep each need's valid disposition from a plan that stayed invalid; defer the rest.
+
+    A kept action names only needs of this case that no other action names, and passes
+    every one-action rule; it is then independently checked and applied like any other
+    action. When several unchanged dispositions name one need, its single valid deferral
+    is kept. Additions are never kept: the invalid plan may have meant to withdraw them.
+    Each remaining need gets a marked system deferral that retains the original for a
+    person. Concern dispositions consistent with what was kept are kept; every other
+    concern is left unresolved for a person. No statement or source is written here.
+    Dropped actions keep their full proposal in the audit and are shown for review.
+    Returns (plan or None, audit).
+    """
+    data=plan.model_dump(mode='json')
+    needs=[r['revision_id'] for r in case['frozen_requirements']]
+    rows=data['actions'];ids=Counter(a['action_id'] for a in rows);problems=[]
+    for a in rows:
+        found=action_errors(Action.model_validate(a),case,allowed)
+        # In the JRC trials 18 of 27 actions that named no need set aside or deferred an
+        # invented addition; applying an addition from the rest of the plan can undo that.
+        if a['action']=='add':found.append('Additions are not applied from a salvaged plan.')
+        if ids[a['action_id']]>1:found.append('Repeated action ID.')
+        if set(a['parent_revision_ids'])-set(needs):found.append('Names a need outside this case.')
+        problems.append(found)
+    for n in needs:
+        naming=[i for i,a in enumerate(rows) if n in a['parent_revision_ids']]
+        if len(naming)<2:continue
+        # Several unchanged dispositions of one need (often one per concern) mean: keep the
+        # need and ask a person. The mediator's own valid deferral says that; anything
+        # else, including a proposed change, leaves the need to a system deferral.
+        unchanged=all(rows[i]['action'] in {'retain','covered_by_base','defer'} and rows[i]['parent_revision_ids']==[n] for i in naming)
+        defers=[i for i in naming if rows[i]['action']=='defer' and not problems[i]]
+        keep=defers[0] if unchanged and len(defers)==1 else None
+        for i in naming:
+            if i!=keep:problems[i].append('Another action names the same need'+('; its deferral was kept.' if keep is not None else '.'))
+    kept=[a for a,p in zip(rows,problems) if not p]
+    dropped=[{'action_id':a['action_id'],'action':a['action'],'problems':p,'proposal':a} for a,p in zip(rows,problems) if p]
+    covered={p for a in kept for p in a['parent_revision_ids']}
+    audit={'policy_version':SALVAGE_POLICY,'kept_action_ids':[a['action_id'] for a in kept],'dropped_actions':dropped,
+        'human_accepted':False}
+    if not covered:
+        return None,{**audit,'status':'not_salvaged','reason':'No need has a valid disposition.'}
+    used=set(ids);used_questions={q['question_id'] for q in data['questions']}
+    def fresh(prefix,taken):
+        i=1
+        while f'{prefix}-{i}' in taken:i+=1
+        taken.add(f'{prefix}-{i}');return f'{prefix}-{i}'
+    deferred=[n for n in needs if n not in covered]
+    # Only a need that a dropped action names has a rejected action a person could apply.
+    rejected={p for d in dropped for p in d['proposal']['parent_revision_ids']}
+    defers=[{'action_id':fresh('salvage',used),'action':'defer','parent_revision_ids':[n],
+        'rationale':'System salvage: the mediator plan gave this need no valid disposition after correction; the original need is retained.',
+        **({'human_question':'The mediator actions for this need failed validation. Keep the original need, or apply a rejected action after review?',
+            'alternatives':['Keep the original need','Apply a rejected mediator action after review']} if n in rejected else
+           {'human_question':'The mediator plan for this need was invalid. Keep the original need, or prepare a reviewed revision?',
+            'alternatives':['Keep the original need','Prepare a separately reviewed revision']})} for n in deferred]
+    saved=[c for m in messages for c in m.get('concerns',[])];concern_ids=[c['concern_id'] for c in saved]
+    by_action={a['action_id']:a for a in kept}
+    counts=Counter(q['question_id'] for q in data['questions'])
+    questions={q['question_id']:q for q in data['questions'] if counts[q['question_id']]==1
+        and len(set(q['revision_ids']))==len(q['revision_ids']) and set(q['revision_ids'])<=set(needs)
+        and len(set(q['concern_ids']))==len(q['concern_ids']) and set(q['concern_ids'])<=set(concern_ids)}
+    stated={}
+    for d in data['concerns']:stated.setdefault(d['concern_id'],[]).append(d)
+    kept_rows={}
+    for cid in concern_ids:
+        if len(stated.get(cid,[]))!=1:continue
+        d=stated[cid][0]
+        if (set(d['action_ids'])<=set(by_action) and len(set(d['question_ids']))==len(d['question_ids'])
+                and all(q in questions and cid in questions[q]['concern_ids'] for q in d['question_ids'])
+                and (d['status']!='unresolved' or d['question_ids'] or any(by_action[i].get('human_question') for i in d['action_ids']))
+                and (d['status'] not in {'addressed','satisfied'} or d['action_ids'])):
+            kept_rows[cid]=d
+    kept_questions=[]
+    for q in data['questions']:
+        listed=[c for c in q['concern_ids'] if c in kept_rows and q['question_id'] in kept_rows[c]['question_ids']]
+        if q['question_id'] in questions and listed:kept_questions.append({**q,'concern_ids':listed})
+    replaced=[c for c in concern_ids if c not in kept_rows]
+    review=None
+    if replaced:
+        related=[n for n in needs if any(n in c['revision_ids'] for c in saved if c['concern_id'] in replaced)] or deferred or needs
+        review={'question_id':fresh('salvage-review',used_questions),'revision_ids':related[:4],'concern_ids':replaced,
+            'question':'The mediator plan did not validly answer these stakeholder concerns. Review them against the retained needs.',
+            'alternatives':['Keep the needs as they are','Revise the needs to answer the concerns'],
+            'rationale':'System salvage: these concern dispositions were missing or inconsistent with the kept actions.'}
+    concerns=[kept_rows.get(c) or {'concern_id':c,'status':'unresolved','action_ids':[],'question_ids':[review['question_id']],
+        'rationale':'System salvage: the mediator gave this concern no valid disposition; a person reviews it.'} for c in concern_ids]
+    audit.update(status='salvaged',deferred_revision_ids=deferred,system_action_ids=[d['action_id'] for d in defers],
+        replaced_concern_ids=replaced,system_question_id=review['question_id'] if review else None,
+        dropped_question_ids=[q['question_id'] for q in data['questions'] if q['question_id'] not in {k['question_id'] for k in kept_questions}])
+    note=' [Salvaged: invalid parts are deferred to human review.]'
+    try:
+        partial=Plan.model_validate({'actions':kept+defers,'concerns':concerns,'questions':kept_questions+([review] if review else []),
+            'summary':data['summary'][:1800-len(note)]+note})
+    except ValueError as exc:
+        return None,{**audit,'status':'not_salvaged','reason':'Salvaged plan exceeds the plan contract: '+str(exc)[:300]}
+    errors=plan_errors(partial,case,messages,allowed)
+    if errors:return None,{**audit,'status':'not_salvaged','reason':'Salvaged plan is invalid.','errors':errors}
+    return partial,audit
 
 
 def freeze_packet(store,run,records):
@@ -105,7 +375,7 @@ def freeze_packet(store,run,records):
     context['source_snapshot_id']=run['snapshot_id']
     context['prior_set_asides']=[deepcopy(a) for a in run.get('set_aside_observations',[])
         if a.get('revision_id') in {r['revision_id'] for r in records}]
-    if discussion_policy(run)=='rq1-fa-dialogue-v2':
+    if discussion_policy(run) in BASE_POLICIES:
         from .base_review import pinned_catalogue, compact_entry
         catalogue=pinned_catalogue(run);entries={e['id']:e for e in catalogue['entries']}
         used=set()
@@ -277,16 +547,16 @@ def execute_case(store,run_id,case_id,client,roles):
             raise ValueError('Unknown active case mediator.')
         persist('fa_mediator_routing_bound')
 
-    def call(key,step,model,system,payload,validate=None):
+    def call(key,step,model,system,payload,validate=None,explain=None):
         from ..llm.client import LLMRequestTimeoutError
         if step!='mediation' or not timeout_policy:
-            return call_phase(key,step,model,system,payload,validate)
+            return call_phase(key,step,model,system,payload,validate,explain=explain)
         # Reuse accepted primary phases even after this case switched. A fallback
         # phase has its own model-bound key; failed primary data is retained.
         chosen=primary if phases.get(key,{}).get('output') else route['active_model']
         saved_key=key if chosen==primary else key+':fallback'
         try:
-            return call_phase(saved_key,step,model,system,payload,validate,chosen)
+            return call_phase(saved_key,step,model,system,payload,validate,chosen,explain)
         except LLMRequestTimeoutError as exc:
             if chosen!=primary:raise  # No oscillation or hidden fallback retries.
             route['active_model']=timeout_policy['fallback_model']
@@ -297,9 +567,9 @@ def execute_case(store,run_id,case_id,client,roles):
             phases[key]['timeout']={'error_type':type(exc).__name__,
                 'timeout_seconds':timeout_policy['timeout_seconds'],'at':now()}
             persist('fa_case_mediator_timeout_fallback')
-            return call_phase(key+':fallback',step,model,system,payload,validate,route['active_model'])
+            return call_phase(key+':fallback',step,model,system,payload,validate,route['active_model'],explain)
 
-    def call_phase(key,step,model,system,payload,validate=None,mediator_model=None):
+    def call_phase(key,step,model,system,payload,validate=None,mediator_model=None,explain=None):
         nonlocal attempts,reserved,seconds,anchored
         if mediator_model is not None:
             if not hasattr(client,'mediation_client'):
@@ -307,15 +577,15 @@ def execute_case(store,run_id,case_id,client,roles):
             bound=client.mediation_client(mediator_model,timeout_policy['timeout_seconds'])
         else:bound=for_step(client,step)
         translate=old.translate_ids
-        if policy=='rq1-fa-dialogue-v2':
+        if policy in BASE_POLICIES:
             from .base_review import translate_ids as translate
         aliases={f'N{i+1}':rid for i,rid in enumerate(case['revision_ids'])}
-        if policy=='rq1-fa-dialogue-v2':
+        if policy in BASE_POLICIES:
             aliases.update({f'B{i+1}':eid for i,eid in enumerate(sorted(packet.get('base_entries',{})))})
         aliases.update({f'E{i+1}':eid for i,eid in enumerate(sorted(allowed))})
         aliases.update({f'C{i+1}':cid for i,cid in enumerate(dict.fromkeys(c['concern_id'] for m in payload.get('messages',[]) for c in m.get('concerns',[])))})
-        if policy=='rq1-fa-dialogue-v2':
-            system += V2_ROLE_GUIDANCE if step=='stakeholder_review' else V2_MEDIATOR_GUIDANCE if step=='mediation' else V2_CHECK_GUIDANCE if step=='mediation_check' else ''
+        if policy in BASE_POLICIES:
+            system += BASE_ROLE_GUIDANCE if step=='stakeholder_review' else BASE_MEDIATOR_GUIDANCE if step=='mediation' else BASE_CHECK_GUIDANCE if step=='mediation_check' else ''
         identity=digest([policy,key,step,system,payload,aliases,model.model_json_schema(),model_identity(bound)])
         saved=phases.get(key)
         if saved:
@@ -343,6 +613,8 @@ def execute_case(store,run_id,case_id,client,roles):
             saved={'input_hash':identity,'step':step,'model':model_identity(bound),'attempts':[]}
             phases[key]=saved
         errors=[]
+        # v3: a resumed second attempt still receives its correction.
+        if policy==BASE_POLICY and saved['attempts']:errors=saved['attempts'][-1]['errors']
         for _ in range(len(saved['attempts']),2):
             wire=canonical(translate(payload,{v:k for k,v in aliases.items()}))
             # Measure the exact aliased request in both protocols; checkpoint identity
@@ -359,9 +631,15 @@ def execute_case(store,run_id,case_id,client,roles):
                 if attempts>=14 or reserved+cap>112000 or seconds>=1800:
                     raise DiscussionBudgetError('F/A per-case discussion budget exhausted; human review required.')
                 attempts+=1;reserved+=cap;persist('fa_attempt_reserved')
+            if not errors:note=''
+            elif policy==BASE_POLICY:
+                # The rejected answer and item-level problems, named as the model saw them.
+                from .base_review import correction
+                note=correction(saved['attempts'][-1],aliases,translate)
+            else:note=' Correct only these validation errors: '+canonical(errors)
             start=monotonic()
             try:
-                answer=bounded_stage_output(bound,system=system+(' Correct only these validation errors: '+canonical(errors) if errors else ''),
+                answer=bounded_stage_output(bound,system=system+note,
                     user=wire,output_model=model,initial_tokens=4000,retry_tokens=8000,before_attempt=before)
                 answer=model.model_validate(translate(answer.model_dump(mode='json'),aliases))
             except (OutputValidationError,OutputTokenLimitError) as exc:
@@ -370,8 +648,15 @@ def execute_case(store,run_id,case_id,client,roles):
                 raise DiscussionValidationError('Bounded structured-output recovery failed in '+key+': '+str(exc)) from exc
             finally:
                 seconds+=monotonic()-start;persist()
+            attempt={}
+            if policy==BASE_POLICY and step=='mediation':
+                # Audited bookkeeping repairs; the model's own plan is kept beside the repaired one.
+                raw=answer.model_dump(mode='json');answer,repairs=repair_plan(answer,case,payload.get('messages',[]))
+                if repairs:attempt.update(model_output=raw,repairs=repairs)
             errors=validate(answer) if validate else []
-            saved['attempts'].append({'output':answer.model_dump(mode='json'),'errors':errors})
+            attempt={'output':answer.model_dump(mode='json'),'errors':errors,**attempt}
+            if errors and policy==BASE_POLICY:attempt['feedback']=(explain(answer) if explain else None) or errors
+            saved['attempts'].append(attempt)
             if not errors:saved['output']=answer.model_dump(mode='json')
             persist()
             if not errors:return answer
@@ -421,8 +706,23 @@ def execute_case(store,run_id,case_id,client,roles):
         'retain/revise/split/merge/add/recover/covered_by_base/reversible set_aside/defer are provisional. '
         'A set-aside must have a review question. A covered_by_base decision requires an existing checked base match. '
         'Do not force consensus or interpret silence as approval. Return Plan JSON.')
-    draft=call('draft','mediation',Plan,base_system,{'packet':packet,'messages':messages},
-        lambda a:plan_errors(a,case,messages,allowed))
+    def mediate(key,payload):
+        try:return call(key,'mediation',Plan,base_system,payload,lambda a:plan_errors(a,case,messages,allowed),
+            lambda a:plan_feedback(a,case,messages,allowed))
+        except DiscussionValidationError as exc:
+            if policy!=BASE_POLICY:raise
+            # Salvage from the latest parsed plan of this phase (primary or fallback mediator).
+            latest=[(k,i,row['output']) for k in (key,key+':fallback') for i,row in enumerate(phases.get(k,{}).get('attempts',[])) if row.get('output')]
+            if not latest:raise
+            source,index,output=latest[-1]
+            # Deterministic from the saved attempts, so a resumed case rebuilds the same plan.
+            partial,audit=salvage_plan(Plan.model_validate(output),case,messages,allowed)
+            if key not in trace.setdefault('salvage',{}):
+                trace['salvage'][key]={**audit,'phase':key,'source_phase':source,'source_attempt':index+1,'error':str(exc)[:600]}
+                persist('fa_mediation_salvage')
+            if partial is None:raise
+            return partial
+    draft=mediate('draft',{'packet':packet,'messages':messages})
     trace['draft']=draft.model_dump(mode='json');trace['targeted_roles']=[]
     # New objections or proposed changes trigger a response even if the initial role said finished.
     changed={p for a in draft.actions if a.action not in {'retain','covered_by_base'} for p in a.parent_revision_ids}
@@ -440,8 +740,7 @@ def execute_case(store,run_id,case_id,client,roles):
                 {'role':role_map[role_id],'packet':packet,'draft':draft.model_dump(mode='json'),'messages':messages},
                 lambda a:old.stakeholder_review_errors(a,case,allowed))
             messages.append(saved_message('response:'+role_id,role_id,2,answer));trace['targeted_roles'].append(role_id)
-    final=call('final','mediation',Plan,base_system,{'packet':packet,'draft':draft.model_dump(mode='json'),'messages':messages},
-        lambda a:plan_errors(a,case,messages,allowed)) if trace['targeted_roles'] else draft
+    final=mediate('final',{'packet':packet,'draft':draft.model_dump(mode='json'),'messages':messages}) if trace['targeted_roles'] else draft
     if recovery.get('status')=='in_progress':
         recovery.update(status='completed',completed_at=now())
         persist('fa_message_replay_recovery_completed')
@@ -466,6 +765,16 @@ def execute_case(store,run_id,case_id,client,roles):
             try:return for_step(client,'assessment').generate_structured(**kwargs)
             finally:seconds+=monotonic()-started;persist()
     outcomes,additions,replacements,asides=apply(store,run,case,final,checks,BudgetClient(),allowed)
+    # The applied plan is the final one, or the draft when no stakeholder was asked to respond.
+    applied='final' if trace['targeted_roles'] else 'draft'
+    salvage=trace.get('salvage',{}).get(applied) or {}
+    if salvage.get('status')=='salvaged':
+        # Actions dropped by the salvage go to a person as review rows, never applied.
+        for d in salvage['dropped_actions']:
+            hq=d['proposal'].get('human_question')
+            outcomes.append({**deepcopy(d['proposal']),'status':'human_review','applied':False,'human_accepted':False,
+                'salvage_rejected':True,'validation_errors':list(d['problems']),
+                'human_question':'This mediator action failed validation and was not applied: '+'; '.join(d['problems'])+(' Its question: '+hq if hq else '')})
     trace['after_revision_ids']=[rid for rid in case['revision_ids'] if rid not in asides and rid not in replacements]+[r['revision_id'] for r in additions]
     trace['working_after_revision_ids']=[rid for rid in trace.get('working_before_revision_ids',[]) if rid not in replacements and rid not in asides]+[r['revision_id'] for r in additions]
     trace['completed_at']=now();persist()
@@ -489,10 +798,13 @@ def execute_case(store,run_id,case_id,client,roles):
         r['active_revision_ids']=[rid for rid in r['active_revision_ids'] if rid not in replacements and rid not in asides]+[x['revision_id'] for x in additions]
         for conflict in r['conflicts']:
             if set(conflict['revision_ids'])&set(replacements):conflict['status']='open'
-        row.update(messages=deepcopy(messages),status='mediated',stop_reason='bounded_fa_dialogue_complete',
+        salvaged={k:v for k,v in trace.get('salvage',{}).items() if v.get('status')=='salvaged'}
+        row.update(messages=deepcopy(messages),status='mediated',
+            stop_reason='bounded_fa_dialogue_salvaged' if applied in salvaged else 'bounded_fa_dialogue_complete',
             mediation={**row['mediation'],'phase':'completed','summary':final.summary,'outcomes':outcomes,
                 'human_questions':[q.model_dump(mode='json') for q in final.questions],
                 'concern_dispositions':[c.model_dump(mode='json') for c in final.concerns],
+                **({'salvage':deepcopy(salvaged)} if salvaged else {}),
                 'completed_at':now(),'human_accepted':False})
     store.mutate(run_id,None,'fa_mediation_transaction',commit)
 
@@ -564,7 +876,7 @@ def apply(store,run,case,plan,checks,client,allowed):
                     rec['observation_ids']=list(dict.fromkeys([*rec.get('observation_ids',[]),*lineage]))
                     if a.action=='split':rec['parent_revision_ids']=list(a.parent_revision_ids)
                     # New wording invalidates old base and scope judgements; machine review remains explicit.
-                    if policy=='rq1-fa-dialogue-v2':
+                    if policy in BASE_POLICIES:
                         rec['processing_flags']=list(dict.fromkeys([*rec.get('processing_flags',[]),'base_recheck_required']))
                         # A revision needs its own judgement; never inherit a parent's coverage label.
                         rec['processing_flags']=[f for f in rec['processing_flags'] if f!='covered_by_base']
@@ -585,6 +897,21 @@ def deliberate(store,run_id,client):
     run=store.get_run(run_id,parts=False)
     policy=discussion_policy(run)
     if run['stages'].get('deliberation')=='completed':return
+    if policy==BASE_POLICY:
+        # A v2 discussion cannot continue under v3; without this the refusal was the generic
+        # identity mismatch below (probe R6).
+        planned=(old.audit(store,run_id).get('fa_discussion_plan') or {}).get('policy_version')
+        if planned=='rq1-fa-dialogue-v2':raise ValueError('This discussion was planned under '+planned+
+            '; the current protocol is '+BASE_POLICY+'. Derive a separate base-review trial instead.')
+        # Labels of another base-review policy mean something else: rq1-base-expert-v2 kept a
+        # disputed label, and rq1-base-expert-v3 removed labels (JRC run-fd39639e: 11) after a
+        # check that did not see the classifier's matched entry. str(): a relation without a
+        # policy must not raise TypeError while sorting.
+        from .base_review import POLICY as REVIEW_POLICY
+        stale=sorted(map(str,{(r.get('base_relation') or {}).get('policy') for r in run['requirements']
+            if r['revision_id'] in run['active_revision_ids'] and r.get('base_relation')}-{REVIEW_POLICY}))
+        if stale:raise ValueError('Stage 6a ran under '+', '.join(stale)+'; '+BASE_POLICY+
+            ' needs '+REVIEW_POLICY+'. Derive a separate base-review trial.')
     perspectives={r['role_id']:r for r in (run.get('role_manifest') or {}).get('selected_roles',[])}
     roles=[{**r.model_dump(mode='json'),'source_basis':{k:v for k,v in perspectives.get(r.id,{}).items() if k in {'basis','source_support','stakeholders','filled_via','rationale'}}} for r in panel_roles(run)]
     identity={'policy_version':policy,'roles_hash':digest(roles),
@@ -609,7 +936,7 @@ def deliberate(store,run_id,client):
                 row['mediation'].update(phase='human_review',human_questions=[{'question_id':'budget','question':str(exc),
                     'revision_ids':list(row['revision_ids']),'concern_ids':[],'rationale':'No unvalidated revisions applied.','alternatives':['Retain original needs','Prepare a separately budgeted review']}])
             store.mutate(run_id,None,'fa_discussion_budget_review',pending)
-    if policy=='rq1-fa-dialogue-v2':
+    if policy in BASE_POLICIES:
         from .base_review import review_base
         review_base(store,store.get('run',run_id),client,phase='after_discussion')
     final_coverage=coverage_ledger(store.get('run',run_id))
@@ -619,6 +946,8 @@ def deliberate(store,run_id,client):
         r['metrics'].update(discussion_mode='fa_mediated',discussion_case_count=len(r['deliberations']),mediated_cases=sum(c.get('mediation',{}).get('phase')=='completed' for c in r['deliberations']),
             pending_human_cases=sum(c.get('mediation',{}).get('phase')!='completed' for c in r['deliberations']),
             mediated_changes=sum(o.get('applied',False) for o in outcomes),active_count=len(r['active_revision_ids']),accepted_count=0)
+        if policy==BASE_POLICY:
+            r['metrics']['salvaged_cases']=sum(c.get('stop_reason')=='bounded_fa_dialogue_salvaged' for c in r['deliberations'])
         pending=sum(c.get('mediation',{}).get('phase')!='completed' for c in r['deliberations'])
         if pending:r['diagnostics']=list(dict.fromkeys([*r.get('diagnostics',[]),f'{pending} discussion case(s) require preparation or additional review; no unsupported revision was applied.']))
         r['stakeholder_audit']['fa_coverage']=final_coverage
@@ -660,6 +989,10 @@ def derive_discussion_run(store,source,request,actor):
         raise ValueError('Cannot continue a run with human decisions or published baselines.')
     if not source.get('deliberations') or not source.get('stakeholder_audit',{}).get('fa_discussion_plan'):
         raise ValueError('No frozen discussion cases to continue.')
+    planned=source['stakeholder_audit']['fa_discussion_plan'].get('policy_version')
+    if planned and planned!=discussion_policy(source):
+        raise ValueError('This discussion was planned under '+planned+'; the current protocol is '+
+            discussion_policy(source)+'. Derive a separate base-review trial instead.')
     # Inherit every setting except the explicitly supported transport policy/name.
     for field in request.model_fields_set-{'start_from','expected_version','name','rationale',
             'allow_live_provider','mediation_timeout_fallback'}:

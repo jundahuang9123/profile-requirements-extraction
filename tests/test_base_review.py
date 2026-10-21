@@ -11,6 +11,7 @@ from requirement_reuse_service.workflow.base_profile import load_profile
 from requirement_reuse_service.workflow.models import RequirementRecord,RunRequest
 from requirement_reuse_service.workflow.needs import refresh_need,need_integrity
 from requirement_reuse_service.workflow.storage import digest
+from requirement_reuse_service.llm.client import OutputValidationError,validate_json_payload
 
 
 def prepared(setup,count=1):
@@ -40,6 +41,14 @@ class Reviewer:
             return output_model(verdicts=rows)
         return output_model(checks=[{'item_id':key,'verdict_supported':self.checked,'nothing_lost':self.checked,'rationale':'Independent synthetic check.'} for key in p['needs']])
 
+class Raw(Reviewer):
+    """Answers as a provider client does: the contract, or OutputValidationError with the parsed JSON."""
+    def __init__(self,edit,verdict='new'):super().__init__(verdict);self.edit=edit
+    def generate_structured(self,*,user,output_model,**kw):
+        out=super().generate_structured(user=user,output_model=output_model,**kw).model_dump(mode='json')
+        self.edit(len(self.calls)-1,output_model.__name__,self.calls[-1][1],out)
+        return validate_json_payload(json.dumps(out),output_model)
+
 
 def test_pin_and_effect_checkpoint_resume_without_changing_revision(setup,monkeypatch):
     store,run,cat=prepared(setup);before=deepcopy(run['requirements'][0]);client=Reviewer('restates_base')
@@ -68,7 +77,9 @@ def test_invalid_restating_verdict_gets_one_correction_then_pending(setup,invali
 def test_domain_addition_requires_source_and_other_batches_continue(setup):
     store,run,_=prepared(setup,5)
     client=Reviewer('domain_use_of_base',lambda v,n:v.update(evidence_ids=[]) if len(n['offered_entry_ids']) else None)
-    br.review_base(store,run,client);assert len(client.calls)==4
+    br.review_base(store,run,client)
+    # The failed batch of four, then each of its needs alone; then the fifth need.
+    assert [len(p['needs']) for _,p in client.calls]==[4,4]+[1]*10
     assert all(n['base_relation']['status']=='not_reviewed' for n in store.get('run',run['run_id'])['requirements'])
 
 
@@ -100,8 +111,10 @@ def test_effect_table_preserves_inventory(setup,state,verdict):
     check=br.BaseVerdictCheck(item_id=rid,verdict_supported=True,nothing_lost=True,rationale='Checked.')
     br.apply_verdict(n,v,check,'before_discussion',cat,'key',{},p);refresh_need(n)
     assert n.revision_id==rid and n.content_hash==h
-    assert ('covered_by_base'in n.processing_flags)==(state=='covered' or verdict=='restates_base')
-    expected = ('confirmed' if state=='covered' else 'flag_added') if verdict=='restates_base' else 'dispute' if state=='covered' and verdict in {'new','domain_use_of_base'} else 'agree' if (state=='domain_use_of_base' and verdict=='domain_use_of_base') or (state in {'domain',None} and verdict=='new') else 'note'
+    # The label follows a checked verdict in both directions; uncertainty changes nothing.
+    assert ('covered_by_base'in n.processing_flags)==(verdict=='restates_base' or (state=='covered' and verdict=='uncertain'))
+    expected = ('confirmed' if state=='covered' else 'flag_added') if verdict=='restates_base' else 'flag_removed' if state=='covered' and verdict in {'new','domain_use_of_base'} else 'agree' if (state=='domain_use_of_base' and verdict=='domain_use_of_base') or (state in {'domain',None} and verdict=='new') else 'note'
+    assert n.base_relation['classifier_state']['covered_by_base']==(state=='covered')
     assert n.base_relation['effect']==expected
 
 
@@ -124,7 +137,8 @@ def test_request_opt_in_requires_fa_and_base_and_policy_is_per_run():
     with pytest.raises(ValueError,match='requires the F/A'):
         RunRequest(snapshot_id='s',base_review='expert_v1')
     r=RunRequest(snapshot_id='s',strategy='multi_agent',stakeholder_workflow='fa_mediated',base_profile_id='dcat-ap-1.1.0',base_review='expert_v1')
-    assert discussion_policy({'request':r.model_dump()})=='rq1-fa-dialogue-v2'
+    assert discussion_policy({'request':r.model_dump()})=='rq1-fa-dialogue-v3'
+    assert br.POLICY=='rq1-base-expert-v4'
     assert discussion_policy({'request':{}})=='rq1-fa-dialogue-v1'
 
 
@@ -146,9 +160,9 @@ def test_v2_packet_aliases_prompts_and_after_pass(setup):
             return super().generate_structured(user=user,output_model=output_model,**kw)
     client=Both();fd.deliberate(store,run['run_id'],client)
     saved=store.get('run',run['run_id']);assert saved['status']=='awaiting_human'
-    assert any(fd.V2_ROLE_GUIDANCE in s for s in client.systems)
-    assert any(fd.V2_MEDIATOR_GUIDANCE in s for s in client.systems)
-    assert any(fd.V2_CHECK_GUIDANCE in s for s in client.systems)
+    assert any(fd.BASE_ROLE_GUIDANCE in s for s in client.systems)
+    assert any(fd.BASE_MEDIATOR_GUIDANCE in s for s in client.systems)
+    assert any(fd.BASE_CHECK_GUIDANCE in s for s in client.systems)
     assert any(any(k.startswith('B') for k in p.get('packet',{}).get('base_entries',{})) for p in client.wires)
     # A newly written revision is rechecked, and coverage changes only its working label.
     def recheck(r):r['requirements'][0]['processing_flags']=['base_recheck_required'];r['requirements'][0]['base_relation']=None
@@ -253,15 +267,24 @@ def test_batch_splits_successfully_without_repeating_work(setup,monkeypatch):
     assert len([n for kind,p in client.calls if kind=='BaseReview' for n in p['needs']])==4
 
 
-def test_dispute_keeps_classifier_flag_and_saves_question(setup):
+def test_checked_new_verdict_removes_the_classifier_label_and_saves_question(setup):
+    from requirement_reuse_service.workflow.fa_requirements import coverage_ledger
     store,run,_=prepared(setup)
-    store.mutate(run['run_id'],None,'covered',lambda r:r['requirements'][0].update(processing_flags=['covered_by_base']))
+    def covered(r):
+        r['requirements'][0].update(processing_flags=['covered_by_base']);r['request']['base_review']='expert_v1'
+    store.mutate(run['run_id'],None,'covered',covered)
     br.review_base(store,store.get('run',run['run_id']),Reviewer('new'))
-    saved=store.get('run',run['run_id'])
-    assert 'covered_by_base'in saved['requirements'][0]['processing_flags']
+    saved=store.get('run',run['run_id']);n=saved['requirements'][0]
+    assert 'covered_by_base'not in n['processing_flags'] and n['base_relation']['effect']=='flag_removed'
+    assert n['base_relation']['classifier_state']['covered_by_base'] is True and n['base_relation']['human_accepted'] is False
     question=saved['stage_results']['base_review']['review_questions'][0]
-    assert question['revision_id']==saved['requirements'][0]['revision_id']
-    assert 'classifier'in question['question'] and 'new'in question['question']
+    assert question['revision_id']==n['revision_id'] and question['effect']=='flag_removed'
+    assert 'classifier'in question['question'] and 'new'in question['question'] and 'removed'in question['question']
+    ledger=coverage_ledger(saved)
+    assert ledger['base_label_removed_revision_ids']==[n['revision_id']] and n['revision_id'] in ledger['working_revision_ids']
+    # Resuming re-applies the same saved judgement against the classifier's original label.
+    br.review_base(store,saved,Reviewer('new'))
+    assert store.get('run',run['run_id'])['requirements'][0]['base_relation']['effect']=='flag_removed'
 
 
 def test_stronger_obligation_cannot_be_restated(setup):
@@ -414,7 +437,7 @@ def test_a_supported_new_verdict_is_an_agreement_not_a_failed_check(setup):
     store,run,_=prepared(setup);br.review_base(store,run,Reviewer('new'))
     n=store.get('run',run['run_id'])['requirements'][0]
     assert n['base_relation']['status']=='checked' and n['base_relation']['effect']=='agree'
-    assert n['base_relation']['policy']=='rq1-base-expert-v2' and 'base_relation_review' not in n['processing_flags']
+    assert n['base_relation']['policy']==br.POLICY and 'base_relation_review' not in n['processing_flags']
     assert n['base_relation']['check']['verdict_supported'] is True
     assert 'verdict_supported' in br.CHECK_SYSTEM and 'entries_express_need' not in br.CHECK_SYSTEM
     with pytest.raises(Exception):
@@ -427,7 +450,7 @@ def test_v2_mediator_may_defer_a_labelled_need_but_not_set_it_aside(setup):
     store,run,_=prepared(setup);run['request']['base_review']='expert_v1'
     run['requirements'][0]['processing_flags']=['covered_by_base']
     case=fd.build_cases(store,run,[],Dialogue())[0];rid=run['requirements'][0]['revision_id']
-    assert case['policy_version']=='rq1-fa-dialogue-v2'
+    assert case['policy_version']=='rq1-fa-dialogue-v3'
     rule='A labelled base-covered need must stay visible'
     def errors(action,**extra):
         plan=fd.Plan(actions=[{'action_id':'a','action':action,'parent_revision_ids':[rid],'rationale':'Synthetic disposition.',**extra}],summary='Synthetic plan.')
@@ -435,4 +458,211 @@ def test_v2_mediator_may_defer_a_labelled_need_but_not_set_it_aside(setup):
     assert not any(rule in e for e in errors('defer',human_question='Is the base entry enough for this task?',alternatives=['Keep as covered by base','Treat as a domain requirement']))
     assert not any(rule in e for e in errors('retain'))
     assert any(rule in e for e in errors('set_aside',human_question='Restore?'))
-    assert 'deferred with a question' in fd.V2_MEDIATOR_GUIDANCE
+    assert 'deferred with a question' in fd.BASE_MEDIATOR_GUIDANCE
+
+
+def test_one_invalid_judgement_leaves_its_batch_mates_reviewed(setup):
+    store,run,_=prepared(setup,4)
+    # A source condition that no entry states makes this need's restatement invalid,
+    # in its batch and alone; v2 marked all four needs not reviewed.
+    bad=sorted(r['revision_id'] for r in run['requirements'])[1]
+    def mark(r):next(x for x in r['requirements'] if x['revision_id']==bad)['need_condition']='Only if an authorised recipient has signed a special agreement.'
+    store.mutate(run['run_id'],None,'fixture_condition',mark);run=store.get('run',run['run_id'])
+    client=Reviewer('restates_base');br.review_base(store,run,client)
+    saved=store.get('run',run['run_id']);rows={r['revision_id']:r for r in saved['requirements']}
+    assert rows[bad]['base_relation']['status']=='not_reviewed' and 'base_review_pending' in rows[bad]['processing_flags']
+    others=[r for rid,r in rows.items() if rid!=bad]
+    assert all(r['base_relation']['status']=='checked' and r['base_relation']['effect']=='flag_added' for r in others)
+    assert all(r['base_relation']['isolated_from_failed_batch']['review']==r['base_relation']['batch_key'] for r in others)
+    assert [(name,len(p['needs'])) for name,p in client.calls]==[('BaseReview',4),('BaseReview',4),('BaseReviewChecks',3),('BaseReview',1),('BaseReview',1)]
+    assert {q['effect'] for q in saved['stage_results']['base_review']['review_questions']}=={'flag_added'}
+    assert len(saved['stage_results']['base_review']['review_questions'])==3
+    before=len(client.calls);br.review_base(store,saved,client);assert len(client.calls)==before
+
+
+def test_a_need_invalid_alone_keeps_its_errors(setup):
+    # JRC re-normalized run: one need's condition-guard or entry-limit error left all four not reviewed.
+    store,run,_=prepared(setup,4)
+    client=Reviewer('new',lambda v,n:v.update(verdict='restates_base',entry_ids=['B999']) if v['item_id']=='N1' else None)
+    br.review_base(store,run,client)
+    assert [(name,len(p['needs'])) for name,p in client.calls]==[('BaseReview',4),('BaseReview',4),('BaseReviewChecks',3),('BaseReview',1),('BaseReview',1)]
+    rows={r['revision_id']:r['base_relation'] for r in store.get('run',run['run_id'])['requirements']}
+    first=sorted(rows)[0]
+    assert rows[first]['status']=='not_reviewed' and rows[first]['reason']=='invalid_output'
+    assert any('cite only entries' in e for e in rows[first]['errors'])
+    assert all(rows[rid]['status']=='checked' for rid in sorted(rows)[1:])
+    before=len(client.calls);br.review_base(store,store.get('run',run['run_id']),client)
+    assert len(client.calls)==before
+
+
+def test_a_missing_check_is_repeated_for_that_need_alone(setup):
+    store,run,_=prepared(setup,4)
+    class DropsFirstCheck(Reviewer):
+        def generate_structured(self,*,user,output_model,**kw):
+            result=super().generate_structured(user=user,output_model=output_model,**kw)
+            return output_model(checks=result.checks[1:]) if output_model==br.BaseReviewChecks and len(result.checks)>1 else result
+    client=DropsFirstCheck('new');br.review_base(store,run,client)
+    saved=store.get('run',run['run_id'])
+    assert all(r['base_relation']['status']=='checked' for r in saved['requirements'])
+    assert [(name,len(p['needs'])) for name,p in client.calls]==[('BaseReview',4),('BaseReviewChecks',4),('BaseReviewChecks',4),('BaseReviewChecks',1)]
+    isolated=[r['base_relation'].get('isolated_from_failed_batch') for r in saved['requirements']]
+    assert sum(bool(i) for i in isolated)==3 and all(i['check'].startswith('base_review_check:') for i in isolated if i)
+
+
+def test_correction_names_the_model_aliases_and_shows_the_rejected_answer(setup):
+    store,run,_=prepared(setup)
+    class Recorder(Reviewer):
+        def __init__(self):super().__init__('restates_base',lambda v,n:v.update(entry_ids=['B999']) if not self.calls[:-1] else None);self.systems=[]
+        def generate_structured(self,*,system,**kw):
+            self.systems.append(system);return super().generate_structured(**kw)
+    client=Recorder();br.review_base(store,run,client)
+    rid=run['requirements'][0]['revision_id'];second=client.systems[1]
+    assert 'Your previous answer was rejected: {' in second and 'N1: cite only entries' in second and '"B999"' in second
+    assert rid not in second and 'rev-' not in second
+    assert store.get('run',run['run_id'])['requirements'][0]['base_relation']['status']=='checked'
+
+
+def test_a_listed_items_need_may_cite_up_to_twelve_entries():
+    rows=[f'base-{i}' for i in range(13)]
+    assert br.BaseVerdict(item_id='n',verdict='restates_base',entry_ids=rows[:12],rationale='Twelve items.')
+    with pytest.raises(Exception):br.BaseVerdict(item_id='n',verdict='restates_base',entry_ids=rows,rationale='Thirteen items.')
+
+
+def test_condition_error_tells_the_reviewer_how_to_answer(setup):
+    store,run,cat=prepared(setup);n=RequirementRecord.model_validate(run['requirements'][0])
+    n.need_condition='Only if an authorised recipient has signed a special agreement.'
+    payload,_=br.make_payload(store,run,[n],cat,'before_discussion')
+    entry=payload['needs'][n.revision_id]['offered_entry_ids'][0]
+    verdict=br.BaseReview(verdicts=[dict(item_id=n.revision_id,verdict='restates_base',entry_ids=[entry],rationale='Plain.')])
+    assert any('domain_use_of_base' in e for e in br.verdict_errors(verdict,[n],payload,cat))
+
+
+def test_derived_opt_in_run_shows_stage_6a_pending(setup):
+    from requirement_reuse_service.workflow import engine
+    from requirement_reuse_service.workflow.models import DeriveRequest
+    store,source=derivable(setup)
+    def opt_in(r):
+        r['request']['base_review']='expert_v1';r['stages']['base_review']='completed'
+        r['role_runs']=[{'role_id':'consumer_discovery','status':'completed'}]
+    store.mutate(source['run_id'],None,'fixture_opt_in',opt_in);source=store.get('run',source['run_id'])
+    child=engine.derive_run(store,source['run_id'],DeriveRequest(expected_version=source['version'],
+        rationale='Downstream trial.',output_form='needs',scoping='off',base_check=False,discussion='automatic'))
+    assert child['request']['base_review']=='expert_v1' and child['stages']['base_review']=='pending'
+
+
+def test_the_checker_reads_the_entry_the_classifier_relied_on(setup):
+    store,run,cat=prepared(setup);n=RequirementRecord.model_validate(run['requirements'][0])
+    access=next(e['id'] for e in cat['entries'] if (e['class'],e.get('property'))==('dcat:Dataset','dct:accessRights'))
+    n.matched_base_need_ids=[access];n.processing_flags=['covered_by_base']
+    payload,aliases=br.make_payload(store,run,[n],cat,'before_discussion')
+    verdict=br.BaseVerdict(item_id=n.revision_id,verdict='new',rationale='No entry names it.').model_dump(mode='json')
+    check=br.make_check_payload(payload,[verdict],cat)
+    # v2 showed no entry text for a "new" verdict, so its checker could not weigh the match.
+    assert list(check['base']['entries'])==[access] and check['base']['entries'][access]['usage_notes']
+    assert 'classifier' in br.CHECK_SYSTEM and 'domain_use_of_base' in br.REVIEW_SYSTEM.split('new:')[1]
+
+
+def test_a_verdict_may_cite_up_to_twelve_of_its_own_excerpts(setup):
+    # JRC run-fd39639e: one review call failed the schema for citing more than 4 excerpts.
+    from requirement_reuse_service.workflow.models import EvidenceLink
+    store,run,cat=prepared(setup);n=RequirementRecord.model_validate(run['requirements'][0])
+    unit=store.get('evidence',n.evidence_links[0].evidence_id)
+    n.evidence_links=[EvidenceLink(evidence_id=unit['evidence_id'],quote=unit['content'][i:i+10],quote_start=i) for i in range(0,39,3)]
+    payload,_=br.make_payload(store,run,[n],cat,'before_discussion');own=payload['needs'][n.revision_id]['excerpt_ids']
+    row=dict(item_id=n.revision_id,verdict='domain_use_of_base',entry_ids=payload['needs'][n.revision_id]['offered_entry_ids'][:1],
+        addition_kind='condition',addition='A stated source condition.',rationale='The addition is spread over passages.')
+    assert len(own)==13 and br.verdict_errors(br.BaseReview(verdicts=[{**row,'evidence_ids':own[:5]}]),[n],payload,cat)==[]
+    with pytest.raises(Exception):br.BaseVerdict(**row,evidence_ids=own)
+    # Repeating one excerpt is not more evidence (review probe: 12 copies of one passed).
+    assert br.verdict_errors(br.BaseReview(verdicts=[{**row,'evidence_ids':own[:1]*12}]),[n],payload,cat)==[n.revision_id+': cite only this item’s excerpts, each once.']
+
+
+@pytest.mark.parametrize('fault',[
+    lambda rows:rows[0].update(evidence_ids=['E1']*13),
+    lambda rows:rows.append({**rows[0],'rationale':''}),
+    # Five rows for four needs fail the contract's row limit; the unrepeated rows are still valid.
+    lambda rows:rows.append(dict(rows[0])),
+],ids=['thirteen_excerpts','invalid_second_row','five_rows_one_repeated'])
+def test_valid_rows_of_a_schema_invalid_answer_are_kept(setup,fault):
+    # One row over a schema limit failed the whole call of four; its batch-mates' rows are valid.
+    store,run,_=prepared(setup,4)
+    client=Raw(lambda i,kind,p,out:fault(out['verdicts']) if kind=='BaseReview' and len(p['needs'])==4 else None)
+    br.review_base(store,run,client)
+    saved=store.get('run',run['run_id']);rows={r['revision_id']:r['base_relation'] for r in saved['requirements']};ids=sorted(rows)
+    assert [(name,len(p['needs'])) for name,p in client.calls]==[('BaseReview',4),('BaseReview',4),('BaseReviewChecks',3),('BaseReview',1),('BaseReviewChecks',1)]
+    assert all(r['status']=='checked' for r in rows.values()) and 'isolated_from_failed_batch' not in rows[ids[0]]
+    assert all(rows[rid]['isolated_from_failed_batch']=={'review':rows[rid]['batch_key']} for rid in ids[1:])
+    # The parsed answer is saved with internal IDs, so a resumed pass recovers the same rows.
+    attempts=saved['stakeholder_audit'][rows[ids[1]]['batch_key']]['attempts']
+    assert [a['output'] for a in attempts]==[None,None] and {v['item_id'] for v in attempts[-1]['parsed']['verdicts']}==set(ids)
+    before=len(client.calls);br.review_base(store,saved,client);assert len(client.calls)==before
+
+
+@pytest.mark.parametrize('second,alone',[('unparsed',0),('parsed',1)])
+def test_isolation_reads_the_newest_answer_that_parsed(setup,second,alone):
+    # A correction that does not parse falls back to the parsed first answer (P1); a parsed
+    # correction is never mixed with a row the model replaced in it.
+    store,run,_=prepared(setup,4)
+    def edit(i,kind,p,out):
+        if kind!='BaseReview' or len(p['needs'])!=4:return
+        if i==0:out['verdicts'][0].update(verdict='restates_base',entry_ids=['B999'])
+        elif second=='unparsed':raise OutputValidationError('BaseReview',[{'loc':[],'type':'json_object_missing'}])
+        else:out['verdicts'][1].update(evidence_ids=['E1']*13)
+    client=Raw(edit);br.review_base(store,run,client)
+    rows={r['revision_id']:r['base_relation'] for r in store.get('run',run['run_id'])['requirements']};ids=sorted(rows)
+    assert [(name,len(p['needs'])) for name,p in client.calls]==[('BaseReview',4),('BaseReview',4),('BaseReviewChecks',3),('BaseReview',1),('BaseReviewChecks',1)]
+    assert all(r['status']=='checked' for r in rows.values())
+    assert [rid for rid in ids if 'isolated_from_failed_batch' not in rows[rid]]==[ids[alone]]
+    before=len(client.calls);br.review_base(store,store.get('run',run['run_id']),client);assert len(client.calls)==before
+
+
+def test_a_check_that_stays_invalid_keeps_its_errors_and_no_verdict(setup):
+    store,run,_=prepared(setup)
+    client=Raw(lambda i,kind,p,out:out['checks'][0].update(item_id='N9') if kind=='BaseReviewChecks' else None)
+    br.review_base(store,run,client)
+    n=store.get('run',run['run_id'])['requirements'][0];rel=n['base_relation']
+    assert [name for name,_ in client.calls]==['BaseReview','BaseReviewChecks','BaseReviewChecks']
+    # The report reads 'verdict' as a reviewed judgement; this one was never checked.
+    assert rel['status']=='not_reviewed' and rel['reason']=='check_invalid_output' and 'verdict' not in rel
+    assert any('Check every item exactly once' in e for e in rel['errors']) and 'base_review_pending' in n['processing_flags']
+
+
+def test_an_isolated_need_too_large_to_check_keeps_its_provenance(setup,monkeypatch):
+    store,run,_=prepared(setup,4);make=br.make_check_payload
+    monkeypatch.setattr(br,'make_check_payload',lambda *a:{**make(*a),'padding':'x'*br.MAX_PAYLOAD})
+    client=Reviewer('new',lambda v,n:v.update(verdict='restates_base',entry_ids=['B999']) if v['item_id']=='N1' else None)
+    br.review_base(store,run,client)
+    rows={r['revision_id']:r['base_relation'] for r in store.get('run',run['run_id'])['requirements']};ids=sorted(rows)
+    assert [(name,len(p['needs'])) for name,p in client.calls]==[('BaseReview',4),('BaseReview',4),('BaseReview',1),('BaseReview',1)]
+    assert rows[ids[0]]['reason']=='invalid_output' and 'isolated_from_failed_batch' not in rows[ids[0]]
+    assert all(rows[rid]['reason']=='payload_budget' and rows[rid]['isolated_from_failed_batch']=={'review':rows[rid]['batch_key']} for rid in ids[1:])
+
+
+def test_ledger_reads_label_removal_by_the_recorded_policy(setup,monkeypatch):
+    from requirement_reuse_service.workflow.fa_requirements import coverage_ledger
+    store,run,_=prepared(setup,3);ids=sorted(r['revision_id'] for r in run['requirements'])
+    # rq1-base-expert-v3 (run-fd39639e) wrote "dispute" for a removed label; v1/v2 for a kept one.
+    relations={ids[0]:('rq1-base-expert-v3','dispute',[]),ids[1]:('rq1-base-expert-v2','dispute',['covered_by_base']),ids[2]:(br.POLICY,'flag_removed',[])}
+    run['request']['base_review']='expert_v1'
+    for r in run['requirements']:
+        policy,effect,flags=relations[r['revision_id']];r.update(processing_flags=flags,base_relation={'policy':policy,'effect':effect,'status':'checked'})
+    results=[{**r['base_relation'],'revision_id':r['revision_id']} for r in run['requirements']]
+    run['stage_results']={'base_review':{'policy_version':'rq1-base-expert-v3','phases':{'before_discussion':{'results':results}},'review_questions':[]}}
+    ledger=coverage_ledger(run)
+    assert sorted(ledger['base_label_removed_revision_ids'])==[ids[0],ids[2]] and ledger['base_dispute_revision_ids']==[ids[1]]
+    # The per-phase effect counts read the policy as well; the saved results keep "dispute".
+    # Rows are in creation order and revision IDs are random, so look the v3 row up by ID.
+    saved={x['revision_id']:x['effect'] for x in results}
+    assert ledger['base_relation_counts']['before_discussion']['effect']=={'flag_removed':2,'dispute':1} and saved[ids[0]]=='dispute'
+    assert not br.label_removed(None) and not br.legacy_dispute(None) and br.legacy_dispute({'effect':'dispute','policy':'rq1-base-expert-v1'})
+    # The current prompts are bound only to records made under them; a run not yet reviewed will be.
+    current=dict(run,stage_results={'base_review':{'policy_version':br.POLICY}});v4=coverage_ledger(current)['contract_hash']
+    assert coverage_ledger(dict(run,stage_results={}))['contract_hash']==v4!=ledger['contract_hash']
+    monkeypatch.setattr(br,'REVIEW_SYSTEM',br.REVIEW_SYSTEM+' changed')
+    assert coverage_ledger(run)['contract_hash']==ledger['contract_hash'] and coverage_ledger(current)['contract_hash']!=v4
+
+
+def test_correction_aliases_ids_inside_structured_problems():
+    problems=[{'concern_index':0,'unknown_need_ids':['N9'],'known':['rev-1']},'rev-1: cite only entries']
+    text=br.correction({'output':None,'errors':problems},{'N1':'rev-1'})
+    assert '"known":["N1"]' in text and 'N1: cite only entries' in text and 'rev-1' not in text
