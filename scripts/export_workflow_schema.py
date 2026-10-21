@@ -19,7 +19,7 @@ from requirement_reuse_service.workflow.stakeholder_workflow import SourceRoutin
 
 from requirement_reuse_service.workflow.fa_requirements import FAScopeResult, FAPreservation
 from requirement_reuse_service.workflow.base_review import BaseReview, BaseReviewChecks
-from requirement_reuse_service.workflow.fa_discussion import TaskGroups, TaskLabels, Review, Plan, Checks
+from requirement_reuse_service.workflow.fa_discussion import TaskGroups, TaskLabels, Review, Plan, Checks, ExperienceReview, ExperiencePlan
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -30,7 +30,7 @@ def main():
         AssessmentRequest, BaselineRequest, DecisionRequest, DeriveRequest, RunRequest, SourceRequest, SemanticGrouping,
         SpanElicitationResult, NeedSpanElicitationResult, RestoreRequest, NeedStatements, NeedGrounding,
         NeedClassifications, ProfileScope, NeedApplicability, NeedUseCaseLinks, UseCaseCritic, NeedMembership, ProposalSupport, RoleRegistry,
-        StakeholderPanel, DatasetCategories, NeedEquivalence, SourceRouting, StakeholderReview, MediationPlan, MediationDraft, MediationChecks, FAScopeResult, FAPreservation, TaskGroups, TaskLabels, Review, Plan, Checks, BaseReview, BaseReviewChecks)],
+        StakeholderPanel, DatasetCategories, NeedEquivalence, SourceRouting, StakeholderReview, MediationPlan, MediationDraft, MediationChecks, FAScopeResult, FAPreservation, TaskGroups, TaskLabels, Review, Plan, Checks, ExperienceReview, ExperiencePlan, BaseReview, BaseReviewChecks)],
         title='RQ1 persistent workflow v2 contracts')
     schema['$schema'] = 'https://json-schema.org/draft/2020-12/schema'
     output = json.dumps(schema, indent=2, sort_keys=True) + '\n'

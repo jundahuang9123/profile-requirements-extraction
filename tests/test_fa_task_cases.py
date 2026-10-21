@@ -1,4 +1,4 @@
-"""Synthetic tests of rq1-fa-dialogue-v5 task cases: no evaluation answers or live generation."""
+"""Synthetic tests of the task cases added in rq1-fa-dialogue-v5 (kept in v6): no evaluation answers or live generation."""
 import json
 import pytest
 from test_routed_stakeholder_workflow import setup  # noqa: F401  (pytest fixture)

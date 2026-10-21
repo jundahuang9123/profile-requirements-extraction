@@ -84,7 +84,7 @@ def translate_ids(value,mapping,field=None):
     keyed={'needs','entries','index','excerpts','base_entries'}
     ids={'id','item_id','entry_ids','offered_entry_ids','matched_entry_ids','matched_base_need_ids',
         'excerpt_ids','evidence_ids','evidence_id','revision_id','revision_ids','parent_revision_ids',
-        'need_id','requirement_id','concern_id','concern_ids','action_id','action_ids'}
+        'need_id','requirement_id','concern_id','concern_ids','action_id','action_ids','claim_id','experience_ids'}
     if isinstance(value,dict):
         return {mapping.get(k,k) if field in keyed else k:translate_ids(v,mapping,k) for k,v in value.items()}
     if isinstance(value,list):return [translate_ids(v,mapping,field) for v in value]
@@ -493,7 +493,9 @@ def derive_base_review_run(store,source,request,actor):
             'parent_plan_hash':digest(source.get('stakeholder_audit',{}).get('fa_discussion_plan')),
             'changed_policy':options.get('mediation_timeout_fallback')})
     # Working counters are recomputed from the restored inventory, never inherited discussion results.
-    for key in ('discussion_case_count','mediated_cases','pending_human_cases','mediated_changes','salvaged_cases'):
+    for key in ('discussion_case_count','mediated_cases','pending_human_cases','mediated_changes','salvaged_cases',
+            'experience_claims','experience_admitted','experience_excluded','experience_excluded_by_system','experience_actions','experience_applied_changes',
+            'experience_proposals','noted_concerns'):
         child['metrics'].pop(key,None)
     WorkflowRun.model_validate(child)
     fresh=store.get_run(source['run_id'],parts=False)

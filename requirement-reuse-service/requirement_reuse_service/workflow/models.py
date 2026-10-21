@@ -217,6 +217,8 @@ class SetAside(Contract):
     # 'mediated_fa_set_aside' and reversible=True. Without both in this contract, a run with
     # such a record failed WorkflowRun validation, which a discussion continuation performs.
     reversible: bool | None = None
+    # rq1-fa-dialogue-v6: the admitted experience claims a mediated set-aside rests on.
+    experience_ids: list[str] = Field(default_factory=list)
 
 
 class CandidateGroup(Contract):

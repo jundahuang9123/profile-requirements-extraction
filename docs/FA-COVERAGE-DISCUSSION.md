@@ -14,7 +14,7 @@ New UI runs use the `find_access_v1` requirements contract. Automatic stakeholde
 4. **Grouping/writing:** keep original observations and member links. A new independent preservation check rejects a broad summary that loses information, actor, purpose, conditions, obligation or negation. Rejected or unavailable rewrites retain their original proposals as visible set-asides. “The metadata must let users …” is allowed only with a separately source-checked mandatory obligation. Historical neutral wording is unchanged.
 5. **Independent scope axes:** record source support, find/access relevance, statement nature, actor/task/example and cited evidence separately. Unchecked or disputed rows retain a review flag. A definite unsupported/out-of-scope judgement is reversible, with evidence and rationale retained. Category/applicability failure cannot erase these axes. Base-covered domain needs remain in the inventory with their domain evidence and base matches.
 6. **Cases:** task-based grouping can combine needs from different source files (since `rq1-fa-dialogue-v5` over the whole inventory; see Task cases). Bounded windows and packet size limits are recorded; this does not guarantee all distant related needs meet. Include latest set-asides and unresolved proposals, labelled as such. Oversized cases split with a shared group hash; an oversized singleton remains pending human preparation.
-7. **Discussion:** save independent initial positions without peer answers; aggregate issues; obtain a mediator draft; solicit responses to proposed changes or material objections even from a role previously marked finished; obtain final mediation when responses occurred; independently check every disposition, including retain and set-aside. No concern is a valid response; silence or repetition does not establish consensus or weight.
+7. **Discussion:** save independent initial positions without peer answers; aggregate issues; obtain a mediator draft; solicit responses to proposed changes or material objections even from a role previously marked finished; obtain final mediation when responses occurred; independently check every disposition, including retain and set-aside. No concern is a valid response; silence or repetition does not establish consensus or weight. Since `rq1-fa-dialogue-v6` roles may also bring claims from the practice of their role, which the mediator admits or excludes, and concerns the mediator does not answer are recorded as noted (see Experience claims).
 8. **Persistence/review:** apply source-checked machine revisions transactionally. Preserve before/after revision IDs, parents, evidence and observations. Invalid changes retain parents and a review question. A case whose structured output remains invalid after bounded correction is explicitly queued for human review; since `rq1-fa-dialogue-v3` the valid parts of its plan are salvaged first (see below). The run can continue with other cases. Transport failures still stop unfinished work for supported resume. Machine outcomes are never human acceptance. The pre-discussion machine snapshot remains unchanged.
 
 The mediator can propose retain, revise, split, merge, add/recover, covered-by-base, reversible set-aside or defer. Priority requires explicit applicable source support. Cross-case conflicts require joint review rather than a decision that cannot see both sides. New wording invalidates old base comparisons and shows a recheck flag. A covered-by-base label cannot be manufactured without an existing checked match.
@@ -29,9 +29,9 @@ Processing every passage is not evidence of finding every requirement. Accounted
 
 ## Evidence expansion and budgets
 
-Every dialogue protocol measures the exact JSON sent after reversible identifier aliases against a context limit: 45,000 characters (`rq1-fa-context-budget-case-v1`), or 53,000 since `rq1-fa-dialogue-v4` (`rq1-fa-context-budget-case-v2`). The phase audit records internal, wire and measured sizes, the limit and the wire hash; v2 also records the phase's output-token caps. An oversized case retains its original needs and accepted phases and is deferred visibly to human review; later cases continue. Full internal payloads still determine checkpoint identity.
+Every dialogue protocol measures the exact JSON sent after reversible identifier aliases against a context limit: 45,000 characters (`rq1-fa-context-budget-case-v1`), or 53,000 since `rq1-fa-dialogue-v4` (`rq1-fa-context-budget-case-v2`), or 66,000 since v6 (`rq1-fa-context-budget-case-v3`), for the role cards and experience claims that v6 adds to discussion inputs (the claim size is estimated, not measured). The phase audit records internal, wire and measured sizes, the limit and the wire hash; v2 and v3 also record the phase's output-token caps. An oversized case retains its original needs and accepted phases and is deferred visibly to human review; later cases continue. Full internal payloads still determine checkpoint identity.
 
-A stakeholder may request a specific missing passage. Bounded lexical retrieval searches only the frozen run evidence IDs: up to eight distinct queries, two passages per query and four new passages overall. It records query, exact selected location, source/content hash, eligible-ID hash and excluded count. No benchmark/reference file or web retrieval is available to discussion. A no-result query remains visible as unresolved.
+A stakeholder may request a specific missing passage, and since v6 a passage that might support one of its experience claims. Bounded lexical retrieval searches only the frozen run evidence IDs: up to eight distinct queries, two passages per query and four new passages overall. It records query, exact selected location, source/content hash, eligible-ID hash and excluded count. No benchmark/reference file or web retrieval is available to discussion. A no-result query remains visible as unresolved.
 
 A case permits at most 14 model generations including schema/semantic corrections and revision assessments, 112,000 reserved output tokens and 1,800 seconds of accumulated model-call time. Primary calls reserve 4,000 tokens and truncation correction may reserve 8,000. Since `rq1-fa-dialogue-v4` a case permits 16 generations and 128,000 tokens, and a mediation plan starts at 8,000 tokens; since v5 each further need of a case adds one generation, 8,000 tokens and 300 seconds. Each case records its limits when it is built, and execution reads them from the case, so a case keeps the limits it was planned with. The time guard prevents starting another request after the recorded budget; the provider transport timeout bounds an in-flight request. With many revisions or corrections, some work can remain for human review. It is not reported as successful mediation.
 
@@ -410,6 +410,85 @@ with 300 characters on each side instead of 1,000 before and 4,000 in all, so
 several needs fit the 26,000-character packet. Labels are checkpointed per chunk;
 a changed labelling prompt or input is refused on resume. The legacy v1 protocol
 keeps its grouping and windows. This is tested offline only.
+
+### Experience claims and noted concerns (v6)
+
+In the JRC discussions of 21 October (`run-e1e4810f` and its GPT-OSS replay) roles
+raised about 1,000 concerns per run, 50–60% of them `missing_evidence`: the
+sources alone gave the roles little to add, and plans spent their bookkeeping on
+answering concerns one by one. In an expert discussion people bring their
+experience. `rq1-fa-dialogue-v6` lets each role do so from the practice of its
+role, has the mediator decide which of it belongs in the case, and records
+concerns the mediator does not answer as noted.
+
+- **Experience claims.** Besides its source-backed concerns, a role may add at
+  most two claims per review (`ExperienceReview.experience`). A claim names the
+  task of the role it comes from, describes the role's practice in that task
+  ("When I …, I …"), and says what follows for the needs of the case: `keep`,
+  `merge`, `split`, `drop`, or `missing_need` with a proposed statement. A claim
+  cites no source. It may carry a query: the queries of first-round claims are
+  searched in the frozen sources with the roles' source queries, in turn across
+  roles, within the bound of eight queries and four passages (as for source
+  queries, response rounds are not searched).
+- **Guard.** One correction is given to a claim that names needs outside the
+  case, a `missing_need` without a statement, another kind without needs, or a
+  `merge` with fewer than two needs. The same holds for a claim that names a
+  DCAT-AP extension or national profile (HealthDCAT-AP, GeoDCAT-AP, StatDCAT-AP,
+  mobilityDCAT-AP, DCAT-AP-HVD, DCAT-AP-NO, DCAT-AP_IT, DCAT-AP.de, also written
+  "Health DCAT-AP" or "healthdcat-ap"); the base itself and words such as
+  "DCAT-AP-compliant" are allowed. The guard catches names only. A claim that is
+  still invalid after its correction is left out, and the attempt records it
+  (`experience_removed`); the role's concerns stay in the discussion.
+- **Mediator decision.** The mediator sees the claims under aliases X1, X2, …
+  and the role cards of the participants (purpose, focus questions,
+  stakeholders). It admits or excludes every claim exactly once, with a reason:
+  a claim is admitted when it fits the task of the case and the card of the role
+  that made it, and no source passage contradicts it. Only admitted claims may be
+  cited by an action (`experience_ids`). Experience never replaces a source: a
+  revise, merge, resolve, split, recover or add still needs its source links and
+  passes the strict verifier. A retain or a reversible set-aside may rest on
+  admitted experience and is checked like any other action; the checker is told
+  that experience is not a source. The observation of such a set-aside lists the
+  claims (`experience_ids`).
+- **Proposals.** A need proposed from experience alone goes to `proposals`
+  (statement, admitted claims, closest needs), never to actions. Each becomes an
+  outcome row with status `experience_proposal`: never applied, listing the roles
+  whose claims it rests on, with a question for a person. Its ID differs from
+  every action ID. A proposal in the draft is put to every role in the response
+  round, and a response that names it where a need belongs gets its closest
+  needs.
+- **Noted concerns.** The mediator answers a concern only to reject it or to
+  leave it open with a question. Every other concern is recorded in
+  `concern_dispositions` with `derived: true`: as `unresolved` when a question
+  lists it, otherwise as `noted` against the actions on its needs. A repeated or
+  unknown answer is still invalid, and question links stay reciprocal for
+  answered concerns.
+- **Salvage.** A claim without exactly one valid decision is excluded by the
+  system (its decision is marked `system: true`); an action or proposal that cites
+  a claim not validly admitted is dropped; only a concern answered inconsistently
+  goes to the system question.
+- **Limits.** Discussion inputs may be 66,000 characters instead of 53,000. The
+  role cards of the four JRC roles in `run-e1e4810f` take 1,263 characters; up to
+  16 claims with their decisions are estimated at about 11,000. A plan decides at
+  most 64 claims (16 roles). Case call and token limits are unchanged.
+- **Reported apart.** Metrics count `experience_claims`, `experience_admitted`,
+  `experience_excluded` (by the mediator), `experience_excluded_by_system`,
+  `experience_actions` (not counting actions a salvage rejected),
+  `experience_applied_changes`, `experience_proposals` and `noted_concerns` over
+  completed cases.
+
+**Contamination.** A role's experience is model knowledge. It can carry recall of
+existing application profiles, including those a benchmark reference was built
+from, in words other than their names. The design keeps this visible rather than
+preventing it: claims are a separate kind of argument, never sources; the
+mediator records why each is admitted or excluded; needs from experience alone
+are never applied; and every change that rests on experience is counted apart.
+An evaluation should report results with and without the items that rest on
+experience.
+
+A discussion planned under v5 cannot continue under v6: derive a base-review
+trial, which no longer inherits the parent's task labels. The legacy v1 protocol
+is unchanged. This is tested offline only.
 
 ### Cheap trial from a saved machine inventory
 

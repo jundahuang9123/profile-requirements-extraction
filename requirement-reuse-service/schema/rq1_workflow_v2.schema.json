@@ -1785,6 +1785,398 @@
       "title": "ExistingNeedAction",
       "type": "object"
     },
+    "ExperienceAction": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": [
+            "retain",
+            "revise",
+            "merge",
+            "resolve",
+            "defer",
+            "add",
+            "split",
+            "recover",
+            "covered_by_base",
+            "set_aside"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "action_id": {
+          "title": "Action Id",
+          "type": "string"
+        },
+        "alternatives": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 6,
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "children": {
+          "items": {
+            "$ref": "#/$defs/AdditionalNeedAction"
+          },
+          "maxItems": 4,
+          "title": "Children",
+          "type": "array"
+        },
+        "condition": {
+          "default": "",
+          "maxLength": 1200,
+          "title": "Condition",
+          "type": "string"
+        },
+        "evidence_links": {
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          },
+          "maxItems": 24,
+          "title": "Evidence Links",
+          "type": "array"
+        },
+        "experience_ids": {
+          "description": "Admitted experience claims X this action relies on.",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Experience Ids",
+          "type": "array"
+        },
+        "human_question": {
+          "anyOf": [
+            {
+              "maxLength": 1600,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Human Question"
+        },
+        "parent_revision_ids": {
+          "description": "Final need disposition: each current parent occurs once across actions, never once per concern.",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Parent Revision Ids",
+          "type": "array"
+        },
+        "priority_basis": {
+          "anyOf": [
+            {
+              "maxLength": 1200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Priority Basis"
+        },
+        "priority_links": {
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          },
+          "maxItems": 4,
+          "title": "Priority Links",
+          "type": "array"
+        },
+        "rationale": {
+          "maxLength": 1600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "statement": {
+          "default": "",
+          "maxLength": 2000,
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "action_id",
+        "action",
+        "rationale"
+      ],
+      "title": "ExperienceAction",
+      "type": "object"
+    },
+    "ExperienceClaim": {
+      "additionalProperties": false,
+      "properties": {
+        "claim": {
+          "description": "What follows for the needs of this case.",
+          "maxLength": 800,
+          "minLength": 1,
+          "title": "Claim",
+          "type": "string"
+        },
+        "experience": {
+          "description": "Your practice in that task (\"When I ..., I ...\"); not a source quote.",
+          "maxLength": 800,
+          "minLength": 1,
+          "title": "Experience",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "keep",
+            "merge",
+            "split",
+            "drop",
+            "missing_need"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "proposed_statement": {
+          "anyOf": [
+            {
+              "maxLength": 600,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The missing need, for missing_need.",
+          "title": "Proposed Statement"
+        },
+        "query": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Words to search the frozen sources for support.",
+          "title": "Query"
+        },
+        "revision_ids": {
+          "description": "Needs N of this case the claim is about; for missing_need the closest needs, possibly none.",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Revision Ids",
+          "type": "array"
+        },
+        "task": {
+          "description": "The task of your role this experience comes from, as your role card states it.",
+          "maxLength": 240,
+          "minLength": 1,
+          "title": "Task",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "task",
+        "experience",
+        "claim"
+      ],
+      "title": "ExperienceClaim",
+      "type": "object"
+    },
+    "ExperienceDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_id": {
+          "title": "Claim Id",
+          "type": "string"
+        },
+        "decision": {
+          "enum": [
+            "admit",
+            "exclude"
+          ],
+          "title": "Decision",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "claim_id",
+        "decision",
+        "rationale"
+      ],
+      "title": "ExperienceDecision",
+      "type": "object"
+    },
+    "ExperiencePlan": {
+      "additionalProperties": false,
+      "description": "v6 plan: need dispositions, a decision on every experience claim, and needs proposed from\nexperience alone, which are never applied.",
+      "properties": {
+        "actions": {
+          "items": {
+            "$ref": "#/$defs/ExperienceAction"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Actions",
+          "type": "array"
+        },
+        "concerns": {
+          "items": {
+            "$ref": "#/$defs/ConcernDisposition"
+          },
+          "maxItems": 64,
+          "title": "Concerns",
+          "type": "array"
+        },
+        "experience": {
+          "items": {
+            "$ref": "#/$defs/ExperienceDecision"
+          },
+          "maxItems": 64,
+          "title": "Experience",
+          "type": "array"
+        },
+        "proposals": {
+          "items": {
+            "$ref": "#/$defs/ExperienceProposal"
+          },
+          "maxItems": 4,
+          "title": "Proposals",
+          "type": "array"
+        },
+        "questions": {
+          "items": {
+            "$ref": "#/$defs/HumanReviewQuestion"
+          },
+          "maxItems": 32,
+          "title": "Questions",
+          "type": "array"
+        },
+        "summary": {
+          "maxLength": 1800,
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "actions",
+        "summary"
+      ],
+      "title": "ExperiencePlan",
+      "type": "object"
+    },
+    "ExperienceProposal": {
+      "additionalProperties": false,
+      "properties": {
+        "experience_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Experience Ids",
+          "type": "array"
+        },
+        "proposal_id": {
+          "maxLength": 40,
+          "minLength": 1,
+          "title": "Proposal Id",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "revision_ids": {
+          "description": "Closest needs N of this case.",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Revision Ids",
+          "type": "array"
+        },
+        "statement": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "proposal_id",
+        "statement",
+        "experience_ids",
+        "rationale"
+      ],
+      "title": "ExperienceProposal",
+      "type": "object"
+    },
+    "ExperienceReview": {
+      "additionalProperties": false,
+      "description": "v6 stakeholder review: source-backed concerns plus at most two experience claims.",
+      "properties": {
+        "concerns": {
+          "items": {
+            "$ref": "#/$defs/Concern"
+          },
+          "maxItems": 8,
+          "title": "Concerns",
+          "type": "array"
+        },
+        "evidence_queries": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 2,
+          "title": "Evidence Queries",
+          "type": "array"
+        },
+        "experience": {
+          "items": {
+            "$ref": "#/$defs/ExperienceClaim"
+          },
+          "maxItems": 2,
+          "title": "Experience",
+          "type": "array"
+        },
+        "finished": {
+          "default": false,
+          "title": "Finished",
+          "type": "boolean"
+        },
+        "summary": {
+          "maxLength": 1800,
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "summary"
+      ],
+      "title": "ExperienceReview",
+      "type": "object"
+    },
     "ExtractionTaskJustification": {
       "additionalProperties": false,
       "description": "Untrusted extraction hint; empty reasons are audited and dropped before storage.",
@@ -4519,6 +4911,13 @@
         "details": {
           "title": "Details",
           "type": "object"
+        },
+        "experience_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Experience Ids",
+          "type": "array"
         },
         "matched_base_need_ids": {
           "items": {

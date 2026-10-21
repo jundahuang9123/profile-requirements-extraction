@@ -1,9 +1,12 @@
-"""Synthetic tests of the bookkeeping added in rq1-fa-dialogue-v3 (kept in v4): no evaluation answers or live generation."""
+"""Synthetic tests of the bookkeeping added in rq1-fa-dialogue-v3 (kept through v6): no evaluation answers or live generation.
+
+Direct plan checks run on the v5 plan contract and on the v6 one (ExperiencePlan) that base-review runs use;
+where v6 expects otherwise, its variant is in test_fa_experience.py."""
 import json
 from copy import deepcopy
 import pytest
 from test_routed_stakeholder_workflow import setup  # noqa: F401  (pytest fixture)
-from test_fa_workflow import Dialogue
+from test_fa_workflow import Dialogue, contract_name
 from test_base_review import prepared, Reviewer
 from requirement_reuse_service.workflow import base_review as br, fa_discussion as fd, stakeholder_workflow as old
 
@@ -13,10 +16,10 @@ class Mediator(Dialogue):
     def __init__(self,plans,objection=True):
         super().__init__(objection=objection);self.plans=plans;self.plan_systems=[];self.calls_by_model=[]
     def generate_structured(self,*,user,output_model,system='',step=None,**kw):
-        self.calls_by_model.append(output_model.__name__)
+        self.calls_by_model.append(contract_name(output_model))
         if output_model in (br.BaseReview,br.BaseReviewChecks):
             return Reviewer('new').generate_structured(user=user,output_model=output_model)
-        if output_model.__name__=='Plan':
+        if contract_name(output_model)=='Plan':
             self.plan_systems.append(system)
             return output_model.model_validate(self.plans(json.loads(user),len(self.plan_systems),system))
         return super().generate_structured(user=user,output_model=output_model,step=step,**kw)
@@ -70,8 +73,13 @@ def kept(rids,**extra):
         'questions':[],'summary':'Plan.',**extra}
 
 
-def repaired(data,case,messages,allowed):
-    plan=fd.Plan.model_validate(data);fixed,repairs=fd.repair_plan(plan,case,messages)
+@pytest.fixture(params=['Plan','ExperiencePlan'])
+def plan_model(request):
+    return getattr(fd,request.param)
+
+
+def repaired(data,case,messages,allowed,model=fd.Plan):
+    plan=model.model_validate(data);fixed,repairs=fd.repair_plan(plan,case,messages)
     return fd.plan_errors(plan,case,messages,allowed),fixed,repairs,fd.plan_errors(fixed,case,messages,allowed)
 
 
@@ -193,11 +201,11 @@ def test_no_salvage_without_a_valid_need_disposition(setup):
     assert saved['active_revision_ids']==run['active_revision_ids']
 
 
-def test_a_lifted_label_is_not_forced_to_defer_but_a_labelled_need_stays_visible(setup):
+def test_a_lifted_label_is_not_forced_to_defer_but_a_labelled_need_stays_visible(setup,plan_model):
     store,run=opted_in(setup,1);rid=run['requirements'][0]['revision_id']
     case=fd.build_cases(store,run,[],Dialogue())[0]
     def errors(case,action,**extra):
-        plan=fd.Plan(actions=[{'action_id':'a','action':action,'parent_revision_ids':[rid],'rationale':'Synthetic.',**extra}],summary='Synthetic plan.')
+        plan=plan_model(actions=[{'action_id':'a','action':action,'parent_revision_ids':[rid],'rationale':'Synthetic.',**extra}],summary='Synthetic plan.')
         return fd.plan_errors(plan,case,[],set(run['evidence_ids']))
     lifted=deepcopy(case);lifted['frozen_requirements'][0]['base_relation']={'effect':'flag_removed','verdict':'new'}
     assert not any('Base' in e for e in errors(lifted,'retain'))
@@ -261,41 +269,41 @@ def test_a_resumed_case_rebuilds_the_same_salvaged_draft(setup):
     assert client.calls_by_model.count('Review')==0
 
 
-def test_a_question_that_names_an_action_gets_that_actions_need(setup):
+def test_a_question_that_names_an_action_gets_that_actions_need(setup,plan_model):
     case,(n1,n2),messages,allowed=built(setup)
     data=kept([n1,n2],questions=[{'question_id':'Q1','revision_ids':['A1'],'concern_ids':['c1'],'question':'Which licence applies?',
         'alternatives':['Keep','Revise'],'rationale':'Open.'}])
     data['concerns'][0].update(status='unresolved',action_ids=[],question_ids=['Q1'])
-    before,fixed,repairs,after=repaired(data,case,messages,allowed)
+    before,fixed,repairs,after=repaired(data,case,messages,allowed,plan_model)
     assert 'Human question must link only distinct current needs.' in before and after==[]
     assert fixed.questions[0].revision_ids==[n1] and repairs==[{'kind':'question_need_from_action','question_id':'Q1','action_id':'A1'}]
 
 
-def test_a_concern_gets_the_question_that_lists_it(setup):
+def test_a_concern_gets_the_question_that_lists_it(setup,plan_model):
     case,(n1,n2),messages,allowed=built(setup)
     data=kept([n1,n2],questions=[{'question_id':'Q1','revision_ids':[n1],'concern_ids':['c1'],'question':'Which licence applies?',
         'alternatives':['Keep','Revise'],'rationale':'Open.'}])
     data['concerns'][0].update(status='unresolved',action_ids=[])
-    before,fixed,repairs,after=repaired(data,case,messages,allowed)
+    before,fixed,repairs,after=repaired(data,case,messages,allowed,plan_model)
     assert 'Question and concern links must be reciprocal.' in before and after==[]
     assert fixed.concerns[0].question_ids==['Q1'] and repairs==[{'kind':'concern_links_question','concern_id':'c1','question_id':'Q1'}]
 
 
-def test_a_question_gets_the_concern_that_lists_it(setup):
+def test_a_question_gets_the_concern_that_lists_it(setup,plan_model):
     case,(n1,n2),messages,allowed=built(setup)
     data=kept([n1,n2],questions=[{'question_id':'Q1','revision_ids':[n1,n2],'concern_ids':['c2'],'question':'Which licence applies?',
         'alternatives':['Keep','Revise'],'rationale':'Open.'}])
     for row in data['concerns']:row.update(status='unresolved',action_ids=[],question_ids=['Q1'])
-    before,fixed,repairs,after=repaired(data,case,messages,allowed)
+    before,fixed,repairs,after=repaired(data,case,messages,allowed,plan_model)
     assert 'Concern and question links must be reciprocal.' in before and after==[]
     assert fixed.questions[0].concern_ids==['c2','c1'] and repairs==[{'kind':'question_links_concern','concern_id':'c1','question_id':'Q1'}]
 
 
-def test_only_an_empty_note_without_a_need_is_dropped(setup):
+def test_only_an_empty_note_without_a_need_is_dropped(setup,plan_model):
     case,(n1,n2),messages,allowed=built(setup)
     note={'action_id':'A3','action':'retain','parent_revision_ids':[],'rationale':'Concern noted.'}
     data=kept([n1,n2]);data['actions'].append(note)
-    before,fixed,repairs,after=repaired(data,case,messages,allowed)
+    before,fixed,repairs,after=repaired(data,case,messages,allowed,plan_model)
     assert 'Non-addition requires a current parent.' in before and after==[]
     assert [a.action_id for a in fixed.actions]==['A1','A2']
     assert repairs==[{'kind':'dropped_unlinked_action_without_need','action_id':'A3','action':'retain'}]
@@ -307,43 +315,43 @@ def test_only_an_empty_note_without_a_need_is_dropped(setup):
             ({'priority_links':[link]},[]),({'priority_basis':'The access passage comes first.'},[]),
             ({'condition':'Only for datasets with restricted access.'},[]),({'alternatives':['Keep the wording','Add the access condition']},[])]:
         data=kept([n1,n2]);data['actions']+=[{**note,**extra},*also]
-        before,fixed,repairs,after=repaired(data,case,messages,allowed)
+        before,fixed,repairs,after=repaired(data,case,messages,allowed,plan_model)
         assert 'A3' in [a.action_id for a in fixed.actions] and repairs==[] and 'Non-addition requires a current parent.' in after
     data=kept([n1,n2]);data['actions'].append(note);data['concerns'][1]['action_ids']=['A3']
-    assert 'A3' in [a.action_id for a in repaired(data,case,messages,allowed)[1].actions]
+    assert 'A3' in [a.action_id for a in repaired(data,case,messages,allowed,plan_model)[1].actions]
 
 
-def test_defer_fields_are_copied_from_the_linked_question(setup):
+def test_defer_fields_are_copied_from_the_linked_question(setup,plan_model):
     case,(n1,n2),messages,allowed=built(setup)
     data=kept([n1,n2],questions=[{'question_id':'Q1','revision_ids':[n1],'concern_ids':['c1'],'question':'Which licence applies?',
         'alternatives':['Keep','Revise'],'rationale':'Open.'}])
     data['actions'][0].update(action='defer',rationale='Ask a person.')
     data['concerns'][0].update(status='unresolved',question_ids=['Q1'])
-    before,fixed,repairs,after=repaired(data,case,messages,allowed)
+    before,fixed,repairs,after=repaired(data,case,messages,allowed,plan_model)
     assert 'Deferral requires a precise human question and preserved alternatives.' in before and after==[]
     assert fixed.actions[0].human_question=='Which licence applies?' and fixed.actions[0].alternatives==['Keep','Revise']
     assert repairs==[{'kind':'defer_fields_copied_from_linked_question','action_id':'A1','question_id':'Q1','fields':['human_question','alternatives']}]
 
 
-def test_a_repeated_need_in_a_question_is_not_silently_deduplicated(setup):
+def test_a_repeated_need_in_a_question_is_not_silently_deduplicated(setup,plan_model):
     case,(n1,n2),messages,allowed=built(setup)
     data=kept([n1,n2],questions=[{'question_id':'Q1','revision_ids':[n1,n1],'concern_ids':['c1'],'question':'Which licence applies?',
         'alternatives':['Keep','Revise'],'rationale':'Open.'}])
     data['concerns'][0].update(status='unresolved',action_ids=[],question_ids=['Q1'])
-    before,fixed,repairs,after=repaired(data,case,messages,allowed)
+    before,fixed,repairs,after=repaired(data,case,messages,allowed,plan_model)
     assert repairs==[] and fixed.questions[0].revision_ids==[n1,n1]
     assert before==after and 'Human question must link only distinct current needs.' in after
     # Mapping an action to its need removes no ID the model repeated, a need or an action (review probe).
     for written,expected in [([n1,n1,'A2'],[n1,n1,n2]),(['A1','A1'],[n1,n1])]:
         data['questions'][0]['revision_ids']=written
-        before,fixed,repairs,after=repaired(data,case,messages,allowed)
+        before,fixed,repairs,after=repaired(data,case,messages,allowed,plan_model)
         assert fixed.questions[0].revision_ids==expected and 'Human question must link only distinct current needs.' in after
         assert repairs==[{'kind':'question_need_from_action','question_id':'Q1','action_id':i} for i in dict.fromkeys(written) if i.startswith('A')]
 
 
-def test_feedback_names_repeated_links(setup):
+def test_feedback_names_repeated_links(setup,plan_model):
     case,(n1,n2),messages,allowed=built(setup)
-    plan=fd.Plan.model_validate({'actions':[{'action_id':'A1','action':'retain','parent_revision_ids':[n1],'rationale':'Kept.'}],
+    plan=plan_model.model_validate({'actions':[{'action_id':'A1','action':'retain','parent_revision_ids':[n1],'rationale':'Kept.'}],
         'questions':[{'question_id':'Q1','revision_ids':[n2,n2],'concern_ids':['c1','c1'],'question':'Which?','alternatives':['a'],'rationale':'r'}],
         'concerns':[{'concern_id':'c1','status':'unresolved','action_ids':['A1','A1'],'question_ids':['Q1','Q1'],'rationale':'Open.'},
             {'concern_id':'c2','status':'satisfied','action_ids':['A1'],'rationale':'Kept.'}],'summary':'Broken.'})
@@ -355,6 +363,7 @@ def test_feedback_names_repeated_links(setup):
 
 
 def test_a_cut_correction_says_how_many_problems_it_does_not_show(setup):
+    # The v5 plan contract: 40 concerns without a disposition (v6 notes them; see test_fa_experience).
     case,(n1,n2),_,allowed=built(setup)
     messages=[{'concerns':[{'concern_id':f'c{i}','revision_ids':[n1]} for i in range(40)]}]
     plan=fd.Plan.model_validate(kept([n1,n2],concerns=[]))
@@ -433,11 +442,11 @@ def test_a_sourced_proposal_without_a_need_is_shown_for_review(setup):
     assert saved['active_revision_ids']==run['active_revision_ids']
 
 
-def test_salvage_never_keeps_an_addition(setup):
+def test_salvage_never_keeps_an_addition(setup,plan_model):
     case,(n1,n2),_,allowed=built(setup)
     messages=[{'concerns':[{'concern_id':'c1','revision_ids':[n2]}]}]
     link=deepcopy(case['frozen_requirements'][0]['evidence_links'][0])
-    plan=fd.Plan.model_validate({'actions':[{'action_id':'A1','action':'retain','parent_revision_ids':[n1],'rationale':'Kept.'},
+    plan=plan_model.model_validate({'actions':[{'action_id':'A1','action':'retain','parent_revision_ids':[n1],'rationale':'Kept.'},
         {'action_id':'A2','action':'add','statement':'Users can find an invented need.','evidence_links':[link],'rationale':'Idea.'},
         {'action_id':'A3','action':'set_aside','rationale':'Drop the idea.','human_question':'Restore?'},
         {'action_id':'A4','action':'revise','parent_revision_ids':[n2],'rationale':'No source.'}],
@@ -452,14 +461,14 @@ def test_salvage_never_keeps_an_addition(setup):
     assert 'apply a rejected action after review' in salvaged.actions[1].human_question
     assert audit['deferred_revision_ids']==[n2] and audit['replaced_concern_ids']==['c1']
     assert salvaged.concerns[0].status=='unresolved' and salvaged.questions[0].concern_ids==['c1']
-    nothing,audit=fd.salvage_plan(fd.Plan(actions=[plan.actions[1],plan.actions[2]],summary='Only an addition.'),case,[],allowed)
+    nothing,audit=fd.salvage_plan(plan_model(actions=[plan.actions[1],plan.actions[2]],summary='Only an addition.'),case,[],allowed)
     assert nothing is None and audit['status']=='not_salvaged'
 
 
-def test_salvage_leaves_a_concern_open_when_its_action_was_dropped(setup):
+def test_salvage_leaves_a_concern_open_when_its_action_was_dropped(setup,plan_model):
     case,(n1,n2),_,allowed=built(setup)
     messages=[{'concerns':[{'concern_id':'c1','revision_ids':[n2]}]}]
-    plan=fd.Plan.model_validate({'actions':[{'action_id':'A1','action':'retain','parent_revision_ids':[n1],'rationale':'Kept.'},
+    plan=plan_model.model_validate({'actions':[{'action_id':'A1','action':'retain','parent_revision_ids':[n1],'rationale':'Kept.'},
         {'action_id':'A2','action':'revise','parent_revision_ids':[n2],'rationale':'No source.'}],
         'concerns':[{'concern_id':'c1','status':'addressed','action_ids':['A1','A2'],'rationale':'Addressed by the revision.'}],'summary':'Broken.'})
     salvaged,audit=fd.salvage_plan(plan,case,messages,allowed)
@@ -468,10 +477,10 @@ def test_salvage_leaves_a_concern_open_when_its_action_was_dropped(setup):
     assert audit['replaced_concern_ids']==['c1'] and audit['deferred_revision_ids']==[n2]
 
 
-def test_salvage_leaves_a_concern_with_two_dispositions_open(setup):
+def test_salvage_leaves_a_concern_with_two_dispositions_open(setup,plan_model):
     case,(n1,n2),_,allowed=built(setup)
     messages=[{'concerns':[{'concern_id':'c1','revision_ids':[n2]}]}]
-    plan=fd.Plan.model_validate({'actions':[{'action_id':'A1','action':'retain','parent_revision_ids':[n1],'rationale':'Kept.'},
+    plan=plan_model.model_validate({'actions':[{'action_id':'A1','action':'retain','parent_revision_ids':[n1],'rationale':'Kept.'},
         {'action_id':'A2','action':'revise','parent_revision_ids':[n2],'rationale':'No source.'}],
         'questions':[{'question_id':'Q1','revision_ids':[n2],'concern_ids':['c1'],'question':'Which?','alternatives':['a'],'rationale':'r'}],
         'concerns':[{'concern_id':'c1','status':'satisfied','action_ids':['A1'],'rationale':'First.'},
@@ -483,6 +492,7 @@ def test_salvage_leaves_a_concern_with_two_dispositions_open(setup):
 
 
 def test_a_salvage_beyond_the_plan_contract_is_not_salvaged(setup):
+    # The v5 plan contract: the system question for the 33rd concern overflows (v6 variant in test_fa_experience).
     case,(n1,n2),_,allowed=built(setup)
     messages=[{'concerns':[{'concern_id':f'c{i}','revision_ids':[n1]} for i in range(33)]}]
     plan=fd.Plan.model_validate({'actions':[{'action_id':'A1','action':'retain','parent_revision_ids':[n1],'rationale':'Kept.'},
@@ -523,12 +533,12 @@ def test_an_invalid_plan_is_salvaged_and_its_rejected_action_shown(setup):
     calls=len(client.calls_by_model);fd.deliberate(store,run['run_id'],client);assert len(client.calls_by_model)==calls
 
 
-def test_a_v3_case_does_not_force_a_removed_label_to_defer(setup):
+def test_a_v3_case_does_not_force_a_removed_label_to_defer(setup,plan_model):
     case,(n1,n2),messages,allowed=built(setup)
     # rq1-base-expert-v3 saved 'dispute' with the label already removed (JRC run-fd39639e: 11 needs).
     relation={'policy':'rq1-base-expert-v3','status':'checked','verdict':'new','effect':'dispute'}
     case['frozen_requirements'][0]['base_relation']=relation;assert br.label_removed(relation)
-    assert fd.plan_errors(fd.Plan.model_validate(kept([n1,n2])),case,messages,allowed)==[]
+    assert fd.plan_errors(plan_model.model_validate(kept([n1,n2])),case,messages,allowed)==[]
 
 
 def test_the_discussion_refuses_labels_of_rq1_base_expert_v3(setup):
@@ -537,15 +547,15 @@ def test_the_discussion_refuses_labels_of_rq1_base_expert_v3(setup):
         r['requirements'][0].update(base_relation={'policy':'rq1-base-expert-v3','status':'checked','verdict':'new','effect':'dispute'})
         r['requirements'][1].update(base_relation={'status':'not_reviewed'})  # no policy: reported, not a TypeError
     store.mutate(run['run_id'],None,'fixture_v3_label',label)
-    with pytest.raises(ValueError,match='Stage 6a ran under None, rq1-base-expert-v3; rq1-fa-dialogue-v5 needs rq1-base-expert-v5'):
+    with pytest.raises(ValueError,match='Stage 6a ran under None, rq1-base-expert-v3; rq1-fa-dialogue-v6 needs rq1-base-expert-v5'):
         fd.deliberate(store,run['run_id'],Mediator(retain_all))
 
 
-@pytest.mark.parametrize('planned',['rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4'])
+@pytest.mark.parametrize('planned',['rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5'])
 def test_a_discussion_planned_under_an_earlier_version_is_refused_by_name(setup,planned):
     store,run=opted_in(setup)
     old.save(store,run['run_id'],'fa_discussion_plan',{'policy_version':planned})
-    with pytest.raises(ValueError,match=f'planned under {planned}; the current protocol is rq1-fa-dialogue-v5. Derive a separate base-review trial'):
+    with pytest.raises(ValueError,match=f'planned under {planned}; the current protocol is rq1-fa-dialogue-v6. Derive a separate base-review trial'):
         fd.deliberate(store,run['run_id'],Mediator(retain_all))
 
 
@@ -555,7 +565,7 @@ def test_a_stakeholder_review_with_structured_errors_gets_its_correction(setup):
     class UnknownNeedFirst(Mediator):
         def __init__(self):super().__init__(retain_all);self.review_systems=[]
         def generate_structured(self,*,user,output_model,system='',step=None,**kw):
-            if output_model.__name__!='Review':return super().generate_structured(user=user,output_model=output_model,system=system,step=step,**kw)
+            if contract_name(output_model)!='Review':return super().generate_structured(user=user,output_model=output_model,system=system,step=step,**kw)
             self.review_systems.append(system)
             raw=super().generate_structured(user=user,output_model=output_model,step=step,**kw).model_dump(mode='json')
             if len(self.review_systems)==1:raw['concerns'][0]['revision_ids']=['N99']
