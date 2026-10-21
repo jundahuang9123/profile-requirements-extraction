@@ -470,8 +470,10 @@ def derive_base_review_run(store,source,request,actor):
     for key in ('requirements','active_revision_ids','set_aside_observations','conflicts','consolidation_events'):
         if key not in snapshot:raise ValueError('Machine snapshot lacks '+key)
         child[key]=deepcopy(snapshot[key])
+    # A trial labels and groups its needs afresh: inherited v5 task labels (fa_task_labels:) were
+    # reused when their input matched and otherwise stopped the trial at a checkpoint mismatch.
     child['stakeholder_audit']={k:v for k,v in child.get('stakeholder_audit',{}).items() if not (
-        k.startswith(('fa_task_groups:','base_review','stage:base_review','stage:deliberation')) or k in {'fa_discussion_plan','fa_coverage','post_discussion'})}
+        k.startswith(('fa_task_groups:','fa_task_labels:','base_review','stage:base_review','stage:deliberation')) or k in {'fa_discussion_plan','fa_coverage','post_discussion'})}
     child['stage_results']={k:v for k,v in child.get('stage_results',{}).items() if k not in {'base_review','deliberation','adjudication','baseline'}}
     child['stages'].update(base_review='pending',deliberation='pending',adjudication='pending',baseline='pending')
     child.update(run_id='run-'+uuid.uuid4().hex,name=settings.name,version=1,created_at=now(),status='created',

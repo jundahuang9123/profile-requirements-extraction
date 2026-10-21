@@ -137,7 +137,7 @@ def test_request_opt_in_requires_fa_and_base_and_policy_is_per_run():
     with pytest.raises(ValueError,match='requires the F/A'):
         RunRequest(snapshot_id='s',base_review='expert_v1')
     r=RunRequest(snapshot_id='s',strategy='multi_agent',stakeholder_workflow='fa_mediated',base_profile_id='dcat-ap-1.1.0',base_review='expert_v1')
-    assert discussion_policy({'request':r.model_dump()})=='rq1-fa-dialogue-v4'
+    assert discussion_policy({'request':r.model_dump()})=='rq1-fa-dialogue-v5'
     assert br.POLICY=='rq1-base-expert-v5'
     assert discussion_policy({'request':{}})=='rq1-fa-dialogue-v1'
 
@@ -204,7 +204,7 @@ def derivable(setup):
         for s in ('acquisition','decomposition','role_selection','elicitation','normalization','verification','consolidation'):r['stages'][s]='completed'
         r['machine_snapshot'].update(set_aside_observations=[],conflicts=[],consolidation_events=[])
         r['deliberations']=[{'case_id':'historical','status':'mediated','discussion_trace':{}}]
-        r['stakeholder_audit'].update({'fa_discussion_plan':{'old':True},'fa_task_groups:0':{'old':True}})
+        r['stakeholder_audit'].update({'fa_discussion_plan':{'old':True},'fa_task_groups:0':{'old':True},'fa_task_labels:0':{'old':True}})
     store.mutate(run['run_id'],None,'ready',ready,parts=True)
     return store,store.get('run',run['run_id'])
 
@@ -220,6 +220,8 @@ def test_derive_restores_snapshot_and_stepwise_pauses_before_discussion(setup):
     for key in ('requirements','active_revision_ids','conflicts','set_aside_observations','consolidation_events'):
         assert child[key]==source['machine_snapshot'][key]
     assert child['deliberations']==[] and 'fa_discussion_plan'not in child['stakeholder_audit']
+    # Grouping and task labels of the parent's discussion are not inherited.
+    assert not [k for k in child['stakeholder_audit'] if k.startswith(('fa_task_groups:','fa_task_labels:'))]
     assert child['derived_from']['restored_from']=='machine_snapshot'
     assert child['derived_from']['inherited_discussions_hash']==digest(source['deliberations'])
     engine.execute_run(store,child['run_id'],Reviewer())
