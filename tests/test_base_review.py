@@ -204,7 +204,7 @@ def derivable(setup):
         for s in ('acquisition','decomposition','role_selection','elicitation','normalization','verification','consolidation'):r['stages'][s]='completed'
         r['machine_snapshot'].update(set_aside_observations=[],conflicts=[],consolidation_events=[])
         r['deliberations']=[{'case_id':'historical','status':'mediated','discussion_trace':{}}]
-        r['stakeholder_audit'].update({'fa_discussion_plan':{'old':True},'fa_task_groups:0':{'old':True}})
+        r['stakeholder_audit'].update({'fa_discussion_plan':{'old':True},'fa_task_groups:0':{'old':True},'fa_task_labels:0':{'old':True}})
     store.mutate(run['run_id'],None,'ready',ready,parts=True)
     return store,store.get('run',run['run_id'])
 
@@ -220,6 +220,8 @@ def test_derive_restores_snapshot_and_stepwise_pauses_before_discussion(setup):
     for key in ('requirements','active_revision_ids','conflicts','set_aside_observations','consolidation_events'):
         assert child[key]==source['machine_snapshot'][key]
     assert child['deliberations']==[] and 'fa_discussion_plan'not in child['stakeholder_audit']
+    # Grouping and task labels of the parent's discussion are not inherited.
+    assert not [k for k in child['stakeholder_audit'] if k.startswith(('fa_task_groups:','fa_task_labels:'))]
     assert child['derived_from']['restored_from']=='machine_snapshot'
     assert child['derived_from']['inherited_discussions_hash']==digest(source['deliberations'])
     engine.execute_run(store,child['run_id'],Reviewer())
