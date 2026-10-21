@@ -236,9 +236,15 @@ def plan_feedback(plan,case,messages,allowed):
         for field in fields:
             twice=[i for i,c in Counter(getattr(row,field)).items() if c>1]
             if twice:notes.append(f'{kind} {item} lists {", ".join(twice)} more than once in {field}; list each ID once.')
+    # In the GPT-OSS-only JRC replay (run-4b8eaaca), 8 of 13 drafts that stayed invalid wrote
+    # one add that left the need out, then answered "N1 is in no action" by naming N1 in it.
+    adds=[a.action_id for a in plan.actions if a.action=='add' and not a.parent_revision_ids]
     for n in needs:
         named=[a.action_id for a in plan.actions if n in a.parent_revision_ids]
-        if not named:notes.append(f'{n} is in no action: write exactly one action that names {n} in parent_revision_ids.')
+        if not named:
+            notes.append(f'{n} is in no action: write exactly one action that names {n} in parent_revision_ids.'+(
+                f' An add never names an existing need: if {", ".join(adds)} rewords {n}, write it as revise of {n} '
+                f'with the statement and its sources; if it is a further need, keep {n} with its own retain action.' if adds else ''))
         elif len(named)>1:notes.append(f'{n} is named by actions {", ".join(named)}: name it in exactly one action.')
     for a in plan.actions:
         unknown=[p for p in a.parent_revision_ids if p not in needs]
@@ -247,8 +253,17 @@ def plan_feedback(plan,case,messages,allowed):
             notes.append(f'Action {a.action_id} ({a.action}) names no need. Name the need it disposes, or remove it and '
                 'answer the concern in concerns (rejected_with_reason, or unresolved with a question). '
                 'To drop a proposed addition, omit its add action.')
+        if a.action=='add' and a.parent_revision_ids:
+            named=", ".join(a.parent_revision_ids)
+            notes.append(f'Action {a.action_id} (add) names {named}, but an add never names an existing need. '+(
+                f'To reword {named}, make {a.action_id} a revise of {named} with the statement and its sources; to keep '
+                f'{named} and propose a further need, retain {named} in its own action'
+                if len(a.parent_revision_ids)==1 else
+                f'To combine {named} into one reworded need, make {a.action_id} a merge of them with the statement and its '
+                'sources; to keep them and propose a further need, retain each in its own action')+
+                f' and give {a.action_id} no parent_revision_ids.')
         notes+=[f'Action {a.action_id} ({a.action}): {e}' for e in action_errors(a,case,allowed)
-            if e!='Non-addition requires a current parent.']
+            if e not in {'Non-addition requires a current parent.','Addition cannot replace an existing parent.'}]
     notes+=[f'Action ID {i} is used {c} times; action IDs must be unique.' for i,c in Counter(a.action_id for a in plan.actions).items() if c>1]
     stated=Counter(d.concern_id for d in plan.concerns)
     for c in concerns:

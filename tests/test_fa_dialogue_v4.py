@@ -220,3 +220,31 @@ def test_a_mediated_set_aside_is_applied_and_its_record_validates(setup):
     assert record['reason']=='mediated_fa_set_aside' and record['reversible'] is True
     # A discussion continuation validates the whole run; this record failed the contract.
     WorkflowRun.model_validate(saved)
+
+
+def test_feedback_tells_an_add_that_rewords_a_need_to_revise_it(setup):
+    # GPT-OSS-only JRC replay: 8 of 13 drafts that stayed invalid wrote a lone add, were told
+    # "N1 is in no action", then named N1 in the add ("Addition cannot replace an existing parent").
+    case,(n1,n2),messages,allowed=built(setup)
+    link=dict(case['frozen_requirements'][0]['evidence_links'][0])
+    lone=fd.Plan.model_validate({'actions':[{'action_id':'A1','action':'add','statement':'Users can find the licence of a dataset.',
+            'evidence_links':[link],'rationale':'Reworded.'},{'action_id':'A2','action':'retain','parent_revision_ids':[n2],'rationale':'Kept.'}],
+        'concerns':[{'concern_id':'c1','status':'addressed','action_ids':['A1'],'rationale':'Reworded.'},
+            {'concern_id':'c2','status':'satisfied','action_ids':['A2'],'rationale':'Kept.'}],'summary':'Draft.'})
+    notes=fd.plan_feedback(lone,case,messages,allowed)
+    assert (f'{n1} is in no action: write exactly one action that names {n1} in parent_revision_ids. An add never names an '
+        f'existing need: if A1 rewords {n1}, write it as revise of {n1} with the statement and its sources; if it is a further '
+        f'need, keep {n1} with its own retain action.') in notes
+    data=lone.model_dump(mode='json');data['actions'][0]['parent_revision_ids']=[n1]
+    named=fd.Plan.model_validate(data)
+    assert 'Addition cannot replace an existing parent.' in fd.plan_errors(named,case,messages,allowed)
+    notes=fd.plan_feedback(named,case,messages,allowed)
+    assert (f'Action A1 (add) names {n1}, but an add never names an existing need. To reword {n1}, make A1 a revise of {n1} '
+        f'with the statement and its sources; to keep {n1} and propose a further need, retain {n1} in its own action and give '
+        'A1 no parent_revision_ids.') in notes
+    assert not any('Addition cannot replace an existing parent.' in x for x in notes)
+    data['actions'][0]['parent_revision_ids']=[n1,n2];data['actions']=data['actions'][:1]
+    assert any('make A1 a merge of them' in x for x in fd.plan_feedback(fd.Plan.model_validate(data),case,messages,allowed))
+    # A plan without additions keeps the plain note.
+    assert f'{n1} is in no action: write exactly one action that names {n1} in parent_revision_ids.' in fd.plan_feedback(
+        fd.Plan.model_validate({**lone.model_dump(mode='json'),'actions':[lone.actions[1].model_dump(mode='json')]}),case,messages,allowed)

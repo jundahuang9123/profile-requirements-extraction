@@ -354,6 +354,11 @@ discussion (JRC `run-934df8ba`, below) showed:
   needs and excerpts it may cite, in its own aliases (for example "Concern 2
   lists N4 in revision_ids, but the needs of this case are only N1, N2"). The
   v3 correction showed only the validator's records; it fixed 10 of 25 reviews.
+  A mediator plan that writes `add` for a need it means to reword is told to use
+  `revise`, or to keep the need with `retain` beside an add without parents: in a
+  GPT-OSS-only JRC replay (`run-4b8eaaca`), 8 of 13 drafts that stayed invalid
+  wrote a lone add, were told the need was in no action, and then named the need
+  in the add ("Addition cannot replace an existing parent").
 - **Base absence.** The mediator and checker prompts say that a need the base
   does not provide is a candidate requirement of the profile, never a reason to
   set it aside; one v3 mediator set three needs aside because the base lacked
