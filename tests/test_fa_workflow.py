@@ -30,6 +30,8 @@ class Dialogue:
     def generate_structured(self,*,user,output_model,step=None,**kwargs):
         data=json.loads(user);name=output_model.__name__;self.calls.append((step,name,data))
         if name=='TaskGroups':raw={'groups':[{'task':'Find contact and access conditions','revision_ids':[n['revision_id'] for n in data['needs']], 'rationale':'Same source-supported dataset selection task.'}]}
+        # rq1-fa-dialogue-v5 labels needs by task; one shared label gives the same single case.
+        elif name=='TaskLabels':raw={'labels':[{'need':a,'task':'Find contact and access conditions'} for a in data['needs']]}
         elif name=='Review':
             ids=[n['revision_id'] for n in data['packet']['needs']]
             concern={'revision_ids':ids,'kind':'interference' if self.objection and not data.get('draft') else 'satisfied',

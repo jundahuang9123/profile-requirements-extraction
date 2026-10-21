@@ -1,4 +1,4 @@
-"""Synthetic tests of rq1-fa-dialogue-v4: no evaluation answers or live generation."""
+"""Synthetic tests of the rules added in rq1-fa-dialogue-v4 (kept in v5): no evaluation answers or live generation."""
 import json
 import pytest
 from test_routed_stakeholder_workflow import setup  # noqa: F401  (pytest fixture)
@@ -23,8 +23,8 @@ def caps(client,*names):
 
 
 def test_policy_names():
-    assert fd.BASE_POLICY=='rq1-fa-dialogue-v4' and br.POLICY=='rq1-base-expert-v5'
-    assert fd.BASE_POLICIES=={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4'}
+    assert fd.BASE_POLICY=='rq1-fa-dialogue-v5' and br.POLICY=='rq1-base-expert-v5'
+    assert fd.BASE_POLICIES=={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5'}
 
 
 def test_stakeholders_get_the_concern_rules_and_plans_start_at_8000_tokens(setup):
@@ -40,7 +40,8 @@ def test_stakeholders_get_the_concern_rules_and_plans_start_at_8000_tokens(setup
     assert draft['policy_version']=='rq1-fa-context-budget-case-v2' and draft['limit_characters']==53000
     assert draft['output_tokens']=={'first':8000,'retry':8000}
     assert phases['check']['context_budget']['output_tokens']=={'first':4000,'retry':8000}
-    assert (case['max_calls'],case['total_output_budget'],case['max_seconds'])==(16,128000,1800)
+    # Two needs: the v4 limits plus one extra need's share (v5).
+    assert (case['max_calls'],case['total_output_budget'],case['max_seconds'])==(17,136000,2100)
 
 
 def test_a_legacy_v1_discussion_keeps_its_prompts_and_limits(setup):
@@ -56,7 +57,8 @@ def test_a_legacy_v1_discussion_keeps_its_prompts_and_limits(setup):
 
 
 def test_execution_reads_the_limits_recorded_in_the_case(setup,monkeypatch):
-    monkeypatch.setattr(fd,'BASE_CASE_LIMITS',{'max_calls':3,'total_output_budget':128000,'max_seconds':1800})
+    # A two-need case adds one call to the base limit (v5).
+    monkeypatch.setattr(fd,'BASE_CASE_LIMITS',{'max_calls':2,'total_output_budget':128000,'max_seconds':1800})
     store,run=opted_in(setup);client=Recording(retain_all);fd.deliberate(store,run['run_id'],client)
     saved,case=case_of(store,run)
     # Two initial positions and the draft; the first response finds the case budget spent.

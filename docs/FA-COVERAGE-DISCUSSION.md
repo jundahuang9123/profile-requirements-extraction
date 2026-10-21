@@ -13,7 +13,7 @@ New UI runs use the `find_access_v1` requirements contract. Automatic stakeholde
 3. **One planned extraction pass:** read each assignment once, in bounded batches. Invalid output may receive bounded corrections. There is no repeated whole-corpus completeness sweep. Preserve actor, modality, conditions and negation; a quoted fact is not automatically an information need.
 4. **Grouping/writing:** keep original observations and member links. A new independent preservation check rejects a broad summary that loses information, actor, purpose, conditions, obligation or negation. Rejected or unavailable rewrites retain their original proposals as visible set-asides. “The metadata must let users …” is allowed only with a separately source-checked mandatory obligation. Historical neutral wording is unchanged.
 5. **Independent scope axes:** record source support, find/access relevance, statement nature, actor/task/example and cited evidence separately. Unchecked or disputed rows retain a review flag. A definite unsupported/out-of-scope judgement is reversible, with evidence and rationale retained. Category/applicability failure cannot erase these axes. Base-covered domain needs remain in the inventory with their domain evidence and base matches.
-6. **Cases:** task-based grouping can combine needs from different source files. Bounded windows and packet size limits are recorded; this does not guarantee all distant related needs meet. Include latest set-asides and unresolved proposals, labelled as such. Oversized cases split with a shared group hash; an oversized singleton remains pending human preparation.
+6. **Cases:** task-based grouping can combine needs from different source files (since `rq1-fa-dialogue-v5` over the whole inventory; see Task cases). Bounded windows and packet size limits are recorded; this does not guarantee all distant related needs meet. Include latest set-asides and unresolved proposals, labelled as such. Oversized cases split with a shared group hash; an oversized singleton remains pending human preparation.
 7. **Discussion:** save independent initial positions without peer answers; aggregate issues; obtain a mediator draft; solicit responses to proposed changes or material objections even from a role previously marked finished; obtain final mediation when responses occurred; independently check every disposition, including retain and set-aside. No concern is a valid response; silence or repetition does not establish consensus or weight.
 8. **Persistence/review:** apply source-checked machine revisions transactionally. Preserve before/after revision IDs, parents, evidence and observations. Invalid changes retain parents and a review question. A case whose structured output remains invalid after bounded correction is explicitly queued for human review; since `rq1-fa-dialogue-v3` the valid parts of its plan are salvaged first (see below). The run can continue with other cases. Transport failures still stop unfinished work for supported resume. Machine outcomes are never human acceptance. The pre-discussion machine snapshot remains unchanged.
 
@@ -29,11 +29,11 @@ Processing every passage is not evidence of finding every requirement. Accounted
 
 ## Evidence expansion and budgets
 
-Every dialogue protocol measures the exact JSON sent after reversible identifier aliases against a context limit: 45,000 characters (`rq1-fa-context-budget-case-v1`), or 53,000 under `rq1-fa-dialogue-v4` (`rq1-fa-context-budget-case-v2`). The phase audit records internal, wire and measured sizes, the limit and the wire hash; v2 also records the phase's output-token caps. An oversized case retains its original needs and accepted phases and is deferred visibly to human review; later cases continue. Full internal payloads still determine checkpoint identity.
+Every dialogue protocol measures the exact JSON sent after reversible identifier aliases against a context limit: 45,000 characters (`rq1-fa-context-budget-case-v1`), or 53,000 since `rq1-fa-dialogue-v4` (`rq1-fa-context-budget-case-v2`). The phase audit records internal, wire and measured sizes, the limit and the wire hash; v2 also records the phase's output-token caps. An oversized case retains its original needs and accepted phases and is deferred visibly to human review; later cases continue. Full internal payloads still determine checkpoint identity.
 
 A stakeholder may request a specific missing passage. Bounded lexical retrieval searches only the frozen run evidence IDs: up to eight distinct queries, two passages per query and four new passages overall. It records query, exact selected location, source/content hash, eligible-ID hash and excluded count. No benchmark/reference file or web retrieval is available to discussion. A no-result query remains visible as unresolved.
 
-A case permits at most 14 model generations including schema/semantic corrections and revision assessments, 112,000 reserved output tokens and 1,800 seconds of accumulated model-call time. Primary calls reserve 4,000 tokens and truncation correction may reserve 8,000. Under `rq1-fa-dialogue-v4` a case permits 16 generations and 128,000 tokens, and a mediation plan starts at 8,000 tokens. Each case records its limits when it is built, and execution reads them from the case, so a case keeps the limits it was planned with. The time guard prevents starting another request after the recorded budget; the provider transport timeout bounds an in-flight request. With many revisions or corrections, some work can remain for human review. It is not reported as successful mediation.
+A case permits at most 14 model generations including schema/semantic corrections and revision assessments, 112,000 reserved output tokens and 1,800 seconds of accumulated model-call time. Primary calls reserve 4,000 tokens and truncation correction may reserve 8,000. Since `rq1-fa-dialogue-v4` a case permits 16 generations and 128,000 tokens, and a mediation plan starts at 8,000 tokens; since v5 each further need of a case adds one generation, 8,000 tokens and 300 seconds. Each case records its limits when it is built, and execution reads them from the case, so a case keeps the limits it was planned with. The time guard prevents starting another request after the recorded budget; the provider transport timeout bounds an in-flight request. With many revisions or corrections, some work can remain for human review. It is not reported as successful mediation.
 
 Phase checkpoints bind policy, prompt, packet, schema, aliases and effective model/reasoning options. Finished phases resume without new calls. Exact field-scoped local IDs avoid fuzzy identifier repair. An absent/wrong quotation offset can be repaired only when the exact quotation occurs once in the frozen source; the repair is audited. Repeated/ambiguous text still needs a valid offset. No source is rewritten.
 
@@ -248,7 +248,7 @@ set aside) is refused. A need whose label the checked review removed is an
 ordinary working need and is not forced into deferral. The rule that a `dispute`
 requires a deferral with a human question applies only to cases planned under
 `rq1-fa-dialogue-v2`. Until 20 October 2026 deferral of a labelled need was
-refused too; in the JRC trial that rejected mediator drafts in 18 cases. Cases are grouped as in v1; v4 budgets are described above. Every revision created
+refused too; in the JRC trial that rejected mediator drafts in 18 cases. Up to v4 cases are grouped as in v1; v5 forms them by task (see Task cases); budgets are described above. Every revision created
 by revise, merge, add, recover or split requires a new base check. After all
 cases, a second procedural pass reviews those current revisions before the final
 coverage ledger. Reviewed revisions clear `base_recheck_required`; unreviewed
@@ -378,10 +378,38 @@ discussion (JRC `run-934df8ba`, below) showed:
 - **Pending questions.** A case stopped by invalid output asks under
   `invalid_output`; `budget` now names budget and input-size stops only.
 
-v4 refuses to continue a discussion planned under v2 or v3, and needs stage 6a
-labels of `rq1-base-expert-v5`: derive a base-review trial from an earlier run.
+A discussion planned under v2 or v3 cannot continue, and stage 6a labels must
+come from `rq1-base-expert-v5`: derive a base-review trial from an earlier run.
 These changes are tested offline only; their effect on live cases is not yet
 measured.
+
+### Task cases (v5)
+
+In JRC `run-e1e4810f` 70 of 74 discussion cases held a single need. Grouping saw
+batches of 12 needs sorted by the scope task, whose text nearly repeats each
+need, and returned single-need groups in 6 of its 7 batches. Related needs (five
+on access conditions, three on the publisher, five on licence and rights) were
+never discussed together, so the discussion could not merge, compare or filter
+them.
+
+`rq1-fa-dialogue-v5` forms cases by task across the whole inventory
+(`rq1-fa-task-labels-v1`). Needs, including set-aside proposals, are labelled in
+order of revision ID in chunks of 60; each chunk sees the labels given so far and
+reuses them for needs about the same task. A need that states a fact about a
+document, organisation or specification is labelled "statement about the
+sources". Needs with the same label (ignoring case and spacing) form a case of at
+most six needs; a larger group is split in order into parts that keep the task.
+An invalid labelling answer leaves its chunk's needs in single cases and records
+the failure; no need is dropped. Labels only group needs: the discussion decides
+what happens to each.
+
+Each case names its task in `packet.task`, and the mediator is told that needs
+stating the same information, also from different sources, are merged into one
+need that keeps every condition, actor and source. Source windows are the quote
+with 300 characters on each side instead of 1,000 before and 4,000 in all, so
+several needs fit the 26,000-character packet. Labels are checkpointed per chunk;
+a changed labelling prompt or input is refused on resume. The legacy v1 protocol
+keeps its grouping and windows. This is tested offline only.
 
 ### Cheap trial from a saved machine inventory
 

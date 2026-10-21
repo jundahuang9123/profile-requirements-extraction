@@ -5248,6 +5248,48 @@
       "title": "TaskJustification",
       "type": "object"
     },
+    "TaskLabel": {
+      "additionalProperties": false,
+      "properties": {
+        "need": {
+          "maxLength": 12,
+          "minLength": 1,
+          "title": "Need",
+          "type": "string"
+        },
+        "task": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Task",
+          "type": "string"
+        }
+      },
+      "required": [
+        "need",
+        "task"
+      ],
+      "title": "TaskLabel",
+      "type": "object"
+    },
+    "TaskLabels": {
+      "additionalProperties": false,
+      "properties": {
+        "labels": {
+          "items": {
+            "$ref": "#/$defs/TaskLabel"
+          },
+          "maxItems": 60,
+          "minItems": 1,
+          "title": "Labels",
+          "type": "array"
+        }
+      },
+      "required": [
+        "labels"
+      ],
+      "title": "TaskLabels",
+      "type": "object"
+    },
     "TextSelector": {
       "additionalProperties": false,
       "properties": {
