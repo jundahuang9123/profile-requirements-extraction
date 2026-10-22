@@ -1740,9 +1740,11 @@ def check_errors(answer,plan,policy):
     """Every action of the plan is checked exactly once.
 
     v10: a check of a split's new need is accepted beside the check of the split, and not used
-    (apply checks each new need with the split's check). In JRC run-4d980b17 (v9) all 4 cases
-    lost in the first 20 ended so: the checker checked the split and also its new needs (A1, A1.1,
-    A1.2), or only the new needs, after v9 let more splits through; v6 and v8 lost 1 or 2 a run.
+    (apply checks each new need with the split's check). JRC run-4d980b17 (v9) lost 6 of its first
+    42 cases so: the checker checked the split and also its new needs (A1, A1.1, A1.2), or only the
+    new needs, after v9 let more splits through. A replay of every saved checker answer shows the
+    same habit behind the check failures of JRC v6 (1 case), JRC v8 (1) and Stat v8 (2); every
+    answer the old rule accepted is still accepted.
     The error names what is missing, repeated or unknown. Other protocols keep their rule and text.
     """
     wanted=Counter(a.action_id for a in plan.actions)

@@ -657,7 +657,7 @@ often also checks a split's new needs as actions of their own (`A1`, `A1.1`,
 correction, the case was lost. A replay of every saved checker answer shows this
 was the cause of the check-count failures before v9 too (JRC v6 1 case, JRC v8
 1, Stat v8 2); v9 let many more splits through, and the first JRC v9 trial
-(`run-4d980b17`) lost 5 cases to it in its first 30. `rq1-fa-dialogue-v10`
+(`run-4d980b17`) lost 6 of its first 42 cases to it. `rq1-fa-dialogue-v10`
 accepts a check of a split's new need beside the check of the split and does
 not use it (each new need is verified with the split's check, as before); every
 action still needs exactly one check, and the correction names what is missing,
