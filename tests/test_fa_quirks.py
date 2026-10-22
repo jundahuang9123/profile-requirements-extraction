@@ -1,7 +1,7 @@
 """Whole discussion cases against the answer habits gpt-oss showed in live runs, not ideal answers.
 
 Each scripted step below copies a shape seen in a saved live run (JRC run-a89957db, run-0ebfaffd,
-run-4d980b17; Stat run-6455e495, run-c4cbca44). Every case must end in a defined state, keep or
+run-4d980b17, run-efc543e4; Stat run-6455e495, run-c4cbca44). Every case must end in a defined state, keep or
 account for every need, apply only what the rules allow, and leave a record that validates. No
 evaluation answers or live generation.
 """
@@ -10,8 +10,11 @@ import pytest
 from test_routed_stakeholder_workflow import setup  # noqa: F401  (pytest fixture)
 from test_fa_workflow import contract_name
 from test_fa_dialogue_v3 import Assessing, opted_in, ids, case_of, sourced
-from requirement_reuse_service.workflow import fa_discussion as fd
-from requirement_reuse_service.workflow.models import WorkflowRun
+from requirement_reuse_service.models import ArtifactPayload
+from requirement_reuse_service.workflow import engine, fa_discussion as fd
+from requirement_reuse_service.workflow.evidence import register_source
+from requirement_reuse_service.workflow.models import WorkflowRun, SourceRequest, SnapshotRequest, RunRequest
+from requirement_reuse_service.workflow.storage import Store
 
 STOPS={'bounded_fa_dialogue_complete','bounded_fa_dialogue_salvaged','invalid_output_pending_human_review','budget_pending_human_review'}
 LICENCE,HOLDER='Users can find the licence of a dataset.','Users can find the rights holder of a dataset.'
@@ -198,3 +201,69 @@ def test_every_case_ends_sound_under_the_role_habits(setup,plans):
     for m in case['messages']:
         assert all(c['kind'] in fd.CONCERN_KINDS for c in m['concerns']) and all(x['kind'] in fd.CLAIM_KINDS for x in m.get('experience',[]))
         assert len(m.get('experience',[]))<=1
+
+
+# Quotations as the mediator wrote them in JRC run-efc543e4 (v10): a line break of the source written as a
+# space, and 'platform-independent' written with U+2011 where the PDF text breaks the line after the hyphen.
+WRAPPED=('<p>Users can find the access conditions\nfor a dataset in an accepted, platform-\n   independent format.</p>'
+    '<p>Publishers can find the contact details\nfor a dataset.</p>')
+ACCESS='Users can find the access conditions for a dataset in an accepted, platform\u2011independent format.'
+
+
+@pytest.fixture
+def wrapped(tmp_path,monkeypatch):
+    """The setup fixture with one HTML source whose lines wrap, as the PDF and HTML units of the live runs do."""
+    monkeypatch.setenv('RQ1_WORKFLOW_STORE',str(tmp_path/'workflow.sqlite3'));monkeypatch.setenv('RRS_LLM_PROVIDER','disabled')
+    monkeypatch.setattr(engine,'freeze_step_models',lambda request:request)
+    store=Store()
+    source=register_source(store,SourceRequest(artifact=ArtifactPayload(name='wrapped.html',content=WRAPPED),source_role='stakeholder_need'))
+    snap=engine.freeze_snapshot(store,SnapshotRequest(source_version_ids=[source['source_version_id']]))
+    run=engine.new_run(store,RunRequest(snapshot_id=snap['snapshot_id'],strategy='multi_agent',output_form='needs',
+        role_ids=['consumer_discovery','publisher_feasibility'],stakeholder_workflow='routed_mediated',
+        base_check=False,discussion='automatic',scoping='off'))
+    units=[store.get('evidence',e) for e in run['evidence_ids']]
+    assert len(units)==1 and 'platform-\nindependent' in units[0]['content']
+    return store,run,units,engine.roles_for(RunRequest.model_validate(run['request']))
+
+
+def quoting(*quotes):
+    """A revise of N1 and a split of N2 whose sources are the given quotations of the one unit."""
+    def plans(data,*_):
+        needs,_=ids(data);ev=data['packet']['excerpts'][0]['evidence_id'];link=lambda q:[{'evidence_id':ev,'quote':q}]
+        return {'actions':[{'action_id':'A1','action':'revise','parent_revision_ids':[needs[0]],
+                'statement':'Users can find the access conditions of a dataset.','evidence_links':link(quotes[0]),'rationale':'Narrower.'},
+            {'action_id':'A2','action':'split','parent_revision_ids':[needs[1]],'rationale':'Two needs.','children':[
+                {'action_id':'A2.1','statement':LICENCE,'evidence_links':link(quotes[1]),'rationale':'One.'},
+                {'action_id':'A2.2','statement':HOLDER,'evidence_links':link(quotes[2]),'rationale':'Two.'}]}],
+            'concerns':[],'questions':[],'summary':'s'}
+    return plans
+
+
+@pytest.mark.parametrize('checker',['ideal','children'])
+def test_quotations_that_differ_only_in_whitespace_or_hyphenation_are_applied_with_the_exact_text(wrapped,checker):
+    store,run=opted_in(wrapped)
+    plans=quoting(ACCESS,'Users can find the access conditions for a dataset','Publishers can find the contact details for a dataset.')
+    fd.deliberate(store,run['run_id'],Habits(plans,checker))
+    saved,case=sound(store,run)
+    assert case['stop_reason']=='bounded_fa_dialogue_complete'
+    rows={o['action_id']:o for o in case['mediation']['outcomes']}
+    assert rows['A1']['status']==rows['A2']['status']=='machine_revised' and len(rows['A2']['result_revision_ids'])==2
+    assert {r['method'] for o in rows.values() for r in o['citation_repairs']}=={fd.QUOTE_MATCH_POLICY}
+    content=store.get('evidence',run['evidence_ids'][0])['content'];records={r['revision_id']:r for r in saved['requirements']}
+    new=[records[i] for o in rows.values() for i in o['result_revision_ids']]
+    assert len(new)==3 and all(r['verification']['status']=='pass' for r in new)
+    for r in new:
+        link=r['evidence_links'][0];assert '\n' in link['quote'] and content[link['quote_start']:link['quote_start']+len(link['quote'])]==link['quote']
+    # The outcome rows keep the quotations as the mediator wrote them.
+    assert rows['A1']['evidence_links'][0]['quote']==ACCESS
+
+
+@pytest.mark.parametrize('quote',['Users can find the access conditions ... independent format.',
+    'Users can find the access rules for a dataset.','for a dataset'])
+def test_quotations_with_text_left_out_changed_or_repeated_stay_blocked(wrapped,quote):
+    store,run=opted_in(wrapped);before=list(run['active_revision_ids'])
+    fd.deliberate(store,run['run_id'],Habits(quoting(quote,quote,quote),'children'))
+    saved,case=sound(store,run)
+    assert all(o['status']=='blocked_change' and o['validation_error']=='Ambiguous or unmatched source quotation.'
+        for o in case['mediation']['outcomes'])
+    assert saved['active_revision_ids']==before and saved['metrics']['mediated_changes']==0

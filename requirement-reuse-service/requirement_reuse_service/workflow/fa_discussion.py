@@ -29,11 +29,15 @@ POLICY='rq1-fa-dialogue-v1'
 # for at most one experience claim, which proposes a change. v9 (22 Oct) sends a set-aside
 # whose reason the checked F/A scope judgement of its need contradicts to a person instead of
 # applying it (see scope_conflict). v10 (22 Oct) accepts a checker answer that also checks a
-# split's new needs (see check_errors). A discussion planned under an earlier version cannot
-# continue; derive a separate base-review trial.
-BASE_POLICY='rq1-fa-dialogue-v10'
+# split's new needs (see check_errors). v11 (22 Oct) applies a change whose quotation differs
+# from its source unit only in whitespace or hyphenation, citing the exact source text (see
+# folded_span). A discussion planned under an earlier version cannot continue; derive a
+# separate base-review trial.
+BASE_POLICY='rq1-fa-dialogue-v11'
 BASE_POLICIES={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5','rq1-fa-dialogue-v6',
-    'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8','rq1-fa-dialogue-v9',BASE_POLICY}
+    'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8','rq1-fa-dialogue-v9','rq1-fa-dialogue-v10',BASE_POLICY}
+# v11: how a quotation that is not exact text of its source unit is found (see folded_span).
+QUOTE_MATCH_POLICY='rq1-fa-quote-match-v1'
 SALVAGE_POLICY='rq1-fa-salvage-v1'
 def discussion_policy(run):
     return BASE_POLICY if run['request'].get('base_review') == 'expert_v1' else POLICY
@@ -596,7 +600,7 @@ def plan_errors(plan,case,messages,allowed):
         # its own: 5 of the 6 invalid drafts in JRC run-a89957db failed on that alone, with
         # sourced children.
         own=a.action=='recover' or (a.action=='split' and case.get('policy_version') not in {'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8',
-            'rq1-fa-dialogue-v9',BASE_POLICY})
+            'rq1-fa-dialogue-v9','rq1-fa-dialogue-v10',BASE_POLICY})
         if own and (not a.statement.strip() or not a.evidence_links):
             errors.append('Recovery/split requires source-supported statement and links.')
         if a.action=='split' and len(a.children)<2: errors.append('Split requires at least two supported children.')
@@ -1757,6 +1761,42 @@ def check_errors(answer,plan,policy):
         'repeated':sorted(k for k,v in got.items() if v>1),'unknown':sorted(set(got)-set(wanted))})]
 
 
+HYPHENS={'\u2010':'-','\u2011':'-'}  # hyphen, non-breaking hyphen
+
+
+def folded(text):
+    """text with every whitespace run read as one space, U+2010 and U+2011 read as '-', and a
+    line break after a hyphen dropped; with the index in text of each character kept."""
+    out=[];where=[];i=0;n=len(text)
+    while i<n:
+        if text[i].isspace():
+            j=i
+            while j<n and text[j].isspace():j+=1
+            # A word broken at a line end joins the next line ('platform-\n   independent').
+            if not (out and out[-1]=='-' and '\n' in text[i:j]):out.append(' ');where.append(i)
+            i=j;continue
+        out.append(HYPHENS.get(text[i],text[i]));where.append(i);i+=1
+    return ''.join(out),where
+
+
+def folded_span(content,quote):
+    """The one span of content that quote cites when both are folded (see folded), or None.
+
+    v11: the apply step accepted only an exact quotation. In JRC run-efc543e4 (v10) it blocked 10 of
+    the 13 changes it refused: 5 quotations differed from their source unit only in whitespace (a
+    line break written as a space), 1 wrote 'platform-independent' with U+2011 where the PDF text
+    breaks the line after the hyphen, 2 left out text with '...' and 2 were not in the unit. Across
+    JRC v6-v10, 12 of 21 such blocks were whitespace only and 2 a hyphen at a line break. Text left
+    out or changed is never matched, and a quotation that fits more than one span stays blocked.
+    """
+    q=folded(quote or '')[0].strip()
+    if not q:return None
+    text,where=folded(content)
+    hits=[m.start() for m in re.finditer('(?='+re.escape(q)+')',text)]
+    if len(hits)!=1:return None
+    return where[hits[0]],where[hits[0]+len(q)-1]+1
+
+
 def quoted(store,link,allowed):
     """The cited quotation occurs at its offset, or exactly once, in its frozen source unit."""
     try:unit=store.get('evidence',link.evidence_id) if link.evidence_id in allowed else None
@@ -1820,18 +1860,27 @@ def apply(store,run,case,plan,checks,client,allowed):
                 data['action']='revise' if action.action=='recover' else action.action
                 wire=old.MediatorAction.model_validate(data)
                 try:
-                    # Only a unique exact quotation can repair an absent/wrong offset.
+                    # Only a unique exact quotation can repair an absent/wrong offset; v11 also a quotation
+                    # that fits one span of the unit when whitespace and hyphenation are folded.
                     for link in [*wire.evidence_links,*wire.priority_links]:
                         u=store.get('evidence',link.evidence_id) if link.evidence_id in allowed else None
                         if not u:raise ValueError('Source outside frozen packet.')
                         start=link.quote_start
                         if start is None or u['content'][start:start+len(link.quote)]!=link.quote:
-                            if not link.quote or u['content'].count(link.quote)!=1:raise ValueError('Ambiguous or unmatched source quotation.')
-                            repaired=u['content'].index(link.quote)
-                            item.setdefault('citation_repairs',[]).append({'evidence_id':link.evidence_id,'from':start,'to':repaired,'quote_hash':digest(link.quote)})
-                            # EvidenceLink has no end offset (extra fields are forbidden); reading one
-                            # raised AttributeError and stopped v1 runs at their first repaired citation.
-                            link.quote_start=repaired
+                            if link.quote and u['content'].count(link.quote)==1:
+                                repaired=u['content'].index(link.quote)
+                                item.setdefault('citation_repairs',[]).append({'evidence_id':link.evidence_id,'from':start,'to':repaired,'quote_hash':digest(link.quote)})
+                                # EvidenceLink has no end offset (extra fields are forbidden); reading one
+                                # raised AttributeError and stopped v1 runs at their first repaired citation.
+                                link.quote_start=repaired
+                            elif policy==BASE_POLICY and (span:=folded_span(u['content'],link.quote)):
+                                # The verifier and the new record see the exact source text; the plan keeps
+                                # the quotation as written, and the repair records both.
+                                exact=u['content'][span[0]:span[1]]
+                                item.setdefault('citation_repairs',[]).append({'evidence_id':link.evidence_id,'from':start,'to':span[0],
+                                    'quote_hash':digest(exact),'written_quote_hash':digest(link.quote),'method':QUOTE_MATCH_POLICY})
+                                link.quote=exact;link.quote_start=span[0]
+                            else:raise ValueError('Ambiguous or unmatched source quotation.')
                     subcase=deepcopy(case)
                     oldcheck=old.MediatorCheck.model_validate(check.model_dump(exclude={'fa_relevant','disposition_justified'}))
                     oldcheck.action_id=wire.action_id
