@@ -544,27 +544,36 @@ applied 11 and 2 changes. Their saved outcomes show three patterns:
 - **Set-aside reasons.** A set_aside names one reason: `not_find_or_access` (the
   need serves no find or access task of a data user), `statement_about_sources`
   (it states a fact about a document, organisation or specification),
-  `duplicate` (it repeats another need of the case that the plan keeps, named in
-  `duplicate_of`) or `contradicted_by_source` (a packet passage it cites
-  contradicts it). A missing obligation or scope, thin evidence and the base
-  lacking the need are not reasons: such a need is retained, or deferred with a
-  question. The validator requires the reason and its fields; the need a
-  duplicate repeats must be in the working list and stay there, so two needs
-  cannot set each other aside; the
-  passage cited for a contradiction must occur in its source, otherwise the
-  set-aside goes to human review; the checker judges whether the reason holds. A
-  reason on another action is cleared (audited). An applied set-aside record
+  `duplicate` or `contradicted_by_source`. A missing obligation or scope, thin
+  evidence and the base lacking the need are not reasons: such a need is
+  retained, or deferred with a question. The validator requires the reason and
+  what it needs, and the checker judges whether it holds:
+  - `duplicate` names the other need in `duplicate_of`. That need is in the
+    working list and the plan retains, covers or defers it as it is, so two
+    needs cannot set each other aside, nor can a need go with a rewritten one.
+    The duplicate cites no source the other lacks; needs from different sources
+    are merged, as before, so that the working list keeps every source.
+  - `contradicted_by_source` cites the passage with relation `contradicts`; the
+    passage must occur in its source at its offset or exactly once, otherwise
+    the set-aside goes to human review.
+  - A need already set aside before the discussion can be set aside again
+    without a reason; nothing changes.
+  A reason on another action is cleared (audited). An applied set-aside record
   keeps the reason in `details`.
 - **Checker flags.** The check contract `DefinedChecks` defines
   `condition_supported` and `obligation_preserved` for actions that write a
   statement, and asks for true on the others. They now decide revise, merge,
   resolve, split, recover and add only. With the same checker answers, 19 JRC
   and 18 Stat outcomes would have been retained rather than sent to human
-  review. Set-asides no longer depend on these two flags; in those runs they
-  held back 4 set-asides, none of which gives a listed reason.
+  review. Set-asides no longer depend on these two flags, only on their reason,
+  `disposition_justified` and `preserves_distinctions`; in those runs the two
+  flags held back 4 set-asides, none of which gives a listed reason.
 - **Change claims.** A review holds at most one experience claim, which proposes
   a change: merge, split, drop or missing_need (v6 allowed two, keep among
-  them). A drop claim follows the set-aside reasons.
+  them). A drop claim follows the set-aside reasons. The schema shows both
+  rules, but parsing accepts other kinds and up to four claims: a keep claim and
+  every claim after the first sound one get one correction and are then left
+  out, so a claim never fails a role's review, and the case with it.
 
 A discussion planned under v7 cannot continue under v8. This is tested offline
 only.

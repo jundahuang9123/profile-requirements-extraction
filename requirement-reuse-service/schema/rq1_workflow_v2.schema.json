@@ -1917,7 +1917,7 @@
             }
           ],
           "default": null,
-          "description": "For reason duplicate: the need N of this case that this need repeats, which the plan keeps.",
+          "description": "For reason duplicate: the need N of this case that this need repeats, from the same sources; the plan retains, covers or defers it as it is.",
           "title": "Duplicate Of"
         },
         "evidence_links": {
@@ -2002,7 +2002,7 @@
             }
           ],
           "default": null,
-          "description": "set_aside only, and required there: why the need is set aside. A missing obligation or scope, thin evidence or the base lacking the need is none of these.",
+          "description": "set_aside only, and required there unless the need is set aside already: why the need is set aside. A missing obligation or scope, thin evidence or the base lacking the need is none of these.",
           "title": "Reason"
         },
         "statement": {
@@ -2044,6 +2044,8 @@
             "drop",
             "missing_need"
           ],
+          "maxLength": 40,
+          "minLength": 1,
           "title": "Kind",
           "type": "string"
         },
