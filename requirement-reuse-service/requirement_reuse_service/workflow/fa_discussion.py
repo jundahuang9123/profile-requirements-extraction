@@ -26,11 +26,13 @@ POLICY='rq1-fa-dialogue-v1'
 # name needs and concern links to actions (see repair_plan). v8 (22 Oct) sets a need aside
 # only for a listed reason (SET_ASIDE_REASONS), lets the checker's condition and obligation
 # flags decide only actions that write a statement (see DefinedCheck), and asks each role
-# for at most one experience claim, which proposes a change. A discussion planned under an
-# earlier version cannot continue; derive a separate base-review trial.
-BASE_POLICY='rq1-fa-dialogue-v8'
+# for at most one experience claim, which proposes a change. v9 (22 Oct) sends a set-aside
+# whose reason the checked F/A scope judgement of its need contradicts to a person instead of
+# applying it (see scope_conflict). A discussion planned under an earlier version cannot
+# continue; derive a separate base-review trial.
+BASE_POLICY='rq1-fa-dialogue-v9'
 BASE_POLICIES={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5','rq1-fa-dialogue-v6',
-    'rq1-fa-dialogue-v7',BASE_POLICY}
+    'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8',BASE_POLICY}
 SALVAGE_POLICY='rq1-fa-salvage-v1'
 def discussion_policy(run):
     return BASE_POLICY if run['request'].get('base_review') == 'expert_v1' else POLICY
@@ -141,7 +143,9 @@ BASE_MEDIATOR_GUIDANCE=(' Plan bookkeeping: an action is the disposition of need
     'fact about a document, organisation or specification, not information a data user looks for), duplicate (see below; '
     'name the other need in duplicate_of) or contradicted_by_source (a packet passage contradicts it, cited in '
     'evidence_links with relation contradicts). A source that states no obligation or scope, or evidence a role finds '
-    'thin, is no reason to set a need aside: retain it, or defer it with a question. Propose add only for a '
+    'thin, is no reason to set a need aside: retain it, or defer it with a question. A need whose fa_scope says it serves '
+    'find, access or both is no not_find_or_access set-aside, and one whose fa_scope nature is information_requirement is '
+    'no statement_about_sources set-aside: such a set-aside goes to a person instead of being applied. Propose add only for a '
     'source-supported need you keep; '
     'to drop an idea, leave it out instead of adding it and then setting it aside or deferring it. '
     'The needs of a case share the task in packet.task: needs that state the same information, also from different '
@@ -470,7 +474,7 @@ def plan_errors(plan,case,messages,allowed):
         # A split applies its children only. Up to v6 it also needed a statement and sources of
         # its own: 5 of the 6 invalid drafts in JRC run-a89957db failed on that alone, with
         # sourced children.
-        own=a.action=='recover' or (a.action=='split' and case.get('policy_version') not in {'rq1-fa-dialogue-v7',BASE_POLICY})
+        own=a.action=='recover' or (a.action=='split' and case.get('policy_version') not in {'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8',BASE_POLICY})
         if own and (not a.statement.strip() or not a.evidence_links):
             errors.append('Recovery/split requires source-supported statement and links.')
         if a.action=='split' and len(a.children)<2: errors.append('Split requires at least two supported children.')
@@ -1560,6 +1564,26 @@ def message(case_id,role_id,round_no,answer,policy=POLICY):
     return row
 
 
+# v9: the checked F/A scope judgements that contradict a set-aside reason. In JRC run-0ebfaffd (v8)
+# 3 of the 4 applied set-asides gave a reason that the scope judgement of the need contradicts: it
+# serves find, as an information requirement ("Users can know the creator of a dataset" set aside
+# as not_find_or_access because the source has "only the isolated word Creator"); the checker
+# passed all 4. The fourth, which scope judged unresolved background, is consistent.
+SCOPE_CONFLICTS={'not_find_or_access':('serves',{'find','access','both'}),
+    'statement_about_sources':('nature',{'information_requirement'})}
+
+
+def scope_conflict(action,parents):
+    """v9: the checked F/A scope judgement of a parent that contradicts the set-aside reason, or None.
+    A need without a checked judgement, and the reasons duplicate and contradicted_by_source, have none."""
+    field,values=SCOPE_CONFLICTS.get(getattr(action,'reason',None),(None,set()))
+    for p in parents:
+        scope=p.get('fa_scope') or {}
+        if field and scope.get('status')=='checked' and scope.get(field) in values:
+            return {'revision_id':p['revision_id'],'reason':action.reason,'scope_policy':scope.get('policy_version'),field:scope[field]}
+    return None
+
+
 def quoted(store,link,allowed):
     """The cited quotation occurs at its offset, or exactly once, in its frozen source unit."""
     try:unit=store.get('evidence',link.evidence_id) if link.evidence_id in allowed else None
@@ -1595,6 +1619,14 @@ def apply(store,run,case,plan,checks,client,allowed):
                 # nothing but was counted as a mediated change and recorded a second set-aside
                 # (JRC run-934df8ba: 5 of 7 applied changes).
                 item['status']='already_set_aside'
+            elif a.action=='set_aside' and policy==BASE_POLICY and (conflict:=scope_conflict(a,parents)):
+                # v9: the scope step judged this need with its actor, task, example and sources; a mediator that
+                # disagrees asks a person instead of removing the need.
+                item.update(status='human_review',scope_conflict=conflict,human_question=(
+                    f'The F/A scope check judged that this need serves {conflict["serves"]} for data users, but the mediator '
+                    'set it aside as not_find_or_access.' if 'serves' in conflict else 'The F/A scope check judged this need '
+                    'an information requirement, but the mediator set it aside as statement_about_sources.')+
+                    ' Keep the need, or set it aside after review?')
             elif a.action=='set_aside' and getattr(a,'reason',None)=='contradicted_by_source' and not all(
                     quoted(store,link,allowed) for link in a.evidence_links):
                 # v8: a set-aside on a contradiction rests on the passage it cites, which must exist.

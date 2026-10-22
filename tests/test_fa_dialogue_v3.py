@@ -547,16 +547,16 @@ def test_the_discussion_refuses_labels_of_rq1_base_expert_v3(setup):
         r['requirements'][0].update(base_relation={'policy':'rq1-base-expert-v3','status':'checked','verdict':'new','effect':'dispute'})
         r['requirements'][1].update(base_relation={'status':'not_reviewed'})  # no policy: reported, not a TypeError
     store.mutate(run['run_id'],None,'fixture_v3_label',label)
-    with pytest.raises(ValueError,match='Stage 6a ran under None, rq1-base-expert-v3; rq1-fa-dialogue-v8 needs rq1-base-expert-v5'):
+    with pytest.raises(ValueError,match='Stage 6a ran under None, rq1-base-expert-v3; rq1-fa-dialogue-v9 needs rq1-base-expert-v5'):
         fd.deliberate(store,run['run_id'],Mediator(retain_all))
 
 
 @pytest.mark.parametrize('planned',['rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5','rq1-fa-dialogue-v6',
-    'rq1-fa-dialogue-v7'])
+    'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8'])
 def test_a_discussion_planned_under_an_earlier_version_is_refused_by_name(setup,planned):
     store,run=opted_in(setup)
     old.save(store,run['run_id'],'fa_discussion_plan',{'policy_version':planned})
-    with pytest.raises(ValueError,match=f'planned under {planned}; the current protocol is rq1-fa-dialogue-v8. Derive a separate base-review trial'):
+    with pytest.raises(ValueError,match=f'planned under {planned}; the current protocol is rq1-fa-dialogue-v9. Derive a separate base-review trial'):
         fd.deliberate(store,run['run_id'],Mediator(retain_all))
 
 

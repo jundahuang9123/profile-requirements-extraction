@@ -578,6 +578,33 @@ applied 11 and 2 changes. Their saved outcomes show three patterns:
 A discussion planned under v7 cannot continue under v8. This is tested offline
 only.
 
+### Set-asides against the scope judgement (v9)
+
+The first v8 trial, JRC `run-0ebfaffd` (22 October, derived at 6a from
+`run-a89957db`), applied 4 set-asides, all with a listed reason, and the checker
+passed all 4. 3 of the reasons contradict the F/A scope judgement that the scope
+step made for the need, with an actor, task, example and sources: it serves
+find, as an information requirement. The mediator's arguments were the ones v8
+excludes, e.g. "Users can know the creator of a dataset" set aside as
+`not_find_or_access` because the source has "only the isolated word Creator".
+The fourth, which the scope step judged unresolved background, is consistent.
+
+`rq1-fa-dialogue-v9`: a set-aside whose reason the need's checked scope
+judgement contradicts is not applied. It goes to human review with the
+disagreement recorded (`scope_conflict`):
+
+- `not_find_or_access` against a need that serves find, access or both;
+- `statement_about_sources` against a need whose nature is
+  `information_requirement`.
+
+`duplicate` and `contradicted_by_source` are not judged by scope, a need
+without a checked judgement has nothing to contradict, and a need already set
+aside stays as it was. The mediator prompt states the rule; the packet already
+shows each need's `fa_scope`.
+
+A discussion planned under v8 cannot continue under v9. This is tested offline
+only.
+
 ### Cheap trial from a saved machine inventory
 
 `POST /api/rq1/v2/runs/{id}/derive` accepts `start_from: "base_review"` with a
