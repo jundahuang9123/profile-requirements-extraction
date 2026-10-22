@@ -683,9 +683,14 @@ def classify_needs(store, run, needs, client):
             errors=[]; counts=Counter(c.need_id for c in result.classifications)
             if counts!={need.requirement_id:1}: errors.append('Classify the offered need exactly once.')
             for c in result.classifications:
-                if set(c.base_need_ids)-offered_ids: errors.append(c.need_id+': unknown base need ID.')
+                unknown=set(c.base_need_ids)-offered_ids
+                if unknown: errors.append(c.need_id+': unknown base need ID.')
                 if len(c.base_need_ids)!=len(set(c.base_need_ids)): errors.append(c.need_id+': repeated base ID.')
                 if c.classification=='domain' and c.base_need_ids: errors.append(c.need_id+': a domain result cannot claim base matches.')
+                # The checks below read the matched entries. An ID outside the catalogue (in the
+                # Health run of 22 Oct, one copied with five hex digits missing) raised KeyError
+                # there and stopped consolidation; it is a correctable row error instead.
+                if unknown:continue
                 if c.classification=='generic' and c.base_need_ids:
                     matched=[entries_by_id[i] for i in c.base_need_ids]
                     stated=[need.need_condition,*conditions(need.need_statement or '')]
