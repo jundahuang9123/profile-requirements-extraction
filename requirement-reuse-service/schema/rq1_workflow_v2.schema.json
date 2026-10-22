@@ -1182,7 +1182,7 @@
           "items": {
             "$ref": "#/$defs/DefinedCheck"
           },
-          "maxItems": 12,
+          "maxItems": 24,
           "title": "Checks",
           "type": "array"
         }
