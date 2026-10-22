@@ -649,6 +649,40 @@ The legacy v1 protocol keeps the routed contracts.
 A discussion planned under v8 cannot continue under v9. This is tested offline
 only.
 
+### Checks of split children (v10)
+
+The checker has always had to check every plan action exactly once. gpt-oss
+often also checks a split's new needs as actions of their own (`A1`, `A1.1`,
+`A1.2`), or checks only the new needs; that answer was refused and, after one
+correction, the case was lost. A replay of every saved checker answer shows this
+was the cause of the check-count failures before v9 too (JRC v6 1 case, JRC v8
+1, Stat v8 2); v9 let many more splits through, and the first JRC v9 trial
+(`run-4d980b17`) lost 5 cases to it in its first 30. `rq1-fa-dialogue-v10`
+accepts a check of a split's new need beside the check of the split and does
+not use it (each new need is verified with the split's check, as before); every
+action still needs exactly one check, and the correction names what is missing,
+repeated or unknown. The checker is told to check a split once, and a check
+answer may hold up to 24 checks. On the saved answers of the five runs, v10
+accepts every answer the old rule accepted. The legacy v1 protocol keeps its
+rule.
+
+A discussion planned under v9 cannot continue under v10. This is tested offline
+only.
+
+### Answer habits
+
+Unit tests with ideal scripted answers did not show what a change does to the
+next step: v9's split repair produced splits, and only the live checker showed
+how it answers them. `tests/test_fa_quirks.py` runs whole discussion cases
+against the answer habits the models showed in saved live runs (checks of split
+children or only of them, checks named after action types, one action per
+concern, invented need IDs, adds naming their need, a split written as several
+actions, oversized or unnamed splits, empty questions, loose set-asides, claim
+kinds as concern kinds, keep and second claims) and checks that every case ends
+in a defined state, accounts for every need, applies only what the rules allow
+and leaves a record that validates. A habit seen in a new live run is added
+there.
+
 ### Cheap trial from a saved machine inventory
 
 `POST /api/rq1/v2/runs/{id}/derive` accepts `start_from: "base_review"` with a
