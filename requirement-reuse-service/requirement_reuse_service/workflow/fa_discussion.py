@@ -146,8 +146,9 @@ BASE_MEDIATOR_GUIDANCE=(' Plan bookkeeping: an action is the disposition of need
     'name the other need in duplicate_of) or contradicted_by_source (a packet passage contradicts it, cited in '
     'evidence_links with relation contradicts). A source that states no obligation or scope, or evidence a role finds '
     'thin, is no reason to set a need aside: retain it, or defer it with a question. A need whose fa_scope says it serves '
-    'find, access or both is no not_find_or_access set-aside, and one whose fa_scope nature is information_requirement is '
-    'no statement_about_sources set-aside: such a set-aside goes to a person instead of being applied. Propose add only for a '
+    'find, access or both is set aside neither as not_find_or_access nor as statement_about_sources, and one whose fa_scope '
+    'nature is information_requirement not as statement_about_sources: such a set-aside goes to a person instead of being '
+    'applied. Propose add only for a '
     'source-supported need you keep; '
     'to drop an idea, leave it out instead of adding it and then setting it aside or deferring it. '
     'The needs of a case share the task in packet.task: needs that state the same information, also from different '
@@ -244,9 +245,9 @@ class ReviewConcern(old.Concern):
         return [value] if isinstance(value,str) else value
 
 class ReviewQuestion(old.HumanReviewQuestion):
-    revision_ids: list[str] = Field(default_factory=list,max_length=4,json_schema_extra={'minItems':1})
-    concern_ids: list[str] = Field(default_factory=list,max_length=64,json_schema_extra={'minItems':1})
-    alternatives: list[str] = Field(default_factory=list,max_length=6,json_schema_extra={'minItems':1})
+    revision_ids: list[str] = Field(max_length=4,json_schema_extra={'minItems':1})
+    concern_ids: list[str] = Field(max_length=64,json_schema_extra={'minItems':1})
+    alternatives: list[str] = Field(max_length=6,json_schema_extra={'minItems':1})
 
 class SplitChild(old.AdditionalNeedAction):
     action_id: str | None = None
@@ -441,36 +442,50 @@ def repair_v9(data,records):
     In the v8 trials most invalid cases ended on the rule that every need is named exactly once
     (8 of the 15 in Stat run-c4cbca44, 7 of the 14 in JRC run-0ebfaffd), often in cases whose roles
     proposed a split. 9 of those plans named one need in several actions; in 5 each action gave
-    the need its own statement and sources (two retains with new wording, two adds). When every action naming a need
-    names only that need, is a retain, revise or add with its own sourced statement, and the
-    statements differ, the actions are one split of the need with their statements, sources and
-    rationales as its new needs, under the first action's ID. Concern links to the others
-    follow. Nothing else is merged: a set-aside, deferral or other disposition beside them, a
-    statement without sources, repeated wording, or a need labelled covered_by_base stays
-    invalid. Runs after repairs 5-7, so a sourced add beside an unchanged retain stays an addition.
+    the need its own statement and sources (two retains with new wording, two adds). When every
+    action naming a need names only that need, is a retain, revise or add with its own sourced
+    statement, every statement differs from the others and from the need's own wording, and
+    nothing in the plan leaves the need to a person, the actions are one split of the need with
+    their statements, sources and rationales as its new needs, under the first action's ID.
+    Concern links to the others follow. Nothing else is merged: a set-aside, deferral or other
+    disposition beside them, a statement without sources or repeating the need, an action with a
+    question or alternatives, an unresolved concern or a review question on the need, a need set
+    aside before the discussion (a retain does not restore it) or labelled covered_by_base stays
+    invalid. Runs after repairs 5-7, so an add beside a retain or revise is an addition first.
     """
     repairs=[];actions=data['actions']
-    labelled={r['revision_id'] for r in records if 'covered_by_base' in r.get('processing_flags',[])}
-    for n in [r['revision_id'] for r in records]:
+    word=lambda text:' '.join(re.sub(r'[\W_]+',' ',text or '').split()).casefold()
+    for record in records:
+        n=record['revision_id']
         naming=[a for a in actions if n in a['parent_revision_ids']]
-        if not 2<=len(naming)<=4 or n in labelled:continue
+        if not 2<=len(naming)<=4 or 'covered_by_base' in record.get('processing_flags',[]) or record.get('lifecycle_state')=='set_aside':
+            continue
         # Concern links name action IDs, so a repeated ID would make them ambiguous.
         ids=Counter(a['action_id'] for a in actions)
         if any(ids[a['action_id']]>1 for a in naming):continue
         if any(a['parent_revision_ids']!=[n] or a['action'] not in {'retain','revise','add'} or not a['statement'].strip()
-               or not a['evidence_links'] or a.get('children') for a in naming):continue
-        if len({' '.join(a['statement'].split()).casefold() for a in naming})<len(naming):continue
+               or not a['evidence_links'] or a.get('children') or a.get('human_question') or a.get('alternatives') for a in naming):continue
+        wording={word(a['statement']) for a in naming}
+        if len(wording)<len(naming) or wording&{word(record.get('need_statement')),word(record.get('normalized_statement'))}:continue
+        merged={a['action_id'] for a in naming}
+        if any(row['status']=='unresolved' and merged&set(row['action_ids']) for row in data.get('concerns',[])):continue
+        if any(n in q['revision_ids'] for q in data.get('questions',[])):continue
         cited=list(dict.fromkeys(x for a in naming for x in a.get('experience_ids',[])))
         if len(cited)>4:continue
         first=naming[0];split_id=first['action_id']
-        children=[{'action_id':f'{split_id}.{k+1}','action':'add','parent_revision_ids':[],'statement':a['statement'],
+        taken={a['action_id'] for a in actions}|{c.get('action_id') for a in actions for c in a.get('children') or []}
+        child_ids=[]
+        for _ in naming:
+            k=len(child_ids)+1
+            while f'{split_id}.{k}' in taken:k+=1
+            child_ids.append(f'{split_id}.{k}');taken.add(child_ids[-1])
+        children=[{'action_id':cid,'action':'add','parent_revision_ids':[],'statement':a['statement'],
             'condition':a['condition'],'evidence_links':a['evidence_links'],'rationale':a['rationale'],
             'priority_basis':a.get('priority_basis'),'priority_links':a.get('priority_links',[]),'human_question':None,
-            'alternatives':[]} for k,a in enumerate(naming)]
+            'alternatives':[]} for cid,a in zip(child_ids,naming)]
         split={**first,'action':'split','statement':'','condition':'','evidence_links':[],'priority_basis':None,'priority_links':[],
-            'experience_ids':cited,'children':children,
-            'human_question':next((a['human_question'] for a in naming if a.get('human_question')),None)}
-        merged={a['action_id'] for a in naming[1:]};others=[id(a) for a in naming[1:]]
+            'experience_ids':cited,'children':children}
+        merged-={split_id};others=[id(a) for a in naming[1:]]
         actions[next(i for i,a in enumerate(actions) if a is first)]=split
         actions[:]=[a for a in actions if id(a) not in others]
         for row in data.get('concerns',[]):
@@ -969,8 +984,9 @@ def experience_errors(answer,case):
 
 def concern_problems(answer):
     """v9: concerns of a kind outside CONCERN_KINDS, as (index, sentence); the routed Review has none."""
-    return [(i,f'it is {c.kind}, but a concern is satisfied, support, overlap, interference, missing_evidence or scope; '
-        'a change you propose from your practice is an experience claim.') for i,c in enumerate(getattr(answer,'concerns',[]))
+    return [(i,f'it is {c.kind}, but a concern is satisfied, support, overlap, interference, missing_evidence or scope. '
+        'To propose a need with a source, write a scope concern with proposed_statement; a change from your practice is an '
+        'experience claim.') for i,c in enumerate(getattr(answer,'concerns',[]))
         if c.kind not in CONCERN_KINDS]
 
 
@@ -1696,20 +1712,24 @@ def message(case_id,role_id,round_no,answer,policy=POLICY):
 # serves find, as an information requirement ("Users can know the creator of a dataset" set aside
 # as not_find_or_access because the source has "only the isolated word Creator"); the checker
 # passed all 4. The fourth, which scope judged unresolved background, is consistent.
-# In Stat run-c4cbca44 (v8) "Publishers can decide to use code lists for dimension values ..." was set
-# aside as statement_about_sources although scope judged it an operational obligation that serves both.
-SCOPE_CONFLICTS={'not_find_or_access':('serves',{'find','access','both'}),
-    'statement_about_sources':('nature',{'information_requirement','operational_obligation'})}
+# Both reasons say the need is no information a data user looks for, so a need scope judged to serve
+# find, access or both contradicts either; a need judged an information requirement contradicts
+# statement_about_sources too. In Stat run-c4cbca44 (v8) "Publishers can decide to use code lists for
+# dimension values ..." (scope: serves both, an operational obligation) was set aside as
+# statement_about_sources. A need scope left unresolved or judged to serve neither is not contradicted.
+SCOPE_CONFLICTS={'not_find_or_access':{'serves':{'find','access','both'}},
+    'statement_about_sources':{'serves':{'find','access','both'},'nature':{'information_requirement'}}}
 
 
 def scope_conflict(action,parents):
     """v9: the checked F/A scope judgement of a parent that contradicts the set-aside reason, or None.
     A need without a checked judgement, and the reasons duplicate and contradicted_by_source, have none."""
-    field,values=SCOPE_CONFLICTS.get(getattr(action,'reason',None),(None,set()))
+    rules=SCOPE_CONFLICTS.get(getattr(action,'reason',None),{})
     for p in parents:
         scope=p.get('fa_scope') or {}
-        if field and scope.get('status')=='checked' and scope.get(field) in values:
-            return {'revision_id':p['revision_id'],'reason':action.reason,'scope_policy':scope.get('policy_version'),field:scope[field]}
+        if scope.get('status')!='checked':continue
+        found={field:scope[field] for field,values in rules.items() if scope.get(field) in values}
+        if found:return {'revision_id':p['revision_id'],'reason':action.reason,'scope_policy':scope.get('policy_version'),**found}
     return None
 
 
@@ -1753,8 +1773,8 @@ def apply(store,run,case,plan,checks,client,allowed):
                 # disagrees asks a person instead of removing the need.
                 item.update(status='human_review',scope_conflict=conflict,human_question=(
                     f'The F/A scope check judged that this need serves {conflict["serves"]} for data users, but the mediator '
-                    'set it aside as not_find_or_access.' if 'serves' in conflict else 'The F/A scope check judged this need '
-                    f'an {conflict["nature"].replace("_"," ")}, but the mediator set it aside as statement_about_sources.')+
+                    f'set it aside as {conflict["reason"]}.' if 'serves' in conflict else 'The F/A scope check judged this need '
+                    'an information requirement, but the mediator set it aside as statement_about_sources.')+
                     ' Keep the need, or set it aside after review?')
             elif a.action=='set_aside' and getattr(a,'reason',None)=='contradicted_by_source' and not all(
                     quoted(store,link,allowed) for link in a.evidence_links):

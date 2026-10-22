@@ -4557,7 +4557,10 @@
       },
       "required": [
         "question_id",
+        "revision_ids",
+        "concern_ids",
         "question",
+        "alternatives",
         "rationale"
       ],
       "title": "ReviewQuestion",

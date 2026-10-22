@@ -38,6 +38,10 @@ def keep_and_set_aside(target,**extra):
     ('not_find_or_access',FIND,'human_review'),
     ('statement_about_sources',FIND,'human_review'),
     ('statement_about_sources',{**FIND,'serves':'both','nature':'operational_obligation'},'human_review'),
+    # Both reasons say no data user looks for the information, which a need that serves find contradicts.
+    ('statement_about_sources',{**FIND,'nature':'background'},'human_review'),
+    ('statement_about_sources',{**FIND,'serves':'unresolved'},'human_review'),
+    ('statement_about_sources',{**FIND,'serves':'unresolved','nature':'operational_obligation'},'set_aside'),
     ('not_find_or_access',{**FIND,'serves':'both'},'human_review'),
     ('not_find_or_access',{**FIND,'serves':'neither'},'set_aside'),
     ('not_find_or_access',BACKGROUND,'set_aside'),
@@ -54,8 +58,8 @@ def test_a_set_aside_against_the_scope_judgement_goes_to_a_person(setup,reason,s
     row=next(o for o in case['mediation']['outcomes'] if o['action']=='set_aside')
     assert row['status']==status and row['applied']==(status=='set_aside')
     if status=='human_review':
-        field='serves' if reason=='not_find_or_access' else 'nature'
-        assert row['scope_conflict']=={'revision_id':rid,'reason':reason,'scope_policy':'rq1-find-access-v1',field:scope[field]}
+        found={f:scope[f] for f,values in fd.SCOPE_CONFLICTS[reason].items() if scope[f] in values}
+        assert found and row['scope_conflict']=={'revision_id':rid,'reason':reason,'scope_policy':'rq1-find-access-v1',**found}
         assert row['human_question'].endswith('Keep the need, or set it aside after review?')
         assert rid in saved['active_revision_ids'] and not saved['set_aside_observations']
     else:
@@ -98,9 +102,12 @@ def test_scope_conflict_reads_only_checked_judgements_for_the_two_reasons():
     act=lambda reason:fd.ExperienceAction(action_id='A1',action='set_aside',parent_revision_ids=['n1'],rationale='r',reason=reason)
     assert fd.scope_conflict(act('not_find_or_access'),[need])=={'revision_id':'n1','reason':'not_find_or_access',
         'scope_policy':'rq1-find-access-v1','serves':'find'}
-    assert fd.scope_conflict(act('statement_about_sources'),[need])['nature']=='information_requirement'
-    assert fd.scope_conflict(act('statement_about_sources'),[{**need,'fa_scope':{**FIND,'nature':'operational_obligation'}}])
-    assert fd.scope_conflict(act('statement_about_sources'),[{**need,'fa_scope':{**FIND,'nature':'implementation_detail'}}]) is None
+    assert fd.scope_conflict(act('statement_about_sources'),[need])=={'revision_id':'n1','reason':'statement_about_sources',
+        'scope_policy':'rq1-find-access-v1','serves':'find','nature':'information_requirement'}
+    other=lambda **scope:[{**need,'fa_scope':{**FIND,**scope}}]
+    assert fd.scope_conflict(act('statement_about_sources'),other(nature='implementation_detail'))['serves']=='find'
+    assert fd.scope_conflict(act('statement_about_sources'),other(serves='neither',nature='implementation_detail')) is None
+    assert fd.scope_conflict(act('not_find_or_access'),other(serves='unresolved')) is None
     assert fd.scope_conflict(act('duplicate'),[need]) is None and fd.scope_conflict(act('contradicted_by_source'),[need]) is None
     assert fd.scope_conflict(act(None),[need]) is None and fd.scope_conflict(act('not_find_or_access'),[{'revision_id':'n1'}]) is None
 
@@ -273,3 +280,72 @@ def test_the_legacy_contracts_still_refuse_what_v9_corrects():
     assert fd.ExperienceReview(summary='s',concerns=[{**concern,'kind':'scope','evidence_ids':'E1'}]).concerns[0].evidence_ids==['E1']
     schema=fd.ExperiencePlan.model_json_schema()['$defs']
     assert schema['ReviewQuestion']['properties']['alternatives']['minItems']==1 and schema['ExperienceAction']['properties']['children']['maxItems']==4
+
+
+def test_repair_9_leaves_to_a_person_what_the_plan_leaves_to_a_person(setup):
+    case,(n1,n2),messages,allowed=built(setup)
+    def kinds(*actions,concerns=None,questions=(),case=case):
+        data=kept([n1,n2],concerns=concerns or [],questions=list(questions));data['actions'][1:]=list(actions)
+        return [r['kind'] for r in fd.repair_plan(fd.ExperiencePlan.model_validate(data),case,messages)[1]]
+    two=lambda **extra:(worded(case,n2,'A2','revise',LICENCE,**extra),worded(case,n2,'A3','revise',HOLDER))
+    assert kinds(*two())==['actions_on_one_need_as_split']
+    # A question or alternatives on an action, an unresolved concern on them, or a review question on the need.
+    assert kinds(*two(human_question='Which wording should replace the need?'))==[]
+    assert kinds(*two(alternatives=[LICENCE,HOLDER]))==[]
+    assert kinds(*two(),concerns=[{'concern_id':'c2','status':'unresolved','action_ids':['A3'],'question_ids':[],'rationale':'Open.'}])==[]
+    assert kinds(*two(),questions=[question(n2,concern_ids=['c2'])])==[]
+    # Wording that repeats the need, also with other punctuation, is no new need.
+    wording=case['frozen_requirements'][1]['need_statement']
+    assert kinds(worded(case,n2,'A2','retain',wording.rstrip('.')+' !'),worded(case,n2,'A3','retain',HOLDER))==[]
+    # A retain does not restore a need set aside before the discussion.
+    earlier=deepcopy(case);earlier['frozen_requirements'][1]['lifecycle_state']='set_aside'
+    assert kinds(*two(),case=earlier)==[]
+
+
+def test_repair_9_gives_children_free_ids(setup):
+    case,(n1,n2),messages,allowed=built(setup)
+    # An action of the plan already has the ID the first child would get.
+    data=kept([n1,n2],concerns=[]);data['actions']=[{'action_id':'A2.1','action':'retain','parent_revision_ids':[n1],'rationale':'Kept.'},
+        worded(case,n2,'A2','revise',LICENCE),worded(case,n2,'A3','revise',HOLDER)]
+    fixed,repairs=fd.repair_plan(fd.ExperiencePlan.model_validate(data),case,messages)
+    assert [c.action_id for c in fixed.actions[1].children]==['A2.2','A2.3'] and fd.plan_errors(fixed,case,messages,allowed)==[]
+
+
+def test_broken_parts_are_read_from_the_json_the_model_returns():
+    from requirement_reuse_service.llm.client import validate_json_payload
+    review=validate_json_payload(json.dumps({'summary':'s','concerns':[{'revision_ids':['N1'],'kind':'split','statement':'Two needs.',
+        'evidence_ids':'E1'}],'experience':[]}),fd.ExperienceReview)
+    assert (review.concerns[0].kind,review.concerns[0].evidence_ids)==('split',['E1'])
+    plan=validate_json_payload(json.dumps({'summary':'s','actions':[{'action_id':'A1','action':'split','parent_revision_ids':['N1'],
+        'rationale':'r','children':[{'statement':'a','rationale':'r'}]*5}],'questions':[{'question_id':'Q1','revision_ids':[],
+        'concern_ids':[],'question':'?','alternatives':[],'rationale':'r'}]}),fd.ExperiencePlan)
+    assert len(plan.actions[0].children)==5 and plan.actions[0].children[0].action_id is None and plan.questions[0].alternatives==[]
+
+
+def test_the_prompt_states_the_split_and_scope_rules():
+    guidance=fd.BASE_MEDIATOR_GUIDANCE
+    assert 'set aside neither as not_find_or_access nor as statement_about_sources' in guidance
+    assert 'To split a need into several, write one split action that names it' in guidance
+
+
+class MistypedResponse(Mistyped):
+    """As Mistyped, in the response round instead of the initial review."""
+    def generate_structured(self,*,user,output_model,system='',step=None,**kw):
+        data=json.loads(user)
+        if contract_name(output_model)=='Review' and data.get('draft'):
+            answer=Assessing.generate_structured(self,user=user,output_model=output_model,system=system,step=step,**kw)
+            self.first=self.first or data['role']['id']
+            if data['role']['id']!=self.first:return answer
+            need=data['packet']['needs'][0]['revision_id']
+            return output_model.model_validate({**answer.model_dump(mode='json'),'concerns':[
+                {'revision_ids':[need],'kind':'merge','statement':'Merge it.','evidence_ids':[]}]})
+        return Assessing.generate_structured(self,user=user,output_model=output_model,system=system,step=step,**kw)
+
+
+def test_a_concern_of_an_unknown_kind_in_a_response_is_left_out_too(setup):
+    store,run=opted_in(setup);client=MistypedResponse(retain_all);fd.deliberate(store,run['run_id'],client)
+    saved,case=case_of(store,run)
+    assert case['stop_reason']=='bounded_fa_dialogue_complete'
+    first,last=case['discussion_trace']['phases']['response:'+client.first]['attempts']
+    assert first['errors'] and [r['index'] for r in last['concerns_removed']]==[0]
+    assert next(m for m in case['messages'] if m['role_id']==client.first and m['round']==2)['concerns']==[]
