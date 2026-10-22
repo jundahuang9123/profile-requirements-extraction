@@ -391,9 +391,12 @@ def write_needs(store, run, groups, client, profile):
             payload = payload_for(batch)
             answer = cached_generation(store, run, 'need_statement', payload, NeedStatements, writer_system(run) + fa_writer_guidance(run),
                                        client, lambda result: statement_errors(result, payload['groups'], profile, bool(fa_writer_guidance(run))))
-            # (members, rewrites, rationale) of each group without a rewrite that passed its checks.
-            failed = [(dict(batch)[identifier], [], 'Writer output unavailable: '+failure['reason'])
-                      for identifier, failure in getattr(answer,'_fallbacks',{}).items()]
+            # (members, rewrites, rationale) of each group without a rewrite that passed its checks. In batch
+            # order: a replay reads the fallback rows back in sorted key order (canonical JSON), and the order
+            # of failed sets the next round's batches and the order of kept needs and events.
+            fallbacks = getattr(answer, '_fallbacks', {})
+            failed = [(members, [], 'Writer output unavailable: '+fallbacks[identifier]['reason'])
+                      for identifier, members in batch if identifier in fallbacks]
             written_ids = {n.group_id for n in answer.needs}
             critic_input = {'groups':{k:v for k,v in payload['groups'].items() if k in written_ids}}
             answer = checked_rewrites(store, run, critic_input, answer, dict(batch), client, profile, failed) if written_ids else answer
@@ -414,9 +417,15 @@ def write_needs(store, run, groups, client, profile):
                         'inputs':[r.revision_id for r in members], 'reason':rationale, 'rewrites':rewrites})
                     continue
                 member = members[0]
-                need, group_id = need_record(store, run, members, member.need_statement or member.normalized_statement,
-                    member.need_condition, member.scope, 'Normalised statement kept unchanged: its term-free rewrite '
-                    'was unavailable or not shown to be lossless.', profile, flags=('rewrite_not_applied',))
+                statement = member.need_statement or member.normalized_statement
+                text = ' '.join(statement.split()).casefold()
+                def stated(field):
+                    # As for a written need: a condition or scope only when it stands in the statement kept; the
+                    # extraction's own scope label is not source-checked.
+                    return field if field and ' '.join(field.split()).casefold() in text else ''
+                need, group_id = need_record(store, run, members, statement, stated(member.need_condition),
+                    stated(member.scope), 'Normalised statement kept unchanged: its term-free rewrite was unavailable '
+                    'or not shown to be lossless.', profile, flags=('rewrite_not_applied',))
                 complete.append(need)
                 events.append({'action':'keep_unwritten_need', 'policy_version':POLICIES['need_statement'], 'group_id':group_id,
                     'inputs':[member.revision_id], 'outputs':[need.revision_id], 'reason':rationale, 'rewrites':rewrites})

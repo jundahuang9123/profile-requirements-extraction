@@ -83,9 +83,12 @@ A failed rewrite says nothing about the needs, so `rq1-need-statement-v3` sets n
 aside: a group goes back to the writer member by member, as members a written need
 does not express already did (`split_unwritten_group`), and a single need keeps its
 own normalised statement, flagged `rewrite_not_applied` (`keep_unwritten_need`).
-Both events record the reason and the rejected rewrites. A kept statement may still
-hold vocabulary terms or obligation words the writer would have removed; the flag
-makes it visible for review.
+Both events record the reason and the rejected rewrites. A kept need takes a
+condition or scope only when it stands in its own statement, the rule a written need
+follows; the extraction's scope label is not source-checked. A kept statement may
+still hold vocabulary terms or obligation words the writer would have removed, so
+acceptance asks a human to edit it first; the flag makes it visible for review.
+Failed groups are retried in batch order, so a replay sends the same requests.
 
 ## Scope choices
 

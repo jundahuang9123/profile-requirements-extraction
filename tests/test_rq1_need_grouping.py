@@ -126,3 +126,14 @@ def test_valid_negative_rewrite_critic_is_not_pressured_to_flip(setup):
     before=len(client.calls)
     needs.write_needs(store,run,[records],client,None)
     assert len(client.calls)==before
+
+
+@pytest.mark.parametrize('obligation', ['mandatory','recommended','optional','unknown'])
+@pytest.mark.parametrize('word', ['must','SHALL','Should'])
+def test_need_wording_keeps_obligation_separate(obligation, word):
+    offered={'g':{'obligation':obligation,'members':{'m':{'statement':'Users can identify titles.'}}}}
+    answer=needs.NeedStatements(needs=[{'group_id':'g','statement':f'Users {word} identify titles.',
+        'members':[{'member_id':'m','expresses_need':True}]}])
+    assert any('obligation words' in e for e in needs.statement_errors(answer,offered,None))
+    answer.needs[0].statement='Users can identify titles.'
+    assert needs.statement_errors(answer,offered,None)==[]
