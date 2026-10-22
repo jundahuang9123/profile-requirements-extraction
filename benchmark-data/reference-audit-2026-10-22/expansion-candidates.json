@@ -1,0 +1,3841 @@
+{
+  "schema_version": "rq1-reference-expansion-review-1",
+  "status": "draft_not_scoring_gold",
+  "created": "2026-10-22",
+  "scoring_enabled": false,
+  "warning": "Alternatives, refinements, overlaps and architecture are separate review strata. Never sum this file with legacy rows for recall. Human adjudication and input-evidence annotation required.",
+  "requirements": [
+    {
+      "id": "HC-001",
+      "benchmark": "healthdcat",
+      "statement": "Keep a persistent resolvable identifier for each metadata record.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.1.1",
+      "pdf_pages": [
+        28,
+        29
+      ],
+      "legacy_parent_ids": [
+        "H-1"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "mandatory",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-002",
+      "benchmark": "healthdcat",
+      "statement": "Use persistent resolvable identifiers for links to datasets and external resources.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.1.1",
+      "pdf_pages": [
+        28
+      ],
+      "legacy_parent_ids": [
+        "H-1"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "mandatory",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-003",
+      "benchmark": "healthdcat",
+      "statement": "Keep copied metadata linked to its authoritative source.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.1.1",
+      "pdf_pages": [
+        28,
+        29
+      ],
+      "legacy_parent_ids": [
+        "H-1"
+      ],
+      "requirement_class": "metadata_management",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-004",
+      "benchmark": "healthdcat",
+      "statement": "Update master metadata at its primary source.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.1.1",
+      "pdf_pages": [
+        28,
+        29
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_management",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-005",
+      "benchmark": "healthdcat",
+      "statement": "Retain the holder identifier when an access body adds a conforming identifier.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.1.1",
+      "pdf_pages": [
+        29
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_management",
+      "source_modality": "capability",
+      "applicability": "Incoming identifier fails the profile identifier requirements.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-006",
+      "benchmark": "healthdcat",
+      "statement": "Record when a metadata entry was listed.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.1.1",
+      "pdf_pages": [
+        29
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_management",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-007",
+      "benchmark": "healthdcat",
+      "statement": "Record when a metadata entry was modified.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.1.1",
+      "pdf_pages": [
+        29
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_management",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-008",
+      "benchmark": "healthdcat",
+      "statement": "Identify the source metadata used to create an aggregated entry.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.1.1",
+      "pdf_pages": [
+        29
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_management",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-009",
+      "benchmark": "healthdcat",
+      "statement": "Represent dataset relationships as machine-interpretable links.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.1.2",
+      "pdf_pages": [
+        30,
+        31
+      ],
+      "legacy_parent_ids": [
+        "H-2"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-010",
+      "benchmark": "healthdcat",
+      "statement": "Detect broken links between catalogue resources.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.1.2",
+      "pdf_pages": [
+        31,
+        32
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "catalogue_operation",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-011",
+      "benchmark": "healthdcat",
+      "statement": "Assess the maturity and interoperability of the linked data space.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.1.2",
+      "pdf_pages": [
+        31,
+        32
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "governance",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-012",
+      "benchmark": "healthdcat",
+      "statement": "Have data holders check dataset descriptions for accuracy and currency at least annually.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.1.3",
+      "pdf_pages": [
+        32
+      ],
+      "legacy_parent_ids": [
+        "H-3"
+      ],
+      "requirement_class": "metadata_management",
+      "source_modality": "reported_obligation",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Historical D6.2 account; not a statement about current law.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-013",
+      "benchmark": "healthdcat",
+      "statement": "Distinguish the last review date from the last modification date.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.1.3",
+      "pdf_pages": [
+        32
+      ],
+      "legacy_parent_ids": [
+        "H-3"
+      ],
+      "requirement_class": "metadata_management",
+      "source_modality": "conditional_design",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Review date may remain internal; the report does not require an exchanged new property.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-014",
+      "benchmark": "healthdcat",
+      "statement": "Identify the application profile followed by a metadata record so aggregators can validate it.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.1.3",
+      "pdf_pages": [
+        32
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_management",
+      "source_modality": "best_practice",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-015",
+      "benchmark": "healthdcat",
+      "statement": "Supply meaningful free-text descriptions for language-based discovery.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.2",
+      "pdf_pages": [
+        32,
+        33
+      ],
+      "legacy_parent_ids": [
+        "H-4"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-016",
+      "benchmark": "healthdcat",
+      "statement": "Support semantic queries over relationships and concept annotations.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.2",
+      "pdf_pages": [
+        34,
+        35
+      ],
+      "legacy_parent_ids": [
+        "H-4",
+        "H-7"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-017",
+      "benchmark": "healthdcat",
+      "statement": "Enable discovery using health categories.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.3",
+      "pdf_pages": [
+        38,
+        39
+      ],
+      "legacy_parent_ids": [
+        "H-5"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-018",
+      "benchmark": "healthdcat",
+      "statement": "Enable discovery using health data access bodies.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.3",
+      "pdf_pages": [
+        38,
+        39
+      ],
+      "legacy_parent_ids": [
+        "H-5"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-019",
+      "benchmark": "healthdcat",
+      "statement": "Enable discovery using publisher types.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.3",
+      "pdf_pages": [
+        38,
+        39
+      ],
+      "legacy_parent_ids": [
+        "H-5"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-020",
+      "benchmark": "healthdcat",
+      "statement": "Enable discovery using trusted data holder status.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.3",
+      "pdf_pages": [
+        38,
+        39
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-021",
+      "benchmark": "healthdcat",
+      "statement": "Enable discovery using personal-data categories.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.3",
+      "pdf_pages": [
+        38,
+        39
+      ],
+      "legacy_parent_ids": [
+        "H-5",
+        "H-7"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-022",
+      "benchmark": "healthdcat",
+      "statement": "Enable discovery using minimum typical age.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.3; 5.3.1.3",
+      "pdf_pages": [
+        38,
+        39,
+        75
+      ],
+      "legacy_parent_ids": [
+        "H-5"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Population age facets apply only to population datasets.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-023",
+      "benchmark": "healthdcat",
+      "statement": "Enable discovery using maximum typical age.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.3; 5.3.1.3",
+      "pdf_pages": [
+        38,
+        39,
+        75
+      ],
+      "legacy_parent_ids": [
+        "H-5"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Population age facets apply only to population datasets.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-024",
+      "benchmark": "healthdcat",
+      "statement": "Enable discovery using population size.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.3",
+      "pdf_pages": [
+        38,
+        39
+      ],
+      "legacy_parent_ids": [
+        "H-5"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-025",
+      "benchmark": "healthdcat",
+      "statement": "Enable discovery using quality labels.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.3",
+      "pdf_pages": [
+        38,
+        39
+      ],
+      "legacy_parent_ids": [
+        "H-5",
+        "H-15"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-026",
+      "benchmark": "healthdcat",
+      "statement": "Enable discovery using coding values.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.3",
+      "pdf_pages": [
+        38,
+        39
+      ],
+      "legacy_parent_ids": [
+        "H-5",
+        "H-7"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-027",
+      "benchmark": "healthdcat",
+      "statement": "Prioritise catalogue facets according to demonstrated discovery use cases.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.3",
+      "pdf_pages": [
+        39
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "user_interface",
+      "source_modality": "recommendation",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-028",
+      "benchmark": "healthdcat",
+      "statement": "Adapt available facets to personal versus non-personal dataset queries.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.3",
+      "pdf_pages": [
+        39
+      ],
+      "legacy_parent_ids": [
+        "H-6"
+      ],
+      "requirement_class": "user_interface",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-029",
+      "benchmark": "healthdcat",
+      "statement": "Identify shared semantic concepts consistently across datasets.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.4",
+      "pdf_pages": [
+        39,
+        40,
+        41
+      ],
+      "legacy_parent_ids": [
+        "H-7"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Wikidata is a proposed implementation choice; this need is implementation-neutral.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-030",
+      "benchmark": "healthdcat",
+      "statement": "Provide machine-interpretable identifiers for health themes.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.4–5.2.5",
+      "pdf_pages": [
+        41,
+        42
+      ],
+      "legacy_parent_ids": [
+        "H-7"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Overlaps facet rows; adjudicate equivalence before forming a denominator.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-031",
+      "benchmark": "healthdcat",
+      "statement": "Provide machine-interpretable identifiers for coding systems.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.4–5.2.5",
+      "pdf_pages": [
+        41,
+        42
+      ],
+      "legacy_parent_ids": [
+        "H-7"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Overlaps facet rows; adjudicate equivalence before forming a denominator.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-032",
+      "benchmark": "healthdcat",
+      "statement": "Provide machine-interpretable identifiers for code values.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.4–5.2.5",
+      "pdf_pages": [
+        41,
+        42
+      ],
+      "legacy_parent_ids": [
+        "H-7"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Overlaps facet rows; adjudicate equivalence before forming a denominator.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-033",
+      "benchmark": "healthdcat",
+      "statement": "Provide machine-interpretable identifiers for conformance standards.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.4–5.2.5",
+      "pdf_pages": [
+        41,
+        42
+      ],
+      "legacy_parent_ids": [
+        "H-7"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Overlaps facet rows; adjudicate equivalence before forming a denominator.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-034",
+      "benchmark": "healthdcat",
+      "statement": "Describe at least one safe sample distribution for a non-public dataset.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.6",
+      "pdf_pages": [
+        42
+      ],
+      "legacy_parent_ids": [
+        "H-8"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "mandatory",
+      "applicability": "Non-public datasets; see source disagreement about sample and dictionary modality in 5.2.6.1.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-035",
+      "benchmark": "healthdcat",
+      "statement": "Provide definitions of the data elements accompanying a sample.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.6;5.2.6.1",
+      "pdf_pages": [
+        42,
+        46
+      ],
+      "legacy_parent_ids": [
+        "H-9"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_inconsistency",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Page 42 says must accompany; page 46 says if applicable should be published. Preserve disagreement for adjudication.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-036",
+      "benchmark": "healthdcat",
+      "statement": "Let access applicants list the variables they need.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.6",
+      "pdf_pages": [
+        43,
+        44
+      ],
+      "legacy_parent_ids": [
+        "H-10"
+      ],
+      "requirement_class": "access_workflow",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Legacy H-10 cites 5.2.6.1, but the explicit requirement precedes that section.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-037",
+      "benchmark": "healthdcat",
+      "statement": "Let statistical-result requesters attach an analysis script.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.6",
+      "pdf_pages": [
+        44
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "access_workflow",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-038",
+      "benchmark": "healthdcat",
+      "statement": "Make descriptions of data structures publicly available and consistent.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.6.1",
+      "pdf_pages": [
+        44
+      ],
+      "legacy_parent_ids": [
+        "H-11"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Where available, as qualified in the source passage.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-039",
+      "benchmark": "healthdcat",
+      "statement": "Make descriptions of data formats publicly available and consistent.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.6.1",
+      "pdf_pages": [
+        44
+      ],
+      "legacy_parent_ids": [
+        "H-11"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Where available, as qualified in the source passage.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-040",
+      "benchmark": "healthdcat",
+      "statement": "Make descriptions of vocabularies publicly available and consistent.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.6.1",
+      "pdf_pages": [
+        44
+      ],
+      "legacy_parent_ids": [
+        "H-11"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Where available, as qualified in the source passage.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-041",
+      "benchmark": "healthdcat",
+      "statement": "Make descriptions of classification schemes publicly available and consistent.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.6.1",
+      "pdf_pages": [
+        44
+      ],
+      "legacy_parent_ids": [
+        "H-11"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Where available, as qualified in the source passage.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-042",
+      "benchmark": "healthdcat",
+      "statement": "Make descriptions of taxonomies publicly available and consistent.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.6.1",
+      "pdf_pages": [
+        44
+      ],
+      "legacy_parent_ids": [
+        "H-11"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Where available, as qualified in the source passage.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-043",
+      "benchmark": "healthdcat",
+      "statement": "Make descriptions of code lists publicly available and consistent.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.6.1",
+      "pdf_pages": [
+        44
+      ],
+      "legacy_parent_ids": [
+        "H-11"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Where available, as qualified in the source passage.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-044",
+      "benchmark": "healthdcat",
+      "statement": "Describe coherent logical datasets within a large data holding.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.6.2",
+      "pdf_pages": [
+        50,
+        51
+      ],
+      "legacy_parent_ids": [
+        "H-12"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-045",
+      "benchmark": "healthdcat",
+      "statement": "Expose relationships between a data source and its logical datasets.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.6.2",
+      "pdf_pages": [
+        52,
+        53
+      ],
+      "legacy_parent_ids": [
+        "H-12"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-046",
+      "benchmark": "healthdcat",
+      "statement": "Identify the common model or standard followed by a harmonised dataset.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.6.2.1",
+      "pdf_pages": [
+        54
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "recommendation",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Does not require all raw data to be harmonised; processing-service interoperability is out of scope.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-047",
+      "benchmark": "healthdcat",
+      "statement": "State conditions for reuse of each distribution, including samples.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.6.3",
+      "pdf_pages": [
+        55,
+        56
+      ],
+      "legacy_parent_ids": [
+        "H-13"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "mandatory",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-048",
+      "benchmark": "healthdcat",
+      "statement": "Identify which dataset parts need intellectual-property protection.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.6.3",
+      "pdf_pages": [
+        55
+      ],
+      "legacy_parent_ids": [
+        "H-13"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "reported_obligation",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-049",
+      "benchmark": "healthdcat",
+      "statement": "Explain why the identified parts need intellectual-property protection.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.6.3",
+      "pdf_pages": [
+        55
+      ],
+      "legacy_parent_ids": [
+        "H-13"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "reported_obligation",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-050",
+      "benchmark": "healthdcat",
+      "statement": "Link to analytics resources supporting suitability assessment without direct raw-data access.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.7",
+      "pdf_pages": [
+        56,
+        57
+      ],
+      "legacy_parent_ids": [
+        "H-14"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "encouraged",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-051",
+      "benchmark": "healthdcat",
+      "statement": "Associate quality or utility annotations with the resource they assess.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.8",
+      "pdf_pages": [
+        60,
+        61
+      ],
+      "legacy_parent_ids": [
+        "H-15"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-052",
+      "benchmark": "healthdcat",
+      "statement": "Explain the motivation for each quality annotation.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.8",
+      "pdf_pages": [
+        61
+      ],
+      "legacy_parent_ids": [
+        "H-15"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-053",
+      "benchmark": "healthdcat",
+      "statement": "Provide the content of a quality annotation as text or a linked resource.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.8",
+      "pdf_pages": [
+        61
+      ],
+      "legacy_parent_ids": [
+        "H-15"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-054",
+      "benchmark": "healthdcat",
+      "statement": "Describe the purpose for which data were collected or processed.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.9",
+      "pdf_pages": [
+        63,
+        64
+      ],
+      "legacy_parent_ids": [
+        "H-16"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-055",
+      "benchmark": "healthdcat",
+      "statement": "Identify the legal basis for processing personal data.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.9",
+      "pdf_pages": [
+        64
+      ],
+      "legacy_parent_ids": [
+        "H-16"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Personal data; interpret with its applicable law/jurisdiction.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-056",
+      "benchmark": "healthdcat",
+      "statement": "Distinguish public, protected and sensitive dataset access conditions.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3",
+      "pdf_pages": [
+        66,
+        69,
+        72
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_inconsistency",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "5.3 distinguishes three classes; p72 proposes only PUBLIC/NON-PUBLIC for HealthDCAT. Do not silently resolve this.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-057",
+      "benchmark": "healthdcat",
+      "statement": "Provide an available distribution for publicly accessible health data.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.1",
+      "pdf_pages": [
+        67,
+        68
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_minimum",
+      "applicability": "Non-personal open data.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-058",
+      "benchmark": "healthdcat",
+      "statement": "State a title.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.2",
+      "pdf_pages": [
+        70
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_minimum",
+      "applicability": "Protected non-personal data aligned with NSIP metadata.",
+      "review_note": "Proposed Health alignment with reported NSIP requirements; keep conditional cohort distinct.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-059",
+      "benchmark": "healthdcat",
+      "statement": "State a description.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.2",
+      "pdf_pages": [
+        70
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_minimum",
+      "applicability": "Protected non-personal data aligned with NSIP metadata.",
+      "review_note": "Proposed Health alignment with reported NSIP requirements; keep conditional cohort distinct.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-060",
+      "benchmark": "healthdcat",
+      "statement": "State the publishing organisation.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.2",
+      "pdf_pages": [
+        70
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_minimum",
+      "applicability": "Protected non-personal data aligned with NSIP metadata.",
+      "review_note": "Proposed Health alignment with reported NSIP requirements; keep conditional cohort distinct.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-061",
+      "benchmark": "healthdcat",
+      "statement": "State the access restrictions.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.2",
+      "pdf_pages": [
+        70
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_minimum",
+      "applicability": "Protected non-personal data aligned with NSIP metadata.",
+      "review_note": "Proposed Health alignment with reported NSIP requirements; keep conditional cohort distinct.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-062",
+      "benchmark": "healthdcat",
+      "statement": "State an available distribution.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.2",
+      "pdf_pages": [
+        70
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_minimum",
+      "applicability": "Protected non-personal data aligned with NSIP metadata.",
+      "review_note": "Proposed Health alignment with reported NSIP requirements; keep conditional cohort distinct.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-063",
+      "benchmark": "healthdcat",
+      "statement": "State the distribution format.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.2",
+      "pdf_pages": [
+        71
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_minimum",
+      "applicability": "Protected non-personal data aligned with NSIP metadata.",
+      "review_note": "Proposed Health alignment with reported NSIP requirements; keep conditional cohort distinct.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-064",
+      "benchmark": "healthdcat",
+      "statement": "State the distribution byte size.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.2",
+      "pdf_pages": [
+        71
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_minimum",
+      "applicability": "Protected non-personal data aligned with NSIP metadata.",
+      "review_note": "Proposed Health alignment with reported NSIP requirements; keep conditional cohort distinct.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-065",
+      "benchmark": "healthdcat",
+      "statement": "State the access or request procedure.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.2",
+      "pdf_pages": [
+        71
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_minimum",
+      "applicability": "Protected non-personal data aligned with NSIP metadata.",
+      "review_note": "Proposed Health alignment with reported NSIP requirements; keep conditional cohort distinct.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-066",
+      "benchmark": "healthdcat",
+      "statement": "State distribution reuse conditions.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.2",
+      "pdf_pages": [
+        71
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_minimum",
+      "applicability": "Protected non-personal data aligned with NSIP metadata.",
+      "review_note": "Proposed Health alignment with reported NSIP requirements; keep conditional cohort distinct.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-067",
+      "benchmark": "healthdcat",
+      "statement": "Represent alternative file formats as separate distributions.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.2",
+      "pdf_pages": [
+        71
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_minimum",
+      "applicability": "Protected NSIP-aligned data with multiple formats.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-068",
+      "benchmark": "healthdcat",
+      "statement": "Route non-public dataset access to the access body or equivalent authority.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        72
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_mandatory",
+      "applicability": "Personal electronic health data profile in the D6.2 proposal.",
+      "review_note": "Source contains open questions about geographic applicability and some copy/paste errors; independent adjudication required.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-069",
+      "benchmark": "healthdcat",
+      "statement": "Identify applicable legislation for filtering and reuse context.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        72
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_mandatory",
+      "applicability": "Personal electronic health data profile in the D6.2 proposal.",
+      "review_note": "Source contains open questions about geographic applicability and some copy/paste errors; independent adjudication required.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-070",
+      "benchmark": "healthdcat",
+      "statement": "Provide a dataset helpdesk contact point.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        72
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_mandatory",
+      "applicability": "Personal electronic health data profile in the D6.2 proposal.",
+      "review_note": "Source contains open questions about geographic applicability and some copy/paste errors; independent adjudication required.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-071",
+      "benchmark": "healthdcat",
+      "statement": "Describe geographical coverage for population discovery.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        73
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_mandatory",
+      "applicability": "Personal electronic health data profile in the D6.2 proposal.",
+      "review_note": "Source contains open questions about geographic applicability and some copy/paste errors; independent adjudication required.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-072",
+      "benchmark": "healthdcat",
+      "statement": "Identify the access body responsible for personal or non-public data.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        73
+      ],
+      "legacy_parent_ids": [
+        "H-5"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_mandatory",
+      "applicability": "Personal electronic health data profile in the D6.2 proposal.",
+      "review_note": "Source contains open questions about geographic applicability and some copy/paste errors; independent adjudication required.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-073",
+      "benchmark": "healthdcat",
+      "statement": "Supply relevant concise keywords.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        73
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_mandatory",
+      "applicability": "Personal electronic health data profile in the D6.2 proposal.",
+      "review_note": "Source contains open questions about geographic applicability and some copy/paste errors; independent adjudication required.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-074",
+      "benchmark": "healthdcat",
+      "statement": "Describe dataset origins and modification history.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        73
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_mandatory",
+      "applicability": "Personal electronic health data profile in the D6.2 proposal.",
+      "review_note": "Source contains open questions about geographic applicability and some copy/paste errors; independent adjudication required.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-075",
+      "benchmark": "healthdcat",
+      "statement": "Identify the data holder responsible for publication.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        73
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_mandatory",
+      "applicability": "Personal electronic health data profile in the D6.2 proposal.",
+      "review_note": "Source contains open questions about geographic applicability and some copy/paste errors; independent adjudication required.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-076",
+      "benchmark": "healthdcat",
+      "statement": "Describe the nature of the publisher in text.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        73
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_mandatory",
+      "applicability": "Personal electronic health data profile in the D6.2 proposal.",
+      "review_note": "Source contains open questions about geographic applicability and some copy/paste errors; independent adjudication required.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-077",
+      "benchmark": "healthdcat",
+      "statement": "Tag catalogue datasets with the common health theme.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        74
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_mandatory",
+      "applicability": "Personal electronic health data profile in the D6.2 proposal.",
+      "review_note": "Source contains open questions about geographic applicability and some copy/paste errors; independent adjudication required.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-078",
+      "benchmark": "healthdcat",
+      "statement": "Distinguish personal and non-personal data types.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        74
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_mandatory",
+      "applicability": "Personal electronic health data profile in the D6.2 proposal.",
+      "review_note": "Source contains open questions about geographic applicability and some copy/paste errors; independent adjudication required.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-079",
+      "benchmark": "healthdcat",
+      "statement": "Link to supporting dataset documentation.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        74
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_recommended",
+      "applicability": "Personal electronic health data; population-specific fields only where applicable.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-080",
+      "benchmark": "healthdcat",
+      "statement": "Describe update frequency.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        74
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_recommended",
+      "applicability": "Personal electronic health data; population-specific fields only where applicable.",
+      "review_note": "Frequency row has no rationale in source; it is an inventory candidate, not independently justified necessity.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-081",
+      "benchmark": "healthdcat",
+      "statement": "Link to resources that reference the dataset.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        74
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_recommended",
+      "applicability": "Personal electronic health data; population-specific fields only where applicable.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-082",
+      "benchmark": "healthdcat",
+      "statement": "Provide a dataset landing page.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        75
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_recommended",
+      "applicability": "Personal electronic health data; population-specific fields only where applicable.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-083",
+      "benchmark": "healthdcat",
+      "statement": "Identify the dataset language.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        75
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_recommended",
+      "applicability": "Personal electronic health data; population-specific fields only where applicable.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-084",
+      "benchmark": "healthdcat",
+      "statement": "State the number of records.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        75
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_recommended",
+      "applicability": "Personal electronic health data; population-specific fields only where applicable.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-085",
+      "benchmark": "healthdcat",
+      "statement": "State the number of unique individuals.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        75
+      ],
+      "legacy_parent_ids": [
+        "H-5"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_recommended",
+      "applicability": "Personal electronic health data; population-specific fields only where applicable.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-086",
+      "benchmark": "healthdcat",
+      "statement": "Describe the population represented.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        75
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_recommended",
+      "applicability": "Personal electronic health data; population-specific fields only where applicable.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-087",
+      "benchmark": "healthdcat",
+      "statement": "Link to related resources.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        75
+      ],
+      "legacy_parent_ids": [
+        "H-2"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_recommended",
+      "applicability": "Personal electronic health data; population-specific fields only where applicable.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-088",
+      "benchmark": "healthdcat",
+      "statement": "Identify source datasets.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        76
+      ],
+      "legacy_parent_ids": [
+        "H-2"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_recommended",
+      "applicability": "Personal electronic health data; population-specific fields only where applicable.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-089",
+      "benchmark": "healthdcat",
+      "statement": "Describe temporal coverage, allowing an open end for ongoing collection.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        76
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_recommended",
+      "applicability": "Personal electronic health data; population-specific fields only where applicable.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-090",
+      "benchmark": "healthdcat",
+      "statement": "State temporal resolution.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        76
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_recommended",
+      "applicability": "Personal electronic health data; population-specific fields only where applicable.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-091",
+      "benchmark": "healthdcat",
+      "statement": "State the retention deadline when data must be deleted.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        76
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "conditional_mandatory",
+      "applicability": "A deletion deadline exists; source places this under optional properties.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-092",
+      "benchmark": "healthdcat",
+      "statement": "Keep metadata accessible after the underlying dataset is deleted.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        76
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_management",
+      "source_modality": "conditional_mandatory",
+      "applicability": "Dataset is deleted; publications may still reference it.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-093",
+      "benchmark": "healthdcat",
+      "statement": "State spatial resolution when relevant.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        76
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "optional",
+      "applicability": "Geospatial data.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "HC-094",
+      "benchmark": "healthdcat",
+      "statement": "Identify dataset versions.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.3.1.3",
+      "pdf_pages": [
+        76
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "metadata_content",
+      "source_modality": "optional",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "GC-001",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing metadata point of contact.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        39
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "metadata point of contact",
+      "inspire_obligation": "M",
+      "iso_core_obligation": "M",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-002",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing metadata date.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        39
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "metadata date",
+      "inspire_obligation": "M",
+      "iso_core_obligation": "M",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-003",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing metadata language.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        39
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "metadata language",
+      "inspire_obligation": "M",
+      "iso_core_obligation": "C",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-004",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing metadata character set.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        39
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "metadata character set",
+      "inspire_obligation": "not_listed",
+      "iso_core_obligation": "C",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-005",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing metadata file identifier.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        39
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "metadata file identifier",
+      "inspire_obligation": "not_listed",
+      "iso_core_obligation": "O",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-006",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing metadata standard name.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        39
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "metadata standard name",
+      "inspire_obligation": "not_listed",
+      "iso_core_obligation": "O",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-007",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing metadata standard version.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        39
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "metadata standard version",
+      "inspire_obligation": "not_listed",
+      "iso_core_obligation": "O",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-008",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing resource title.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        39
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "resource title",
+      "inspire_obligation": "M",
+      "iso_core_obligation": "M",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-009",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing resource creation date.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        39
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "resource creation date",
+      "inspire_obligation": "C",
+      "iso_core_obligation": "M",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-010",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing resource publication date.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        39
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "resource publication date",
+      "inspire_obligation": "C",
+      "iso_core_obligation": "M",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-011",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing resource last revision date.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        39
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "resource last revision date",
+      "inspire_obligation": "C",
+      "iso_core_obligation": "M",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-012",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing resource abstract.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        39
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "resource abstract",
+      "inspire_obligation": "M",
+      "iso_core_obligation": "M",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-013",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing resource language.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        40
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "resource language",
+      "inspire_obligation": "C",
+      "iso_core_obligation": "M",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-014",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing topic category.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        40
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "topic category",
+      "inspire_obligation": "M",
+      "iso_core_obligation": "M",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-015",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing geographic bounding box or geographic identifier.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        40
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "geographic bounding box or geographic identifier",
+      "inspire_obligation": "M",
+      "iso_core_obligation": "C",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-016",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing dataset character encoding.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        40
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "dataset character encoding",
+      "inspire_obligation": "C",
+      "iso_core_obligation": "C",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-017",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing temporal extent.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        40
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "temporal extent",
+      "inspire_obligation": "C",
+      "iso_core_obligation": "O",
+      "geodcat_representation": "temporal_only"
+    },
+    {
+      "id": "GC-018",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing lineage.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        40
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "lineage",
+      "inspire_obligation": "M",
+      "iso_core_obligation": "O",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-019",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing spatial representation type.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        40
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "spatial representation type",
+      "inspire_obligation": "M",
+      "iso_core_obligation": "O",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-020",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing distribution encoding or format.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        40
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "distribution encoding or format",
+      "inspire_obligation": "M",
+      "iso_core_obligation": "O",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-021",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing spatial resolution.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        40
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "spatial resolution",
+      "inspire_obligation": "C",
+      "iso_core_obligation": "O",
+      "geodcat_representation": "free_text_only"
+    },
+    {
+      "id": "GC-022",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing responsible organisation and role.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        40
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "responsible organisation and role",
+      "inspire_obligation": "M",
+      "iso_core_obligation": "O",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-023",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing resource locator.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        40
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "resource locator",
+      "inspire_obligation": "C",
+      "iso_core_obligation": "O",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-024",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing coordinate reference system.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        40
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "coordinate reference system",
+      "inspire_obligation": "M",
+      "iso_core_obligation": "O",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-025",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing temporal reference system.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        40
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "temporal reference system",
+      "inspire_obligation": "C",
+      "iso_core_obligation": "O",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-026",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing conformity.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        40
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "conformity",
+      "inspire_obligation": "M",
+      "iso_core_obligation": "not_listed",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-027",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing resource type.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        41
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "resource type",
+      "inspire_obligation": "M",
+      "iso_core_obligation": "not_listed",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-028",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing spatial data service type.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        41
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "spatial data service type",
+      "inspire_obligation": "M",
+      "iso_core_obligation": "not_listed",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-029",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing keywords.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        41
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "keywords",
+      "inspire_obligation": "M",
+      "iso_core_obligation": "not_listed",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-030",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing coupled resource.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        41
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "coupled resource",
+      "inspire_obligation": "C",
+      "iso_core_obligation": "not_listed",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-031",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing unique resource identifier.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        41
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "unique resource identifier",
+      "inspire_obligation": "M",
+      "iso_core_obligation": "not_listed",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-032",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing conditions for access and use.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        41
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "conditions for access and use",
+      "inspire_obligation": "M",
+      "iso_core_obligation": "not_listed",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-033",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing limitations on public access.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        41
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "limitations on public access",
+      "inspire_obligation": "M",
+      "iso_core_obligation": "not_listed",
+      "geodcat_representation": "full"
+    },
+    {
+      "id": "GC-034",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing maintenance and update frequency.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        41
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "maintenance and update frequency",
+      "inspire_obligation": "O",
+      "iso_core_obligation": "not_listed",
+      "geodcat_representation": "frequency_only"
+    },
+    {
+      "id": "GC-035",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing topological consistency conformance results.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        41
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "topological consistency conformance results",
+      "inspire_obligation": "C",
+      "iso_core_obligation": "not_listed",
+      "geodcat_representation": "conformance_results_only"
+    },
+    {
+      "id": "GC-036",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing conceptual consistency conformance results.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        41
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "conceptual consistency conformance results",
+      "inspire_obligation": "O",
+      "iso_core_obligation": "not_listed",
+      "geodcat_representation": "conformance_results_only"
+    },
+    {
+      "id": "GC-037",
+      "benchmark": "geodcat",
+      "statement": "Support discovery metadata describing domain consistency conformance results.",
+      "source_path": "geodcat/reference-requirements/geo-final.pdf",
+      "source_sha256": "c52d1d2e74928f99165ee33623d519e55e214b6cd1091c8de3ab9b8794783dd7",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/GeoDCAT-AP/7e7d6a82f4bd4491c68f774f185193439881ab42/releases/1.0.0/geodcat-ap_1.0.pdf",
+      "source_locator": "Annex I, Table 5",
+      "pdf_pages": [
+        41
+      ],
+      "legacy_parent_ids": [
+        "G-6"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "source_table_obligation",
+      "applicability": "Use the relevant dataset/series/service applicability and conditions from Annex II; not every field is mandatory for every resource.",
+      "review_note": "Content capability underlying the alignment inventory, not a newly published numbered stakeholder requirement.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "source_element": "domain consistency conformance results",
+      "inspire_obligation": "O",
+      "iso_core_obligation": "not_listed",
+      "geodcat_representation": "conformance_results_only"
+    },
+    {
+      "id": "SC-001",
+      "benchmark": "statdcat",
+      "statement": "Keep statistical descriptions aligned with DCAT and DCAT-AP.",
+      "source_path": "statdcat/reference-requirements/stat-final.pdf",
+      "source_sha256": "27cf14f71c843feda040c4f638d0d62a8c28f7ac87663d80fad7aaa48e689624",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/StatDCAT-AP/12a2424312f615e31ee3f7db881f5f564851551f/Release%201.0/statdcat-ap_version_1.0.0_0.pdf",
+      "source_locator": "6.2",
+      "pdf_pages": [
+        26
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "architecture",
+      "source_modality": "principle",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "SC-002",
+      "benchmark": "statdcat",
+      "statement": "Prioritise metadata that supports data discovery.",
+      "source_path": "statdcat/reference-requirements/stat-final.pdf",
+      "source_sha256": "27cf14f71c843feda040c4f638d0d62a8c28f7ac87663d80fad7aaa48e689624",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/StatDCAT-AP/12a2424312f615e31ee3f7db881f5f564851551f/Release%201.0/statdcat-ap_version_1.0.0_0.pdf",
+      "source_locator": "6.2",
+      "pdf_pages": [
+        26
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "scope",
+      "source_modality": "principle",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "SC-003",
+      "benchmark": "statdcat",
+      "statement": "Reuse established maintained metadata vocabularies.",
+      "source_path": "statdcat/reference-requirements/stat-final.pdf",
+      "source_sha256": "27cf14f71c843feda040c4f638d0d62a8c28f7ac87663d80fad7aaa48e689624",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/StatDCAT-AP/12a2424312f615e31ee3f7db881f5f564851551f/Release%201.0/statdcat-ap_version_1.0.0_0.pdf",
+      "source_locator": "6.2",
+      "pdf_pages": [
+        26
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "architecture",
+      "source_modality": "principle",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "SC-004",
+      "benchmark": "statdcat",
+      "statement": "Encourage shared controlled vocabularies.",
+      "source_path": "statdcat/reference-requirements/stat-final.pdf",
+      "source_sha256": "27cf14f71c843feda040c4f638d0d62a8c28f7ac87663d80fad7aaa48e689624",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/StatDCAT-AP/12a2424312f615e31ee3f7db881f5f564851551f/Release%201.0/statdcat-ap_version_1.0.0_0.pdf",
+      "source_locator": "6.2",
+      "pdf_pages": [
+        26
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "architecture",
+      "source_modality": "principle",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "SC-005",
+      "benchmark": "statdcat",
+      "statement": "Balance descriptive complexity against usability for non-specialists.",
+      "source_path": "statdcat/reference-requirements/stat-final.pdf",
+      "source_sha256": "27cf14f71c843feda040c4f638d0d62a8c28f7ac87663d80fad7aaa48e689624",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/StatDCAT-AP/12a2424312f615e31ee3f7db881f5f564851551f/Release%201.0/statdcat-ap_version_1.0.0_0.pdf",
+      "source_locator": "6.2",
+      "pdf_pages": [
+        26
+      ],
+      "legacy_parent_ids": [],
+      "requirement_class": "design_quality",
+      "source_modality": "principle",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "SC-006",
+      "benchmark": "statdcat",
+      "statement": "Expose dimensions consistently irrespective of distribution format.",
+      "source_path": "statdcat/reference-requirements/stat-final.pdf",
+      "source_sha256": "27cf14f71c843feda040c4f638d0d62a8c28f7ac87663d80fad7aaa48e689624",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/StatDCAT-AP/12a2424312f615e31ee3f7db881f5f564851551f/Release%201.0/statdcat-ap_version_1.0.0_0.pdf",
+      "source_locator": "7.2.1",
+      "pdf_pages": [
+        30
+      ],
+      "legacy_parent_ids": [
+        "S-1"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "SC-007",
+      "benchmark": "statdcat",
+      "statement": "Expose attributes consistently irrespective of distribution format.",
+      "source_path": "statdcat/reference-requirements/stat-final.pdf",
+      "source_sha256": "27cf14f71c843feda040c4f638d0d62a8c28f7ac87663d80fad7aaa48e689624",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/StatDCAT-AP/12a2424312f615e31ee3f7db881f5f564851551f/Release%201.0/statdcat-ap_version_1.0.0_0.pdf",
+      "source_locator": "7.2.1",
+      "pdf_pages": [
+        30
+      ],
+      "legacy_parent_ids": [
+        "S-2"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "capability",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "SC-008",
+      "benchmark": "statdcat",
+      "statement": "Identify the motivation for quality annotations.",
+      "source_path": "statdcat/reference-requirements/stat-final.pdf",
+      "source_sha256": "27cf14f71c843feda040c4f638d0d62a8c28f7ac87663d80fad7aaa48e689624",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/StatDCAT-AP/12a2424312f615e31ee3f7db881f5f564851551f/Release%201.0/statdcat-ap_version_1.0.0_0.pdf",
+      "source_locator": "7.2.2",
+      "pdf_pages": [
+        30
+      ],
+      "legacy_parent_ids": [
+        "S-3"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "usage_requirement",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "SC-009",
+      "benchmark": "statdcat",
+      "statement": "Identify the target resource of quality annotations.",
+      "source_path": "statdcat/reference-requirements/stat-final.pdf",
+      "source_sha256": "27cf14f71c843feda040c4f638d0d62a8c28f7ac87663d80fad7aaa48e689624",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/StatDCAT-AP/12a2424312f615e31ee3f7db881f5f564851551f/Release%201.0/statdcat-ap_version_1.0.0_0.pdf",
+      "source_locator": "7.2.2",
+      "pdf_pages": [
+        30
+      ],
+      "legacy_parent_ids": [
+        "S-3"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "usage_requirement",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "SC-010",
+      "benchmark": "statdcat",
+      "statement": "Provide quality information as text or a link.",
+      "source_path": "statdcat/reference-requirements/stat-final.pdf",
+      "source_sha256": "27cf14f71c843feda040c4f638d0d62a8c28f7ac87663d80fad7aaa48e689624",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/StatDCAT-AP/12a2424312f615e31ee3f7db881f5f564851551f/Release%201.0/statdcat-ap_version_1.0.0_0.pdf",
+      "source_locator": "7.2.2",
+      "pdf_pages": [
+        30
+      ],
+      "legacy_parent_ids": [
+        "S-3"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "usage_requirement",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "SC-011",
+      "benchmark": "statdcat",
+      "statement": "Report actual series count, distinct from observation count and theoretical combinations.",
+      "source_path": "statdcat/reference-requirements/stat-final.pdf",
+      "source_sha256": "27cf14f71c843feda040c4f638d0d62a8c28f7ac87663d80fad7aaa48e689624",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/StatDCAT-AP/12a2424312f615e31ee3f7db881f5f564851551f/Release%201.0/statdcat-ap_version_1.0.0_0.pdf",
+      "source_locator": "7.2.4",
+      "pdf_pages": [
+        32
+      ],
+      "legacy_parent_ids": [
+        "S-5"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "clarification",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "SC-012",
+      "benchmark": "statdcat",
+      "statement": "Describe the start of time-series coverage.",
+      "source_path": "statdcat/reference-requirements/stat-final.pdf",
+      "source_sha256": "27cf14f71c843feda040c4f638d0d62a8c28f7ac87663d80fad7aaa48e689624",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/StatDCAT-AP/12a2424312f615e31ee3f7db881f5f564851551f/Release%201.0/statdcat-ap_version_1.0.0_0.pdf",
+      "source_locator": "7.2.6",
+      "pdf_pages": [
+        33
+      ],
+      "legacy_parent_ids": [
+        "S-7"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "representation_guidance",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "SC-013",
+      "benchmark": "statdcat",
+      "statement": "Describe the end of time-series coverage.",
+      "source_path": "statdcat/reference-requirements/stat-final.pdf",
+      "source_sha256": "27cf14f71c843feda040c4f638d0d62a8c28f7ac87663d80fad7aaa48e689624",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/StatDCAT-AP/12a2424312f615e31ee3f7db881f5f564851551f/Release%201.0/statdcat-ap_version_1.0.0_0.pdf",
+      "source_locator": "7.2.6",
+      "pdf_pages": [
+        33
+      ],
+      "legacy_parent_ids": [
+        "S-7"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "representation_guidance",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "SC-014",
+      "benchmark": "statdcat",
+      "statement": "Describe the periodicity of a time series.",
+      "source_path": "statdcat/reference-requirements/stat-final.pdf",
+      "source_sha256": "27cf14f71c843feda040c4f638d0d62a8c28f7ac87663d80fad7aaa48e689624",
+      "source_url": "https://raw.githubusercontent.com/SEMICeu/StatDCAT-AP/12a2424312f615e31ee3f7db881f5f564851551f/Release%201.0/statdcat-ap_version_1.0.0_0.pdf",
+      "source_locator": "7.2.6",
+      "pdf_pages": [
+        33
+      ],
+      "legacy_parent_ids": [
+        "S-7"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "representation_guidance",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    },
+    {
+      "id": "JC-001",
+      "benchmark": "jrc-research",
+      "statement": "Qualify identifiers with their scheme.",
+      "source_path": "jrc-research/provenance/citations/jrc-paper.json",
+      "source_url": "https://www.w3.org/2016/11/sdsvoc/SDSVoc16_paper_27",
+      "source_locator": "Data citation > Identifiers",
+      "pdf_pages": [],
+      "legacy_parent_ids": [],
+      "requirement_class": "supplementary_issue",
+      "source_modality": "issue",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Live author paper inspected 2026-10-22; frozen local object is citation metadata, not source text. Not part of the five-item core denominator.",
+      "curation_status": "web_source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "citation_metadata_sha256": "bd917e5d787c0305845e7b7f59a068db709185d6d4ed5d4bad7043fe75c14b6d",
+      "source_content_sha256": null,
+      "source_version_note": "Workshop November/December 2016; live page reports last modified 5 December 2016. Citation record uses November 2016. Version timing remains a disclosed distinction."
+    },
+    {
+      "id": "JC-002",
+      "benchmark": "jrc-research",
+      "statement": "Use consistent, unambiguous agent roles.",
+      "source_path": "jrc-research/provenance/citations/jrc-paper.json",
+      "source_url": "https://www.w3.org/2016/11/sdsvoc/SDSVoc16_paper_27",
+      "source_locator": "Data citation > Agent roles",
+      "pdf_pages": [],
+      "legacy_parent_ids": [],
+      "requirement_class": "supplementary_issue",
+      "source_modality": "issue",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Live author paper inspected 2026-10-22; frozen local object is citation metadata, not source text. Not part of the five-item core denominator.",
+      "curation_status": "web_source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "citation_metadata_sha256": "bd917e5d787c0305845e7b7f59a068db709185d6d4ed5d4bad7043fe75c14b6d",
+      "source_content_sha256": null,
+      "source_version_note": "Workshop November/December 2016; live page reports last modified 5 December 2016. Citation record uses November 2016. Version timing remains a disclosed distinction."
+    },
+    {
+      "id": "JC-003",
+      "benchmark": "jrc-research",
+      "statement": "Distinguish service endpoints from direct data links.",
+      "source_path": "jrc-research/provenance/citations/jrc-paper.json",
+      "source_url": "https://www.w3.org/2016/11/sdsvoc/SDSVoc16_paper_27",
+      "source_locator": "Modelling service/API-based data access",
+      "pdf_pages": [],
+      "legacy_parent_ids": [],
+      "requirement_class": "supplementary_issue",
+      "source_modality": "explicit_requirement",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Live author paper inspected 2026-10-22; frozen local object is citation metadata, not source text. Not part of the five-item core denominator.",
+      "curation_status": "web_source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "citation_metadata_sha256": "bd917e5d787c0305845e7b7f59a068db709185d6d4ed5d4bad7043fe75c14b6d",
+      "source_content_sha256": null,
+      "source_version_note": "Workshop November/December 2016; live page reports last modified 5 December 2016. Citation record uses November 2016. Version timing remains a disclosed distinction."
+    },
+    {
+      "id": "JC-004",
+      "benchmark": "jrc-research",
+      "statement": "Describe service interfaces and dataset-selecting query parameters.",
+      "source_path": "jrc-research/provenance/citations/jrc-paper.json",
+      "source_url": "https://www.w3.org/2016/11/sdsvoc/SDSVoc16_paper_27",
+      "source_locator": "Modelling service/API-based data access",
+      "pdf_pages": [],
+      "legacy_parent_ids": [],
+      "requirement_class": "supplementary_issue",
+      "source_modality": "explicit_requirement",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Live author paper inspected 2026-10-22; frozen local object is citation metadata, not source text. Not part of the five-item core denominator.",
+      "curation_status": "web_source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "citation_metadata_sha256": "bd917e5d787c0305845e7b7f59a068db709185d6d4ed5d4bad7043fe75c14b6d",
+      "source_content_sha256": null,
+      "source_version_note": "Workshop November/December 2016; live page reports last modified 5 December 2016. Citation record uses November 2016. Version timing remains a disclosed distinction."
+    },
+    {
+      "id": "JC-005",
+      "benchmark": "jrc-research",
+      "statement": "Represent provenance sufficient for reproducibility and usage tracking.",
+      "source_path": "jrc-research/provenance/citations/jrc-paper.json",
+      "source_url": "https://www.w3.org/2016/11/sdsvoc/SDSVoc16_paper_27",
+      "source_locator": "Additional requirements",
+      "pdf_pages": [],
+      "legacy_parent_ids": [],
+      "requirement_class": "supplementary_issue",
+      "source_modality": "under_investigation",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Live author paper inspected 2026-10-22; frozen local object is citation metadata, not source text. Not part of the five-item core denominator.",
+      "curation_status": "web_source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "citation_metadata_sha256": "bd917e5d787c0305845e7b7f59a068db709185d6d4ed5d4bad7043fe75c14b6d",
+      "source_content_sha256": null,
+      "source_version_note": "Workshop November/December 2016; live page reports last modified 5 December 2016. Citation record uses November 2016. Version timing remains a disclosed distinction."
+    },
+    {
+      "id": "JC-006",
+      "benchmark": "jrc-research",
+      "statement": "Represent data and metadata quality assessments, including feedback.",
+      "source_path": "jrc-research/provenance/citations/jrc-paper.json",
+      "source_url": "https://www.w3.org/2016/11/sdsvoc/SDSVoc16_paper_27",
+      "source_locator": "Additional requirements",
+      "pdf_pages": [],
+      "legacy_parent_ids": [],
+      "requirement_class": "supplementary_issue",
+      "source_modality": "under_investigation",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Live author paper inspected 2026-10-22; frozen local object is citation metadata, not source text. Not part of the five-item core denominator.",
+      "curation_status": "web_source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "citation_metadata_sha256": "bd917e5d787c0305845e7b7f59a068db709185d6d4ed5d4bad7043fe75c14b6d",
+      "source_content_sha256": null,
+      "source_version_note": "Workshop November/December 2016; live page reports last modified 5 December 2016. Citation record uses November 2016. Version timing remains a disclosed distinction."
+    },
+    {
+      "id": "JC-007",
+      "benchmark": "jrc-research",
+      "statement": "Improve dataset visibility through Web metadata publication.",
+      "source_path": "jrc-research/provenance/citations/jrc-paper.json",
+      "source_url": "https://www.w3.org/2016/11/sdsvoc/SDSVoc16_paper_27",
+      "source_locator": "Additional requirements",
+      "pdf_pages": [],
+      "legacy_parent_ids": [],
+      "requirement_class": "supplementary_issue",
+      "source_modality": "under_investigation",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Live author paper inspected 2026-10-22; frozen local object is citation metadata, not source text. Not part of the five-item core denominator.",
+      "curation_status": "web_source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "citation_metadata_sha256": "bd917e5d787c0305845e7b7f59a068db709185d6d4ed5d4bad7043fe75c14b6d",
+      "source_content_sha256": null,
+      "source_version_note": "Workshop November/December 2016; live page reports last modified 5 December 2016. Citation record uses November 2016. Version timing remains a disclosed distinction."
+    },
+    {
+      "id": "JC-008",
+      "benchmark": "jrc-research",
+      "statement": "Use persistent identifiers for durable resource links.",
+      "source_path": "jrc-research/provenance/citations/jrc-paper.json",
+      "source_url": "https://www.w3.org/2016/11/sdsvoc/SDSVoc16_paper_27",
+      "source_locator": "Metadata elements relevant for scientific data",
+      "pdf_pages": [],
+      "legacy_parent_ids": [],
+      "requirement_class": "supplementary_issue",
+      "source_modality": "explicit_requirement",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Live author paper inspected 2026-10-22; frozen local object is citation metadata, not source text. Not part of the five-item core denominator.",
+      "curation_status": "web_source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "citation_metadata_sha256": "bd917e5d787c0305845e7b7f59a068db709185d6d4ed5d4bad7043fe75c14b6d",
+      "source_content_sha256": null,
+      "source_version_note": "Workshop November/December 2016; live page reports last modified 5 December 2016. Citation record uses November 2016. Version timing remains a disclosed distinction."
+    },
+    {
+      "id": "JC-009",
+      "benchmark": "jrc-research",
+      "statement": "Use a DOI for the dataset identifier in DataCite citation.",
+      "source_path": "jrc-research/provenance/citations/jrc-paper.json",
+      "source_url": "https://www.w3.org/2016/11/sdsvoc/SDSVoc16_paper_27",
+      "source_locator": "Data citation > Identifiers",
+      "pdf_pages": [],
+      "legacy_parent_ids": [],
+      "requirement_class": "supplementary_issue",
+      "source_modality": "datacite_condition",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Live author paper inspected 2026-10-22; frozen local object is citation metadata, not source text. Not part of the five-item core denominator.",
+      "curation_status": "web_source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "citation_metadata_sha256": "bd917e5d787c0305845e7b7f59a068db709185d6d4ed5d4bad7043fe75c14b6d",
+      "source_content_sha256": null,
+      "source_version_note": "Workshop November/December 2016; live page reports last modified 5 December 2016. Citation record uses November 2016. Version timing remains a disclosed distinction."
+    },
+    {
+      "id": "JC-010",
+      "benchmark": "jrc-research",
+      "statement": "Distinguish primary and alternative identifiers.",
+      "source_path": "jrc-research/provenance/citations/jrc-paper.json",
+      "source_url": "https://www.w3.org/2016/11/sdsvoc/SDSVoc16_paper_27",
+      "source_locator": "Data citation > Identifiers",
+      "pdf_pages": [],
+      "legacy_parent_ids": [],
+      "requirement_class": "supplementary_issue",
+      "source_modality": "explicit_requirement",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Live author paper inspected 2026-10-22; frozen local object is citation metadata, not source text. Not part of the five-item core denominator.",
+      "curation_status": "web_source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "citation_metadata_sha256": "bd917e5d787c0305845e7b7f59a068db709185d6d4ed5d4bad7043fe75c14b6d",
+      "source_content_sha256": null,
+      "source_version_note": "Workshop November/December 2016; live page reports last modified 5 December 2016. Citation record uses November 2016. Version timing remains a disclosed distinction."
+    },
+    {
+      "id": "JC-011",
+      "benchmark": "jrc-research",
+      "statement": "Prefer resolvable HTTP identifiers where possible.",
+      "source_path": "jrc-research/provenance/citations/jrc-paper.json",
+      "source_url": "https://www.w3.org/2016/11/sdsvoc/SDSVoc16_paper_27",
+      "source_locator": "Data citation > Identifiers",
+      "pdf_pages": [],
+      "legacy_parent_ids": [],
+      "requirement_class": "supplementary_issue",
+      "source_modality": "recommendation",
+      "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+      "review_note": "Live author paper inspected 2026-10-22; frozen local object is citation metadata, not source text. Not part of the five-item core denominator.",
+      "curation_status": "web_source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false,
+      "citation_metadata_sha256": "bd917e5d787c0305845e7b7f59a068db709185d6d4ed5d4bad7043fe75c14b6d",
+      "source_content_sha256": null,
+      "source_version_note": "Workshop November/December 2016; live page reports last modified 5 December 2016. Citation record uses November 2016. Version timing remains a disclosed distinction."
+    },
+    {
+      "id": "HC-095",
+      "benchmark": "healthdcat",
+      "statement": "Provide a redacted dictionary when intellectual-property restrictions prevent sharing a sample subset.",
+      "source_path": "healthdcat/reference-requirements/d6.2-requirements-and-profile.pdf",
+      "source_sha256": "590d9ec93a3dbeae571ce5cb4d7aac9b507fd4dff4c61acae268e030de34851a",
+      "source_url": "https://zenodo.org/records/15085025",
+      "source_locator": "5.2.6.3",
+      "pdf_pages": [
+        56
+      ],
+      "legacy_parent_ids": [
+        "H-9",
+        "H-13"
+      ],
+      "requirement_class": "metadata_content",
+      "source_modality": "proposed_mandatory",
+      "applicability": "IPR prevents a sample subset; redact affected information.",
+      "review_note": "Retain the tension with conditional data-dictionary wording in 5.2.6.1.",
+      "curation_status": "source_checked_single_assistant",
+      "independent_adjudication": "pending",
+      "raw_evidence_coverage": "unassessed",
+      "consolidation_evidence_coverage": "unassessed",
+      "scoring_enabled": false
+    }
+  ]
+}

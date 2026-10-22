@@ -1,0 +1,97 @@
+{
+  "snapshot_date": "2026-10-07",
+  "status": "failed",
+  "deep_pdf_parsing": false,
+  "artifact_records_checked": 95,
+  "total_artifact_bytes": 51145035,
+  "by_benchmark": {
+    "mobilitydcat": {
+      "artifacts_and_citations": 46,
+      "original_copies": 16,
+      "citation_only": 23,
+      "raw_documents": 16,
+      "consolidation_documents": 3
+    },
+    "healthdcat": {
+      "artifacts_and_citations": 17,
+      "original_copies": 10,
+      "citation_only": 0,
+      "raw_documents": 5,
+      "consolidation_documents": 1
+    },
+    "statdcat": {
+      "artifacts_and_citations": 8,
+      "original_copies": 4,
+      "citation_only": 2,
+      "raw_documents": 2,
+      "consolidation_documents": 0
+    },
+    "geodcat": {
+      "artifacts_and_citations": 11,
+      "original_copies": 7,
+      "citation_only": 3,
+      "raw_documents": 5,
+      "consolidation_documents": 0
+    },
+    "jrc-research": {
+      "artifacts_and_citations": 7,
+      "original_copies": 3,
+      "citation_only": 2,
+      "raw_documents": 3,
+      "consolidation_documents": 0
+    },
+    "epos": {
+      "artifacts_and_citations": 6,
+      "original_copies": 4,
+      "citation_only": 2,
+      "raw_documents": 0,
+      "consolidation_documents": 0
+    }
+  },
+  "reference_counts": {
+    "mobilitydcat/reference-requirements/consolidated-requirements.json": 40,
+    "healthdcat/reference-requirements/curated-requirements.json": 16,
+    "statdcat/reference-requirements/requirements-and-resolutions.json": 7,
+    "geodcat/reference-requirements/alignment-requirements.json": 7,
+    "jrc-research/reference-requirements/core-requirements.json": 5
+  },
+  "errors": [
+    "d: duplicate runtime path",
+    "c: duplicate runtime path",
+    "a: duplicate runtime path",
+    "t: duplicate runtime path",
+    "-: duplicate runtime path",
+    "a: duplicate runtime path",
+    "p: duplicate runtime path",
+    "-: duplicate runtime path",
+    "1: duplicate runtime path",
+    ".: duplicate runtime path",
+    "1: duplicate runtime path",
+    ".: duplicate runtime path",
+    "0: duplicate runtime path",
+    "d: duplicate runtime path",
+    "c: duplicate runtime path",
+    "a: duplicate runtime path",
+    "t: duplicate runtime path",
+    "-: duplicate runtime path",
+    "a: duplicate runtime path",
+    "p: duplicate runtime path",
+    "-: duplicate runtime path",
+    "2: duplicate runtime path",
+    ".: duplicate runtime path",
+    "0: duplicate runtime path",
+    ".: duplicate runtime path",
+    "1: duplicate runtime path",
+    "mobilitydcat/input-raw/w3c-dcat-2-2020.html: reference/context leakage into runtime",
+    "mobilitydcat/input-raw/dcat-ap-2.0.0.pdf: reference/context leakage into runtime",
+    "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf: reference/context leakage into runtime",
+    "mobilitydcat/use-cases.json: unregistered source artifact"
+  ],
+  "limitations": [
+    "Integrity/readability is not semantic adjudication.",
+    "Citation-only URLs are not full local source artifacts.",
+    "No claim of complete historical reconstruction or evaluation performance.",
+    "External resources required by ReSpec HTML are not bundled.",
+    "Some original PDFs have recoverable cross-reference warnings, retained per artifact; source bytes were not repaired."
+  ]
+}
