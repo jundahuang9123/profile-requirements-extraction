@@ -578,6 +578,77 @@ applied 11 and 2 changes. Their saved outcomes show three patterns:
 A discussion planned under v7 cannot continue under v8. This is tested offline
 only.
 
+### Set-asides against the scope judgement (v9)
+
+The first v8 trial, JRC `run-0ebfaffd` (22 October, derived at 6a from
+`run-a89957db`), applied 4 set-asides, all with a listed reason, and the checker
+passed all 4. 3 of the reasons contradict the F/A scope judgement that the scope
+step made for the need, with an actor, task, example and sources: it serves
+find, as an information requirement. The mediator's arguments were the ones v8
+excludes, e.g. "Users can know the creator of a dataset" set aside as
+`not_find_or_access` because the source has "only the isolated word Creator".
+The fourth, which the scope step judged unresolved background, is consistent.
+
+`rq1-fa-dialogue-v9`: a set-aside whose reason the need's checked scope
+judgement contradicts is not applied. It goes to human review with the
+disagreement recorded (`scope_conflict`):
+
+- `not_find_or_access` or `statement_about_sources` against a need that serves
+  find, access or both: both reasons say no data user looks for the information
+  (in the Stat v8 trial, `run-c4cbca44`, a need on code lists for dimension
+  values that serves both was set aside as a statement about the sources);
+- `statement_about_sources` against a need judged an
+  `information_requirement`.
+
+A need that scope left unresolved or judged to serve neither is not
+contradicted.
+
+`duplicate` and `contradicted_by_source` are not judged by scope, a need
+without a checked judgement has nothing to contradict, and a need already set
+aside stays as it was. The mediator prompt states the rule; the packet already
+shows each need's `fa_scope`.
+
+**Splits written as several actions.** In both v8 trials most invalid cases
+ended on the rule that every need is named exactly once (Stat 8 of 15, JRC 7 of
+14), mostly in cases whose roles proposed a split or a missing need: such cases
+ended invalid in 27% (Stat; 9% under v6) and 34% (JRC; 23%), while cases
+without a change claim almost never did. Of the 9 plans that named one need in
+several actions, 5 gave each action its own statement and sources: a split
+written as two retains or two adds. v9 tells the mediator how to write a split
+(one split action with a child per new need), and repairs such a plan (audited):
+when every action naming a need names only that need, is a retain, revise or add
+with its own sourced statement, every statement differs from the others and from
+the need's own wording, and nothing in the plan leaves the need to a person, the
+actions become one split with those statements, sources and rationales as
+children, under the first action's ID; concern links follow. It stays invalid
+with a set-aside or other disposition beside them, a statement without sources
+or repeating the need, a question or alternatives on an action, an unresolved
+concern on them or a review question on the need, a need set aside before the
+discussion (a retain does not restore it) or a labelled need. An add beside a
+retain or revise is first read as an addition (v7).
+
+**Broken parts no longer fail a whole answer.** The concern, review-question and
+split-child contracts come from the routed workflow (18 October) and every
+discussion version reused them unchanged. An answer that broke one of them failed
+as a schema error, before correction or salvage could keep the rest; in the v8
+trials 5 cases ended so (questions without alternatives or without concerns, a
+split of more than four new needs, new needs without IDs, a concern of an unknown
+kind, evidence IDs written as one string). v9 has its own copies of these
+contracts: the schema still shows each rule (only a split child's ID may now be
+left out), but the answer is read, and
+
+- a concern of an unknown kind gets one correction and is then left out of the
+  review (audited), like a broken experience claim; one evidence ID written as a
+  string is read as a list;
+- a question without needs, concerns or alternatives, and a split of more than
+  four new needs, get one correction; if they stay, salvage drops only them;
+- a split child without an ID gets the next free one (audited).
+
+The legacy v1 protocol keeps the routed contracts.
+
+A discussion planned under v8 cannot continue under v9. This is tested offline
+only.
+
 ### Cheap trial from a saved machine inventory
 
 `POST /api/rq1/v2/runs/{id}/derive` accepts `start_from: "base_review"` with a
