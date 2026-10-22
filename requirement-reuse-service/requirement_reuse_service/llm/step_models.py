@@ -33,6 +33,8 @@ CONTRACT_STEPS = {
     'Review':'stakeholder_review','Plan':'mediation','Checks':'mediation_check',
     # Task labels (rq1-fa-dialogue-v5) and the v6 contracts that extend Review and Plan.
     'TaskLabels':'grouping','ExperienceReview':'stakeholder_review','ExperiencePlan':'mediation',
+    # rq1-fa-dialogue-v8 checks, which extend Checks.
+    'DefinedChecks':'mediation_check',
 }
 
 

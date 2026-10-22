@@ -20,8 +20,8 @@ def enable(store,run):
 
 def contract_name(model):
     """rq1-fa-dialogue-v6 and later ask for ExperienceReview and ExperiencePlan, which extend Review and
-    Plan; scripted clients answer them alike."""
-    return {'ExperienceReview':'Review','ExperiencePlan':'Plan'}.get(model.__name__,model.__name__)
+    Plan, and v8 for DefinedChecks, which extends Checks; scripted clients answer them alike."""
+    return {'ExperienceReview':'Review','ExperiencePlan':'Plan','DefinedChecks':'Checks'}.get(model.__name__,model.__name__)
 
 
 class Dialogue:

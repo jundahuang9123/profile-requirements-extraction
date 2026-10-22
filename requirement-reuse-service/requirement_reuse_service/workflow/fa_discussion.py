@@ -23,10 +23,14 @@ POLICY='rq1-fa-dialogue-v1'
 # claims from the practice of their role, which the mediator admits or excludes, and
 # records concerns the mediator does not answer as noted (see ExperienceReview). v7
 # (21 Oct) accepts a split whose new needs carry the sources, and repairs additions that
-# name needs and concern links to actions (see repair_plan). A discussion planned under an
+# name needs and concern links to actions (see repair_plan). v8 (22 Oct) sets a need aside
+# only for a listed reason (SET_ASIDE_REASONS), lets the checker's condition and obligation
+# flags decide only actions that write a statement (see DefinedCheck), and asks each role
+# for at most one experience claim, which proposes a change. A discussion planned under an
 # earlier version cannot continue; derive a separate base-review trial.
-BASE_POLICY='rq1-fa-dialogue-v7'
-BASE_POLICIES={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5','rq1-fa-dialogue-v6',BASE_POLICY}
+BASE_POLICY='rq1-fa-dialogue-v8'
+BASE_POLICIES={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5','rq1-fa-dialogue-v6',
+    'rq1-fa-dialogue-v7',BASE_POLICY}
 SALVAGE_POLICY='rq1-fa-salvage-v1'
 def discussion_policy(run):
     return BASE_POLICY if run['request'].get('base_review') == 'expert_v1' else POLICY
@@ -93,14 +97,21 @@ CONCERN_GUIDANCE=(' Concern rules: revision_ids name only the needs N of this ca
 # roles little to add (JRC run-e1e4810f and its GPT-OSS replay: about 1,000 concerns per
 # run, 50-60% of them missing_evidence). Experience is a separate kind of argument, never
 # a source.
-EXPERIENCE_GUIDANCE=(' Experience: besides concerns, you may add at most two experience claims from the practice of your '
-    'role, as your role card describes it (purpose, focus questions, stakeholders). Each names the task of your role it '
-    'comes from, describes your practice in that task ("When I ..., I ..."), and says what follows for the needs of this '
-    'case: keep, merge, split, drop, or missing_need with a proposed_statement. Speak only for your own role. Never name '
-    'or quote an existing application profile or vocabulary other than the base entries shown, and never invent laws, '
-    'figures, documents or citations. Add a query when the sources might support the claim. In a response, add only '
-    'claims that the messages do not already contain. An experience claim is not a source: the mediator decides whether '
-    'it belongs in this discussion.')
+# v8: in JRC run-a89957db and Stat run-6455e495 (v6), 453 of the 860 claims of completed cases
+# were keep: agreement that changed nothing, yet each needed a mediator decision; 2 applied
+# changes rested on experience. A role now adds at most one claim a review, and only to
+# propose a change; drop follows the set-aside reasons.
+EXPERIENCE_GUIDANCE=(' Experience: besides concerns, you may add one experience claim from the practice of your role, as '
+    'your role card describes it (purpose, focus questions, stakeholders), and only to propose a change to the needs of '
+    'this case: merge, split, drop, or missing_need with a proposed_statement. A need you agree with needs no claim. The '
+    'claim names the task of your role it comes from, describes your practice in that task ("When I ..., I ..."), and says '
+    'what follows for the needs. Propose drop only for a need that serves no find or access task of a data user, states a '
+    'fact about the sources rather than information a data user looks for, repeats another need of this case, or that a '
+    'source passage contradicts; a missing obligation or an unclear scope is no reason to drop a need. Speak only for '
+    'your own role. Never name or quote an existing application profile or vocabulary other than the base entries shown, '
+    'and never invent laws, figures, documents or citations. Add a query when the sources might support the claim. In a '
+    'response, add a claim only when the messages do not already contain it. An experience claim is not a source: the '
+    'mediator decides whether it belongs in this discussion.')
 # A claim that names a DCAT-AP extension or a national profile (HealthDCAT-AP, GeoDCAT-AP,
 # DCAT-AP-HVD, DCAT-AP-NO, DCAT-AP_IT, DCAT-AP.de, "Health DCAT-AP", "healthdcat-ap") is
 # rejected: experience must come from the role's practice, not from existing profiles. This
@@ -111,6 +122,10 @@ PROFILE_NAME=re.compile(r'\b[A-Za-z]+DCAT(?:-AP)?\b|\bDCAT-AP(?:[-_][A-Z]{2,3}|\
 # In the JRC trials of 19-20 Oct 2026, 57 of 84 cases ended with an invalid plan; most
 # plans answered each stakeholder concern with an action that named no need, often a
 # set-aside or deferral of an addition the same plan had just invented.
+# v8: the 4 set-asides applied in JRC run-a89957db (v6) argued that the source states no
+# obligation or scope, thin evidence, or the base lacking the need; the checker passed all 4.
+# Of the 6 others in that run and Stat run-6455e495, all sent to human review, 4 argued
+# obligation or scope, 1 thin evidence and 1 that a split superseded the need.
 BASE_MEDIATOR_GUIDANCE=(' Plan bookkeeping: an action is the disposition of needs, never a reply to a concern. '
     'Name every need N in exactly one action\'s parent_revision_ids (merge and resolve name several needs); '
     'only add names none. Answer a concern C in concerns only to reject it (rejected_with_reason) or to leave it '
@@ -121,7 +136,12 @@ BASE_MEDIATOR_GUIDANCE=(' Plan bookkeeping: an action is the disposition of need
     'A need labelled covered_by_base is disposed covered_by_base, retained, or deferred with a question; it stays visible. '
     'Do not reword a need only to restate a base entry. Base coverage alone never justifies set_aside '
     'or merging into a different need. A need the base does not provide is a candidate requirement of the '
-    'profile; that absence never justifies set_aside. Propose add only for a source-supported need you keep; '
+    'profile; that absence never justifies set_aside. A set_aside names its reason: not_find_or_access (the need serves '
+    'no find or access task of a data user), statement_about_sources (it states a fact about a document, organisation or '
+    'specification, not information a data user looks for), duplicate (it repeats another need of this case that the '
+    'plan keeps, named in duplicate_of) or contradicted_by_source (a packet passage contradicts it, cited in '
+    'evidence_links). A source that states no obligation or scope, or evidence a role finds thin, is no reason to set a '
+    'need aside: retain it, or defer it with a question. Propose add only for a source-supported need you keep; '
     'to drop an idea, leave it out instead of adding it and then setting it aside or deferring it. '
     'The needs of a case share the task in packet.task: needs that state the same information, also from different '
     'sources, are merged into one need that keeps every condition, actor and source; needs that differ in information, '
@@ -134,8 +154,14 @@ BASE_MEDIATOR_GUIDANCE=(' Plan bookkeeping: an action is the disposition of need
     'an add with that source instead.')
 # v4: a JRC mediator set three needs aside "because the current DCAT-AP 1.1.0 catalogue
 # lacks the necessary dct:rights property" (run-934df8ba); the checker blocked it.
+# v8: the set-aside reasons, which the checker judges as the mediator states them.
 BASE_CHECK_GUIDANCE=(' A set_aside or merge justified only by base coverage is not justified, nor is a set_aside '
-    'justified by the base lacking the need.')
+    'justified by the base lacking the need. A set_aside is justified only when its reason holds: not_find_or_access '
+    'when the need serves no find or access task of a data user; statement_about_sources when it states a fact about a '
+    'document, organisation or specification rather than information a data user looks for; duplicate when the need '
+    'named in duplicate_of states the same information for the same actor and conditions; contradicted_by_source when '
+    'the cited passage contradicts the need. A source that states no obligation or scope, or thin evidence, never '
+    'justifies a set_aside.')
 # v6: the checker sees the experience claims in the messages and the mediator's decisions.
 EXPERIENCE_CHECK_GUIDANCE=(' Experience claims X in messages are arguments from practice, not sources: they never make a '
     'changed need source-supported, and a disposition that relies on an admitted claim is justified only when no source '
@@ -174,7 +200,8 @@ class Plan(old.MediationPlan):
     actions: list[Action] = Field(min_length=1,max_length=12)
 
 class ExperienceClaim(Contract):
-    kind: Literal['keep','merge','split','drop','missing_need']
+    # v8: a claim proposes a change; v6 and v7 also allowed keep.
+    kind: Literal['merge','split','drop','missing_need']
     revision_ids: list[str] = Field(default_factory=list,max_length=4,description='Needs N of this case the claim is about; '
         'for missing_need the closest needs, possibly none.')
     task: str = Field(min_length=1,max_length=240,description='The task of your role this experience comes from, as your role card states it.')
@@ -183,12 +210,20 @@ class ExperienceClaim(Contract):
     proposed_statement: str | None = Field(default=None,max_length=600,description='The missing need, for missing_need.')
     query: str | None = Field(default=None,max_length=200,description='Words to search the frozen sources for support.')
 
+# The docstring is the schema description the roles read. v6 and v7 allowed two claims, keep among them.
 class ExperienceReview(Review):
-    """v6 stakeholder review: source-backed concerns plus at most two experience claims."""
-    experience: list[ExperienceClaim] = Field(default_factory=list,max_length=2)
+    """Stakeholder review: source-backed concerns plus at most one experience claim, which proposes a change."""
+    experience: list[ExperienceClaim] = Field(default_factory=list,max_length=1,description='At most one claim, proposing a change.')
+
+# v8: why a need may be set aside; see BASE_MEDIATOR_GUIDANCE.
+SET_ASIDE_REASONS=('not_find_or_access','statement_about_sources','duplicate','contradicted_by_source')
 
 class ExperienceAction(Action):
     experience_ids: list[str] = Field(default_factory=list,max_length=4,description='Admitted experience claims X this action relies on.')
+    reason: Literal[SET_ASIDE_REASONS] | None = Field(default=None,description='set_aside only, and required there: why the '
+        'need is set aside. A missing obligation or scope, thin evidence or the base lacking the need is none of these.')
+    duplicate_of: str | None = Field(default=None,max_length=80,description='For reason duplicate: the need N of this case '
+        'that this need repeats, which the plan keeps.')
 
 class ExperienceDecision(Contract):
     claim_id: str
@@ -218,6 +253,23 @@ class Check(old.MediatorCheck):
 class Checks(Contract):
     checks: list[Check] = Field(max_length=12)
 
+# v8 check: the two flags that concern a written statement say so (a docstring would be shown to the
+# checker as the schema description). In JRC run-a89957db and Stat run-6455e495 (v6) the checker set
+# them false for retained and base-covered needs whose sources state no condition or obligation ("the
+# obligation status remains unknown, so it is not preserved"). 62 of the 88 human-review outcomes
+# failed on these two flags alone, 37 of them needs kept as they were.
+class DefinedCheck(Check):
+    condition_supported: bool = Field(description='For an action that writes a statement (revise, merge, resolve, split, '
+        'recover, add): false only when the statement or its condition states a condition its cited sources do not '
+        'support; a statement without a condition has none to support. For retain, covered_by_base, defer and '
+        'set_aside, which write no statement: true.')
+    obligation_preserved: bool = Field(description='For an action that writes a statement: false only when the statement '
+        'drops, weakens, strengthens or adds an obligation (must, should, may) against its cited sources; when the sources '
+        'state none and the statement adds none, it is preserved. For retain, covered_by_base, defer and set_aside: true.')
+
+class DefinedChecks(Checks):
+    checks: list[DefinedCheck] = Field(max_length=12)
+
 
 def repair_plan(plan,case,messages):
     """Deterministic bookkeeping repairs of a mediator plan; audited, never new content.
@@ -240,6 +292,9 @@ def repair_plan(plan,case,messages):
     7. a concern disposition loses links to action IDs the plan lacks, and an addressed or
        satisfied one that then links none gets the actions on its needs, as v6 records an
        unanswered concern.
+    And in v8:
+    8. a set-aside reason or duplicate_of on an action other than a set_aside has no effect,
+       and is cleared. A set_aside without its reason is never given one.
     Anything else, including unclear parents or missing alternatives, stays invalid: an
     action that names no need is never guessed onto one, and a parentless action with
     content goes to correction and, if it stays, to review.
@@ -303,7 +358,14 @@ def repair_plan(plan,case,messages):
         if not action.get('alternatives'):action['alternatives']=deepcopy(candidates[0]['alternatives']);filled.append('alternatives')
         repairs.append({'kind':'defer_fields_copied_from_linked_question','action_id':action['action_id'],
             'question_id':candidates[0]['question_id'],'fields':filled})
-    if isinstance(plan,ExperiencePlan):repairs+=repair_v7(data,parents,messages)
+    if isinstance(plan,ExperiencePlan):
+        repairs+=repair_v7(data,parents,messages)
+        for a in data['actions']:
+            stray=[k for k in ('reason','duplicate_of') if a['action']!='set_aside' and a.get(k) is not None]
+            if stray:
+                repairs.append({'kind':'set_aside_fields_cleared','action_id':a['action_id'],'action':a['action'],
+                    **{k:a[k] for k in stray}})
+                a.update(dict.fromkeys(stray))
     return type(plan).model_validate(data),repairs
 
 
@@ -374,6 +436,8 @@ def experience_plan_errors(plan,case,messages):
     for p in plan.proposals:
         if set(p.experience_ids)-admitted:errors.append('A proposal needs admitted experience claims.')
         if set(p.revision_ids)-set(case['revision_ids']):errors.append('A proposal names a need outside this case.')
+    # v8: the need a duplicate repeats stays, so two needs cannot set each other aside.
+    if unkept_duplicates(plan):errors.append('A duplicate set_aside needs the need it repeats kept by this plan.')
     return errors
 
 
@@ -397,7 +461,7 @@ def plan_errors(plan,case,messages,allowed):
         # A split applies its children only. Up to v6 it also needed a statement and sources of
         # its own: 5 of the 6 invalid drafts in JRC run-a89957db failed on that alone, with
         # sourced children.
-        own=a.action=='recover' or (a.action=='split' and case.get('policy_version')!=BASE_POLICY)
+        own=a.action=='recover' or (a.action=='split' and case.get('policy_version') not in {'rq1-fa-dialogue-v7',BASE_POLICY})
         if own and (not a.statement.strip() or not a.evidence_links):
             errors.append('Recovery/split requires source-supported statement and links.')
         if a.action=='split' and len(a.children)<2: errors.append('Split requires at least two supported children.')
@@ -410,7 +474,40 @@ def plan_errors(plan,case,messages,allowed):
             if any(l.evidence_id not in allowed for l in child.evidence_links): errors.append('Child source outside packet.')
         if a.action=='set_aside' and not a.human_question:
             errors.append('Reversible set-aside needs a visible review question.')
+        if isinstance(a,ExperienceAction):errors+=set_aside_errors(a,case)
     return errors
+
+
+def set_aside_errors(action,case):
+    """v8: a set_aside names one of SET_ASIDE_REASONS, with what that reason needs; no other
+    action carries a reason (repair_plan clears one)."""
+    a=action;errors=[]
+    if a.action!='set_aside':
+        return ['Only a set_aside takes a reason or duplicate_of.'] if a.reason is not None or a.duplicate_of is not None else []
+    if a.reason is None:
+        errors.append('A set_aside needs a reason: not_find_or_access, statement_about_sources, duplicate or '
+            'contradicted_by_source; otherwise retain or defer the need.')
+    frozen={r['revision_id']:r for r in case['frozen_requirements']}
+    if a.reason=='duplicate':
+        if a.duplicate_of is None:errors.append('A duplicate set_aside names the need it repeats in duplicate_of.')
+        elif a.duplicate_of in a.parent_revision_ids:errors.append('A need cannot duplicate itself.')
+        elif a.duplicate_of not in frozen:errors.append('duplicate_of names a need outside this case.')
+        # Cases include earlier set-asides, which a retain does not restore.
+        elif frozen[a.duplicate_of].get('lifecycle_state')=='set_aside':
+            errors.append('duplicate_of names a need that is set aside already: name a need of the working list, or merge the two needs.')
+    elif a.duplicate_of is not None:errors.append('Only a duplicate set_aside names duplicate_of.')
+    if a.reason=='contradicted_by_source' and not a.evidence_links:
+        errors.append('A set_aside contradicted by a source cites that passage in evidence_links.')
+    return errors
+
+
+def unkept_duplicates(plan):
+    """v8: duplicate set-asides whose other need is named only by set-asides of the plan, as
+    (action, need); a need named by no action is reported by the parent rule instead."""
+    named={p for a in plan.actions for p in a.parent_revision_ids}
+    kept={p for a in plan.actions if a.action!='set_aside' for p in a.parent_revision_ids}
+    return [(a,a.duplicate_of) for a in plan.actions if a.action=='set_aside' and getattr(a,'reason',None)=='duplicate'
+        and a.duplicate_of in named and a.duplicate_of not in kept and a.duplicate_of not in a.parent_revision_ids]
 
 
 def action_errors(action,case,allowed):
@@ -501,7 +598,10 @@ def plan_feedback(plan,case,messages,allowed):
     for c in concerns:
         if not stated[c] and not noted:notes.append(f'Concern {c} has no disposition: add exactly one concerns entry for {c}.')
         elif stated[c]>1:notes.append(f'Concern {c} has {stated[c]} dispositions: keep '+('at most one.' if noted else 'exactly one.'))
-    if noted:notes+=experience_feedback(plan,needs,messages)
+    if noted:
+        notes+=experience_feedback(plan,needs,messages)
+        notes+=[f'Action {a.action_id} sets {", ".join(a.parent_revision_ids)} aside as a duplicate of {other}, but the plan '
+            f'sets {other} aside too: keep {other}, or retain both needs.' for a,other in unkept_duplicates(plan)]
     notes+=[f'Disposition {c} names no saved concern; remove it.' for c in stated if c not in concerns]
     notes+=[f'Question ID {i} is used {c} times; question IDs must be unique.' for i,c in Counter(q.question_id for q in plan.questions).items() if c>1]
     for q in plan.questions:
@@ -544,7 +644,8 @@ def salvage_plan(plan,case,messages,allowed):
     v6 (ExperiencePlan): only a concern the plan answered inconsistently goes to the system
     question, since an unanswered concern is noted as in a valid plan; a claim without exactly
     one decision is excluded by the system; an action or proposal that cites a claim the plan
-    does not validly admit is dropped.
+    does not validly admit is dropped. v8: a set-aside without its reason is dropped like any
+    invalid action, and a duplicate set-aside is dropped when the need it repeats is set aside too.
     Returns (plan or None, audit).
     """
     data=plan.model_dump(mode='json');v6=isinstance(plan,ExperiencePlan)
@@ -574,6 +675,12 @@ def salvage_plan(plan,case,messages,allowed):
         keep=defers[0] if unchanged and len(defers)==1 else None
         for i in naming:
             if i!=keep:problems[i].append('Another action names the same need'+('; its deferral was kept.' if keep is not None else '.'))
+    # v8: a duplicate set-aside stays only while the need it repeats is not set aside too; a need
+    # left without a kept action gets the system deferral below, which keeps it.
+    asides={p for a,found in zip(rows,problems) if not found and a['action']=='set_aside' for p in a['parent_revision_ids']}
+    for a,found in zip(rows,problems):
+        if not found and a['action']=='set_aside' and a.get('reason')=='duplicate' and a.get('duplicate_of') in asides:
+            found.append('The need it duplicates is set aside too.')
     kept=[a for a,p in zip(rows,problems) if not p]
     dropped=[{'action_id':a['action_id'],'action':a['action'],'problems':p,'proposal':a} for a,p in zip(rows,problems) if p]
     covered={p for a in kept for p in a['parent_revision_ids']}
@@ -1306,7 +1413,8 @@ def execute_case(store,run_id,case_id,client,roles):
     if recovery.get('status')=='in_progress':
         recovery.update(status='completed',completed_at=now())
         persist('fa_message_replay_recovery_completed')
-    checks=call('check','mediation_check',Checks,WRITE_GUIDANCE+
+    # v8 defines the flags that concern a written statement (DefinedCheck).
+    checks=call('check','mediation_check',DefinedChecks if v6 else Checks,WRITE_GUIDANCE+
         ' Independently check EVERY action including retain, defer and set_aside exactly once. '
         'Check semantic source support, F/A relevance, actor/condition/obligation/negation preservation, '
         'whether disposition rationale is justified, and explicit priority for resolve. '
@@ -1343,6 +1451,9 @@ def execute_case(store,run_id,case_id,client,roles):
     # can be reported without experience.
     aside_experience={p:list(o['experience_ids']) for o in outcomes if o.get('status')=='set_aside' and o.get('applied')
         and o.get('experience_ids') for p in o['parent_revision_ids']}
+    # v8: the listed reason, and the need a duplicate repeats, go with the set-aside record.
+    aside_reason={p:{'mediator_reason':o['reason'],**({'duplicate_of':o['duplicate_of']} if o.get('duplicate_of') else {})}
+        for o in outcomes if o.get('status')=='set_aside' and o.get('applied') and o.get('reason') for p in o['parent_revision_ids']}
     # A need that stays set aside is listed as before, when it was set aside again.
     unchanged={p for o in outcomes if o.get('status')=='already_set_aside' for p in o['parent_revision_ids']}
     trace['after_revision_ids']=[rid for rid in case['revision_ids'] if rid not in asides and rid not in replacements and rid not in unchanged]+[r['revision_id'] for r in additions]
@@ -1364,7 +1475,8 @@ def execute_case(store,run_id,case_id,client,roles):
                 r['set_aside_observations'].append({'revision_id':rid,'need_id':rec['requirement_id'],
                     'observation_id':(rec.get('observation_ids') or [''])[0],'role_id':'evidence_mediator',
                     'reason':'mediated_fa_set_aside','rationale':asides[rid],'reversible':True,'restored':False,
-                    **({'experience_ids':aside_experience[rid]} if rid in aside_experience else {})})
+                    **({'experience_ids':aside_experience[rid]} if rid in aside_experience else {}),
+                    **({'details':aside_reason[rid]} if rid in aside_reason else {})})
         r['requirements'].extend(additions)
         r['active_revision_ids']=[rid for rid in r['active_revision_ids'] if rid not in replacements and rid not in asides]+[x['revision_id'] for x in additions]
         for conflict in r['conflicts']:
@@ -1421,6 +1533,15 @@ def message(case_id,role_id,round_no,answer,policy=POLICY):
     return row
 
 
+def quoted(store,link,allowed):
+    """The cited quotation occurs at its offset, or exactly once, in its frozen source unit."""
+    try:unit=store.get('evidence',link.evidence_id) if link.evidence_id in allowed else None
+    except KeyError:unit=None
+    if not unit or not link.quote:return False
+    start=link.quote_start
+    return (start is not None and unit['content'][start:start+len(link.quote)]==link.quote) or unit['content'].count(link.quote)==1
+
+
 def apply(store,run,case,plan,checks,client,allowed):
     """Gate every disposition, preserve failed parents and use the strict existing revision verifier."""
     policy=discussion_policy(run)
@@ -1431,7 +1552,11 @@ def apply(store,run,case,plan,checks,client,allowed):
             'applied':False,'human_accepted':False}
         parents=[r for r in case['frozen_requirements'] if r['revision_id'] in a.parent_revision_ids]
         crossing=[c for c in case['mediation'].get('related_conflicts',[]) if set(c['revision_ids'])&set(a.parent_revision_ids) and not set(c['revision_ids'])<=set(case['revision_ids'])]
-        valid=not bool(crossing) and check.disposition_justified and check.preserves_distinctions and check.condition_supported and check.obligation_preserved
+        # v8: the condition and obligation flags concern a statement the action writes (DefinedCheck);
+        # a need kept or set aside as it is no longer goes to human review on them.
+        writes=a.action not in {'retain','covered_by_base','defer','set_aside'}
+        valid=not bool(crossing) and check.disposition_justified and check.preserves_distinctions
+        if writes or policy!=BASE_POLICY:valid=valid and check.condition_supported and check.obligation_preserved
         if a.action not in {'set_aside','defer'}: valid=valid and check.supported and check.fa_relevant
         if not valid:
             item.update(status='human_review',human_question=a.human_question or ('Review both sides of the linked cross-case conflict together; originals retained.' if crossing else 'The independent checker did not validate this disposition. Keep the original pending review.'))
@@ -1443,6 +1568,11 @@ def apply(store,run,case,plan,checks,client,allowed):
                 # nothing but was counted as a mediated change and recorded a second set-aside
                 # (JRC run-934df8ba: 5 of 7 applied changes).
                 item['status']='already_set_aside'
+            elif a.action=='set_aside' and getattr(a,'reason',None)=='contradicted_by_source' and not all(
+                    quoted(store,link,allowed) for link in a.evidence_links):
+                # v8: a set-aside on a contradiction rests on the passage it cites, which must exist.
+                item.update(status='human_review',human_question='The passage cited as contradicting this need was not '
+                    'found in its source. Keep the need, or set it aside after review?')
             elif a.action=='set_aside':
                 asides.update({p['revision_id']:a.rationale for p in parents});item.update(status='set_aside',applied=True)
             else:item['status']='human_review' if a.action=='defer' else 'retained'
@@ -1453,8 +1583,8 @@ def apply(store,run,case,plan,checks,client,allowed):
                 expanded=[Action(**{**child.model_dump(mode='json'),'action':'revise','parent_revision_ids':list(a.parent_revision_ids)}) for child in a.children]
             temporary=[];local_replacements={};failed=False
             for action in expanded:
-                # Experience links stay on the outcome row; the routed verifier sees the change alone.
-                data=action.model_dump(mode='json',exclude={'children','experience_ids'})
+                # Experience links and set-aside fields stay on the outcome row; the routed verifier sees the change alone.
+                data=action.model_dump(mode='json',exclude={'children','experience_ids','reason','duplicate_of'})
                 data['action']='revise' if action.action=='recover' else action.action
                 wire=old.MediatorAction.model_validate(data)
                 try:
