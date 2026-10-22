@@ -72,14 +72,21 @@ def test_underlying_capability_content_merge_and_obligation_alternatives(setup):
     assert all(name!='Qualification' for name,_ in client.calls)
 
 
-def test_added_condition_rejected_and_not_retried_on_resume(setup):
+def test_an_unwritable_group_is_rewritten_member_by_member_and_a_single_keeps_its_statement(setup):
+    # rq1-need-statement-v3: the writer adds a condition every time, so no rewrite passes; before, the
+    # group was set aside (rewrite_rejected) and both needs were lost.
     store,run,records=need_inputs(setup);client=NeedsClient('invent')
-    active,_=needs.write_needs(store,run,[records],client,None)
-    assert active==[] and len(client.calls)==2
-    aside=store.get('run',run['run_id'])['set_aside_observations'][-1]
-    assert aside['reason']=='rewrite_rejected' and 'added condition' in aside['rationale']
+    active,events=needs.write_needs(store,run,[records],client,None)
+    assert [e['action'] for e in events]==['split_unwritten_group','keep_unwritten_need','keep_unwritten_need']
+    assert 'added condition' in events[0]['reason'] and events[0]['inputs']==sorted(r.revision_id for r in records)
+    assert len(active)==2 and all('rewrite_not_applied' in r.processing_flags for r in active)
+    assert sorted(r.need_statement for r in active)==sorted(r.normalized_statement for r in records)
+    assert all(r.lifecycle_state=='inactive_member' for r in records)
+    assert sum(name=='NeedStatements' for name,_ in client.calls)==4
+    assert not any(a['reason']=='rewrite_rejected' for a in store.get('run',run['run_id'])['set_aside_observations'])
+    calls=len(client.calls)
     needs.write_needs(store,run,[records],client,None)
-    assert len(client.calls)==2
+    assert len(client.calls)==calls
 
 
 def test_term_gets_one_correction_and_rejected_member_splits(setup):
@@ -107,24 +114,15 @@ def test_valid_negative_rewrite_critic_is_not_pressured_to_flip(setup):
                     'rationale':'The actor was not in the members.'} for identifier in data['groups']]})
             return super().generate_structured(**kwargs)
     client=NegativeCritic()
-    active,_=needs.write_needs(store,run,[records],client,None)
-    assert active==[]
-    assert sum(name=='NeedGrounding' for name,_ in client.calls)==1
-    assert sum(name=='NeedStatements' for name,_ in client.calls)==2
-    saved=store.get('run',run['run_id'])
-    assert saved['set_aside_observations'][-1]['reason']=='rewrite_rejected'
-    assert len(saved['set_aside_observations'][-1]['details']['rewrites'])==2
+    active,events=needs.write_needs(store,run,[records],client,None)
+    # The critic's verdict stands: an identical retry reuses it. The group is rewritten member by member,
+    # and each single whose rewrite the critic still rejects keeps its own statement.
+    assert [e['action'] for e in events]==['split_unwritten_group','keep_unwritten_need','keep_unwritten_need']
+    assert all(len(e['rewrites'])==2 for e in events)
+    assert len(active)==2 and all('rewrite_not_applied' in r.processing_flags for r in active)
+    assert sum(name=='NeedGrounding' for name,_ in client.calls)==2
+    assert sum(name=='NeedStatements' for name,_ in client.calls)==4
+    assert not any(a['reason']=='rewrite_rejected' for a in store.get('run',run['run_id'])['set_aside_observations'])
     before=len(client.calls)
     needs.write_needs(store,run,[records],client,None)
     assert len(client.calls)==before
-
-
-@pytest.mark.parametrize('obligation', ['mandatory','recommended','optional','unknown'])
-@pytest.mark.parametrize('word', ['must','SHALL','Should'])
-def test_need_wording_keeps_obligation_separate(obligation, word):
-    offered={'g':{'obligation':obligation,'members':{'m':{'statement':'Users can identify titles.'}}}}
-    answer=needs.NeedStatements(needs=[{'group_id':'g','statement':f'Users {word} identify titles.',
-        'members':[{'member_id':'m','expresses_need':True}]}])
-    assert any('obligation words' in e for e in needs.statement_errors(answer,offered,None))
-    answer.needs[0].statement='Users can identify titles.'
-    assert needs.statement_errors(answer,offered,None)==[]

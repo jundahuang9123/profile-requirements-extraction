@@ -74,8 +74,18 @@ wording. The reviewer decides. Source authentication does not establish entailme
 the independent rewrite critic and support assessor are fallible model judgements.
 A valid negative critic verdict is preserved. Only rejected groups get one new
 writer request with that rationale. A changed rewrite gets its own critic check;
-an identical rewrite reuses the negative verdict. Twice-rejected groups are visible
-`rewrite_rejected` asides with both statements and rationales; valid groups continue.
+an identical rewrite reuses the negative verdict. Until `rq1-need-statement-v2`, a
+group without a usable rewrite (writer output still invalid after its correction,
+critic or F/A preservation check failed or unavailable, or rejected twice) was set
+aside whole as `rewrite_rejected`: in Stat `run-6455e495` 26 groups (37 needs, every
+Stat set-aside before the discussion), in JRC `run-a89957db` 11 groups (15 needs).
+A failed rewrite says nothing about the needs, so `rq1-need-statement-v3` sets none
+aside: a group goes back to the writer member by member, as members a written need
+does not express already did (`split_unwritten_group`), and a single need keeps its
+own normalised statement, flagged `rewrite_not_applied` (`keep_unwritten_need`).
+Both events record the reason and the rejected rewrites. A kept statement may still
+hold vocabulary terms or obligation words the writer would have removed; the flag
+makes it visible for review.
 
 ## Scope choices
 
@@ -347,7 +357,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Source check | `rq1-original-source-v2.2` | Deterministic; every cited link checked |
 | Proposal support | `rq1-proposal-support-v1` | At most 25 proposals / 24,000 input characters; only own excerpt IDs allowed |
 | Grouping | `rq1-semantic-consolidation-v3` | 40 candidates, 24,000 input characters, at most 25 prior offered groups; audited exact fallback for invalid model grouping |
-| Need writing / rewrite critic | `rq1-need-statement-v2` | At most 20 groups; 24,000 writer input characters; independent critic up to 48,000 characters; initial response plus one output correction |
+| Need writing / rewrite critic | `rq1-need-statement-v3` | At most 20 groups; 24,000 writer input characters; independent critic up to 48,000 characters; initial response plus one output correction; a failed rewrite is retried member by member, a single need keeps its statement |
 | Additional member checking | `rq1-need-membership-v1` | Large groups use a bounded writing basis (up to 20 members / 16,000 statement characters); every remaining member checked in batches up to 40 / 24,000 characters |
 | Base catalogue | `rq1-base-needs-catalogue-v2` | Frozen base-only file and checksum; optional hash-bound human phrase review |
 | Generic/domain and base search | `rq1-generic-domain-v3`, `rq1-base-needs-full-search-v3` | One need per call against the complete catalogue in chunks (first chunk 10–20 entries, then 20); a need listing several items is generic when one listed entry covers each item; a match without an entry ID counts as no match in that chunk |

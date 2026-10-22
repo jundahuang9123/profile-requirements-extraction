@@ -176,10 +176,12 @@ class FAPreservation(Contract):
     checks: list[PreservationCheck] = Field(max_length=20)
 
 
-def preserve_rewrites(store,run,payload,answer,members,client):
-    """A family label cannot erase distinct source-supported child requirements."""
+def preserve_rewrites(store,run,payload,answer,members,client,failed):
+    """A family label cannot erase distinct source-supported child requirements. A group whose rewrite
+    is not shown lossless goes to failed as (members, rewrites, rationale); write_needs rewrites its
+    members one by one, or keeps a single need's own statement (rq1-need-statement-v3)."""
     if not enabled(run) or not answer.needs:return answer
-    from .needs import cached_generation, aside_group, NeedStatements
+    from .needs import cached_generation, NeedStatements
     offered={'groups':{n.group_id:{'members':payload['groups'][n.group_id]['members'],
         'proposed':n.model_dump(mode='json')} for n in answer.needs}}
     result=cached_generation(store,run,'need_statement',offered,FAPreservation,
@@ -194,8 +196,8 @@ def preserve_rewrites(store,run,payload,answer,members,client):
         good=check is not None and all(getattr(check,k) for k in ('information_preserved','actor_preserved',
             'purpose_preserved','conditions_preserved','obligation_preserved','negation_preserved'))
         if good:kept.append(n)
-        else:aside_group(store,run,members[n.group_id],[n.model_dump(mode='json')],
-            'Lossless rewrite not established: '+(check.rationale if check else 'Preservation check unavailable; original proposals retained for review.'))
+        else:failed.append((members[n.group_id],[n.model_dump(mode='json')],
+            'Lossless rewrite not established: '+(check.rationale if check else 'Preservation check unavailable; original proposals retained for review.')))
     return NeedStatements(needs=kept)
 
 
