@@ -145,3 +145,27 @@ def test_a_need_listing_several_items_is_generic_when_each_item_has_a_listed_ent
     assert aside['reason']=='generic_need_served_by_base' and len(aside['matched_base_need_ids'])==3
     assert 'one listed entry for each item' in ' '.join(needs.BASE_SEARCH_SYSTEM.split())
     assert 'a match always names a listed entry' in needs.BASE_SEARCH_SYSTEM
+
+
+def test_a_base_id_outside_the_catalogue_is_a_row_error_not_a_crash(setup):
+    """Health run of 22 Oct: a generic match named 'base-5c2aafc7a94306fbd74', an ID with digits missing."""
+    store,run,proposals=_three_proposals(setup)
+    class Truncated(NeedsClient):
+        def __init__(self):super().__init__();self.attempts=0
+        def generate_structured(self, **kwargs):
+            if kwargs['output_model'].__name__!='NeedClassifications': return super().generate_structured(**kwargs)
+            data=json.loads(kwargs['user']);self.calls.append(('NeedClassifications',data));self.attempts+=1
+            real=sorted(data['base_needs'])[0]
+            ids=[real[:-5]] if self.attempts==1 else []
+            return kwargs['output_model'].model_validate({'classifications':[{'need_id':i,
+                'classification':'generic' if self.attempts==1 else 'domain','base_need_ids':ids,
+                'rationale':'Scripted.'} for i in data['needs']]})
+    client=Truncated()
+    retained=needs.classify_needs(store,run,proposals[:1],client)
+    # The first chunk got one correction naming the unknown ID, and the run continued.
+    first=[p for name,p in client.calls if name=='NeedClassifications'][:2]
+    assert len(first)==2 and first[0]==first[1]
+    need=retained[0]
+    assert need.need_class=='domain' and need.matched_base_need_ids==[]
+    saved=[v for v in store.get('run',run['run_id'])['need_chunks'].values() if v.get('step')=='classification'][0]
+    assert saved['attempts'][0]['validation_errors']=={proposals[0].requirement_id:[proposals[0].requirement_id+': unknown base need ID.']}
