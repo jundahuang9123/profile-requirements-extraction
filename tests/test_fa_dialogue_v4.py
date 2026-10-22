@@ -23,8 +23,8 @@ def caps(client,*names):
 
 
 def test_policy_names():
-    assert fd.BASE_POLICY=='rq1-fa-dialogue-v6' and br.POLICY=='rq1-base-expert-v5'
-    assert fd.BASE_POLICIES=={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5','rq1-fa-dialogue-v6'}
+    assert fd.BASE_POLICY=='rq1-fa-dialogue-v7' and br.POLICY=='rq1-base-expert-v5'
+    assert fd.BASE_POLICIES=={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5','rq1-fa-dialogue-v6','rq1-fa-dialogue-v7'}
 
 
 def test_stakeholders_get_the_concern_rules_and_plans_start_at_8000_tokens(setup):

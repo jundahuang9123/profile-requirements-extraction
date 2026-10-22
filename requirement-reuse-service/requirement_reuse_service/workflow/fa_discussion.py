@@ -21,11 +21,12 @@ POLICY='rq1-fa-dialogue-v1'
 # no reason to set it aside, and larger per-case limits. v5 forms cases by task across
 # the whole inventory, with shorter source windows (see task_groups). v6 lets roles add
 # claims from the practice of their role, which the mediator admits or excludes, and
-# records concerns the mediator does not answer as noted (see ExperienceReview). A
-# discussion planned under an earlier version cannot continue; derive a separate
-# base-review trial.
-BASE_POLICY='rq1-fa-dialogue-v6'
-BASE_POLICIES={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5',BASE_POLICY}
+# records concerns the mediator does not answer as noted (see ExperienceReview). v7
+# (21 Oct) accepts a split whose new needs carry the sources, and repairs additions that
+# name needs and concern links to actions (see repair_plan). A discussion planned under an
+# earlier version cannot continue; derive a separate base-review trial.
+BASE_POLICY='rq1-fa-dialogue-v7'
+BASE_POLICIES={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5','rq1-fa-dialogue-v6',BASE_POLICY}
 SALVAGE_POLICY='rq1-fa-salvage-v1'
 def discussion_policy(run):
     return BASE_POLICY if run['request'].get('base_review') == 'expert_v1' else POLICY
@@ -231,6 +232,14 @@ def repair_plan(plan,case,messages):
        or question is a note rather than a disposition, and is dropped;
     4. empty defer fields are copied from their unique, fully linked question (the
        routed workflow's existing rule).
+    From v6 plans (ExperiencePlan) on, in v7, three more (see repair_v7):
+    5. a sourced add that names needs no other action names rewords them, and becomes a
+       revise of one need or a merge of several, as v4's correction already asks;
+    6. an add that names needs other actions dispose is an addition beside them, and its
+       parents are cleared;
+    7. a concern disposition loses links to action IDs the plan lacks, and an addressed or
+       satisfied one that then links none gets the actions on its needs, as v6 records an
+       unanswered concern.
     Anything else, including unclear parents or missing alternatives, stays invalid: an
     action that names no need is never guessed onto one, and a parentless action with
     content goes to correction and, if it stays, to review.
@@ -294,7 +303,43 @@ def repair_plan(plan,case,messages):
         if not action.get('alternatives'):action['alternatives']=deepcopy(candidates[0]['alternatives']);filled.append('alternatives')
         repairs.append({'kind':'defer_fields_copied_from_linked_question','action_id':action['action_id'],
             'question_id':candidates[0]['question_id'],'fields':filled})
+    if isinstance(plan,ExperiencePlan):repairs+=repair_v7(data,parents,messages)
     return type(plan).model_validate(data),repairs
+
+
+def repair_v7(data,parents,messages):
+    """Repairs 5-7 of repair_plan, in place; returns their audit rows.
+
+    In JRC run-a89957db (rq1-fa-dialogue-v6) 6 of the first 24 cases ended with an invalid
+    draft. Besides splits without a statement of their own (now valid), the plans wrote adds
+    that name the need they reword, and addressed concerns linking no action or an action the
+    plan lacks.
+    """
+    repairs=[];actions=data['actions']
+    all_named=Counter(p for a in actions for p in a['parent_revision_ids'])
+    kept_named=Counter(p for a in actions if a['action']!='add' for p in a['parent_revision_ids'])
+    for a in actions:
+        ids=a['parent_revision_ids']
+        if a['action']!='add' or not ids or len(set(ids))!=len(ids) or not set(ids)<=parents:continue
+        if all(all_named[p]==1 for p in ids) and a['statement'].strip() and a['evidence_links']:
+            a['action']='revise' if len(ids)==1 else 'merge'
+            repairs.append({'kind':'add_rewording_needs_as_'+a['action'],'action_id':a['action_id'],'revision_ids':list(ids)})
+        elif all(kept_named[p] for p in ids):
+            a['parent_revision_ids']=[]
+            repairs.append({'kind':'add_parents_cleared','action_id':a['action_id'],'revision_ids':list(ids)})
+    known={a['action_id'] for a in actions}
+    needs_of={c['concern_id']:c['revision_ids'] for m in messages for c in m.get('concerns',[])}
+    for row in data.get('concerns',[]):
+        unknown=[i for i in row['action_ids'] if i not in known]
+        if unknown:
+            row['action_ids']=[i for i in row['action_ids'] if i in known]
+            repairs.append({'kind':'concern_unknown_actions_dropped','concern_id':row['concern_id'],'action_ids':unknown})
+        if row['status'] in {'addressed','satisfied'} and not row['action_ids'] and row['concern_id'] in needs_of:
+            linked=[a['action_id'] for a in actions if set(a['parent_revision_ids'])&set(needs_of[row['concern_id']])][:8]
+            if linked:
+                row['action_ids']=linked
+                repairs.append({'kind':'concern_actions_from_needs','concern_id':row['concern_id'],'action_ids':linked})
+    return repairs
 
 
 def noted_concern_errors(plan,messages,errors):
@@ -349,7 +394,11 @@ def plan_errors(plan,case,messages,allowed):
             # alternatives). Refusing it rejected mediator drafts in 18 JRC trial cases.
             elif any('covered_by_base' in r.get('processing_flags',[]) for r in parents) and a.action not in {'covered_by_base','retain','defer'}:
                 errors.append('A labelled base-covered need must stay visible as retained, covered_by_base or deferred.')
-        if a.action in {'recover','split'} and (not a.statement.strip() or not a.evidence_links):
+        # A split applies its children only. Up to v6 it also needed a statement and sources of
+        # its own: 5 of the 6 invalid drafts in JRC run-a89957db failed on that alone, with
+        # sourced children.
+        own=a.action=='recover' or (a.action=='split' and case.get('policy_version')!=BASE_POLICY)
+        if own and (not a.statement.strip() or not a.evidence_links):
             errors.append('Recovery/split requires source-supported statement and links.')
         if a.action=='split' and len(a.children)<2: errors.append('Split requires at least two supported children.')
         if len({c.action_id for c in a.children})!=len(a.children):errors.append('Split child action IDs must be unique.')

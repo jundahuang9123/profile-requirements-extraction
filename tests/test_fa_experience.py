@@ -1,4 +1,4 @@
-"""Synthetic tests of rq1-fa-dialogue-v6 experience claims and noted concerns: no evaluation answers or live generation."""
+"""Synthetic tests of the experience claims and noted concerns added in rq1-fa-dialogue-v6 (kept in v7): no evaluation answers or live generation."""
 import json
 import pytest
 from test_routed_stakeholder_workflow import setup  # noqa: F401  (pytest fixture)

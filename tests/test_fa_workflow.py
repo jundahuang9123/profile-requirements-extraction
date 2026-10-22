@@ -19,7 +19,7 @@ def enable(store,run):
     return store.get('run',run['run_id'])
 
 def contract_name(model):
-    """rq1-fa-dialogue-v6 asks for ExperienceReview and ExperiencePlan, which extend Review and
+    """rq1-fa-dialogue-v6 and later ask for ExperienceReview and ExperiencePlan, which extend Review and
     Plan; scripted clients answer them alike."""
     return {'ExperienceReview':'Review','ExperiencePlan':'Plan'}.get(model.__name__,model.__name__)
 

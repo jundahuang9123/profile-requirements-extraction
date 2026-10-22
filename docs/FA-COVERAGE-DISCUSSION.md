@@ -499,6 +499,29 @@ A discussion planned under v5 cannot continue under v6: derive a base-review
 trial, which no longer inherits the parent's task labels. The legacy v1 protocol
 is unchanged. This is tested offline only.
 
+### Splits and plan repairs (v7)
+
+In the first v6 JRC trial (`run-a89957db`, 21 October) 6 of the first 24 cases
+ended with an invalid draft, all in single-need or statement cases. 5 of the 6
+failed on "Recovery/split requires source-supported statement and links": the
+mediator wrote a split whose new needs carried their sources, but gave the split
+no statement of its own, which is never applied. `rq1-fa-dialogue-v7`:
+
+- **Split.** A split needs at least two children, each with a statement and
+  sources; it no longer needs a statement or sources of its own. A recovery still
+  does.
+- **Additions that name needs** (audited repairs of v6 plans): a sourced add that
+  names needs no other action names rewords them, and becomes a revise of one
+  need or a merge of several, as v4's correction already asked; an add that names
+  needs other actions dispose is an addition beside them, and its parents are
+  cleared. Mixed or unsourced adds stay invalid.
+- **Concern links** (audited): a disposition loses links to action IDs the plan
+  lacks, and an addressed or satisfied one that then links none gets the actions
+  on its needs, as v6 records an unanswered concern.
+
+A discussion planned under v6 cannot continue under v7. This is tested offline
+only.
+
 ### Cheap trial from a saved machine inventory
 
 `POST /api/rq1/v2/runs/{id}/derive` accepts `start_from: "base_review"` with a
