@@ -64,6 +64,25 @@ all three.
 Also reported: rewording steps, extracted proposals, passages, evidence units and source roles behind the need,
 whether the base covers it, its base relation and its flags.
 
+## First results (22 Oct 2026, `rq1-need-scores-v2`)
+
+Computed for two development runs in the browser pane by a function-by-function JavaScript port of this
+script, so the run data stayed on the machine that runs the app; the port gives identical rows to the script on
+2,000 random runs. Running the script against the app reproduces them.
+
+| | JRC v11 `run-12a2c91a` | Stat v10 `run-1428af21` |
+|---|---|---|
+| Active needs | 68 | 53 |
+| F mean · median · range | 0.83 · 0.86 · 0.60–0.97 | 0.79 · 0.81 · 0.50–0.90 |
+| S mean · needs at 1.00 | 0.93 · 48 | 0.96 · 42 |
+| Requirement flags | 2 rule or policy wording, 2 operational obligation | 2 operational obligation |
+| F / S by origin | consolidated (58) 0.85 / 0.93; revised by the discussion (8) 0.76 / 0.98; added by the discussion (2) 0.61 / 0.84 | consolidated (53) 0.79 / 0.96 |
+
+- Lowest F: needs whose support was judged unsupported, whose words are mostly not in their quotes (for example
+  quotes that are RDF examples), or that were rewritten far from their extracted statement.
+- S misfires where a listed word belongs to a concrete item: "rights information associated with a
+  distribution" scores 0.33.
+
 ## Limits
 
 - Both scores are lexical and rule-based proxies over machine judgements; they order needs for review, they do
