@@ -205,6 +205,10 @@ def test_full_pipeline_fallback_reaches_review_and_resume_does_not_regenerate(se
             elif name=='UseCaseCritic':
                 self.calls.append((name,data));answer=kw['output_model'].model_validate({'decisions':[
                     {'link_id':i['link_id'],'keep':True,'rationale':'Offline necessary link.'} for i in data['links']]})
+            elif name=='NeedEquivalence':
+                # Reached only when more than one need remains, as after a split unwritten group.
+                self.calls.append((name,data));answer=kw['output_model'].model_validate({'decisions':[
+                    {'need_id':i,'equivalent_to':[],'rationale':'Offline distinct need.'} for i in data['needs']]})
             else: answer=super().generate_structured(**kw)
             if name==fault:
                 field,id_field,_=SPECS[name];raw=answer.model_dump(mode='json')
@@ -231,5 +235,11 @@ def test_full_pipeline_fallback_reaches_review_and_resume_does_not_regenerate(se
         assert not any(a['reason'] in {'not_find_or_access','not_catalogue_level'}
                        for a in saved['set_aside_observations'])
         assert any('profile_scope_not_checked' in r['processing_flags'] for r in saved['requirements'])
+    if fault in {'NeedStatements','NeedGrounding'}:
+        # rq1-need-statement-v3: the one group (6 members) whose rewrite or its check stayed unavailable is
+        # rewritten member by member; before v3 it was set aside (rewrite_rejected) and no need remained.
+        assert [e['action'] for e in saved['consolidation_events']].count('split_unwritten_group')==1
+        assert not any(a['reason']=='rewrite_rejected' for a in saved['set_aside_observations'])
+        assert len(saved['active_revision_ids'])==6
     before=len(client.calls);engine.execute_run(store,run['run_id'],client)
     assert len(client.calls)==before
