@@ -1,0 +1,40 @@
+{
+  "status": "passed",
+  "cases": {
+    "mobilitydcat": {
+      "rows": 40,
+      "atoms": 98,
+      "scored_by_default": 40
+    },
+    "healthdcat": {
+      "rows": 69,
+      "atoms": 119,
+      "scored_by_default": 88
+    },
+    "statdcat": {
+      "rows": 22,
+      "atoms": 27,
+      "scored_by_default": 14
+    },
+    "geodcat": {
+      "rows": 46,
+      "atoms": 56,
+      "scored_by_default": 37
+    },
+    "jrc-research": {
+      "rows": 11,
+      "atoms": 17,
+      "scored_by_default": 16
+    }
+  },
+  "anchor_quotes": {
+    "from_web_fetch_not_verified_locally": 114,
+    "verified": 202,
+    "locator_only": 1
+  },
+  "evidence_quotes": {
+    "verified": 1311
+  },
+  "errors": [],
+  "notes": []
+}
