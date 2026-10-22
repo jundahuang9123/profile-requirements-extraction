@@ -595,12 +595,30 @@ disagreement recorded (`scope_conflict`):
 
 - `not_find_or_access` against a need that serves find, access or both;
 - `statement_about_sources` against a need whose nature is
-  `information_requirement`.
+  `information_requirement` or `operational_obligation` (in the Stat v8 trial,
+  `run-c4cbca44`, a need on code lists for dimension values that scope judged
+  an operational obligation serving both was set aside as a statement about the
+  sources).
 
 `duplicate` and `contradicted_by_source` are not judged by scope, a need
 without a checked judgement has nothing to contradict, and a need already set
 aside stays as it was. The mediator prompt states the rule; the packet already
 shows each need's `fa_scope`.
+
+**Splits written as several actions.** In both v8 trials most invalid cases
+ended on the rule that every need is named exactly once (Stat 8 of 15, JRC 7 of
+14), mostly in cases whose roles proposed a split or a missing need: such cases
+ended invalid in 27% (Stat; 9% under v6) and 34% (JRC; 23%), while cases
+without a change claim almost never did. Of the 9 plans that named one need in
+several actions, 5 gave each action its own statement and sources: a split
+written as two retains or two adds. v9 tells the mediator how to write a split
+(one split action with a child per new need), and repairs such a plan (audited):
+when every action naming a need names only that need, is a retain, revise or add
+with its own sourced statement, and the statements differ, the actions become
+one split with those statements, sources and rationales as children, under the
+first action's ID; concern links follow. A set-aside or other disposition beside
+them, a statement without sources, repeated wording or a labelled need stays
+invalid, and a sourced add beside an unchanged retain stays an addition (v7).
 
 A discussion planned under v8 cannot continue under v9. This is tested offline
 only.

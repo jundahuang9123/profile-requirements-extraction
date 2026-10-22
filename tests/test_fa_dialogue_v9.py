@@ -1,7 +1,9 @@
 """Synthetic tests of the rule added in rq1-fa-dialogue-v9: no evaluation answers or live generation."""
 import pytest
 from test_routed_stakeholder_workflow import setup  # noqa: F401  (pytest fixture)
-from test_fa_dialogue_v3 import Assessing, Mediator, opted_in, ids, case_of
+from copy import deepcopy
+from test_fa_dialogue_v3 import Assessing, Mediator, opted_in, ids, case_of, built, kept, sourced
+from test_fa_dialogue_v7 import link
 from test_fa_dialogue_v4 import set_aside_second_need
 from test_fa_dialogue_v8 import aside, aliases
 from requirement_reuse_service.workflow import fa_discussion as fd
@@ -32,6 +34,7 @@ def keep_and_set_aside(target,**extra):
 @pytest.mark.parametrize('reason,scope,status',[
     ('not_find_or_access',FIND,'human_review'),
     ('statement_about_sources',FIND,'human_review'),
+    ('statement_about_sources',{**FIND,'serves':'both','nature':'operational_obligation'},'human_review'),
     ('not_find_or_access',{**FIND,'serves':'both'},'human_review'),
     ('not_find_or_access',{**FIND,'serves':'neither'},'set_aside'),
     ('not_find_or_access',BACKGROUND,'set_aside'),
@@ -93,5 +96,70 @@ def test_scope_conflict_reads_only_checked_judgements_for_the_two_reasons():
     assert fd.scope_conflict(act('not_find_or_access'),[need])=={'revision_id':'n1','reason':'not_find_or_access',
         'scope_policy':'rq1-find-access-v1','serves':'find'}
     assert fd.scope_conflict(act('statement_about_sources'),[need])['nature']=='information_requirement'
+    assert fd.scope_conflict(act('statement_about_sources'),[{**need,'fa_scope':{**FIND,'nature':'operational_obligation'}}])
+    assert fd.scope_conflict(act('statement_about_sources'),[{**need,'fa_scope':{**FIND,'nature':'implementation_detail'}}]) is None
     assert fd.scope_conflict(act('duplicate'),[need]) is None and fd.scope_conflict(act('contradicted_by_source'),[need]) is None
     assert fd.scope_conflict(act(None),[need]) is None and fd.scope_conflict(act('not_find_or_access'),[{'revision_id':'n1'}]) is None
+
+
+def worded(case,rid,action_id,action,statement,**extra):
+    return {'action_id':action_id,'action':action,'parent_revision_ids':[rid],'statement':statement,
+        'evidence_links':[link(case)],'rationale':'Part of '+rid+'.',**extra}
+
+
+LICENCE,HOLDER='Users can find the licence of a dataset.','Users can find the rights holder of a dataset.'
+
+
+@pytest.mark.parametrize('action',['retain','add','revise'])
+def test_several_sourced_statements_on_one_need_are_its_split(setup,action):
+    case,(n1,n2),messages,allowed=built(setup)
+    data=kept([n1,n2]);data['actions'][1:]=[worded(case,n2,'A2',action,LICENCE),worded(case,n2,'A3',action,HOLDER)]
+    data['concerns'][1]['action_ids']=['A3']
+    plan=fd.ExperiencePlan.model_validate(data)
+    assert any(e.startswith('Every current case parent must occur exactly once') for e in fd.plan_errors(plan,case,messages,allowed))
+    fixed,repairs=fd.repair_plan(plan,case,messages)
+    assert fd.plan_errors(fixed,case,messages,allowed)==[]
+    split=fixed.actions[1]
+    assert (split.action_id,split.action,split.parent_revision_ids)==('A2','split',[n2]) and len(fixed.actions)==2
+    assert [(c.action_id,c.statement,c.rationale) for c in split.children]==[('A2.1',LICENCE,'Part of '+n2+'.'),('A2.2',HOLDER,'Part of '+n2+'.')]
+    assert fixed.concerns[1].action_ids==['A2']
+    assert repairs[-1]=={'kind':'actions_on_one_need_as_split','revision_id':n2,'action_id':'A2','children':{'A2.1':'A2','A2.2':'A3'}}
+
+
+def test_only_clear_splits_are_repaired(setup):
+    case,(n1,n2),messages,allowed=built(setup)
+    def repaired(*actions,case=case):
+        data=kept([n1,n2],concerns=[]);data['actions'][1:]=list(actions)
+        return [r['kind'] for r in fd.repair_plan(fd.ExperiencePlan.model_validate(data),case,messages)[1]]
+    assert repaired(worded(case,n2,'A2','retain',LICENCE),worded(case,n2,'A3','retain',HOLDER))==['actions_on_one_need_as_split']
+    # The same wording twice, a statement without sources, or another disposition beside them.
+    assert repaired(worded(case,n2,'A2','retain',LICENCE),worded(case,n2,'A3','retain','users can find the licence  of a dataset.'))==[]
+    assert repaired(worded(case,n2,'A2','retain',LICENCE),{**worded(case,n2,'A3','retain',HOLDER),'evidence_links':[]})==[]
+    assert repaired(worded(case,n2,'A2','retain',LICENCE),{'action_id':'A3','action':'set_aside','parent_revision_ids':[n2],
+        'rationale':'r','human_question':'Restore?','reason':'not_find_or_access'})==[]
+    # An action that also names another need, a repeated action ID, a labelled need.
+    assert repaired(worded(case,n2,'A2','retain',LICENCE),{**worded(case,n2,'A3','retain',HOLDER),'parent_revision_ids':[n1,n2]})==[]
+    assert repaired(worded(case,n2,'A2','retain',LICENCE),worded(case,n2,'A2','retain',HOLDER))==[]
+    labelled=deepcopy(case);labelled['frozen_requirements'][1]['processing_flags']=['covered_by_base']
+    assert repaired(worded(case,n2,'A2','retain',LICENCE),worded(case,n2,'A3','retain',HOLDER),case=labelled)==[]
+    # A sourced add beside an unchanged retain stays an addition (repair 6 comes first).
+    assert repaired({'action_id':'A2','action':'retain','parent_revision_ids':[n2],'rationale':'Kept.'},
+        worded(case,n2,'A3','add',HOLDER))==['add_parents_cleared']
+
+
+def test_a_split_written_as_two_retains_is_applied_as_a_split(setup):
+    store,run=opted_in(setup,1)
+    def plans(data,*_):
+        [need],_=ids(data);cited=sourced(data)
+        return {'actions':[{'action_id':'A1','action':'retain','parent_revision_ids':[need],'statement':LICENCE,'evidence_links':cited,'rationale':'Part one.'},
+            {'action_id':'A2','action':'retain','parent_revision_ids':[need],'statement':HOLDER,'evidence_links':cited,'rationale':'Part two.'}],
+            'concerns':[],'questions':[],'summary':'Split.'}
+    client=Assessing(plans);fd.deliberate(store,run['run_id'],client)
+    saved,case=case_of(store,run)
+    assert case['stop_reason']=='bounded_fa_dialogue_complete'
+    first=case['discussion_trace']['phases']['draft']['attempts'][0]
+    assert first['errors']==[] and [r['kind'] for r in first['repairs']]==['actions_on_one_need_as_split']
+    row=next(o for o in case['mediation']['outcomes'] if o['action_id']=='A1')
+    assert row['action']=='split' and row['status']=='machine_revised' and len(row['result_revision_ids'])==2
+    assert case['revision_ids'][0] not in saved['active_revision_ids'] and set(row['result_revision_ids'])<=set(saved['active_revision_ids'])
+    assert all('To split a need into several, write one split action' in s for s in client.plan_systems)
