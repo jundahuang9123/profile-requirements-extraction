@@ -28,11 +28,12 @@ POLICY='rq1-fa-dialogue-v1'
 # flags decide only actions that write a statement (see DefinedCheck), and asks each role
 # for at most one experience claim, which proposes a change. v9 (22 Oct) sends a set-aside
 # whose reason the checked F/A scope judgement of its need contradicts to a person instead of
-# applying it (see scope_conflict). A discussion planned under an earlier version cannot
+# applying it (see scope_conflict). v10 (22 Oct) accepts a checker answer that also checks a
+# split's new needs (see check_errors). A discussion planned under an earlier version cannot
 # continue; derive a separate base-review trial.
-BASE_POLICY='rq1-fa-dialogue-v9'
+BASE_POLICY='rq1-fa-dialogue-v10'
 BASE_POLICIES={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5','rq1-fa-dialogue-v6',
-    'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8',BASE_POLICY}
+    'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8','rq1-fa-dialogue-v9',BASE_POLICY}
 SALVAGE_POLICY='rq1-fa-salvage-v1'
 def discussion_policy(run):
     return BASE_POLICY if run['request'].get('base_review') == 'expert_v1' else POLICY
@@ -170,7 +171,7 @@ BASE_CHECK_GUIDANCE=(' A set_aside or merge justified only by base coverage is n
     'document, organisation or specification rather than information a data user looks for; duplicate when the need '
     'named in duplicate_of states the same information for the same actor and conditions; contradicted_by_source when '
     'the passage it cites as contradicting does contradict the need. A source that states no obligation or scope, or '
-    'thin evidence, never justifies a set_aside.')
+    'thin evidence, never justifies a set_aside. Check a split once, as one action covering all its new needs.')
 # v6: the checker sees the experience claims in the messages and the mediator's decisions.
 EXPERIENCE_CHECK_GUIDANCE=(' Experience claims X in messages are arguments from practice, not sources: they never make a '
     'changed need source-supported, and a disposition that relies on an admitted claim is justified only when no source '
@@ -315,7 +316,8 @@ class DefinedCheck(Check):
         'state none and the statement adds none, it is preserved. For retain, covered_by_base, defer and set_aside: true.')
 
 class DefinedChecks(Checks):
-    checks: list[DefinedCheck] = Field(max_length=12)
+    # v10: room for checks of a split's new needs beside the 12 actions a plan may hold.
+    checks: list[DefinedCheck] = Field(max_length=24)
 
 
 def repair_plan(plan,case,messages):
@@ -593,7 +595,8 @@ def plan_errors(plan,case,messages,allowed):
         # A split applies its children only. Up to v6 it also needed a statement and sources of
         # its own: 5 of the 6 invalid drafts in JRC run-a89957db failed on that alone, with
         # sourced children.
-        own=a.action=='recover' or (a.action=='split' and case.get('policy_version') not in {'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8',BASE_POLICY})
+        own=a.action=='recover' or (a.action=='split' and case.get('policy_version') not in {'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8',
+            'rq1-fa-dialogue-v9',BASE_POLICY})
         if own and (not a.statement.strip() or not a.evidence_links):
             errors.append('Recovery/split requires source-supported statement and links.')
         if a.action=='split' and len(a.children)<2: errors.append('Split requires at least two supported children.')
@@ -1595,7 +1598,7 @@ def execute_case(store,run_id,case_id,client,roles):
         'A background fact is not an information requirement merely because it was rewritten as one. '
         'Uncertainty must be false rather than invented assurance. Return Checks JSON.',
         {'packet':packet,'plan':final.model_dump(mode='json'),'messages':messages},
-        lambda a:[] if Counter(c.action_id for c in a.checks)==Counter(a.action_id for a in final.actions) else ['Check every action exactly once.'])
+        lambda a:check_errors(a,final,policy))
     trace['question_groups']=question_groups(final.questions)
     trace['final']=final.model_dump(mode='json');trace['checks']=checks.model_dump(mode='json')
     class BudgetClient:
@@ -1731,6 +1734,25 @@ def scope_conflict(action,parents):
         found={field:scope[field] for field,values in rules.items() if scope.get(field) in values}
         if found:return {'revision_id':p['revision_id'],'reason':action.reason,'scope_policy':scope.get('policy_version'),**found}
     return None
+
+
+def check_errors(answer,plan,policy):
+    """Every action of the plan is checked exactly once.
+
+    v10: a check of a split's new need is accepted beside the check of the split, and not used
+    (apply checks each new need with the split's check). In JRC run-4d980b17 (v9) all 4 cases
+    lost in the first 20 ended so: the checker checked the split and also its new needs (A1, A1.1,
+    A1.2), or only the new needs, after v9 let more splits through; v6 and v8 lost 1 or 2 a run.
+    The error names what is missing, repeated or unknown. Other protocols keep their rule and text.
+    """
+    wanted=Counter(a.action_id for a in plan.actions)
+    if policy!=BASE_POLICY:
+        return [] if Counter(c.action_id for c in answer.checks)==wanted else ['Check every action exactly once.']
+    children={c.action_id for a in plan.actions for c in a.children}-set(wanted)
+    got=Counter(c.action_id for c in answer.checks if c.action_id not in children)
+    if got==wanted:return []
+    return ['Check every action exactly once: '+canonical({'missing':sorted(set(wanted)-set(got)),
+        'repeated':sorted(k for k,v in got.items() if v>1),'unknown':sorted(set(got)-set(wanted))})]
 
 
 def quoted(store,link,allowed):
