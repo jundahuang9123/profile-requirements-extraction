@@ -1,4 +1,4 @@
-"""rq1-need-scores-v2: read-only scores of the needs of a saved run. Synthetic records only; no run data,
+"""rq1-need-scores-v3: read-only scores of the needs of a saved run. Synthetic records only; no run data,
 no reference rows."""
 import csv
 import importlib.util
@@ -108,7 +108,12 @@ def test_corroboration_counts_distinct_passages_and_roles_and_each_repeat_adds_l
     ('Users can know metadata about data quality.', 0.5),
     ('Users can know the contact point information of a dataset.', 2 / 3),
     ('Users can know various details of the dataset.', 0.0),
-    ('Users can know the dataset.', 0.0)])
+    ('Users can know the dataset.', 0.0),
+    # Whole words only, qualifiers count neither way (independent review of v2).
+    ('Users can know the available formats of a distribution.', 1.0),
+    ('Users can know the sorting order of the observations.', 1.0),
+    ('Users can know the content type of a distribution.', 1.0),
+    ('Users can know the rights information associated with a distribution.', 0.5)])
 def test_specificity_is_the_share_of_naming_words_that_are_not_vague(text, expected):
     assert only(run_of(need('n1', text), active=['n1']))['S'] == pytest.approx(expected)
 
@@ -157,18 +162,61 @@ def test_find_access_judgement(serves, nature, expected, flag):
     ('Metadata for JRC datasets shall be open for access.', 0.0),
     ('The policy obliges that data are provided openly.', 0.0),
     ('The JRC data policy defines open access as the default.', 0.0),
-    ('Title of a dataset.', 0.5)])
+    ('Title of a dataset.', 0.5),
+    # F/A needs may keep the source's modality; only a rule as the content is rule wording.
+    ('Users can know how the dataset should be cited.', 1.0),
+    ('Users should be able to find the licence of a dataset.', 1.0),
+    ('Publishers must provide a title for each dataset.', 0.0)])
 def test_worded_as_a_user_need(text, expected):
     assert only(run_of(need('n1', text), active=['n1']))['R2'] == expected
 
 
 @pytest.mark.parametrize('scope,expected', [({'record_resource': 'dataset', 'catalogue_level': True, 'serves': 'find'}, 1.0),
     ({'record_resource': 'distribution', 'catalogue_level': False, 'serves': 'access'}, 0.5),
-    ({'record_resource': 'none', 'catalogue_level': False, 'serves': 'neither'}, 0.0)])
+    ({'record_resource': 'none', 'catalogue_level': False, 'serves': 'neither'}, 0.0),
+    ({'record_resource': 'dataset_series', 'catalogue_level': True, 'serves': 'find'}, None),
+    ({'record_resource': 'dataset', 'catalogue_level': None, 'serves': 'find'}, None)])
 def test_catalogue_level_from_the_profile_scope_judge(scope, expected):
     record = need('n1', 'Users can know the title of a dataset.', fa_scope=None, profile_scope=scope)
     row = only(run_of(record, active=['n1']))
     assert row['R3'] == expected and row['R1'] == (0.0 if scope['serves'] == 'neither' else 1.0)
+
+
+def test_support_is_blank_when_not_judged_and_read_from_the_profile_scope_otherwise():
+    unjudged = only(run_of(need('n1', 'Users can know the title of a dataset.', quotes=['title'], support=None,
+                                fa_scope={'serves': 'find', 'nature': 'information_requirement'}), active=['n1']))
+    assert unjudged['F1'] is None and unjudged['support_from'] == ''
+    assert unjudged['F'] == pytest.approx((unjudged['F2'] + unjudged['F3'] + unjudged['F4'] + unjudged['F5']) / 4)
+    d5 = only(run_of(need('n1', 'Users can know the title of a dataset.', support=None, fa_scope=None,
+                          profile_scope={'support': 'inferred', 'serves': 'find'}), active=['n1']))
+    assert (d5['F1'], d5['support_from']) == (0.5, 'profile_scope')
+    odd = only(run_of(need('n1', 'Users can know the title of a dataset.', support=None,
+                           fa_scope={'support': {'level': 'explicit'}, 'serves': 'find'}), active=['n1']))
+    assert odd['F1'] is None
+
+
+def test_a_parent_cycle_ends_and_duplicates_score_once():
+    run = run_of(need('a', 'Users can know the title of a dataset.', parents=['b']),
+                 need('b', 'Users can know the title of a dataset.', parents=['a']),
+                 need('n1', 'Users can know the creator of a dataset.', parents=['n1']), active=['a', 'n1', 'n1'])
+    rows = S.score_run(run)
+    assert sorted(r['revision_id'] for r in rows) == ['a', 'n1'] and all(r['F3'] is None for r in rows)
+    assert S.score_run(S.trimmed(run)) == rows
+
+
+def test_a_record_without_parents_from_a_source_reading_role_is_its_own_extracted_statement():
+    record = need('n1', 'Users can know the creator of a dataset.', quotes=['Creator'])
+    record['raw_statement'] = 'Users can know the creator of the dataset.'
+    row = only(run_of(record, active=['n1']))
+    assert (row['origin'], row['extracted_proposals'], row['rewording_steps']) == ('extracted', 1, 0)
+    assert row['F3'] == pytest.approx(1 - 1 / 8)  # 'a' for 'the', 8 words
+
+
+def test_links_that_are_not_records_are_ignored_in_the_run_and_its_trimmed_copy():
+    record = need('n1', 'Users can know the creator of a dataset.', quotes=['Creator'])
+    record['evidence_links'] = ['eu-1', *record['evidence_links']]
+    run = run_of(record, active=['n1'])
+    assert S.score_run(S.trimmed(run)) == S.score_run(run) and only(run)['passages'] == 1
 
 
 def test_only_active_needs_are_scored_and_a_trimmed_run_scores_the_same():
@@ -224,6 +272,14 @@ def test_the_script_reads_with_get_only_and_writes_the_csv_and_summary(tmp_path,
     assert S.VERSION in text and '1 of 1 needs have the same statement' in text and 'ranked by F, then S' in text
     saved = tmp_path / 'saved.json'
     saved.write_text(json.dumps(S.trimmed(run)), encoding='utf-8')
+    # A run ID cannot place the files outside --out.
+    for run_id, name in (('../escape', '_escape'), ('/tmp/abs', '_tmp_abs')):
+        odd = tmp_path / 'odd.json'
+        odd.write_text(json.dumps({**S.trimmed(run), 'run_id': run_id}), encoding='utf-8')
+        monkeypatch.setattr(sys, 'argv', ['score_needs.py', '--run', str(odd), '--out', str(tmp_path / 'inside')])
+        S.main()
+        assert (tmp_path / 'inside' / f'{name}-need-scores.csv').exists()
+    assert not (tmp_path / 'escape-need-scores.csv').exists()
     monkeypatch.setattr(sys, 'argv', ['score_needs.py', '--run', str(saved), '--out', str(tmp_path / 'file')])
     S.main()
     assert (tmp_path / 'file' / 'run-test-need-scores.csv').read_text(encoding='utf-8-sig') == \

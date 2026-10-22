@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only scores for the needs of a saved RQ1 run (rq1-need-scores-v2).
+"""Read-only scores for the needs of a saved RQ1 run (rq1-need-scores-v3).
 
 Two scores per active need, and needs ranked by F, then S:
 - F, fidelity to the source: how close the need stays to what its sources say, the mean of the criteria
@@ -9,7 +9,7 @@ R1 to R3 (serves find/access, worded as a user need, catalogue level) are report
 score: in F/A runs the workflow has already filtered on them. A criterion that cannot be judged is blank
 and left out of the mean. The run is read with GET requests only, or from a saved JSON file. No model
 calls, no reference rows, nothing written to the run.
-Spec: project doc claude/rq1-scorer-spec.md (22 Oct 2026; v2 after Junda's answers, 20:44)."""
+Spec: docs/RQ1_NEED_SCORES.md; v2 after Junda's answers (22 Oct 2026), v3 after an independent review."""
 import argparse
 import csv
 import json
@@ -18,7 +18,7 @@ import statistics
 import urllib.request
 from pathlib import Path
 
-VERSION = 'rq1-need-scores-v2'
+VERSION = 'rq1-need-scores-v3'
 # The fields read (see trimmed()): of the run; of each active need, with the parts of its nested fields;
 # and of the needs and proposals it descends from.
 RUN_FIELDS = ('run_id', 'status', 'active_revision_ids', 'requirements')
@@ -42,12 +42,14 @@ STOP = set('''a an the and or but nor of to in on at by for with from as into on
 that this these those which who whom whose what when where why how whether if is are was were be been being am
 do does did has have had having can could may might must shall should will would it its they them their there
 here such each every any all some no not only also either users user'''.split())
-# S: words that name no particular information item, and the resources a need is about (neither way).
-VAGUE = set('''metadata information info detail details aspect aspects element elements characteristic characteristics
-feature features content contents thing things item items issue issues topic topics matter matters stuff fact facts
-general generic various relevant related other certain appropriate additional further overall useful important
-necessary available associated corresponding respective particular given existing possible different several many
-multiple more most less etc kind kinds sort sorts way ways'''.split())
+# S, whole words only: nouns that name no particular information item; qualifiers and the resources a need is
+# about count neither way ("available formats" names formats).
+VAGUE_NOUNS = set('''metadata information info detail details aspect aspects element elements characteristic
+characteristics feature features thing things item items issue issues topic topics matter matters fact facts
+stuff'''.split())
+QUALIFIERS = set('''general generic various relevant related other certain appropriate additional further overall useful
+important necessary available associated corresponding respective particular given existing possible different
+several many multiple more most less etc'''.split())
 RESOURCES = set('''data dataset datasets distribution distributions catalogue catalogues catalog catalogs service services
 resource resources record records'''.split())
 ACTOR = (r'^\s*(?:(?:the|a|an|data|catalogue|catalog|end|potential)\s+)*'
@@ -57,7 +59,11 @@ FRAME = re.compile(ACTOR + r'(?:can|could|are able to|is able to|need to|want to
     r'(?:(?:know|find|identify|obtain|see|determine|understand|learn|discover|locate|retrieve|access|tell|check|get|'
     r'judge|assess|compare|filter|search|read|view|recognise|recognize)\b(?:\s+(?:out|for|about|whether|if|which|what|'
     r'how|who|where|when))?)?', re.I)
-USER_NEED = re.compile(ACTOR + r'(?:can|could|are able to|is able to)\b', re.I)
+# An actor with a capability; F/A needs may keep the source's modality ("Users should be able to ...").
+CAPABILITY = r'(?:can|could|are able to|is able to|(?:must|shall|should) be able to)\b'
+USER_NEED = re.compile(ACTOR + CAPABILITY, re.I)
+# ... unless what they would know is itself a rule: "Users can know that JRC data shall be provided ...".
+RULE_AS_CONTENT = re.compile(ACTOR + CAPABILITY + r'\s+\w+\s+that\b.*\b(?:must|shall|should|obliges?|obliged)\b', re.I)
 OBLIGATION = re.compile(r'\b(?:must|shall|should|obliges?|obliged)\b', re.I)
 ABOUT_A_DOCUMENT = re.compile(r'^\s*(?:the|this|these)\s+(?:[\w-]+\s+){0,2}?(?:policy|policies|document|regulation|'
     r'directive|specification|standard|guidelines?|framework|decision|principles?|law|act|agreement|rules?|report)\b', re.I)
@@ -103,10 +109,6 @@ def stem(word):
     return word
 
 
-VAGUE_STEMS = {stem(w) for w in VAGUE}
-RESOURCE_STEMS = {stem(w) for w in RESOURCES}
-
-
 def content_words(statement):
     rest = FRAME.sub('', statement or '', count=1)
     return [w for w in words(rest) if w not in STOP]
@@ -132,7 +134,7 @@ def statement(record):
 
 
 def supporting_links(record):
-    return [l for l in record.get('evidence_links') or [] if l.get('relation', 'supports') == 'supports']
+    return [l for l in record.get('evidence_links') or [] if isinstance(l, dict) and l.get('relation', 'supports') == 'supports']
 
 
 def supporting_quotes(record):
@@ -145,7 +147,8 @@ def extracted_ancestors(record, by_id):
     found, depth, stack, seen = {}, 0, [(p, 1) for p in record.get('parent_revision_ids') or []], set()
     while stack:
         identifier, level = stack.pop()
-        if (identifier, level) in seen or identifier not in by_id:
+        # A path longer than the run has records holds a cycle.
+        if (identifier, level) in seen or identifier not in by_id or level > len(by_id):
             continue
         seen.add((identifier, level))
         parent = by_id[identifier]
@@ -170,14 +173,23 @@ def criteria(record, by_id):
     text = statement(record)
     quotes = supporting_quotes(record)
     qualification = record.get('qualification') or {}
-    support = qualification.get('support') or (record.get('fa_scope') or {}).get('support')
-    f1 = SUPPORT.get(support, 0.0)
+    sources = [('qualification', qualification), ('fa_scope', record.get('fa_scope') or {}),
+               ('profile_scope', record.get('profile_scope') or {})]
+    support_from, support = next(((name, value['support']) for name, value in sources if value.get('support')), ('', None))
+    f1 = SUPPORT.get(support) if isinstance(support, str) else None  # blank when no support judgement exists
 
     content = content_words(text)
     quoted = {stem(w) for q in quotes for w in words(q)}
     f2 = (sum(stem(w) in quoted for w in content) / len(content)) if content else None
 
     ancestors, depth = extracted_ancestors(record, by_id)
+    flags = record.get('processing_flags') or []
+    parents = record.get('parent_revision_ids') or []
+    # A record without parents written by a source-reading role is itself the extracted statement.
+    extracted = (not parents and 'mediated_machine_proposal' not in flags
+                 and bool(set(record.get('contributing_roles') or []) - MEDIATION_ROLES))
+    if extracted:
+        ancestors = [record]
     if ancestors:
         mine = words(text)
         f3 = 1 - min(edit_distance(mine, words(a.get('raw_statement'))) / max(len(mine), len(words(a.get('raw_statement'))), 1)
@@ -202,8 +214,8 @@ def criteria(record, by_id):
     roles = len(set(record.get('contributing_roles') or []) - MEDIATION_ROLES)
     f5 = (diminishing(passages) + diminishing(roles)) / 2
 
-    named = [stem(w) for w in content if stem(w) not in RESOURCE_STEMS]
-    vague = sum(w in VAGUE_STEMS for w in named)
+    named = [w for w in content if w not in RESOURCES and w not in QUALIFIERS]
+    vague = sum(w in VAGUE_NOUNS for w in named)
     s = (len(named) - vague) / len(named) if named else 0.0
 
     judged = judged_scope(record)
@@ -216,30 +228,31 @@ def criteria(record, by_id):
         r1 = 1.0
     else:
         r1 = None
-    if OBLIGATION.search(text) or ABOUT_A_DOCUMENT.search(text):
+    if ABOUT_A_DOCUMENT.search(text):
         r2 = 0.0
     elif USER_NEED.search(text):
-        r2 = 1.0
+        r2 = 0.0 if RULE_AS_CONTENT.search(text) else 1.0
+    elif OBLIGATION.search(text):
+        r2 = 0.0
     else:
         r2 = 0.5
-    resource = (record.get('profile_scope') or {}).get('record_resource')
-    if resource is None:
-        r3 = None
-    elif resource in CATALOGUED:
-        r3 = 1.0 if (record.get('profile_scope') or {}).get('catalogue_level', True) else 0.5
-    else:
+    profile_scope = record.get('profile_scope') or {}
+    resource, whole = profile_scope.get('record_resource'), profile_scope.get('catalogue_level')
+    if resource == 'none':
         r3 = 0.0
+    elif resource in CATALOGUED and isinstance(whole, bool):
+        r3 = 1.0 if whole else 0.5
+    else:
+        r3 = None  # not judged, or a judgement this version does not know
     requirement_flags = [name for name, on in (('rule_or_policy_wording', r2 == 0.0), ('unclear_wording', r2 == 0.5),
         ('operational_obligation', r1 == 0.5), ('not_find_or_access', r1 == 0.0), ('not_catalogue_level', r3 == 0.0),
         ('part_of_a_resource', r3 == 0.5)) if on]
 
-    flags = record.get('processing_flags') or []
-    parents = record.get('parent_revision_ids') or []
-    origin = ('discussion_added' if not parents and not ancestors else
+    origin = ('extracted' if extracted else 'discussion_added' if not parents else
               'discussion_revised' if 'mediated_machine_proposal' in flags else 'consolidated')
     return {'F1': f1, 'F2': f2, 'F3': f3, 'F4': f4, 'F5': f5, 'S': s, 'R1': r1, 'R2': r2, 'R3': r3,
             'requirement_flags': ', '.join(requirement_flags),
-            'support_from': 'qualification' if qualification.get('support') else 'fa_scope' if support else '',
+            'support_from': support_from,
             'added': ', '.join(added), 'vague_words': vague, 'origin': origin, 'rewording_steps': depth,
             'extracted_proposals': len(ancestors), 'passages': passages,
             'evidence_units': len({l.get('evidence_id') for l in supporting_links(record)}), 'source_roles': roles}
@@ -252,9 +265,9 @@ def mean(values):
 
 def score_run(run):
     """Rows of the active needs, ranked by F, then S."""
-    by_id = {r['revision_id']: r for r in run['requirements']}
+    by_id = {r['revision_id']: r for r in run.get('requirements') or [] if isinstance(r, dict) and r.get('revision_id')}
     rows = []
-    for identifier in run.get('active_revision_ids') or []:
+    for identifier in dict.fromkeys(run.get('active_revision_ids') or []):
         record = by_id.get(identifier)
         if not record:
             continue
@@ -277,7 +290,7 @@ def _pick(value, keys):
 
 def trimmed(run):
     """The part of a run the scorer reads; a run and its trimmed copy score the same."""
-    by_id = {r['revision_id']: r for r in run['requirements']}
+    by_id = {r['revision_id']: r for r in run.get('requirements') or [] if isinstance(r, dict) and r.get('revision_id')}
     active = set(run.get('active_revision_ids') or [])
     ancestors, stack = set(), [p for i in active for p in (by_id.get(i) or {}).get('parent_revision_ids') or []]
     while stack:
@@ -287,12 +300,12 @@ def trimmed(run):
         ancestors.add(identifier)
         stack.extend(by_id[identifier].get('parent_revision_ids') or [])
     records = []
-    for record in run['requirements']:
+    for record in by_id.values():
         if record['revision_id'] in active:
             kept = _pick(record, RECORD_FIELDS)
             for key, keys in NESTED_FIELDS.items():
                 if isinstance(kept.get(key), list):
-                    kept[key] = [_pick(item, keys) for item in kept[key]]
+                    kept[key] = [_pick(item, keys) for item in kept[key] if isinstance(item, dict)]
                 elif isinstance(kept.get(key), dict):
                     kept[key] = _pick(kept[key], keys)
             records.append(kept)
@@ -406,7 +419,8 @@ def main():
     comparison = compare(rows, score_run(load(args.compare, args.api))) if args.compare else None
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    name = run.get('run_id') or Path(args.run).stem
+    # The run ID names the files; keep them inside --out whatever it holds.
+    name = re.sub(r'[^A-Za-z0-9._-]+', '_', str(run.get('run_id') or Path(args.run).stem)).lstrip('.') or 'run'
     with (out / f'{name}-need-scores.csv').open('w', newline='', encoding='utf-8-sig') as handle:
         writer = csv.DictWriter(handle, fieldnames=list(rows[0]) if rows else ['rank'])
         writer.writeheader()
