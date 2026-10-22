@@ -30,9 +30,9 @@ POLICY='rq1-fa-dialogue-v1'
 # whose reason the checked F/A scope judgement of its need contradicts to a person instead of
 # applying it (see scope_conflict). v10 (22 Oct) accepts a checker answer that also checks a
 # split's new needs (see check_errors). v11 (22 Oct) applies a change whose quotation differs
-# from its source unit only in whitespace or hyphenation, citing the exact source text (see
-# folded_span). A discussion planned under an earlier version cannot continue; derive a
-# separate base-review trial.
+# from its source unit only in whitespace, in U+2010/U+2011 hyphens or in a line break after a
+# hyphen, citing the exact source text (see folded_span). A discussion planned under an earlier
+# version cannot continue; derive a separate base-review trial.
 BASE_POLICY='rq1-fa-dialogue-v11'
 BASE_POLICIES={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5','rq1-fa-dialogue-v6',
     'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8','rq1-fa-dialogue-v9','rq1-fa-dialogue-v10',BASE_POLICY}
@@ -1764,16 +1764,17 @@ def check_errors(answer,plan,policy):
 HYPHENS={'\u2010':'-','\u2011':'-'}  # hyphen, non-breaking hyphen
 
 
-def folded(text):
-    """text with every whitespace run read as one space, U+2010 and U+2011 read as '-', and a
-    line break after a hyphen dropped; with the index in text of each character kept."""
+def folded(text,join=True):
+    """text with every whitespace run read as one space and U+2010 and U+2011 read as '-'; with
+    join, a line break after a hyphen is dropped instead. Returns the folded text and the index in
+    text of each character kept."""
     out=[];where=[];i=0;n=len(text)
     while i<n:
         if text[i].isspace():
             j=i
             while j<n and text[j].isspace():j+=1
             # A word broken at a line end joins the next line ('platform-\n   independent').
-            if not (out and out[-1]=='-' and '\n' in text[i:j]):out.append(' ');where.append(i)
+            if not (join and out and out[-1]=='-' and '\n' in text[i:j]):out.append(' ');where.append(i)
             i=j;continue
         out.append(HYPHENS.get(text[i],text[i]));where.append(i);i+=1
     return ''.join(out),where
@@ -1786,15 +1787,18 @@ def folded_span(content,quote):
     the 13 changes it refused: 5 quotations differed from their source unit only in whitespace (a
     line break written as a space), 1 wrote 'platform-independent' with U+2011 where the PDF text
     breaks the line after the hyphen, 2 left out text with '...' and 2 were not in the unit. Across
-    JRC v6-v10, 12 of 21 such blocks were whitespace only and 2 a hyphen at a line break. Text left
-    out or changed is never matched, and a quotation that fits more than one span stays blocked.
+    JRC v6-v10, 12 of 21 such blocks were whitespace only and 2 a hyphen at a line break. A line
+    break after a hyphen may be written as nothing or as a space, so both folds are tried, and the
+    spans they find together must be one. Overlapping matches count. Text left out or changed is
+    never matched, and a quotation that fits more than one span stays blocked.
     """
-    q=folded(quote or '')[0].strip()
-    if not q:return None
-    text,where=folded(content)
-    hits=[m.start() for m in re.finditer('(?='+re.escape(q)+')',text)]
-    if len(hits)!=1:return None
-    return where[hits[0]],where[hits[0]+len(q)-1]+1
+    spans=set()
+    for join in (True,False):
+        q=folded(quote or '',join)[0].strip()
+        if not q:return None
+        text,where=folded(content,join)
+        spans.update((where[m.start()],where[m.start()+len(q)-1]+1) for m in re.finditer('(?='+re.escape(q)+')',text))
+    return spans.pop() if len(spans)==1 else None
 
 
 def quoted(store,link,allowed):
@@ -1877,8 +1881,9 @@ def apply(store,run,case,plan,checks,client,allowed):
                                 # The verifier and the new record see the exact source text; the plan keeps
                                 # the quotation as written, and the repair records both.
                                 exact=u['content'][span[0]:span[1]]
-                                item.setdefault('citation_repairs',[]).append({'evidence_id':link.evidence_id,'from':start,'to':span[0],
-                                    'quote_hash':digest(exact),'written_quote_hash':digest(link.quote),'method':QUOTE_MATCH_POLICY})
+                                item.setdefault('citation_repairs',[]).append({'action_id':action.action_id,'evidence_id':link.evidence_id,
+                                    'from':start,'to':span[0],'end':span[1],'quote_hash':digest(exact),'written_quote_hash':digest(link.quote),
+                                    'method':QUOTE_MATCH_POLICY})
                                 link.quote=exact;link.quote_start=span[0]
                             else:raise ValueError('Ambiguous or unmatched source quotation.')
                     subcase=deepcopy(case)

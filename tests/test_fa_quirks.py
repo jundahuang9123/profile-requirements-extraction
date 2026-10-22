@@ -239,10 +239,11 @@ def quoting(*quotes):
     return plans
 
 
+@pytest.mark.parametrize('access',[ACCESS,ACCESS.replace('platform\u2011independent','platform- independent')])
 @pytest.mark.parametrize('checker',['ideal','children'])
-def test_quotations_that_differ_only_in_whitespace_or_hyphenation_are_applied_with_the_exact_text(wrapped,checker):
+def test_quotations_that_differ_only_in_whitespace_or_hyphenation_are_applied_with_the_exact_text(wrapped,checker,access):
     store,run=opted_in(wrapped)
-    plans=quoting(ACCESS,'Users can find the access conditions for a dataset','Publishers can find the contact details for a dataset.')
+    plans=quoting(access,'Users can find the access conditions for a dataset','Publishers can find the contact details for a dataset.')
     fd.deliberate(store,run['run_id'],Habits(plans,checker))
     saved,case=sound(store,run)
     assert case['stop_reason']=='bounded_fa_dialogue_complete'
@@ -254,8 +255,20 @@ def test_quotations_that_differ_only_in_whitespace_or_hyphenation_are_applied_wi
     assert len(new)==3 and all(r['verification']['status']=='pass' for r in new)
     for r in new:
         link=r['evidence_links'][0];assert '\n' in link['quote'] and content[link['quote_start']:link['quote_start']+len(link['quote'])]==link['quote']
+    assert sorted(r['action_id'] for o in rows.values() for r in o['citation_repairs'])==['A1','A2.1','A2.2']
     # The outcome rows keep the quotations as the mediator wrote them.
-    assert rows['A1']['evidence_links'][0]['quote']==ACCESS
+    assert rows['A1']['evidence_links'][0]['quote']==access
+
+
+def test_a_split_with_one_new_need_whose_quotation_leaves_text_out_stays_blocked(wrapped):
+    store,run=opted_in(wrapped)
+    plans=quoting(ACCESS,'Users can find the access conditions for a dataset','Publishers can find ... for a dataset.')
+    fd.deliberate(store,run['run_id'],Habits(plans,'children'))
+    saved,case=sound(store,run)
+    rows={o['action_id']:o for o in case['mediation']['outcomes']}
+    assert rows['A1']['status']=='machine_revised' and rows['A2']['status']=='blocked_change'
+    assert rows['A2']['validation_error']=='Ambiguous or unmatched source quotation.' and not rows['A2'].get('result_revision_ids')
+    assert set(rows['A2']['parent_revision_ids'])<=set(saved['active_revision_ids']) and saved['metrics']['mediated_changes']==1
 
 
 @pytest.mark.parametrize('quote',['Users can find the access conditions ... independent format.',
