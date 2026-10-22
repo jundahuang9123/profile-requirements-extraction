@@ -22,7 +22,7 @@ ROUTING_POLICY = 'rq1-needs-routing-v3'
 # Routing runs after needs processing, so a run saved under an earlier routing policy keeps it.
 EARLIER_ROUTING_POLICIES = ('rq1-needs-routing-v2',)
 POLICIES = {'generation_recovery': 'rq1-needs-row-recovery-v2', 'source_check': 'rq1-original-source-v2.2', 'proposal_support': 'rq1-proposal-support-v1', 'grouping': 'rq1-need-semantic-grouping-v2',
-            'need_statement': 'rq1-need-statement-v2', 'need_membership': 'rq1-need-membership-v1',
+            'need_statement': 'rq1-need-statement-v3', 'need_membership': 'rq1-need-membership-v1',
             'classification': 'rq1-generic-domain-v3', 'base_search': 'rq1-base-needs-full-search-v3', 'base_gap': 'rq1-base-gap-status-v2',
             'profile_scope': 'rq1-profile-scope-v6', 'dataset_applicability': 'rq1-dataset-applicability-v2', 'dataset_categories': CATEGORY_POLICY, 'selection': SELECTION_POLICY,
             'scoping': 'rq1-use-case-contribution-v1',
@@ -281,19 +281,9 @@ def accepted_rewrite(check):
                 check.no_added_condition, check.no_added_scope))
 
 
-def aside_group(store, run, members, rewrites, rationale):
-    representative = members[0]
-    for member in members: member.lifecycle_state = 'set_aside'
-    aside_need(store,run,representative,'rewrite_rejected',rationale)
-    details = {'group_id':uid('group',run['run_id'],[r.revision_id for r in members]),
-        'member_revision_ids':[r.revision_id for r in members], 'rewrites':rewrites}
-    def audit(r):
-        item=next(a for a in r['set_aside_observations'] if a.get('need_id')==representative.requirement_id and a['reason']=='rewrite_rejected')
-        item['details']=details
-    store.mutate(run['run_id'],None,'rewrite_set_aside_audit',audit)
-
-
-def checked_rewrites(store, run, payload, answer, members, client, profile):
+def checked_rewrites(store, run, payload, answer, members, client, profile, failed):
+    """The rewrites the critic passes; a group it does not pass goes to failed as (members, rewrites,
+    rationale), which write_needs rewrites member by member or keeps (rq1-need-statement-v3)."""
     def judge(offered, written):
         groups = deepcopy(offered['groups'])
         for n in written.needs:
@@ -311,7 +301,7 @@ def checked_rewrites(store, run, payload, answer, members, client, profile):
     first, failures = judge(payload,answer)
     for n in answer.needs:
         if n.group_id in failures:
-            aside_group(store,run,members[n.group_id],[{'statement':n.statement,'critic':{'rationale':failures[n.group_id]['reason']}}], 'Rewrite critic not checked after bounded recovery.')
+            failed.append((members[n.group_id],[{'statement':n.statement,'critic':{'rationale':failures[n.group_id]['reason']}}], 'Rewrite critic not checked after bounded recovery.'))
     answer = NeedStatements(needs=[n for n in answer.needs if n.group_id not in failures])
     accepted = [n for n in answer.needs if accepted_rewrite(first[n.group_id])]
     rejected = [n for n in answer.needs if not accepted_rewrite(first[n.group_id])]
@@ -326,24 +316,57 @@ def checked_rewrites(store, run, payload, answer, members, client, profile):
     second, second_failures = judge({'groups':{n.group_id:retry_payload['groups'][n.group_id] for n in changed}},NeedStatements(needs=changed)) if changed else ({},{})
     for n in rejected:
         if n.group_id in getattr(retry,'_fallbacks',{}):
-            aside_group(store,run,members[n.group_id],[{'statement':n.statement,'critic':first[n.group_id].model_dump(mode='json')}], 'Retry writer unavailable after bounded recovery.')
+            failed.append((members[n.group_id],[{'statement':n.statement,'critic':first[n.group_id].model_dump(mode='json')}], 'Retry writer unavailable after bounded recovery.'))
     for n in retry.needs:
         # Identical rewrites reuse the original negative verdict. A new critic
         # request is made only for a genuinely changed rewrite.
         if n.group_id in second_failures:
-            aside_group(store,run,members[n.group_id],[{'statement':original[n.group_id].statement,'critic':first[n.group_id].model_dump(mode='json')},{'statement':n.statement,'critic':{'rationale':second_failures[n.group_id]['reason']}}], 'New rewrite critic not checked after bounded recovery.')
+            failed.append((members[n.group_id],[{'statement':original[n.group_id].statement,'critic':first[n.group_id].model_dump(mode='json')},{'statement':n.statement,'critic':{'rationale':second_failures[n.group_id]['reason']}}], 'New rewrite critic not checked after bounded recovery.'))
             continue
         check = second.get(n.group_id,first[n.group_id])
         if accepted_rewrite(check): accepted.append(n)
         else:
-            aside_group(store,run,members[n.group_id],[
+            failed.append((members[n.group_id],[
                 {'statement':original[n.group_id].statement,'critic':first[n.group_id].model_dump(mode='json')},
-                {'statement':n.statement,'critic':check.model_dump(mode='json')}],check.rationale)
+                {'statement':n.statement,'critic':check.model_dump(mode='json')}],check.rationale))
     return NeedStatements(needs=accepted)
 
 
-def write_needs(store, run, groups, client, profile):
+def need_record(store, run, kept, statement, condition, scope, rationale, profile, flags=()):
+    """The consolidated need of the members kept, stated as statement; the members become inactive."""
     from .engine import record_from_observation, verify
+    obligation, alternatives = obligation_summary(kept)
+    passing = [r for r in kept if (r.verification or {}).get('status') == 'pass']
+    links = {canonical(l.model_dump(mode='json')): l for r in passing for l in supporting_links(r)}
+    group_id = uid('group', run['run_id'], [r.revision_id for r in kept])
+    observation = Observation(observation_id=group_id, role_id='need_consolidation', statement=statement,
+        intent=NormalizedIntent(resource_type='Unknown', metadata_need=statement, obligation_hint=obligation),
+        scope=scope or 'Unspecified', evidence_links=list(links.values()), support_level='evidence_supported_inference',
+        rationale=rationale)
+    need = record_from_observation(run['run_id'], observation, parents=[r.revision_id for r in kept])
+    need.processing_flags = sorted({flag for r in kept for flag in r.processing_flags} | set(flags))
+    need.need_statement = statement
+    need.need_condition = condition
+    need.group_id = group_id
+    need.obligation_alternatives = alternatives if len(alternatives) > 1 else []
+    need.observation_ids = sorted({o for r in kept for o in r.observation_ids})
+    need.contributing_roles = sorted({role for r in kept for role in r.contributing_roles})
+    need.assumptions = sorted({a for r in kept for a in r.assumptions})
+    need.rq2_hints = union_hints([h for r in kept for h in collect_hints(r.raw_statement, r.evidence_links,
+        profile, r.revision_id, r.rq2_hints)])
+    refresh_need(need)
+    need.verification = verify(store, need, run['evidence_ids'])
+    if not passing:
+        need.verification.update(status='fail', parent_source_gate=False,
+            message='No member passed original-source checks; human repair is required.')
+    need.lifecycle_state = 'need_assessment_pending' if need.verification['status'] == 'pass' else 'blocked_evidence'
+    for member in kept:
+        member.group_id = group_id
+        member.lifecycle_state = 'inactive_member'
+    return need, group_id
+
+
+def write_needs(store, run, groups, client, profile):
     pending = [sorted(group, key=lambda r:r.revision_id) for group in groups]
     complete, events = [], []
     while pending:
@@ -368,14 +391,44 @@ def write_needs(store, run, groups, client, profile):
             payload = payload_for(batch)
             answer = cached_generation(store, run, 'need_statement', payload, NeedStatements, writer_system(run) + fa_writer_guidance(run),
                                        client, lambda result: statement_errors(result, payload['groups'], profile, bool(fa_writer_guidance(run))))
-            for identifier, failure in getattr(answer,'_fallbacks',{}).items():
-                aside_group(store,run,dict(batch)[identifier],[], 'Writer output unavailable: '+failure['reason'])
+            # (members, rewrites, rationale) of each group without a rewrite that passed its checks. In batch
+            # order: a replay reads the fallback rows back in sorted key order (canonical JSON), and the order
+            # of failed sets the next round's batches and the order of kept needs and events.
+            fallbacks = getattr(answer, '_fallbacks', {})
+            failed = [(members, [], 'Writer output unavailable: '+fallbacks[identifier]['reason'])
+                      for identifier, members in batch if identifier in fallbacks]
             written_ids = {n.group_id for n in answer.needs}
             critic_input = {'groups':{k:v for k,v in payload['groups'].items() if k in written_ids}}
-            answer = checked_rewrites(store, run, critic_input, answer, dict(batch), client, profile) if written_ids else answer
+            answer = checked_rewrites(store, run, critic_input, answer, dict(batch), client, profile, failed) if written_ids else answer
             members_by_group = dict(batch)
             from .fa_requirements import preserve_rewrites
-            answer=preserve_rewrites(store,run,payload,answer,members_by_group,client)
+            answer=preserve_rewrites(store,run,payload,answer,members_by_group,client,failed)
+            for members, rewrites, rationale in failed:
+                # rq1-need-statement-v3: a failed rewrite set the whole group aside (rewrite_rejected). In Stat
+                # run-6455e495 26 groups did so (37 needs, every Stat set-aside before the discussion: repeated
+                # row IDs, vocabulary terms or obligation words in the rewrite, no member marked as expressed);
+                # in JRC 11 groups (15 needs), 7 of them single needs whose rewrite moved 'shall' into the
+                # obligation field. A failed rewrite says nothing about the needs: a group is now rewritten
+                # member by member, and a single need keeps its normalised statement, flagged.
+                group_id = uid('group', run['run_id'], [r.revision_id for r in members])
+                if len(members) > 1:
+                    pending.extend([[r] for r in members])
+                    events.append({'action':'split_unwritten_group', 'policy_version':POLICIES['need_statement'], 'group_id':group_id,
+                        'inputs':[r.revision_id for r in members], 'reason':rationale, 'rewrites':rewrites})
+                    continue
+                member = members[0]
+                statement = member.need_statement or member.normalized_statement
+                text = ' '.join(statement.split()).casefold()
+                def stated(field):
+                    # As for a written need: a condition or scope only when it stands in the statement kept; the
+                    # extraction's own scope label is not source-checked.
+                    return field if field and ' '.join(field.split()).casefold() in text else ''
+                need, group_id = need_record(store, run, members, statement, stated(member.need_condition),
+                    stated(member.scope), 'Normalised statement kept unchanged: its term-free rewrite was unavailable '
+                    'or not shown to be lossless.', profile, flags=('rewrite_not_applied',))
+                complete.append(need)
+                events.append({'action':'keep_unwritten_need', 'policy_version':POLICIES['need_statement'], 'group_id':group_id,
+                    'inputs':[member.revision_id], 'outputs':[need.revision_id], 'reason':rationale, 'rewrites':rewrites})
             for written in answer.needs:
                 members = members_by_group[written.group_id]
                 included = {c.member_id for c in written.members if c.expresses_need}
@@ -402,34 +455,8 @@ def write_needs(store, run, groups, client, profile):
                 rejected = [r for r in members if r.revision_id not in included]
                 # Strictly shrinking follow-up groups cannot loop indefinitely.
                 pending.extend([[r] for r in rejected])
-                obligation, alternatives = obligation_summary(kept)
-                passing = [r for r in kept if (r.verification or {}).get('status') == 'pass']
-                links = {canonical(l.model_dump(mode='json')): l for r in passing for l in supporting_links(r)}
-                group_id = uid('group', run['run_id'], [r.revision_id for r in kept])
-                observation = Observation(observation_id=group_id, role_id='need_consolidation', statement=written.statement,
-                    intent=NormalizedIntent(resource_type='Unknown', metadata_need=written.statement, obligation_hint=obligation),
-                    scope=written.scope or 'Unspecified', evidence_links=list(links.values()), support_level='evidence_supported_inference',
-                    rationale='Term-free synthesis of source-checked proposals; independent rewrite critic passed.')
-                need = record_from_observation(run['run_id'], observation, parents=[r.revision_id for r in kept])
-                need.processing_flags = sorted({flag for r in kept for flag in r.processing_flags})
-                need.need_statement = written.statement
-                need.need_condition = written.condition
-                need.group_id = group_id
-                need.obligation_alternatives = alternatives if len(alternatives) > 1 else []
-                need.observation_ids = sorted({o for r in kept for o in r.observation_ids})
-                need.contributing_roles = sorted({role for r in kept for role in r.contributing_roles})
-                need.assumptions = sorted({a for r in kept for a in r.assumptions})
-                need.rq2_hints = union_hints([h for r in kept for h in collect_hints(r.raw_statement, r.evidence_links,
-                    profile, r.revision_id, r.rq2_hints)])
-                refresh_need(need)
-                need.verification = verify(store, need, run['evidence_ids'])
-                if not passing:
-                    need.verification.update(status='fail', parent_source_gate=False,
-                        message='No member passed original-source checks; human repair is required.')
-                need.lifecycle_state = 'need_assessment_pending' if need.verification['status'] == 'pass' else 'blocked_evidence'
-                for member in kept:
-                    member.group_id = group_id
-                    member.lifecycle_state = 'inactive_member'
+                need, group_id = need_record(store, run, kept, written.statement, written.condition, written.scope,
+                    'Term-free synthesis of source-checked proposals; independent rewrite critic passed.', profile)
                 complete.append(need)
                 events.append({'action':'merge_need', 'policy_version':POLICIES['need_statement'], 'group_id':group_id,
                     'inputs':[r.revision_id for r in kept], 'outputs':[need.revision_id],

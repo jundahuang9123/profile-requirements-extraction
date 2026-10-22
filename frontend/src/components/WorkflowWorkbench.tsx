@@ -218,7 +218,8 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
   const consolidationEvents = run?.stage_results?.consolidation?.consolidation_events ?? run?.consolidation_events ?? [];
   const mergeEvents = consolidationEvents.filter(event => event.action === 'semantic_merge');
   const mergedGroupIds = new Set(mergeEvents.map(event => event.group_id));
-  const groupIds = [...new Set(consolidationEvents.map(event => event.group_id).filter((id): id is string => Boolean(id)))];
+  // A split unwritten group (rq1-need-statement-v3) produces no need of its own: its members are listed under their own needs.
+  const groupIds = [...new Set(consolidationEvents.filter(event => event.action !== 'split_unwritten_group').map(event => event.group_id).filter((id): id is string => Boolean(id)))];
   const groupMembers = (groupId: string) => run?.requirements.filter(item => item.group_id === groupId && !item.parent_revision_ids.length) ?? [];
   const variantsFor = (item: Requirement) => currentRecords.filter(record => record.group_id && record.group_id === item.group_id);
   const setAside = run?.request?.output_form === 'needs' ? run.set_aside_observations ?? [] : run?.stage_results?.normalization?.set_aside_observations ?? run?.set_aside_observations ?? [];

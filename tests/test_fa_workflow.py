@@ -292,10 +292,13 @@ def test_lossy_rewrite_keeps_originals_visibly(setup):
             return output_model.model_validate({'checks':[{'group_id':'g','information_preserved':False,
                 'actor_preserved':True,'purpose_preserved':True,'conditions_preserved':True,
                 'obligation_preserved':True,'negation_preserved':True,'rationale':'A topic label loses specific information.'}]})
-    result=fa.preserve_rewrites(store,run,payload,answer,{'g':members},Lossy())
+    failed=[]
+    result=fa.preserve_rewrites(store,run,payload,answer,{'g':members},Lossy(),failed)
     assert not result.needs
-    assert all(m.lifecycle_state=='set_aside' for m in members)
-    assert store.get('run',run['run_id'])['set_aside_observations'][0]['details']['member_revision_ids']
+    # rq1-need-statement-v3: the members are not set aside; write_needs rewrites them one by one.
+    assert [f[0] for f in failed]==[members] and failed[0][2].startswith('Lossless rewrite not established: A topic label')
+    assert all(m.lifecycle_state!='set_aside' for m in members)
+    assert not store.get('run',run['run_id'])['set_aside_observations']
 
 
 def test_expanded_source_cannot_escape_snapshot_and_false_revision_keeps_parent(setup):
