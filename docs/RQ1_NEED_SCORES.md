@@ -15,6 +15,18 @@ It writes `<run-id>-need-scores.csv` (one row per need in rank order, every crit
 needs, the requirement flags, and with `--compare` the rank correlation of needs with the same statement in
 both runs).
 
+## Design decisions (Junda, 22 Oct 2026)
+
+| Question | Decision |
+|---|---|
+| Why more than one score | F alone ranks near-copies of source sentences highest, including statements about a policy or document rather than user needs, and ranks low a need whose only source is a single word. A second dimension keeps such cases visible. |
+| Requirement-ness (R) | Reported as flags, not as a score: in F/A runs the workflow has already filtered on it (the F/A scope check, the writer's "Users can …" wording, no catalogue-level judgement), so most needs pass. |
+| Corroboration | Counts in F (F5), but repeats add less. |
+| Needs the base already covers | Scored and labelled, so new and covered needs can be ranked separately. |
+| Specificity | A second score, S. Needs are ranked by F, then S. |
+| Criteria that cannot be judged | Left out of the mean rather than counted as 0.5. |
+| Reference requirement sets | The scores are not tuned to match them. |
+
 ## F, fidelity to the source
 
 The mean of the criteria that can be judged for the need.
