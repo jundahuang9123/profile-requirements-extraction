@@ -24,7 +24,11 @@ calling them observed proposal/evidence hints would misrepresent their origin.
 
 A **generic need** is fully served as stated by the selected base, without domain
 meaning, condition or scope. A **domain use of the base** refines a base information
-need with domain meaning, scope or conditions. A **domain need** is not covered by
+need with domain meaning, scope or conditions. The server checks that a claimed
+refinement adds a word, condition, scope or stronger obligation the matched entries do
+not state. Until `rq1-generic-domain-v3` it counted the scope placeholder `Unspecified`
+of a need without a scope as such a word, so every need without a scope passed this
+check; from `rq1-generic-domain-v4` the placeholder is ignored. A **domain need** is not covered by
 an offered base need. These are machine judgements requiring review, not facts that
 an optional base property is populated in every catalogue. A **use case** is a
 competency question, user task, stakeholder need or cross-cutting goal declared
@@ -363,7 +367,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Need writing / rewrite critic | `rq1-need-statement-v3` | At most 20 groups; 24,000 writer input characters; independent critic up to 48,000 characters; initial response plus one output correction; a failed rewrite is retried member by member, a single need keeps its statement |
 | Additional member checking | `rq1-need-membership-v1` | Large groups use a bounded writing basis (up to 20 members / 16,000 statement characters); every remaining member checked in batches up to 40 / 24,000 characters |
 | Base catalogue | `rq1-base-needs-catalogue-v2` | Frozen base-only file and checksum; optional hash-bound human phrase review |
-| Generic/domain and base search | `rq1-generic-domain-v3`, `rq1-base-needs-full-search-v3` | One need per call against the complete catalogue in chunks (first chunk 10–20 entries, then 20); a need listing several items is generic when one listed entry covers each item; a match without an entry ID counts as no match in that chunk |
+| Generic/domain and base search | `rq1-generic-domain-v4`, `rq1-base-needs-full-search-v3` | One need per call against the complete catalogue in chunks (first chunk 10–20 entries, then 20); a need listing several items is generic when one listed entry covers each item; a match without an entry ID counts as no match in that chunk |
 | Dataset categories | `rq1-dataset-categories-v1` | Up to 12 evidence rows / 22,000 input characters; exact source citations; partial scans explicit |
 | Compact selection | `rq1-compact-coverage-v1` | Up to 20 needs / 22,000 input characters per equivalence call; bounded exact cover; all retained needs preserved |
 | Base-gap status | `rq1-base-gap-status-v1` | Deterministic; from the classification and the number of entries compared |
