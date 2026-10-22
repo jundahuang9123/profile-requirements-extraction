@@ -1,8 +1,11 @@
 """Synthetic tests of the rule added in rq1-fa-dialogue-v9: no evaluation answers or live generation."""
 import pytest
 from test_routed_stakeholder_workflow import setup  # noqa: F401  (pytest fixture)
+import json
 from copy import deepcopy
-from test_fa_dialogue_v3 import Assessing, Mediator, opted_in, ids, case_of, built, kept, sourced
+from pydantic import ValidationError
+from test_fa_workflow import contract_name
+from test_fa_dialogue_v3 import Assessing, Mediator, opted_in, ids, case_of, built, kept, sourced, retain_all
 from test_fa_dialogue_v7 import link
 from test_fa_dialogue_v4 import set_aside_second_need
 from test_fa_dialogue_v8 import aside, aliases
@@ -163,3 +166,110 @@ def test_a_split_written_as_two_retains_is_applied_as_a_split(setup):
     assert row['action']=='split' and row['status']=='machine_revised' and len(row['result_revision_ids'])==2
     assert case['revision_ids'][0] not in saved['active_revision_ids'] and set(row['result_revision_ids'])<=set(saved['active_revision_ids'])
     assert all('To split a need into several, write one split action' in s for s in client.plan_systems)
+
+
+def question(rid,**extra):
+    return {'question_id':'Q1','revision_ids':[rid],'concern_ids':['c1'],'question':'Which wording?','alternatives':['Keep it'],
+        'rationale':'Open point.',**extra}
+
+
+def test_a_question_without_alternatives_or_concerns_is_corrected_and_only_it_is_dropped(setup):
+    case,(n1,n2),messages,allowed=built(setup)
+    broken=question(n1,concern_ids=[],alternatives=[])
+    with pytest.raises(ValidationError):fd.Plan.model_validate(kept([n1,n2],questions=[broken]))
+    plan=fd.ExperiencePlan.model_validate(kept([n1,n2],concerns=[],questions=[broken]))
+    errors=fd.plan_errors(plan,case,messages,allowed)
+    assert {'A question lists the concerns it asks about.','A question offers at least one alternative.'}<=set(errors)
+    notes=fd.plan_feedback(plan,case,messages,allowed)
+    assert 'Question Q1 offers no alternative: list the options a person chooses between.' in notes
+    assert any(n.startswith('Question Q1 lists no concern') for n in notes)
+    salvaged,audit=fd.salvage_plan(plan,case,messages,allowed)
+    assert salvaged.questions==[] and audit['dropped_question_ids']==['Q1'] and fd.plan_errors(salvaged,case,messages,allowed)==[]
+    assert [a.action for a in salvaged.actions]==['retain','retain']
+    # A question that lists its concern but offers no alternative is dropped as well.
+    plan=fd.ExperiencePlan.model_validate(kept([n1,n2],concerns=[],questions=[question(n1,alternatives=[])]))
+    assert fd.plan_errors(plan,case,messages,allowed)==['A question offers at least one alternative.']
+    salvaged,audit=fd.salvage_plan(plan,case,messages,allowed)
+    assert salvaged.questions==[] and fd.plan_errors(salvaged,case,messages,allowed)==[]
+    assert 'A question names the needs it asks about.' in fd.plan_errors(
+        fd.ExperiencePlan.model_validate(kept([n1,n2],concerns=[],questions=[question(n1,revision_ids=[])])),case,messages,allowed)
+
+
+def children(case,count,ids=True):
+    return [{**({'action_id':f'A2{chr(97+k)}'} if ids else {}),'statement':f'Users can find part {k+1} of the access conditions.',
+        'evidence_links':[link(case)],'rationale':'One part.'} for k in range(count)]
+
+
+def test_a_split_of_more_than_four_new_needs_fails_only_its_action(setup):
+    case,(n1,n2),messages,allowed=built(setup)
+    data=kept([n1,n2],concerns=[]);data['actions'][1]={'action_id':'A2','action':'split','parent_revision_ids':[n2],
+        'rationale':'Five parts.','children':children(case,5)}
+    with pytest.raises(ValidationError):fd.Plan.model_validate(data)
+    plan=fd.ExperiencePlan.model_validate(data)
+    assert 'A split names at most four new needs.' in fd.plan_errors(plan,case,messages,allowed)
+    salvaged,audit=fd.salvage_plan(plan,case,messages,allowed)
+    assert [(a.action_id,a.action) for a in salvaged.actions]==[('A1','retain'),('salvage-1','defer')]
+    assert 'A split names at most four new needs.' in audit['dropped_actions'][0]['problems']
+
+
+def test_split_children_without_ids_get_them(setup):
+    case,(n1,n2),messages,allowed=built(setup)
+    data=kept([n1,n2],concerns=[]);data['actions'][1]={'action_id':'A2','action':'split','parent_revision_ids':[n2],
+        'rationale':'Two parts.','children':[*children(case,1,ids=False),{**children(case,2)[1],'action_id':'A2.1'},*children(case,1,ids=False)]}
+    with pytest.raises(ValidationError):fd.Plan.model_validate(data)
+    plan=fd.ExperiencePlan.model_validate(data)
+    assert 'Every split child needs an action_id.' in fd.plan_errors(plan,case,messages,allowed)
+    fixed,repairs=fd.repair_plan(plan,case,messages)
+    assert [c.action_id for c in fixed.actions[1].children]==['A2.2','A2.1','A2.3'] and fd.plan_errors(fixed,case,messages,allowed)==[]
+    assert repairs==[{'kind':'split_child_ids_given','action_id':'A2','child_ids':['A2.2','A2.3']}]
+
+
+def test_a_split_with_unnamed_children_is_applied(setup):
+    store,run=opted_in(setup)
+    def plans(data,*_):
+        needs,_=ids(data);cited=sourced(data)
+        return {'actions':[{'action_id':'A1','action':'retain','parent_revision_ids':[needs[0]],'rationale':'Kept.'},
+            {'action_id':'A2','action':'split','parent_revision_ids':[needs[1]],'rationale':'Two parts.','children':[
+                {'statement':LICENCE,'evidence_links':cited,'rationale':'Part one.'},{'statement':HOLDER,'evidence_links':cited,'rationale':'Part two.'}]}],
+            'concerns':[],'questions':[],'summary':'Split.'}
+    fd.deliberate(store,run['run_id'],Assessing(plans))
+    saved,case=case_of(store,run)
+    row=next(o for o in case['mediation']['outcomes'] if o['action_id']=='A2')
+    assert case['stop_reason']=='bounded_fa_dialogue_complete' and row['status']=='machine_revised' and len(row['result_revision_ids'])==2
+    assert [c['action_id'] for c in row['children']]==['A2.1','A2.2']
+
+
+class Mistyped(Assessing):
+    """The first role's initial review holds a concern of a claim kind in every attempt."""
+    def __init__(self,plans):super().__init__(plans);self.first=None
+    def generate_structured(self,*,user,output_model,system='',step=None,**kw):
+        answer=super().generate_structured(user=user,output_model=output_model,system=system,step=step,**kw)
+        data=json.loads(user)
+        if contract_name(output_model)!='Review' or data.get('draft'):return answer
+        self.first=self.first or data['role']['id']
+        if data['role']['id']!=self.first:return answer
+        need=data['packet']['needs'][0]['revision_id']
+        return output_model.model_validate({**answer.model_dump(mode='json'),'concerns':[
+            {'revision_ids':[need],'kind':'split','statement':'It holds two needs.','evidence_ids':[]},
+            {'revision_ids':[need],'kind':'scope','statement':'The condition is missing.','evidence_ids':data['packet']['excerpts'][0]['evidence_id']}]})
+
+
+def test_a_concern_of_an_unknown_kind_is_corrected_then_left_out(setup):
+    store,run=opted_in(setup);client=Mistyped(retain_all);fd.deliberate(store,run['run_id'],client)
+    saved,case=case_of(store,run)
+    assert case['stop_reason']=='bounded_fa_dialogue_complete'
+    first,last=case['discussion_trace']['phases']['initial:'+client.first]['attempts']
+    assert any(e.startswith('Concern 1: it is split, but a concern is satisfied') for e in first['errors'])
+    assert last['errors']==[] and [r['index'] for r in last['concerns_removed']]==[0]
+    message=next(m for m in case['messages'] if m['role_id']==client.first and m['round']==1)
+    # The other concern stays, with its one evidence ID read as a list.
+    assert [(c['kind'],len(c['evidence_ids'])) for c in message['concerns']]==[('scope',1)]
+
+
+def test_the_legacy_contracts_still_refuse_what_v9_corrects():
+    concern={'revision_ids':['n1'],'kind':'split','statement':'x','evidence_ids':[]}
+    with pytest.raises(ValidationError):fd.Review(summary='s',concerns=[concern])
+    with pytest.raises(ValidationError):fd.Review(summary='s',concerns=[{**concern,'kind':'scope','evidence_ids':'E1'}])
+    assert fd.ExperienceReview(summary='s',concerns=[{**concern,'kind':'scope','evidence_ids':'E1'}]).concerns[0].evidence_ids==['E1']
+    schema=fd.ExperiencePlan.model_json_schema()['$defs']
+    assert schema['ReviewQuestion']['properties']['alternatives']['minItems']==1 and schema['ExperienceAction']['properties']['children']['maxItems']==4

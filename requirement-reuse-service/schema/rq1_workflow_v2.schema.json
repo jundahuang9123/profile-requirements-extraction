@@ -1894,7 +1894,7 @@
         },
         "children": {
           "items": {
-            "$ref": "#/$defs/AdditionalNeedAction"
+            "$ref": "#/$defs/SplitChild"
           },
           "maxItems": 4,
           "title": "Children",
@@ -2172,7 +2172,7 @@
         },
         "questions": {
           "items": {
-            "$ref": "#/$defs/HumanReviewQuestion"
+            "$ref": "#/$defs/ReviewQuestion"
           },
           "maxItems": 32,
           "title": "Questions",
@@ -2247,7 +2247,7 @@
       "properties": {
         "concerns": {
           "items": {
-            "$ref": "#/$defs/Concern"
+            "$ref": "#/$defs/ReviewConcern"
           },
           "maxItems": 8,
           "title": "Concerns",
@@ -4444,6 +4444,125 @@
       "title": "Review",
       "type": "object"
     },
+    "ReviewConcern": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 12,
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "kind": {
+          "enum": [
+            "satisfied",
+            "support",
+            "overlap",
+            "interference",
+            "missing_evidence",
+            "scope"
+          ],
+          "maxLength": 40,
+          "minLength": 1,
+          "title": "Kind",
+          "type": "string"
+        },
+        "proposed_statement": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Proposed Statement"
+        },
+        "revision_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Revision Ids",
+          "type": "array"
+        },
+        "statement": {
+          "maxLength": 1200,
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "revision_ids",
+        "kind",
+        "statement"
+      ],
+      "title": "ReviewConcern",
+      "type": "object"
+    },
+    "ReviewQuestion": {
+      "additionalProperties": false,
+      "properties": {
+        "alternatives": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 6,
+          "minItems": 1,
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "concern_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 64,
+          "minItems": 1,
+          "title": "Concern Ids",
+          "type": "array"
+        },
+        "question": {
+          "maxLength": 1600,
+          "minLength": 1,
+          "title": "Question",
+          "type": "string"
+        },
+        "question_id": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Question Id",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 1600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "revision_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Revision Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "question_id",
+        "question",
+        "rationale"
+      ],
+      "title": "ReviewQuestion",
+      "type": "object"
+    },
     "RevisionDraft": {
       "additionalProperties": false,
       "properties": {
@@ -5561,6 +5680,110 @@
         "base_property"
       ],
       "title": "SpanObservation",
+      "type": "object"
+    },
+    "SplitChild": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "add",
+          "default": "add",
+          "title": "Action",
+          "type": "string"
+        },
+        "action_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Action Id"
+        },
+        "alternatives": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 6,
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "condition": {
+          "default": "",
+          "maxLength": 1200,
+          "title": "Condition",
+          "type": "string"
+        },
+        "evidence_links": {
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          },
+          "maxItems": 24,
+          "title": "Evidence Links",
+          "type": "array"
+        },
+        "human_question": {
+          "anyOf": [
+            {
+              "maxLength": 1600,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Human Question"
+        },
+        "parent_revision_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 0,
+          "title": "Parent Revision Ids",
+          "type": "array"
+        },
+        "priority_basis": {
+          "anyOf": [
+            {
+              "maxLength": 1200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Priority Basis"
+        },
+        "priority_links": {
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          },
+          "maxItems": 4,
+          "title": "Priority Links",
+          "type": "array"
+        },
+        "rationale": {
+          "maxLength": 1600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "statement": {
+          "default": "",
+          "maxLength": 2000,
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rationale"
+      ],
+      "title": "SplitChild",
       "type": "object"
     },
     "StakeholderPanel": {

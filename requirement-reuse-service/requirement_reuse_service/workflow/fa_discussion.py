@@ -4,7 +4,7 @@ from copy import deepcopy
 from time import monotonic
 from typing import Literal
 import re
-from pydantic import Field
+from pydantic import Field, field_validator
 from . import stakeholder_workflow as old
 from .models import Contract, DeliberationCase, RequirementRecord
 from .storage import canonical, digest, now, uid, ConflictError
@@ -223,9 +223,38 @@ class ExperienceClaim(Contract):
     proposed_statement: str | None = Field(default=None,max_length=600,description='The missing need, for missing_need.')
     query: str | None = Field(default=None,max_length=200,description='Words to search the frozen sources for support.')
 
+# v9: the concern, question and split-child contracts come from the routed workflow (18 Oct 2026)
+# and every discussion version reused them. A part that broke them failed the whole answer as a
+# schema error, before any correction or salvage could keep the rest: in the v8 trials 5 cases
+# ended so (JRC run-0ebfaffd: review questions without alternatives, a concern of an unknown kind;
+# Stat run-c4cbca44: a split of more than four new needs with a question listing no concern, new
+# needs without IDs, evidence_ids written as one string). The schema still shows each rule, and
+# the current protocol parses the broken part instead: a concern of an unknown kind gets one
+# correction and is then left out (concern_problems); a broken question or split gets one
+# correction, and salvage drops only it; a missing child ID is given (repair_plan). The legacy
+# Review and Plan keep the routed contracts.
+CONCERN_KINDS=('satisfied','support','overlap','interference','missing_evidence','scope')
+
+class ReviewConcern(old.Concern):
+    kind: str = Field(min_length=1,max_length=40,json_schema_extra={'enum':list(CONCERN_KINDS)})
+
+    @field_validator('evidence_ids',mode='before')
+    @classmethod
+    def one_id_as_list(cls,value):
+        return [value] if isinstance(value,str) else value
+
+class ReviewQuestion(old.HumanReviewQuestion):
+    revision_ids: list[str] = Field(default_factory=list,max_length=4,json_schema_extra={'minItems':1})
+    concern_ids: list[str] = Field(default_factory=list,max_length=64,json_schema_extra={'minItems':1})
+    alternatives: list[str] = Field(default_factory=list,max_length=6,json_schema_extra={'minItems':1})
+
+class SplitChild(old.AdditionalNeedAction):
+    action_id: str | None = None
+
 # The docstring is the schema description the roles read. v6 and v7 allowed two claims, keep among them.
 class ExperienceReview(Review):
     """Stakeholder review: source-backed concerns plus at most one experience claim, which proposes a change."""
+    concerns: list[ReviewConcern] = Field(default_factory=list,max_length=8)
     experience: list[ExperienceClaim] = Field(default_factory=list,max_length=4,json_schema_extra={'maxItems':1},
         description='At most one claim, proposing a change.')
 
@@ -239,6 +268,7 @@ class ExperienceAction(Action):
         'lacking the need is none of these.')
     duplicate_of: str | None = Field(default=None,max_length=80,description='For reason duplicate: the need N of this case '
         'that this need repeats, from the same sources; the plan retains, covers or defers it as it is.')
+    children: list[SplitChild] = Field(default_factory=list,max_length=8,json_schema_extra={'maxItems':4})
 
 class ExperienceDecision(Contract):
     claim_id: str
@@ -256,6 +286,7 @@ class ExperiencePlan(Plan):
     """v6 plan: need dispositions, a decision on every experience claim, and needs proposed from
     experience alone, which are never applied."""
     actions: list[ExperienceAction] = Field(min_length=1,max_length=12)
+    questions: list[ReviewQuestion] = Field(default_factory=list,max_length=32)
     # One claim per review in each of the two rounds (two up to v7): 64 covers 32 roles (panels
     # select at most 8; a manual panel may name more).
     experience: list[ExperienceDecision] = Field(default_factory=list,max_length=64)
@@ -310,8 +341,9 @@ def repair_plan(plan,case,messages):
     And in v8:
     8. a set-aside reason or duplicate_of on an action other than a set_aside has no effect,
        and is cleared. A set_aside without its reason is never given one.
-    And in v9 (see repair_v9):
-    9. several actions that each give one need its own sourced statement are one split of it.
+    And in v9 (see repair_v9 and name_children):
+    9. several actions that each give one need its own sourced statement are one split of it;
+    10. a split child without an ID gets one.
     Anything else, including unclear parents or missing alternatives, stays invalid: an
     action that names no need is never guessed onto one, and a parentless action with
     content goes to correction and, if it stays, to review.
@@ -383,8 +415,24 @@ def repair_plan(plan,case,messages):
                 repairs.append({'kind':'set_aside_fields_cleared','action_id':a['action_id'],'action':a['action'],
                     **{k:a[k] for k in stray}})
                 a.update(dict.fromkeys(stray))
-        repairs+=repair_v9(data,case['frozen_requirements'])
+        repairs+=name_children(data)+repair_v9(data,case['frozen_requirements'])
     return type(plan).model_validate(data),repairs
+
+
+def name_children(data):
+    """Repair 10 of repair_plan (v9), in place: a split child without an ID gets the next free
+    "<action ID>.<n>"; an ID is bookkeeping, and the routed contract refused the whole plan."""
+    repairs=[];taken={a['action_id'] for a in data['actions']}|{c['action_id'] for a in data['actions']
+        for c in a.get('children') or [] if c.get('action_id')}
+    for a in data['actions']:
+        given=[]
+        for c in a.get('children') or []:
+            if c.get('action_id'):continue
+            i=1
+            while f"{a['action_id']}.{i}" in taken:i+=1
+            c['action_id']=f"{a['action_id']}.{i}";taken.add(c['action_id']);given.append(c['action_id'])
+        if given:repairs.append({'kind':'split_child_ids_given','action_id':a['action_id'],'child_ids':given})
+    return repairs
 
 
 def repair_v9(data,records):
@@ -500,6 +548,11 @@ def experience_plan_errors(plan,case,messages):
     for p in plan.proposals:
         if set(p.experience_ids)-admitted:errors.append('A proposal needs admitted experience claims.')
         if set(p.revision_ids)-set(case['revision_ids']):errors.append('A proposal names a need outside this case.')
+    # v9: what the routed question contract refused when parsing.
+    for q in plan.questions:
+        if not q.revision_ids:errors.append('A question names the needs it asks about.')
+        if not q.concern_ids:errors.append('A question lists the concerns it asks about.')
+        if not q.alternatives:errors.append('A question offers at least one alternative.')
     # v8: the need a duplicate repeats stays as it is, so two needs cannot set each other aside.
     if unkept_duplicates(plan):errors.append('A duplicate set_aside needs the need it repeats retained, covered_by_base or deferred as it is.')
     return errors
@@ -529,6 +582,8 @@ def plan_errors(plan,case,messages,allowed):
         if own and (not a.statement.strip() or not a.evidence_links):
             errors.append('Recovery/split requires source-supported statement and links.')
         if a.action=='split' and len(a.children)<2: errors.append('Split requires at least two supported children.')
+        if len(a.children)>4:errors.append('A split names at most four new needs.')
+        if any(c.action_id is None for c in a.children):errors.append('Every split child needs an action_id.')
         if len({c.action_id for c in a.children})!=len(a.children):errors.append('Split child action IDs must be unique.')
         if a.action!='split' and a.children: errors.append('Children belong only to split actions.')
         if a.action in {'set_aside','covered_by_base','recover','split'} and len(a.parent_revision_ids)!=1:
@@ -681,6 +736,11 @@ def plan_feedback(plan,case,messages,allowed):
     notes+=[f'Question ID {i} is used {c} times; question IDs must be unique.' for i,c in Counter(q.question_id for q in plan.questions).items() if c>1]
     for q in plan.questions:
         repeated('Question',q.question_id,q,('revision_ids','concern_ids'))
+        # v9: the routed question contract refused these when parsing.
+        if not q.revision_ids:notes.append(f'Question {q.question_id} names no need: list the needs N it asks about in revision_ids.')
+        if not q.concern_ids:notes.append(f'Question {q.question_id} lists no concern: list the concerns C it asks about in '
+            'concern_ids, or leave the question out.')
+        if not q.alternatives:notes.append(f'Question {q.question_id} offers no alternative: list the options a person chooses between.')
         bad=[r for r in q.revision_ids if r not in needs]
         if bad:notes.append(f'Question {q.question_id} lists {", ".join(bad)} in revision_ids; list only need IDs there.')
         bad=[c for c in q.concern_ids if c not in concerns]
@@ -781,7 +841,7 @@ def salvage_plan(plan,case,messages,allowed):
     saved=[c for m in messages for c in m.get('concerns',[])];concern_ids=[c['concern_id'] for c in saved]
     by_action={a['action_id']:a for a in kept}
     counts=Counter(q['question_id'] for q in data['questions'])
-    questions={q['question_id']:q for q in data['questions'] if counts[q['question_id']]==1
+    questions={q['question_id']:q for q in data['questions'] if counts[q['question_id']]==1 and q['revision_ids'] and q['alternatives']
         and len(set(q['revision_ids']))==len(q['revision_ids']) and set(q['revision_ids'])<=set(needs)
         and len(set(q['concern_ids']))==len(q['concern_ids']) and set(q['concern_ids'])<=set(concern_ids)}
     stated={}
@@ -907,6 +967,17 @@ def experience_errors(answer,case):
     return [f'Experience claim {i+1}: {p}' for i,p in experience_problems(answer,list(case['revision_ids']))]
 
 
+def concern_problems(answer):
+    """v9: concerns of a kind outside CONCERN_KINDS, as (index, sentence); the routed Review has none."""
+    return [(i,f'it is {c.kind}, but a concern is satisfied, support, overlap, interference, missing_evidence or scope; '
+        'a change you propose from your practice is an experience claim.') for i,c in enumerate(getattr(answer,'concerns',[]))
+        if c.kind not in CONCERN_KINDS]
+
+
+def concern_errors(answer):
+    return [f'Concern {i+1}: {p}' for i,p in concern_problems(answer)]
+
+
 def review_feedback(answer,case,allowed):
     """Correction sentences that name the valid IDs.
 
@@ -925,6 +996,7 @@ def review_feedback(answer,case,allowed):
         bad=list(dict.fromkeys(e for e in concern.evidence_ids if e not in allowed))
         if bad:notes.append(f'Concern {i+1} cites {", ".join(bad)}, but the excerpts of this packet are only {excerpts}.')
     notes+=[f'Experience claim {i+1}: {problem}' for i,problem in experience_problems(answer,needs)]
+    notes+=concern_errors(answer)
     return notes or None
 
 
@@ -1379,14 +1451,18 @@ def execute_case(store,run_id,case_id,client,roles):
             errors=validate(answer) if validate else []
             if errors and v6 and step=='stakeholder_review' and len(saved['attempts'])==1:
                 # Last attempt: experience claims that stay invalid are left out, so an optional
-                # claim cannot take the role's source-backed concerns, and the case, with it.
+                # claim cannot take the role's source-backed concerns, and the case, with it. v9:
+                # so is a concern of an unknown kind, which the routed contract refused outright.
                 problems=experience_problems(answer,list(case['revision_ids']))
-                removed=sorted({i for i,_ in problems})
-                kept=answer.model_copy(update={'experience':[x for i,x in enumerate(answer.experience) if i not in removed]})
-                if removed and not validate(kept):
+                removed=sorted({i for i,_ in problems});wrong=concern_problems(answer);dropped=sorted({i for i,_ in wrong})
+                kept=answer.model_copy(update={'experience':[x for i,x in enumerate(answer.experience) if i not in removed],
+                    'concerns':[c for i,c in enumerate(answer.concerns) if i not in dropped]})
+                if (removed or dropped) and not validate(kept):
                     attempt.setdefault('model_output',answer.model_dump(mode='json'))
                     attempt.update(rejected_errors=errors,experience_removed=[{'index':i,'claim':answer.experience[i].model_dump(mode='json'),
                         'problems':[p for j,p in problems if j==i]} for i in removed])
+                    if dropped:attempt['concerns_removed']=[{'index':i,'concern':answer.concerns[i].model_dump(mode='json'),
+                        'problems':[p for j,p in wrong if j==i]} for i in dropped]
                     answer,errors=kept,[]
             attempt={'output':answer.model_dump(mode='json'),'errors':errors,**attempt}
             if errors and policy==BASE_POLICY:attempt['feedback']=(explain(answer) if explain else None) or errors
@@ -1415,7 +1491,7 @@ def execute_case(store,run_id,case_id,client,roles):
         return deepcopy(row)
     messages=[]
     role_map={r['id']:r for r in roles}
-    review_errors=lambda a:old.stakeholder_review_errors(a,case,allowed)+experience_errors(a,case)
+    review_errors=lambda a:old.stakeholder_review_errors(a,case,allowed)+experience_errors(a,case)+concern_errors(a)
     for role_id in case['participants']:
         # Independent positions: never include earlier roles' answers.
         answer=call('initial:'+role_id,'stakeholder_review',review_model,WRITE_GUIDANCE+

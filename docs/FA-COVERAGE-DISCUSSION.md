@@ -620,6 +620,24 @@ first action's ID; concern links follow. A set-aside or other disposition beside
 them, a statement without sources, repeated wording or a labelled need stays
 invalid, and a sourced add beside an unchanged retain stays an addition (v7).
 
+**Broken parts no longer fail a whole answer.** The concern, review-question and
+split-child contracts come from the routed workflow (18 October) and every
+discussion version reused them unchanged. An answer that broke one of them failed
+as a schema error, before correction or salvage could keep the rest; in the v8
+trials 5 cases ended so (questions without alternatives or without concerns, a
+split of more than four new needs, new needs without IDs, a concern of an unknown
+kind, evidence IDs written as one string). v9 has its own copies of these
+contracts: the schema still shows each rule, but the answer is read, and
+
+- a concern of an unknown kind gets one correction and is then left out of the
+  review (audited), like a broken experience claim; one evidence ID written as a
+  string is read as a list;
+- a question without needs, concerns or alternatives, and a split of more than
+  four new needs, get one correction; if they stay, salvage drops only them;
+- a split child without an ID gets the next free one (audited).
+
+The legacy v1 protocol keeps the routed contracts.
+
 A discussion planned under v8 cannot continue under v9. This is tested offline
 only.
 
