@@ -23,8 +23,9 @@ def caps(client,*names):
 
 
 def test_policy_names():
-    assert fd.BASE_POLICY=='rq1-fa-dialogue-v7' and br.POLICY=='rq1-base-expert-v5'
-    assert fd.BASE_POLICIES=={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5','rq1-fa-dialogue-v6','rq1-fa-dialogue-v7'}
+    assert fd.BASE_POLICY=='rq1-fa-dialogue-v8' and br.POLICY=='rq1-base-expert-v5'
+    assert fd.BASE_POLICIES=={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5','rq1-fa-dialogue-v6','rq1-fa-dialogue-v7',
+        'rq1-fa-dialogue-v8'}
 
 
 def test_stakeholders_get_the_concern_rules_and_plans_start_at_8000_tokens(setup):
@@ -191,7 +192,8 @@ def set_aside_plan(pick):
     def plans(data,*_):
         needs,concerns=ids(data);target=pick(data['packet']['needs'])
         actions=[{'action_id':f'A{i+1}','action':'set_aside' if n==target else 'retain','parent_revision_ids':[n],
-            'rationale':'Not a find or access need.' if n==target else 'Kept.','human_question':'Restore it?' if n==target else None}
+            'rationale':'Not a find or access need.' if n==target else 'Kept.','human_question':'Restore it?' if n==target else None,
+            'reason':'not_find_or_access' if n==target else None}
             for i,n in enumerate(needs)]
         kept=next(a['action_id'] for a in actions if a['action']=='retain')
         return {'actions':actions,'questions':[],'summary':'Plan.',

@@ -1117,6 +1117,82 @@
       "title": "DecisionRequest",
       "type": "object"
     },
+    "DefinedCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "action_id": {
+          "title": "Action Id",
+          "type": "string"
+        },
+        "condition_supported": {
+          "description": "For an action that writes a statement (revise, merge, resolve, split, recover, add): false only when the statement or its condition states a condition its cited sources do not support; a statement without a condition has none to support. For retain, covered_by_base, defer and set_aside, which write no statement: true.",
+          "title": "Condition Supported",
+          "type": "boolean"
+        },
+        "disposition_justified": {
+          "title": "Disposition Justified",
+          "type": "boolean"
+        },
+        "fa_relevant": {
+          "title": "Fa Relevant",
+          "type": "boolean"
+        },
+        "obligation_preserved": {
+          "description": "For an action that writes a statement: false only when the statement drops, weakens, strengthens or adds an obligation (must, should, may) against its cited sources; when the sources state none and the statement adds none, it is preserved. For retain, covered_by_base, defer and set_aside: true.",
+          "title": "Obligation Preserved",
+          "type": "boolean"
+        },
+        "preserves_distinctions": {
+          "title": "Preserves Distinctions",
+          "type": "boolean"
+        },
+        "priority_supported": {
+          "title": "Priority Supported",
+          "type": "boolean"
+        },
+        "rationale": {
+          "maxLength": 1600,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "supported": {
+          "title": "Supported",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "action_id",
+        "supported",
+        "preserves_distinctions",
+        "priority_supported",
+        "condition_supported",
+        "obligation_preserved",
+        "rationale",
+        "fa_relevant",
+        "disposition_justified"
+      ],
+      "title": "DefinedCheck",
+      "type": "object"
+    },
+    "DefinedChecks": {
+      "additionalProperties": false,
+      "properties": {
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/DefinedCheck"
+          },
+          "maxItems": 12,
+          "title": "Checks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "checks"
+      ],
+      "title": "DefinedChecks",
+      "type": "object"
+    },
     "DeliberationCase": {
       "additionalProperties": false,
       "properties": {
@@ -1830,6 +1906,20 @@
           "title": "Condition",
           "type": "string"
         },
+        "duplicate_of": {
+          "anyOf": [
+            {
+              "maxLength": 80,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "For reason duplicate: the need N of this case that this need repeats, from the same sources; the plan retains, covers or defers it as it is.",
+          "title": "Duplicate Of"
+        },
         "evidence_links": {
           "items": {
             "$ref": "#/$defs/EvidenceLink"
@@ -1896,6 +1986,25 @@
           "title": "Rationale",
           "type": "string"
         },
+        "reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "not_find_or_access",
+                "statement_about_sources",
+                "duplicate",
+                "contradicted_by_source"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "set_aside only, and required there unless the need is set aside already: why the need is set aside. A missing obligation or scope, thin evidence or the base lacking the need is none of these.",
+          "title": "Reason"
+        },
         "statement": {
           "default": "",
           "maxLength": 2000,
@@ -1930,12 +2039,13 @@
         },
         "kind": {
           "enum": [
-            "keep",
             "merge",
             "split",
             "drop",
             "missing_need"
           ],
+          "maxLength": 40,
+          "minLength": 1,
           "title": "Kind",
           "type": "string"
         },
@@ -2133,7 +2243,7 @@
     },
     "ExperienceReview": {
       "additionalProperties": false,
-      "description": "v6 stakeholder review: source-backed concerns plus at most two experience claims.",
+      "description": "Stakeholder review: source-backed concerns plus at most one experience claim, which proposes a change.",
       "properties": {
         "concerns": {
           "items": {
@@ -2152,10 +2262,11 @@
           "type": "array"
         },
         "experience": {
+          "description": "At most one claim, proposing a change.",
           "items": {
             "$ref": "#/$defs/ExperienceClaim"
           },
-          "maxItems": 2,
+          "maxItems": 1,
           "title": "Experience",
           "type": "array"
         },

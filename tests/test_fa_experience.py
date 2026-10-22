@@ -1,4 +1,5 @@
-"""Synthetic tests of the experience claims and noted concerns added in rq1-fa-dialogue-v6 (kept in v7): no evaluation answers or live generation."""
+"""Synthetic tests of the experience claims and noted concerns added in rq1-fa-dialogue-v6 (kept in v7; from v8 a
+review holds at most one claim, which proposes a change): no evaluation answers or live generation."""
 import json
 import pytest
 from test_routed_stakeholder_workflow import setup  # noqa: F401  (pytest fixture)
@@ -21,13 +22,14 @@ class Experienced(Mediator):
 
 
 def first_role_claims(roles):
-    """Two initial claims of the first role to speak: drop N2, and a need the case lacks."""
+    """One initial claim from each of the first two roles to speak: drop N2, and a need the case lacks."""
     def claims(data,role):
         roles.append(role)
-        if role!=roles[0] or data.get('draft'):return []
-        return [{'kind':'drop','revision_ids':['N2'],'task':'Publish datasets of the unit','experience':'When I publish a dataset, '
-                 'nobody asks me for this detail.','claim':'N2 is not needed in practice.','query':'publisher detail request'},
-                {'kind':'missing_need','revision_ids':['N1'],'task':'Publish datasets of the unit','experience':'When I publish a '
+        if data.get('draft') or len(roles)>2:return []
+        if len(roles)==1:
+            return [{'kind':'drop','revision_ids':['N2'],'task':'Publish datasets of the unit','experience':'When I publish a dataset, '
+                 'nobody asks me for this detail.','claim':'N2 is not needed in practice.','query':'publisher detail request'}]
+        return [{'kind':'missing_need','revision_ids':['N1'],'task':'Publish datasets of the unit','experience':'When I publish a '
                  'dataset, users ask me how often it is updated.','claim':'A need is missing.',
                  'proposed_statement':'Users can find how often a dataset is updated.'}]
     return claims
@@ -38,7 +40,7 @@ def decide(data,*_):
     needs,_=ids(data)
     return {'actions':[{'action_id':'A1','action':'retain','parent_revision_ids':[needs[0]],'rationale':'Kept.'},
             {'action_id':'A2','action':'set_aside','parent_revision_ids':[needs[1]],'rationale':'Publishers report no use.',
-             'human_question':'Restore it if a source shows the need?','experience_ids':['X1']}],
+             'human_question':'Restore it if a source shows the need?','experience_ids':['X1'],'reason':'not_find_or_access'}],
         'experience':[{'claim_id':'X1','decision':'admit','rationale':'Fits the publishing task of this case.'},
             {'claim_id':'X2','decision':'admit','rationale':'Fits the publishing task.'}],
         'proposals':[{'proposal_id':'P1','statement':'Users can find how often a dataset is updated.','experience_ids':['X2'],
@@ -61,7 +63,7 @@ def test_experience_is_admitted_noted_and_kept_apart_from_sources(setup):
     # A need proposed from experience alone is a review row, never applied.
     proposal=outcomes['P1']
     assert proposal['status']=='experience_proposal' and not proposal['applied'] and not proposal['human_accepted']
-    assert proposal['role_ids']==[roles[0]] and proposal['related_revision_ids']==[n1] and proposal['parent_revision_ids']==[]
+    assert proposal['role_ids']==[roles[1]] and proposal['related_revision_ids']==[n1] and proposal['parent_revision_ids']==[]
     assert len(saved['requirements'])==len(run['requirements']) and saved['active_revision_ids']==[n1]
     # The set-aside says which admitted claim it rests on.
     assert saved['set_aside_observations'][-1]['revision_id']==n2 and saved['set_aside_observations'][-1]['experience_ids']==[claims[0]['claim_id']]
@@ -95,18 +97,17 @@ def test_experience_queries_are_searched_in_turn_across_roles(setup,monkeypatch)
     def claims(data,role):
         roles.append(role)
         if data.get('draft'):return []
-        names=['ax'] if role==roles[0] else ['bx1','bx2']
-        return [{'kind':'keep','revision_ids':['N1'],'task':'Find data','experience':'When I search, I use this.','claim':'Keep N1.',
-                 'query':q} for q in names]
+        return [{'kind':'split','revision_ids':['N1'],'task':'Find data','experience':'When I search, I filter by each part.',
+                 'claim':'N1 holds two needs.','query':'ax' if role==roles[0] else 'bx'}]
     def plans(data,*_):
         plan=retain_all(data);plan['experience']=[{'claim_id':x['claim_id'],'decision':'exclude','rationale':'Not needed here.'}
             for m in data['messages'] for x in m.get('experience',[])]
         return plan
     fd.deliberate(store,run['run_id'],Asking(plans,claims))
-    assert asked==[['a1','b1','a2','bx1','ax','bx2']]
+    assert asked==[['a1','b1','a2','bx','ax']]
     saved,case=case_of(store,run)
     assert {d['decision'] for d in case['mediation']['experience_decisions']}=={'exclude'}
-    assert saved['metrics']['experience_excluded']==3 and saved['metrics']['experience_actions']==0
+    assert saved['metrics']['experience_excluded']==2 and saved['metrics']['experience_actions']==0
 
 
 def test_a_claim_naming_another_profile_gets_one_correction(setup):
@@ -115,7 +116,7 @@ def test_a_claim_naming_another_profile_gets_one_correction(setup):
         roles.append(role)
         if role!=roles[0] or data.get('draft'):return []
         named=sum(r==roles[0] for r in roles)==1
-        return [{'kind':'keep','revision_ids':['N1'],'task':'Publish health data','claim':'Keep N1.',
+        return [{'kind':'split','revision_ids':['N1'],'task':'Publish health data','claim':'N1 holds two needs.',
             'experience':'When I publish health data '+('following HealthDCAT-AP' if named else 'for researchers')+', I record this.'}]
     def plans(data,*_):
         plan=retain_all(data);plan['experience']=[{'claim_id':x['claim_id'],'decision':'admit','rationale':'Fits the role.'}
@@ -141,11 +142,11 @@ def test_profile_names_are_matched_but_the_base_and_its_adjectives_are_not():
 
 
 @pytest.mark.parametrize('claim,problem',[
-    ({'kind':'keep','revision_ids':['rev-x']},'it lists rev-x in revision_ids, but the needs of this case are only'),
+    ({'kind':'drop','revision_ids':['rev-x']},'it lists rev-x in revision_ids, but the needs of this case are only'),
     ({'kind':'missing_need','revision_ids':[]},'it is missing_need but has no proposed_statement'),
     ({'kind':'drop','revision_ids':[]},'it is drop but names no need'),
     ({'kind':'merge','revision_ids':['N']},'it is merge but names fewer than two needs'),
-    ({'kind':'keep','revision_ids':['N'],'query':'GeoDCAT-AP location'},'it names GeoDCAT-AP'),
+    ({'kind':'split','revision_ids':['N'],'query':'GeoDCAT-AP location'},'it names GeoDCAT-AP'),
 ])
 def test_experience_claim_problems(setup,claim,problem):
     case,(n1,n2),_,_=built(setup)
@@ -309,7 +310,7 @@ def test_a_claim_that_stays_invalid_is_left_out_and_the_review_kept(setup):
         roles.append(role)
         if role!=roles[0] or data.get('draft'):return []
         # Still named after its correction.
-        return [{'kind':'keep','revision_ids':['N1'],'task':'Publish health data','claim':'Keep N1.',
+        return [{'kind':'split','revision_ids':['N1'],'task':'Publish health data','claim':'N1 holds two needs.',
             'experience':'When I publish health data following HealthDCAT-AP, I record this.'}]
     fd.deliberate(store,run['run_id'],Experienced(retain_all,claims))
     saved,case=case_of(store,run)
@@ -366,7 +367,7 @@ def test_a_salvage_marks_its_exclusions_and_rejected_rows_are_not_counted(setup)
 def test_a_cut_v6_correction_says_how_many_problems_it_does_not_show(setup):
     from requirement_reuse_service.workflow import base_review as br
     case,rids,_,allowed=built(setup)
-    messages=[{'role_id':'r1','concerns':[],'experience':[{'claim_id':f'x{i}','kind':'keep','revision_ids':[rids[0]]} for i in range(40)]}]
+    messages=[{'role_id':'r1','concerns':[],'experience':[{'claim_id':f'x{i}','kind':'drop','revision_ids':[rids[0]]} for i in range(40)]}]
     plan=fd.ExperiencePlan.model_validate(kept(rids,concerns=[]))
     notes=fd.plan_feedback(plan,case,messages,allowed);assert len(notes)==40
     text=br.correction({'output':plan.model_dump(mode='json'),'errors':['Decide every experience claim exactly once.'],'feedback':notes},{})
@@ -375,7 +376,7 @@ def test_a_cut_v6_correction_says_how_many_problems_it_does_not_show(setup):
 
 def test_a_v6_salvage_beyond_the_plan_contract_is_not_salvaged(setup):
     case,rids,_,allowed=built(setup)
-    messages=[{'role_id':'r1','concerns':[],'experience':[{'claim_id':f'x{i}','kind':'keep','revision_ids':[rids[0]]} for i in range(65)]}]
+    messages=[{'role_id':'r1','concerns':[],'experience':[{'claim_id':f'x{i}','kind':'drop','revision_ids':[rids[0]]} for i in range(65)]}]
     plan=fd.ExperiencePlan.model_validate(kept(rids,concerns=[]))
     # 65 claims need 65 decisions, more than the 64 a plan holds: refused, not raised.
     salvaged,audit=fd.salvage_plan(plan,case,messages,allowed)
