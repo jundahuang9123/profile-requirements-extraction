@@ -1,4 +1,4 @@
-"""rq1-need-scores-v1: read-only scores of the needs of a saved run. Synthetic records only; no run data,
+"""rq1-need-scores-v2: read-only scores of the needs of a saved run. Synthetic records only; no run data,
 no reference rows."""
 import csv
 import importlib.util
@@ -49,32 +49,34 @@ def only(run):
 
 
 def test_a_need_from_one_word_keeps_full_support_but_half_its_wording():
-    # The JRC creator need: its only quote is the word "Creator".
+    # A creator need whose only quote is the word "Creator".
     row = only(run_of(proposal('p1', 'Users can know the creator of a dataset.'),
                       need('n1', 'Users can know the creator of a dataset.', parents=['p1'], quotes=['Creator']), active=['n1']))
-    assert (row['F1'], row['F2'], row['F3'], row['F4']) == (1.0, 0.5, 1.0, 1.0)
-    assert row['F'] == 0.875 and (row['R1'], row['R2'], row['R3']) == (1.0, 1.0, None) and row['R'] == 1.0
+    assert (row['F1'], row['F2'], row['F3'], row['F4'], row['F5']) == (1.0, 0.5, 1.0, 1.0, 0.5)
+    assert row['F'] == pytest.approx(0.8) and row['S'] == 1.0 and row['rank'] == 1
+    assert (row['R1'], row['R2'], row['R3'], row['requirement_flags']) == (1.0, 1.0, None, '')
     assert (row['origin'], row['rewording_steps'], row['extracted_proposals']) == ('consolidated', 1, 1)
 
 
-def test_a_statement_about_a_policy_stays_close_to_its_source_but_is_no_user_need():
+def test_a_statement_about_a_policy_stays_close_to_its_source_but_is_flagged():
     quote = 'JRC data shall be provided with free, full, open and timely access'
     text = 'The policy obliges that JRC data shall be provided with free, full, open and timely access.'
     row = only(run_of(proposal('p1', 'Users can know that JRC data shall be provided with free, full, open and timely access.'),
                       need('n1', text, parents=['p1'], quotes=[quote]), active=['n1']))
-    # 10 content words; 'policy' and 'obliges' are not in the quote.
-    assert row['R2'] == 0.0 and row['F2'] == pytest.approx(8 / 10)
-    assert row['F'] > 0.8 and row['R'] == 0.5
+    # 10 content words; 'policy' and 'obliges' are not in the quote. 3 of 16 words replaced.
+    assert row['F2'] == pytest.approx(8 / 10) and row['F3'] == pytest.approx(13 / 16)
+    assert row['R2'] == 0.0 and row['requirement_flags'] == 'rule_or_policy_wording' and row['S'] == 1.0
 
 
-def test_a_need_the_discussion_added_has_no_extracted_statement_and_no_scope_judgement():
+def test_a_need_the_discussion_added_has_no_extracted_statement_and_no_source_role():
     added = need('n1', 'Users can obtain the download URL of a distribution.', quotes=['The download URL of a distribution'],
                  roles=['evidence_mediator'], processing_flags=['mediated_machine_proposal'],
                  fa_scope={'status': 'checked_mediation', 'rationale': 'Mediation check passed.'})
     row = only(run_of(added, active=['n1']))
     assert row['origin'] == 'discussion_added' and row['F3'] is None and row['R1'] is None
-    assert row['F'] == pytest.approx((row['F1'] + row['F2'] + row['F4']) / 3) and row['R'] == row['R2'] == 1.0
-    assert row['support_from'] == 'qualification'
+    assert row['F5'] == 0.25  # one passage, no source-reading role
+    assert row['F'] == pytest.approx((row['F1'] + row['F2'] + row['F4'] + row['F5']) / 4)
+    assert row['support_from'] == 'qualification' and row['requirement_flags'] == ''
 
 
 def test_a_revised_need_is_measured_against_the_closer_of_its_extracted_statements():
@@ -87,6 +89,41 @@ def test_a_revised_need_is_measured_against_the_closer_of_its_extracted_statemen
     # 10 words against 9: replace "of" by "URL", insert "for" -> 2 edits of 10.
     assert row['F3'] == pytest.approx(0.8)
     assert (row['origin'], row['rewording_steps'], row['extracted_proposals']) == ('discussion_revised', 2, 2)
+
+
+@pytest.mark.parametrize('quotes,roles,passages,expected', [
+    (['A'], ['x'], 1, 0.5),
+    (['A', 'A'], ['x'], 1, 0.5),                       # the same passage quoted twice is one passage
+    (['A', ' a '], ['x', 'evidence_mediator'], 1, 0.5),  # case and spacing do not make a new passage
+    (['A', 'B'], ['x'], 2, (0.75 + 0.5) / 2),
+    (['A', 'B', 'C'], ['x', 'y'], 3, (0.875 + 0.75) / 2),
+    (['A', 'B', 'C', 'D'], ['x', 'y', 'z', 'w'], 4, 0.9375)])
+def test_corroboration_counts_distinct_passages_and_roles_and_each_repeat_adds_less(quotes, roles, passages, expected):
+    row = only(run_of(need('n1', 'Users can know the title of a dataset.', quotes=quotes, roles=roles), active=['n1']))
+    assert row['passages'] == passages and row['F5'] == pytest.approx(expected)
+
+
+@pytest.mark.parametrize('text,expected', [
+    ('Users can know the unit of measure of an observation.', 1.0),
+    ('Users can know metadata about data quality.', 0.5),
+    ('Users can know the contact point information of a dataset.', 2 / 3),
+    ('Users can know various details of the dataset.', 0.0),
+    ('Users can know the dataset.', 0.0)])
+def test_specificity_is_the_share_of_naming_words_that_are_not_vague(text, expected):
+    assert only(run_of(need('n1', text), active=['n1']))['S'] == pytest.approx(expected)
+
+
+def test_needs_are_ranked_by_fidelity_then_specificity():
+    # Both first needs: every content word quoted, 8 words against an extracted 'x' -> F 0.70; S decides.
+    records = [proposal('p1', 'x'),
+               need('vague', 'Users can know various details of the dataset.', parents=['p1'], quotes=['various details of the dataset']),
+               need('named', 'Users can know the creator of the dataset.', parents=['p1'], quotes=['creator of the dataset']),
+               need('weak', 'Users can know the publisher of the dataset.', parents=['p1'], quotes=['publisher of the dataset'],
+                    support='inferred')]
+    rows = S.score_run(run_of(*records, active=['vague', 'weak', 'named']))
+    assert rows[0]['F'] == rows[1]['F'] == pytest.approx(0.7) and rows[2]['F'] == pytest.approx(0.6)
+    assert (rows[0]['S'], rows[1]['S']) == (1.0, 0.0)
+    assert [r['revision_id'] for r in rows] == ['named', 'vague', 'weak'] and [r['rank'] for r in rows] == [1, 2, 3]
 
 
 def test_a_condition_or_obligation_not_in_the_quotes_counts_as_added():
@@ -103,11 +140,13 @@ def test_a_condition_or_obligation_not_in_the_quotes_counts_as_added():
     assert scoped['F4'] == 0.5
 
 
-@pytest.mark.parametrize('serves,nature,expected', [('find', 'information_requirement', 1.0), ('both', 'information_requirement', 1.0),
-    ('find', 'operational_obligation', 0.5), ('neither', 'information_requirement', 0.0), ('find', 'background', 0.0),
-    ('access', 'implementation_detail', 0.0), ('unresolved', 'uncertain', None)])
-def test_find_access_judgement(serves, nature, expected):
-    assert only(run_of(need('n1', 'Users can know the title of a dataset.', serves=serves, nature=nature), active=['n1']))['R1'] == expected
+@pytest.mark.parametrize('serves,nature,expected,flag', [('find', 'information_requirement', 1.0, ''),
+    ('both', 'information_requirement', 1.0, ''), ('find', 'operational_obligation', 0.5, 'operational_obligation'),
+    ('neither', 'information_requirement', 0.0, 'not_find_or_access'), ('find', 'background', 0.0, 'not_find_or_access'),
+    ('access', 'implementation_detail', 0.0, 'not_find_or_access'), ('unresolved', 'uncertain', None, '')])
+def test_find_access_judgement(serves, nature, expected, flag):
+    row = only(run_of(need('n1', 'Users can know the title of a dataset.', serves=serves, nature=nature), active=['n1']))
+    assert row['R1'] == expected and row['requirement_flags'] == flag
 
 
 @pytest.mark.parametrize('text,expected', [
@@ -151,10 +190,10 @@ def test_stems_fold_plural_and_verb_endings_alike():
 
 
 def test_rank_correlation_of_two_runs_on_needs_with_the_same_statement():
-    rows = [{'statement': f'Need {i}.', 'F': f, 'R': 1.0} for i, f in enumerate([0.9, 0.5, 0.7, 0.2])]
-    other = [{'statement': f' need {i}. ', 'F': f, 'R': 1.0} for i, f in enumerate([0.8, 0.4, 0.6, 0.3])]
-    result = S.compare(rows, other + [{'statement': 'Other.', 'F': 0.1, 'R': 0.1}])
-    assert result['matched'] == 4 and result['spearman_F'] == pytest.approx(1.0) and result['spearman_R'] is None
+    rows = [{'statement': f'Need {i}.', 'F': f, 'S': 1.0} for i, f in enumerate([0.9, 0.5, 0.7, 0.2])]
+    other = [{'statement': f' need {i}. ', 'F': f, 'S': 1.0} for i, f in enumerate([0.8, 0.4, 0.6, 0.3])]
+    result = S.compare(rows, other + [{'statement': 'Other.', 'F': 0.1, 'S': 0.1}])
+    assert result['matched'] == 4 and result['spearman_F'] == pytest.approx(1.0) and result['spearman_S'] is None
 
 
 def test_the_script_reads_with_get_only_and_writes_the_csv_and_summary(tmp_path, monkeypatch):
@@ -180,9 +219,9 @@ def test_the_script_reads_with_get_only_and_writes_the_csv_and_summary(tmp_path,
     S.main()
     assert seen == ['http://local-test/api/rq1/v2/runs/run-test?audit=false'] * 2
     rows = list(csv.DictReader((tmp_path / 'run-test-need-scores.csv').open(encoding='utf-8-sig')))
-    assert len(rows) == 1 and rows[0]['F'] == '0.88' and rows[0]['R3'] == '' and rows[0]['R'] == '1.00'
+    assert len(rows) == 1 and (rows[0]['rank'], rows[0]['F'], rows[0]['S'], rows[0]['R3']) == ('1', '0.80', '1.00', '')
     text = (tmp_path / 'run-test-need-scores.md').read_text(encoding='utf-8')
-    assert S.VERSION in text and '1 of 1 needs have the same statement' in text
+    assert S.VERSION in text and '1 of 1 needs have the same statement' in text and 'ranked by F, then S' in text
     saved = tmp_path / 'saved.json'
     saved.write_text(json.dumps(S.trimmed(run)), encoding='utf-8')
     monkeypatch.setattr(sys, 'argv', ['score_needs.py', '--run', str(saved), '--out', str(tmp_path / 'file')])

@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Read-only scores for the needs of a saved RQ1 run (rq1-need-scores-v1).
+"""Read-only scores for the needs of a saved RQ1 run (rq1-need-scores-v2).
 
-Two scores per active need, each the mean of the criteria that can be judged for that need:
-- F, fidelity to the source: how close the need stays to what its sources say (F1 to F4);
-- R, requirement-ness: whether it is a find/access need, worded as a user need, at catalogue
-  level (R1 to R3).
-A criterion that cannot be judged (a need the discussion added has no extracted statement; F/A runs
-judge no catalogue level) is left blank and out of the mean. The run is read with GET requests only,
-or from a saved JSON file. No model calls, no reference rows, nothing written to the run.
-Spec: project doc claude/rq1-scorer-spec.md (22 Oct 2026)."""
+Two scores per active need, and needs ranked by F, then S:
+- F, fidelity to the source: how close the need stays to what its sources say, the mean of the criteria
+  that can be judged for it (F1 to F5);
+- S, specificity: whether the need names a concrete information item rather than a vague topic.
+R1 to R3 (serves find/access, worded as a user need, catalogue level) are reported as flags, not as a
+score: in F/A runs the workflow has already filtered on them. A criterion that cannot be judged is blank
+and left out of the mean. The run is read with GET requests only, or from a saved JSON file. No model
+calls, no reference rows, nothing written to the run.
+Spec: project doc claude/rq1-scorer-spec.md (22 Oct 2026; v2 after Junda's answers, 20:44)."""
 import argparse
 import csv
 import json
@@ -17,7 +18,7 @@ import statistics
 import urllib.request
 from pathlib import Path
 
-VERSION = 'rq1-need-scores-v1'
+VERSION = 'rq1-need-scores-v2'
 # The fields read (see trimmed()): of the run; of each active need, with the parts of its nested fields;
 # and of the needs and proposals it descends from.
 RUN_FIELDS = ('run_id', 'status', 'active_revision_ids', 'requirements')
@@ -41,6 +42,14 @@ STOP = set('''a an the and or but nor of to in on at by for with from as into on
 that this these those which who whom whose what when where why how whether if is are was were be been being am
 do does did has have had having can could may might must shall should will would it its they them their there
 here such each every any all some no not only also either users user'''.split())
+# S: words that name no particular information item, and the resources a need is about (neither way).
+VAGUE = set('''metadata information info detail details aspect aspects element elements characteristic characteristics
+feature features content contents thing things item items issue issues topic topics matter matters stuff fact facts
+general generic various relevant related other certain appropriate additional further overall useful important
+necessary available associated corresponding respective particular given existing possible different several many
+multiple more most less etc kind kinds sort sorts way ways'''.split())
+RESOURCES = set('''data dataset datasets distribution distributions catalogue catalogues catalog catalogs service services
+resource resources record records'''.split())
 ACTOR = (r'^\s*(?:(?:the|a|an|data|catalogue|catalog|end|potential)\s+)*'
          r'(?:users?|consumers?|publishers?|providers?|researchers?|reusers?|people|stakeholders?|readers?|analysts?)\s+')
 # "Users can know ..." and the like: the frame the writer puts around a need.
@@ -94,6 +103,10 @@ def stem(word):
     return word
 
 
+VAGUE_STEMS = {stem(w) for w in VAGUE}
+RESOURCE_STEMS = {stem(w) for w in RESOURCES}
+
+
 def content_words(statement):
     rest = FRAME.sub('', statement or '', count=1)
     return [w for w in words(rest) if w not in STOP]
@@ -109,12 +122,21 @@ def edit_distance(a, b):
     return previous[-1]
 
 
+def diminishing(count):
+    """Each further distinct support adds half as much as the one before: 0, 0.5, 0.75, 0.875, ..."""
+    return 1 - 0.5 ** count
+
+
 def statement(record):
     return record.get('need_statement') or record.get('normalized_statement') or ''
 
 
+def supporting_links(record):
+    return [l for l in record.get('evidence_links') or [] if l.get('relation', 'supports') == 'supports']
+
+
 def supporting_quotes(record):
-    return [l.get('quote') or '' for l in record.get('evidence_links') or [] if l.get('relation', 'supports') == 'supports']
+    return [l.get('quote') or '' for l in supporting_links(record)]
 
 
 def extracted_ancestors(record, by_id):
@@ -174,6 +196,16 @@ def criteria(record, by_id):
         added.append('condition_or_scope')
     f4 = 1 - 0.5 * len(added)
 
+    # Corroboration (Junda, 20:44: count it, but repeats add less): distinct quoted passages and distinct
+    # source-reading roles, each further one adding half as much as the one before.
+    passages = len({' '.join(q.casefold().split()) for q in quotes if q.strip()})
+    roles = len(set(record.get('contributing_roles') or []) - MEDIATION_ROLES)
+    f5 = (diminishing(passages) + diminishing(roles)) / 2
+
+    named = [stem(w) for w in content if stem(w) not in RESOURCE_STEMS]
+    vague = sum(w in VAGUE_STEMS for w in named)
+    s = (len(named) - vague) / len(named) if named else 0.0
+
     judged = judged_scope(record)
     serves, nature = judged.get('serves'), judged.get('nature')
     if nature in {'background', 'implementation_detail'} or serves == 'neither':
@@ -197,18 +229,20 @@ def criteria(record, by_id):
         r3 = 1.0 if (record.get('profile_scope') or {}).get('catalogue_level', True) else 0.5
     else:
         r3 = 0.0
+    requirement_flags = [name for name, on in (('rule_or_policy_wording', r2 == 0.0), ('unclear_wording', r2 == 0.5),
+        ('operational_obligation', r1 == 0.5), ('not_find_or_access', r1 == 0.0), ('not_catalogue_level', r3 == 0.0),
+        ('part_of_a_resource', r3 == 0.5)) if on]
 
     flags = record.get('processing_flags') or []
     parents = record.get('parent_revision_ids') or []
     origin = ('discussion_added' if not parents and not ancestors else
               'discussion_revised' if 'mediated_machine_proposal' in flags else 'consolidated')
-    return {'F1': f1, 'F2': f2, 'F3': f3, 'F4': f4, 'R1': r1, 'R2': r2, 'R3': r3,
+    return {'F1': f1, 'F2': f2, 'F3': f3, 'F4': f4, 'F5': f5, 'S': s, 'R1': r1, 'R2': r2, 'R3': r3,
+            'requirement_flags': ', '.join(requirement_flags),
             'support_from': 'qualification' if qualification.get('support') else 'fa_scope' if support else '',
-            'added': ', '.join(added), 'origin': origin, 'rewording_steps': depth,
-            'extracted_proposals': len(ancestors),
-            'evidence_units': len({l.get('evidence_id') for l in record.get('evidence_links') or []
-                                   if l.get('relation', 'supports') == 'supports'}),
-            'source_roles': len(set(record.get('contributing_roles') or []) - MEDIATION_ROLES)}
+            'added': ', '.join(added), 'vague_words': vague, 'origin': origin, 'rewording_steps': depth,
+            'extracted_proposals': len(ancestors), 'passages': passages,
+            'evidence_units': len({l.get('evidence_id') for l in supporting_links(record)}), 'source_roles': roles}
 
 
 def mean(values):
@@ -217,6 +251,7 @@ def mean(values):
 
 
 def score_run(run):
+    """Rows of the active needs, ranked by F, then S."""
     by_id = {r['revision_id']: r for r in run['requirements']}
     rows = []
     for identifier in run.get('active_revision_ids') or []:
@@ -224,13 +259,15 @@ def score_run(run):
         if not record:
             continue
         c = criteria(record, by_id)
-        f, r = mean([c['F1'], c['F2'], c['F3'], c['F4']]), mean([c['R1'], c['R2'], c['R3']])
         flags = record.get('processing_flags') or []
-        rows.append({'revision_id': identifier, 'requirement_id': record.get('requirement_id', ''),
-                     'statement': statement(record), 'F': f, 'R': r, 'F_x_R': f * r if f is not None and r is not None else None,
-                     **c, 'covered_by_base': 'covered_by_base' in flags,
+        rows.append({'rank': None, 'revision_id': identifier, 'requirement_id': record.get('requirement_id', ''),
+                     'statement': statement(record), 'F': mean([c['F1'], c['F2'], c['F3'], c['F4'], c['F5']]), **c,
+                     'covered_by_base': 'covered_by_base' in flags,
                      'base_relation': (record.get('base_relation') or {}).get('verdict', ''),
                      'need_class': record.get('need_class') or '', 'flags': ', '.join(flags)})
+    rows.sort(key=lambda r: (-r['F'], -r['S'], r['revision_id']))
+    for position, row in enumerate(rows, 1):
+        row['rank'] = position
     return rows
 
 
@@ -296,7 +333,7 @@ def compare(rows, other_rows):
     other = {same_statement(r['statement']): r for r in other_rows}
     pairs = [(r, other[same_statement(r['statement'])]) for r in rows if same_statement(r['statement']) in other]
     result = {'matched': len(pairs), 'needs': len(rows), 'other_needs': len(other_rows)}
-    for key in ('F', 'R'):
+    for key in ('F', 'S'):
         kept = [(a[key], b[key]) for a, b in pairs if a[key] is not None and b[key] is not None]
         result['spearman_' + key] = spearman([a for a, _ in kept], [b for _, b in kept])
     return result
@@ -309,34 +346,37 @@ def fmt(value):
 def summary(run, rows, comparison=None, label=''):
     lines = [f'# Need scores · {label or run.get("run_id", "")}',
              f'Scorer `{VERSION}` · run `{run.get("run_id", "")}` · status {run.get("status", "")} · '
-             f'{len(rows)} active needs. Read-only: no model calls, no reference rows.',
+             f'{len(rows)} active needs, ranked by F, then S. Read-only: no model calls, no reference rows.',
              'F = mean of F1 support, F2 wording found in its quotes, F3 closeness to the first extracted '
-             'statement, F4 nothing added beyond the quotes. R = mean of R1 serves find/access, R2 worded as a '
-             'user need, R3 catalogue level. Blank criteria are not judged for that need and are left out of '
-             'the mean.', '', '## Criteria', '',
+             'statement, F4 nothing added beyond the quotes, F5 corroboration (distinct passages and source roles, '
+             'repeats adding less). S = share of the words naming the need that are not vague. R1 serves '
+             'find/access, R2 worded as a user need and R3 catalogue level are flags, not a score. Blank criteria '
+             'are not judged for that need and are left out of the mean.', '', '## Criteria', '',
              '| Criterion | Judged | Mean | Median | Min | Max |', '|---|---|---|---|---|---|']
-    for key in ('F', 'F1', 'F2', 'F3', 'F4', 'R', 'R1', 'R2', 'R3'):
+    for key in ('F', 'F1', 'F2', 'F3', 'F4', 'F5', 'S', 'R1', 'R2', 'R3'):
         values = [r[key] for r in rows if r[key] is not None]
         lines.append(f'| {key} | {len(values)} | ' + (' | '.join(fmt(v) for v in (
             statistics.fmean(values), statistics.median(values), min(values), max(values))) if values else '– | – | – | –') + ' |')
-    lines += ['', '## By group', '', '| Group | Needs | Mean F | Mean R |', '|---|---|---|---|']
+    lines += ['', '## By group', '', '| Group | Needs | Mean F | Mean S |', '|---|---|---|---|']
     groups = [('covered by the base', lambda r: r['covered_by_base']), ('not covered', lambda r: not r['covered_by_base']),
               *[(origin.replace('_', ' '), lambda r, o=origin: r['origin'] == o)
                 for origin in ('consolidated', 'discussion_revised', 'discussion_added')]]
     for name, keep in groups:
         chosen = [r for r in rows if keep(r)]
         if chosen:
-            lines.append(f'| {name} | {len(chosen)} | {fmt(mean([r["F"] for r in chosen]))} | {fmt(mean([r["R"] for r in chosen]))} |')
-    for key in ('F', 'R'):
-        ordered = sorted((r for r in rows if r[key] is not None), key=lambda r: (-r[key], r['revision_id']))
-        for title, chosen in ((f'Highest {key}', ordered[:10]), (f'Lowest {key}', ordered[::-1][:10])):
-            lines += ['', f'## {title}', '', '| F | R | Need |', '|---|---|---|']
-            lines += [f'| {fmt(r["F"])} | {fmt(r["R"])} | {r["statement"]} |' for r in chosen]
+            lines.append(f'| {name} | {len(chosen)} | {fmt(mean([r["F"] for r in chosen]))} | {fmt(mean([r["S"] for r in chosen]))} |')
+    for title, chosen in (('Highest ranked (F, then S)', rows[:10]), ('Lowest ranked', rows[::-1][:10]),
+                          ('Least specific (S)', sorted(rows, key=lambda r: (r['S'], r['rank']))[:10])):
+        lines += ['', f'## {title}', '', '| Rank | F | S | Need |', '|---|---|---|---|']
+        lines += [f'| {r["rank"]} | {fmt(r["F"])} | {fmt(r["S"])} | {r["statement"]} |' for r in chosen]
+    flagged = [r for r in rows if r['requirement_flags']]
+    lines += ['', '## Requirement flags (R)', '']
+    lines += [f'- {r["statement"]} — {r["requirement_flags"]}' for r in flagged] or ['- none']
     if comparison:
         lines += ['', '## Comparison', '',
                   f'{comparison["matched"]} of {comparison["needs"]} needs have the same statement in the other run '
                   f'({comparison["other_needs"]} needs). Rank correlation (Spearman) of their scores: '
-                  f'F {fmt(comparison["spearman_F"])}, R {fmt(comparison["spearman_R"])}.']
+                  f'F {fmt(comparison["spearman_F"])}, S {fmt(comparison["spearman_S"])}.']
     return '\n'.join(lines) + '\n'
 
 
@@ -368,7 +408,7 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     name = run.get('run_id') or Path(args.run).stem
     with (out / f'{name}-need-scores.csv').open('w', newline='', encoding='utf-8-sig') as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(rows[0]) if rows else ['revision_id'])
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]) if rows else ['rank'])
         writer.writeheader()
         writer.writerows({k: fmt(v) if isinstance(v, float) or v is None else v for k, v in row.items()} for row in rows)
     (out / f'{name}-need-scores.md').write_text(summary(run, rows, comparison, args.label), encoding='utf-8')
