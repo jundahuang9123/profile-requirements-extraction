@@ -137,7 +137,7 @@ def test_request_opt_in_requires_fa_and_base_and_policy_is_per_run():
     with pytest.raises(ValueError,match='requires the F/A'):
         RunRequest(snapshot_id='s',base_review='expert_v1')
     r=RunRequest(snapshot_id='s',strategy='multi_agent',stakeholder_workflow='fa_mediated',base_profile_id='dcat-ap-1.1.0',base_review='expert_v1')
-    assert discussion_policy({'request':r.model_dump()})=='rq1-fa-dialogue-v10'
+    assert discussion_policy({'request':r.model_dump()})=='rq1-fa-dialogue-v11'
     assert br.POLICY=='rq1-base-expert-v5'
     assert discussion_policy({'request':{}})=='rq1-fa-dialogue-v1'
 

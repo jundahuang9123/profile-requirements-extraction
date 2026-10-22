@@ -669,6 +669,40 @@ rule.
 A discussion planned under v9 cannot continue under v10. This is tested offline
 only.
 
+### Quotations that differ in whitespace or hyphenation (v11)
+
+A change (revise, add, merge, split) is applied only when every quotation it
+cites is found in its source unit, and until v10 only exact text counted. In JRC
+`run-efc543e4` (v10), 16 changes passed the plan rules and the checker; 3 were
+applied and 13 blocked, 10 of them because a quotation was not exact text of its
+unit: 5 differed only in whitespace (a line break written as a space), 1 wrote
+`platform-independent` with U+2011 where the PDF text breaks the line after the
+hyphen, 2 left text out with "..." and 2 were not in the unit.
+
+`rq1-fa-dialogue-v11` folds both texts before it compares them
+(`rq1-fa-quote-match-v1`): every whitespace run reads as one space and U+2010 and
+U+2011 read as `-`; a line break after a hyphen reads both as nothing and as a
+space, since the mediator writes it either way. When the folded quotation fits
+exactly one span of the unit (overlapping matches and both readings counted), the
+change cites that span's exact source text and offset, so the strict verifier and
+the new need see exact text. `citation_repairs` records the action (a split's new
+need by its own ID), the offsets, the hash of the exact text, the hash of the
+quotation as written and the method; the outcome row keeps the quotation as the
+mediator wrote it. Text left out or changed is never matched, a quotation that
+fits more than one span stays blocked, and an exact quotation is matched first and
+recorded as before. The legacy v1 protocol keeps the exact match, and so does the
+check of a passage cited for a `contradicted_by_source` set-aside (no saved run
+has one).
+
+A replay of the folded match on the saved changes blocked by a quotation (JRC v6,
+v8, v9, v10; Stat v6, v8: 31) finds 20 (JRC 1, 2, 5, 6; Stat 5, 1); the other 11
+left text out (7) or are not in their unit (4). Those 20 would then reach the
+support check, which may still block them: in `run-efc543e4` it blocked 2 of the
+5 changes it assessed in full.
+
+A discussion planned under v10 cannot continue under v11. This is tested offline
+only.
+
 ### Answer habits
 
 Unit tests with ideal scripted answers did not show what a change does to the
@@ -678,7 +712,8 @@ against the answer habits the models showed in saved live runs (checks of split
 children or only of them, checks named after action types, one action per
 concern, invented need IDs, adds naming their need, a split written as several
 actions, oversized or unnamed splits, empty questions, loose set-asides, claim
-kinds as concern kinds, keep and second claims) and checks that every case ends
+kinds as concern kinds, keep and second claims, quotations with a line break
+written as a space or a hyphen written as U+2011) and checks that every case ends
 in a defined state, accounts for every need, applies only what the rules allow
 and leaves a record that validates. A habit seen in a new live run is added
 there.
