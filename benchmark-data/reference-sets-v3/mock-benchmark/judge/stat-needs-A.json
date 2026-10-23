@@ -1,0 +1,366 @@
+[
+ {
+  "need_id": "N531",
+  "statement": "Users can know the update frequency of a Dataset"
+ },
+ {
+  "need_id": "N616",
+  "statement": "Users can find whether any two qb:Observations in the same qb:DataSet share identical values for all dimensions."
+ },
+ {
+  "need_id": "N805",
+  "statement": "Users can judge that dimensions with range skos:Concept must have an associated qb:codeList for a Dimension."
+ },
+ {
+  "need_id": "N188",
+  "statement": "Users can know that when a dataset’s distribution is only accessible via a landing page, the landing page link SHOULD be duplicated as an accessURL on the distribution."
+ },
+ {
+  "need_id": "N973",
+  "statement": "Users can know the publisher of a catalog."
+ },
+ {
+  "need_id": "N846",
+  "statement": "Users can know the datasets included in a Catalog via dcat:dataset."
+ },
+ {
+  "need_id": "N956",
+  "statement": "Users can know whether appropriate URI sets already exist for relevant dimensions"
+ },
+ {
+  "need_id": "N465",
+  "statement": "Users can know the contact point for a Dataset"
+ },
+ {
+  "need_id": "N647",
+  "statement": "Users can find the public list of patent disclosures maintained by W3C for deliverables of the Working Group."
+ },
+ {
+  "need_id": "N258",
+  "statement": "Users can know that a downloadable distribution can be linked via dcat:downloadURL without defining a separate dcat:Distribution instance"
+ },
+ {
+  "need_id": "N493",
+  "statement": "Publishers can indicate whether an attribute is required for every observation; otherwise the attribute is optional."
+ },
+ {
+  "need_id": "N835",
+  "statement": "Publishers can know that when a code list is already available as a SKOS ConceptScheme or can reasonably be made so, they should use SKOS rather than qb:HierarchicalCodeList."
+ },
+ {
+  "need_id": "N651",
+  "statement": "Users can know the publisher of a dataset"
+ },
+ {
+  "need_id": "N454",
+  "statement": "Users can retrieve life expectancy values for each reference area from observations linked to a dataset."
+ },
+ {
+  "need_id": "N911",
+  "statement": "Users can know whether each qb:Observation in a DataSet that uses a Measure dimension has a value for its specific qb:measureType."
+ },
+ {
+  "need_id": "N450",
+  "statement": "Users can know which dimensions are required for each qb:Observation in a qb:DataSet."
+ },
+ {
+  "need_id": "N439",
+  "statement": "Users can judge that dimension values within a dataset are unambiguously defined, when evaluating the dataset's metadata."
+ },
+ {
+  "need_id": "N484",
+  "statement": "Users can know the homepage of a Catalog"
+ },
+ {
+  "need_id": "N995",
+  "statement": "Users can find the landing page URL for a dataset."
+ },
+ {
+  "need_id": "N962",
+  "statement": "Users can know that every DataStructureDefinition must include at least one declared measure for a DataStructureDefinition."
+ },
+ {
+  "need_id": "N719",
+  "statement": "Users can find slice definitions (qb:Slice) for a dataset to understand how observations are grouped."
+ },
+ {
+  "need_id": "N187",
+  "statement": "Users can know that the property qb:componentRequired indicates whether a component property is required (true) or optional (false) in a Data Structure Definition"
+ },
+ {
+  "need_id": "N982",
+  "statement": "Users can know what dimensions (time period, region, sex) are available for query and their presentational order."
+ },
+ {
+  "need_id": "N902",
+  "statement": "Users can know that slices are used to group uniform subsets of observations where one or more dimension values are fixed."
+ },
+ {
+  "need_id": "N965",
+  "statement": "Users can know the temporal coverage of a dataset."
+ },
+ {
+  "need_id": "N364",
+  "statement": "Users can know the rights of a Catalog"
+ },
+ {
+  "need_id": "N287",
+  "statement": "Users can know whether an observation linked to a slice has its dataset correctly set to the dataset that contains the slice."
+ },
+ {
+  "need_id": "N748",
+  "statement": "Users can know that the concept link is optional unless the concept is expected to be reused."
+ },
+ {
+  "need_id": "N206",
+  "statement": "Users can know the units (years) of the measured values for each observation."
+ },
+ {
+  "need_id": "N874",
+  "statement": "Users can know the language(s) of a dataset"
+ },
+ {
+  "need_id": "N891",
+  "statement": "Users can know that a slice key lists the component properties (dimensions) that will be fixed in the slice."
+ },
+ {
+  "need_id": "N138",
+  "statement": "Publishers can know that an attribute component must be marked as required and attached to the DataSet when its qb:componentRequired property is true."
+ },
+ {
+  "need_id": "N428",
+  "statement": "Publishers can decide to use code lists for dimension values when the dimension is included as a componentProperty of a SliceKey."
+ },
+ {
+  "need_id": "N330",
+  "statement": "Users can know the reference period (refPeriod) associated with a slice to filter observations by time."
+ },
+ {
+  "need_id": "N837",
+  "statement": "Users can know the values of each dimension required to locate an observation for a Dataset observation."
+ },
+ {
+  "need_id": "N316",
+  "statement": "Users can know the license of a Catalog"
+ },
+ {
+  "need_id": "N822",
+  "statement": "Users can know how licensing information is expressed for a distribution."
+ },
+ {
+  "need_id": "N840",
+  "statement": "Users can know the size of a Distribution"
+ },
+ {
+  "need_id": "N129",
+  "statement": "Users can know the description of a Catalog"
+ },
+ {
+  "need_id": "N215",
+  "statement": "Users can judge whether a data interchange conforms to the Data Cube vocabulary by checking that RDF graphs are well‑formed or well‑formed abbreviated Data Cubes and that terms are used consistently with their declared semantics."
+ },
+ {
+  "need_id": "N603",
+  "statement": "Users can judge that each dataset has exactly one associated data structure definition."
+ },
+ {
+  "need_id": "N597",
+  "statement": "Users can know that each observation must have a complete set of dimension values and all measure values."
+ },
+ {
+  "need_id": "N279",
+  "statement": "Publishers can know which attachment level (DataSet or Slice) to use for component properties when structuring observations."
+ },
+ {
+  "need_id": "N854",
+  "statement": "Users can know that for datasets with multiple measures, each observation must provide a value for every measure."
+ },
+ {
+  "need_id": "N490",
+  "statement": "Users can know that values of a time dimension may be represented as URIs from a reference time service"
+ },
+ {
+  "need_id": "N165",
+  "statement": "Users can know the type of contact point information for a dataset."
+ },
+ {
+  "need_id": "N717",
+  "statement": "Users can know that every qb:Slice must have a value for each dimension declared in its qb:sliceStructure for a Slice."
+ },
+ {
+  "need_id": "N321",
+  "statement": "Users can know that a slice can have an identity URI to enable annotation or external reference."
+ },
+ {
+  "need_id": "N180",
+  "statement": "Users can know which dimension (e.g., sex) is used to define a slice to construct appropriate queries."
+ },
+ {
+  "need_id": "N161",
+  "statement": "Users can know the minimum set of required metadata fields for a DCAT‑compliant catalog."
+ },
+ {
+  "need_id": "N760",
+  "statement": "Users can find the code list associated with a dimension property and verify that each observation's value for that dimension is included in the code list."
+ },
+ {
+  "need_id": "N734",
+  "statement": "Users can know the thematic classification (SKOS concept) of a dataset."
+ },
+ {
+  "need_id": "N494",
+  "statement": "Users can judge that the data structure has not changed across publications."
+ },
+ {
+  "need_id": "N721",
+  "statement": "Users can know the language of a catalog."
+ },
+ {
+  "need_id": "N517",
+  "statement": "Users can know that resources defined by the Library of Congress should be used for controlled vocabularies"
+ },
+ {
+  "need_id": "N117",
+  "statement": "Users can know which properties are recommended for use on a dcat:Distribution, such as accessURL, byteSize, description, downloadURL, format, license, mediaType, releaseDate, rights, title, and updateDate."
+ },
+ {
+  "need_id": "N620",
+  "statement": "Users can know the distinction between dcat:Dataset and dcat:CatalogRecord and when to use each."
+ },
+ {
+  "need_id": "N858",
+  "statement": "Users can know that a DCAT catalog must be organized into datasets and distributions and must provide an RDF description of the catalog, its datasets and distributions."
+ },
+ {
+  "need_id": "N825",
+  "statement": "Users can know core metadata of a dataset such as title, description, issued date, modified date, subject."
+ },
+ {
+  "need_id": "N772",
+  "statement": "Users can know how to choose attachment levels for components (attributes) when defining a DataStructureDefinition."
+ },
+ {
+  "need_id": "N256",
+  "statement": "Users can know that the dcat:mediaType property SHOULD be used when the distribution’s type is defined by IANA; otherwise dct:format MAY be used."
+ },
+ {
+  "need_id": "N203",
+  "statement": "Users can find the download URL for a dataset when it is directly available."
+ },
+ {
+  "need_id": "N373",
+  "statement": "Users can know when to use dcat:accessURL versus dcat:downloadURL for a distribution."
+ },
+ {
+  "need_id": "N594",
+  "statement": "All classes and properties defined in DCAT must be used in a way consistent with the semantics declared in this specification."
+ },
+ {
+  "need_id": "N787",
+  "statement": "Users can know that observations are the actual measured values in a statistical data set."
+ },
+ {
+  "need_id": "N130",
+  "statement": "Publishers can optionally annotate a component with a code list to indicate the set of concepts used as codes."
+ },
+ {
+  "need_id": "N876",
+  "statement": "Users can judge whether a DataSet that does not use a Measure dimension provides values for all declared measures in each Observation"
+ },
+ {
+  "need_id": "N197",
+  "statement": "Users can know the semantics of date properties such as release date, modification date, and listing date for datasets and catalog records."
+ },
+ {
+  "need_id": "N387",
+  "statement": "Users can know release date (dct:issued) for a Catalog"
+ },
+ {
+  "need_id": "N909",
+  "statement": "Users can find the unit of measurement and whether a value is measured or estimated for an Observation."
+ },
+ {
+  "need_id": "N365",
+  "statement": "Users can know that dataset themes are represented by skos:Concepts organized in a skos:ConceptScheme, linked via dcat:themeTaxonomy."
+ },
+ {
+  "need_id": "N499",
+  "statement": "Users can know the title of a Catalog"
+ },
+ {
+  "need_id": "N657",
+  "statement": "Users can know that all DCAT classes and properties must be used consistently with the semantics declared in the specification."
+ },
+ {
+  "need_id": "N160",
+  "statement": "Users can know the prefixes and namespaces for the community SDMX resources (sdmx-concept, sdmx-code, sdmx-dimension, sdmx-attribute, sdmx-measure) that may be used in datasets."
+ },
+ {
+  "need_id": "N904",
+  "statement": "Users can know how to query observed values uniformly for a dataset without first parsing the data structure definition, when a normalized representation is used."
+ },
+ {
+  "need_id": "N862",
+  "statement": "Users can know that only attributes may be marked optional in a DataStructureDefinition for a Component."
+ },
+ {
+  "need_id": "N824",
+  "statement": "Users can know that all metadata fields about a catalog, its datasets and distributions are to be included in the RDF description using appropriate DCAT classes and properties."
+ },
+ {
+  "need_id": "N250",
+  "statement": "Publishers can decide at which level (dataset, slice, observation, or measure property) to attach a component property."
+ },
+ {
+  "need_id": "N736",
+  "statement": "Users can know the download URL of a Distribution via dcat:downloadURL."
+ },
+ {
+  "need_id": "N610",
+  "statement": "Users can know that values of a time dimension may be represented using date‑time literals."
+ },
+ {
+  "need_id": "N598",
+  "statement": "Users can know language for a catalog."
+ },
+ {
+  "need_id": "N826",
+  "statement": "Publishers can know when to use a qb:HierarchicalCodeList instead of a SKOS ConceptScheme for representing hierarchical code lists."
+ },
+ {
+  "need_id": "N412",
+  "statement": "Users can know update/modification date (dct:modified) for a Catalog"
+ },
+ {
+  "need_id": "N156",
+  "statement": "Users can know the conformance criteria for DCAT that require usage of only terms in the DCAT namespace."
+ },
+ {
+  "need_id": "N501",
+  "statement": "Users can know the spatial coverage of a Dataset via dct:spatial."
+ },
+ {
+  "need_id": "N945",
+  "statement": "Users can know that coded values should be represented as skos:Concepts within a skos:ConceptScheme or skos:Collection"
+ },
+ {
+  "need_id": "N779",
+  "statement": "Users can know which attributes are marked as required for qb:Observations."
+ },
+ {
+  "need_id": "N572",
+  "statement": "Users can know the dataset's publisher and SPARQL endpoint for a Dataset."
+ },
+ {
+  "need_id": "N642",
+  "statement": "Users can know when to use code lists versus free text for dimension values, especially when a dimension property has a hierarchical code list."
+ },
+ {
+  "need_id": "N462",
+  "statement": "Users can find slice definitions and their structure to group observations, when they need to discover subsets of a dataset."
+ },
+ {
+  "need_id": "N963",
+  "statement": "Users can know that component properties such as unit of measure can be attached at the dataset level to avoid redundancy."
+ }
+]

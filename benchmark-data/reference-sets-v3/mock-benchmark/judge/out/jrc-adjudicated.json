@@ -1,0 +1,5 @@
+{"case": "jrc", "decisions": [
+  {"atom_id": "JRC-6.1", "need_id": "N591", "label": "unrelated", "rationale": "The need concerns the dataset's own identifier, not persistent identifiers for its authors or input data used for filtering and linking; sharing the notion of an identifier is not a relation by itself."},
+  {"atom_id": "JRC-6.1", "need_id": "N840", "label": "unrelated", "rationale": "The need concerns the catalogue publisher's URI, a different agent role on a different resource with no persistence or filtering/linking purpose, so only the generic notion of an identifier is shared."},
+  {"atom_id": "JRC-6.4", "need_id": "N591", "label": "partial", "rationale": "Both concern the dataset's identifier, but the need neither requires a DOI nor is tied to DataCite citations, so they overlap without either containing the other."}
+]}

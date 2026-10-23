@@ -1,0 +1,383 @@
+[
+{"atom_id": "Req-1.1", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 2", "quote": "does not preclude the possibility for organisations to document the information resources more extensively with additional elements derived from international standards or working practices in their community of interest"},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 5(3)", "quote": "Member States shall take the necessary measures to ensure that metadata are complete and of a quality sufficient to fulfil the purpose set out in point (6) of Article 3."}],
+ "rationale": "Complete, sufficient metadata is required and richer element sets are permitted, but expressiveness of descriptions is never stated as a need."}},
+{"atom_id": "Req-1.2", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 2", "quote": "does not preclude the possibility for organisations to document the information resources more extensively with additional elements derived from international standards or working practices in their community of interest"},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Recital 34", "quote": "make documents, including those published on websites, available through an open and machine-readable format and together with their metadata, at the best level of precision and granularity"}],
+ "rationale": "More extensive documentation is permitted and precision and granularity are encouraged, but rich metadata is not stated as a requirement."}},
+{"atom_id": "Req-1.3", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 5(3)", "quote": "Member States shall take the necessary measures to ensure that metadata are complete and of a quality sufficient to fulfil the purpose set out in point (6) of Article 3."},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 3(6)", "quote": "‘metadata’ means information describing spatial data sets and spatial data services and making it possible to discover, inventory and use them;"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 1", "quote": "it is necessary for a user to be able to find spatial data sets and services and to establish whether they may be used and for what purpose, Member States should provide descriptions in the form of metadata for those spatial data sets and services"}],
+ "rationale": "Metadata must be complete and of sufficient quality to let users discover, evaluate and use the described data and services."}},
+{"atom_id": "Req-1.4", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 1.4 (Resource locator)", "quote": "The resource locator defines the link(s) to the resource and/or the link to additional information about the resource."},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 9(2)", "quote": "continue efforts to simplify access to datasets, in particular by providing a single point of access"},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Recital 6", "quote": "that it is easy to discover available spatial data, to evaluate their suitability for the purpose and to know the conditions applicable to their use"}],
+ "rationale": "Metadata must link to the resource, and access to datasets should be simplified through a single point of access."}},
+{"atom_id": "Req-1.5", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part C", "quote": "the fourth column contains a conditional statement if the multiplicity of the element does not apply to all types of resources. All elements are mandatory in other circumstances."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 1", "quote": "Since such metadata should be compatible and usable in a Community and trans-boundary context"}],
+ "rationale": "Element obligations vary with resource type and use context, but context-sensitive descriptions are not stated as a need."}},
+{"atom_id": "Req-1.6", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Article 3", "quote": "The metadata describing a spatial data set, a spatial data set series or a spatial data service shall comprise the metadata elements or groups of metadata elements set out in Part B of the Annex"},
+ {"path": "mobilitydcat/input-raw/dga-proposal.html", "locator": "Article 22(2)", "quote": "The European data altruism consent form shall use a modular approach allowing customisation for specific sectors and for different purposes."}],
+ "rationale": "INSPIRE organises metadata into element groups; a modular, sector-customisable design is required only for the DGA consent form, not metadata."}},
+{"atom_id": "Req-1.7", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 2", "quote": "The definition of a set of metadata elements is necessary in order to allow identification of the information resource for which metadata is created, its classification and identification of its geographic location and temporal reference, quality and validity"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Article 3", "quote": "shall comprise the metadata elements or groups of metadata elements set out in Part B of the Annex and shall be created and maintained in accordance with the rules set out in Parts C and D thereof."}],
+ "rationale": "A defined set of grouped metadata elements, from identification to quality and constraints, is stated as necessary."}},
+{"atom_id": "Req-1.8", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 4", "quote": "The value domain of each metadata element is necessary to ensure interoperability of metadata in a multilingual context and that value domain should be able to take the form of free text, dates, codes derived from international standards"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 3", "quote": "Instructions are necessary for the validation of metadata in accordance with Directive 2007/2/EC with regard to the conditions and expected multiplicity of each metadata element"}],
+ "rationale": "Every element needs a typed value domain, and conditions and multiplicity rules are required for validating metadata."}},
+{"atom_id": "Req-1.9", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 1.6 (Coupled resource)", "quote": "If the resource is a spatial data service, this metadata element identifies, where relevant, the target spatial data set(s) of the service through their unique resource identifiers (URI)."},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 8(3)", "quote": "The implementing rules shall be designed to ensure consistency between items of information which refer to the same location or between items of information which refer to the same object represented at different scales."}],
+ "rationale": "Services reference datasets by identifier and data consistency is required, but integrity of metadata references is not addressed."}},
+{"atom_id": "Req-1.10", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 1.5 (Unique resource identifier)", "quote": "A value uniquely identifying the resource. The value domain of this metadata element is a mandatory character string code, generally assigned by the data owner, and a character string namespace uniquely identifying the context of the identifier code"},
+ {"path": "mobilitydcat/input-raw/data-strategy.html", "locator": "Section 5.A (cross-sectoral governance framework for data access and use)", "quote": "towards a more harmonised description and overview of datasets, data objects and identifiers to foster data interoperability"}],
+ "rationale": "Unique resource identifiers with namespaces are mandatory and harmonised identifiers are sought; persistence of identifiers is not mentioned."}},
+{"atom_id": "Req-2.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 11(1)(a)", "quote": "discovery services making it possible to search for spatial data sets and services on the basis of the content of the corresponding metadata and to display the content of the metadata;"},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 9(1)", "quote": "Member States shall make practical arrangements facilitating the search for documents available for re-use, such as asset lists of main documents with relevant metadata"},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 3(6)", "quote": "‘metadata’ means information describing spatial data sets and spatial data services and making it possible to discover, inventory and use them;"}],
+ "rationale": "Metadata must make datasets discoverable, and search over metadata content must be supported."}},
+{"atom_id": "Req-2.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 5(1)", "quote": "public sector bodies and public undertakings shall make their documents available in any pre-existing format or language and, where possible and appropriate, by electronic means, in formats that are open, machine-readable, accessible, findable and re-usable, together with their metadata."},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 3(1)", "quote": "Member States shall ensure that documents to which this Directive applies in accordance with Article 1 shall be re-usable for commercial or non-commercial purposes in accordance with Chapters III and IV."}],
+ "rationale": "Documents and their metadata must be made available in re-usable formats, and covered documents must be re-usable."}},
+{"atom_id": "Req-2.3", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/data-strategy.html", "locator": "Appendix, 3 (Common European mobility data space)", "quote": "access points to make data available exist in the Member States where the data are made available with a view to serving road safety, traffic and multi-modal travel information services"},
+ {"path": "mobilitydcat/input-raw/data-strategy.html", "locator": "Appendix, 3 (Common European mobility data space)", "quote": "establish a stronger coordination mechanism to federate the National Access Points established under the ITS Directive"},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 9(1)", "quote": "asset lists of main documents with relevant metadata, accessible where possible and appropriate online and in machine-readable format, and portal sites that are linked to the asset lists"}],
+ "rationale": "National access points and metadata asset lists behind portals are mentioned, but no profile is made the basis of a NAP metadata database."}},
+{"atom_id": "Req-2.4", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 3(4)", "quote": "‘spatial data services’ means the operations which may be performed, by invoking a computer application, on the spatial data contained in spatial data sets or on the related metadata;"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part D.4 (207 Catalogue service)", "quote": "Service that provides discovery and management services on a store of metadata about instances."},
+ {"path": "mobilitydcat/input-raw/dga-proposal.html", "locator": "Article 8(2)", "quote": "The single information point shall make available by electronic means a register of available data resources containing relevant information describing the nature of available data."}],
+ "rationale": "Catalogue services are services requiring metadata and data registers are mandated, but describing the catalogue itself is not addressed."}},
+{"atom_id": "Req-2.5", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 5(1)", "quote": "Member States shall ensure that metadata are created for the spatial data sets and services corresponding to the themes listed in Annexes I, II and III, and that those metadata are kept up to date."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part C", "quote": "The metadata describing a resource shall comprise, as regards a spatial data set or a spatial data set series, the metadata elements or groups of metadata elements listed in Table 1"}],
+ "rationale": "Metadata must be created for datasets, using a detailed element set defined for datasets and dataset series."}},
+{"atom_id": "Req-2.6", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part C", "quote": "as regards a spatial data set service, the metadata elements or groups of metadata elements listed in Table 2"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Article 1", "quote": "This Regulation sets out the requirements for the creation and maintenance of metadata for spatial data sets, spatial data set series and spatial data services"},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 5(5)", "quote": "Public sector bodies shall make dynamic data available for re-use immediately after collection, via suitable APIs and, where relevant, as a bulk download."}],
+ "rationale": "A dedicated metadata element set is required for data services; data offered via APIs or bulk download are distinct access forms."}},
+{"atom_id": "Req-2.7", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 9(1)", "quote": "Where possible, Member States shall facilitate the cross-linguistic search for documents, in particular by enabling metadata aggregation at Union level."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 1", "quote": "Since such metadata should be compatible and usable in a Community and trans-boundary context, it is necessary to lay down rules concerning the metadata"}],
+ "rationale": "Metadata aggregation at Union level and metadata usable across borders are required."}},
+{"atom_id": "Req-3.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 11(1)(a)", "quote": "discovery services making it possible to search for spatial data sets and services on the basis of the content of the corresponding metadata and to display the content of the metadata;"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part D (value domains)", "quote": "a textual name for humans which may be translated in the different Community languages, — a language neutral name for computers (the value expressed between parenthesis),"}],
+ "rationale": "Discovery services must display metadata content, and code values carry human-readable names alongside machine names."}},
+{"atom_id": "Req-3.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 9(1)", "quote": "asset lists of main documents with relevant metadata, accessible where possible and appropriate online and in machine-readable format"},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 5(1)", "quote": "in formats that are open, machine-readable, accessible, findable and re-usable, together with their metadata. Both the format and the metadata shall, where possible, comply with formal open standards."}],
+ "rationale": "Asset lists with metadata must be machine-readable where possible, and metadata must comply with formal open standards."}},
+{"atom_id": "Req-4.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 9(1)", "quote": "Where possible, Member States shall facilitate the cross-linguistic search for documents, in particular by enabling metadata aggregation at Union level."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 4", "quote": "The value domain of each metadata element is necessary to ensure interoperability of metadata in a multilingual context"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part D (value domains)", "quote": "a textual name for humans which may be translated in the different Community languages,"}],
+ "rationale": "Cross-linguistic search, metadata interoperability in a multilingual context and translatable value names are required."}},
+{"atom_id": "Req-5.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 4", "quote": "value domain should be able to take the form of free text, dates, codes derived from international standards, such as language codes, keywords derived from controlled lists or thesauri, or character strings"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 3 (Keyword)", "quote": "at least one keyword shall be provided from the general environmental multilingual thesaurus (GEMET) describing the relevant spatial data theme"},
+ {"path": "mobilitydcat/input-raw/dga-proposal.html", "locator": "Recital 41", "quote": "supporting cross-sector data use by adhering to the European Interoperability Framework (EIF) principles and through the utilisation of standards and specifications (such as the Core Vocabularies"}],
+ "rationale": "Standard codes, controlled lists and thesauri ensure metadata interoperability; Core Vocabularies are named for cross-sector use."}},
+{"atom_id": "Req-6.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 5(1)", "quote": "Both the format and the metadata shall, where possible, comply with formal open standards."},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 2(15)", "quote": "‘formal open standard’ means a standard which has been laid down in written form, detailing specifications for the requirements on how to ensure software interoperability;"},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 2(13)", "quote": "‘machine-readable format’ means a file format structured so that software applications can easily identify, recognise and extract specific data, including individual statements of fact, and their internal structure;"}],
+ "rationale": "Metadata must follow formal open standards ensuring software interoperability, in formats software can process automatically."}},
+{"atom_id": "Req-7.1", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 10(1)", "quote": "any information, including data, codes and technical classifications, needed for compliance with the implementing rules provided for in Article 7(1) is made available to public authorities or third parties in accordance with conditions that do not restrict its use for that purpose."},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Recital 32", "quote": "APIs should be supported by clear technical documentation that is complete and available online."}],
+ "rationale": "Compliance information and API documentation must be openly available, but publishing a profile's documentation is not addressed."}},
+{"atom_id": "Req-7.2", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "No passage concerns annotating specification documentation in a public repository."}},
+{"atom_id": "Req-8.1", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/data-strategy.html", "locator": "Section 5.A (cross-sectoral governance framework for data access and use)", "quote": "relevant for cross-sector data use and for data use in the common sectoral data spaces, involving both private and public players. This could include a mechanism to prioritise standardisation activities"},
+ {"path": "mobilitydcat/input-raw/data-strategy.html", "locator": "Appendix, 9 (Common European skills data space)", "quote": "Establish a governance model for the on-going management of the Europass Digital Credentials Framework in close cooperation with Member States and key stakeholders"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 2", "quote": "Nor does it preclude the possibility to adopt guidelines established and kept up to date by the Commission, in particular when it is necessary to ensure the interoperability of metadata."}],
+ "rationale": "Governance mechanisms and maintained guidelines appear, but no governance process for maintaining a metadata profile is described."}},
+{"atom_id": "Req-8.2", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 4(7)", "quote": "The description of the existing data themes referred to in Annexes I, II and III may be adapted in accordance with the regulatory procedure with scrutiny referred to in Article 22(3), in order to take into account the evolving needs for spatial data"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 2", "quote": "guidelines established and kept up to date by the Commission"}],
+ "rationale": "A procedure exists for adapting INSPIRE theme descriptions and guidelines are kept current, but no profile revision methodology is defined."}},
+{"atom_id": "Req-8.3", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 7(5)", "quote": "including users, producers, added value service providers or any coordinating body shall be given the opportunity to participate in preparatory discussions on the content of the implementing rules referred to in paragraph 1"},
+ {"path": "mobilitydcat/input-raw/dga-proposal.html", "locator": "Article 26(2)", "quote": "Stakeholders and relevant third parties may be invited to attend meetings of the Board and to participate in its work."}],
+ "rationale": "Stakeholders may join preparatory discussions on implementing rules, but open public commenting on a profile is not described."}},
+{"atom_id": "Req-8.4", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "No passage mentions issue tracking or release planning tools."}},
+{"atom_id": "Req-8.5", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "No passage covers resolving issues and proposals into follow-up releases of a specification."}},
+{"atom_id": "Req-9.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Recital 16", "quote": "Implementing rules should be based, where possible, on international standards and should not result in excessive costs for Member States."},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 7(1)", "quote": "Where organisations established under international law have adopted relevant standards to ensure interoperability or harmonisation of spatial data sets and services, these standards shall be integrated"},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Recital 11", "quote": "it will also build upon existing experience and initiatives rather than duplicate the work that has already been done"}],
+ "rationale": "Building on existing standards where possible is required, but DCAT-AP is never named in these inputs."}},
+{"atom_id": "Req-9.2", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 2", "quote": "does not preclude the possibility for organisations to document the information resources more extensively with additional elements derived from international standards or working practices in their community of interest"}],
+ "rationale": "Additional elements beyond the base set are permitted, but DCAT-AP extension rules are not mentioned."}},
+{"atom_id": "Req-10.1", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 2", "quote": "Nor does it preclude the possibility to adopt guidelines established and kept up to date by the Commission, in particular when it is necessary to ensure the interoperability of metadata."}],
+ "rationale": "Adopting evolving Commission metadata guidelines is allowed, but following DCAT-AP's evolution is not mentioned."}},
+{"atom_id": "Req-11.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 5(4)", "quote": "These rules shall take account of relevant, existing international standards and user requirements, in particular with relation to validation metadata."},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Recital 11", "quote": "it will also build upon existing experience and initiatives rather than duplicate the work that has already been done"}],
+ "rationale": "Metadata rules must consider existing standards and user requirements, but the CMC element set is not mentioned."}},
+{"atom_id": "Req-12.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Recital 11", "quote": "it will also build upon existing experience and initiatives rather than duplicate the work that has already been done"},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Recital 34", "quote": "in a format that ensures interoperability, for example by processing them in a way consistent with the principles governing the compatibility and usability requirements for spatial information under Directive 2007/2/EC"}],
+ "rationale": "Existing initiatives and geospatial (INSPIRE) practice must be considered, but DCAT-AP extensions such as GeoDCAT-AP are not named."}},
+{"atom_id": "Req-12.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Recital 68", "quote": "The list should take into account sectoral Union legal acts that regulate the publication of datasets, such as Directives 2007/2/EC and 2010/40/EU, to ensure that datasets are made available under corresponding standards and sets of metadata."},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Recital 34", "quote": "in a format that ensures interoperability, for example by processing them in a way consistent with the principles governing the compatibility and usability requirements for spatial information under Directive 2007/2/EC"}],
+ "rationale": "Datasets should be published under INSPIRE's sets of metadata and processed consistently with INSPIRE requirements."}},
+{"atom_id": "Req-13.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 7(1)", "quote": "Relevant user requirements, existing initiatives and international standards for the harmonisation of spatial data sets, as well as feasibility and cost-benefit considerations shall be taken into account in the development of the implementing rules."},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Recital 11", "quote": "This Directive will not only complement such initiatives by providing a framework that will enable them to become interoperable, but it will also build upon existing experience and initiatives"}],
+ "rationale": "Existing initiatives must be considered for interoperability when developing rules, but vocabularies of operational NAPs are not mentioned."}},
+{"atom_id": "Req-14.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 5(3)", "quote": "Member States shall take the necessary measures to ensure that metadata are complete and of a quality sufficient to fulfil the purpose set out in point (6) of Article 3."},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Annex I, 7 (Transport networks)", "quote": "Road, rail, air and water transport networks and related infrastructure. Includes links between different networks."},
+ {"path": "mobilitydcat/input-raw/data-strategy.html", "locator": "Appendix, 3 (Common European mobility data space)", "quote": "facilitate access, pooling and sharing of data from existing and future transport and mobility databases."}],
+ "rationale": "Complete metadata is required for transport-network datasets and mobility databases multiply, but exhaustive mobility metadata is not stated."}},
+{"atom_id": "Req-15.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 2", "quote": "This is the minimum set of metadata elements necessary to comply with Directive 2007/2/EC"},
+ {"path": "mobilitydcat/input-raw/data-strategy.html", "locator": "Appendix, 3 (Common European mobility data space)", "quote": "establish a stronger coordination mechanism to federate the National Access Points established under the ITS Directive"}],
+ "rationale": "A minimum set of metadata elements is the INSPIRE model and NAPs need federation, but no NAP minimum set is defined."}},
+{"atom_id": "Req-15.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 2", "quote": "does not preclude the possibility for organisations to document the information resources more extensively with additional elements derived from international standards or working practices in their community of interest"}],
+ "rationale": "Beyond the minimum set, organisations may document resources with additional elements from their community's practices."}},
+{"atom_id": "Req-16.1", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "No passage mentions DCAT-AP, the CMC or mappings between them."}},
+{"atom_id": "Req-17.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 10.2 (Metadata date)", "quote": "The date which specifies when the metadata record was created or updated."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 2", "quote": "Metadata elements related to the metadata record itself are also necessary to monitor that the metadata created are kept up to date"}],
+ "rationale": "A mandatory metadata date records when the metadata record was created or updated."}},
+{"atom_id": "Req-17.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 10.3 (Metadata language)", "quote": "This is the language in which the metadata elements are expressed."}],
+ "rationale": "A mandatory metadata language element states the language of the metadata."}},
+{"atom_id": "Req-17.3", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 10.1 (Metadata point of contact)", "quote": "This is the description of the organisation responsible for the creation and maintenance of the metadata."}],
+ "rationale": "The metadata point of contact identifies the organisation that creates and maintains the metadata."}},
+{"atom_id": "Req-18.1", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 5(1)", "quote": "in formats that are open, machine-readable, accessible, findable and re-usable, together with their metadata"},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Recital 41", "quote": "Therefore, all applicable conditions for the re-use of documents should be made clear to the potential re-users."}],
+ "rationale": "Metadata accompany documents made available for re-use and re-use conditions must be clear, but stating metadata's own conditions is not required."}},
+{"atom_id": "Req-19.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 1.1 (Resource title)", "quote": "This a characteristic, and often unique, name by which the resource is known."}],
+ "rationale": "A mandatory resource title gives the name by which the resource is known."}},
+{"atom_id": "Req-19.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 1.2 (Resource abstract)", "quote": "This is a brief narrative summary of the content of the resource."}],
+ "rationale": "A mandatory resource abstract gives a brief narrative summary of the resource."}},
+{"atom_id": "Req-19.3", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 1.3 (Resource type)", "quote": "This is the type of resource being described by the metadata."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part D.1 (Resource type)", "quote": "1.2. Spatial data set (dataset) 1.3. Spatial data services (services)"}],
+ "rationale": "A mandatory resource type element distinguishes datasets, dataset series and services."}},
+{"atom_id": "Req-19.4", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 2.1 (Topic category)", "quote": "The topic category is a high-level classification scheme to assist in the grouping and topic-based search of available spatial data resources."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 3 (Keyword)", "quote": "at least one keyword shall be provided from the general environmental multilingual thesaurus (GEMET) describing the relevant spatial data theme as defined in Annex I, II or III to Directive 2007/2/EC"}],
+ "rationale": "Datasets must be classified by topic category and legally defined themes, but categories from the transport Delegated Regulations are absent."}},
+{"atom_id": "Req-19.5", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 2.2 (Spatial data service type)", "quote": "This is a classification to assist in the search of available spatial data services. A specific service shall be categorised in only one category."}],
+ "rationale": "A service type classification is required, but Delegated Regulation (EU) 2017/1926 service categories are not mentioned."}},
+{"atom_id": "Req-19.6", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 1.7 (Resource language)", "quote": "The language(s) used within the resource."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part C, Table 1 (1.7 Resource language)", "quote": "Mandatory if the resource includes textual information."}],
+ "rationale": "Resource language states the language(s) used within the resource, mandatory when it contains text."}},
+{"atom_id": "Req-19.7", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 7(4)", "quote": "Implementing rules referred to in paragraph 1 shall cover the definition and classification of spatial objects relevant to spatial data sets related to the themes listed in Annex I, II or III and the way in which those spatial data are geo-referenced."}],
+ "rationale": "Implementing rules must cover how data are geo-referenced, but describing the georeferencing method in metadata is not required."}},
+{"atom_id": "Req-20.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 7.1 (Specification)", "quote": "This is a citation of the implementing rules adopted under Article 7(1) of Directive 2007/2/EC or other specification to which a particular resource conforms."},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 5(2)(a)", "quote": "the conformity of spatial data sets with the implementing rules provided for in Article 7(1);"},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Recital 18", "quote": "this Directive is without prejudice to provisions that exceed the minimum harmonisation level of this Directive as laid down in Commission delegated regulations adopted under Directive 2010/40/EU"}],
+ "rationale": "Metadata must cite the legal rules a resource conforms to; ITS Delegated Regulations exist, but MMTIS, RTTI, SRTI and SSTP are not named."}},
+{"atom_id": "Req-21.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 3 (Keyword)", "quote": "If the resource is a spatial data service, at least one keyword from Part D.4 shall be provided."},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 8(2)(c)", "quote": "the key attributes and the corresponding multilingual thesauri commonly required for policies which may have an impact on the environment;"}],
+ "rationale": "Controlled keywords must describe dataset and service content and common thesauri are mandated, but coordinated vocabulary development is not described."}},
+{"atom_id": "Req-21.2", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part D (value domains)", "quote": "Where specified in the description of the metadata elements in Part B, the value domains described in Part D.1 to D.6 shall be used with the multiplicity expressed in Tables 1 and 2 of Part C."}],
+ "rationale": "The regulation defines its value domains in its own Part D, a precedent rather than a stated need to host vocabularies."}},
+{"atom_id": "Req-21.3", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 4(7)", "quote": "The description of the existing data themes referred to in Annexes I, II and III may be adapted in accordance with the regulatory procedure with scrutiny referred to in Article 22(3), in order to take into account the evolving needs for spatial data"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 3 (Keyword)", "quote": "at least one keyword shall be provided from the general environmental multilingual thesaurus (GEMET) describing the relevant spatial data theme as defined in Annex I, II or III to Directive 2007/2/EC"}],
+ "rationale": "The theme list used for metadata keywords can be adapted to evolving needs, so the content vocabulary is maintained."}},
+{"atom_id": "Req-21.4", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 13(2)", "quote": "The Commission is empowered to adopt delegated acts in accordance with Article 15 in order to amend Annex I by adding new thematic categories of high-value datasets in order to reflect technological and market developments."},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 4(7)", "quote": "The description of the existing data themes referred to in Annexes I, II and III may be adapted in accordance with the regulatory procedure with scrutiny referred to in Article 22(3), in order to take into account the evolving needs for spatial data"}],
+ "rationale": "Dataset category lists can be extended and INSPIRE themes adapted, but extending a metadata content vocabulary is not explicitly stated."}},
+{"atom_id": "Req-21.5", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part D (value domains)", "quote": "a textual name for humans which may be translated in the different Community languages,"},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 8(2)(c)", "quote": "the key attributes and the corresponding multilingual thesauri commonly required for policies which may have an impact on the environment;"}],
+ "rationale": "Value-domain names may be translated into Community languages, and multilingual thesauri are required for harmonisation."}},
+{"atom_id": "Req-22.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part A, point 2", "quote": "References to the validity of spatial data sets shall be understood as relating to any of the following: — the range of space and time that is pertinent to the data,"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 5.1 (Temporal extent)", "quote": "The temporal extent defines the time period covered by the content of the resource."},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 5(2)(c)", "quote": "the quality and validity of spatial data sets;"}],
+ "rationale": "Metadata must cover validity, defined to include the time range pertinent to the data, plus the temporal extent of content."}},
+{"atom_id": "Req-23.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 4.1 (Geographic bounding box)", "quote": "This is the extent of the resource in the geographic space, given as a bounding box."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 4 (Geographic location)", "quote": "The requirement for geographic location referred to in Article 11(2)(e) of Directive 2007/2/EC shall be expressed with the metadata element geographic bounding box."}],
+ "rationale": "A mandatory geographic bounding box gives the resource's extent in geographic space."}},
+{"atom_id": "Req-23.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part A, point 2", "quote": "References to the validity of spatial data sets shall be understood as relating to any of the following: — the range of space and time that is pertinent to the data,"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 4.1 (Geographic bounding box)", "quote": "This is the extent of the resource in the geographic space, given as a bounding box."}],
+ "rationale": "Dataset validity explicitly includes the range of space pertinent to the data, expressed through geographic extent."}},
+{"atom_id": "Req-23.3", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Annex I, 7 (Transport networks)", "quote": "Road, rail, air and water transport networks and related infrastructure. Includes links between different networks. Also includes the trans-European transport network"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part D.2, 2.18 (Transportation)", "quote": "This category applies to the following Directive 2007/2/EC spatial data theme: Annex I(7) Transport networks."}],
+ "rationale": "Transport networks (including TEN-T) are an INSPIRE theme and topic category, but describing network coverage by functional class is absent."}},
+{"atom_id": "Req-24.1", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 7(4)", "quote": "Implementing rules referred to in paragraph 1 shall cover the definition and classification of spatial objects relevant to spatial data sets related to the themes listed in Annex I, II or III and the way in which those spatial data are geo-referenced."}],
+ "rationale": "Implementing rules must cover how data are geo-referenced, but stating location referencing methods in metadata is not required."}},
+{"atom_id": "Req-24.2", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Annex I, 1 (Coordinate reference systems)", "quote": "Systems for uniquely referencing spatial information in space as a set of coordinates (x, y, z) and/or latitude and longitude and height, based on a geodetic horizontal and vertical datum."},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 7(4)", "quote": "and the way in which those spatial data are geo-referenced."}],
+ "rationale": "Coordinate reference systems are an INSPIRE data theme and georeferencing is regulated, but no metadata element states the CRS."}},
+{"atom_id": "Req-25.1", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/data-strategy.html", "locator": "Appendix, 3 (Common European mobility data space)", "quote": "Digitisation and data in all modes of transport and in logistics will be an essential component of further work on the ‘European Transport System’"},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Annex I, 7 (Transport networks)", "quote": "Road, rail, air and water transport networks and related infrastructure."}],
+ "rationale": "Mobility data span several transport modes and INSPIRE lists road, rail, air and water networks, but describing modes is not required."}},
+{"atom_id": "Req-25.2", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "Transport operators appear only as data holders within scope; describing the operators a dataset covers is not addressed."}},
+{"atom_id": "Req-26.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 9.1 (Responsible party)", "quote": "This is the description of the organisation responsible for the establishment, management, maintenance and distribution of the resource."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part D.6, 6.10 (Publisher)", "quote": "Party who published the resource."},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 5(2)(d)", "quote": "the public authorities responsible for the establishment, management, maintenance and distribution of spatial data sets and services;"}],
+ "rationale": "Metadata must name the responsible organisation and its role, whose value domain includes publisher."}},
+{"atom_id": "Req-26.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part D.6, 6.3 (Owner)", "quote": "Party that owns the resource."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 9.2 (Responsible party role)", "quote": "This is the role of the responsible organisation."}],
+ "rationale": "The responsible party role value domain includes Owner, the party that owns the resource."}},
+{"atom_id": "Req-27.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 8.1 (Conditions applying to access and use)", "quote": "This metadata element defines the conditions for access and use of spatial data sets and services, and where applicable, corresponding fees"},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 8(2)", "quote": "Member States shall ensure that standard licences for the re-use of public sector documents, which can be adapted to meet particular licence applications, are available in digital format and can be processed electronically."}],
+ "rationale": "Conditions for access and use are mandatory metadata, and standard re-use licences must be digital and electronically processable."}},
+{"atom_id": "Req-27.2", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 8.1 (Conditions applying to access and use)", "quote": "The element must have values. If no conditions apply to the access and use of the resource, ‘no conditions apply’ shall be used."},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 12(1)", "quote": "Contracts or other arrangements between the public sector bodies or public undertakings holding the documents and third parties shall not grant exclusive rights."},
+ {"path": "mobilitydcat/input-raw/dga-proposal.html", "locator": "Recital 11", "quote": "The public sector body could make the use of such secure processing environment conditional on the signature by the re-user of a confidentiality agreement"}],
+ "rationale": "Access and use conditions must always be stated and contracts can govern re-use, but contracts are not singled out."}},
+{"atom_id": "Req-27.3", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 5(2)(b)", "quote": "conditions applying to access to, and use of, spatial data sets and services and, where applicable, corresponding fees;"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 8.2 (Limitations on public access)", "quote": "this metadata element shall provide information on the limitations and the reasons for them."}],
+ "rationale": "Metadata must state any conditions on access and use, fees, and limitations on public access with reasons."}},
+{"atom_id": "Req-28.1", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Recital 35", "quote": "Data encoded in files that are structured in a machine-readable format should be considered to be machine-readable data."}],
+ "rationale": "Encoding appears only as a property of machine-readable files; describing the data's encoding in metadata is not required."}},
+{"atom_id": "Req-28.2", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 5(1)", "quote": "make their documents available in any pre-existing format or language and, where possible and appropriate, by electronic means, in formats that are open, machine-readable"},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 14(1)", "quote": "The arrangements may include terms applicable to re-use, formats of data and metadata and technical arrangements for dissemination."}],
+ "rationale": "Data must be offered in open, machine-readable formats and arrangements may fix formats, but describing the format in metadata is not required."}},
+{"atom_id": "Req-28.3", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "No passage concerns the grammar or schema language of the data."}},
+{"atom_id": "Req-28.4", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 7.1 (Specification)", "quote": "This is a citation of the implementing rules adopted under Article 7(1) of Directive 2007/2/EC or other specification to which a particular resource conforms."},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 7(4)", "quote": "Implementing rules referred to in paragraph 1 shall cover the definition and classification of spatial objects relevant to spatial data sets"}],
+ "rationale": "Metadata must cite the implementing rules or other specification, i.e. the data model, that a resource conforms to."}},
+{"atom_id": "Req-29.1", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Recital 6", "quote": "that it is easy to discover available spatial data, to evaluate their suitability for the purpose and to know the conditions applicable to their use"},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Recital 32", "quote": "APIs should be supported by clear technical documentation that is complete and available online."}],
+ "rationale": "Users must be able to evaluate suitability and APIs need technical documentation, but describing a data schema is not stated."}},
+{"atom_id": "Req-29.2", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Recital 6", "quote": "that it is easy to discover available spatial data, to evaluate their suitability for the purpose and to know the conditions applicable to their use"},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 11(1)(b)", "quote": "view services making it possible, as a minimum, to display, navigate, zoom in/out, pan, or overlay viewable spatial data sets and to display legend information and any relevant content of metadata;"}],
+ "rationale": "View services let users inspect data to judge suitability, but providing data samples is not mentioned."}},
+{"atom_id": "Req-30.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 7.1 (Specification)", "quote": "This citation shall include at least the title and a reference date (date of publication, date of last revision or of creation) of the implementing rules adopted under Article 7(1) of Directive 2007/2/EC or of the specification."},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 11(2)(d)", "quote": "degree of conformity with the implementing rules provided for in Article 7(1);"}],
+ "rationale": "Specification citations need title and reference date, and conformity is a search criterion; data-model version identifiers are not required."}},
+{"atom_id": "Req-30.2", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "No passage mentions publication types of a data model."}},
+{"atom_id": "Req-30.3", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 7.1 (Specification)", "quote": "A resource may conform to more than one implementing rules adopted under Article 7(1) of Directive 2007/2/EC or other specification."}],
+ "rationale": "Several conformed specifications may be cited, but extensions of a data model are not mentioned."}},
+{"atom_id": "Req-31.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 8(2)(e)", "quote": "updates of the data."},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Recital 45", "quote": "If the competent authority decides no longer to make available certain documents for re-use, or to cease updating those documents, it should make those decisions publicly known"},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Recital 31", "quote": "the economic value of which depends on the immediate availability of the information and of regular updates"}],
+ "rationale": "Updates must be addressed and cessation of updating announced, and dynamic data depend on regular updates; an update rate is not specified."}},
+{"atom_id": "Req-31.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 5(2)(c)", "quote": "the quality and validity of spatial data sets;"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 6 (Quality and validity)", "quote": "The requirements referred to in Article 5(2) and Article 11(2) of Directive 2007/2/EC relating to the quality and validity of spatial data shall be addressed by the following metadata elements:"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 6.1 (Lineage)", "quote": "This is a statement on process history and/or overall quality of the spatial data set."}],
+ "rationale": "Metadata must include data quality and validity information, through lineage and spatial resolution elements."}},
+{"atom_id": "Req-31.3", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 6.1 (Lineage)", "quote": "Where appropriate it may include a statement whether the data set has been validated or quality assured, whether it is the official version (if multiple versions exist), and whether it has legal validity."},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 5(2)(a)", "quote": "the conformity of spatial data sets with the implementing rules provided for in Article 7(1);"}],
+ "rationale": "Lineage may record validation history and conformity with legal rules is required, but Delegated Regulation compliance-assessment history is absent."}},
+{"atom_id": "Req-31.4", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 7.2 (Degree)", "quote": "This is the degree of conformity of the resource to the implementing rules adopted under Article 7(1) of Directive 2007/2/EC or other specification."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part D.5 (Degree of conformity)", "quote": "Not evaluated (notEvaluated) Conformance has not been evaluated."}],
+ "rationale": "Degree of conformity (conformant, not conformant, not evaluated) records assessment status, though not for the mobility Delegated Regulations."}},
+{"atom_id": "Req-32.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 3", "quote": "with regard to the conditions and expected multiplicity of each metadata element, that is to say, whether values for each element are always to be expected in the metadata record, can occur only once, or can occur more than once"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part C", "quote": "Those metadata elements or groups of metadata elements shall be in accordance with the expected multiplicity and the related conditions set out in Tables 1 and 2."}],
+ "rationale": "The expected multiplicity of each metadata element must be specified and respected."}},
+{"atom_id": "Req-32.2", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part C", "quote": "When no condition is expressed in relation to a particular metadata element, that element shall be mandatory."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part C", "quote": "when the multiplicity is 0..1 or 0..*, the condition defines when the metadata elements is mandated,"}],
+ "rationale": "Elements are mandatory or conditionally mandatory; recommended and optional obligation levels are not defined."}},
+{"atom_id": "Req-32.3", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part C", "quote": "1 means that there shall be only one instance of this metadata element in a result set,"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part C", "quote": "Those metadata elements or groups of metadata elements shall be in accordance with the expected multiplicity and the related conditions set out in Tables 1 and 2."}],
+ "rationale": "Clear multiplicity rules with conditions, applied to result sets, are laid down, but implications for deployments are not discussed."}},
+{"atom_id": "Req-32.4", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 5(4)", "quote": "These rules shall take account of relevant, existing international standards and user requirements, in particular with relation to validation metadata."}],
+ "rationale": "Metadata rules must take account of existing standards, but DCAT-AP cardinality rules are not mentioned."}},
+{"atom_id": "Req-33.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 1.5 (Unique resource identifier)", "quote": "The value domain of this metadata element is a mandatory character string code, generally assigned by the data owner, and a character string namespace uniquely identifying the context of the identifier code (for example, the data owner)."},
+ {"path": "mobilitydcat/input-raw/data-strategy.html", "locator": "Section 5.A (cross-sectoral governance framework for data access and use)", "quote": "towards a more harmonised description and overview of datasets, data objects and identifiers to foster data interoperability"},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 8(2)(a)", "quote": "a common framework for the unique identification of spatial objects, to which identifiers under national systems can be mapped in order to ensure interoperability between them;"}],
+ "rationale": "Identifier rules (code plus namespace) are set and harmonised identifier frameworks are called for."}},
+{"atom_id": "Req-34.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 4", "quote": "The value domain of each metadata element is necessary to ensure interoperability of metadata in a multilingual context"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part D (value domains)", "quote": "Where specified in the description of the metadata elements in Part B, the value domains described in Part D.1 to D.6 shall be used"}],
+ "rationale": "Each metadata element needs a defined value domain, including code lists and controlled keywords."}},
+{"atom_id": "Req-35.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 2", "quote": "Metadata elements related to the metadata record itself are also necessary to monitor that the metadata created are kept up to date"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 10.2 (Metadata date)", "quote": "The date which specifies when the metadata record was created or updated."}],
+ "rationale": "Record-level elements, notably the metadata date, are required to monitor updates of metadata records."}},
+{"atom_id": "Req-35.2", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "Versions appear only for datasets in lineage; versioning of metadata records is not addressed."}},
+{"atom_id": "Req-36.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 3", "quote": "Instructions are necessary for the validation of metadata in accordance with Directive 2007/2/EC with regard to the conditions and expected multiplicity of each metadata element"}],
+ "rationale": "Instructions for validating metadata against conditions and multiplicities are stated as necessary."}},
+{"atom_id": "Req-37.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Article 3", "quote": "shall be created and maintained in accordance with the rules set out in Parts C and D thereof."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 8.1 (Conditions applying to access and use)", "quote": "The element must have values. If no conditions apply to the access and use of the resource, ‘no conditions apply’ shall be used. If conditions are unknown, ‘conditions unknown’ shall be used."}],
+ "rationale": "Each element is defined semantically and paired with binding usage rules, such as required default values."}},
+{"atom_id": "Req-37.2", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 4 (Geographic location)", "quote": "The requirement for geographic location referred to in Article 11(2)(e) of Directive 2007/2/EC shall be expressed with the metadata element geographic bounding box."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 9 (Organisations responsible)", "quote": "For the purposes of Article 5(2)(d) and Article 11(2)(g) of Directive 2007/2/EC, the following two metadata elements shall be provided:"}],
+ "rationale": "Elements are tied to the Directive's discovery search criteria and duties, but relating them to NAP processes is not addressed."}},
+{"atom_id": "Req-38.1", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part C", "quote": "The metadata describing a resource shall comprise, as regards a spatial data set or a spatial data set series, the metadata elements or groups of metadata elements listed in Table 1 and, as regards a spatial data set service, the metadata elements or groups of metadata elements listed in Table 2."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B, 1.6 (Coupled resource)", "quote": "If the resource is a spatial data service, this metadata element identifies, where relevant, the target spatial data set(s) of the service through their unique resource identifiers (URI)."}],
+ "rationale": "Element sets differ for datasets, series and services, linked via coupled resources; dividing metadata across a resource's parts is not guided."}},
+{"atom_id": "Req-39.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/data-strategy.html", "locator": "Section 5.A (cross-sectoral governance framework for data access and use)", "quote": "towards a more harmonised description and overview of datasets, data objects and identifiers to foster data interoperability (i.e. their usability at a technical level"},
+ {"path": "mobilitydcat/input-raw/dga-proposal.html", "locator": "Article 27(d)", "quote": "to assist the Commission in enhancing the interoperability of data as well as data sharing services between different sectors and domains, building on existing European, international or national standards;"},
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 9(1)", "quote": "Where possible, Member States shall facilitate the cross-linguistic search for documents, in particular by enabling metadata aggregation at Union level."}],
+ "rationale": "Harmonised dataset descriptions, cross-sector interoperability and Union-level metadata aggregation are called for, implying cross-portal metadata interoperability."}},
+{"atom_id": "Req-39.2", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/open-data-directive.html", "locator": "Article 9(1)", "quote": "Where possible, Member States shall facilitate the cross-linguistic search for documents, in particular by enabling metadata aggregation at Union level."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata.html", "locator": "Recital 2", "quote": "does not preclude the possibility for organisations to document the information resources more extensively with additional elements derived from international standards or working practices in their community of interest"}],
+ "rationale": "Metadata aggregation is required and additional elements are allowed, but handling extensions during harvesting is not addressed."}},
+{"atom_id": "Req-40.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 5(3)", "quote": "Member States shall take the necessary measures to ensure that metadata are complete and of a quality sufficient to fulfil the purpose set out in point (6) of Article 3."},
+ {"path": "mobilitydcat/input-raw/inspire-directive.html", "locator": "Article 21(2)(a)", "quote": "how public sector providers and users of spatial data sets and services and intermediary bodies are coordinated, and of the relationship with the third parties and of the organisation of quality assurance;"}],
+ "rationale": "Measures ensuring metadata completeness and quality are mandatory, and the organisation of quality assurance must be reported."}}
+]

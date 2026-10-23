@@ -1,0 +1,351 @@
+[
+  {"atom_id": "Req-1.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-01", "quote": "Use expressive and context-aware, modular descriptions"}
+  ], "rationale": "DE-01 explicitly requires expressive descriptions."}},
+  {"atom_id": "Req-1.2", "consolidation": {"label": "uncertain", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-01", "quote": "Supply sufficiently informative descriptions to support discovery and reuse."},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-01", "quote": "Use expressive and context-aware, modular descriptions"},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-03", "quote": "Give enough mobility-specific detail to differentiate datasets as their number and diversity grow."}
+  ], "rationale": "No item says 'rich'; IT-01 'sufficiently informative', DE-01 'expressive' and DE-03 'enough detail' are close but may not express richness."}},
+  {"atom_id": "Req-1.3", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-01", "quote": "describe actual data accurately and facilitate access"},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-01", "quote": "Supply sufficiently informative descriptions to support discovery and reuse."}
+  ], "rationale": "DE-01 asks to describe the actual data accurately; IT-01 asks for sufficiently informative descriptions, i.e. adequate description."}},
+  {"atom_id": "Req-1.4", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-01", "quote": "describe actual data accurately and facilitate access"}
+  ], "rationale": "DE-01 requires descriptions that facilitate access to the data."}},
+  {"atom_id": "Req-1.5", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-01", "quote": "Use expressive and context-aware, modular descriptions"}
+  ], "rationale": "DE-01 requires context-aware descriptions, equivalent to context-sensitive."}},
+  {"atom_id": "Req-1.6", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-01", "quote": "Use expressive and context-aware, modular descriptions"}
+  ], "rationale": "DE-01 requires modular descriptions."}},
+  {"atom_id": "Req-1.7", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-01", "quote": "modular descriptions with clear structure"}
+  ], "rationale": "DE-01 requires descriptions with clear structure; 'clear' versus 'detailed' is a wording difference."}},
+  {"atom_id": "Req-1.8", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-01", "quote": "with clear structure, type rules"}
+  ], "rationale": "DE-01 requires type rules, matching strong typing and rules."}},
+  {"atom_id": "Req-1.9", "consolidation": {"label": "uncertain", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-01", "quote": "stable entity identities and persistent identifiers"}
+  ], "rationale": "DE-01's stable entity identities relate to referential integrity (notes fold identities in), but no item states preserving references."}},
+  {"atom_id": "Req-1.10", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-01", "quote": "stable entity identities and persistent identifiers"},
+    {"path": "mobilitydcat/input-preconsolidation/literature-review-observations.json", "locator": "Annex 2 §2.10", "quote": "The FAIR-cost study discusses missing persistent identifiers"}
+  ], "rationale": "DE-01 requires persistent identifiers; the FAIR-cost review flags missing ones."}},
+  {"atom_id": "Req-2.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-01", "quote": "Supply sufficiently informative descriptions to support discovery and reuse."},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-09", "quote": "enable theme-based faceted search"},
+    {"path": "mobilitydcat/input-preconsolidation/literature-review-observations.json", "locator": "Annex 2 §2.2", "quote": "FAIR guidance addresses federation, standards and discoverable, reusable data."}
+  ], "rationale": "IT-01 targets discovery, DE-09 faceted search, and the FAIR review discoverable data."}},
+  {"atom_id": "Req-2.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-01", "quote": "Supply sufficiently informative descriptions to support discovery and reuse."},
+    {"path": "mobilitydcat/input-preconsolidation/literature-review-observations.json", "locator": "Annex 2 §2.2", "quote": "FAIR guidance addresses federation, standards and discoverable, reusable data."}
+  ], "rationale": "IT-01 and the FAIR review both name reuse of data as a purpose."}},
+  {"atom_id": "Req-2.3", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-00", "quote": "Provide a reusable foundation for a NAP metadata database."},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-06", "quote": "Provide a reusable foundation for a NAP metadata database."}
+  ], "rationale": "DE-00 and DE-06 ask for a reusable foundation for a NAP metadata database."}},
+  {"atom_id": "Req-2.4", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-09", "quote": "describe registries, datasets and delivery services"}
+  ], "rationale": "DE-09 lists describing registries as a supported function."}},
+  {"atom_id": "Req-2.5", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-09", "quote": "describe registries, datasets and delivery services"}
+  ], "rationale": "DE-09 lists describing datasets as a supported function."}},
+  {"atom_id": "Req-2.6", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-09", "quote": "describe registries, datasets and delivery services"}
+  ], "rationale": "DE-09 lists describing delivery services, i.e. the data's delivery options."}},
+  {"atom_id": "Req-2.7", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-09", "quote": "exchange metadata"},
+    {"path": "mobilitydcat/input-preconsolidation/literature-review-observations.json", "locator": "Annex 2 §2.12", "quote": "SPRINT federation maps Belgian, Dutch and French NAP descriptions into a common catalogue."},
+    {"path": "mobilitydcat/input-preconsolidation/literature-review-observations.json", "locator": "Annex 2 §2.2", "quote": "FAIR guidance addresses federation"}
+  ], "rationale": "DE-09 states metadata exchange; literature observations on federation into a common catalogue cover aggregation."}},
+  {"atom_id": "Req-3.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-02", "quote": "Support both human and software consumption of descriptions."}
+  ], "rationale": "IT-02 requires descriptions consumable by humans."}},
+  {"atom_id": "Req-3.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-02", "quote": "Support both human and software consumption of descriptions."},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-02", "quote": "Make descriptions understandable to machines"},
+    {"path": "mobilitydcat/input-preconsolidation/literature-review-observations.json", "locator": "Annex 2 §2.10", "quote": "machine-readable metadata"}
+  ], "rationale": "IT-02 and DE-02 require machine-consumable descriptions; the FAIR-cost review names machine-readable metadata."}},
+  {"atom_id": "Req-4.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-03", "quote": "Support several description languages."},
+    {"path": "mobilitydcat/input-preconsolidation/literature-review-observations.json", "locator": "Annex 2 §2.5", "quote": "multilingual representation"}
+  ], "rationale": "IT-03 requires several description languages."}},
+  {"atom_id": "Req-5.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-04", "quote": "Use shared semantic vocabularies."},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-02", "quote": "understandable to machines and pan-European service providers using consistent meanings"}
+  ], "rationale": "IT-04 requires shared semantic vocabularies; DE-02 requires consistent meanings."}},
+  {"atom_id": "Req-6.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-05", "quote": "Use a common exchange serialization suitable for software agents."},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-08", "quote": "Provide descriptions that work with RDF."}
+  ], "rationale": "IT-05 requires a common serialization suitable for software agents."}},
+  {"atom_id": "Req-7.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-08", "quote": "Make the schema documentation publicly accessible without proprietary licensing."},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-15", "quote": "Provide digitally annotated Web documentation"}
+  ], "rationale": "IT-08 requires public documentation without proprietary licensing; DE-15 places documentation on the Web."}},
+  {"atom_id": "Req-7.2", "consolidation": {"label": "partial", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-15", "quote": "Provide digitally annotated Web documentation, potentially using an HTML site."}
+  ], "rationale": "DE-15 conditionally asks for digitally annotated documentation but names a Web/HTML site, not a public repository."}},
+  {"atom_id": "Req-8.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-12", "quote": "Establish stewardship and change procedures"},
+    {"path": "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json", "locator": "EX-2", "quote": "SEMIC experts described collaborative governance"},
+    {"path": "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json", "locator": "EX-9", "quote": "sustained maintenance beyond an individual project"}
+  ], "rationale": "DE-12 requires stewardship procedures; EX-2 and EX-9 stress governance and sustained maintenance."}},
+  {"atom_id": "Req-8.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-12", "quote": "Establish stewardship and change procedures in which authors resolve proposals for possible incorporation into later versions."},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-09", "quote": "Organise ongoing maintenance through issues, discussion and releases."}
+  ], "rationale": "DE-12 requires change procedures for the profile, i.e. a revision methodology."}},
+  {"atom_id": "Req-8.3", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "CZ-03", "quote": "Support public development comments, issues and planned releases."}
+  ], "rationale": "CZ-03 requires public development comments."}},
+  {"atom_id": "Req-8.4", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "CZ-03", "quote": "Support public development comments, issues and planned releases."},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-09", "quote": "Organise ongoing maintenance through issues, discussion and releases."}
+  ], "rationale": "CZ-03 and IT-09 require support for issues and planned releases."}},
+  {"atom_id": "Req-8.5", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-12", "quote": "authors resolve proposals for possible incorporation into later versions"},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-09", "quote": "Organise ongoing maintenance through issues, discussion and releases."}
+  ], "rationale": "DE-12 has authors resolve proposals for incorporation into later versions."}},
+  {"atom_id": "Req-9.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-10", "quote": "Reuse the baseline DCAT-AP terms"},
+    {"path": "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json", "locator": "EX-2", "quote": "existing definitions should be reused"}
+  ], "rationale": "DE-10 requires reusing DCAT-AP terms; EX-2 says existing definitions should be reused."}},
+  {"atom_id": "Req-9.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-10", "quote": "apply its rules when introducing additions"},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-14", "quote": "Apply the official DCAT-AP extension guidance."}
+  ], "rationale": "DE-10 and DE-14 require following DCAT-AP extension rules for additions."}},
+  {"atom_id": "Req-10.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-16", "quote": "Account for ongoing revisions of DCAT-AP."}
+  ], "rationale": "DE-16 requires accounting for ongoing DCAT-AP revisions."}},
+  {"atom_id": "Req-11.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-11", "quote": "Consider CMC for requirements specific to NAP descriptions."},
+    {"path": "mobilitydcat/input-preconsolidation/literature-review-observations.json", "locator": "Annex 2 §2.6", "quote": "EU EIP CMC supplies 32 minimum metadata elements"}
+  ], "rationale": "IT-11 asks to consider CMC for NAP-specific requirements; 'all elements' is implicit in considering the CMC set."}},
+  {"atom_id": "Req-12.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-12", "quote": "Consider spatial profiles and INSPIRE requirements."},
+    {"path": "mobilitydcat/input-preconsolidation/literature-review-observations.json", "locator": "Annex 2 §2.16", "quote": "National and geospatial profiles illustrate extension structure and publication artifacts"},
+    {"path": "mobilitydcat/input-preconsolidation/literature-review-observations.json", "locator": "Annex 2 §2.17", "quote": "TransportDCAT-AP supplies an earlier public-transport profile"}
+  ], "rationale": "IT-12 asks to consider spatial profiles; literature reviews existing national, geospatial and transport profiles."}},
+  {"atom_id": "Req-12.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-12", "quote": "Consider spatial profiles and INSPIRE requirements."},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "CY-01", "quote": "Take INSPIRE rules into account"},
+    {"path": "mobilitydcat/input-preconsolidation/literature-review-observations.json", "locator": "Annex 2 §2.4", "quote": "INSPIRE supplies discovery criteria and metadata definitions"}
+  ], "rationale": "IT-12 and CY-01 require considering INSPIRE requirements and rules."}},
+  {"atom_id": "Req-13.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-13", "quote": "Account for existing national code lists and provide mappings when harmonised and deployed vocabularies differ."}
+  ], "rationale": "DE-13 requires accounting for deployed national code lists, with mappings where vocabularies differ."}},
+  {"atom_id": "Req-14.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-03", "quote": "Give enough mobility-specific detail to differentiate datasets as their number and diversity grow."},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "GR-04", "quote": "Help users understand heterogeneous mobility content"}
+  ], "rationale": "DE-03 requires mobility-specific detail as dataset number and diversity grow."}},
+  {"atom_id": "Req-15.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-07", "quote": "Harmonise an essential common core"},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "GR-03", "quote": "Distinguish essential metadata from optional enrichment in the extension."}
+  ], "rationale": "DE-07 and GR-03 require an essential common metadata core."}},
+  {"atom_id": "Req-15.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-07", "quote": "allow additional national metadata fields"},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "GR-03", "quote": "Distinguish essential metadata from optional enrichment in the extension."}
+  ], "rationale": "DE-07 allows additional national metadata fields; GR-03 allows optional enrichment."}},
+  {"atom_id": "Req-16.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-13", "quote": "Examine CMC/DCAT-AP correspondences to identify information not accommodated by the baseline."}
+  ], "rationale": "IT-13 states the same analysis of CMC/DCAT-AP correspondences."}},
+  {"atom_id": "Req-17.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-14", "quote": "Record when descriptions were created or changed"}
+  ], "rationale": "IT-14 requires recording when descriptions were created or changed."}},
+  {"atom_id": "Req-17.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-14", "quote": "Record when descriptions were created or changed, their language and maintenance responsibility."}
+  ], "rationale": "IT-14 requires recording the language of descriptions."}},
+  {"atom_id": "Req-17.3", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-14", "quote": "their language and maintenance responsibility"}
+  ], "rationale": "IT-14 requires recording who is responsible for maintaining descriptions."}},
+  {"atom_id": "Req-18.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-15", "quote": "State conditions on reuse of the metadata itself."}
+  ], "rationale": "IT-15 states the same need."}},
+  {"atom_id": "Req-19.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-16", "quote": "Describe resource titles, synopses"}
+  ], "rationale": "IT-16 requires resource titles."}},
+  {"atom_id": "Req-19.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-16", "quote": "Describe resource titles, synopses"}
+  ], "rationale": "IT-16 requires resource synopses, i.e. brief descriptions."}},
+  {"atom_id": "Req-19.3", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-16", "quote": "dataset/service kinds"}
+  ], "rationale": "IT-16 requires stating whether a resource is a dataset or service."}},
+  {"atom_id": "Req-19.4", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-16", "quote": "domain and regulation-based categories"},
+    {"path": "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json", "locator": "EX-4", "quote": "A single GTFS or NeTEx package can carry several categories, including operational and fare information; one category may be insufficient."}
+  ], "rationale": "IT-16 requires domain and regulation-based categories; EX-4 discusses dataset categories."}},
+  {"atom_id": "Req-19.5", "consolidation": {"label": "partial", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-16", "quote": "dataset/service kinds, domain and regulation-based categories"}
+  ], "rationale": "IT-16 covers regulation-based categories generally but not service-type categories of Delegated Regulation 2017/1926."}},
+  {"atom_id": "Req-19.6", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-16", "quote": "languages and payload georeferencing"}
+  ], "rationale": "IT-16 requires describing resource languages."}},
+  {"atom_id": "Req-19.7", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-16", "quote": "languages and payload georeferencing"},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "BE-04", "quote": "Expand georeferencing options so providers can express their methods"}
+  ], "rationale": "IT-16 requires payload georeferencing; BE-04 asks providers to express their georeferencing methods."}},
+  {"atom_id": "Req-20.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "GR-01", "quote": "Associate datasets with applicable ITS delegated regulations."},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "BE-02", "quote": "Record one or more applicable NAP regulatory categories, covering multimodal travel, real-time traffic, safety information and truck parking."}
+  ], "rationale": "GR-01 and BE-02 require recording applicable delegated regulations, covering all four named areas."}},
+  {"atom_id": "Req-21.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "CZ-05", "quote": "Coordinate and host maintainable, extensible content vocabularies"}
+  ], "rationale": "CZ-05 requires coordinating content vocabularies."}},
+  {"atom_id": "Req-21.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "CZ-05", "quote": "Coordinate and host maintainable, extensible content vocabularies"}
+  ], "rationale": "CZ-05 requires hosting content vocabularies."}},
+  {"atom_id": "Req-21.3", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "CZ-05", "quote": "Coordinate and host maintainable, extensible content vocabularies"}
+  ], "rationale": "CZ-05 requires maintainable content vocabularies."}},
+  {"atom_id": "Req-21.4", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "CZ-05", "quote": "Coordinate and host maintainable, extensible content vocabularies"}
+  ], "rationale": "CZ-05 requires extensible content vocabularies."}},
+  {"atom_id": "Req-21.5", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "CZ-05", "quote": "with multilingual labels and identifier-based values"}
+  ], "rationale": "CZ-05 requires multilingual vocabulary labels, i.e. translations."}},
+  {"atom_id": "Req-22.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-17", "quote": "Describe the interval in which published data remain valid."},
+    {"path": "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json", "locator": "EX-6", "quote": "Feedback distinguished the period a feed is delivered from the time interval represented by its content"}
+  ], "rationale": "IT-17 requires the interval in which published data remain valid."}},
+  {"atom_id": "Req-23.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-18", "quote": "Describe the dataset footprint, applicable regions and transport networks."}
+  ], "rationale": "IT-18 requires describing the dataset footprint, i.e. its covered area."}},
+  {"atom_id": "Req-23.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-18", "quote": "Describe the dataset footprint, applicable regions and transport networks."}
+  ], "rationale": "IT-18 requires describing applicable regions."}},
+  {"atom_id": "Req-23.3", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-18", "quote": "Describe the dataset footprint, applicable regions and transport networks."},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "GR-02", "quote": "Use broadly adopted functional classifications for roadways and other parts of multimodal networks."},
+    {"path": "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json", "locator": "EX-5", "quote": "Operators questioned whether coverage should refer to the infrastructure or the service using it"}
+  ], "rationale": "IT-18 requires describing transport networks; GR-02 requires broadly adopted functional classifications."}},
+  {"atom_id": "Req-24.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "CZ-04", "quote": "Describe location-reference techniques and coordinate reference systems used in payloads."},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "BE-04", "quote": "Expand georeferencing options so providers can express their methods"}
+  ], "rationale": "CZ-04 requires describing location-reference techniques."}},
+  {"atom_id": "Req-24.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "CZ-04", "quote": "Describe location-reference techniques and coordinate reference systems used in payloads."}
+  ], "rationale": "CZ-04 requires describing coordinate reference systems."}},
+  {"atom_id": "Req-25.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-19", "quote": "Describe transport modes and operators represented in the data."},
+    {"path": "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json", "locator": "EX-3", "quote": "multiple selections and absence of a mode need consideration"}
+  ], "rationale": "IT-19 requires describing transport modes."}},
+  {"atom_id": "Req-25.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-19", "quote": "Describe transport modes and operators represented in the data."}
+  ], "rationale": "IT-19 requires describing transport operators."}},
+  {"atom_id": "Req-26.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-20", "quote": "Identify publishing and owning parties."}
+  ], "rationale": "IT-20 requires identifying the publishing party."}},
+  {"atom_id": "Req-26.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-20", "quote": "Identify publishing and owning parties."}
+  ], "rationale": "IT-20 requires identifying the owning party."}},
+  {"atom_id": "Req-27.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-21", "quote": "Describe contracts, licences and other use conditions."},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-09", "quote": "express licences and access rights"},
+    {"path": "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json", "locator": "EX-8", "quote": "Operators found the existing licence/contract choices insufficient to represent common licences"}
+  ], "rationale": "IT-21 and DE-09 require describing licences on data use."}},
+  {"atom_id": "Req-27.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-21", "quote": "Describe contracts, licences and other use conditions."},
+    {"path": "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json", "locator": "EX-1", "quote": "a substantial part of mobility data requires authentication or agreement, so metadata should describe the conditions rather than assuming open data."}
+  ], "rationale": "IT-21 requires describing contracts; EX-1 notes data often require agreement."}},
+  {"atom_id": "Req-27.3", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-21", "quote": "Describe contracts, licences and other use conditions."},
+    {"path": "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json", "locator": "EX-1", "quote": "a substantial part of mobility data requires authentication or agreement, so metadata should describe the conditions rather than assuming open data."},
+    {"path": "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json", "locator": "EX-8", "quote": "proposed richer access-condition distinctions"}
+  ], "rationale": "IT-21 requires other use conditions; EX-1 and EX-8 ask for describing access conditions."}},
+  {"atom_id": "Req-28.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-22", "quote": "Describe encoding, syntax, grammar and payload model."}
+  ], "rationale": "IT-22 requires describing encoding."}},
+  {"atom_id": "Req-28.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-22", "quote": "Describe encoding, syntax, grammar and payload model."}
+  ], "rationale": "IT-22 requires describing syntax."}},
+  {"atom_id": "Req-28.3", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-22", "quote": "Describe encoding, syntax, grammar and payload model."}
+  ], "rationale": "IT-22 requires describing grammar."}},
+  {"atom_id": "Req-28.4", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-22", "quote": "Describe encoding, syntax, grammar and payload model."}
+  ], "rationale": "IT-22 requires describing the payload model."}},
+  {"atom_id": "Req-29.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "CZ-01", "quote": "Expose schema information and sample data so prospective consumers can inspect the payload before subscribing."}
+  ], "rationale": "CZ-01 requires schema information so consumers can inspect data before subscribing."}},
+  {"atom_id": "Req-29.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "CZ-01", "quote": "Expose schema information and sample data so prospective consumers can inspect the payload before subscribing."}
+  ], "rationale": "CZ-01 requires sample data so consumers can inspect data before subscribing."}},
+  {"atom_id": "Req-30.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "CZ-02", "quote": "Identify precise data model versions, publication types and extensions to improve discovery."}
+  ], "rationale": "CZ-02 requires precise data model versions to improve discovery."}},
+  {"atom_id": "Req-30.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "CZ-02", "quote": "Identify precise data model versions, publication types and extensions to improve discovery."}
+  ], "rationale": "CZ-02 requires data model publication types to improve discovery."}},
+  {"atom_id": "Req-30.3", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "CZ-02", "quote": "Identify precise data model versions, publication types and extensions to improve discovery."}
+  ], "rationale": "CZ-02 requires data model extensions to improve discovery."}},
+  {"atom_id": "Req-31.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-23", "quote": "Describe update cadence, quality criteria and compliance-assessment history and status."},
+    {"path": "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json", "locator": "EX-7", "quote": "Feedback distinguished update intervals at the original provider from refresh intervals exposed by the NAP."}
+  ], "rationale": "IT-23 requires describing update cadence."}},
+  {"atom_id": "Req-31.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-23", "quote": "Describe update cadence, quality criteria and compliance-assessment history and status."},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "GR-06", "quote": "Add ITS quality information such as availability, timeliness, latency, errors, positioning accuracy and event coverage."}
+  ], "rationale": "IT-23 requires quality criteria; GR-06 lists ITS quality information."}},
+  {"atom_id": "Req-31.3", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-23", "quote": "Describe update cadence, quality criteria and compliance-assessment history and status."}
+  ], "rationale": "IT-23 requires describing compliance-assessment history."}},
+  {"atom_id": "Req-31.4", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-23", "quote": "Describe update cadence, quality criteria and compliance-assessment history and status."}
+  ], "rationale": "IT-23 requires describing compliance-assessment status."}},
+  {"atom_id": "Req-32.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-24", "quote": "Assign occurrence limits and mandatory, recommended or optional status to elements."}
+  ], "rationale": "IT-24 requires occurrence limits, i.e. cardinalities, for elements."}},
+  {"atom_id": "Req-32.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-24", "quote": "Assign occurrence limits and mandatory, recommended or optional status to elements."},
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-05", "quote": "Clarify obligation levels"},
+    {"path": "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json", "locator": "EX-2", "quote": "documented obligation levels"}
+  ], "rationale": "IT-24 requires mandatory, recommended or optional status for elements."}},
+  {"atom_id": "Req-32.3", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-05", "quote": "Clarify obligation levels and relate them to database storage, manual entry, import and export, consistently with DCAT-AP."}
+  ], "rationale": "DE-05 requires clarifying obligation levels and their implications for database storage, manual entry and import/export."}},
+  {"atom_id": "Req-32.4", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-05", "quote": "consistently with DCAT-AP"},
+    {"path": "mobilitydcat/input-preconsolidation/literature-review-observations.json", "locator": "Annex 2 §2.5", "quote": "DCAT-AP supplies the extension baseline, multilingual representation and mandatory/optional catalogue concepts."}
+  ], "rationale": "DE-05 requires obligation levels consistent with DCAT-AP; §2.5 notes DCAT-AP mandatory/optional concepts."}},
+  {"atom_id": "Req-33.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-25", "quote": "Develop recommendations for resource identifiers."},
+    {"path": "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json", "locator": "EX-2", "quote": "documented obligation levels, value vocabularies, identifiers and extension rules"}
+  ], "rationale": "IT-25 requires recommendations for identifiers."}},
+  {"atom_id": "Req-34.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-26", "quote": "Define permitted property values and recommend appropriate controlled vocabularies."}
+  ], "rationale": "IT-26 requires defining permitted values, recommending controlled vocabularies."}},
+  {"atom_id": "Req-35.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-07", "quote": "Handle metadata revisions and version history."},
+    {"path": "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json", "locator": "EX-10", "quote": "handling data/metadata versions"}
+  ], "rationale": "IT-07 requires handling metadata revisions."}},
+  {"atom_id": "Req-35.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-07", "quote": "Handle metadata revisions and version history."},
+    {"path": "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json", "locator": "EX-10", "quote": "handling data/metadata versions"}
+  ], "rationale": "IT-07 requires metadata version history; EX-10 stresses handling metadata versions."}},
+  {"atom_id": "Req-36.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-27", "quote": "Consider shape-based automated metadata validation."}
+  ], "rationale": "IT-27 asks for automated metadata validation."}},
+  {"atom_id": "Req-37.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-11", "quote": "Publish downloadable explanations of element meanings and their use in NAP operations."}
+  ], "rationale": "DE-11 requires explanations of element meanings and their use."}},
+  {"atom_id": "Req-37.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-11", "quote": "Publish downloadable explanations of element meanings and their use in NAP operations."}
+  ], "rationale": "DE-11 requires explaining element use in NAP operations."}},
+  {"atom_id": "Req-38.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "BE-01", "quote": "Explain how to divide descriptions between a dataset or service and several associated resources"}
+  ], "rationale": "BE-01 states the same need."}},
+  {"atom_id": "Req-39.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-04", "quote": "Explain exchange with general-purpose portals even when those portals do not interpret mobility-specific elements."},
+    {"path": "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json", "locator": "EX-1", "quote": "NAP operators wanted compatibility with general data portals"}
+  ], "rationale": "DE-04 and EX-1 require guidance on exchange and compatibility with general-purpose portals."}},
+  {"atom_id": "Req-39.2", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "DE-04", "quote": "Explain exchange with general-purpose portals even when those portals do not interpret mobility-specific elements."},
+    {"path": "mobilitydcat/input-preconsolidation/literature-review-observations.json", "locator": "Annex 2 §2.15", "quote": "compares ITS/PSI implementation and metadata approaches, including harvesting and conversion"}
+  ], "rationale": "DE-04 covers exchange when portals do not interpret mobility-specific elements, i.e. extension handling; harvesting is worded as exchange."}},
+  {"atom_id": "Req-40.1", "consolidation": {"label": "supported", "sources": [
+    {"path": "mobilitydcat/input-preconsolidation/partner-requirements.json", "locator": "IT-06", "quote": "Define an assurance process for incoming metadata quality."},
+    {"path": "mobilitydcat/input-preconsolidation/expert-and-cmc-observations.json", "locator": "EX-10", "quote": "SPRINT prototype experience stressed assurance"}
+  ], "rationale": "IT-06 requires an assurance process for incoming metadata quality."}}
+]

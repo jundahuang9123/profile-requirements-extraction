@@ -1,0 +1,232 @@
+[
+ {"atom_id": "G-1.1", "raw": {"label": "partial", "sources": [
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "3. Conformance", "quote": "A DCAT profile is a specification for data catalogs that adds additional constraints to DCAT. A data catalog that conforms to the profile also conforms to DCAT."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "3. Conformance", "quote": "A data catalog conforms to DCAT if: It is organized into datasets and distributions. An RDF description of the catalog itself and its datasets and distributions is available"}
+ ], "rationale": "DCAT defines conformance and DCAT profiles, supporting a DCAT-conformant representation; DCAT-AP itself is absent from the inputs."}},
+ {"atom_id": "G-1.2", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "3. Conformance", "quote": "The contents of all metadata fields that are held in the catalog, and that contain data about the catalog itself and its dataset and distributions, are included in this RDF description, expressed using the appropriate classes and properties from DCAT, except where no such class or property exists."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "3. Conformance", "quote": "All classes and properties defined in DCAT are used in a way consistent with the semantics declared in this specification."},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 13] 1.1.3 Conclusion", "quote": "the minimum requirements expressed in the implementing rules have also to be met semantically, i.e. with metadata contents strictly satisfying the INSPIRE requirements."}
+ ], "rationale": "DCAT conformance puts all held metadata fields into the RDF description with consistent semantics; guidelines require encodings to meet INSPIRE semantics."}},
+ {"atom_id": "G-1.3", "raw": {"label": "partial", "sources": [
+  {"path": "geodcat/input-raw/inspire-directive.html", "locator": "Recital (3)", "quote": "Solving these problems requires measures that address exchange, sharing, access and use of interoperable spatial data and spatial data services across the various levels of public authority and across different sectors."},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 4] Acknowledgements", "quote": "technical guidelines that aid cross-sector and cross-border interoperability and the implementation of the INSPIRE Directive."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "Abstract", "quote": "By using DCAT to describe datasets in data catalogs, publishers increase discoverability and enable applications easily to consume metadata from multiple catalogs."}
+ ], "rationale": "Inputs support cross-sector sharing and interoperability of spatial data and multi-catalog metadata consumption, not cross-domain reuse of geospatial metadata as such."}},
+ {"atom_id": "G-2.1", "raw": {"label": "uncertain", "sources": [
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "3. Conformance", "quote": "A data catalog that conforms to the profile also conforms to DCAT. Additional constraints in a profile MAY include: A minimum set of required metadata fields"}
+ ], "rationale": "Only DCAT's generic profile rule relates (profiles may require fields, conformance carries to the base); DCAT-AP and its mandatory elements are absent."}},
+ {"atom_id": "G-3.1", "raw": {"label": "partial", "sources": [
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "3. Conformance", "quote": "The contents of all metadata fields that are held in the catalog, and that contain data about the catalog itself and its dataset and distributions, are included in this RDF description, expressed using the appropriate classes and properties from DCAT, except where no such class or property exists."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "3. Conformance", "quote": "DCAT-compliant catalogs MAY include additional non-DCAT metadata fields and additional RDF data in the catalog's RDF description."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "3. Conformance", "quote": "Classes and properties for additional metadata fields not covered in DCAT"}
+ ], "rationale": "DCAT requires its own terms except where none exists and admits non-DCAT fields; the named baseline DCAT-AP is not in the inputs."}},
+ {"atom_id": "G-4.1", "raw": {"label": "partial", "sources": [
+  {"path": "geodcat/input-raw/inspire-directive.html", "locator": "Recital (11)", "quote": "it will also build upon existing experience and initiatives rather than duplicate the work that has already been done."},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 4] Acknowledgements", "quote": "This version 1.3 of the Technical Guidelines clarifies some aspects of the implementation of the discovery metadata elements based on the experience built during the period of implementation 2010-13."},
+  {"path": "geodcat/input-raw/inspire-directive.html", "locator": "Recital (28)", "quote": "In order to benefit from the state of the art and actual experience of information infrastructures"}
+ ], "rationale": "INSPIRE builds on existing experience and initiatives, and the guidelines on implementation experience; alignments and a working group are not addressed."}},
+ {"atom_id": "G-4.2", "raw": {"label": "uncertain", "sources": [
+  {"path": "geodcat/input-raw/inspire-directive.html", "locator": "Article 1(2)", "quote": "Inspire shall build upon infrastructures for spatial information established and operated by the Member States."},
+  {"path": "geodcat/input-raw/inspire-directive.html", "locator": "Article 7(2)", "quote": "the Commission shall undertake analyses to ensure that the rules are feasible and proportionate in terms of their likely costs and benefits"},
+  {"path": "geodcat/input-raw/inspire-directive.html", "locator": "Recital (16)", "quote": "Implementing rules should be based, where possible, on international standards and should not result in excessive costs for Member States."}
+ ], "rationale": "Building on existing infrastructures and avoiding excessive costs relate to protecting implementations, but no passage addresses impact on existing implementations."}},
+ {"atom_id": "G-5.1", "raw": {"label": "partial", "sources": [
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "Status of This Document", "quote": "DCAT incorporates terms from pre-existing vocabularies, where stable terms with appropriate meanings could be found, such as foaf:homepage and dct:title."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "2. Namespaces", "quote": "DCAT itself defines a minimal set of classes and properties of its own."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "3. Conformance", "quote": "Classes and properties for additional metadata fields not covered in DCAT"}
+ ], "rationale": "DCAT reuses pre-existing terms where suitable and defines few of its own; the careful-assessment condition for new terms is not stated."}},
+ {"atom_id": "G-5.2", "raw": {"label": "unsupported", "sources": [], "rationale": "No input addresses standards under preparation or discarding new terms that could conflict with them."}},
+ {"atom_id": "G-6.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 10] 1.1.1 Spatial dataset and spatial dataset series", "quote": "The table below compares the core requirements of ISO 19115 (see Table 3 in 6.5 of ISO 19115:2003) to the requirements of INSPIRE for spatial dataset and spatial dataset series as defined in the Implementing Rules for metadata."},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 13] 1.1.3 Conclusion", "quote": "However, full conformance to ISO 19115 implies the provision of additional metadata elements which are not required by the INSPIRE Implementing Rule on Metadata."}
+ ], "rationale": "Guidelines enumerate the ISO 19115 core requirements element by element and note ISO conformance needs elements beyond INSPIRE."}},
+ {"atom_id": "G-6.2", "raw": {"label": "partial", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Article 3", "quote": "The metadata describing a spatial data set, a spatial data set series or a spatial data service shall comprise the metadata elements or groups of metadata elements set out in Part B of the Annex"},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 95] Annex B, B.1", "quote": "The following metadata elements are defined as “metadata required for interoperability” in Article 13 of the Implementing Rules on the Interoperability of Spatial Datasets and Services. They are applicable to all Spatial Data Themes from Annexes I, II and III."},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 96] Annex B, B.2", "quote": "The following tables give an overview of additional metadata elements that are recommended for specific Spatial Data Themes from Annex II and III."}
+ ], "rationale": "INSPIRE elements are mandated and guidelines separate elements common to all themes from theme-specific ones, but excluding the latter is not stated."}},
+ {"atom_id": "G-6.3", "raw": {"label": "uncertain", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part C", "quote": "When no condition is expressed in relation to a particular metadata element, that element shall be mandatory."},
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part C", "quote": "the fourth column contains a conditional statement if the multiplicity of the element does not apply to all types of resources. All elements are mandatory in other circumstances."}
+ ], "rationale": "Inputs fix obligation levels for metadata elements but say nothing about which elements a profile may exclude."}},
+ {"atom_id": "G-7.1", "raw": {"label": "uncertain", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Recital (2)", "quote": "Nor does it preclude the possibility to adopt guidelines established and kept up to date by the Commission, in particular when it is necessary to ensure the interoperability of metadata."},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 68] Annex A, A.1 Introduction", "quote": "This annex defines the XML ISO/TS 19139 encoding of the INSPIRE metadata elements."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "3. Conformance", "quote": "An RDF description of the catalog itself and its datasets and distributions is available"}
+ ], "rationale": "The regulation permits further Commission guidelines for metadata interoperability and guidelines define ISO 19139 XML; nothing calls for an additional RDF binding."}},
+ {"atom_id": "G-7.2", "raw": {"label": "unsupported", "sources": [], "rationale": "No input requires leaving the INSPIRE regulation, technical guidelines or existing metadata collections unchanged by a new binding."}},
+ {"atom_id": "G-8.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 10.1 (Metadata point of contact)", "quote": "This is the description of the organisation responsible for the creation and maintenance of the metadata. This description shall include: — the name of the organisation as free text, — a contact e-mail address as a character string."}
+ ], "rationale": "Metadata point of contact names the organisation responsible for the metadata and requires a contact e-mail address."}},
+ {"atom_id": "G-9.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 10.2 (Metadata date)", "quote": "The date which specifies when the metadata record was created or updated."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "5.2 Class: Catalog record", "quote": "Most recent date on which the catalog entry was changed, updated or modified."}
+ ], "rationale": "Metadata date is a mandatory INSPIRE element recording when the metadata record was created or updated."}},
+ {"atom_id": "G-10.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 10.3 (Metadata language)", "quote": "This is the language in which the metadata elements are expressed."},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 13] 1.2 INSPIRE specific constraints (SC)", "quote": "SC1. MD_Metadata.language is mandatory;"}
+ ], "rationale": "Metadata language is a mandatory INSPIRE element giving the language of the metadata record."}},
+ {"atom_id": "G-11.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 11] 1.1.1 Spatial dataset and spatial dataset series", "quote": "metadata character set has to be documented in ISO 19115 when ISO 10646-1 is not used."},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 70] A.6.1 The default language", "quote": "The default language of a metadata set is defined by the language property of MD_Metadata while the characterSet property defines the corresponding character encoding."},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 73] A.8 Character encoding", "quote": "Character encoding is defined in MD_Metadata.characterEncoding and MD_Metadata.locale."}
+ ], "rationale": "Guidelines list metadata character set as a conditional ISO 19115 core element, required when ISO 10646-1 is not used."}},
+ {"atom_id": "G-12.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 10] 1.1.1 Spatial dataset and spatial dataset series", "quote": "The table below compares the core requirements of ISO 19115 (see Table 3 in 6.5 of ISO 19115:2003)"},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 11] 1.1.1 Spatial dataset and spatial dataset series", "quote": "Metadata file identifier (O)"},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 70] A.6 ISO 19139 and multilingual metadata", "quote": "+ fileIdentifier [0..1] : CharacterString"}
+ ], "rationale": "Metadata file identifier is listed as an optional ISO 19115 core element and appears in the MD_Metadata model."}},
+ {"atom_id": "G-13.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 10] 1.1.1 Spatial dataset and spatial dataset series", "quote": "The table below compares the core requirements of ISO 19115 (see Table 3 in 6.5 of ISO 19115:2003)"},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 11] 1.1.1 Spatial dataset and spatial dataset series", "quote": "Metadata standard name - - (O)"},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 70] A.6 ISO 19139 and multilingual metadata", "quote": "+ metadataStandardName [0..1] : CharacterString"}
+ ], "rationale": "Metadata standard name is listed as an optional ISO 19115 core element and appears in the MD_Metadata model."}},
+ {"atom_id": "G-14.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 10] 1.1.1 Spatial dataset and spatial dataset series", "quote": "The table below compares the core requirements of ISO 19115 (see Table 3 in 6.5 of ISO 19115:2003)"},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 11] 1.1.1 Spatial dataset and spatial dataset series", "quote": "Metadata standard version - - (O)"},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 70] A.6 ISO 19139 and multilingual metadata", "quote": "+ metadataStandardVersion [0..1] : CharacterString"}
+ ], "rationale": "Metadata standard version is listed as an optional ISO 19115 core element and appears in the MD_Metadata model."}},
+ {"atom_id": "G-15.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 1.1 (Resource title)", "quote": "This a characteristic, and often unique, name by which the resource is known."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "5.3 Class: Dataset", "quote": "Property: title RDF Property: dct:title Definition: A name given to the dataset."}
+ ], "rationale": "Resource title is a mandatory INSPIRE identification element; DCAT defines dataset title."}},
+ {"atom_id": "G-16.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 5.4 (Date of creation)", "quote": "This is the date of creation of the resource. There shall not be more than one date of creation."}
+ ], "rationale": "Date of creation is an INSPIRE temporal reference element for the resource."}},
+ {"atom_id": "G-16.2", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 5.2 (Date of publication)", "quote": "This is the date of publication of the resource when available, or the date of entry into force. There may be more than one date of publication."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "5.3 Class: Dataset", "quote": "Property: release date RDF Property: dct:issued Definition: Date of formal issuance (e.g., publication) of the dataset."}
+ ], "rationale": "Date of publication is an INSPIRE temporal reference element; DCAT defines dataset release date."}},
+ {"atom_id": "G-16.3", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 5.3 (Date of last revision)", "quote": "This is the date of last revision of the resource, if the resource has been revised. There shall not be more than one date of last revision."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "5.3 Class: Dataset", "quote": "Most recent date on which the dataset was changed, updated or modified."}
+ ], "rationale": "Date of last revision is an INSPIRE temporal reference element; DCAT defines dataset modification date."}},
+ {"atom_id": "G-17.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 1.2 (Resource abstract)", "quote": "This is a brief narrative summary of the content of the resource."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "5.3 Class: Dataset", "quote": "Property: description RDF Property: dct:description Definition: free-text account of the dataset."}
+ ], "rationale": "Resource abstract is a mandatory INSPIRE element summarising the resource; DCAT defines dataset description."}},
+ {"atom_id": "G-18.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 1.7 (Resource language)", "quote": "The language(s) used within the resource. The value domain of this metadata element is limited to the languages defined in ISO 639-2."},
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part C, Table 1", "quote": "Mandatory if the resource includes textual information."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "5.3 Class: Dataset", "quote": "Property: language RDF Property: dct:language Definition: The language of the dataset."}
+ ], "rationale": "Resource language gives the language(s) used within the resource, mandatory when it contains text."}},
+ {"atom_id": "G-19.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 2.1 (Topic category)", "quote": "The topic category is a high-level classification scheme to assist in the grouping and topic-based search of available spatial data resources."},
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part D.2", "quote": "TOPIC CATEGORIES IN ACCORDANCE WITH EN ISO 19115"}
+ ], "rationale": "Topic category is an INSPIRE classification element with the ISO 19115 topic categories as value domain."}},
+ {"atom_id": "G-20.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 4 (Geographic location)", "quote": "The requirement for geographic location referred to in Article 11(2)(e) of Directive 2007/2/EC shall be expressed with the metadata element geographic bounding box."},
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 4.1 (Geographic bounding box)", "quote": "This is the extent of the resource in the geographic space, given as a bounding box."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "5.3 Class: Dataset", "quote": "Property: spatial/geographical coverage RDF Property: dct:spatial Definition: Spatial coverage of the dataset. Range: dct:Location (A spatial region or named place)"}
+ ], "rationale": "INSPIRE mandates a geographic bounding box; DCAT spatial coverage accepts a named place, covering the identifier option."}},
+ {"atom_id": "G-21.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-interoperability.html", "locator": "Article 13(5)", "quote": "Character Encoding : The character encoding used in the data set. This element is mandatory only if an encoding is used that is not based on UTF-8."},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 10] 1.1.1 Spatial dataset and spatial dataset series", "quote": "Dataset character set (C) - ISO 19115 is more demanding. The dataset character set has to be documented in ISO 19115 when ISO 10646-1 is not used."}
+ ], "rationale": "Character Encoding is an interoperability metadata element, conditional on non-UTF-8 encodings; ISO core lists dataset character set."}},
+ {"atom_id": "G-22.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 5.1 (Temporal extent)", "quote": "The temporal extent defines the time period covered by the content of the resource."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "5.3 Class: Dataset", "quote": "Property: temporal coverage RDF Property: dct:temporal Definition: The temporal period that the dataset covers."}
+ ], "rationale": "Temporal extent is an INSPIRE temporal reference element; DCAT defines temporal coverage."}},
+ {"atom_id": "G-23.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 6.1 (Lineage)", "quote": "This is a statement on process history and/or overall quality of the spatial data set."},
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part A (Interpretation)", "quote": "the history of a data set, and the life cycle from collection and acquisition through compilation and derivation to its current form"}
+ ], "rationale": "Lineage is a mandatory INSPIRE quality element describing process history and life cycle of the data set."}},
+ {"atom_id": "G-24.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 11] 1.1.1 Spatial dataset and spatial dataset series", "quote": "mandatory “Spatial Representation Type” metadata element defined in Art. 13(6) of the Implementing Rules on interoperability"}
+ ], "rationale": "Guidelines map ISO spatial representation type to the mandatory interoperability element Spatial Representation Type."}},
+ {"atom_id": "G-25.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-interoperability.html", "locator": "Article 13(3)", "quote": "Encoding : Description of the computer language construct(s) specifying the representation of data objects in a record, file, message, storage device or transmission channel."},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 10] 1.1.1 Spatial dataset and spatial dataset series", "quote": "Distribution format (O) - The ISO 19115 element maps to the mandatory “Encoding” metadata element defined in Art. 13(3) of the Implementing Rules on interoperability of spatial data sets and services."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "5.4 Class: Distribution", "quote": "Property: format RDF Property: dct:format Definition: The file format of the distribution."}
+ ], "rationale": "Encoding is a mandatory interoperability element mapped to ISO distribution format; DCAT defines distribution format."}},
+ {"atom_id": "G-26.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 6.2 (Spatial resolution)", "quote": "Spatial resolution refers to the level of detail of the data set. It shall be expressed as a set of zero to many resolution distances (typically for gridded data and imagery-derived products) or equivalent scales (typically for maps or map-derived products)."}
+ ], "rationale": "Spatial resolution is an INSPIRE quality and validity element for the data set."}},
+ {"atom_id": "G-27.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 9.1 (Responsible party)", "quote": "This is the description of the organisation responsible for the establishment, management, maintenance and distribution of the resource."},
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 9.2 (Responsible party role)", "quote": "This is the role of the responsible organisation."},
+  {"path": "geodcat/input-raw/inspire-directive.html", "locator": "Article 5(2)(d)", "quote": "the public authorities responsible for the establishment, management, maintenance and distribution of spatial data sets and services;"}
+ ], "rationale": "INSPIRE requires the responsible party and its role for each resource."}},
+ {"atom_id": "G-28.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 1.4 (Resource locator)", "quote": "The resource locator defines the link(s) to the resource and/or the link to additional information about the resource."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "5.3 Class: Dataset", "quote": "A Web page that can be navigated to in a Web browser to gain access to the dataset, its distributions and/or additional information."}
+ ], "rationale": "Resource locator gives links to the resource or to additional information about it."}},
+ {"atom_id": "G-29.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-interoperability.html", "locator": "Article 13(1)", "quote": "The metadata describing a spatial data set shall include the following metadata elements required for interoperability: 1. Coordinate Reference System : Description of the coordinate reference system(s) used in the data set."},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 11] 1.1.1 Spatial dataset and spatial dataset series", "quote": "Reference system (O) - The ISO 19115 element maps to the mandatory “Coordinate Reference System” and the conditional “Temporal Reference System” metadata elements defined in Art. 13(1) and (2)"}
+ ], "rationale": "Coordinate Reference System is a mandatory interoperability metadata element for data sets."}},
+ {"atom_id": "G-30.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-interoperability.html", "locator": "Article 13(2)", "quote": "Temporal Reference System : Description of the temporal reference system(s) used in the data set. This element is mandatory only if the spatial data set contains temporal information that does not refer to the default temporal reference system."},
+  {"path": "geodcat/input-raw/inspire-interoperability.html", "locator": "Article 11(2)", "quote": "If other temporal reference systems are used, these shall be specified in the data set metadata."}
+ ], "rationale": "Temporal Reference System is an interoperability metadata element, mandatory when a non-default temporal reference system is used."}},
+ {"atom_id": "G-31.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 7.1 (Specification)", "quote": "This is a citation of the implementing rules adopted under Article 7(1) of Directive 2007/2/EC or other specification to which a particular resource conforms."},
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 7.2 (Degree)", "quote": "This is the degree of conformity of the resource to the implementing rules adopted under Article 7(1) of Directive 2007/2/EC or other specification."}
+ ], "rationale": "INSPIRE conformity comprises the cited specification and the degree of conformity."}},
+ {"atom_id": "G-32.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 1.3 (Resource type)", "quote": "This is the type of resource being described by the metadata."},
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part D.1 (Resource type)", "quote": "RESOURCE TYPE 1.1. Spatial data set series (series) 1.2. Spatial data set (dataset) 1.3. Spatial data services (services)"}
+ ], "rationale": "Resource type is mandatory, with values dataset series, dataset and services."}},
+ {"atom_id": "G-33.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 2.2 (Spatial data service type)", "quote": "This is a classification to assist in the search of available spatial data services. A specific service shall be categorised in only one category."},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 15] 1.3.1 Spatial data service type", "quote": "Discovery Service (discovery) View Service (view) Download Service (download) Transformation Service (transformation) Invoke Spatial Data Service (invoke) Other Services (other)"}
+ ], "rationale": "Spatial data service type is an INSPIRE element with discovery, view, download and other values."}},
+ {"atom_id": "G-34.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 3.1 (Keyword value)", "quote": "The keyword value is a commonly used word, formalised word or phrase used to describe the subject."},
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 3.2 (Originating controlled vocabulary)", "quote": "If the keyword value originates from a controlled vocabulary (thesaurus, ontology), for example GEMET, the citation of the originating controlled vocabulary shall be provided."}
+ ], "rationale": "INSPIRE requires keywords and the citation of their originating controlled vocabulary."}},
+ {"atom_id": "G-35.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 1.6 (Coupled resource)", "quote": "If the resource is a spatial data service, this metadata element identifies, where relevant, the target spatial data set(s) of the service through their unique resource identifiers (URI)."},
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part C, Table 2", "quote": "Mandatory if linkage to data sets on which the service operates are available."}
+ ], "rationale": "Coupled resource links a service to the data sets it operates on."}},
+ {"atom_id": "G-36.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 1.5 (Unique resource identifier)", "quote": "A value uniquely identifying the resource."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "5.3 Class: Dataset", "quote": "Property: identifier RDF Property: dct:identifier Definition: A unique identifier of the dataset."}
+ ], "rationale": "Unique resource identifier is an INSPIRE identification element; DCAT defines a unique dataset identifier."}},
+ {"atom_id": "G-37.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 8.1 (Conditions applying to access and use)", "quote": "This metadata element defines the conditions for access and use of spatial data sets and services, and where applicable, corresponding fees as required by Article 5(2)(b) and Article 11(2)(f) of Directive 2007/2/EC."},
+  {"path": "geodcat/input-raw/inspire-directive.html", "locator": "Article 5(2)(b)", "quote": "conditions applying to access to, and use of, spatial data sets and services and, where applicable, corresponding fees;"}
+ ], "rationale": "Conditions applying to access and use are a mandatory INSPIRE element required by the Directive."}},
+ {"atom_id": "G-38.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 8.2 (Limitations on public access)", "quote": "When Member States limit public access to spatial data sets and spatial data services under Article 13 of Directive 2007/2/EC, this metadata element shall provide information on the limitations and the reasons for them."},
+  {"path": "geodcat/input-raw/inspire-metadata.html", "locator": "Annex, Part B 8.2 (Limitations on public access)", "quote": "If there are no limitations on public access, this metadata element shall indicate that fact."},
+  {"path": "geodcat/input-raw/inspire-directive.html", "locator": "Article 5(2)(e)", "quote": "limitations on public access and the reasons for such limitations, in accordance with Article 13."}
+ ], "rationale": "Limitations on public access is a mandatory INSPIRE element, also required when no limitations apply."}},
+ {"atom_id": "G-39.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 96] Annex B, B.2", "quote": "The following metadata elements are recommended as common metadata elements for all Spatial Data Themes from Annexes I, II and III."},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 96] Annex B, B.2", "quote": "Maintenance information 0..1"},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "5.3 Class: Dataset", "quote": "Property: frequency RDF Property: dct:accrualPeriodicity Definition: The frequency at which dataset is published."}
+ ], "rationale": "Guidelines recommend maintenance information for all themes; DCAT defines dataset frequency (accrual periodicity)."}},
+ {"atom_id": "G-40.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-interoperability.html", "locator": "Article 13(4)", "quote": "Topological Consistency : Correctness of the explicitly encoded topological characteristics of the data set as described by the scope."},
+  {"path": "geodcat/input-raw/inspire-interoperability.html", "locator": "Article 13(4)", "quote": "This element is mandatory only if the data set includes types from the Generic Network Model and does not assure centreline topology (connectivity of centrelines) for the network."}
+ ], "rationale": "Topological Consistency is an interoperability (data quality) metadata element, conditional on Generic Network Model types."}},
+ {"atom_id": "G-41.1", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 96] Annex B, B.2", "quote": "The following metadata elements are recommended as common metadata elements for all Spatial Data Themes from Annexes I, II and III."},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 96] Annex B, B.2", "quote": "Data Quality – Logical Consistency – 0..* Conceptual Consistency"}
+ ], "rationale": "Guidelines recommend the data quality element Logical Consistency – Conceptual Consistency for all spatial data themes."}},
+ {"atom_id": "G-41.2", "raw": {"label": "supported", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 96] Annex B, B.2", "quote": "The following metadata elements are recommended as common metadata elements for all Spatial Data Themes from Annexes I, II and III."},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 96] Annex B, B.2", "quote": "Data Quality – Logical Consistency – 0..* Domain Consistency"},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 47] 2.8 Conformity, TG Requirement 29", "quote": "When the conformity to any specification has been evaluated, it shall be reported as a domain consistency element (i.e. an instance of DQ_DomainConsistency) in ISO 19115 metadata"}
+ ], "rationale": "Guidelines recommend Logical Consistency – Domain Consistency for all themes and report conformity results as DQ_DomainConsistency."}},
+ {"atom_id": "G-42.1", "raw": {"label": "partial", "sources": [
+  {"path": "geodcat/input-raw/inspire-directive.html", "locator": "Article 11(1)(a)", "quote": "discovery services making it possible to search for spatial data sets and services on the basis of the content of the corresponding metadata and to display the content of the metadata;"},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "Abstract", "quote": "By using DCAT to describe datasets in data catalogs, publishers increase discoverability and enable applications easily to consume metadata from multiple catalogs. It further enables decentralized publishing of catalogs and facilitates federated dataset search across sites."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "4. Vocabulary Overview", "quote": "DCAT is an RDF vocabulary well-suited to representing government data catalogs such as Data.gov and data.gov.uk"}
+ ], "rationale": "INSPIRE requires searchability via discovery services and DCAT targets discoverability in general catalogs; no passage combines them for spatial resources."}},
+ {"atom_id": "G-43.1", "raw": {"label": "uncertain", "sources": [
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "3. Conformance", "quote": "The contents of all metadata fields that are held in the catalog, and that contain data about the catalog itself and its dataset and distributions, are included in this RDF description, expressed using the appropriate classes and properties from DCAT, except where no such class or property exists."},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 68] A.4.2 Parsing of metadata files", "quote": "To accommodate polymorphism of the data types, parsing of metadata files has to be driven by the XML elements corresponding to the properties of the UML models"}
+ ], "rationale": "DCAT conformance implies RDF descriptions of held records and guidelines discuss parsing ISO files; conversion and its one-way scope are not stated."}},
+ {"atom_id": "G-44.1", "raw": {"label": "uncertain", "sources": [
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "2. Namespaces", "quote": "DCAT itself defines a minimal set of classes and properties of its own."},
+  {"path": "geodcat/input-raw/w3c-dcat-2014.html", "locator": "Status of This Document", "quote": "DCAT incorporates terms from pre-existing vocabularies, where stable terms with appropriate meanings could be found"}
+ ], "rationale": "DCAT's minimal own terms and reuse of existing vocabularies relate to simplicity, but no input asks to keep a binding simple."}},
+ {"atom_id": "G-45.1", "raw": {"label": "uncertain", "sources": [
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 30] 2.4 Keyword", "quote": "The titles and definitions of all 34 INSPIRE Spatial Data Themes have been integrated into a dedicated branch of the General Environmental Multilingual Thesaurus (GEMET) in the 24 official Community languages"},
+  {"path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 30] 2.4 Keyword, TG Requirement 16", "quote": "If other keywords are added and they originate from a Controlled Vocabulary (thesaurus or ontology), for example GEMET - Concepts, EUROVOC or AGROVOC, then the citation of the originating Controlled Vocabulary shall be provided."}
+ ], "rationale": "INSPIRE themes are published as a GEMET branch and EUROVOC is named as a keyword source, but no EuroVoc alignment is mentioned."}},
+ {"atom_id": "G-46.1", "raw": {"label": "unsupported", "sources": [], "rationale": "DCAT-AP and its revision process are absent from the inputs; nothing calls for feeding recommendations back to keep profiles aligned."}}
+]

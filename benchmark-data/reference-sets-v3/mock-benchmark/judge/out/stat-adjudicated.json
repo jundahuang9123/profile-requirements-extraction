@@ -1,0 +1,7 @@
+{"case": "stat", "decisions": [
+  {"atom_id": "S-18.1", "need_id": "N197", "label": "unrelated", "rationale": "Asks for the meaning of date properties, a different information item from recording publication and modification times to the time of day; only the terms are shared."},
+  {"atom_id": "S-18.1", "need_id": "N387", "label": "partial", "rationale": "Same information item (release date) but for a catalogue rather than datasets, and without the time-of-day precision or the multiple-daily-publication condition."},
+  {"atom_id": "S-18.1", "need_id": "N412", "label": "partial", "rationale": "Same information item (modification date) but for a catalogue rather than datasets, and without the time-of-day precision or the multiple-daily-publication condition."},
+  {"atom_id": "S-18.1", "need_id": "N825", "label": "partial", "rationale": "Lists a dataset's issued and modified dates among other fields but does not ask for the time-of-day precision the atom requires, so neither contains the other."},
+  {"atom_id": "S-2.1", "need_id": "N963", "label": "partial", "rationale": "Shares attributes such as unit of measure that qualify observed values but concerns attaching them at dataset level to avoid redundancy, not describing them the same way across formats."}
+]}

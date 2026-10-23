@@ -1,0 +1,218 @@
+[
+ {
+  "atom_id": "S-1.1",
+  "row_statement": "Expose the dimensions that distinguish observations, including time and demographic or regional dimensions.",
+  "statement": "Describe the dimensions that identify observations in a statistical dataset (e.g. time, sex, age, region), the same way whatever the distribution format.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": "SC-006 adds the format independence stated in §7.2.1."
+ },
+ {
+  "atom_id": "S-2.1",
+  "row_statement": "Expose attributes needed to interpret observations, such as scaling and observation status.",
+  "statement": "Describe the attributes needed to qualify and interpret observed values (e.g. units of measure, scaling factors, observation status), the same way whatever the distribution format.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-3.1",
+  "row_statement": "Associate statistical datasets with descriptive quality information.",
+  "statement": "Link quality information to the statistical dataset or distribution it describes.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-3.2",
+  "row_statement": "Associate statistical datasets with descriptive quality information.",
+  "statement": "State the motivation of each quality annotation.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-3.3",
+  "row_statement": "Associate statistical datasets with descriptive quality information.",
+  "statement": "Provide the quality information as text or as a link to quality information published elsewhere.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-4.1",
+  "row_statement": "Identify delivery resources that present dataset visualisations.",
+  "statement": "Link to visualisations of the data (tables, graphs or interactive views), modelled as distributions of type visualisation.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-5.1",
+  "row_statement": "Indicate the actual number of statistical series represented in a dataset.",
+  "statement": "State the actual number of data series in a dataset, as distinct from the number of observations and the theoretical number of combinations.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-6.1",
+  "row_statement": "Identify the unit in which dataset observations are measured.",
+  "statement": "State the unit of measurement of the observations in a dataset.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-7.1",
+  "row_statement": "Represent time-series coverage and periodicity without relying on an ambiguous shorthand.",
+  "statement": "State the start of the period a time series covers.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-7.2",
+  "row_statement": "Represent time-series coverage and periodicity without relying on an ambiguous shorthand.",
+  "statement": "State the end of the period a time series covers.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-7.3",
+  "row_statement": "Represent time-series coverage and periodicity without relying on an ambiguous shorthand.",
+  "statement": "State the periodicity of a time series.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-8.1",
+  "row_statement": "Improve the discoverability of statistical datasets on general open data portals.",
+  "statement": "Improve the discoverability of statistical datasets on general open data portals.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-9.1",
+  "row_statement": "Let statistical portals feed general open data portals by exporting their metadata in the profile, with guidance for SDMX-based systems.",
+  "statement": "Let statistical portals export their metadata in the profile, so general open data portals can take it up.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-9.2",
+  "row_statement": "Let statistical portals feed general open data portals by exporting their metadata in the profile, with guidance for SDMX-based systems.",
+  "statement": "Give guidance for mapping and extracting metadata from SDMX-based systems.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-10.1",
+  "row_statement": "Conform fully to DCAT-AP 1.1, meeting every obligation of its conformance statement.",
+  "statement": "Conform fully to DCAT-AP and keep statistical descriptions aligned with DCAT and DCAT-AP.",
+  "stratum": "profile",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": "SC-001 (§6.2 principle) and S-10 (§7.1 conformance) express the same alignment need."
+ },
+ {
+  "atom_id": "S-11.1",
+  "row_statement": "Concentrate on metadata elements that help users discover datasets.",
+  "statement": "Concentrate on the metadata elements that help users discover datasets.",
+  "stratum": "profile",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-12.1",
+  "row_statement": "Take terms from existing, well-known and well-maintained vocabularies, including the ISA Core Vocabularies and Eurostat's metadata vocabularies.",
+  "statement": "Take terms from existing, well-known and well-maintained vocabularies.",
+  "stratum": "profile",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-13.1",
+  "row_statement": "Prefer common controlled vocabularies maintained by the EU Publications Office.",
+  "statement": "Prefer common controlled vocabularies, preferably those maintained by the EU Publications Office.",
+  "stratum": "profile",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-14.1",
+  "row_statement": "Balance simplicity and expressiveness for a wide, non-specialist audience.",
+  "statement": "Balance simplicity and expressiveness for a wide, non-specialist audience.",
+  "stratum": "profile",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-15.1",
+  "row_statement": "Make the profile usable for datasets in any format, such as SDMX, Data Cube or CSV.",
+  "statement": "Make the profile usable for datasets in any format, such as SDMX, Data Cube or CSV.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-16.1",
+  "row_statement": "Classify statistical datasets by EU data theme, mapping Eurostat's own themes onto it.",
+  "statement": "Classify statistical datasets by EU data theme, mapping Eurostat's own themes onto it.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "StatDCAT-AP \"uses the same controlled vocabularies as DCAT-AP\" (§7.8); dcat:theme stays recommended. The Eurostat mapping (Table 2) is guidance."
+ },
+ {
+  "atom_id": "S-17.1",
+  "row_statement": "Link an RDF distribution to the data structure definition it follows.",
+  "statement": "Link an RDF distribution to the data structure definition it follows.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "The proposal to use dct:conformsTo instead of stat:dimension and stat:attribute was rejected; an RDF distribution \"may use\" it in addition."
+ },
+ {
+  "atom_id": "S-18.1",
+  "row_statement": "Record publication and modification times to the time of day when data are published more than once a day.",
+  "statement": "Record publication and modification times to the time of day when data are published more than once a day.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-19.1",
+  "row_statement": "Identify the measures a statistical dataset contains, as SDMX and Data Cube define them.",
+  "statement": "Identify the measures a statistical dataset contains, as SDMX and Data Cube define them.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-20.1",
+  "row_statement": "Describe the quality of statistical data in more detail, e.g. following the ESS Single Integrated Metadata Structure (SIMS).",
+  "statement": "Describe the quality of statistical data in more detail, e.g. following the ESS Single Integrated Metadata Structure (SIMS).",
+  "stratum": "content",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-21.1",
+  "row_statement": "Show how DDI descriptions of datasets can be expressed with the profile.",
+  "statement": "Show how DDI descriptions of datasets can be expressed with the profile.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "S-22.1",
+  "row_statement": "Document, with a full example, how datasets, distributions, Data Cube datasets and data structure definitions relate.",
+  "statement": "Document, with a full example, how datasets, distributions, Data Cube datasets and data structure definitions relate.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ }
+]

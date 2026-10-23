@@ -1,0 +1,21 @@
+% Table 2, generated from benchmark-data/reference-sets-v3 (commit 671c60a) by make_tables.py.
+% "Stated" uses the raw input-evidence labels of v3: AI labels, human review pending; align Sect. 5 and the
+% Use of Generative AI section with how they were made.
+\begin{table}[t]
+\caption{Benchmark cases. Files: evidence files plus base specifications kept as background; units: evidence units; base: the \dcatap\ release that the extension's own documents cite. Rows: published reference rows plus rows added from the same document. Atoms: scoring units (content, not deferred, each need once); of all 196, 46 restate the base and 50 are proposals, open issues or guidance in their source. Stated: atoms whose meaning the raw corpus states (in parentheses, at least in part).}
+\label{tab:benchmark}
+\centering\scriptsize\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{@{}lYrrlrrrl@{}}
+\toprule
+Case & Reference (date) & Files & Units & Base & Rows & Atoms & Stated & Use\\
+\midrule
+mobilityDCAT-AP & NAPCORE analysis~\cite{bures2022napcore} (2022) & 13+3 & 822 & 2.0.1 & 40 & 39 & 31 (37) & test\\
+GeoDCAT-AP & GeoDCAT-AP 1.0~\cite{geodcatap10} (2015) & 5 & 271 & 1.1 & 7+39 & 37 & 37 (37) & test\\
+HealthDCAT-AP & HealthData@EU D6.2~\cite{healthdataeu2024d62} (2024) & 3+2 & \tbd & 3.0.0 & 16+53 & 89 & 59 (84) & dev.\\
+StatDCAT-AP & StatDCAT-AP 1.0.0~\cite{statdcatap} (2016) & 2 & 60 & 1.1 & 7+15 & 14 & 4 (8) & dev.\\
+DCAT-AP-JRC & Perego et al.~\cite{perego2016jrc} (2016) & 3 & 59 & 1.1 & 5+6 & 17 & 6 (12) & dev.\\
+\midrule
+Total & & & & & 75+113 & 196 & 137 (178) & \\
+\bottomrule
+\end{tabularx}
+\end{table}

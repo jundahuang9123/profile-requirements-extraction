@@ -1,0 +1,48 @@
+{"case": "jrc", "judge": "B", "atoms": [
+  {"atom_id": "JRC-1.1", "matches": [
+    {"need_id": "N243", "label": "equivalent", "rationale": "Creator and author of a dataset are close synonyms, so this is the same information item for the same resource."}
+  ]},
+  {"atom_id": "JRC-2.1", "matches": [
+    {"need_id": "N668", "label": "partial", "rationale": "A methods narrative overlaps a lineage description, but the need covers descriptions in general (abstract, methods, technical information) rather than lineage as such."},
+    {"need_id": "N759", "label": "partial", "rationale": "Typed relations such as derivation links express part of a lineage, but the need is a general relation mechanism for any resource."}
+  ]},
+  {"atom_id": "JRC-3.1", "matches": [
+    {"need_id": "N668", "label": "partial", "rationale": "Explanatory and technical descriptions can carry guidance on use, but the need is not specifically about how to use the data and also covers methods."}
+  ]},
+  {"atom_id": "JRC-4.1", "matches": [
+    {"need_id": "N759", "label": "broader", "rationale": "Typed relationships from a resource to related objects include links from a dataset to publications about it, among other relations."}
+  ]},
+  {"atom_id": "JRC-5.1", "matches": [
+    {"need_id": "N759", "label": "broader", "rationale": "Typed relationships to related objects include a link from a dataset to the data it was derived from, among other relations."}
+  ]},
+  {"atom_id": "JRC-6.1", "matches": []},
+  {"atom_id": "JRC-6.2", "matches": [
+    {"need_id": "N840", "label": "partial", "rationale": "The catalogue publisher's identifier given as a URI is one case of URI-encoded identifiers, but the need covers only that identifier and does not ask for HTTP URIs generally."}
+  ]},
+  {"atom_id": "JRC-6.3", "matches": [
+    {"need_id": "N889", "label": "partial", "rationale": "It separates alternative identifiers from the primary DOI, but it fixes the primary identifier to a DOI and adds identifier types."}
+  ]},
+  {"atom_id": "JRC-6.4", "matches": [
+    {"need_id": "N889", "label": "partial", "rationale": "It presupposes that the dataset's primary identifier is a DOI, but it asks for the other identifiers and their types and has no DataCite-citation condition."}
+  ]},
+  {"atom_id": "JRC-6.5", "matches": [
+    {"need_id": "N889", "label": "narrower", "rationale": "Identifier types for a dataset's non-primary identifiers are a special case of qualifying each identifier with its type."}
+  ]},
+  {"atom_id": "JRC-7.1", "matches": [
+    {"need_id": "N983", "label": "partial", "rationale": "Typed contributor roles such as curation go beyond publisher and contact point, but the need also includes contact roles and does not ask for a minimal, unambiguous role set."},
+    {"need_id": "N159", "label": "partial", "rationale": "Curation roles are one kind of agent role beyond publisher and contact point, but the need does not ask for a minimal, consistent role set."},
+    {"need_id": "N672", "label": "partial", "rationale": "Same role-typing item, but for contact roles, which the atom places outside its scope, and without a minimal role set."}
+  ]},
+  {"atom_id": "JRC-8.1", "matches": [
+    {"need_id": "N991", "label": "partial", "rationale": "Knowing the interfaces through which data are accessed overlaps flagging service/API access, but it is a general statement about JRC data, not a per-distribution indication."}
+  ]},
+  {"atom_id": "JRC-8.2", "matches": [
+    {"need_id": "N991", "label": "partial", "rationale": "Knowing which interfaces give access overlaps describing the API, but the need asks for no interface description or query parameters and does not target software agents."}
+  ]},
+  {"atom_id": "JRC-9.1", "matches": [
+    {"need_id": "N668", "label": "partial", "rationale": "A methods narrative is part of provenance and helps reproducibility, but the need does not ask for detailed provenance or usage tracking."},
+    {"need_id": "N759", "label": "partial", "rationale": "Typed relations such as derivation or citation links carry some provenance and usage information, but the need is a general relation mechanism without reproducibility-level detail."}
+  ]},
+  {"atom_id": "JRC-10.1", "matches": []},
+  {"atom_id": "JRC-10.2", "matches": []}
+]}

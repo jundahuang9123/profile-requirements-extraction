@@ -1,0 +1,100 @@
+[
+ {
+  "atom_id": "S-1.1",
+  "statement": "Describe the dimensions that identify observations in a statistical dataset (e.g. time, sex, age, region), the same way whatever the distribution format.",
+  "source_passage": "Dimensions: components that identify observations such as time, sex, age, regions",
+  "source_wording_of_obligation": "capability",
+  "status_in_source": "requirement"
+ },
+ {
+  "atom_id": "S-2.1",
+  "statement": "Describe the attributes needed to qualify and interpret observed values (e.g. units of measure, scaling factors, observation status), the same way whatever the distribution format.",
+  "source_passage": "Attributes: components used to qualify and interpret observed values such as units of measure, scaling factors",
+  "source_wording_of_obligation": "capability",
+  "status_in_source": "requirement"
+ },
+ {
+  "atom_id": "S-3.1",
+  "statement": "Link quality information to the statistical dataset or distribution it describes.",
+  "source_passage": "an explicit link to the resource being annotated (oa:hasTarget)",
+  "source_wording_of_obligation": "usage_requirement",
+  "status_in_source": "requirement"
+ },
+ {
+  "atom_id": "S-3.2",
+  "statement": "State the motivation of each quality annotation.",
+  "source_passage": "The annotation requires the provision of information about the motivation of the annotation (oa:motivation)",
+  "source_wording_of_obligation": "usage_requirement",
+  "status_in_source": "requirement"
+ },
+ {
+  "atom_id": "S-3.3",
+  "statement": "Provide the quality information as text or as a link to quality information published elsewhere.",
+  "source_passage": "either through linking to quality information that is already published elsewhere or by including text with quality information",
+  "source_wording_of_obligation": "usage_requirement",
+  "status_in_source": "requirement"
+ },
+ {
+  "atom_id": "S-4.1",
+  "statement": "Link to visualisations of the data (tables, graphs or interactive views), modelled as distributions of type visualisation.",
+  "source_passage": "One of the requirements raised during discussions was the need to be able to link to a visualisation of the data",
+  "source_wording_of_obligation": "requirement",
+  "status_in_source": "requirement"
+ },
+ {
+  "atom_id": "S-5.1",
+  "statement": "State the actual number of data series in a dataset, as distinct from the number of observations and the theoretical number of combinations.",
+  "source_passage": "One additional requirement was about expressing the number of data series contained in a dataset.",
+  "source_wording_of_obligation": "clarification",
+  "status_in_source": "requirement"
+ },
+ {
+  "atom_id": "S-6.1",
+  "statement": "State the unit of measurement of the observations in a dataset.",
+  "source_passage": "A requirement was brought forward to allow expression of the unit of measurement.",
+  "source_wording_of_obligation": "requirement",
+  "status_in_source": "requirement"
+ },
+ {
+  "atom_id": "S-7.1",
+  "statement": "State the start of the period a time series covers.",
+  "source_passage": "To describe such a time series, a StatDCAT-AP-compliant description would specify:",
+  "source_wording_of_obligation": "representation_guidance",
+  "status_in_source": "guidance"
+ },
+ {
+  "atom_id": "S-7.2",
+  "statement": "State the end of the period a time series covers.",
+  "source_passage": "To describe such a time series, a StatDCAT-AP-compliant description would specify:",
+  "source_wording_of_obligation": "representation_guidance",
+  "status_in_source": "guidance"
+ },
+ {
+  "atom_id": "S-7.3",
+  "statement": "State the periodicity of a time series.",
+  "source_passage": "To describe such a time series, a StatDCAT-AP-compliant description would specify:",
+  "source_wording_of_obligation": "representation_guidance",
+  "status_in_source": "guidance"
+ },
+ {
+  "atom_id": "S-16.1",
+  "statement": "Classify statistical datasets by EU data theme, mapping Eurostat's own themes onto it.",
+  "source_passage": "Mappings between the Eurostat theme vocabulary and the MDR data themes",
+  "source_wording_of_obligation": "requirement",
+  "status_in_source": "requirement"
+ },
+ {
+  "atom_id": "S-17.1",
+  "statement": "Link an RDF distribution to the data structure definition it follows.",
+  "source_passage": "a RDF distribution may use dct:conformsTo in addition",
+  "source_wording_of_obligation": "optional",
+  "status_in_source": "guidance"
+ },
+ {
+  "atom_id": "S-18.1",
+  "statement": "Record publication and modification times to the time of day when data are published more than once a day.",
+  "source_passage": "if a dataset is published more than once per day, more precise information about the actual publication time will be needed",
+  "source_wording_of_obligation": "requirement",
+  "status_in_source": "requirement"
+ }
+]
