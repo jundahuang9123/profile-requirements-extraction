@@ -690,11 +690,13 @@ apply in the discussion):
 - The step record counts the second judgements by outcome (`confirmation_counts`,
   `confirmation_ids`), and each record decision carries its `confirmation`.
 
-A need that fails only the guard on explicit data-processing actions
-(`operational_data_processing`, which reads the statement) is not judged again. It
-costs one call per failure (21 in the JRC run). Runs whose needs policies name v6
-or v7 keep one judgement, also at apply, so they resume unchanged. Passing needs are
-not judged again; the F/A test is unchanged.
+A need the guard on explicit data-processing actions catches
+(`operational_data_processing`, which reads the statement) is not judged again: it is
+set aside, or its change blocked, whatever the model says. Each other failure costs
+one call, plus at most one correction (21 failures in the JRC run). Passing needs are
+not judged again; the F/A test is unchanged. As before, a run whose needs policies
+name v6 or v7 is refused at normalisation (derive a trial); continued at apply in
+the discussion, it keeps one judgement and its own policy label.
 
 The base search (`rq1-base-needs-full-search-v3`) changes in three ways:
 

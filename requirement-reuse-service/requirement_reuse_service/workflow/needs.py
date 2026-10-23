@@ -1060,8 +1060,11 @@ def record_scope_verdicts(store, run, needs, client):
                    for d in result.decisions if d.record_resource == 'other' and d.catalogue_level
                    and d.record_statement.strip() and not other_record_kind(d.record_statement)]
         return errors
-    def judged(batch, step, policy=None):
-        result = cached_generation(store, run, step, payload_for(batch), ProfileScope, SCOPE_SYSTEM, client, validate, policy)
+    # A run records its needs policies when created; one that names none follows this code. A run under an
+    # earlier policy (continued at apply) keeps its own label and one judgement.
+    policy = (run.get('needs_policies') or {}).get('profile_scope') or POLICIES['profile_scope']
+    def judged(batch, step, key_policy=None):
+        result = cached_generation(store, run, step, payload_for(batch), ProfileScope, SCOPE_SYSTEM, client, validate, key_policy)
         fallbacks = getattr(result, '_fallbacks', {})
         by_id = {d.need_id: d for d in result.decisions}
         found = {}
@@ -1069,25 +1072,24 @@ def record_scope_verdicts(store, run, needs, client):
             identifier = need.requirement_id
             if identifier in fallbacks or identifier not in by_id:
                 failure = fallbacks.get(identifier, {}).get('reason', 'No judgement returned.')
-                found[identifier] = ({'policy_version': POLICIES['profile_scope'], 'status': 'not_checked',
+                found[identifier] = ({'policy_version': policy, 'status': 'not_checked',
                                       'scope_class': 'review', 'reason': failure}, [], None)
                 continue
             decision = by_id[identifier]; failed = failed_scope_tests(decision, need)
-            found[identifier] = ({'policy_version': POLICIES['profile_scope'], 'status': 'checked',
+            found[identifier] = ({'policy_version': policy, 'status': 'checked',
                 **decision.model_dump(mode='json', exclude={'need_id'}), 'failed_tests': failed,
                 'guardrail_flags': [operational_scope_reason(need)] if operational_scope_reason(need) else [],
                 'scope_class': None if failed else 'review', 'representativeness': 'uncertain'}, failed, decision)
         return found
     for batch in bounded_batches(needs, 25, payload_for):
         verdicts.update(judged(batch, 'profile_scope'))
-    # A run records its needs policies when created; one that names none follows this code.
-    policy = (run.get('needs_policies') or {}).get('profile_scope') or POLICIES['profile_scope']
     if policy not in CONFIRMING_SCOPE_POLICIES:
         return verdicts
     for need in needs:
         scope, failed, decision = verdicts[need.requirement_id]
-        # The guard on explicit processing actions reads the statement, not the model: judging again cannot change it.
-        if not [test for test in failed if test != 'operational_data_processing']:
+        # The guard on explicit processing actions reads the statement, not the model: judging again cannot
+        # change it, and the need is set aside (or the change blocked) whatever the model says.
+        if not failed or 'operational_data_processing' in failed:
             continue
         # Its own cache step: a need first judged alone (a change writing one need) would otherwise get its
         # first judgement back instead of a second one.

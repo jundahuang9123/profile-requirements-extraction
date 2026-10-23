@@ -162,7 +162,13 @@ def test_report_lists_the_needs_kept_against_a_first_failed_record_test(tmp_path
                              'processing_flags': ['profile_scope_disputed'],
                              'profile_scope': {'record_resource': 'dataset', 'confirmation': {'outcome': 'disputed', 'verdict': first}}},
                             {'revision_id': 'revision-2', 'need_statement': 'Users can know the Open Data principles.',
-                             'normalized_statement': 'Users can know the Open Data principles.'}],
+                             'normalized_statement': 'Users can know the Open Data principles.'},
+                            {'revision_id': 'revision-3', 'need_statement': 'Users can know the typed relations of a resource.',
+                             'normalized_statement': 'Users can know the typed relations of a resource.',
+                             'processing_flags': ['profile_scope_disputed'],
+                             'profile_scope': {'record_resource': 'none', 'rationale': 'A modelling concept.', 'failed_tests': [],
+                                               'confirmation': {'outcome': 'not_checked', 'first_failed_tests': ['not_catalogue_level'],
+                                                                'reason': 'Row missing or invalid.'}}}],
            'set_aside_observations': [
                {'revision_id': 'revision-2', 'need_id': 'need-2', 'reason': 'not_catalogue_level', 'rationale': 'A policy.',
                 'details': {'profile_scope': {'record_resource': 'none', 'confirmation': {'outcome': 'confirmed', 'verdict': first}}}}],
@@ -173,5 +179,8 @@ def test_report_lists_the_needs_kept_against_a_first_failed_record_test(tmp_path
     markdown = (tmp_path / 'base-review.md').read_text()
     assert '- Users can know the Open Data principles. — not_catalogue_level (failed again alone); record: none; A policy.' in markdown
     disputed = markdown.split('## Scope contract v1: kept against a first failed record test (profile_scope_disputed)')[1].split('\n## ')[0]
-    assert "1 need revisions (1 active); second judgements by outcome at normalisation: {'confirmed': 1, 'disputed': 1}." in disputed
+    assert "2 need revisions (1 active); second judgements by outcome at normalisation: {'confirmed': 1, 'disputed': 1}." in disputed
     assert f'- {uses} — second judgement: disputed; record now: dataset; first: not_catalogue_level; A licence term, not metadata.' in disputed
+    # A missing second judgement: the first judgement's own rationale, and why the second is missing, apart.
+    assert ('- Users can know the typed relations of a resource. — second judgement: not_checked; record now: none; '
+            'first: not_catalogue_level; A modelling concept.; second missing: Row missing or invalid.') in disputed

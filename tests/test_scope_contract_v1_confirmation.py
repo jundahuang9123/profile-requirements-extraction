@@ -167,18 +167,30 @@ def test_a_run_under_an_earlier_scope_policy_keeps_one_judgement(setup):
     outcome = change(case)
     assert outcome['status'] == 'blocked_change' and [b['statement'] for b in outcome['scope_block']] == [USES]
     assert 'confirmation' not in outcome['scope_tests'][0]['profile_scope']
+    assert outcome['scope_tests'][0]['profile_scope']['policy_version'] == 'rq1-profile-scope-v7'
     assert [c[1] for c in client.scope_calls] == ['FAScopeResult', 'ProfileScope']
 
 
-def test_a_need_set_aside_only_by_the_processing_guard_is_not_judged_again(needs_setup):
-    # The guard reads the statement, so a second judgement cannot change it.
-    statements = {'need-process': "Users can verify that each observation's value is included in the code list.",
-                  'need-dimensions': DIMENSIONS}
+@pytest.mark.parametrize('model_fails', [False, True])
+def test_a_need_the_processing_guard_catches_is_not_judged_again(needs_setup, model_fails):
+    # The guard reads the statement, so a second judgement cannot change it: the need is set aside whatever the
+    # model says, also when the model failed it too and a second judgement would have come back missing.
+    process = "Users can verify that each observation's value is included in the code list."
+    statements = {'need-process': process, 'need-dimensions': DIMENSIONS}
     store, run, _, made = variants(needs_setup, statements)
     run = fa_run(store, run)
-    client = InContext(statements)
+    class Guarded(InContext):
+        def generate_structured(self, **kwargs):
+            answer = super().generate_structured(**kwargs)
+            if kwargs['output_model'].__name__ == 'ProfileScope' and model_fails:
+                for d in answer.decisions:
+                    if d.need_id == 'need-process': d.record_resource, d.catalogue_level, d.serves, d.example = 'none', False, 'neither', ''
+            return answer
+    client = Guarded(statements, omit_alone={process})
     retained = needs.judge_profile_scope(store, run, made, client)
     assert [n.requirement_id for n in retained] == ['need-dimensions']
     aside, = store.get('run', run['run_id'])['set_aside_observations']
-    assert aside['reason'] == 'operational_data_processing' and 'confirmation' not in aside['details']['profile_scope']
+    assert aside['need_id'] == 'need-process' and 'confirmation' not in aside['details']['profile_scope']
+    assert 'operational_data_processing' in aside['details']['profile_scope']['failed_tests']
+    assert aside['reason'] == ('not_catalogue_level' if model_fails else 'operational_data_processing')
     assert record_calls(client) == [sorted(statements)]
