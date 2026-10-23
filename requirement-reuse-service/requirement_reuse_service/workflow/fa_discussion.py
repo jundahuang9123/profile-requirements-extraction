@@ -33,11 +33,14 @@ POLICY='rq1-fa-dialogue-v1'
 # from its source unit only in whitespace, in U+2010/U+2011 hyphens or in a line break after a
 # hyphen, citing the exact source text (see folded_span). v12 (23 Oct) also salvages a plan in
 # which no need has a valid disposition: every need gets the system deferral, and the actions
-# dropped from the applied plan go to a person (see salvage_plan). A discussion planned under an
-# earlier version cannot continue; derive a separate base-review trial.
-BASE_POLICY='rq1-fa-dialogue-v12'
+# dropped from the applied plan go to a person (see salvage_plan). v13 (23 Oct) ignores a check of an
+# ID that is not an action of the plan, as long as every action has exactly one check (see
+# check_errors). A discussion planned under an earlier version cannot continue; derive a separate
+# base-review trial.
+BASE_POLICY='rq1-fa-dialogue-v13'
 BASE_POLICIES={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5','rq1-fa-dialogue-v6',
-    'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8','rq1-fa-dialogue-v9','rq1-fa-dialogue-v10','rq1-fa-dialogue-v11',BASE_POLICY}
+    'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8','rq1-fa-dialogue-v9','rq1-fa-dialogue-v10','rq1-fa-dialogue-v11',
+    'rq1-fa-dialogue-v12',BASE_POLICY}
 # v11: how a quotation that is not exact text of its source unit is found (see folded_span).
 QUOTE_MATCH_POLICY='rq1-fa-quote-match-v1'
 SALVAGE_POLICY='rq1-fa-salvage-v2'
@@ -606,7 +609,7 @@ def plan_errors(plan,case,messages,allowed):
         # its own: 5 of the 6 invalid drafts in JRC run-a89957db failed on that alone, with
         # sourced children.
         own=a.action=='recover' or (a.action=='split' and case.get('policy_version') not in {'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8',
-            'rq1-fa-dialogue-v9','rq1-fa-dialogue-v10','rq1-fa-dialogue-v11',BASE_POLICY})
+            'rq1-fa-dialogue-v9','rq1-fa-dialogue-v10','rq1-fa-dialogue-v11','rq1-fa-dialogue-v12',BASE_POLICY})
         if own and (not a.statement.strip() or not a.evidence_links):
             errors.append('Recovery/split requires source-supported statement and links.')
         if a.action=='split' and len(a.children)<2: errors.append('Split requires at least two supported children.')
@@ -1623,6 +1626,9 @@ def execute_case(store,run_id,case_id,client,roles):
         lambda a:check_errors(a,final,policy))
     trace['question_groups']=question_groups(final.questions)
     trace['final']=final.model_dump(mode='json');trace['checks']=checks.model_dump(mode='json')
+    # v13: checks of IDs outside the plan were accepted beside the plan's checks and are not used.
+    ignored=ignored_checks(checks,final) if policy==BASE_POLICY else []
+    if ignored:trace['ignored_check_ids']=ignored
     class BudgetClient:
         def for_step(self,step): return BudgetClient() if step=='assessment' else for_step(client,step)
         def describe(self): return for_step(client,'assessment').describe() if hasattr(for_step(client,'assessment'),'describe') else {'model':'scripted'}
@@ -1693,6 +1699,8 @@ def execute_case(store,run_id,case_id,client,roles):
                 **({'salvage':deepcopy(salvaged)} if salvaged else {}),
                 # v12: the applied plan was salvaged without any mediator action (metric salvaged_nothing_kept).
                 **({'salvage_nothing_kept':True} if salvaged.get(applied,{}).get('nothing_kept') else {}),
+                # v13: checks of IDs outside the plan, ignored (metric ignored_checks).
+                **({'ignored_check_ids':list(ignored)} if ignored else {}),
                 'completed_at':now(),'human_accepted':False})
     store.mutate(run_id,None,'fa_mediation_transaction',commit)
 
@@ -1769,16 +1777,32 @@ def check_errors(answer,plan,policy):
     new needs, after v9 let more splits through. A replay of every saved checker answer shows the
     same habit behind the check failures of JRC v6 (1 case), JRC v8 (1) and Stat v8 (2); every
     answer the old rule accepted is still accepted.
+    v13: a check of any other ID that is not an action of the plan is ignored the same way (see
+    ignored_checks): an experience proposal (P1), an action the salvage dropped (A2), an experience
+    claim, or an invented ID (S1). Cases with a saved checker answer whose only fault was such an ID:
+    JRC run-efc543e4 (v10) 2 (one corrected on retry, one on both tries, case lost), JRC run-12a2c91a
+    (v11) 1 (corrected on retry), and one case lost on both tries in each of JRC run-36730b38 (v12),
+    Stat run-d069be4d (v11) and Stat run-289823d2 (v12); none in JRC v6-v9, run-0834b623 or Stat
+    v6-v10. Every action of the plan still needs exactly one check: a check filed under another ID
+    leaves that action missing, and a repeated check of an action still fails, so no action is
+    applied unchecked. Every answer the v12 rule accepted is still accepted.
     The error names what is missing, repeated or unknown. Other protocols keep their rule and text.
     """
     wanted=Counter(a.action_id for a in plan.actions)
     if policy!=BASE_POLICY:
         return [] if Counter(c.action_id for c in answer.checks)==wanted else ['Check every action exactly once.']
     children={c.action_id for a in plan.actions for c in a.children}-set(wanted)
-    got=Counter(c.action_id for c in answer.checks if c.action_id not in children)
+    got=Counter(c.action_id for c in answer.checks if c.action_id in wanted)
     if got==wanted:return []
     return ['Check every action exactly once: '+canonical({'missing':sorted(set(wanted)-set(got)),
-        'repeated':sorted(k for k,v in got.items() if v>1),'unknown':sorted(set(got)-set(wanted))})]
+        'repeated':sorted(k for k,v in got.items() if v>1),'unknown':sorted({c.action_id for c in answer.checks}-set(wanted)-children)})]
+
+
+def ignored_checks(answer,plan):
+    """v13: the IDs of the checks that name neither an action of the plan nor a new need of a split,
+    in answer order. check_errors ignores them and apply never reads them (it looks checks up by action)."""
+    known={a.action_id for a in plan.actions}|{c.action_id for a in plan.actions for c in a.children}
+    return [c.action_id for c in answer.checks if c.action_id not in known]
 
 
 HYPHENS={'\u2010':'-','\u2011':'-'}  # hyphen, non-breaking hyphen
@@ -2010,6 +2034,8 @@ def deliberate(store,run_id,client):
             r['metrics']['lost_after_salvage_nothing_kept']=sum(c.get('stop_reason') in {'budget_pending_human_review',
                 'invalid_output_pending_human_review'} and any(a.get('status')=='salvaged' and a.get('nothing_kept')
                 for a in ((c.get('discussion_trace') or {}).get('salvage') or {}).values()) for c in r['deliberations'])
+            # v13: checks of IDs outside the plan that the check rule ignored (see ignored_checks).
+            r['metrics']['ignored_checks']=sum(len((c.get('mediation') or {}).get('ignored_check_ids',[])) for c in r['deliberations'])
             # Experience is a separate kind of argument; its use is counted apart, over completed cases.
             done=[c for c in r['deliberations'] if c.get('mediation',{}).get('phase')=='completed']
             decisions=[d for c in done for d in c['mediation'].get('experience_decisions',[])]

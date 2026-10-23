@@ -68,6 +68,12 @@ def main():
     for c in run.get('deliberations',[]):
         for action in (c.get('mediation') or {}).get('outcomes',[]):
             if action.get('salvage_rejected'):lines.append(f'- {c["case_id"]} · {action.get("action")} {action.get("action_id")}: '+'; '.join(action.get('validation_errors',[])))
+    # v13: the check rule ignores checks of IDs that are not actions of the plan; the runs before it have no count.
+    lines+=['\n## Checks of IDs outside the plan (ignored)',
+        f'Ignored checks (metrics): {(run.get("metrics") or {}).get("ignored_checks","not recorded")}.']
+    for c in run.get('deliberations',[]):
+        if (c.get('mediation') or {}).get('ignored_check_ids'):
+            lines.append(f'- {c["case_id"]}: '+', '.join(c['mediation']['ignored_check_ids']))
     calls=[c for c in run.get('model_calls',[]) if c.get('step') in {'base_review','base_review_check'}]
     lines+=['\n## Reviewer usage',f'{len(calls)} calls ({dict(Counter(c.get("step") for c in calls))}); {sum((c.get("token_usage") or {}).get("total_tokens",0) or 0 for c in calls)} reported tokens ({sum(bool(c.get("token_usage")) for c in calls)} calls supplied usage); {sum(c.get("latency_seconds",0) or 0 for c in calls):.1f} seconds.',
         '\n## Case stop reasons',json.dumps(dict(Counter(c.get('stop_reason') for c in run.get('deliberations',[]))),indent=2),

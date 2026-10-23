@@ -87,7 +87,27 @@ def test_report_separates_removed_labels_from_kept_disputes_and_lists_salvage(tm
     # Runs before rq1-fa-salvage-v2 have no count of salvages that kept no mediator action.
     assert 'Salvaged with no mediator action kept (metrics): not recorded; lost after such a salvage' in markdown
     assert 'v11 stopped these earlier as invalid output): not recorded.' in markdown
+    # Runs before rq1-fa-dialogue-v13 have no count of ignored checks.
+    ignored = markdown.split('## Checks of IDs outside the plan (ignored)')[1].split('\n## ')[0]
+    assert ignored.strip() == 'Ignored checks (metrics): not recorded.'
     with (tmp_path / 'base-review.csv').open(encoding='utf-8-sig', newline='') as f:
         rows = {r['revision_id']: r for r in csv.DictReader(f)}
     assert rows['revision-2']['policy'] == 'rq1-base-expert-v3' and rows['revision-4']['errors'].startswith('N1:')
     assert json.loads(rows['revision-4']['isolated']) == {'review': 'k'}
+
+
+def test_report_lists_the_checks_the_v13_rule_ignored(tmp_path, monkeypatch):
+    path = Path(__file__).resolve().parents[1] / 'scripts' / 'fa_base_report.py'
+    spec = importlib.util.spec_from_file_location('fa_base_report', path)
+    report = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(report)
+    case = lambda i, **mediation: {'case_id': f'case-{i}', 'stop_reason': 'bounded_fa_dialogue_complete', 'frozen_requirements': [],
+                                   'mediation': {'outcomes': [], **mediation}}
+    run = {'run_id': 'report-test', 'status': 'awaiting_human', 'model_calls': [], 'active_revision_ids': [], 'requirements': [],
+           'metrics': {'salvaged_cases': 0, 'ignored_checks': 3},
+           'deliberations': [case(1, ignored_check_ids=['P1']), case(2), case(3, ignored_check_ids=['experience-1', 'S1'])]}
+    monkeypatch.setattr(report, 'get', lambda url: run if url.endswith('?audit=true') else {'counts': {}})
+    monkeypatch.setattr(sys, 'argv', ['fa_base_report.py', '--api', 'http://local-test', '--run', 'report-test', '--out', str(tmp_path)])
+    report.main()
+    ignored = (tmp_path / 'base-review.md').read_text().split('## Checks of IDs outside the plan (ignored)')[1].split('\n## ')[0]
+    assert ignored.split() == 'Ignored checks (metrics): 3. - case-1: P1 - case-3: experience-1, S1'.split()

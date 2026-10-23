@@ -756,6 +756,46 @@ the first salvage rule when `salvage_plan` is replayed on them; v1, v2 and cases
 without a policy never reach salvage in a discussion. This is tested offline
 only.
 
+### Checks of IDs outside the plan (v13)
+
+Since v10 the checker may check a split's new needs beside the split; any other
+check had to name an action of the plan. In 6 cases of five saved runs, the only
+fault of a checker answer was a check of an ID that is not an action of the plan,
+beside one check of every action. In 4 of them the second try did the same, and
+the case was lost:
+
+| Run | Checked beside the plan's actions | Second try |
+|---|---|---|
+| JRC `run-efc543e4` (v10) | SA1, SA2 (invented) | corrected |
+| JRC `run-efc543e4` (v10) | P1, an experience proposal | the same; lost |
+| JRC `run-12a2c91a` (v11) | S1 (invented) | corrected |
+| Stat `run-d069be4d` (v11) | A2, a parentless defer the salvage had dropped | the same; lost |
+| JRC `run-36730b38` (v12) | S1, beside the two retains of the final plan | the same; lost |
+| Stat `run-289823d2` (v12) | three experience claims | the same; lost |
+
+None of the other saved runs (JRC v6 to v9 and `run-0834b623`, Stat v6 to v10)
+has such an answer.
+
+`rq1-fa-dialogue-v13` ignores such a check as v10 ignores a check of a split's
+new need: the answer is accepted when every action of the plan has exactly one
+check, and the other checks are not used. Apply reads each action's check by the
+action's ID; a proposal row or a row the salvage rejected never takes a check. A
+missing check, a check filed under another ID (which leaves its action without
+one) and a repeated check of an action are still refused, and the correction names
+what is missing, repeated or unknown. So no action is applied without its own
+check, and every answer the v12 rule accepted is still accepted. The legacy v1
+protocol keeps its rule.
+
+The case's mediation and discussion trace record the ignored IDs
+(`ignored_check_ids`, as internal IDs: an experience claim appears under its claim
+ID), the run metric `ignored_checks` counts them, and `scripts/fa_base_report.py`
+lists them. A derived base-review trial does not inherit the metric. In the five
+runs above, the 4 lost cases would have gone on to apply, and 2 check calls would
+have been saved.
+
+A discussion planned under v12 cannot continue under v13. This is tested offline
+only.
+
 ### Answer habits
 
 Unit tests with ideal scripted answers did not show what a change does to the
@@ -769,7 +809,8 @@ kinds as concern kinds, keep and second claims, quotations with a line break
 written as a space or a hyphen written as U+2011, and single-need plans that keep
 no action: a labelled need split beside its covered_by_base, the parts of a split
 set aside or deferred on the one need, set-asides of rejected ideas beside a
-revision) and checks that every case ends
+revision, and checks of IDs outside the plan: an experience proposal, an action
+the salvage dropped, an invented ID, experience claims) and checks that every case ends
 in a defined state, accounts for every need, applies only what the rules allow
 and leaves a record that validates. A habit seen in a new live run is added
 there.
@@ -801,8 +842,8 @@ classifier/reviewer matrix, added flags and entry terms, checks, removed labels,
 disputes with the label kept (v1/v2), source-stated additions, not-reviewed needs
 with their errors, after-discussion results, discussion actions on labelled needs,
 salvaged cases (and, since v12, those that kept no mediator action and the cases
-lost after such a salvage) and mediator actions rejected by salvage, reviewer usage
-and case stop reasons. The
+lost after such a salvage), mediator actions rejected by salvage, the checks of IDs
+outside the plan that v13 ignored, reviewer usage and case stop reasons. The
 CSV has `policy`, `errors` and `isolated` columns. Legacy v1 reports leave
 reviewer columns empty. Run this helper against a saved trial; it never starts
 inference or changes the run.
