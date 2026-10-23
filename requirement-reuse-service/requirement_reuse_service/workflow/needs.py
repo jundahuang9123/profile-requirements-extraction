@@ -24,7 +24,7 @@ EARLIER_ROUTING_POLICIES = ('rq1-needs-routing-v2',)
 POLICIES = {'generation_recovery': 'rq1-needs-row-recovery-v2', 'source_check': 'rq1-original-source-v2.2', 'proposal_support': 'rq1-proposal-support-v1', 'grouping': 'rq1-need-semantic-grouping-v2',
             'need_statement': 'rq1-need-statement-v3', 'need_membership': 'rq1-need-membership-v1',
             'classification': 'rq1-generic-domain-v4', 'base_search': 'rq1-base-needs-full-search-v3', 'base_gap': 'rq1-base-gap-status-v2',
-            'profile_scope': 'rq1-profile-scope-v7', 'dataset_applicability': 'rq1-dataset-applicability-v2', 'dataset_categories': CATEGORY_POLICY, 'selection': SELECTION_POLICY,
+            'profile_scope': 'rq1-profile-scope-v8', 'dataset_applicability': 'rq1-dataset-applicability-v2', 'dataset_categories': CATEGORY_POLICY, 'selection': SELECTION_POLICY,
             'scoping': 'rq1-use-case-contribution-v1',
             'scope_critic': 'rq1-use-case-contribution-critic-v1', 'assessment': 'rq1-need-support-v1', 'ranking': 'rq1-need-ranking-v1',
             'families': 'rq1-need-families-v2', 'routing': ROUTING_POLICY}
@@ -147,9 +147,9 @@ def step_saved(store, run, step, **data):
     return value
 
 
-def cached_generation(store, run, step, payload, output_model, system, client, validate=None):
+def cached_generation(store, run, step, payload, output_model, system, client, validate=None, policy=None):
     from .need_recovery import generation
-    return generation(store,run,step,payload,output_model,system,client,validate)
+    return generation(store,run,step,payload,output_model,system,client,validate,policy)
 
 
 def obligation_summary(members):
@@ -1016,42 +1016,91 @@ def judge_applicability(store, run, needs, client, registry):
         limitation='Applicability is independent of C1/C2; unchecked applicability retains the need for review.')
 
 
+# rq1-profile-scope-v8 (option A, Junda, 23 Oct): a failed record test is confirmed by a second judgement of
+# the need alone before it is set aside or blocks a change; when the two disagree the need stays, flagged
+# profile_scope_disputed. In JRC run-ea22d18c the test set aside 21 of 72 needs in batches of up to 25; judged
+# alone, two of them passed 3 of 3 (permissible uses of the data; typed relationships to related objects), and
+# both had shared a batch of 12 with 7 policy statements. Runs under an earlier policy keep one judgement.
+CONFIRMING_SCOPE_POLICIES = frozenset({'rq1-profile-scope-v8'})
+
+
+def scope_confirmation_flags(profile_scope):
+    """The flag a need kept against a failed first judgement carries (rq1-profile-scope-v8)."""
+    return ['profile_scope_disputed'] if ((profile_scope or {}).get('confirmation') or {}).get('outcome') in {'disputed', 'not_checked'} else []
+
+
+def confirmation_counts(needs):
+    """The step record of the second judgements (rq1-profile-scope-v8), by outcome."""
+    outcomes = {}
+    for need in needs:
+        outcome = ((need.profile_scope or {}).get('confirmation') or {}).get('outcome')
+        if outcome: outcomes.setdefault(outcome, []).append(need.requirement_id)
+    return {'confirmation_ids': outcomes,
+            'confirmation_counts': {outcome: len(ids) for outcome, ids in sorted(outcomes.items())}}
+
+
 def record_scope_verdicts(store, run, needs, client):
     """The catalogue-record test (C1/C2, SCOPE_SYSTEM) for each need, without setting any aside.
 
     Returns {requirement_id: (profile_scope, failed_tests, decision)}. A need without a valid
-    judgement has status not_checked, no failed test and no decision; the caller keeps it."""
+    judgement has status not_checked, no failed test and no decision; the caller keeps it.
+    Under rq1-profile-scope-v8 a failure counts only when the need, judged again alone, fails too;
+    profile_scope['confirmation'] keeps the other judgement and its outcome."""
     verdicts = {}
     def payload_for(batch):
         return {'needs': {n.requirement_id: {'statement': n.need_statement, 'condition': n.need_condition,
                         'scope': n.scope, 'excerpts': supporting_excerpts(store, n)} for n in batch}}
-    for batch in bounded_batches(needs, 25, payload_for):
-        payload = payload_for(batch)
-        def validate(result):
-            errors = [d.need_id + ': give one concrete search, filter or access decision in example.'
-                      for d in result.decisions if d.serves != 'neither' and not d.example.strip()]
-            errors += [d.need_id + ': give in record_statement what the named record would state.'
-                       for d in result.decisions if d.record_resource != 'none' and d.catalogue_level
-                       and not d.record_statement.strip()]
-            errors += [d.need_id + ': for other, start record_statement with the resource kind, as "<kind>: <what it states>".'
-                       for d in result.decisions if d.record_resource == 'other' and d.catalogue_level
-                       and d.record_statement.strip() and not other_record_kind(d.record_statement)]
-            return errors
-        result = cached_generation(store, run, 'profile_scope', payload, ProfileScope, SCOPE_SYSTEM, client, validate)
+    def validate(result):
+        errors = [d.need_id + ': give one concrete search, filter or access decision in example.'
+                  for d in result.decisions if d.serves != 'neither' and not d.example.strip()]
+        errors += [d.need_id + ': give in record_statement what the named record would state.'
+                   for d in result.decisions if d.record_resource != 'none' and d.catalogue_level
+                   and not d.record_statement.strip()]
+        errors += [d.need_id + ': for other, start record_statement with the resource kind, as "<kind>: <what it states>".'
+                   for d in result.decisions if d.record_resource == 'other' and d.catalogue_level
+                   and d.record_statement.strip() and not other_record_kind(d.record_statement)]
+        return errors
+    def judged(batch, step, policy=None):
+        result = cached_generation(store, run, step, payload_for(batch), ProfileScope, SCOPE_SYSTEM, client, validate, policy)
         fallbacks = getattr(result, '_fallbacks', {})
         by_id = {d.need_id: d for d in result.decisions}
+        found = {}
         for need in batch:
             identifier = need.requirement_id
             if identifier in fallbacks or identifier not in by_id:
                 failure = fallbacks.get(identifier, {}).get('reason', 'No judgement returned.')
-                verdicts[identifier] = ({'policy_version': POLICIES['profile_scope'], 'status': 'not_checked',
-                                         'scope_class': 'review', 'reason': failure}, [], None)
+                found[identifier] = ({'policy_version': POLICIES['profile_scope'], 'status': 'not_checked',
+                                      'scope_class': 'review', 'reason': failure}, [], None)
                 continue
             decision = by_id[identifier]; failed = failed_scope_tests(decision, need)
-            verdicts[identifier] = ({'policy_version': POLICIES['profile_scope'], 'status': 'checked',
+            found[identifier] = ({'policy_version': POLICIES['profile_scope'], 'status': 'checked',
                 **decision.model_dump(mode='json', exclude={'need_id'}), 'failed_tests': failed,
                 'guardrail_flags': [operational_scope_reason(need)] if operational_scope_reason(need) else [],
                 'scope_class': None if failed else 'review', 'representativeness': 'uncertain'}, failed, decision)
+        return found
+    for batch in bounded_batches(needs, 25, payload_for):
+        verdicts.update(judged(batch, 'profile_scope'))
+    # A run records its needs policies when created; one that names none follows this code.
+    policy = (run.get('needs_policies') or {}).get('profile_scope') or POLICIES['profile_scope']
+    if policy not in CONFIRMING_SCOPE_POLICIES:
+        return verdicts
+    for need in needs:
+        scope, failed, decision = verdicts[need.requirement_id]
+        # The guard on explicit processing actions reads the statement, not the model: judging again cannot change it.
+        if not [test for test in failed if test != 'operational_data_processing']:
+            continue
+        # Its own cache step: a need first judged alone (a change writing one need) would otherwise get its
+        # first judgement back instead of a second one.
+        second, second_failed, second_decision = judged([need], 'profile_scope_confirmation', policy)[need.requirement_id]
+        first = {k: v for k, v in scope.items() if k != 'confirmation'}
+        if second_decision is None:
+            # As for a missing judgement: the need stays, flagged.
+            verdicts[need.requirement_id] = ({**first, 'failed_tests': [], 'scope_class': 'review',
+                'confirmation': {'outcome': 'not_checked', 'first_failed_tests': failed, 'reason': second['reason']}}, [], decision)
+        elif second_failed:
+            verdicts[need.requirement_id] = ({**first, 'confirmation': {'outcome': 'confirmed', 'verdict': second}}, failed, decision)
+        else:
+            verdicts[need.requirement_id] = ({**second, 'confirmation': {'outcome': 'disputed', 'verdict': first}}, [], second_decision)
     return verdicts
 
 
@@ -1072,7 +1121,9 @@ def judge_profile_scope(store, run, needs, client, registry=None):
                 need.processing_flags=list(dict.fromkeys([*need.processing_flags,'profile_scope_not_checked']))
                 unchecked.append(need.requirement_id)
             else:
-                decisions.append({**decision.model_dump(mode='json'), 'failed_tests': failed, 'scope_class': scope['scope_class']})
+                need.processing_flags=list(dict.fromkeys([*need.processing_flags,*scope_confirmation_flags(scope)]))
+                decisions.append({**decision.model_dump(mode='json'), 'failed_tests': failed, 'scope_class': scope['scope_class'],
+                                  **({'confirmation': scope['confirmation']} if scope.get('confirmation') else {})})
             refresh_need(need)
             if failed:
                 reasons[failed[0]] += 1
@@ -1088,8 +1139,10 @@ def judge_profile_scope(store, run, needs, client, registry=None):
         step_saved(store,run,'profile_scope',fa_policy_version=FA_POLICY,input_count=len(needs),retained_count=len(retained),
             set_aside_count=len(needs)-len(retained),fa_set_aside_count=len(needs)-len(kept),record_set_aside_count=len(kept)-len(retained),
             set_aside_by_reason=dict(reasons),not_checked_ids=unchecked,
-            decisions=[n.fa_scope for n in needs],record_decisions=decisions,
+            decisions=[n.fa_scope for n in needs],record_decisions=decisions,**confirmation_counts(kept),
             rule='Scope contract v1: a need stays only when the F/A test and the catalogue-record test both pass; '
+                 'a record-test failure counts only when the need, judged again alone, fails too (rq1-profile-scope-v8); '
+                 'when the two disagree, or the second judgement is missing, the need stays, flagged profile_scope_disputed; '
                  'a missing judgement keeps the need, flagged. F/A axes are independent of category applicability; '
                  'uncertain rows remain visible.')
         return retained
@@ -1108,9 +1161,11 @@ def judge_profile_scope(store, run, needs, client, registry=None):
             need.processing_flags.append('profile_scope_not_checked'); refresh_need(need)
             retained.append(need); unchecked.append(identifier)
             continue
+        need.processing_flags = list(dict.fromkeys([*need.processing_flags, *scope_confirmation_flags(scope)]))
         refresh_need(need)
         decisions.append({**decision.model_dump(mode='json'), 'failed_tests': failed,
-                          'scope_class': need.profile_scope['scope_class']})
+                          'scope_class': need.profile_scope['scope_class'],
+                          **({'confirmation': scope['confirmation']} if scope.get('confirmation') else {})})
         if failed:
             reasons[failed[0]] += 1
             aside_need(store, run, need, failed[0], decision.rationale, details={'profile_scope': need.profile_scope})
@@ -1122,9 +1177,11 @@ def judge_profile_scope(store, run, needs, client, registry=None):
     classes = Counter(n.profile_scope['scope_class'] for n in retained if n.profile_scope)
     step_saved(store, run, 'profile_scope', input_count=len(needs), retained_count=len(retained),
         set_aside_count=len(needs)-len(retained), set_aside_by_reason=dict(reasons), scope_classes=dict(classes),
-        blocked_count=len(blocked), not_checked_ids=unchecked, decisions=decisions,
+        blocked_count=len(blocked), not_checked_ids=unchecked, decisions=decisions, **confirmation_counts(eligible),
         rule='D5 v6: C1/C2 set aside needs not at catalogue level or not serving find/access; C1 requires a '
              'named catalogued resource whose record would state the need. '
+             'v8: a failure counts only when the need, judged again alone, fails too; otherwise it stays, flagged '
+             'profile_scope_disputed. '
              'Applicability has an independent checkpoint and cannot invalidate C1/C2. '
              'Explicit data-processing and observation-validation actions in the need statement are set aside; '
              'model-created examples cannot reverse that rule. '

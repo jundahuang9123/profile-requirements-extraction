@@ -1,4 +1,4 @@
-"""Scope contract v1 at normalisation (rq1-profile-scope-v7 and rq1-fa-dialogue-v13, Junda, 23 Oct): every need, wherever
+"""Scope contract v1 at normalisation (rq1-profile-scope-v7 and v8, rq1-fa-dialogue-v13, Junda, 23 Oct): every need, wherever
 it is written, passes the F/A test and the catalogue-record test.
 
 Live shapes: the F/A test sets a need aside only when it serves neither or is unsupported, so JRC and Stat
@@ -15,7 +15,7 @@ from test_scope_contract_v1_discussion import DOCUMENT, PATENTS, DIMENSIONS, ACC
 from requirement_reuse_service.workflow import needs
 
 
-# Normalisation (rq1-profile-scope-v7): the record test runs on the needs the F/A test keeps.
+# Normalisation (rq1-profile-scope-v7, v8): the record test runs on the needs the F/A test keeps.
 class BothTests(ScopeJudge):
     def __init__(self, statements, omit=()):
         super().__init__(); self.statements, self.omit_statements = statements, set(omit)
@@ -53,14 +53,15 @@ def test_in_fa_runs_needs_about_the_sources_are_set_aside_by_the_record_test(set
     # Kept needs carry both verdicts.
     for need in retained:
         assert need.fa_scope['status'] == 'checked' and need.profile_scope['status'] == 'checked'
-        assert need.profile_scope['policy_version'] == 'rq1-profile-scope-v7' and not need.profile_scope['failed_tests']
+        assert need.profile_scope['policy_version'] == 'rq1-profile-scope-v8' and not need.profile_scope['failed_tests']
     assert {n.requirement_id: n.profile_scope['record_resource'] for n in retained} == {'need-dimensions': 'dataset', 'need-access': 'distribution'}
     step = saved['need_steps']['profile_scope']
-    assert step['policy_version'] == 'rq1-profile-scope-v7' and step['fa_policy_version'] == 'rq1-find-access-v1'
+    assert step['policy_version'] == 'rq1-profile-scope-v8' and step['fa_policy_version'] == 'rq1-find-access-v1'
     assert step['fa_set_aside_count'] == 0 and step['record_set_aside_count'] == 2 and step['set_aside_count'] == 2
     assert step['set_aside_by_reason'] == {'not_catalogue_level': 2}
-    # The record test sees only the needs the F/A test kept.
-    assert sorted(i for name, data in client.calls if name == 'ProfileScope' for i in data['needs']) == sorted(statements)
+    # The record test sees only the needs the F/A test kept; each failure was judged again alone (v8).
+    assert [sorted(data['needs']) for name, data in client.calls if name == 'ProfileScope'] == [sorted(statements), ['need-doc'], ['need-patents']]
+    assert step['confirmation_counts'] == {'confirmed': 2}
     before = len(client.calls)
     needs.judge_profile_scope(store, run, made, client)
     assert len(client.calls) == before  # resume reuses both saved judgements

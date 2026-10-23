@@ -855,6 +855,13 @@ support gates and before the change is accepted:
 - An applied need loses the flag `base_and_scope_recheck_required`; its scope is
   judged, and `base_recheck_required` stays for the base.
 
+Since `rq1-profile-scope-v8` (a needs policy, see `RQ1_NEEDS.md`), a written need that
+fails the record test is judged again alone. The change is blocked only when both
+judgements fail. When they disagree, or the second is missing, the need is written
+with the flag `profile_scope_disputed`, and its `scope_tests` row keeps both
+judgements (`profile_scope.confirmation`). A run whose needs policies name v7 keeps
+one judgement.
+
 Retained, deferred, base-covered and set-aside needs write nothing and are not judged
 again. `scripts/fa_base_report.py` lists the needs the record test set aside at
 normalisation and the changes the scope tests blocked at apply, each counted apart

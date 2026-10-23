@@ -1874,7 +1874,7 @@ def scope_contract(store,run,records,client,item):
     of the applied changes for budget alone (JRC run-36730b38 3 of 9, Stat run-289823d2 3 of 8), as little
     is left at apply. They are bounded by need_recovery: at most two saved tries per batch, kept on resume."""
     from .fa_requirements import scope_verdicts
-    from .needs import record_scope_verdicts
+    from .needs import record_scope_verdicts,scope_confirmation_flags
     needs=[RequirementRecord.model_validate(rec) for rec in records]
     fa=scope_verdicts(store,run,needs,client)
     record=record_scope_verdicts(store,run,needs,client)
@@ -1883,7 +1883,9 @@ def scope_contract(store,run,records,client,item):
         fa_scope,fa_fails,review=fa[need.requirement_id]
         profile_scope,failed,_=record[need.requirement_id]
         rec['fa_scope'],rec['profile_scope']=fa_scope,profile_scope
-        flags=(['fa_scope_review_required'] if review and not fa_fails else [])+(['profile_scope_not_checked'] if profile_scope['status']!='checked' else [])
+        # rq1-profile-scope-v8: a record-test failure blocks only when the need, judged again alone, fails too;
+        # a need kept against its first judgement is flagged profile_scope_disputed.
+        flags=(['fa_scope_review_required'] if review and not fa_fails else [])+(['profile_scope_not_checked'] if profile_scope['status']!='checked' else [])+scope_confirmation_flags(profile_scope)
         rec['processing_flags']=list(dict.fromkeys([*rec.get('processing_flags',[]),*flags]))
         tests=(['fa_scope_set_aside'] if fa_fails else [])+failed
         row={'revision_id':rec['revision_id'],'statement':need.need_statement or need.normalized_statement,

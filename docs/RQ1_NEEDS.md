@@ -371,7 +371,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Dataset categories | `rq1-dataset-categories-v1` | Up to 12 evidence rows / 22,000 input characters; exact source citations; partial scans explicit |
 | Compact selection | `rq1-compact-coverage-v1` | Up to 20 needs / 22,000 input characters per equivalence call; bounded exact cover; all retained needs preserved |
 | Base-gap status | `rq1-base-gap-status-v1` | Deterministic; from the classification and the number of entries compared |
-| Profile scope (D5) | `rq1-profile-scope-v7` (named catalogue record; in F/A runs also after the F/A test) | Up to 25 needs / 24,000 input characters; statement, condition, scope, supporting excerpts and source-linked dataset categories; one verdict per offered need ID; an example is required unless serves is neither |
+| Profile scope (D5) | `rq1-profile-scope-v8` (named catalogue record; in F/A runs also after the F/A test; a failure is judged again alone) | Up to 25 needs / 24,000 input characters; statement, condition, scope, supporting excerpts and source-linked dataset categories; one verdict per offered need ID; an example is required unless serves is neither |
 | Contribution linking | `rq1-use-case-contribution-v1` | Up to 25 needs / 24,000 input characters; at most 32 task links per response row; necessity as an annotation |
 | Link critic | `rq1-use-case-contribution-critic-v1` | Up to 25 links / 24,000 input characters; judges contribution only |
 | Need assessment | `rq1-need-support-v1` | One logical assessment per kept need; complete selected excerpts, max 45,000 input characters; at most two generations for schema/cutoff recovery |
@@ -663,6 +663,38 @@ a run derived from normalisation is judged under v7. In the discussion,
 The risk: on 18 October an earlier wording of the record test set aside Stat's
 dimensions and units. The 19 October wording (v6) keeps them, but it has not run on
 Stat since.
+
+`rq1-profile-scope-v8` is option A of the record-test decision (Junda, 23 October): a
+failed record test counts only when the need, judged again alone, fails too. In JRC
+`run-ea22d18c` (v7) the record test set aside 21 of the 72 needs the F/A test kept,
+judged in batches of up to 25. Judged alone, read-only, two of them passed 3 of 3:
+the permissible uses of the data (reproduction, adaptation, …) and the typed
+relationships of a resource to related objects. Both had shared a batch of 12 with 7
+policy statements. Judged alone once each, 10 of the 21 passed, clear policy
+statements among them, so a single judgement is noisy either way.
+
+Since v8, wherever the record test runs (normalisation, in F/A and other runs, and at
+apply in the discussion):
+- A need that fails is judged again alone, with the same prompt and contract, under
+  its own cache step (`profile_scope_confirmation`; the calls appear in `model_calls`
+  under `profile_scope`). A need first judged alone is still judged a second time.
+- Both fail: the need is set aside (at apply: the change is blocked) with the first
+  judgement's reason and rationale; `profile_scope.confirmation` holds the second
+  judgement (outcome `confirmed`).
+- They disagree: the need stays with the second judgement as `profile_scope`, flagged
+  `profile_scope_disputed`; `profile_scope.confirmation` holds the first judgement
+  (outcome `disputed`).
+- The second judgement is missing (no valid row after the correction): the need
+  stays, flagged `profile_scope_disputed`, with outcome `not_checked` and the first
+  judgement's failed tests.
+- The step record counts the second judgements by outcome (`confirmation_counts`,
+  `confirmation_ids`), and each record decision carries its `confirmation`.
+
+A need that fails only the guard on explicit data-processing actions
+(`operational_data_processing`, which reads the statement) is not judged again. It
+costs one call per failure (21 in the JRC run). Runs whose needs policies name v6
+or v7 keep one judgement, also at apply, so they resume unchanged. Passing needs are
+not judged again; the F/A test is unchanged.
 
 The base search (`rq1-base-needs-full-search-v3`) changes in three ways:
 

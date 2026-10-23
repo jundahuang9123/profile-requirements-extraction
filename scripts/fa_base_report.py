@@ -86,7 +86,21 @@ def main():
         f'{sum(a.get("reason")=="fa_scope_set_aside" for a in run.get("set_aside_observations",[]))}.']
     for a in asides:
         scope=(a.get('details') or {}).get('profile_scope') or {}
-        lines.append(f'- {stated(a.get("revision_id"),a.get("need_id",""))} — {a["reason"]}; record: {scope.get("record_resource","not recorded")}; {a.get("rationale","")}')
+        confirmed=' (failed again alone)' if (scope.get('confirmation') or {}).get('outcome')=='confirmed' else ''
+        lines.append(f'- {stated(a.get("revision_id"),a.get("need_id",""))} — {a["reason"]}{confirmed}; record: {scope.get("record_resource","not recorded")}; {a.get("rationale","")}')
+    # rq1-profile-scope-v8: a failure counts only when the need, judged again alone, fails too; the needs kept
+    # against their first judgement are flagged profile_scope_disputed.
+    def first_verdict(r):
+        c=(r.get('profile_scope') or {}).get('confirmation') or {}
+        return c.get('verdict') or {'failed_tests':c.get('first_failed_tests',[]),'rationale':c.get('reason','')}
+    disputed=[r for r in records.values() if 'profile_scope_disputed' in r.get('processing_flags',[])]
+    lines+=['\n## Scope contract v1: kept against a first failed record test (profile_scope_disputed)',
+        f'{len(disputed)} need revisions ({sum(r["revision_id"] in run.get("active_revision_ids",[]) for r in disputed)} active); '
+        f'second judgements by outcome at normalisation: {(run.get("need_steps",{}).get("profile_scope") or {}).get("confirmation_counts","not recorded")}.']
+    for r in disputed:
+        first=first_verdict(r);outcome=((r.get('profile_scope') or {}).get('confirmation') or {}).get('outcome')
+        lines.append(f'- {stated(r["revision_id"])} — second judgement: {outcome}; record now: {(r.get("profile_scope") or {}).get("record_resource")}; '
+                     f'first: {", ".join(first.get("failed_tests") or [])}; {first.get("rationale","")}')
     outcomes=[(c['case_id'],o) for c in run.get('deliberations',[]) for o in (c.get('mediation') or {}).get('outcomes',[])]
     blocked=[(case,o) for case,o in outcomes if o.get('scope_block')]
     unjudged=[t for _,o in outcomes if o.get('applied') for t in o.get('scope_tests',[]) if (t.get('profile_scope') or {}).get('status')!='checked']
