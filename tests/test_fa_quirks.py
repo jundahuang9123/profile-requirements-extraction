@@ -423,8 +423,10 @@ def test_a_valid_final_plan_after_a_draft_that_kept_nothing_is_applied(setup):
 # plan, in both tries. Each shape copies a lost case: JRC run-efc543e4 case-3df2504bc (the experience proposal
 # P1), Stat run-d069be4d case-24df0812f (A2, a parentless defer the salvage had dropped; both plans were salvaged
 # to their retain A1), JRC run-36730b38 case-c04026b6a (an invented S1 beside the two retains of the final plan)
-# and Stat run-289823d2 case-ee9443c2a (the experience claims X1, X2, ... checked as actions; three there). In JRC
-# run-efc543e4 (SA1, SA2) and JRC run-12a2c91a (S1) the checker left such an ID out on its second try.
+# and Stat run-289823d2 case-ee9443c2a (the experience claims X1, X2, ... checked as actions; three there). The
+# checker left such IDs out on its second try in JRC run-4d980b17 (v9: P1), run-efc543e4 (SA1, SA2) and
+# run-12a2c91a (S1), and in Stat run-6455e495 (v6: action types, twice) and run-c4cbca44 (v8: retain_B1,
+# defer_none, set_aside_X1).
 CLAIM={'kind':'missing_need','task':'Find data','experience':'When I search for data, I first check under which licence it is offered.',
     'claim':'The case lacks a need for the licence.','proposed_statement':LICENCE}
 

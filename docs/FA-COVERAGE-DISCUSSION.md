@@ -759,13 +759,16 @@ only.
 ### Checks of IDs outside the plan (v13)
 
 Since v10 the checker may check a split's new needs beside the split; any other
-check had to name an action of the plan. In 6 cases of five saved runs, the only
+check had to name an action of the plan. In 10 cases of eight saved runs, the only
 fault of a checker answer was a check of an ID that is not an action of the plan,
 beside one check of every action. In 4 of them the second try did the same, and
 the case was lost:
 
 | Run | Checked beside the plan's actions | Second try |
 |---|---|---|
+| Stat `run-6455e495` (v6) | `set_aside`; `defer`, `set_aside` (action types, 2 cases) | corrected |
+| Stat `run-c4cbca44` (v8) | `retain_B1`, `defer_none`, `set_aside_X1` | corrected |
+| JRC `run-4d980b17` (v9) | P1, an experience proposal (and the new needs A1.1, A1.2, which v10 accepts) | corrected |
 | JRC `run-efc543e4` (v10) | SA1, SA2 (invented) | corrected |
 | JRC `run-efc543e4` (v10) | P1, an experience proposal | the same; lost |
 | JRC `run-12a2c91a` (v11) | S1 (invented) | corrected |
@@ -773,15 +776,20 @@ the case was lost:
 | JRC `run-36730b38` (v12) | S1, beside the two retains of the final plan | the same; lost |
 | Stat `run-289823d2` (v12) | three experience claims | the same; lost |
 
-None of the other saved runs (JRC v6 to v9 and `run-0834b623`, Stat v6 to v10)
-has such an answer.
+Before v10 the error named no ID ("Check every action exactly once."), so the
+first tries up to v9 were found from the IDs of the saved answers. None of the
+other saved runs (JRC v6, v8 and `run-0834b623`, Stat v10) has such an answer.
+In all: 4 lost cases and 6 second tries. A replay of the 653 checker answers saved
+in these 12 runs keeps all 616 that the v12 rule accepts; in the runs from v10 on,
+every refused answer (10, in 6 cases) failed only on such IDs, and v13 accepts it.
 
 `rq1-fa-dialogue-v13` ignores such a check as v10 ignores a check of a split's
 new need: the answer is accepted when every action of the plan has exactly one
 check, and the other checks are not used. Apply reads each action's check by the
 action's ID; a proposal row or a row the salvage rejected never takes a check. A
 missing check, a check filed under another ID (which leaves its action without
-one) and a repeated check of an action are still refused, and the correction names
+one, as a check named after the action type instead of the action's ID does) and a
+repeated check of an action are still refused, and the correction names
 what is missing, repeated or unknown. So no action is applied without its own
 check, and every answer the v12 rule accepted is still accepted. The legacy v1
 protocol keeps its rule.
@@ -789,9 +797,9 @@ protocol keeps its rule.
 The case's mediation and discussion trace record the ignored IDs
 (`ignored_check_ids`, as internal IDs: an experience claim appears under its claim
 ID), the run metric `ignored_checks` counts them, and `scripts/fa_base_report.py`
-lists them. A derived base-review trial does not inherit the metric. In the five
-runs above, the 4 lost cases would have gone on to apply, and 2 check calls would
-have been saved.
+lists them. A derived base-review trial does not inherit the metric. In the runs
+above, the 4 lost cases would have gone on to apply, and each of the 6 corrected
+first tries would have saved a check call.
 
 A discussion planned under v12 cannot continue under v13. This is tested offline
 only.

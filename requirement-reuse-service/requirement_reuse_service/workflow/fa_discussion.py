@@ -1779,13 +1779,18 @@ def check_errors(answer,plan,policy):
     answer the old rule accepted is still accepted.
     v13: a check of any other ID that is not an action of the plan is ignored the same way (see
     ignored_checks): an experience proposal (P1), an action the salvage dropped (A2), an experience
-    claim, or an invented ID (S1). Cases with a saved checker answer whose only fault was such an ID:
-    JRC run-efc543e4 (v10) 2 (one corrected on retry, one on both tries, case lost), JRC run-12a2c91a
-    (v11) 1 (corrected on retry), and one case lost on both tries in each of JRC run-36730b38 (v12),
-    Stat run-d069be4d (v11) and Stat run-289823d2 (v12); none in JRC v6-v9, run-0834b623 or Stat
-    v6-v10. Every action of the plan still needs exactly one check: a check filed under another ID
+    claim, an invented ID (S1), or an action type beside the action's own check. Saved checker
+    answers whose only fault was such an ID: 4 cases lost on both tries (JRC run-efc543e4 (v10) P1,
+    Stat run-d069be4d (v11) A2, JRC run-36730b38 (v12) S1, Stat run-289823d2 (v12) three experience
+    claims) and 6 first tries corrected on retry (JRC run-4d980b17 (v9) 1, run-efc543e4 1,
+    run-12a2c91a (v11) 1; Stat run-6455e495 (v6) 2 and run-c4cbca44 (v8) 1, named after action
+    types). Before v10 the error named no ID; those first tries were found from the saved answers.
+    None in JRC v6, v8 or run-0834b623, or Stat v10. A replay of the 653 checker answers saved in
+    these 12 runs keeps the 616 the v12 rule accepts; in the runs from v10 on, every refused answer
+    (10, in 6 cases) failed only on such IDs and is accepted. Every action of the plan still needs
+    exactly one check: a check filed under another ID (an action type in place of the action's ID)
     leaves that action missing, and a repeated check of an action still fails, so no action is
-    applied unchecked. Every answer the v12 rule accepted is still accepted.
+    applied unchecked.
     The error names what is missing, repeated or unknown. Other protocols keep their rule and text.
     """
     wanted=Counter(a.action_id for a in plan.actions)
