@@ -329,7 +329,9 @@ class DefinedCheck(Check):
         'state none and the statement adds none, it is preserved. For retain, covered_by_base, defer and set_aside: true.')
 
 class DefinedChecks(Checks):
-    # v10: room for checks of a split's new needs beside the 12 actions a plan may hold.
+    # v10: room for checks of a split's new needs beside the 12 actions a plan may hold. v13: the
+    # checks of IDs outside the plan, which are ignored, share that room; an answer of more than 24
+    # checks still fails the schema, as under v12.
     checks: list[DefinedCheck] = Field(max_length=24)
 
 

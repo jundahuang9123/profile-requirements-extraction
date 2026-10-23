@@ -797,7 +797,10 @@ protocol keeps its rule.
 The case's mediation and discussion trace record the ignored IDs
 (`ignored_check_ids`, as internal IDs: an experience claim appears under its claim
 ID), the run metric `ignored_checks` counts them, and `scripts/fa_base_report.py`
-lists them. A derived base-review trial does not inherit the metric. In the runs
+lists them. The metric counts completed cases only, because it is read from the
+mediation record, which only a completed case has: a case stopped after an accepted
+check would not be counted (no such case could be produced offline). A derived
+base-review trial does not inherit the metric. In the runs
 above, the 4 lost cases would have gone on to apply, and each of the 6 corrected
 first tries would have saved a check call.
 

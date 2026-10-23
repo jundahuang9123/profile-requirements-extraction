@@ -44,6 +44,17 @@ def test_every_action_of_the_plan_still_needs_exactly_one_check():
     assert errors('P1','S1')==refused(missing=['A1','A2'],unknown=['P1','S1'])
 
 
+def test_checks_named_after_action_types_are_ignored_only_beside_the_actions_own_checks():
+    # Stat run-6455e495 (v6) and run-c4cbca44 (v8): checks named after action types, beside the actions' checks.
+    beside=checks('A1','set_aside','A2','defer','retain_B1')
+    assert fd.check_errors(beside,plan(),fd.BASE_POLICY)==[]
+    assert fd.ignored_checks(beside,plan())==['set_aside','defer','retain_B1']
+    # The same names in place of an action's check leave that action missing, and the answer is refused.
+    assert errors('A1','retain_B1')==refused(missing=['A2'],unknown=['retain_B1'])
+    assert errors('set_aside','defer','A2')==refused(missing=['A1'],unknown=['defer','set_aside'])
+    assert errors('set_aside','defer','retain_B1')==refused(missing=['A1','A2'],unknown=['defer','retain_B1','set_aside'])
+
+
 def test_the_legacy_rule_and_wording_stay():
     assert errors('A1','A2','P1',policy=fd.POLICY)==['Check every action exactly once.']
     assert errors('A1','A2',policy=fd.POLICY)==[]
