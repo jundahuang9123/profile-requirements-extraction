@@ -823,8 +823,9 @@ In v13, apply judges every need a change writes (a revision, each part of a spli
 an addition, a merge result) with both tests. It does so after the source and
 support gates and before the change is accepted:
 
-- One call per test for the needs of one change. The prompts and contracts are
-  those of normalisation, unchanged; the F/A contract stays frozen per run.
+- One call per test for the needs of one change, plus at most one correction each.
+  The prompts and contracts are those of normalisation, unchanged; the F/A contract
+  stays frozen per run.
 - A need fails the F/A test when it serves neither or is unsupported. It fails the
   record test with `not_catalogue_level`, `not_find_or_access` or
   `operational_data_processing`.
@@ -839,10 +840,20 @@ support gates and before the change is accepted:
   as at normalisation: `profile_scope_not_checked` or `fa_scope_review_required`.
 - The calls go to the `profile_scope` model. The discussion plan records that model
   beside the others.
-- The calls share the case budget with the apply-time assessment calls. As there, an
-  exhausted budget blocks the change, with "F/A scope test budget exhausted;
-  original needs retained.". It never stops the case. So does any other error the
-  tests raise, such as a changed checkpoint.
+- The calls of one change have their own allowance (`SCOPE_CHANGE_LIMITS`: 4 calls,
+  40,000 tokens) and do not use the case budget. Late in a case little of it is left:
+  on the case budget, a replay of the saved v12 cases would have blocked about a
+  third of the changes v12 applied for budget alone (JRC `run-36730b38` 3 of 9, Stat
+  `run-289823d2` 3 of 8). The outcome records the calls (`scope_test_calls`).
+- An exhausted allowance blocks the change, with "F/A scope test budget exhausted;
+  original needs retained.", and never stops the case; so does a changed checkpoint.
+  A provider error stops the stage for resume, as for the assessment calls.
+- On resume, the assessment checkpoint of a change is matched without the
+  verification's `checked_at` time. Before, it never matched again, so a crash or
+  provider error after a change's assessment (now: during its scope tests) blocked
+  the change on resume ("checkpoint changed").
+- An applied need loses the flag `base_and_scope_recheck_required`; its scope is
+  judged, and `base_recheck_required` stays for the base.
 
 Retained, deferred, base-covered and set-aside needs write nothing and are not judged
 again. `scripts/fa_base_report.py` lists the needs the record test set aside at

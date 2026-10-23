@@ -144,8 +144,10 @@ def test_catalogue_level_needs_the_discussion_writes_are_applied_with_both_verdi
         assert record['fa_scope']['status'] == 'checked' and record['fa_scope']['policy_version'] == 'rq1-find-access-v1'
         assert record['profile_scope']['status'] == 'checked' and record['profile_scope']['record_resource'] in {'dataset', 'distribution'}
         assert not record['profile_scope']['failed_tests'] and 'profile_scope_not_checked' not in record['processing_flags']
-    # The calls go to the profile_scope model.
-    assert {c[0] for c in client.scope_calls} == {'profile_scope'}
+        # The scope is judged at apply (the after-discussion base review then clears its own recheck flag).
+        assert 'base_and_scope_recheck_required' not in record['processing_flags']
+    # The calls go to the profile_scope model, one per test.
+    assert {c[0] for c in client.scope_calls} == {'profile_scope'} and outcome['scope_test_calls'] == 2
 
 
 def test_a_missing_record_judgement_applies_the_change_flagged(setup):
@@ -160,18 +162,49 @@ def test_a_missing_record_judgement_applies_the_change_flagged(setup):
     assert [c[1] for c in client.scope_calls] == ['FAScopeResult', 'ProfileScope', 'ProfileScope']
 
 
-def test_the_scope_tests_never_stop_a_case_on_its_budget(setup, monkeypatch):
-    # The assessment call before them uses up the case's time budget: the change is blocked, the case completes.
+def test_the_scope_tests_do_not_use_the_case_budget(setup, monkeypatch):
+    # The assessment call before them uses up the case's time budget, as late calls do live; the tests still run.
     store, run = opted_in(setup)
     clock = {'offset': 0.0}; real = fd.monotonic
     monkeypatch.setattr(fd, 'monotonic', lambda: real() + clock['offset'])
     client = Scoped(revise_into(DIMENSIONS), on_assess=lambda: clock.update(offset=clock['offset'] + 10**6))
     fd.deliberate(store, run['run_id'], client)
     saved, case = sound(store, run)
+    outcome = change(case)
+    assert outcome['status'] == 'machine_revised' and outcome['scope_test_calls'] == 2
+    assert case['stop_reason'] == 'bounded_fa_dialogue_complete'
+
+
+def test_an_exhausted_scope_allowance_blocks_the_change_and_never_stops_the_case(setup, monkeypatch):
+    store, run = opted_in(setup)
+    monkeypatch.setattr(fd, 'SCOPE_CHANGE_LIMITS', {'max_calls': 1, 'total_output_budget': 40000})
+    client = Scoped(revise_into(DIMENSIONS)); fd.deliberate(store, run['run_id'], client)
+    saved, case = sound(store, run)
     outcome = change(case); parent, = outcome['parent_revision_ids']
     assert outcome['status'] == 'blocked_change' and outcome['validation_error'] == 'F/A scope test budget exhausted; original needs retained.'
+    assert outcome['scope_test_calls'] == 1 and [c[1] for c in client.scope_calls] == ['FAScopeResult']
     assert case['stop_reason'] == 'bounded_fa_dialogue_complete' and parent in saved['active_revision_ids']
-    assert client.scope_calls == []
+
+
+def test_a_provider_error_in_the_scope_tests_resumes_and_applies_the_change(setup):
+    # A provider error stops the stage, as for the assessment; on resume the saved assessment matches again
+    # (its checkpoint left out verify's checked_at time) and the change is applied, not blocked.
+    from requirement_reuse_service.llm.client import LLMRequestTimeoutError
+    store, run = opted_in(setup)
+    class TimesOutOnce(Scoped):
+        failed = False
+        def generate_structured(self, *, output_model, **kw):
+            if output_model.__name__ == 'ProfileScope' and not TimesOutOnce.failed:
+                TimesOutOnce.failed = True; raise LLMRequestTimeoutError('scripted provider timeout')
+            return super().generate_structured(output_model=output_model, **kw)
+    client = TimesOutOnce(revise_into(DIMENSIONS))
+    with pytest.raises(LLMRequestTimeoutError):
+        fd.deliberate(store, run['run_id'], client)
+    fd.deliberate(store, run['run_id'], client)
+    saved, case = sound(store, run)
+    outcome = change(case)
+    assert outcome['status'] == 'machine_revised', outcome.get('validation_error') or outcome.get('revision_checks')
+    assert [c[1] for c in client.scope_calls] == ['FAScopeResult', 'ProfileScope']  # the F/A verdict was saved
 
 
 def test_a_kept_or_set_aside_need_is_not_judged_again(setup):

@@ -1081,10 +1081,12 @@ def judge_profile_scope(store, run, needs, client, registry=None):
             else:
                 retained.append(need)
         context=registry or {'categories':[],'scan_complete':False}
-        checked=[n for n in retained if (n.fa_scope or {}).get('status')=='checked']
+        # As in other runs, applicability labels only needs the record test judged.
+        checked=[n for n in retained if (n.fa_scope or {}).get('status')=='checked' and n.profile_scope.get('status')=='checked']
         if checked:judge_applicability(store,run,checked,client,context)
+        if len(needs)>len(kept):reasons['fa_scope_set_aside']=len(needs)-len(kept)
         step_saved(store,run,'profile_scope',fa_policy_version=FA_POLICY,input_count=len(needs),retained_count=len(retained),
-            fa_set_aside_count=len(needs)-len(kept),record_set_aside_count=len(kept)-len(retained),
+            set_aside_count=len(needs)-len(retained),fa_set_aside_count=len(needs)-len(kept),record_set_aside_count=len(kept)-len(retained),
             set_aside_by_reason=dict(reasons),not_checked_ids=unchecked,
             decisions=[n.fa_scope for n in needs],record_decisions=decisions,
             rule='Scope contract v1: a need stays only when the F/A test and the catalogue-record test both pass; '

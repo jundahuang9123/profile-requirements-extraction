@@ -644,9 +644,14 @@ Since v7, in F/A runs:
   verdicts in its details and stays visible and restorable.
 - A kept need carries `fa_scope` and the record verdict in `profile_scope`
   (`record_resource`, `record_statement`, `failed_tests`).
-- A missing judgement keeps the need, flagged `profile_scope_not_checked`.
+- A missing judgement keeps the need, flagged `profile_scope_not_checked`, and its
+  dataset applicability is not judged, as in other runs.
+- A need that the record test sets aside as `operational_data_processing` (the
+  guard on explicit data-processing actions) is a valid set-aside reason of the run
+  record.
 - The step record counts the F/A and record set-asides apart (`fa_set_aside_count`,
-  `record_set_aside_count`, `set_aside_by_reason`).
+  `record_set_aside_count`) and together (`set_aside_count`, and
+  `set_aside_by_reason` with `fa_scope_set_aside`).
 
 The F/A prompts are unchanged, so the frozen F/A contract of older runs still matches.
 Non-F/A runs are judged as under v6. The version is in the needs policies, so it

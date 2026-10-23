@@ -422,7 +422,7 @@ def checked_links(store, links, allowed):
             raise ValueError('Repeated mediator quote requires its source offset.')
 
 
-def apply_plan(store, run, case, plan, checks, client, allowed_evidence_ids=None, fresh_requirement_ids=False):
+def apply_plan(store, run, case, plan, checks, client, allowed_evidence_ids=None, fresh_requirement_ids=False, stable_assessment_hash=False):
     """Prepare all revisions before one transactional commit; failed changes retain parents."""
     from .engine import record_from_observation, verify, assess
     from .needs import prepare_human_need, refresh_need
@@ -487,9 +487,12 @@ def apply_plan(store, run, case, plan, checks, client, allowed_evidence_ids=None
             # v2.1 is intentionally strict here: never downgrade an obligation to force passage.
             record.verification=verify(store,record,run['evidence_ids'],policy_version='rq1-original-source-v2.1')
             assessment_key='mediation_assessment:'+case['case_id']+':'+action.action_id
+            # verify() stamps checked_at, so a hash over it never matched on resume and the change was blocked
+            # ('checkpoint changed'). rq1-fa-dialogue-v13 hashes the verification without it.
+            verification={k:v for k,v in record.verification.items() if k!='checked_at'} if stable_assessment_hash else record.verification
             assessment_hash=digest({'policy':POLICY,'content_hash':record.content_hash,
                 'evidence_links':[l.model_dump(mode='json') for l in record.evidence_links],
-                'verification':record.verification,'model':model_identity(for_step(client,'assessment')) if client else None})
+                'verification':verification,'model':model_identity(for_step(client,'assessment')) if client else None})
             saved_assessment=audit(store,run['run_id']).get(assessment_key)
             if saved_assessment:
                 if saved_assessment['input_hash']!=assessment_hash:

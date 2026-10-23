@@ -92,9 +92,10 @@ def main():
     budget=[(case,o) for case,o in outcomes if o.get('validation_error')=='F/A scope test budget exhausted; original needs retained.']
     unjudged=[t for _,o in outcomes if o.get('applied') for t in o.get('scope_tests',[]) if (t.get('profile_scope') or {}).get('status')!='checked']
     lines+=['\n## Scope contract v1: changes blocked by the scope tests at apply',
-        f'{len(blocked)} changes blocked by a failed test (other blocked changes: '
+        f'{len(blocked)} changes blocked by a failed test (first failure by test: '
+        f'{dict(Counter(o["scope_block"][0]["test"] for _,o in blocked))}; other blocked changes: '
         f'{sum(o.get("status")=="blocked_change" for _,o in outcomes)-len(blocked)-len(budget)}); '
-        f'{len(budget)} blocked because the case budget ran out before the tests; '
+        f'{len(budget)} blocked because the scope tests\' allowance ran out; '
         f'{sum(bool(o.get("scope_tests")) for _,o in outcomes)} changes tested; {len(unjudged)} applied needs without a record judgement (kept, flagged).']
     for case,o in blocked:
         for b in o['scope_block']:

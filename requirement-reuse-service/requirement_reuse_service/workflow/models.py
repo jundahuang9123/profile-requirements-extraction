@@ -205,7 +205,7 @@ class SetAside(Contract):
     role_id: str
     reason: Literal['no_source_link', 'inherited_from_base', 'declared_not_extension', 'base_specification_only', 'generic_need_served_by_base', 'no_use_case', 'not_supported_by_quote', 'source_check_failed', 'rewrite_rejected',
                     'not_find_or_access', 'not_catalogue_level', 'not_commonly_agreed', 'fa_scope_set_aside',
-                    'mediated_fa_set_aside'] = 'no_source_link'
+                    'mediated_fa_set_aside', 'operational_data_processing'] = 'no_source_link'
     base_check: dict[str, Any] | None = None
     revision_id: str | None = None
     need_id: str | None = None

@@ -145,6 +145,7 @@ def test_report_lists_what_the_scope_contract_set_aside_and_blocked_apart(tmp_pa
     assert "1 needs ({'not_catalogue_level': 1}); set aside by the F/A test: 1." in normalisation
     assert '- Users can know that DCAT is a W3C Recommendation. — not_catalogue_level; record: none; A fact about the specification.' in normalisation
     apply = markdown.split('## Scope contract v1: changes blocked by the scope tests at apply')[1].split('\n## ')[0]
-    assert ('1 changes blocked by a failed test (other blocked changes: 1); 1 blocked because the case budget ran out before the tests; '
+    assert ("1 changes blocked by a failed test (first failure by test: {'not_catalogue_level': 1}; other blocked changes: 1); "
+            "1 blocked because the scope tests' allowance ran out; "
             '2 changes tested; 1 applied needs without a record judgement (kept, flagged).') in apply
     assert '- case-1 · revise A2: Publishers must use all DCAT classes consistently. — not_catalogue_level; record: none; A rule for publishers.' in apply

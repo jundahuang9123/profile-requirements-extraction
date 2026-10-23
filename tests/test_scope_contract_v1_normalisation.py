@@ -57,7 +57,7 @@ def test_in_fa_runs_needs_about_the_sources_are_set_aside_by_the_record_test(set
     assert {n.requirement_id: n.profile_scope['record_resource'] for n in retained} == {'need-dimensions': 'dataset', 'need-access': 'distribution'}
     step = saved['need_steps']['profile_scope']
     assert step['policy_version'] == 'rq1-profile-scope-v7' and step['fa_policy_version'] == 'rq1-find-access-v1'
-    assert step['fa_set_aside_count'] == 0 and step['record_set_aside_count'] == 2
+    assert step['fa_set_aside_count'] == 0 and step['record_set_aside_count'] == 2 and step['set_aside_count'] == 2
     assert step['set_aside_by_reason'] == {'not_catalogue_level': 2}
     # The record test sees only the needs the F/A test kept.
     assert sorted(i for name, data in client.calls if name == 'ProfileScope' for i in data['needs']) == sorted(statements)
@@ -87,5 +87,24 @@ def test_the_record_test_judges_only_what_the_fa_test_keeps_and_a_missing_judgem
     kept = {n.requirement_id: n for n in retained}
     assert kept['need-doc'].profile_scope['status'] == 'not_checked' and 'profile_scope_not_checked' in kept['need-doc'].processing_flags
     assert 'profile_scope_not_checked' not in kept['need-dimensions'].processing_flags
+    # As in other runs, only needs the record test judged get an applicability label.
+    assert 'applicability_status' not in kept['need-doc'].profile_scope and kept['need-dimensions'].profile_scope['applicability_status']
     step = store.get('run', run['run_id'])['need_steps']['profile_scope']
     assert step['not_checked_ids'] == ['need-doc'] and step['fa_set_aside_count'] == 1 and step['record_set_aside_count'] == 0
+    assert step['set_aside_count'] == 1 and step['set_aside_by_reason'] == {'fa_scope_set_aside': 1}
+
+
+def test_a_set_aside_for_explicit_data_processing_is_a_valid_run_record(setup):
+    # The record test's guard on processing actions in the need gives operational_data_processing; the run
+    # record must accept it, or 6a derives and discussion continuations of the run fail validation.
+    from requirement_reuse_service.workflow.models import WorkflowRun
+    statements = {'need-process': "Users can verify that each observation's value is included in the code list.",
+                  'need-dimensions': DIMENSIONS}
+    store, run, _, made = variants(setup, statements)
+    run = fa_run(store, run)
+    retained = needs.judge_profile_scope(store, run, made, BothTests(statements))
+    assert [n.requirement_id for n in retained] == ['need-dimensions']
+    saved = store.get('run', run['run_id'])
+    aside, = saved['set_aside_observations']
+    assert aside['reason'] == 'operational_data_processing' and aside['details']['profile_scope']['failed_tests'] == ['operational_data_processing']
+    WorkflowRun.model_validate(saved)

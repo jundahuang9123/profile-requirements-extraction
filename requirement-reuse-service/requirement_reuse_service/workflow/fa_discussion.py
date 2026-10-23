@@ -1631,21 +1631,16 @@ def execute_case(store,run_id,case_id,client,roles):
     # v13: checks of IDs outside the plan were accepted beside the plan's checks and are not used.
     ignored=ignored_checks(checks,final) if policy==BASE_POLICY else []
     if ignored:trace['ignored_check_ids']=ignored
-    # Calls at apply share the case budget: the assessment, and since v13 the two scope tests of the
-    # needs a change writes. Their budget error blocks the change; it never stops the case.
-    budgeted={'assessment','profile_scope'} if policy==BASE_POLICY else {'assessment'}
     class BudgetClient:
-        def __init__(self,step='assessment'):self.step=step
-        def for_step(self,step): return BudgetClient(step) if step in budgeted else for_step(client,step)
-        def describe(self): return for_step(client,self.step).describe() if hasattr(for_step(client,self.step),'describe') else {'model':'scripted'}
+        def for_step(self,step): return BudgetClient() if step=='assessment' else for_step(client,step)
+        def describe(self): return for_step(client,'assessment').describe() if hasattr(for_step(client,'assessment'),'describe') else {'model':'scripted'}
         def generate_structured(self,**kwargs):
             nonlocal attempts,reserved,seconds
             cap=kwargs.get('max_tokens',4000)
             if attempts>=case['max_calls'] or reserved+cap>case['total_output_budget'] or seconds>=case['max_seconds']:
-                raise DiscussionBudgetError('F/A assessment budget exhausted; original needs retained.' if self.step=='assessment'
-                    else 'F/A scope test budget exhausted; original needs retained.')
-            attempts+=1;reserved+=cap;persist('fa_assessment_reserved' if self.step=='assessment' else 'fa_scope_test_reserved');started=monotonic()
-            try:return for_step(client,self.step).generate_structured(**kwargs)
+                raise DiscussionBudgetError('F/A assessment budget exhausted; original needs retained.')
+            attempts+=1;reserved+=cap;persist('fa_assessment_reserved');started=monotonic()
+            try:return for_step(client,'assessment').generate_structured(**kwargs)
             finally:seconds+=monotonic()-started;persist()
     outcomes,additions,replacements,asides=apply(store,run,case,final,checks,BudgetClient(),allowed)
     # The applied plan is the final one, or the draft when no stakeholder was asked to respond.
@@ -1866,6 +1861,28 @@ def quoted(store,link,allowed):
     return (start is not None and unit['content'][start:start+len(link.quote)]==link.quote) or unit['content'].count(link.quote)==1
 
 
+# The scope tests of one change (v13) have their own allowance: one call per test and one correction each
+# (need_recovery reserves 8,000 tokens, then 12,000). On the case budget, a replay of the saved v12 cases
+# would have blocked about a third of the applied changes for budget alone (JRC run-36730b38 3 of 9,
+# Stat run-289823d2 3 of 8): late in a case little budget is left.
+SCOPE_CHANGE_LIMITS={'max_calls':4,'total_output_budget':40000}
+
+
+class ScopeAllowance:
+    """Counts the scope-test calls of one change apart from the case budget; past the limit the change is blocked."""
+    def __init__(self,client):self.client,self.calls,self.reserved=client,0,0
+    def for_step(self,step):return self
+    def describe(self):
+        bound=for_step(self.client,'profile_scope')
+        return bound.describe() if hasattr(bound,'describe') else {'model':'scripted'}
+    def generate_structured(self,**kwargs):
+        cap=kwargs.get('max_tokens',4000)
+        if self.calls>=SCOPE_CHANGE_LIMITS['max_calls'] or self.reserved+cap>SCOPE_CHANGE_LIMITS['total_output_budget']:
+            raise DiscussionBudgetError('F/A scope test budget exhausted; original needs retained.')
+        self.calls+=1;self.reserved+=cap
+        return for_step(self.client,'profile_scope').generate_structured(**kwargs)
+
+
 def scope_contract(store,run,records,client,item):
     """Scope contract v1 (v13, Junda, 23 Oct): every need a change writes passes the F/A test and the
     catalogue-record test before the change is applied, as at normalisation. Needs the discussion
@@ -1975,7 +1992,7 @@ def apply(store,run,case,plan,checks,client,allowed):
                     subcase=deepcopy(case)
                     oldcheck=old.MediatorCheck.model_validate(check.model_dump(exclude={'fa_relevant','disposition_justified'}))
                     oldcheck.action_id=wire.action_id
-                    result,new,repl=old.apply_plan(store,run,subcase,old.MediationPlan(actions=[wire],concerns=[],summary=plan.summary),old.MediationChecks(checks=[oldcheck]),client,allowed_evidence_ids=allowed,fresh_requirement_ids=a.action=='split')
+                    result,new,repl=old.apply_plan(store,run,subcase,old.MediationPlan(actions=[wire],concerns=[],summary=plan.summary),old.MediationChecks(checks=[oldcheck]),client,allowed_evidence_ids=allowed,fresh_requirement_ids=a.action=='split',stable_assessment_hash=policy==BASE_POLICY)
                     if not result[0].get('applied'):failed=True
                     temporary.extend(new);local_replacements.update(repl)
                     item.setdefault('revision_checks',[]).extend(result)
@@ -1984,16 +2001,18 @@ def apply(store,run,case,plan,checks,client,allowed):
                 except ValueError as exc:
                     failed=True;item['validation_error']=str(exc)
             if not failed and policy==BASE_POLICY:
-                try:failures=scope_contract(store,run,temporary,client,item)
+                allowance=ScopeAllowance(client)
+                try:failures=scope_contract(store,run,temporary,allowance,item)
                 except ValueError as exc:
-                    # As for the assessment calls: an exhausted case budget (DiscussionBudgetError) or a
-                    # changed checkpoint blocks the change, never the case.
+                    # As for the assessment calls: an exhausted allowance (DiscussionBudgetError) or a changed
+                    # checkpoint blocks the change, never the case. A provider error stops the stage for resume.
                     failed=True;item['validation_error']=str(exc)
                 else:
                     if failures:
                         failed=True;first=failures[0]
                         item['scope_block']=[{k:f[k] for k in ('revision_id','statement','test','record_resource','rationale')} for f in failures]
                         item['validation_error']=f'Scope contract v1: "{first["statement"]}" failed {first["test"]}: {first["rationale"]}'
+                item['scope_test_calls']=allowance.calls
             if not failed:
                 lineage=list(dict.fromkeys(o for p in parents for o in p.get('observation_ids',[])))
                 for rec in temporary:
@@ -2002,8 +2021,10 @@ def apply(store,run,case,plan,checks,client,allowed):
                     # New wording invalidates old base and scope judgements; machine review remains explicit.
                     if policy in BASE_POLICIES:
                         rec['processing_flags']=list(dict.fromkeys([*rec.get('processing_flags',[]),'base_recheck_required']))
-                        # A revision needs its own judgement; never inherit a parent's coverage label.
-                        rec['processing_flags']=[f for f in rec['processing_flags'] if f!='covered_by_base']
+                        # A revision needs its own judgement; never inherit a parent's coverage label. v13 judged
+                        # its scope at apply, so only the base recheck remains.
+                        rec['processing_flags']=[f for f in rec['processing_flags'] if f!='covered_by_base'
+                            and not (policy==BASE_POLICY and f=='base_and_scope_recheck_required')]
                         rec['base_relation']=None
                     # v13 saved both scope verdicts in scope_contract.
                     if policy!=BASE_POLICY:rec['fa_scope']={'policy_version':policy,'status':'checked_mediation','rationale':'Independent mediation check passed; base relationship requires rechecking.'}
