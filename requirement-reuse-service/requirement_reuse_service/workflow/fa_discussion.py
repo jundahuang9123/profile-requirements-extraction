@@ -1861,28 +1861,6 @@ def quoted(store,link,allowed):
     return (start is not None and unit['content'][start:start+len(link.quote)]==link.quote) or unit['content'].count(link.quote)==1
 
 
-# The scope tests of one change (v13) have their own allowance: one call per test and one correction each
-# (need_recovery reserves 8,000 tokens, then 12,000). On the case budget, a replay of the saved v12 cases
-# would have blocked about a third of the applied changes for budget alone (JRC run-36730b38 3 of 9,
-# Stat run-289823d2 3 of 8): late in a case little budget is left.
-SCOPE_CHANGE_LIMITS={'max_calls':4,'total_output_budget':40000}
-
-
-class ScopeAllowance:
-    """Counts the scope-test calls of one change apart from the case budget; past the limit the change is blocked."""
-    def __init__(self,client):self.client,self.calls,self.reserved=client,0,0
-    def for_step(self,step):return self
-    def describe(self):
-        bound=for_step(self.client,'profile_scope')
-        return bound.describe() if hasattr(bound,'describe') else {'model':'scripted'}
-    def generate_structured(self,**kwargs):
-        cap=kwargs.get('max_tokens',4000)
-        if self.calls>=SCOPE_CHANGE_LIMITS['max_calls'] or self.reserved+cap>SCOPE_CHANGE_LIMITS['total_output_budget']:
-            raise DiscussionBudgetError('F/A scope test budget exhausted; original needs retained.')
-        self.calls+=1;self.reserved+=cap
-        return for_step(self.client,'profile_scope').generate_structured(**kwargs)
-
-
 def scope_contract(store,run,records,client,item):
     """Scope contract v1 (v13, Junda, 23 Oct): every need a change writes passes the F/A test and the
     catalogue-record test before the change is applied, as at normalisation. Needs the discussion
@@ -1890,7 +1868,11 @@ def scope_contract(store,run,records,client,item):
 
     Saves both verdicts on each new record and on the outcome row; returns the failures. One failing
     need blocks the whole change, a split included, so its parents stay. A missing judgement keeps the
-    need, flagged, as both tests do at normalisation."""
+    need, flagged, as both tests do at normalisation.
+
+    The calls use no case budget: on it, a replay of the saved v12 cases would have blocked about a third
+    of the applied changes for budget alone (JRC run-36730b38 3 of 9, Stat run-289823d2 3 of 8), as little
+    is left at apply. They are bounded by need_recovery: at most two saved tries per batch, kept on resume."""
     from .fa_requirements import scope_verdicts
     from .needs import record_scope_verdicts
     needs=[RequirementRecord.model_validate(rec) for rec in records]
@@ -2001,18 +1983,16 @@ def apply(store,run,case,plan,checks,client,allowed):
                 except ValueError as exc:
                     failed=True;item['validation_error']=str(exc)
             if not failed and policy==BASE_POLICY:
-                allowance=ScopeAllowance(client)
-                try:failures=scope_contract(store,run,temporary,allowance,item)
+                try:failures=scope_contract(store,run,temporary,client,item)
                 except ValueError as exc:
-                    # As for the assessment calls: an exhausted allowance (DiscussionBudgetError) or a changed
-                    # checkpoint blocks the change, never the case. A provider error stops the stage for resume.
+                    # As for the assessment calls: a changed checkpoint blocks the change, never the case.
+                    # A provider error stops the stage for resume.
                     failed=True;item['validation_error']=str(exc)
                 else:
                     if failures:
                         failed=True;first=failures[0]
                         item['scope_block']=[{k:f[k] for k in ('revision_id','statement','test','record_resource','rationale')} for f in failures]
                         item['validation_error']=f'Scope contract v1: "{first["statement"]}" failed {first["test"]}: {first["rationale"]}'
-                item['scope_test_calls']=allowance.calls
             if not failed:
                 lineage=list(dict.fromkeys(o for p in parents for o in p.get('observation_ids',[])))
                 for rec in temporary:

@@ -147,7 +147,7 @@ def test_catalogue_level_needs_the_discussion_writes_are_applied_with_both_verdi
         # The scope is judged at apply (the after-discussion base review then clears its own recheck flag).
         assert 'base_and_scope_recheck_required' not in record['processing_flags']
     # The calls go to the profile_scope model, one per test.
-    assert {c[0] for c in client.scope_calls} == {'profile_scope'} and outcome['scope_test_calls'] == 2
+    assert {c[0] for c in client.scope_calls} == {'profile_scope'} and len(client.scope_calls) == 2
 
 
 def test_a_missing_record_judgement_applies_the_change_flagged(setup):
@@ -167,23 +167,16 @@ def test_the_scope_tests_do_not_use_the_case_budget(setup, monkeypatch):
     store, run = opted_in(setup)
     clock = {'offset': 0.0}; real = fd.monotonic
     monkeypatch.setattr(fd, 'monotonic', lambda: real() + clock['offset'])
-    client = Scoped(revise_into(DIMENSIONS), on_assess=lambda: clock.update(offset=clock['offset'] + 10**6))
+    assessed = []
+    client = Scoped(revise_into(DIMENSIONS), on_assess=lambda: (assessed.append(1), clock.update(offset=clock['offset'] + 10**6)))
     fd.deliberate(store, run['run_id'], client)
     saved, case = sound(store, run)
     outcome = change(case)
-    assert outcome['status'] == 'machine_revised' and outcome['scope_test_calls'] == 2
+    assert outcome['status'] == 'machine_revised' and len(client.scope_calls) == 2
     assert case['stop_reason'] == 'bounded_fa_dialogue_complete'
-
-
-def test_an_exhausted_scope_allowance_blocks_the_change_and_never_stops_the_case(setup, monkeypatch):
-    store, run = opted_in(setup)
-    monkeypatch.setattr(fd, 'SCOPE_CHANGE_LIMITS', {'max_calls': 1, 'total_output_budget': 40000})
-    client = Scoped(revise_into(DIMENSIONS)); fd.deliberate(store, run['run_id'], client)
-    saved, case = sound(store, run)
-    outcome = change(case); parent, = outcome['parent_revision_ids']
-    assert outcome['status'] == 'blocked_change' and outcome['validation_error'] == 'F/A scope test budget exhausted; original needs retained.'
-    assert outcome['scope_test_calls'] == 1 and [c[1] for c in client.scope_calls] == ['FAScopeResult']
-    assert case['stop_reason'] == 'bounded_fa_dialogue_complete' and parent in saved['active_revision_ids']
+    # The case's own counters hold only the discussion's and the assessment's calls.
+    discussion = {'Review', 'ExperienceReview', 'Plan', 'ExperiencePlan', 'Checks', 'DefinedChecks'}
+    assert case['model_attempts'] == sum(name in discussion for name in client.calls_by_model) + len(assessed)
 
 
 def test_a_provider_error_in_the_scope_tests_resumes_and_applies_the_change(setup):

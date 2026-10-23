@@ -840,14 +840,14 @@ support gates and before the change is accepted:
   as at normalisation: `profile_scope_not_checked` or `fa_scope_review_required`.
 - The calls go to the `profile_scope` model. The discussion plan records that model
   beside the others.
-- The calls of one change have their own allowance (`SCOPE_CHANGE_LIMITS`: 4 calls,
-  40,000 tokens) and do not use the case budget. Late in a case little of it is left:
-  on the case budget, a replay of the saved v12 cases would have blocked about a
-  third of the changes v12 applied for budget alone (JRC `run-36730b38` 3 of 9, Stat
-  `run-289823d2` 3 of 8). The outcome records the calls (`scope_test_calls`).
-- An exhausted allowance blocks the change, with "F/A scope test budget exhausted;
-  original needs retained.", and never stops the case; so does a changed checkpoint.
-  A provider error stops the stage for resume, as for the assessment calls.
+- The calls use no case budget. Late in a case little of it is left: on the case
+  budget, a replay of the saved v12 cases would have blocked about a third of the
+  changes v12 applied for budget alone (JRC `run-36730b38` 3 of 9, Stat
+  `run-289823d2` 3 of 8). They are bounded as at normalisation, by at most two saved
+  tries per batch, which a resume keeps; they appear in `model_calls` under the step
+  `profile_scope`.
+- A changed checkpoint blocks the change and never stops the case. A provider error
+  stops the stage for resume, as for the assessment calls.
 - On resume, the assessment checkpoint of a change is matched without the
   verification's `checked_at` time. Before, it never matched again, so a crash or
   provider error after a change's assessment (now: during its scope tests) blocked
