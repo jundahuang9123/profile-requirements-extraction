@@ -31,14 +31,20 @@ POLICY='rq1-fa-dialogue-v1'
 # applying it (see scope_conflict). v10 (22 Oct) accepts a checker answer that also checks a
 # split's new needs (see check_errors). v11 (22 Oct) applies a change whose quotation differs
 # from its source unit only in whitespace, in U+2010/U+2011 hyphens or in a line break after a
-# hyphen, citing the exact source text (see folded_span). A discussion planned under an earlier
-# version cannot continue; derive a separate base-review trial.
-BASE_POLICY='rq1-fa-dialogue-v11'
+# hyphen, citing the exact source text (see folded_span). v12 (23 Oct) also salvages a plan in
+# which no need has a valid disposition: every need gets the system deferral, and the actions
+# dropped from the applied plan go to a person (see salvage_plan). A discussion planned under an
+# earlier version cannot continue; derive a separate base-review trial.
+BASE_POLICY='rq1-fa-dialogue-v12'
 BASE_POLICIES={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5','rq1-fa-dialogue-v6',
-    'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8','rq1-fa-dialogue-v9','rq1-fa-dialogue-v10',BASE_POLICY}
+    'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8','rq1-fa-dialogue-v9','rq1-fa-dialogue-v10','rq1-fa-dialogue-v11',BASE_POLICY}
 # v11: how a quotation that is not exact text of its source unit is found (see folded_span).
 QUOTE_MATCH_POLICY='rq1-fa-quote-match-v1'
-SALVAGE_POLICY='rq1-fa-salvage-v1'
+SALVAGE_POLICY='rq1-fa-salvage-v2'
+# v3-v11 salvaged a plan only when at least one need kept a valid disposition of the mediator.
+FIRST_SALVAGE_POLICY='rq1-fa-salvage-v1'
+FIRST_SALVAGE_POLICIES={'rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5','rq1-fa-dialogue-v6','rq1-fa-dialogue-v7',
+    'rq1-fa-dialogue-v8','rq1-fa-dialogue-v9','rq1-fa-dialogue-v10','rq1-fa-dialogue-v11'}
 def discussion_policy(run):
     return BASE_POLICY if run['request'].get('base_review') == 'expert_v1' else POLICY
 
@@ -600,7 +606,7 @@ def plan_errors(plan,case,messages,allowed):
         # its own: 5 of the 6 invalid drafts in JRC run-a89957db failed on that alone, with
         # sourced children.
         own=a.action=='recover' or (a.action=='split' and case.get('policy_version') not in {'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8',
-            'rq1-fa-dialogue-v9','rq1-fa-dialogue-v10',BASE_POLICY})
+            'rq1-fa-dialogue-v9','rq1-fa-dialogue-v10','rq1-fa-dialogue-v11',BASE_POLICY})
         if own and (not a.statement.strip() or not a.evidence_links):
             errors.append('Recovery/split requires source-supported statement and links.')
         if a.action=='split' and len(a.children)<2: errors.append('Split requires at least two supported children.')
@@ -803,6 +809,15 @@ def salvage_plan(plan,case,messages,allowed):
     one decision is excluded by the system; an action or proposal that cites a claim the plan
     does not validly admit is dropped. v8: a set-aside without its reason is dropped like any
     invalid action, and a duplicate set-aside is dropped when the need it repeats is not kept as it is.
+    v12 (rq1-fa-salvage-v2): a plan that keeps no action is salvaged too, so every need gets the
+    system deferral (audit nothing_kept). Up to v11 (rq1-fa-salvage-v1, kept for cases of v3-v11)
+    such a plan was not salvaged and its case stopped as invalid output: in JRC run-0834b623, JRC
+    run-12a2c91a and Stat run-1428af21, 10 of the 12 lost cases stopped there, all with a single
+    need, so one invalid action on it ended the case. What v12 recovers is the rest of the
+    discussion, not the dropped proposals: after a draft that keeps nothing, the roles and the
+    final mediator see only the system deferrals, and the draft's dropped actions stay in its
+    audit (mediation.salvage.draft.dropped_actions). Dropped actions become review rows only
+    when the applied plan is the salvaged one, which after a response round is the final.
     Returns (plan or None, audit).
     """
     data=plan.model_dump(mode='json');v6=isinstance(plan,ExperiencePlan)
@@ -841,9 +856,10 @@ def salvage_plan(plan,case,messages,allowed):
     kept=[a for a,p in zip(rows,problems) if not p]
     dropped=[{'action_id':a['action_id'],'action':a['action'],'problems':p,'proposal':a} for a,p in zip(rows,problems) if p]
     covered={p for a in kept for p in a['parent_revision_ids']}
-    audit={'policy_version':SALVAGE_POLICY,'kept_action_ids':[a['action_id'] for a in kept],'dropped_actions':dropped,
-        'human_accepted':False}
-    if not covered:
+    first=case.get('policy_version') in FIRST_SALVAGE_POLICIES
+    audit={'policy_version':FIRST_SALVAGE_POLICY if first else SALVAGE_POLICY,'kept_action_ids':[a['action_id'] for a in kept],
+        'dropped_actions':dropped,'human_accepted':False}
+    if not covered and first:
         return None,{**audit,'status':'not_salvaged','reason':'No need has a valid disposition.'}
     # System IDs avoid the plan's proposal IDs too, since proposals become outcome rows.
     used=set(ids)|{p['proposal_id'] for p in data.get('proposals',[])};used_questions={q['question_id'] for q in data['questions']}
@@ -894,6 +910,8 @@ def salvage_plan(plan,case,messages,allowed):
     concerns=[kept_rows.get(c) or {'concern_id':c,'status':'unresolved','action_ids':[],'question_ids':[review['question_id']],
         'rationale':'System salvage: the mediator gave this concern no valid disposition; a person reviews it.'}
         for c in concern_ids if c in kept_rows or c in replaced]
+    # Replayed v3-v11 audits stay as v11 saved them.
+    if not first:audit['nothing_kept']=not kept
     audit.update(status='salvaged',deferred_revision_ids=deferred,system_action_ids=[d['action_id'] for d in defers],
         replaced_concern_ids=replaced,system_question_id=review['question_id'] if review else None,
         dropped_question_ids=[q['question_id'] for q in data['questions'] if q['question_id'] not in {k['question_id'] for k in kept_questions}])
@@ -1673,6 +1691,8 @@ def execute_case(store,run_id,case_id,client,roles):
                 **({'experience_decisions':[{**d.model_dump(mode='json'),**({'system':True} if d.claim_id in system else {})}
                     for d in final.experience]} if v6 else {}),
                 **({'salvage':deepcopy(salvaged)} if salvaged else {}),
+                # v12: the applied plan was salvaged without any mediator action (metric salvaged_nothing_kept).
+                **({'salvage_nothing_kept':True} if salvaged.get(applied,{}).get('nothing_kept') else {}),
                 'completed_at':now(),'human_accepted':False})
     store.mutate(run_id,None,'fa_mediation_transaction',commit)
 
@@ -1981,6 +2001,15 @@ def deliberate(store,run_id,client):
             mediated_changes=sum(o.get('applied',False) for o in outcomes),active_count=len(r['active_revision_ids']),accepted_count=0)
         if policy==BASE_POLICY:
             r['metrics']['salvaged_cases']=sum(c.get('stop_reason')=='bounded_fa_dialogue_salvaged' for c in r['deliberations'])
+            # v12: salvaged cases whose applied plan kept no mediator action, reported apart so that
+            # lost-case counts of earlier versions stay comparable.
+            r['metrics']['salvaged_nothing_kept']=sum(c.get('stop_reason')=='bounded_fa_dialogue_salvaged'
+                and bool((c.get('mediation') or {}).get('salvage_nothing_kept')) for c in r['deliberations'])
+            # The calls such a salvage adds (response round, final plan, check) can end a case on its budget, or
+            # invalid later, where v11 stopped it earlier as invalid output; these lost cases are counted apart too.
+            r['metrics']['lost_after_salvage_nothing_kept']=sum(c.get('stop_reason') in {'budget_pending_human_review',
+                'invalid_output_pending_human_review'} and any(a.get('status')=='salvaged' and a.get('nothing_kept')
+                for a in ((c.get('discussion_trace') or {}).get('salvage') or {}).values()) for c in r['deliberations'])
             # Experience is a separate kind of argument; its use is counted apart, over completed cases.
             done=[c for c in r['deliberations'] if c.get('mediation',{}).get('phase')=='completed']
             decisions=[d for c in done for d in c['mediation'].get('experience_decisions',[])]

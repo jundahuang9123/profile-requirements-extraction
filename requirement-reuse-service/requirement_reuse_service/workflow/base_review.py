@@ -495,6 +495,7 @@ def derive_base_review_run(store,source,request,actor):
             'changed_policy':options.get('mediation_timeout_fallback')})
     # Working counters are recomputed from the restored inventory, never inherited discussion results.
     for key in ('discussion_case_count','mediated_cases','pending_human_cases','mediated_changes','salvaged_cases',
+            'salvaged_nothing_kept','lost_after_salvage_nothing_kept',
             'experience_claims','experience_admitted','experience_excluded','experience_excluded_by_system','experience_actions','experience_applied_changes',
             'experience_proposals','noted_concerns'):
         child['metrics'].pop(key,None)

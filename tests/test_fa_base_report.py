@@ -84,6 +84,9 @@ def test_report_separates_removed_labels_from_kept_disputes_and_lists_salvage(tm
     assert 'errors: N1: cite only entries' in markdown.split('## Not reviewed')[1].split('\n## ')[0]
     assert 'case-1 · add A2: Additions are not applied from a salvaged plan.' in markdown
     assert 'Salvaged cases (metrics): 1; mediator actions rejected by salvage: 1.' in markdown
+    # Runs before rq1-fa-salvage-v2 have no count of salvages that kept no mediator action.
+    assert 'Salvaged with no mediator action kept (metrics): not recorded; lost after such a salvage' in markdown
+    assert 'v11 stopped these earlier as invalid output): not recorded.' in markdown
     with (tmp_path / 'base-review.csv').open(encoding='utf-8-sig', newline='') as f:
         rows = {r['revision_id']: r for r in csv.DictReader(f)}
     assert rows['revision-2']['policy'] == 'rq1-base-expert-v3' and rows['revision-4']['errors'].startswith('N1:')
