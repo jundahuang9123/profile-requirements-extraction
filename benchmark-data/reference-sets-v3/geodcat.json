@@ -3,7 +3,7 @@
  "case": "geodcat",
  "reference_document": "GeoDCAT-AP 1.0 (2015-12-23)",
  "base": "DCAT-AP 1.1",
- "status": "merged reference set, not independently adjudicated; input-evidence labels not assessed",
+ "status": "merged reference set with AI input-evidence labels; provisional adjudication of the reviewed items (2026-10-23); not independently adjudicated as a whole",
  "built_from": {
   "v1": "geodcat/reference-requirements/alignment-requirements.json (published identities kept)",
   "claude_v2": "alignment-requirements-v2.json (Claude completion, 2026-10-22)",
@@ -14,17 +14,28 @@
   "Requirements that restate DCAT-AP are included and flagged (restates_dcat_ap); they may be left out at scoring time.",
   "Geo restatement tags stay as coded: the INSPIRE and ISO obligation levels are kept as fields but are not part of each need, since requirements are scored on the need and implementations may differ later (Junda, 2026-10-22)."
  ],
+ "adjudication": {
+  "date": "2026-10-23",
+  "source": "reference-sets-v3/CODEX-REVIEW-2026-10-23.md",
+  "by": "Junda, provisional adjudication with ChatGPT/Codex assistance; applied by Claude",
+  "status": "provisional; not an independent human adjudication of the whole set",
+  "changes": [
+   "Overlap review: 5 pairs classified (0 equivalent, 0 subsumption, 5 related).",
+   "Geo M/C/O scoring choice left unresolved as a declared scope choice (register): need-level scoring is kept distinct from obligation-sensitive scoring; INSPIRE/ISO conditions stay in the source fields."
+  ]
+ },
  "merge_rules": [
   "Rows: all v1 rows and all Claude v2 rows keep their IDs. A row statement, locator or status changes only where a source check showed it wrong; the earlier value is kept in statement_before_v3, source_locator_before_v3 or status_in_source_before_v3.",
   "Atoms are the scoring units and every atom belongs to exactly one row. PR #45 splits are used where PR #45 split a need; PR #45 items that state the same need for another data group are merged into one atom whose applicability lists the groups.",
   "Content found only in Claude v2 is split into atoms; content found only in PR #45 is added; a few needs found while checking anchors are added and marked added_in_merge.",
   "Requirements that only restate DCAT-AP (relation_to_base = restates_base) are kept and flagged with restates_dcat_ap so they can be left out at scoring time.",
   "Source inconsistencies and source errors are recorded on the atom (source_flags), not resolved.",
-  "Overlapping atoms point to each other in overlaps; under one-to-one matching a prediction can be credited to only one of them."
+  "Overlapping atoms point to each other in overlaps; under one-to-one matching a prediction can be credited to only one of them.",
+  "Adjudication (2026-10-23): equivalent atoms from different rows are scored once (the duplicate names its canonical atom in merged_into); an atom that only bundles separately scored atoms (umbrella_of) is not scored by default; every overlap pair carries a review (overlap_review)."
  ],
  "scoring": {
   "unit": "atom",
-  "default_selection": "stratum = content and status_in_source != deferred (field scored_by_default)",
+  "default_selection": "stratum = content, status_in_source != deferred, and neither merged_into another atom nor umbrella_of separately scored atoms (field scored_by_default)",
   "optional_filters": {
    "leave_out_dcat_ap_restatements": "restates_dcat_ap = true",
    "leave_out_rq2_reuse_and_alignment_rules": "reuse_or_alignment_rule = true",
@@ -65,6 +76,9 @@
   "scored_by_default_without_dcat_ap_restatements": 21,
   "scored_by_default_without_rq2_rules": 37,
   "scored_by_default_requirement_status_only": 37,
+  "atoms_merged_for_scoring": 0,
+  "umbrella_atoms_not_scored": 0,
+  "atoms_provisionally_adjudicated": 0,
   "atoms_with_source_flags": 9,
   "atoms_with_evidence_labels": 56,
   "raw_evidence_labels": {
@@ -1532,7 +1546,15 @@
     "consolidation": null,
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "G-42.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (profile level)."
+    }
+   ]
   },
   {
    "id": "G-2.1",
@@ -1652,7 +1674,15 @@
     "consolidation": null,
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "G-44.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (profile level)."
+    }
+   ]
   },
   {
    "id": "G-4.1",
@@ -1784,7 +1814,15 @@
     "consolidation": null,
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "G-7.2",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (profile level)."
+    }
+   ]
   },
   {
    "id": "G-5.1",
@@ -1850,7 +1888,15 @@
     "consolidation": null,
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "G-44.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (profile level)."
+    }
+   ]
   },
   {
    "id": "G-5.2",
@@ -2144,7 +2190,15 @@
     "consolidation": null,
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "G-43.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (system level)."
+    }
+   ]
   },
   {
    "id": "G-7.2",
@@ -2191,7 +2245,15 @@
     "consolidation": null,
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "G-4.2",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (profile level)."
+    }
+   ]
   },
   {
    "id": "G-8.1",
@@ -4930,7 +4992,15 @@
     "consolidation": null,
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "G-1.3",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (profile level)."
+    }
+   ]
   },
   {
    "id": "G-43.1",
@@ -4992,7 +5062,15 @@
     "consolidation": null,
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "G-7.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (system level)."
+    }
+   ]
   },
   {
    "id": "G-44.1",
@@ -5055,7 +5133,21 @@
     "consolidation": null,
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "G-3.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (profile level)."
+    },
+    {
+     "atom": "G-5.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (profile level)."
+    }
+   ]
   },
   {
    "id": "G-45.1",

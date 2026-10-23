@@ -13,6 +13,7 @@ Version 3 merges three sources into one reference set per case:
 - Mobility is scored at clause level. The PR #45 clauses were checked against the original NAPCORE Table 1 (see below).
 - Requirements that only restate DCAT-AP are included and flagged (`restates_dcat_ap`), so they can be left out at scoring time.
 - Geo restatement tags stay as coded. INSPIRE and ISO obligation levels are kept as fields but are not part of each need, because requirements are scored on the need and implementations may differ later.
+- A provisional adjudication of reviewed items was applied on 23 October 2026 (see below).
 
 ## Files
 
@@ -34,9 +35,25 @@ Version 3 merges three sources into one reference set per case:
 - `derived_from`: where the reference document says the requirement comes from (for Mobility, the Source column of Table 1, with contributor and perspective on the row).
 - `anchor_quote`, `anchor_check`, `anchor_page`: the reference passage. It is machine-checked for Health, Stat and Geo, with the PDF page where it starts. JRC and Mobility quotes come from the live documents via WebFetch.
 - `input_evidence`: whether the case's staged runtime inputs support the atom, given separately for `raw` and, where the case has them, `consolidation` inputs. Each has a label (supported, partial, uncertain or unsupported), the input passages (path, locator, verbatim quote, `quote_check`) and a rationale.
-- `overlaps`: atoms that state closely related needs. Under one-to-one matching, a prediction can be credited to only one of them.
+- `overlaps`: atoms that state closely related needs. Under one-to-one matching, a prediction can be credited to only one of them. `overlap_review` classifies each pair (equivalent, subsumes, subsumed_by, related) and records the decision.
+- `merged_into` / `merged_from`: an atom equivalent to an atom of another row is scored once, through the canonical atom (`scoring_unit_rows` lists both rows).
+- `umbrella_of`: an atom that only bundles separately scored atoms; not scored by default.
+- `adjudication`: the review items applied to the atom, with date and source.
 - `source_flags`: source inconsistencies or errors, recorded but not resolved.
 - `provenance`: the v1 row, Claude v2 rows and PR #45 items behind the atom, `added_in_merge`, and a `found_by` summary.
+
+## Adjudication, 23 October 2026
+
+Junda's provisional adjudication with ChatGPT/Codex assistance (`CODEX-REVIEW-2026-10-23.md`, review of `8e81e5b`), applied here:
+
+- **Duplicate scoring targets (P1):** Req-24.1 is merged into Req-19.7 (same georeferencing need; both rows kept as provenance). No separate service atom: no source passage or property supports one.
+- **Overlap review (P1):** all 39 overlap pairs are classified: 1 equivalent (merged), 7 subsumption, 31 related. H-4.1 bundles the five free-text needs D6.2 lists on p. 32 (description, population, purpose, provenance, publisher note), all scored separately, so it is no longer scored by default. Req-28.4 and Req-30.1 stay distinct.
+- **Evidence labels (P1):** raw labels of H-1.1, H-29.1 and H-22.1 changed from supported to partial: the inputs support the practice, not the full mandatory or universal obligation.
+- **Compound atoms (P2):** H-46.1 and H-46.3 are split (H-46.5, H-46.6 added). All H-46 atoms now state that they are elements of the EHDS data quality and utility label, covered where applicable; evidence relabelled for the four affected atoms.
+- **JRC (P2, register):** JRC-10.3 restores the assessment of metadata quality (under investigation; no input supports it); JRC-10.1 has its anchor; JRC-6.4 is a requirement with its condition (DataCite citations).
+- **Accepted as they are:** H-3.1, H-3.2, H-10.1, H-37.2, H-40.1, JRC-8.2 and the deferred Stat atoms. Left unresolved as recorded: the H-9.1/H-13.4 source tension and the Geo M/C/O scoring choice.
+
+The default selection includes 50 atoms whose status is proposed, open issue or guidance. Name the selected status population in results, and report the settled-requirement sensitivity (`scored_by_default_requirement_status_only`). Do not describe all scored atoms as agreed requirements.
 
 ## Merge rules
 
@@ -46,6 +63,7 @@ Version 3 merges three sources into one reference set per case:
 - Requirements that only restate DCAT-AP (relation_to_base = restates_base) are kept and flagged with restates_dcat_ap so they can be left out at scoring time.
 - Source inconsistencies and source errors are recorded on the atom (source_flags), not resolved.
 - Overlapping atoms point to each other in overlaps; under one-to-one matching a prediction can be credited to only one of them.
+- Adjudication (2026-10-23): equivalent atoms from different rows are scored once (the duplicate names its canonical atom in merged_into); an atom that only bundles separately scored atoms (umbrella_of) is not scored by default; every overlap pair carries a review (overlap_review).
 
 ## Counts
 
@@ -53,12 +71,12 @@ Default selection: content atoms that are not deferred (`scored_by_default`). Ne
 
 | Case | v1 rows | v3 rows | Atoms | Scored by default | Without DCAT-AP restatements |
 |---|---:|---:|---:|---:|---:|
-| Mobility | 40 | 40 | 98 | 40 | 33 |
-| Health | 16 | 69 | 119 | 88 | 75 |
+| Mobility | 40 | 40 | 98 | 39 | 32 |
+| Health | 16 | 69 | 121 | 89 | 76 |
 | Stat | 7 | 22 | 27 | 14 | 8 |
 | Geo | 7 | 46 | 56 | 37 | 21 |
-| JRC | 5 | 11 | 17 | 16 | 12 |
-| **Total** | 75 | 188 | 317 | 195 | 149 |
+| JRC | 5 | 11 | 18 | 17 | 13 |
+| **Total** | 75 | 188 | 320 | 196 | 150 |
 
 ## Input-evidence labels (evidence-eligible denominators)
 
@@ -68,11 +86,11 @@ The labellers were Claude subagents that saw only the atoms and the inputs, not 
 
 | Case | Scored by default | Raw: supported | Raw: supported or partial | Consolidation: supported | Consolidation: supported or partial |
 |---|---:|---:|---:|---:|---:|
-| Mobility | 40 | 32 | 38 | 39 | 40 |
-| Health | 88 | 60 | 83 | 6 | 22 |
+| Mobility | 39 | 31 | 37 | 38 | 39 |
+| Health | 89 | 59 | 84 | 5 | 22 |
 | Stat | 14 | 4 | 8 | – | – |
 | Geo | 37 | 37 | 37 | – | – |
-| JRC | 16 | 6 | 12 | – | – |
+| JRC | 17 | 6 | 12 | – | – |
 
 Report full-reference recall over all scored atoms, and evidence-eligible recall over the supported (or supported-or-partial) atoms of the input mode that was run.
 
@@ -111,7 +129,7 @@ H-66 to H-68 come from PR #45 items. H-69 was found while checking anchors, as w
 
 ## Not done
 
-- No independent human adjudication of the atoms or the evidence labels.
+- No independent human adjudication of the whole set. The 23 October adjudication covers the reviewed items only; the other evidence labels remain AI labels.
 - JRC and Mobility quotes come from live documents that are not byte-frozen in the corpus.
 - Health, Stat and JRC are development cases whose outputs had been viewed before this version. The decomposition was built from the source documents and the two completion passes, not from system outputs. Disclose the earlier exposure as the methodology requires.
 

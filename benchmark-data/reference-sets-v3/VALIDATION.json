@@ -4,12 +4,12 @@
     "mobilitydcat": {
       "rows": 40,
       "atoms": 98,
-      "scored_by_default": 40
+      "scored_by_default": 39
     },
     "healthdcat": {
       "rows": 69,
-      "atoms": 119,
-      "scored_by_default": 88
+      "atoms": 121,
+      "scored_by_default": 89
     },
     "statdcat": {
       "rows": 22,
@@ -23,18 +23,19 @@
     },
     "jrc-research": {
       "rows": 11,
-      "atoms": 17,
-      "scored_by_default": 16
+      "atoms": 18,
+      "scored_by_default": 17
     }
   },
   "anchor_quotes": {
-    "from_web_fetch_not_verified_locally": 114,
-    "verified": 202,
-    "locator_only": 1
+    "from_web_fetch_not_verified_locally": 116,
+    "verified": 204
   },
   "evidence_quotes": {
-    "verified": 1311
+    "verified": 1320
   },
   "errors": [],
-  "notes": []
+  "notes": [
+    "Structurally valid only: not an approval for quantitative evaluation (AI evidence labels; no independent adjudication of the whole set)."
+  ]
 }

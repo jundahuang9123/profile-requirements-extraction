@@ -2,8 +2,13 @@
 """Integrity checks for the merged v3 reference sets (evaluator-only; no app imports).
 
 Checks the structure of every case file, that all published v1 identities are kept, that counts and
-derived flags are consistent, and, where pdftotext is installed, that every anchor quote occurs in the
-reference PDF and every evidence quote occurs in the cited runtime input.
+derived flags are consistent (including merged and umbrella atoms and the overlap review), that every
+evidence path is in the case's runtime allowlist for its mode, that the coverage ledger points to
+existing atoms, and, where pdftotext is installed, that every anchor quote occurs in the reference PDF
+and every evidence quote occurs in the cited runtime input.
+
+Passing means structurally valid. It does not approve the sets for quantitative evaluation: the
+evidence labels are AI labels and the atoms are not independently adjudicated as a whole.
 
     python3 benchmark-data/reference-sets-v3/validate_v3.py [--report VALIDATION.json]
 """
@@ -30,6 +35,7 @@ CASES = {
 RELATIONS = {'restates_base', 'tightens_base', 'extends_base', 'partly_base', 'beyond_base', 'not_term_level', 'unresolved'}
 STATUSES = {'requirement', 'proposed', 'deferred', 'open_issue', 'guidance'}
 LABELS = {'supported', 'partial', 'uncertain', 'unsupported'}
+OVERLAP_RELATIONS = {'equivalent', 'subsumes', 'subsumed_by', 'related'}
 
 
 def norm(s):
@@ -97,6 +103,9 @@ def main():
     errors, notes, summary = [], [], {}
     anchors = collections.Counter()
     quotes = collections.Counter()
+    allow = json.loads((BD / 'runtime-inputs.json').read_text(encoding='utf-8'))['benchmarks']
+    ledger = list(csv.DictReader((HERE / 'coverage-ledger.csv').read_text(encoding='utf-8').splitlines()))
+    all_ids = {}
     for case, (v1_name, ref_pdf) in CASES.items():
         d = json.loads((HERE / f'{case}.json').read_text(encoding='utf-8'))
         rows, atoms = d['requirements'], d['atoms']
@@ -108,6 +117,7 @@ def main():
         errors += [f'{case}: duplicate atom {k}' for k, v in collections.Counter(aid).items() if v > 1]
         rows_by = {r['id']: r for r in rows}
         atoms_by = {a['id']: a for a in atoms}
+        all_ids[case] = set(atoms_by)
         v1 = json.loads((BD / case / 'reference-requirements' / v1_name).read_text(encoding='utf-8'))['requirements']
         for r in v1:
             row = rows_by.get(r['id'])
@@ -132,11 +142,21 @@ def main():
                 errors.append(f'{case}: atom {a["id"]} bad status_in_source')
             if a['restates_dcat_ap'] != (a['relation_to_base'] == 'restates_base'):
                 errors.append(f'{case}: atom {a["id"]} restates_dcat_ap inconsistent')
-            if a['scored_by_default'] != (a['stratum'] == 'content' and a['status_in_source'] != 'deferred'):
+            if a['scored_by_default'] != (a['stratum'] == 'content' and a['status_in_source'] != 'deferred'
+                                          and not a.get('merged_into') and not a.get('umbrella_of')):
                 errors.append(f'{case}: atom {a["id"]} scored_by_default inconsistent')
             for o in a['overlaps']:
                 if o not in atoms_by or a['id'] not in atoms_by[o]['overlaps']:
                     errors.append(f'{case}: overlap {a["id"]} -> {o} missing or one-way')
+            reviewed = [r['atom'] for r in a.get('overlap_review', [])]
+            if sorted(reviewed) != sorted(a['overlaps']) or any(r['relation'] not in OVERLAP_RELATIONS for r in a.get('overlap_review', [])):
+                errors.append(f'{case}: atom {a["id"]} overlap_review does not cover its overlaps once each')
+            m = a.get('merged_into')
+            if m and (m not in atoms_by or not atoms_by[m]['scored_by_default'] or a['id'] not in atoms_by[m].get('merged_from', [])):
+                errors.append(f'{case}: atom {a["id"]} merged_into {m} invalid')
+            for c in a.get('umbrella_of', []):
+                if c not in atoms_by or not atoms_by[c]['scored_by_default']:
+                    errors.append(f'{case}: umbrella {a["id"]} names {c}, which is missing or not scored')
             # anchor quote against the reference document
             if a.get('anchor_check') == 'verbatim_in_source_text':
                 v = texts(ref_pdf, ('-layout', '-raw')) if ref_pdf else None
@@ -159,6 +179,8 @@ def main():
                     if b['label'] not in LABELS:
                         errors.append(f'{case}: atom {a["id"]} bad {kind} label')
                     for s in b['sources']:
+                        if s['path'] not in allow[case][kind]:
+                            errors.append(f'{case}: {kind} evidence of {a["id"]} cites {s["path"]}, which is not in the {kind} allowlist')
                         if s.get('quote_check') != 'verbatim_in_input_text':
                             quotes['recorded as not found'] += 1
                             continue
@@ -178,6 +200,9 @@ def main():
             if c.get(k) != val:
                 errors.append(f'{case}: counts.{k} is {c.get(k)}, recomputed {val}')
         summary[case] = {'rows': len(rows), 'atoms': len(atoms), 'scored_by_default': len(scored)}
+    for r in ledger:
+        if r['atom_id'] not in all_ids.get(r['case'], set()):
+            errors.append(f'coverage-ledger.csv: {r["input_id"]} points to unknown atom {r["case"]}/{r["atom_id"]}')
     for name, n in (('atoms-review.csv', sum(v['atoms'] for v in summary.values())),
                     ('reference-coverage.csv', sum(v['atoms'] for v in summary.values()))):
         rows = list(csv.reader((HERE / name).read_text(encoding='utf-8').splitlines()))
@@ -185,6 +210,7 @@ def main():
             errors.append(f'{name}: expected {n} single-line rows')
     if not shutil.which('pdftotext'):
         notes.append('pdftotext not installed: PDF anchor and evidence quotes were not re-checked.')
+    notes.append('Structurally valid only: not an approval for quantitative evaluation (AI evidence labels; no independent adjudication of the whole set).')
     report = {'status': 'passed' if not errors else 'failed', 'cases': summary, 'anchor_quotes': dict(anchors),
               'evidence_quotes': dict(quotes), 'errors': errors, 'notes': notes}
     if args.report:

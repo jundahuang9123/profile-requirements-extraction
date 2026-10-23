@@ -223,8 +223,10 @@ Claude v2,H-44,healthdcat,H-44.1
 PR #45,HC-020,healthdcat,H-45.1
 Claude v2,H-45,healthdcat,H-45.1
 Claude v2,H-46,healthdcat,H-46.1
+Claude v2,H-46,healthdcat,H-46.5
 Claude v2,H-46,healthdcat,H-46.2
 Claude v2,H-46,healthdcat,H-46.3
+Claude v2,H-46,healthdcat,H-46.6
 Claude v2,H-46,healthdcat,H-46.4
 Claude v2,H-47,healthdcat,H-47.1
 Claude v2,H-48,healthdcat,H-48.1
@@ -392,6 +394,8 @@ PR #45,JC-006,jrc-research,JRC-10.1
 Claude v2,JRC-10,jrc-research,JRC-10.1
 PR #45,JC-006,jrc-research,JRC-10.2
 Claude v2,JRC-10,jrc-research,JRC-10.2
+PR #45,JC-006,jrc-research,JRC-10.3
+Claude v2,JRC-10,jrc-research,JRC-10.3
 PR #45,JC-007,jrc-research,JRC-11.1
 Claude v2,JRC-11,jrc-research,JRC-11.1
 row (v1),Req-1,mobilitydcat,Req-1.1
@@ -578,8 +582,10 @@ row (v2),H-43,healthdcat,H-43.3
 row (v2),H-44,healthdcat,H-44.1
 row (v2),H-45,healthdcat,H-45.1
 row (v2),H-46,healthdcat,H-46.1
+row (v2),H-46,healthdcat,H-46.5
 row (v2),H-46,healthdcat,H-46.2
 row (v2),H-46,healthdcat,H-46.3
+row (v2),H-46,healthdcat,H-46.6
 row (v2),H-46,healthdcat,H-46.4
 row (v2),H-47,healthdcat,H-47.1
 row (v2),H-48,healthdcat,H-48.1
@@ -710,4 +716,5 @@ row (v2),JRC-8,jrc-research,JRC-8.2
 row (v2),JRC-9,jrc-research,JRC-9.1
 row (v2),JRC-10,jrc-research,JRC-10.1
 row (v2),JRC-10,jrc-research,JRC-10.2
+row (v2),JRC-10,jrc-research,JRC-10.3
 row (v2),JRC-11,jrc-research,JRC-11.1

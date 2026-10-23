@@ -3,7 +3,7 @@
  "case": "healthdcat",
  "reference_document": "HealthData@EU Pilot D6.2 (2024-09-30)",
  "base": "DCAT-AP 3.0.0",
- "status": "merged reference set, not independently adjudicated; input-evidence labels not assessed",
+ "status": "merged reference set with AI input-evidence labels; provisional adjudication of the reviewed items (2026-10-23); not independently adjudicated as a whole",
  "built_from": {
   "v1": "healthdcat/reference-requirements/curated-requirements.json (published identities kept)",
   "claude_v2": "curated-requirements-v2.json (Claude completion, 2026-10-22)",
@@ -13,17 +13,30 @@
   "Mobility is scored at clause level (the PR #45 clauses, checked against NAPCORE Table 1).",
   "Requirements that restate DCAT-AP are included and flagged (restates_dcat_ap); they may be left out at scoring time."
  ],
+ "adjudication": {
+  "date": "2026-10-23",
+  "source": "reference-sets-v3/CODEX-REVIEW-2026-10-23.md",
+  "by": "Junda, provisional adjudication with ChatGPT/Codex assistance; applied by Claude",
+  "status": "provisional; not an independent human adjudication of the whole set",
+  "changes": [
+   "Raw evidence labels of H-1.1, H-29.1 and H-22.1 changed from supported to partial (P1, register).",
+   "H-46.1 and H-46.3 split into H-46.1/H-46.5 and H-46.3/H-46.6; all H-46 atoms state the quality-label context and its applicability (P2).",
+   "H-4.1 is an umbrella of five separately scored free-text needs and is no longer scored by default (overlap review).",
+   "Overlap review: 23 pairs classified (0 equivalent, 6 subsumption, 17 related)."
+  ]
+ },
  "merge_rules": [
   "Rows: all v1 rows and all Claude v2 rows keep their IDs. A row statement, locator or status changes only where a source check showed it wrong; the earlier value is kept in statement_before_v3, source_locator_before_v3 or status_in_source_before_v3.",
   "Atoms are the scoring units and every atom belongs to exactly one row. PR #45 splits are used where PR #45 split a need; PR #45 items that state the same need for another data group are merged into one atom whose applicability lists the groups.",
   "Content found only in Claude v2 is split into atoms; content found only in PR #45 is added; a few needs found while checking anchors are added and marked added_in_merge.",
   "Requirements that only restate DCAT-AP (relation_to_base = restates_base) are kept and flagged with restates_dcat_ap so they can be left out at scoring time.",
   "Source inconsistencies and source errors are recorded on the atom (source_flags), not resolved.",
-  "Overlapping atoms point to each other in overlaps; under one-to-one matching a prediction can be credited to only one of them."
+  "Overlapping atoms point to each other in overlaps; under one-to-one matching a prediction can be credited to only one of them.",
+  "Adjudication (2026-10-23): equivalent atoms from different rows are scored once (the duplicate names its canonical atom in merged_into); an atom that only bundles separately scored atoms (umbrella_of) is not scored by default; every overlap pair carries a review (overlap_review)."
  ],
  "scoring": {
   "unit": "atom",
-  "default_selection": "stratum = content and status_in_source != deferred (field scored_by_default)",
+  "default_selection": "stratum = content, status_in_source != deferred, and neither merged_into another atom nor umbrella_of separately scored atoms (field scored_by_default)",
   "optional_filters": {
    "leave_out_dcat_ap_restatements": "restates_dcat_ap = true",
    "leave_out_rq2_reuse_and_alignment_rules": "reuse_or_alignment_rule = true",
@@ -40,21 +53,21 @@
    "v2": 49,
    "v3": 4
   },
-  "atoms": 119,
+  "atoms": 121,
   "atoms_by_stratum": {
-   "content": 89,
+   "content": 91,
    "profile": 11,
    "system": 19
   },
   "atoms_by_status": {
-   "requirement": 74,
+   "requirement": 76,
    "proposed": 44,
    "deferred": 1
   },
   "atoms_by_relation_to_base": {
    "tightens_base": 30,
    "not_term_level": 30,
-   "beyond_base": 40,
+   "beyond_base": 42,
    "partly_base": 1,
    "extends_base": 4,
    "restates_base": 13,
@@ -64,30 +77,33 @@
    "v1 row (split by PR #45)": 37,
    "PR #45 only": 12,
    "added in merge": 2,
-   "Claude v2 only": 26,
+   "Claude v2 only": 28,
    "both": 42
   },
-  "scored_by_default": 88,
-  "scored_by_default_without_dcat_ap_restatements": 75,
-  "scored_by_default_without_rq2_rules": 88,
-  "scored_by_default_requirement_status_only": 50,
+  "scored_by_default": 89,
+  "scored_by_default_without_dcat_ap_restatements": 76,
+  "scored_by_default_without_rq2_rules": 89,
+  "scored_by_default_requirement_status_only": 51,
+  "atoms_merged_for_scoring": 0,
+  "umbrella_atoms_not_scored": 1,
+  "atoms_provisionally_adjudicated": 17,
   "atoms_with_source_flags": 16,
-  "atoms_with_evidence_labels": 119,
+  "atoms_with_evidence_labels": 121,
   "raw_evidence_labels": {
-   "supported": 68,
-   "partial": 40,
+   "partial": 43,
+   "supported": 67,
    "unsupported": 4,
    "uncertain": 7
   },
-  "scored_by_default_raw_supported": 60,
-  "scored_by_default_raw_supported_or_partial": 83,
+  "scored_by_default_raw_supported": 59,
+  "scored_by_default_raw_supported_or_partial": 84,
   "consolidation_evidence_labels": {
-   "partial": 21,
+   "partial": 22,
    "uncertain": 20,
-   "unsupported": 72,
+   "unsupported": 73,
    "supported": 6
   },
-  "scored_by_default_consolidation_supported": 6,
+  "scored_by_default_consolidation_supported": 5,
   "scored_by_default_consolidation_supported_or_partial": 22,
   "atoms_with_overlaps": 35
  },
@@ -1259,8 +1275,10 @@
    "v3_note": "Art. 56(a) documentation and the time-period and population-coverage parts of (d) are already atoms H-9.1, H-26.1, H-30.1, H-31.1, H-36.1 and H-38.1; only the remaining label inputs are separate atoms.",
    "atom_ids": [
     "H-46.1",
+    "H-46.5",
     "H-46.2",
     "H-46.3",
+    "H-46.6",
     "H-46.4"
    ]
   },
@@ -1888,10 +1906,10 @@
     "tech"
    ],
    "scored_by_default": true,
-   "adjudication_status": "not_independently_adjudicated",
+   "adjudication_status": "provisional_adjudication_2026_10_23",
    "input_evidence": {
     "raw": {
-     "label": "supported",
+     "label": "partial",
      "sources": [
       {
        "path": "healthdcat/input-raw/w3c-dcat-2-2020.html",
@@ -1912,8 +1930,9 @@
        "quote_check": "verbatim_in_input_text"
       }
      ],
-     "rationale": "W3C DCAT relies on persistent, dereferenceable HTTP URIs and recommends global identifiers for datasets; DCAT-AP defines the dataset identifier.",
-     "quotes_verified": true
+     "rationale": "W3C DCAT relies on persistent HTTP URIs and recommends global identifiers, and DCAT-AP has an optional (0..n) dataset identifier. This supports identifier practice, not a mandatory persistent, dereferenceable identifier for every metadata record. (adjudication 2026-10-23)",
+     "quotes_verified": true,
+     "label_before_adjudication": "supported"
     },
     "consolidation": {
      "label": "partial",
@@ -1930,7 +1949,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "P1 (H-1.1)",
+     "change": "raw evidence label supported -> partial"
+    }
+   ]
   },
   {
    "id": "H-1.2",
@@ -2118,7 +2145,7 @@
     "law"
    ],
    "scored_by_default": false,
-   "adjudication_status": "not_independently_adjudicated",
+   "adjudication_status": "provisional_adjudication_2026_10_23",
    "input_evidence": {
     "raw": {
      "label": "partial",
@@ -2147,7 +2174,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "register",
+     "change": "accepted: source correction (holder actor, annual cadence, accuracy/currency)"
+    }
+   ]
   },
   {
    "id": "H-3.2",
@@ -2185,7 +2220,7 @@
     "law"
    ],
    "scored_by_default": true,
-   "adjudication_status": "not_independently_adjudicated",
+   "adjudication_status": "provisional_adjudication_2026_10_23",
    "input_evidence": {
     "raw": {
      "label": "unsupported",
@@ -2201,7 +2236,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "register",
+     "change": "accepted: retained as proposed/conditional"
+    }
+   ]
   },
   {
    "id": "H-4.1",
@@ -2239,14 +2282,14 @@
     "added_in_merge": false,
     "found_by": "v1 row (split by PR #45)"
    },
-   "notes": "Umbrella over the free-text elements §5.2.2 names (description, population coverage, purpose, provenance, publisher note); dct:description and dct:provenance exist in DCAT-AP 3.0.0, the others are new.",
+   "notes": "Umbrella over the free-text elements §5.2.2 names (description, population coverage, purpose, provenance, publisher note); dct:description and dct:provenance exist in DCAT-AP 3.0.0, the others are new. Umbrella of the free-text properties D6.2 p. 32 lists: description (H-66.2), population coverage, what (H-36.1), purpose, why (H-16.1), provenance, how (H-26.1), publisher note, who (H-28.1). Not scored by default, so it does not compete with its components.",
    "restates_dcat_ap": false,
    "derived_from": "Semantic and generative-AI search practice",
    "origin": [
     "tech"
    ],
-   "scored_by_default": true,
-   "adjudication_status": "not_independently_adjudicated",
+   "scored_by_default": false,
+   "adjudication_status": "provisional_adjudication_2026_10_23",
    "input_evidence": {
     "raw": {
      "label": "partial",
@@ -2282,7 +2325,54 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "umbrella_of": [
+    "H-66.2",
+    "H-36.1",
+    "H-16.1",
+    "H-26.1",
+    "H-28.1"
+   ],
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "P1 overlap review (umbrella rule)",
+     "change": "umbrella of H-66.2, H-36.1, H-16.1, H-26.1, H-28.1; not scored by default"
+    }
+   ],
+   "overlap_review": [
+    {
+     "atom": "H-16.1",
+     "relation": "subsumed_by",
+     "decision": "umbrella H-4.1 not scored",
+     "rationale": "H-4.1 lists purpose (why) among the free-text properties of D6.2 p. 32."
+    },
+    {
+     "atom": "H-17.3",
+     "relation": "related",
+     "decision": "kept (H-4.1 not scored as an umbrella)",
+     "rationale": "Main characteristics (EHDS Art. 55) are not one of the free-text properties H-4.1 lists."
+    },
+    {
+     "atom": "H-26.1",
+     "relation": "subsumed_by",
+     "decision": "umbrella H-4.1 not scored",
+     "rationale": "H-4.1 lists provenance (how) among the free-text properties of D6.2 p. 32."
+    },
+    {
+     "atom": "H-28.1",
+     "relation": "subsumed_by",
+     "decision": "umbrella H-4.1 not scored",
+     "rationale": "H-4.1 lists the publisher note (who) among the free-text properties of D6.2 p. 32."
+    },
+    {
+     "atom": "H-36.1",
+     "relation": "subsumed_by",
+     "decision": "umbrella H-4.1 not scored",
+     "rationale": "H-4.1 lists population coverage (what) among the free-text properties of D6.2 p. 32."
+    }
+   ]
   },
   {
    "id": "H-4.2",
@@ -2358,7 +2448,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-7.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Queryable concepts and relationships differ in purpose from shared concepts with persistent identifiers."
+    }
+   ]
   },
   {
    "id": "H-5.1",
@@ -2442,7 +2540,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-17.4",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "The nature of the data is not the EHDS Art. 33 health category."
+    }
+   ]
   },
   {
    "id": "H-5.2",
@@ -2526,7 +2632,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-22.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Identifying the access body is not filtering by it."
+    }
+   ]
   },
   {
    "id": "H-5.3",
@@ -2604,7 +2718,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-28.2",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Classifying the data holder is not filtering by publisher type."
+    }
+   ]
   },
   {
    "id": "H-5.4",
@@ -2950,7 +3072,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-37.2",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Stating the number of individuals is not filtering by population size."
+    }
+   ]
   },
   {
    "id": "H-5.8",
@@ -3028,7 +3158,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-15.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Describing a quality annotation is not filtering by it."
+    }
+   ]
   },
   {
    "id": "H-5.9",
@@ -3106,7 +3244,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-7.4",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Filtering by code values is not identifying them by URI."
+    }
+   ]
   },
   {
    "id": "H-6.1",
@@ -3258,7 +3404,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-4.2",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Queryable concepts and relationships differ in purpose from shared concepts with persistent identifiers."
+    }
+   ]
   },
   {
    "id": "H-7.2",
@@ -3409,7 +3563,21 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-11.3",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Describing vocabularies publicly is not identifying coding systems by URI."
+    },
+    {
+     "atom": "H-11.4",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Describing classification schemes publicly is not identifying coding systems by URI."
+    }
+   ]
   },
   {
    "id": "H-7.4",
@@ -3486,7 +3654,21 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-11.6",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Describing code lists publicly is not identifying code values by URI."
+    },
+    {
+     "atom": "H-5.9",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Filtering by code values is not identifying them by URI."
+    }
+   ]
   },
   {
    "id": "H-8.1",
@@ -3604,7 +3786,7 @@
     "law"
    ],
    "scored_by_default": true,
-   "adjudication_status": "not_independently_adjudicated",
+   "adjudication_status": "provisional_adjudication_2026_10_23",
    "input_evidence": {
     "raw": {
      "label": "partial",
@@ -3633,7 +3815,23 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "register",
+     "change": "unresolved source tension with H-13.4; left as recorded in source_flags"
+    }
+   ],
+   "overlap_review": [
+    {
+     "atom": "H-13.4",
+     "relation": "related",
+     "decision": "kept; unresolved source tension (register)",
+     "rationale": "Mandatory dictionary, conditional wording and redacted fallback must not be flattened into one need."
+    }
+   ]
   },
   {
    "id": "H-10.1",
@@ -3674,7 +3872,7 @@
     "law"
    ],
    "scored_by_default": false,
-   "adjudication_status": "not_independently_adjudicated",
+   "adjudication_status": "provisional_adjudication_2026_10_23",
    "input_evidence": {
     "raw": {
      "label": "supported",
@@ -3709,7 +3907,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "register",
+     "change": "accepted: locator correction (§5.2.6, pp. 43-44)"
+    }
+   ]
   },
   {
    "id": "H-11.1",
@@ -3918,7 +4124,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-7.3",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Describing vocabularies publicly is not identifying coding systems by URI."
+    }
+   ]
   },
   {
    "id": "H-11.4",
@@ -3987,7 +4201,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-7.3",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Describing classification schemes publicly is not identifying coding systems by URI."
+    }
+   ]
   },
   {
    "id": "H-11.5",
@@ -4123,7 +4345,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-7.4",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Describing code lists publicly is not identifying code values by URI."
+    }
+   ]
   },
   {
    "id": "H-12.1",
@@ -4371,7 +4601,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-17.5",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Re-use rights per distribution differ from the conditions for making data available."
+    }
+   ]
   },
   {
    "id": "H-13.2",
@@ -4540,7 +4778,7 @@
     "law"
    ],
    "scored_by_default": true,
-   "adjudication_status": "not_independently_adjudicated",
+   "adjudication_status": "provisional_adjudication_2026_10_23",
    "input_evidence": {
     "raw": {
      "label": "unsupported",
@@ -4556,7 +4794,23 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "register",
+     "change": "unresolved source tension with H-9.1; left as recorded in source_flags"
+    }
+   ],
+   "overlap_review": [
+    {
+     "atom": "H-9.1",
+     "relation": "related",
+     "decision": "kept; unresolved source tension (register)",
+     "rationale": "Mandatory dictionary, conditional wording and redacted fallback must not be flattened into one need."
+    }
+   ]
   },
   {
    "id": "H-14.1",
@@ -4715,7 +4969,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-5.8",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Describing a quality annotation is not filtering by it."
+    }
+   ]
   },
   {
    "id": "H-15.2",
@@ -5004,7 +5266,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-4.1",
+     "relation": "subsumes",
+     "decision": "umbrella H-4.1 not scored",
+     "rationale": "H-4.1 lists purpose (why) among the free-text properties of D6.2 p. 32."
+    }
+   ]
   },
   {
    "id": "H-16.2",
@@ -5158,7 +5428,21 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-26.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "The source of a dataset is not its lineage."
+    },
+    {
+     "atom": "H-33.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "The source of a dataset is not the datasets it was derived from."
+    }
+   ]
   },
   {
    "id": "H-17.2",
@@ -5298,7 +5582,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-4.1",
+     "relation": "related",
+     "decision": "kept (H-4.1 not scored as an umbrella)",
+     "rationale": "Main characteristics (EHDS Art. 55) are not one of the free-text properties H-4.1 lists."
+    }
+   ]
   },
   {
    "id": "H-17.4",
@@ -5366,7 +5658,21 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-23.1",
+     "relation": "subsumes",
+     "decision": "kept",
+     "rationale": "Personal or non-personal data is one aspect of the nature of the data; the rest is not decomposed."
+    },
+    {
+     "atom": "H-5.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "The nature of the data is not the EHDS Art. 33 health category."
+    }
+   ]
   },
   {
    "id": "H-17.5",
@@ -5434,7 +5740,21 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-13.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Re-use rights per distribution differ from the conditions for making data available."
+    },
+    {
+     "atom": "H-19.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Conditions for making data available differ from the access-rights class."
+    }
+   ]
   },
   {
    "id": "H-18.1",
@@ -5601,7 +5921,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-17.5",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Conditions for making data available differ from the access-rights class."
+    }
+   ]
   },
   {
    "id": "H-20.1",
@@ -5752,7 +6080,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-66.3",
+     "relation": "subsumes",
+     "decision": "kept",
+     "rationale": "H-20.2 tightens the general access URL (H-66.3) by access rights."
+    }
+   ]
   },
   {
    "id": "H-21.1",
@@ -5866,10 +6202,10 @@
     "exp"
    ],
    "scored_by_default": true,
-   "adjudication_status": "not_independently_adjudicated",
+   "adjudication_status": "provisional_adjudication_2026_10_23",
    "input_evidence": {
     "raw": {
-     "label": "supported",
+     "label": "partial",
      "sources": [
       {
        "path": "healthdcat/input-raw/ehds-proposal.html",
@@ -5890,8 +6226,9 @@
        "quote_check": "verbatim_in_input_text"
       }
      ],
-     "rationale": "EHDS makes a competent HDAB decide access for a data holder's data, and applicants must identify the concerned HDABs.",
-     "quotes_verified": true
+     "rationale": "The EHDS proposal makes a health data access body competent for access decisions and lets applicants identify the bodies concerned. It does not require a metadata field naming the access body for every personal or non-public dataset. (adjudication 2026-10-23)",
+     "quotes_verified": true,
+     "label_before_adjudication": "supported"
     },
     "consolidation": {
      "label": "unsupported",
@@ -5901,7 +6238,23 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "register (H-22.1)",
+     "change": "raw evidence label supported -> partial"
+    }
+   ],
+   "overlap_review": [
+    {
+     "atom": "H-5.2",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Identifying the access body is not filtering by it."
+    }
+   ]
   },
   {
    "id": "H-23.1",
@@ -5986,7 +6339,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-17.4",
+     "relation": "subsumed_by",
+     "decision": "kept",
+     "rationale": "Personal or non-personal data is one aspect of the nature of the data; the rest is not decomposed."
+    }
+   ]
   },
   {
    "id": "H-24.1",
@@ -6231,7 +6592,27 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-17.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "The source of a dataset is not its lineage."
+    },
+    {
+     "atom": "H-4.1",
+     "relation": "subsumes",
+     "decision": "umbrella H-4.1 not scored",
+     "rationale": "H-4.1 lists provenance (how) among the free-text properties of D6.2 p. 32."
+    },
+    {
+     "atom": "H-46.4",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Lineage is not the label element on data modifications."
+    }
+   ]
   },
   {
    "id": "H-27.1",
@@ -6383,7 +6764,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-4.1",
+     "relation": "subsumes",
+     "decision": "umbrella H-4.1 not scored",
+     "rationale": "H-4.1 lists the publisher note (who) among the free-text properties of D6.2 p. 32."
+    }
+   ]
   },
   {
    "id": "H-28.2",
@@ -6458,7 +6847,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-5.3",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Classifying the data holder is not filtering by publisher type."
+    }
+   ]
   },
   {
    "id": "H-29.1",
@@ -6498,10 +6895,10 @@
     "exp"
    ],
    "scored_by_default": true,
-   "adjudication_status": "not_independently_adjudicated",
+   "adjudication_status": "provisional_adjudication_2026_10_23",
    "input_evidence": {
     "raw": {
-     "label": "supported",
+     "label": "partial",
      "sources": [
       {
        "path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf",
@@ -6522,8 +6919,9 @@
        "quote_check": "verbatim_in_input_text"
       }
      ],
-     "rationale": "M6.1 identifies health datasets on data.europa.eu by the HEAL theme and requires harvestable health catalogues; DCAT-AP mandates the Data Theme vocabulary.",
-     "quotes_verified": true
+     "rationale": "M6.1 selects health datasets on data.europa.eu by the HEAL theme and DCAT-AP mandates the theme vocabulary for dcat:theme. A query that finds HEAL-labelled datasets does not require every record in an access-body catalogue to carry HEAL. (adjudication 2026-10-23)",
+     "quotes_verified": true,
+     "label_before_adjudication": "supported"
     },
     "consolidation": {
      "label": "unsupported",
@@ -6533,7 +6931,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "P1 (H-29.1)",
+     "change": "raw evidence label supported -> partial"
+    }
+   ]
   },
   {
    "id": "H-30.1",
@@ -7054,7 +7460,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-17.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "The source of a dataset is not the datasets it was derived from."
+    }
+   ]
   },
   {
    "id": "H-34.1",
@@ -7278,7 +7692,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-4.1",
+     "relation": "subsumes",
+     "decision": "umbrella H-4.1 not scored",
+     "rationale": "H-4.1 lists population coverage (what) among the free-text properties of D6.2 p. 32."
+    }
+   ]
   },
   {
    "id": "H-37.1",
@@ -7398,7 +7820,7 @@
     "exp"
    ],
    "scored_by_default": true,
-   "adjudication_status": "not_independently_adjudicated",
+   "adjudication_status": "provisional_adjudication_2026_10_23",
    "input_evidence": {
     "raw": {
      "label": "supported",
@@ -7440,7 +7862,23 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "register",
+     "change": "accepted: recovered content (number of unique individuals)"
+    }
+   ],
+   "overlap_review": [
+    {
+     "atom": "H-5.7",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Stating the number of individuals is not filtering by population size."
+    }
+   ]
   },
   {
    "id": "H-37.3",
@@ -7709,7 +8147,7 @@
     "exp"
    ],
    "scored_by_default": true,
-   "adjudication_status": "not_independently_adjudicated",
+   "adjudication_status": "provisional_adjudication_2026_10_23",
    "input_evidence": {
     "raw": {
      "label": "partial",
@@ -7744,7 +8182,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "register",
+     "change": "accepted: conditional form (datasets with a deletion deadline)"
+    }
+   ]
   },
   {
    "id": "H-40.2",
@@ -8349,18 +8795,18 @@
   {
    "id": "H-46.1",
    "parent_id": "H-46",
-   "statement": "Describe, where applicable, how representative the sampled population is and the average time a person appears in the dataset.",
+   "statement": "For the EHDS data quality and utility label, describe, when applicable, how representative the sampled population is.",
    "stratum": "content",
    "status_in_source": "requirement",
    "modality": "requirement",
-   "applicability": "",
+   "applicability": "Elements of the EHDS data quality and utility label, which covers its elements where applicable (D6.2 §5.2.8, p. 60, quoting EHDS Art. 56(3)). Representativity only when applicable.",
    "relation_to_base": "beyond_base",
    "relation_note": "",
    "reuse_or_alignment_rule": false,
    "source_locator": "D6.2 §5.2.8 (quoting EHDS Art. 56(3)(d))",
    "pr45_pdf_pages": [],
    "anchor_page": 60,
-   "anchor_quote": "representativity of population sampled, and average timeframe in which a natural person appears in a dataset",
+   "anchor_quote": "when applicable, representativity of population sampled",
    "anchor_check": "verbatim_in_source_text",
    "overlaps": [],
    "source_flags": [],
@@ -8380,7 +8826,7 @@
     "law"
    ],
    "scored_by_default": true,
-   "adjudication_status": "not_independently_adjudicated",
+   "adjudication_status": "provisional_adjudication_2026_10_23",
    "input_evidence": {
     "raw": {
      "label": "supported",
@@ -8388,7 +8834,13 @@
       {
        "path": "healthdcat/input-raw/ehds-proposal.html",
        "locator": "Article 56(3)(d)",
-       "quote": "coverage: representation of multi-disciplinary electronic health data, representativity of population sampled, average timeframe in which a natural person appears in a dataset;",
+       "quote": "representativity of population sampled",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "healthdcat/input-raw/ehds-proposal.html",
+       "locator": "Article 56(1)",
+       "quote": "Datasets made available through health data access bodies may have a Union data quality and utility label provided by the data holders.",
        "quote_check": "verbatim_in_input_text"
       },
       {
@@ -8398,7 +8850,7 @@
        "quote_check": "verbatim_in_input_text"
       }
      ],
-     "rationale": "The EHDS label's coverage element names representativity of the sampled population and average timeframe a person appears; required for publicly funded datasets.",
+     "rationale": "The proposal lists representativity of the sampled population as a label element (Art. 56(3)(d)). In the staged 2022 proposal the label is optional for datasets made available through health data access bodies (Art. 56(1)) and mandatory for datasets collected with Union or national public funding (Art. 56(2)).",
      "quotes_verified": true
     },
     "consolidation": {
@@ -8409,7 +8861,88 @@
        "locator": "TWG-8",
        "quote": "Describe provenance, population and collection purpose in metadata that can support AI-assisted discovery.",
        "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "TWG-8 asks to describe the population; its representativity is not named.",
+     "quotes_verified": true
+    },
+    "labelled_by": "Claude, adjudication follow-up 2026-10-23, from the staged inputs; not blind to the reference; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "statement_before_adjudication": "Describe, where applicable, how representative the sampled population is and the average time a person appears in the dataset.",
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "P2 (H-46.1 / H-46.3)",
+     "change": "split (second child H-46.5); label context and applicability added; evidence relabelled"
+    }
+   ]
+  },
+  {
+   "id": "H-46.5",
+   "parent_id": "H-46",
+   "statement": "For the EHDS data quality and utility label, state the average time a natural person appears in the dataset.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "Elements of the EHDS data quality and utility label, which covers its elements where applicable (D6.2 §5.2.8, p. 60, quoting EHDS Art. 56(3)). The source's 'when applicable' may also govern this item.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "D6.2 §5.2.8 (quoting EHDS Art. 56(3)(d))",
+   "pr45_pdf_pages": [],
+   "anchor_page": 60,
+   "anchor_quote": "average timeframe in which a natural person appears in a dataset",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "H-46"
+    ],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "Claude v2 only"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "EHDS Regulation Art. 56",
+   "origin": [
+    "law"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "provisional_adjudication_2026_10_23",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "healthdcat/input-raw/ehds-proposal.html",
+       "locator": "Article 56(3)(d)",
+       "quote": "average timeframe in which a natural person appears in a dataset",
+       "quote_check": "verbatim_in_input_text"
       },
+      {
+       "path": "healthdcat/input-raw/ehds-proposal.html",
+       "locator": "Article 56(1)",
+       "quote": "Datasets made available through health data access bodies may have a Union data quality and utility label provided by the data holders.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "healthdcat/input-raw/ehds-proposal.html",
+       "locator": "Article 56(2)",
+       "quote": "Datasets with electronic health data collected and processed with the support of Union or national public funding shall have a data quality and utility label",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "The proposal lists the average timeframe a natural person appears as a label element (Art. 56(3)(d)). In the staged 2022 proposal the label is optional for datasets made available through health data access bodies (Art. 56(1)) and mandatory for datasets collected with Union or national public funding (Art. 56(2)).",
+     "quotes_verified": true
+    },
+    "consolidation": {
+     "label": "partial",
+     "sources": [
       {
        "path": "healthdcat/input-preconsolidation/twg-observations.json",
        "locator": "TWG-7",
@@ -8417,21 +8950,30 @@
        "quote_check": "verbatim_in_input_text"
       }
      ],
-     "rationale": "TWG-8 asks to describe the population and TWG-7 for dataset metrics; representativity and average timeframe are not named.",
+     "rationale": "TWG-7 asks for descriptive dataset metrics; the average timeframe is not named.",
      "quotes_verified": true
     },
-    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "labelled_by": "Claude, adjudication follow-up 2026-10-23, from the staged inputs; not blind to the reference; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "split_from": "H-46.1",
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "P2 (H-46.1 / H-46.3)",
+     "change": "split from H-46.1; label context and applicability added; evidence relabelled"
+    }
+   ]
   },
   {
    "id": "H-46.2",
    "parent_id": "H-46",
-   "statement": "Describe the maturity of the data quality management processes, including review and audit processes and the examination of biases.",
+   "statement": "For the EHDS data quality and utility label, describe the maturity of the data quality management processes, including review and audit processes and the examination of biases.",
    "stratum": "content",
    "status_in_source": "requirement",
    "modality": "requirement",
-   "applicability": "",
+   "applicability": "Elements of the EHDS data quality and utility label, which covers its elements where applicable (D6.2 §5.2.8, p. 60, quoting EHDS Art. 56(3)).",
    "relation_to_base": "beyond_base",
    "relation_note": "",
    "reuse_or_alignment_rule": false,
@@ -8458,7 +9000,7 @@
     "law"
    ],
    "scored_by_default": true,
-   "adjudication_status": "not_independently_adjudicated",
+   "adjudication_status": "provisional_adjudication_2026_10_23",
    "input_evidence": {
     "raw": {
      "label": "supported",
@@ -8481,23 +9023,32 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "statement_before_adjudication": "Describe the maturity of the data quality management processes, including review and audit processes and the examination of biases.",
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "P2 (H-46.1 / H-46.3)",
+     "change": "label context and applicability added (same source passage)"
+    }
+   ]
   },
   {
    "id": "H-46.3",
    "parent_id": "H-46",
-   "statement": "State the time between collecting the data and adding them to the dataset, and the time to provide data after an access application is approved.",
+   "statement": "For the EHDS data quality and utility label, state the time between collecting the data and adding them to the dataset.",
    "stratum": "content",
    "status_in_source": "requirement",
    "modality": "requirement",
-   "applicability": "",
+   "applicability": "Elements of the EHDS data quality and utility label, which covers its elements where applicable (D6.2 §5.2.8, p. 60, quoting EHDS Art. 56(3)).",
    "relation_to_base": "beyond_base",
    "relation_note": "",
    "reuse_or_alignment_rule": false,
    "source_locator": "D6.2 §5.2.8 (quoting EHDS Art. 56(3)(e))",
    "pr45_pdf_pages": [],
    "anchor_page": 60,
-   "anchor_quote": "time between the collection of the electronic health data and their addition to the dataset, time to provide electronic health data following an electronic health data access application approval",
+   "anchor_quote": "time between the collection of the electronic health data and their addition to the dataset",
    "anchor_check": "verbatim_in_source_text",
    "overlaps": [],
    "source_flags": [],
@@ -8517,7 +9068,7 @@
     "law"
    ],
    "scored_by_default": true,
-   "adjudication_status": "not_independently_adjudicated",
+   "adjudication_status": "provisional_adjudication_2026_10_23",
    "input_evidence": {
     "raw": {
      "label": "supported",
@@ -8525,31 +9076,132 @@
       {
        "path": "healthdcat/input-raw/ehds-proposal.html",
        "locator": "Article 56(3)(e)",
-       "quote": "access and provision: time between the collection of the electronic health data and their addition to the dataset, time to provide electronic health data following electronic health data access application approval;",
+       "quote": "time between the collection of the electronic health data and their addition to the dataset",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "healthdcat/input-raw/ehds-proposal.html",
+       "locator": "Article 56(1)",
+       "quote": "Datasets made available through health data access bodies may have a Union data quality and utility label provided by the data holders.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "healthdcat/input-raw/ehds-proposal.html",
+       "locator": "Article 56(2)",
+       "quote": "Datasets with electronic health data collected and processed with the support of Union or national public funding shall have a data quality and utility label",
        "quote_check": "verbatim_in_input_text"
       }
      ],
-     "rationale": "EHDS quality label element (e) names both time lags.",
+     "rationale": "The proposal lists the time between collection and addition to the dataset as a label element (Art. 56(3)(e)). In the staged 2022 proposal the label is optional for datasets made available through health data access bodies (Art. 56(1)) and mandatory for datasets collected with Union or national public funding (Art. 56(2)).",
      "quotes_verified": true
     },
     "consolidation": {
      "label": "unsupported",
      "sources": [],
-     "rationale": "No TWG observation mentions collection-to-inclusion or provision times.",
+     "rationale": "No TWG observation mentions the time between collection and addition to the dataset.",
      "quotes_verified": true
     },
-    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "labelled_by": "Claude, adjudication follow-up 2026-10-23, from the staged inputs; not blind to the reference; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "statement_before_adjudication": "State the time between collecting the data and adding them to the dataset, and the time to provide data after an access application is approved.",
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "P2 (H-46.1 / H-46.3)",
+     "change": "split (second child H-46.6); label context and applicability added; evidence relabelled"
+    }
+   ]
+  },
+  {
+   "id": "H-46.6",
+   "parent_id": "H-46",
+   "statement": "For the EHDS data quality and utility label, state the time to provide the data after a data access application is approved.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "Elements of the EHDS data quality and utility label, which covers its elements where applicable (D6.2 §5.2.8, p. 60, quoting EHDS Art. 56(3)).",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "D6.2 §5.2.8 (quoting EHDS Art. 56(3)(e))",
+   "pr45_pdf_pages": [],
+   "anchor_page": 60,
+   "anchor_quote": "time to provide electronic health data following an electronic health data access application approval",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "H-46"
+    ],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "Claude v2 only"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "EHDS Regulation Art. 56",
+   "origin": [
+    "law"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "provisional_adjudication_2026_10_23",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "healthdcat/input-raw/ehds-proposal.html",
+       "locator": "Article 56(3)(e)",
+       "quote": "time to provide electronic health data following electronic health data access application approval",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "healthdcat/input-raw/ehds-proposal.html",
+       "locator": "Article 56(1)",
+       "quote": "Datasets made available through health data access bodies may have a Union data quality and utility label provided by the data holders.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "healthdcat/input-raw/ehds-proposal.html",
+       "locator": "Article 56(2)",
+       "quote": "Datasets with electronic health data collected and processed with the support of Union or national public funding shall have a data quality and utility label",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "The proposal lists the time to provide data after an access application is approved as a label element (Art. 56(3)(e)). In the staged 2022 proposal the label is optional for datasets made available through health data access bodies (Art. 56(1)) and mandatory for datasets collected with Union or national public funding (Art. 56(2)).",
+     "quotes_verified": true
+    },
+    "consolidation": {
+     "label": "unsupported",
+     "sources": [],
+     "rationale": "No TWG observation mentions provision times after approval.",
+     "quotes_verified": true
+    },
+    "labelled_by": "Claude, adjudication follow-up 2026-10-23, from the staged inputs; not blind to the reference; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "split_from": "H-46.3",
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "P2 (H-46.1 / H-46.3)",
+     "change": "split from H-46.3; label context and applicability added; evidence relabelled"
+    }
+   ]
   },
   {
    "id": "H-46.4",
    "parent_id": "H-46",
-   "statement": "Describe modifications of the data: merging and adding data to an existing dataset, including links with other datasets.",
+   "statement": "For the EHDS data quality and utility label, describe modifications of the data: merging and adding data to an existing dataset, including links with other datasets.",
    "stratum": "content",
    "status_in_source": "requirement",
    "modality": "requirement",
-   "applicability": "",
+   "applicability": "Elements of the EHDS data quality and utility label, which covers its elements where applicable (D6.2 §5.2.8, p. 60, quoting EHDS Art. 56(3)).",
    "relation_to_base": "beyond_base",
    "relation_note": "",
    "reuse_or_alignment_rule": false,
@@ -8578,7 +9230,7 @@
     "law"
    ],
    "scored_by_default": true,
-   "adjudication_status": "not_independently_adjudicated",
+   "adjudication_status": "provisional_adjudication_2026_10_23",
    "input_evidence": {
     "raw": {
      "label": "supported",
@@ -8608,7 +9260,24 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "statement_before_adjudication": "Describe modifications of the data: merging and adding data to an existing dataset, including links with other datasets.",
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "P2 (H-46.1 / H-46.3)",
+     "change": "label context and applicability added (same source passage)"
+    }
+   ],
+   "overlap_review": [
+    {
+     "atom": "H-26.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Lineage is not the label element on data modifications."
+    }
+   ]
   },
   {
    "id": "H-47.1",
@@ -10505,7 +11174,15 @@
     },
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "H-20.2",
+     "relation": "subsumed_by",
+     "decision": "kept",
+     "rationale": "H-20.2 tightens the general access URL (H-66.3) by access rights."
+    }
+   ]
   },
   {
    "id": "H-67.1",

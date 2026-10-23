@@ -3,7 +3,7 @@
  "case": "statdcat",
  "reference_document": "StatDCAT-AP 1.0.0 (2016-12-15)",
  "base": "DCAT-AP 1.1",
- "status": "merged reference set, not independently adjudicated; input-evidence labels not assessed",
+ "status": "merged reference set with AI input-evidence labels; provisional adjudication of the reviewed items (2026-10-23); not independently adjudicated as a whole",
  "built_from": {
   "v1": "statdcat/reference-requirements/requirements-and-resolutions.json (published identities kept)",
   "claude_v2": "requirements-and-resolutions-v2.json (Claude completion, 2026-10-22)",
@@ -13,17 +13,27 @@
   "Mobility is scored at clause level (the PR #45 clauses, checked against NAPCORE Table 1).",
   "Requirements that restate DCAT-AP are included and flagged (restates_dcat_ap); they may be left out at scoring time."
  ],
+ "adjudication": {
+  "date": "2026-10-23",
+  "source": "reference-sets-v3/CODEX-REVIEW-2026-10-23.md",
+  "by": "Junda, provisional adjudication with ChatGPT/Codex assistance; applied by Claude",
+  "status": "provisional; not an independent human adjudication of the whole set",
+  "changes": [
+   "Overlap review: 4 pairs classified (0 equivalent, 1 subsumption, 3 related)."
+  ]
+ },
  "merge_rules": [
   "Rows: all v1 rows and all Claude v2 rows keep their IDs. A row statement, locator or status changes only where a source check showed it wrong; the earlier value is kept in statement_before_v3, source_locator_before_v3 or status_in_source_before_v3.",
   "Atoms are the scoring units and every atom belongs to exactly one row. PR #45 splits are used where PR #45 split a need; PR #45 items that state the same need for another data group are merged into one atom whose applicability lists the groups.",
   "Content found only in Claude v2 is split into atoms; content found only in PR #45 is added; a few needs found while checking anchors are added and marked added_in_merge.",
   "Requirements that only restate DCAT-AP (relation_to_base = restates_base) are kept and flagged with restates_dcat_ap so they can be left out at scoring time.",
   "Source inconsistencies and source errors are recorded on the atom (source_flags), not resolved.",
-  "Overlapping atoms point to each other in overlaps; under one-to-one matching a prediction can be credited to only one of them."
+  "Overlapping atoms point to each other in overlaps; under one-to-one matching a prediction can be credited to only one of them.",
+  "Adjudication (2026-10-23): equivalent atoms from different rows are scored once (the duplicate names its canonical atom in merged_into); an atom that only bundles separately scored atoms (umbrella_of) is not scored by default; every overlap pair carries a review (overlap_review)."
  ],
  "scoring": {
   "unit": "atom",
-  "default_selection": "stratum = content and status_in_source != deferred (field scored_by_default)",
+  "default_selection": "stratum = content, status_in_source != deferred, and neither merged_into another atom nor umbrella_of separately scored atoms (field scored_by_default)",
   "optional_filters": {
    "leave_out_dcat_ap_restatements": "restates_dcat_ap = true",
    "leave_out_rq2_reuse_and_alignment_rules": "reuse_or_alignment_rule = true",
@@ -66,6 +76,9 @@
   "scored_by_default_without_dcat_ap_restatements": 8,
   "scored_by_default_without_rq2_rules": 14,
   "scored_by_default_requirement_status_only": 10,
+  "atoms_merged_for_scoring": 0,
+  "umbrella_atoms_not_scored": 0,
+  "atoms_provisionally_adjudicated": 3,
   "atoms_with_source_flags": 0,
   "atoms_with_evidence_labels": 27,
   "raw_evidence_labels": {
@@ -695,7 +708,15 @@
     "consolidation": null,
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "S-15.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "S-15.1 is a profile-level aim and not scored."
+    }
+   ]
   },
   {
    "id": "S-2.1",
@@ -767,7 +788,21 @@
     "consolidation": null,
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "S-15.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "S-15.1 is a profile-level aim and not scored."
+    },
+    {
+     "atom": "S-6.1",
+     "relation": "subsumes",
+     "decision": "kept",
+     "rationale": "Units are one example among the attributes of S-2.1; scaling factors and observation status are not separate atoms."
+    }
+   ]
   },
   {
    "id": "S-3.1",
@@ -818,7 +853,15 @@
     "consolidation": null,
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "S-20.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "S-20.1 is deferred and not scored."
+    }
+   ]
   },
   {
    "id": "S-3.2",
@@ -1070,7 +1113,15 @@
     "consolidation": null,
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "S-2.1",
+     "relation": "subsumed_by",
+     "decision": "kept",
+     "rationale": "Units are one example among the attributes of S-2.1; scaling factors and observation status are not separate atoms."
+    }
+   ]
   },
   {
    "id": "S-7.1",
@@ -1832,7 +1883,21 @@
     "consolidation": null,
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "overlap_review": [
+    {
+     "atom": "S-1.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "S-15.1 is a profile-level aim and not scored."
+    },
+    {
+     "atom": "S-2.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "S-15.1 is a profile-level aim and not scored."
+    }
+   ]
   },
   {
    "id": "S-16.1",
@@ -2057,7 +2122,7 @@
     "std"
    ],
    "scored_by_default": false,
-   "adjudication_status": "not_independently_adjudicated",
+   "adjudication_status": "provisional_adjudication_2026_10_23",
    "input_evidence": {
     "raw": {
      "label": "supported",
@@ -2087,7 +2152,15 @@
     "consolidation": null,
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "register",
+     "change": "accepted: deferred, excluded from default scoring"
+    }
+   ]
   },
   {
    "id": "S-20.1",
@@ -2126,7 +2199,7 @@
     "std"
    ],
    "scored_by_default": false,
-   "adjudication_status": "not_independently_adjudicated",
+   "adjudication_status": "provisional_adjudication_2026_10_23",
    "input_evidence": {
     "raw": {
      "label": "unsupported",
@@ -2137,7 +2210,23 @@
     "consolidation": null,
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "register",
+     "change": "accepted: deferred, excluded from default scoring"
+    }
+   ],
+   "overlap_review": [
+    {
+     "atom": "S-3.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "S-20.1 is deferred and not scored."
+    }
+   ]
   },
   {
    "id": "S-21.1",
@@ -2174,7 +2263,7 @@
     "std"
    ],
    "scored_by_default": false,
-   "adjudication_status": "not_independently_adjudicated",
+   "adjudication_status": "provisional_adjudication_2026_10_23",
    "input_evidence": {
     "raw": {
      "label": "uncertain",
@@ -2192,7 +2281,15 @@
     "consolidation": null,
     "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
     "human_review": "pending"
-   }
+   },
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "register",
+     "change": "accepted: deferred, excluded from default scoring"
+    }
+   ]
   },
   {
    "id": "S-22.1",
