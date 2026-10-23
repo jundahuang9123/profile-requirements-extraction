@@ -1631,16 +1631,21 @@ def execute_case(store,run_id,case_id,client,roles):
     # v13: checks of IDs outside the plan were accepted beside the plan's checks and are not used.
     ignored=ignored_checks(checks,final) if policy==BASE_POLICY else []
     if ignored:trace['ignored_check_ids']=ignored
+    # Calls at apply share the case budget: the assessment, and since v13 the two scope tests of the
+    # needs a change writes. Their budget error blocks the change; it never stops the case.
+    budgeted={'assessment','profile_scope'} if policy==BASE_POLICY else {'assessment'}
     class BudgetClient:
-        def for_step(self,step): return BudgetClient() if step=='assessment' else for_step(client,step)
-        def describe(self): return for_step(client,'assessment').describe() if hasattr(for_step(client,'assessment'),'describe') else {'model':'scripted'}
+        def __init__(self,step='assessment'):self.step=step
+        def for_step(self,step): return BudgetClient(step) if step in budgeted else for_step(client,step)
+        def describe(self): return for_step(client,self.step).describe() if hasattr(for_step(client,self.step),'describe') else {'model':'scripted'}
         def generate_structured(self,**kwargs):
             nonlocal attempts,reserved,seconds
             cap=kwargs.get('max_tokens',4000)
             if attempts>=case['max_calls'] or reserved+cap>case['total_output_budget'] or seconds>=case['max_seconds']:
-                raise DiscussionBudgetError('F/A assessment budget exhausted; original needs retained.')
-            attempts+=1;reserved+=cap;persist('fa_assessment_reserved');started=monotonic()
-            try:return for_step(client,'assessment').generate_structured(**kwargs)
+                raise DiscussionBudgetError('F/A assessment budget exhausted; original needs retained.' if self.step=='assessment'
+                    else 'F/A scope test budget exhausted; original needs retained.')
+            attempts+=1;reserved+=cap;persist('fa_assessment_reserved' if self.step=='assessment' else 'fa_scope_test_reserved');started=monotonic()
+            try:return for_step(client,self.step).generate_structured(**kwargs)
             finally:seconds+=monotonic()-started;persist()
     outcomes,additions,replacements,asides=apply(store,run,case,final,checks,BudgetClient(),allowed)
     # The applied plan is the final one, or the draft when no stakeholder was asked to respond.
@@ -1861,6 +1866,36 @@ def quoted(store,link,allowed):
     return (start is not None and unit['content'][start:start+len(link.quote)]==link.quote) or unit['content'].count(link.quote)==1
 
 
+def scope_contract(store,run,records,client,item):
+    """Scope contract v1 (v13, Junda, 23 Oct): every need a change writes passes the F/A test and the
+    catalogue-record test before the change is applied, as at normalisation. Needs the discussion
+    wrote were judged by neither (status checked_mediation; 13 of 86 active needs in JRC v12).
+
+    Saves both verdicts on each new record and on the outcome row; returns the failures. One failing
+    need blocks the whole change, a split included, so its parents stay. A missing judgement keeps the
+    need, flagged, as both tests do at normalisation."""
+    from .fa_requirements import scope_verdicts
+    from .needs import record_scope_verdicts
+    needs=[RequirementRecord.model_validate(rec) for rec in records]
+    fa=scope_verdicts(store,run,needs,client)
+    record=record_scope_verdicts(store,run,needs,client)
+    rows,failures=[],[]
+    for rec,need in zip(records,needs):
+        fa_scope,fa_fails,review=fa[need.requirement_id]
+        profile_scope,failed,_=record[need.requirement_id]
+        rec['fa_scope'],rec['profile_scope']=fa_scope,profile_scope
+        flags=(['fa_scope_review_required'] if review and not fa_fails else [])+(['profile_scope_not_checked'] if profile_scope['status']!='checked' else [])
+        rec['processing_flags']=list(dict.fromkeys([*rec.get('processing_flags',[]),*flags]))
+        tests=(['fa_scope_set_aside'] if fa_fails else [])+failed
+        row={'revision_id':rec['revision_id'],'statement':need.need_statement or need.normalized_statement,
+            'record_resource':profile_scope.get('record_resource'),'failed_tests':tests,
+            'fa_scope':deepcopy(fa_scope),'profile_scope':deepcopy(profile_scope)}
+        rows.append(row)
+        if tests:failures.append({**row,'test':tests[0],'rationale':fa_scope['rationale'] if fa_fails else profile_scope['rationale']})
+    item['scope_tests']=rows
+    return failures
+
+
 def apply(store,run,case,plan,checks,client,allowed):
     """Gate every disposition, preserve failed parents and use the strict existing revision verifier."""
     policy=discussion_policy(run)
@@ -1948,6 +1983,17 @@ def apply(store,run,case,plan,checks,client,allowed):
                     raise
                 except ValueError as exc:
                     failed=True;item['validation_error']=str(exc)
+            if not failed and policy==BASE_POLICY:
+                try:failures=scope_contract(store,run,temporary,client,item)
+                except ValueError as exc:
+                    # As for the assessment calls: an exhausted case budget (DiscussionBudgetError) or a
+                    # changed checkpoint blocks the change, never the case.
+                    failed=True;item['validation_error']=str(exc)
+                else:
+                    if failures:
+                        failed=True;first=failures[0]
+                        item['scope_block']=[{k:f[k] for k in ('revision_id','statement','test','record_resource','rationale')} for f in failures]
+                        item['validation_error']=f'Scope contract v1: "{first["statement"]}" failed {first["test"]}: {first["rationale"]}'
             if not failed:
                 lineage=list(dict.fromkeys(o for p in parents for o in p.get('observation_ids',[])))
                 for rec in temporary:
@@ -1959,7 +2005,8 @@ def apply(store,run,case,plan,checks,client,allowed):
                         # A revision needs its own judgement; never inherit a parent's coverage label.
                         rec['processing_flags']=[f for f in rec['processing_flags'] if f!='covered_by_base']
                         rec['base_relation']=None
-                    rec['fa_scope']={'policy_version':policy,'status':'checked_mediation','rationale':'Independent mediation check passed; base relationship requires rechecking.'}
+                    # v13 saved both scope verdicts in scope_contract.
+                    if policy!=BASE_POLICY:rec['fa_scope']={'policy_version':policy,'status':'checked_mediation','rationale':'Independent mediation check passed; base relationship requires rechecking.'}
                     from .needs import refresh_need
                     checked_record=RequirementRecord.model_validate(rec);refresh_need(checked_record);rec.update(checked_record.model_dump(mode='json'))
                 additions.extend(temporary);replacements.update(local_replacements)
@@ -1993,8 +2040,10 @@ def deliberate(store,run_id,client):
             ' needs '+REVIEW_POLICY+'. Derive a separate base-review trial.')
     perspectives={r['role_id']:r for r in (run.get('role_manifest') or {}).get('selected_roles',[])}
     roles=[{**r.model_dump(mode='json'),'source_basis':{k:v for k,v in perspectives.get(r.id,{}).items() if k in {'basis','source_support','stakeholders','filled_via','rationale'}}} for r in panel_roles(run)]
+    # v13 also calls the profile_scope model at apply (scope contract v1).
     identity={'policy_version':policy,'roles_hash':digest(roles),
-        'models':{s:model_identity(for_step(client,s)) for s in ('grouping','stakeholder_review','mediation','mediation_check','assessment')}}
+        'models':{s:model_identity(for_step(client,s)) for s in ('grouping','stakeholder_review','mediation','mediation_check','assessment',
+            *(('profile_scope',) if policy==BASE_POLICY else ()))}}
     if run['request'].get('mediation_timeout_fallback'):
         identity['mediation_timeout_fallback']=deepcopy(run['request']['mediation_timeout_fallback'])
     saved=old.audit(store,run_id).get('fa_discussion_plan')

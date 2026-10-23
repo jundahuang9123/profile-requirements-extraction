@@ -807,6 +807,49 @@ first tries would have saved a check call.
 A discussion planned under v12 cannot continue under v13. This is tested offline
 only.
 
+### Scope contract v1 at apply (v13)
+
+Scope contract v1 (Junda, 23 October) has one rule: every need, wherever it is
+written, passes both scope tests. They are the F/A test (`rq1-find-access-v1`) and
+the catalogue-record test (`needs.SCOPE_SYSTEM`, which names the record that would
+state the need). At normalisation, `rq1-profile-scope-v7` runs the record test on the
+needs the F/A test keeps (see `RQ1_NEEDS.md`). Before v13, the needs the discussion
+wrote were judged by neither test. Their `fa_scope` had status `checked_mediation`:
+13 of 86 active needs in JRC v12 and 13 of 85 in Stat v12. Among the needs it wrote
+were rules such as "Publishers must use all DCAT classes and properties consistently
+…".
+
+In v13, apply judges every need a change writes (a revision, each part of a split,
+an addition, a merge result) with both tests. It does so after the source and
+support gates and before the change is accepted:
+
+- One call per test for the needs of one change. The prompts and contracts are
+  those of normalisation, unchanged; the F/A contract stays frozen per run.
+- A need fails the F/A test when it serves neither or is unsupported. It fails the
+  record test with `not_catalogue_level`, `not_find_or_access` or
+  `operational_data_processing`.
+- If any written need fails, the change is not applied. It becomes `blocked_change`.
+  Its `scope_block` names each failing need with the test, the record resource and
+  the rationale. Its `validation_error` names the first failure. The parents stay. A
+  split with one failing part is blocked whole, so nothing is lost.
+- An applied need carries both verdicts (`fa_scope`, `profile_scope` with
+  `record_resource`, `record_statement` and `failed_tests`), not `checked_mediation`.
+  The outcome row lists every tested need under `scope_tests`.
+- A missing judgement (no valid row after the correction) keeps the need, flagged,
+  as at normalisation: `profile_scope_not_checked` or `fa_scope_review_required`.
+- The calls go to the `profile_scope` model. The discussion plan records that model
+  beside the others.
+- The calls share the case budget with the apply-time assessment calls. As there, an
+  exhausted budget blocks the change, with "F/A scope test budget exhausted;
+  original needs retained.". It never stops the case. So does any other error the
+  tests raise, such as a changed checkpoint.
+
+Retained, deferred, base-covered and set-aside needs write nothing and are not judged
+again. `scripts/fa_base_report.py` lists the needs the record test set aside at
+normalisation and the changes the scope tests blocked at apply, each counted apart
+from the other set-asides and blocks. The model's judgement shows only live; the
+tests use scripted answers.
+
 ### Answer habits
 
 Unit tests with ideal scripted answers did not show what a change does to the

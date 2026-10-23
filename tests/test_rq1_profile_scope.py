@@ -99,7 +99,7 @@ def test_only_dataset_level_and_discovery_set_aside_and_specialised_needs_stay(s
     assert kept.need_statement == STATEMENTS['need-0']
     assert engine.verify(store, kept, run['evidence_ids'])['status'] == 'pass'  # integrity binds the judgement
     step = store.get('run', run['run_id'])['need_steps']['profile_scope']
-    assert step['policy_version'] == 'rq1-profile-scope-v6'
+    assert step['policy_version'] == 'rq1-profile-scope-v7'
     assert step['retained_count'] == 3 and step['set_aside_count'] == 3
     assert step['set_aside_by_reason'] == {'not_catalogue_level': 2, 'not_find_or_access': 1}
     # Without category evidence, a model's confident common/specialized label remains review.

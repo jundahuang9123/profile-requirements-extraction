@@ -52,6 +52,12 @@ class Dialogue:
         elif name=='Checks':raw={'checks':[{'action_id':a['action_id'],'supported':True,'preserves_distinctions':True,
             'priority_supported':False,'condition_supported':True,'obligation_preserved':True,'fa_relevant':True,
             'disposition_justified':True,'rationale':'Synthetic evidence supports the saved disposition.'} for a in data['plan']['actions']]}
+        # Scope contract v1 (v13): the needs a change writes pass both scope tests at apply.
+        elif name=='FAScopeResult':raw={'decisions':[{'need_id':i,'support':'explicit','serves':'find','nature':'information_requirement',
+            'actor':'Users','task':'Select a dataset','example':'Select a dataset by its access conditions.','rationale':'Synthetic F/A judgement.',
+            'evidence_ids':list(row['excerpts'])[:1]} for i,row in data['needs'].items()]}
+        elif name=='ProfileScope':raw={'decisions':[{'need_id':i,'record_resource':'dataset','record_statement':'dataset: what the need names',
+            'catalogue_level':True,'serves':'find','example':'Filter datasets by it.','rationale':'Synthetic record judgement.'} for i in data['needs']]}
         else:raise AssertionError(name)
         return output_model.model_validate(raw)
 
@@ -268,7 +274,8 @@ def test_full_fa_pipeline_freezes_contract_and_preserves_trace(setup):
     assert saved['status']=='awaiting_human',saved['diagnostics']
     assert saved['active_revision_ids']
     assert saved['deliberations']
-    assert saved['need_steps']['profile_scope']['policy_version']=='rq1-find-access-v1'
+    assert saved['need_steps']['profile_scope']['policy_version']=='rq1-profile-scope-v7'
+    assert saved['need_steps']['profile_scope']['fa_policy_version']=='rq1-find-access-v1'
     assert saved['need_steps']['dataset_applicability']['not_checked_ids']
     assert all(r['fa_scope']['status']=='checked' for r in saved['requirements'] if r['revision_id'] in saved['active_revision_ids'])
     ledger=fa.coverage_ledger(saved)

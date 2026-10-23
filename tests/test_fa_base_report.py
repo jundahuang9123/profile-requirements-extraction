@@ -111,3 +111,40 @@ def test_report_lists_the_checks_the_v13_rule_ignored(tmp_path, monkeypatch):
     report.main()
     ignored = (tmp_path / 'base-review.md').read_text().split('## Checks of IDs outside the plan (ignored)')[1].split('\n## ')[0]
     assert ignored.split() == 'Ignored checks (metrics): 3. - case-1: P1 - case-3: experience-1, S1'.split()
+
+
+def test_report_lists_what_the_scope_contract_set_aside_and_blocked_apart(tmp_path, monkeypatch):
+    # Scope contract v1: record-test set-asides at normalisation and scope blocks at apply, each counted apart.
+    path = Path(__file__).resolve().parents[1] / 'scripts' / 'fa_base_report.py'
+    spec = importlib.util.spec_from_file_location('fa_base_report', path)
+    report = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(report)
+    record = lambda i, text: {'revision_id': f'revision-{i}', 'need_statement': text, 'normalized_statement': text}
+    run = {'run_id': 'report-test', 'status': 'awaiting_human', 'model_calls': [], 'active_revision_ids': ['revision-3'], 'metrics': {},
+           'requirements': [record(1, 'Users can know that DCAT is a W3C Recommendation.'), record(2, 'Users can find the licence.'),
+                            record(3, 'Users can find the dimensions of a dataset.')],
+           'set_aside_observations': [
+               {'revision_id': 'revision-1', 'need_id': 'need-1', 'reason': 'not_catalogue_level', 'rationale': 'A fact about the specification.',
+                'details': {'profile_scope': {'record_resource': 'none'}, 'fa_scope': {'serves': 'find'}}},
+               {'revision_id': 'revision-2', 'need_id': 'need-2', 'reason': 'fa_scope_set_aside', 'rationale': 'Serves neither.'}],
+           'deliberations': [{'case_id': 'case-1', 'stop_reason': 'bounded_fa_dialogue_complete', 'frozen_requirements': [],
+               'mediation': {'outcomes': [
+                   {'action_id': 'A2', 'action': 'revise', 'status': 'blocked_change', 'scope_tests': [{}],
+                    'scope_block': [{'revision_id': 'r', 'statement': 'Publishers must use all DCAT classes consistently.',
+                                     'test': 'not_catalogue_level', 'record_resource': 'none', 'rationale': 'A rule for publishers.'}]},
+                   {'action_id': 'A3', 'action': 'add', 'status': 'blocked_change',
+                    'validation_error': 'F/A scope test budget exhausted; original needs retained.'},
+                   {'action_id': 'A4', 'action': 'revise', 'status': 'blocked_change', 'validation_error': 'Ambiguous or unmatched source quotation.'},
+                   {'action_id': 'A5', 'action': 'split', 'status': 'machine_revised', 'applied': True,
+                    'scope_tests': [{'profile_scope': {'status': 'checked'}}, {'profile_scope': {'status': 'not_checked'}}]}]}}]}
+    monkeypatch.setattr(report, 'get', lambda url: run if url.endswith('?audit=true') else {'counts': {}})
+    monkeypatch.setattr(sys, 'argv', ['fa_base_report.py', '--api', 'http://local-test', '--run', 'report-test', '--out', str(tmp_path)])
+    report.main()
+    markdown = (tmp_path / 'base-review.md').read_text()
+    normalisation = markdown.split('## Scope contract v1: set aside by the record test at normalisation')[1].split('\n## ')[0]
+    assert "1 needs ({'not_catalogue_level': 1}); set aside by the F/A test: 1." in normalisation
+    assert '- Users can know that DCAT is a W3C Recommendation. — not_catalogue_level; record: none; A fact about the specification.' in normalisation
+    apply = markdown.split('## Scope contract v1: changes blocked by the scope tests at apply')[1].split('\n## ')[0]
+    assert ('1 changes blocked by a failed test (other blocked changes: 1); 1 blocked because the case budget ran out before the tests; '
+            '2 changes tested; 1 applied needs without a record judgement (kept, flagged).') in apply
+    assert '- case-1 · revise A2: Publishers must use all DCAT classes consistently. — not_catalogue_level; record: none; A rule for publishers.' in apply

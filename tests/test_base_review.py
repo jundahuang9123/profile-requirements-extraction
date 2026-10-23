@@ -327,7 +327,8 @@ def test_v2_created_revision_requires_a_procedural_recheck(setup,monkeypatch):
     plan=fd.Plan(actions=[action],summary='Synthetic revision.')
     checks=fd.Checks(checks=[dict(action_id='rev',supported=True,fa_relevant=True,disposition_justified=True,
         preserves_distinctions=True,priority_supported=False,condition_supported=True,obligation_preserved=True,rationale='Checked.')])
-    outcomes,added,_,_=fd.apply(store,run,case,plan,checks,None,set(run['evidence_ids']))
+    # v13 judges the written need with both scope tests (scope contract v1); the scripted client passes it.
+    outcomes,added,_,_=fd.apply(store,run,case,plan,checks,__import__('test_fa_workflow').Dialogue(),set(run['evidence_ids']))
     assert outcomes[0]['applied'] and 'base_recheck_required'in added[0]['processing_flags']
     assert 'covered_by_base'not in added[0]['processing_flags'] and added[0]['base_relation'] is None
     assert outcomes[0]['citation_repairs']

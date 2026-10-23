@@ -74,6 +74,31 @@ def main():
     for c in run.get('deliberations',[]):
         if (c.get('mediation') or {}).get('ignored_check_ids'):
             lines.append(f'- {c["case_id"]}: '+', '.join(c['mediation']['ignored_check_ids']))
+    # Scope contract v1 (rq1-profile-scope-v7, rq1-fa-dialogue-v13): what the catalogue-record test set aside at
+    # normalisation, and the changes the scope tests blocked at apply, each counted apart.
+    record_reasons=('not_catalogue_level','not_find_or_access','operational_data_processing')
+    asides=[a for a in run.get('set_aside_observations',[]) if a.get('reason') in record_reasons]
+    def stated(revision_id,fallback=''):
+        r=records.get(revision_id) or {}
+        return r.get('need_statement') or r.get('normalized_statement') or fallback
+    lines+=['\n## Scope contract v1: set aside by the record test at normalisation',
+        f'{len(asides)} needs ({dict(Counter(a["reason"] for a in asides))}); set aside by the F/A test: '
+        f'{sum(a.get("reason")=="fa_scope_set_aside" for a in run.get("set_aside_observations",[]))}.']
+    for a in asides:
+        scope=(a.get('details') or {}).get('profile_scope') or {}
+        lines.append(f'- {stated(a.get("revision_id"),a.get("need_id",""))} — {a["reason"]}; record: {scope.get("record_resource","not recorded")}; {a.get("rationale","")}')
+    outcomes=[(c['case_id'],o) for c in run.get('deliberations',[]) for o in (c.get('mediation') or {}).get('outcomes',[])]
+    blocked=[(case,o) for case,o in outcomes if o.get('scope_block')]
+    budget=[(case,o) for case,o in outcomes if o.get('validation_error')=='F/A scope test budget exhausted; original needs retained.']
+    unjudged=[t for _,o in outcomes if o.get('applied') for t in o.get('scope_tests',[]) if (t.get('profile_scope') or {}).get('status')!='checked']
+    lines+=['\n## Scope contract v1: changes blocked by the scope tests at apply',
+        f'{len(blocked)} changes blocked by a failed test (other blocked changes: '
+        f'{sum(o.get("status")=="blocked_change" for _,o in outcomes)-len(blocked)-len(budget)}); '
+        f'{len(budget)} blocked because the case budget ran out before the tests; '
+        f'{sum(bool(o.get("scope_tests")) for _,o in outcomes)} changes tested; {len(unjudged)} applied needs without a record judgement (kept, flagged).']
+    for case,o in blocked:
+        for b in o['scope_block']:
+            lines.append(f'- {case} · {o.get("action")} {o.get("action_id")}: {b["statement"]} — {b["test"]}; record: {b.get("record_resource") or "not recorded"}; {b["rationale"]}')
     calls=[c for c in run.get('model_calls',[]) if c.get('step') in {'base_review','base_review_check'}]
     lines+=['\n## Reviewer usage',f'{len(calls)} calls ({dict(Counter(c.get("step") for c in calls))}); {sum((c.get("token_usage") or {}).get("total_tokens",0) or 0 for c in calls)} reported tokens ({sum(bool(c.get("token_usage")) for c in calls)} calls supplied usage); {sum(c.get("latency_seconds",0) or 0 for c in calls):.1f} seconds.',
         '\n## Case stop reasons',json.dumps(dict(Counter(c.get('stop_reason') for c in run.get('deliberations',[]))),indent=2),
