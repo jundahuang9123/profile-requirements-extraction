@@ -53,9 +53,13 @@ class FAScopeDecision(Contract):
 class FAScopeResult(Contract):
     decisions: list[FAScopeDecision] = Field(max_length=25)
 
-def judge_scope(store,run,needs,client):
-    from .needs import bounded_batches,cached_generation,supporting_excerpts,refresh_need,aside_need
-    retained=[]; decisions=[]
+def scope_verdicts(store,run,needs,client):
+    """The F/A test for each need, without setting any aside: {requirement_id: (fa_scope, fails, review)}.
+
+    fails is the set-aside rule (a checked serves neither or support unsupported); review is the
+    flag a kept need gets when its judgement is missing or not a definite information requirement."""
+    from .needs import bounded_batches,cached_generation,supporting_excerpts
+    verdicts={}
     def payload_for(batch):
         return {'policy':POLICY,'needs':{n.requirement_id:{'statement':n.need_statement,
             'condition':n.need_condition,'excerpts':supporting_excerpts(store,n)} for n in batch}}
@@ -77,18 +81,29 @@ def judge_scope(store,run,needs,client):
             decision=by_id.get(n.requirement_id)
             checked=decision is not None and n.requirement_id not in fallbacks
             data=decision.model_dump(mode='json') if decision else {'support':'uncertain','serves':'unresolved','nature':'uncertain','rationale':'No valid judgement returned.'}
-            n.fa_scope={'policy_version':POLICY,'status':'checked' if checked else 'not_checked',**data}
-            # Keep the existing display axis separate from category applicability.
-            n.profile_scope={**n.fa_scope,'scope_class':'review','failed_tests':[]}
-            decisions.append(deepcopy(n.fa_scope))
-            definite=checked and (data['serves']=='neither' or data['support']=='unsupported')
-            if definite:
-                refresh_need(n)
-                aside_need(store,run,n,'fa_scope_set_aside',data['rationale'],details={'fa_scope':n.fa_scope})
-            else:
-                if not checked or data['serves']=='unresolved' or data['support'] in {'uncertain','disputed'} or data['nature']!='information_requirement':
-                    n.processing_flags=list(dict.fromkeys([*n.processing_flags,'fa_scope_review_required']))
-                refresh_need(n);retained.append(n)
+            fa_scope={'policy_version':POLICY,'status':'checked' if checked else 'not_checked',**data}
+            fails=checked and (data['serves']=='neither' or data['support']=='unsupported')
+            review=not checked or data['serves']=='unresolved' or data['support'] in {'uncertain','disputed'} or data['nature']!='information_requirement'
+            verdicts[n.requirement_id]=(fa_scope,fails,review)
+    return verdicts
+
+def judge_scope(store,run,needs,client):
+    from .needs import refresh_need,aside_need
+    retained=[]; decisions=[]
+    verdicts=scope_verdicts(store,run,needs,client)
+    for n in needs:
+        n.fa_scope,definite,review=verdicts[n.requirement_id]
+        data=n.fa_scope
+        # Keep the existing display axis separate from category applicability.
+        n.profile_scope={**n.fa_scope,'scope_class':'review','failed_tests':[]}
+        decisions.append(deepcopy(n.fa_scope))
+        if definite:
+            refresh_need(n)
+            aside_need(store,run,n,'fa_scope_set_aside',data['rationale'],details={'fa_scope':n.fa_scope})
+        else:
+            if review:
+                n.processing_flags=list(dict.fromkeys([*n.processing_flags,'fa_scope_review_required']))
+            refresh_need(n);retained.append(n)
     from .stakeholder_workflow import save
     save(store,run['run_id'],'fa_scope',{'policy_version':POLICY,'decisions':decisions,
         'retained':len(retained),'set_aside':len(needs)-len(retained)})

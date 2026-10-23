@@ -11,8 +11,9 @@ from requirement_reuse_service.workflow import fa_discussion as fd
 
 
 def test_policy_names():
-    assert fd.BASE_POLICY=='rq1-fa-dialogue-v12' and fd.SALVAGE_POLICY=='rq1-fa-salvage-v2'
-    assert fd.FIRST_SALVAGE_POLICY=='rq1-fa-salvage-v1' and fd.BASE_POLICY not in fd.FIRST_SALVAGE_POLICIES
+    # v13 keeps the v12 salvage rule.
+    assert 'rq1-fa-dialogue-v12' in fd.BASE_POLICIES and fd.SALVAGE_POLICY=='rq1-fa-salvage-v2'
+    assert fd.FIRST_SALVAGE_POLICY=='rq1-fa-salvage-v1' and not {fd.BASE_POLICY,'rq1-fa-dialogue-v12'}&fd.FIRST_SALVAGE_POLICIES
     assert fd.FIRST_SALVAGE_POLICIES=={f'rq1-fa-dialogue-v{i}' for i in range(3,12)}
 
 

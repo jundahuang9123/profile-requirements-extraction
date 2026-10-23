@@ -137,7 +137,7 @@ def test_request_opt_in_requires_fa_and_base_and_policy_is_per_run():
     with pytest.raises(ValueError,match='requires the F/A'):
         RunRequest(snapshot_id='s',base_review='expert_v1')
     r=RunRequest(snapshot_id='s',strategy='multi_agent',stakeholder_workflow='fa_mediated',base_profile_id='dcat-ap-1.1.0',base_review='expert_v1')
-    assert discussion_policy({'request':r.model_dump()})=='rq1-fa-dialogue-v12'
+    assert discussion_policy({'request':r.model_dump()})=='rq1-fa-dialogue-v13'
     assert br.POLICY=='rq1-base-expert-v5'
     assert discussion_policy({'request':{}})=='rq1-fa-dialogue-v1'
 
@@ -206,7 +206,7 @@ def derivable(setup):
         r['deliberations']=[{'case_id':'historical','status':'mediated','discussion_trace':{}}]
         r['stakeholder_audit'].update({'fa_discussion_plan':{'old':True},'fa_task_groups:0':{'old':True},'fa_task_labels:0':{'old':True}})
         r['metrics'].update(mediated_changes=2,experience_claims=3,noted_concerns=4,salvaged_cases=2,salvaged_nothing_kept=1,
-            lost_after_salvage_nothing_kept=1)
+            lost_after_salvage_nothing_kept=1,ignored_checks=2)
     store.mutate(run['run_id'],None,'ready',ready,parts=True)
     return store,store.get('run',run['run_id'])
 
@@ -226,7 +226,7 @@ def test_derive_restores_snapshot_and_stepwise_pauses_before_discussion(setup):
     assert not [k for k in child['stakeholder_audit'] if k.startswith(('fa_task_groups:','fa_task_labels:'))]
     # Discussion counters, including v6 experience counts, are not inherited.
     assert not {'mediated_changes','experience_claims','noted_concerns','salvaged_cases','salvaged_nothing_kept',
-        'lost_after_salvage_nothing_kept'}&set(child['metrics'])
+        'lost_after_salvage_nothing_kept','ignored_checks'}&set(child['metrics'])
     assert child['derived_from']['restored_from']=='machine_snapshot'
     assert child['derived_from']['inherited_discussions_hash']==digest(source['deliberations'])
     engine.execute_run(store,child['run_id'],Reviewer())
@@ -327,7 +327,8 @@ def test_v2_created_revision_requires_a_procedural_recheck(setup,monkeypatch):
     plan=fd.Plan(actions=[action],summary='Synthetic revision.')
     checks=fd.Checks(checks=[dict(action_id='rev',supported=True,fa_relevant=True,disposition_justified=True,
         preserves_distinctions=True,priority_supported=False,condition_supported=True,obligation_preserved=True,rationale='Checked.')])
-    outcomes,added,_,_=fd.apply(store,run,case,plan,checks,None,set(run['evidence_ids']))
+    # v13 judges the written need with both scope tests (scope contract v1); the scripted client passes it.
+    outcomes,added,_,_=fd.apply(store,run,case,plan,checks,__import__('test_fa_workflow').Dialogue(),set(run['evidence_ids']))
     assert outcomes[0]['applied'] and 'base_recheck_required'in added[0]['processing_flags']
     assert 'covered_by_base'not in added[0]['processing_flags'] and added[0]['base_relation'] is None
     assert outcomes[0]['citation_repairs']

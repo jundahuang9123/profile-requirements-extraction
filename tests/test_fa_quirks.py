@@ -1,7 +1,8 @@
 """Whole discussion cases against the answer habits gpt-oss showed in live runs, not ideal answers.
 
 Each scripted step below copies a shape seen in a saved live run (JRC run-a89957db, run-0ebfaffd,
-run-4d980b17, run-efc543e4, run-12a2c91a, run-0834b623; Stat run-6455e495, run-c4cbca44, run-1428af21). Every case
+run-4d980b17, run-efc543e4, run-12a2c91a, run-0834b623, run-36730b38; Stat run-6455e495, run-c4cbca44,
+run-1428af21, run-d069be4d, run-289823d2). Every case
 must end in a defined state, keep or
 account for every need, apply only what the rules allow, and leave a record that validates. No
 evaluation answers or live generation.
@@ -416,3 +417,123 @@ def test_a_valid_final_plan_after_a_draft_that_kept_nothing_is_applied(setup):
     assert split['status']=='machine_revised' and len(split['result_revision_ids'])==2
     assert before[0] not in saved['active_revision_ids'] and saved['metrics']['mediated_changes']==1
     assert saved['metrics']['salvaged_cases']==saved['metrics']['salvaged_nothing_kept']==0
+
+
+# v13: checker answers that check every action of the plan once and also an ID that is not an action of the
+# plan, in both tries. Each shape copies a lost case: JRC run-efc543e4 case-3df2504bc (the experience proposal
+# P1), Stat run-d069be4d case-24df0812f (A2, a parentless defer the salvage had dropped; both plans were salvaged
+# to their retain A1), JRC run-36730b38 case-c04026b6a (an invented S1 beside the two retains of the final plan)
+# and Stat run-289823d2 case-ee9443c2a (the experience claims X1, X2, ... checked as actions; three there). The
+# checker left such IDs out on its second try in JRC run-4d980b17 (v9: P1), run-efc543e4 (SA1, SA2) and
+# run-12a2c91a (S1), and in Stat run-6455e495 (v6: action types, twice) and run-c4cbca44 (v8: retain_B1,
+# defer_none, set_aside_X1).
+CLAIM={'kind':'missing_need','task':'Find data','experience':'When I search for data, I first check under which licence it is offered.',
+    'claim':'The case lacks a need for the licence.','proposed_statement':LICENCE}
+
+
+def claims_of(data):
+    return [x['claim_id'] for m in data['messages'] for x in m.get('experience',[])]
+
+
+def retains_excluding_claims(data,*_):
+    needs,_=ids(data)
+    return {'actions':[{'action_id':f'A{i+1}','action':'retain','parent_revision_ids':[n],'rationale':'Kept as stated.'}
+        for i,n in enumerate(needs)],'concerns':[],'questions':[],'summary':'s',
+        'experience':[{'claim_id':x,'decision':'exclude','rationale':'No source of the case supports it.'} for x in claims_of(data)]}
+
+
+def retains_and_proposal(data,*_):
+    needs,_=ids(data);plan=retains_excluding_claims(data);first=plan['experience'][0]
+    first.update(decision='admit',rationale='The roles search by licence.')
+    plan['proposals']=[{'proposal_id':'P1','statement':LICENCE,'experience_ids':[first['claim_id']],'revision_ids':[needs[0]],
+        'rationale':'Proposed from the roles\' practice.'}]
+    return plan
+
+
+def retain_and_parentless_defer(data,*_):
+    (n,),_=ids(data)
+    return {'actions':[{'action_id':'A1','action':'retain','parent_revision_ids':[n],'rationale':'Kept as stated.'},
+        {'action_id':'A2','action':'defer','parent_revision_ids':[],'statement':HOLDER,'rationale':'No source names it.',
+         'human_question':'Should this need be added?','alternatives':['Add it','Leave it out']}],'concerns':[],'questions':[],'summary':'s'}
+
+
+class Beyond(Habits):
+    """Roles that may make one experience claim per review; the checker checks every action of the plan once and
+    also the IDs extra(payload) names, in every try or only in the first."""
+    def __init__(self,plans,extra,claims=False,first_only=False):
+        super().__init__(plans,'ideal');self.extra=extra;self.claims=claims;self.first_only=first_only
+    def generate_structured(self,*,user,output_model,system='',step=None,**kw):
+        answer=super().generate_structured(user=user,output_model=output_model,system=system,step=step,**kw)
+        name=contract_name(output_model);data=json.loads(user)
+        if name=='Review' and self.claims:
+            claim={**CLAIM,'revision_ids':[data['packet']['needs'][0]['revision_id']]}
+            return output_model.model_validate({**answer.model_dump(mode='json'),'experience':[claim]})
+        if name!='Checks' or (self.first_only and self.check_calls>1):return answer
+        rows=answer.model_dump(mode='json')['checks']
+        return output_model.model_validate({'checks':rows+[{**rows[0],'action_id':i} for i in self.extra(data)]})
+
+
+# (plans, needs, roles make claims, the IDs the checker adds, stop reason)
+OUTSIDE={'proposal':(retains_and_proposal,2,True,lambda data:['P1'],'bounded_fa_dialogue_complete'),
+    'dropped_by_salvage':(retain_and_parentless_defer,1,False,lambda data:['A2'],'bounded_fa_dialogue_salvaged'),
+    'invented':(retains_excluding_claims,2,False,lambda data:['S1'],'bounded_fa_dialogue_complete'),
+    'claims':(retains_excluding_claims,2,True,claims_of,'bounded_fa_dialogue_complete')}
+
+
+@pytest.mark.parametrize('first_only',[False,True])
+@pytest.mark.parametrize('shape',sorted(OUTSIDE))
+def test_a_check_of_an_id_that_is_not_an_action_of_the_plan_is_ignored(setup,shape,first_only):
+    plans,count,claims,extra,stop=OUTSIDE[shape]
+    store,run=opted_in(setup,count);client=Beyond(plans,extra,claims,first_only)
+    fd.deliberate(store,run['run_id'],client)
+    saved,case=sound(store,run)
+    # Up to v12 the answer was refused: given in both tries it lost the case, given once it cost a second check.
+    assert case['stop_reason']==stop and client.check_calls==1
+    [attempt]=case['discussion_trace']['phases']['check']['attempts']
+    assert attempt['errors']==[]
+    expected=['P1'] if shape=='proposal' else ['A2'] if shape=='dropped_by_salvage' else ['S1'] if shape=='invented' else [
+        x['claim_id'] for m in case['messages'] for x in m.get('experience',[])]
+    assert len(expected)==(4 if shape=='claims' else 1)
+    assert case['mediation']['ignored_check_ids']==case['discussion_trace']['ignored_check_ids']==expected
+    assert saved['metrics']['ignored_checks']==len(expected)
+    # Every action of the plan is applied on its own check; no other row carries one.
+    final=case['discussion_trace']['final']['actions'];rows={o['action_id']:o for o in case['mediation']['outcomes']}
+    assert {k for k,o in rows.items() if 'independent_check' in o}=={a['action_id'] for a in final}
+    assert all(o['independent_check']['action_id']==k for k,o in rows.items() if 'independent_check' in o)
+    assert not set(expected)&{a['action_id'] for a in final}
+    if shape=='proposal':
+        assert rows['P1']['status']=='experience_proposal' and not rows['P1']['applied']
+    if shape=='dropped_by_salvage':
+        assert [a['action_id'] for a in final]==['A1'] and rows['A1']['status']!='human_review'
+        assert rows['A2']['salvage_rejected'] and rows['A2']['status']=='human_review' and not rows['A2']['applied']
+        assert saved['active_revision_ids']==run['active_revision_ids']
+
+
+# A check filed under another ID still leaves its action unchecked, and a repeated check still fails: the
+# checker gives the answer in both tries, and the case keeps its needs as they were.
+class Misfiled(Habits):
+    """The checker files A2's check under S1, leaves it out beside a check of P1, or checks A1 twice beside S1."""
+    def __init__(self,plans,habit):super().__init__(plans,'ideal');self.habit=habit
+    def generate_structured(self,*,user,output_model,system='',step=None,**kw):
+        answer=super().generate_structured(user=user,output_model=output_model,system=system,step=step,**kw)
+        if contract_name(output_model)!='Checks':return answer
+        rows=answer.model_dump(mode='json')['checks'];one=lambda i:{**rows[0],'action_id':i}
+        rows={'misfiled':[one('S1' if r['action_id']=='A2' else r['action_id']) for r in rows],
+            'missing':[r for r in rows if r['action_id']!='A2']+[one('P1')],
+            'repeated':rows+[one('A1'),one('S1')]}[self.habit]
+        return output_model.model_validate({'checks':rows})
+
+
+@pytest.mark.parametrize('habit',['misfiled','missing','repeated'])
+def test_a_misfiled_missing_or_repeated_check_of_an_action_still_stops_the_case(setup,habit):
+    store,run=opted_in(setup);before=list(run['active_revision_ids']);client=Misfiled(retains_excluding_claims,habit)
+    fd.deliberate(store,run['run_id'],client)
+    saved,case=sound(store,run)
+    assert case['stop_reason']=='invalid_output_pending_human_review' and client.check_calls==2
+    assert saved['active_revision_ids']==before and saved['metrics']['mediated_changes']==0
+    errors=[a['errors'] for a in case['discussion_trace']['phases']['check']['attempts']]
+    wanted={'misfiled':{'missing':['A2'],'repeated':[],'unknown':['S1']},'missing':{'missing':['A2'],'repeated':[],'unknown':['P1']},
+        'repeated':{'missing':[],'repeated':['A1'],'unknown':['S1']}}[habit]
+    assert errors==[['Check every action exactly once: '+json.dumps(wanted,separators=(',',':'))]]*2
+    # As up to v12 (which had no count of ignored checks).
+    assert 'ignored_check_ids' not in case['mediation'] and not saved['metrics'].get('ignored_checks')

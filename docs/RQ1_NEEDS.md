@@ -371,7 +371,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Dataset categories | `rq1-dataset-categories-v1` | Up to 12 evidence rows / 22,000 input characters; exact source citations; partial scans explicit |
 | Compact selection | `rq1-compact-coverage-v1` | Up to 20 needs / 22,000 input characters per equivalence call; bounded exact cover; all retained needs preserved |
 | Base-gap status | `rq1-base-gap-status-v1` | Deterministic; from the classification and the number of entries compared |
-| Profile scope (D5) | `rq1-profile-scope-v6` (named catalogue record) | Up to 25 needs / 24,000 input characters; statement, condition, scope, supporting excerpts and source-linked dataset categories; one verdict per offered need ID; an example is required unless serves is neither |
+| Profile scope (D5) | `rq1-profile-scope-v7` (named catalogue record; in F/A runs also after the F/A test) | Up to 25 needs / 24,000 input characters; statement, condition, scope, supporting excerpts and source-linked dataset categories; one verdict per offered need ID; an example is required unless serves is neither |
 | Contribution linking | `rq1-use-case-contribution-v1` | Up to 25 needs / 24,000 input characters; at most 32 task links per response row; necessity as an annotation |
 | Link critic | `rq1-use-case-contribution-critic-v1` | Up to 25 links / 24,000 input characters; judges contribution only |
 | Need assessment | `rq1-need-support-v1` | One logical assessment per kept need; complete selected excerpts, max 45,000 input characters; at most two generations for schema/cutoff recovery |
@@ -628,6 +628,41 @@ record statements; rules about how processing must be done are not. The judgemen
 only keeps or sets aside offered needs; set-asides stay visible and restorable. A
 missing record statement, or an "other" record without its kind, gets one bounded
 correction for that need only.
+
+`rq1-profile-scope-v7` is scope contract v1 (Junda, 23 October): every need, wherever
+it is written, passes both the F/A test and the record test. Before v7, F/A runs never
+ran the record test. Their F/A test sets a need aside only when it serves neither or is
+unsupported, and any other nature only gets a review flag. So JRC and Stat v12 kept
+statements about the source documents (their status, their patent disclosures) and
+rules for publishers.
+
+Since v7, in F/A runs:
+- The record test runs, with the same prompt and contract, on the needs the F/A test
+  keeps. A need stays only when both pass.
+- A need that fails is set aside with the record test's reason (`not_catalogue_level`,
+  `not_find_or_access` or `operational_data_processing`). The set-aside keeps both
+  verdicts in its details and stays visible and restorable.
+- A kept need carries `fa_scope` and the record verdict in `profile_scope`
+  (`record_resource`, `record_statement`, `failed_tests`).
+- A missing judgement keeps the need, flagged `profile_scope_not_checked`, and its
+  dataset applicability is not judged, as in other runs.
+- A need that the record test sets aside as `operational_data_processing` (the
+  guard on explicit data-processing actions) is a valid set-aside reason of the run
+  record.
+- The step record counts the F/A and record set-asides apart (`fa_set_aside_count`,
+  `record_set_aside_count`) and together (`set_aside_count`, and
+  `set_aside_by_reason` with `fa_scope_set_aside`).
+
+The F/A prompts are unchanged, so the frozen F/A contract of older runs still matches.
+Non-F/A runs are judged as under v6. The version is in the needs policies, so it
+applies from normalisation: a run continued at normalisation under v6 is refused, and
+a run derived from normalisation is judged under v7. In the discussion,
+`rq1-fa-dialogue-v13` applies the same two tests to every need a change writes (see
+`FA-COVERAGE-DISCUSSION.md`).
+
+The risk: on 18 October an earlier wording of the record test set aside Stat's
+dimensions and units. The 19 October wording (v6) keeps them, but it has not run on
+Stat since.
 
 The base search (`rq1-base-needs-full-search-v3`) changes in three ways:
 

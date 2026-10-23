@@ -756,6 +756,111 @@ the first salvage rule when `salvage_plan` is replayed on them; v1, v2 and cases
 without a policy never reach salvage in a discussion. This is tested offline
 only.
 
+### Checks of IDs outside the plan (v13)
+
+Since v10 the checker may check a split's new needs beside the split; any other
+check had to name an action of the plan. In 10 cases of eight saved runs, the only
+fault of a checker answer was a check of an ID that is not an action of the plan,
+beside one check of every action. In 4 of them the second try did the same, and
+the case was lost:
+
+| Run | Checked beside the plan's actions | Second try |
+|---|---|---|
+| Stat `run-6455e495` (v6) | `set_aside`; `defer`, `set_aside` (action types, 2 cases) | corrected |
+| Stat `run-c4cbca44` (v8) | `retain_B1`, `defer_none`, `set_aside_X1` | corrected |
+| JRC `run-4d980b17` (v9) | P1, an experience proposal (and the new needs A1.1, A1.2, which v10 accepts) | corrected |
+| JRC `run-efc543e4` (v10) | SA1, SA2 (invented) | corrected |
+| JRC `run-efc543e4` (v10) | P1, an experience proposal | the same; lost |
+| JRC `run-12a2c91a` (v11) | S1 (invented) | corrected |
+| Stat `run-d069be4d` (v11) | A2, a parentless defer the salvage had dropped | the same; lost |
+| JRC `run-36730b38` (v12) | S1, beside the two retains of the final plan | the same; lost |
+| Stat `run-289823d2` (v12) | three experience claims | the same; lost |
+
+Before v10 the error named no ID ("Check every action exactly once."), so the
+first tries up to v9 were found from the IDs of the saved answers. None of the
+other saved runs (JRC v6, v8 and `run-0834b623`, Stat v10) has such an answer.
+In all: 4 lost cases and 6 second tries. A replay of the 653 checker answers saved
+in these 12 runs keeps all 616 that the v12 rule accepts; in the runs from v10 on,
+every refused answer (10, in 6 cases) failed only on such IDs, and v13 accepts it.
+
+`rq1-fa-dialogue-v13` ignores such a check as v10 ignores a check of a split's
+new need: the answer is accepted when every action of the plan has exactly one
+check, and the other checks are not used. Apply reads each action's check by the
+action's ID; a proposal row or a row the salvage rejected never takes a check. A
+missing check, a check filed under another ID (which leaves its action without
+one, as a check named after the action type instead of the action's ID does) and a
+repeated check of an action are still refused, and the correction names
+what is missing, repeated or unknown. So no action is applied without its own
+check, and every answer the v12 rule accepted is still accepted. The legacy v1
+protocol keeps its rule.
+
+The case's mediation and discussion trace record the ignored IDs
+(`ignored_check_ids`, as internal IDs: an experience claim appears under its claim
+ID), the run metric `ignored_checks` counts them, and `scripts/fa_base_report.py`
+lists them. The metric counts completed cases only, because it is read from the
+mediation record, which only a completed case has: a case stopped after an accepted
+check would not be counted (no such case could be produced offline). A derived
+base-review trial does not inherit the metric. In the runs
+above, the 4 lost cases would have gone on to apply, and each of the 6 corrected
+first tries would have saved a check call.
+
+A discussion planned under v12 cannot continue under v13. This is tested offline
+only.
+
+### Scope contract v1 at apply (v13)
+
+Scope contract v1 (Junda, 23 October) has one rule: every need, wherever it is
+written, passes both scope tests. They are the F/A test (`rq1-find-access-v1`) and
+the catalogue-record test (`needs.SCOPE_SYSTEM`, which names the record that would
+state the need). At normalisation, `rq1-profile-scope-v7` runs the record test on the
+needs the F/A test keeps (see `RQ1_NEEDS.md`). Before v13, the needs the discussion
+wrote were judged by neither test. Their `fa_scope` had status `checked_mediation`:
+13 of 86 active needs in JRC v12 and 13 of 85 in Stat v12. Among the needs it wrote
+were rules such as "Publishers must use all DCAT classes and properties consistently
+…".
+
+In v13, apply judges every need a change writes (a revision, each part of a split,
+an addition, a merge result) with both tests. It does so after the source and
+support gates and before the change is accepted:
+
+- One call per test for the needs of one change, plus at most one correction each.
+  The prompts and contracts are those of normalisation, unchanged; the F/A contract
+  stays frozen per run.
+- A need fails the F/A test when it serves neither or is unsupported. It fails the
+  record test with `not_catalogue_level`, `not_find_or_access` or
+  `operational_data_processing`.
+- If any written need fails, the change is not applied. It becomes `blocked_change`.
+  Its `scope_block` names each failing need with the test, the record resource and
+  the rationale. Its `validation_error` names the first failure. The parents stay. A
+  split with one failing part is blocked whole, so nothing is lost.
+- An applied need carries both verdicts (`fa_scope`, `profile_scope` with
+  `record_resource`, `record_statement` and `failed_tests`), not `checked_mediation`.
+  The outcome row lists every tested need under `scope_tests`.
+- A missing judgement (no valid row after the correction) keeps the need, flagged,
+  as at normalisation: `profile_scope_not_checked` or `fa_scope_review_required`.
+- The calls go to the `profile_scope` model. The discussion plan records that model
+  beside the others.
+- The calls use no case budget. Late in a case little of it is left: on the case
+  budget, a replay of the saved v12 cases would have blocked about a third of the
+  changes v12 applied for budget alone (JRC `run-36730b38` 3 of 9, Stat
+  `run-289823d2` 3 of 8). They are bounded as at normalisation, by at most two saved
+  tries per batch, which a resume keeps; they appear in `model_calls` under the step
+  `profile_scope`.
+- A changed checkpoint blocks the change and never stops the case. A provider error
+  stops the stage for resume, as for the assessment calls.
+- On resume, the assessment checkpoint of a change is matched without the
+  verification's `checked_at` time. Before, it never matched again, so a crash or
+  provider error after a change's assessment (now: during its scope tests) blocked
+  the change on resume ("checkpoint changed").
+- An applied need loses the flag `base_and_scope_recheck_required`; its scope is
+  judged, and `base_recheck_required` stays for the base.
+
+Retained, deferred, base-covered and set-aside needs write nothing and are not judged
+again. `scripts/fa_base_report.py` lists the needs the record test set aside at
+normalisation and the changes the scope tests blocked at apply, each counted apart
+from the other set-asides and blocks. The model's judgement shows only live; the
+tests use scripted answers.
+
 ### Answer habits
 
 Unit tests with ideal scripted answers did not show what a change does to the
@@ -769,7 +874,8 @@ kinds as concern kinds, keep and second claims, quotations with a line break
 written as a space or a hyphen written as U+2011, and single-need plans that keep
 no action: a labelled need split beside its covered_by_base, the parts of a split
 set aside or deferred on the one need, set-asides of rejected ideas beside a
-revision) and checks that every case ends
+revision, and checks of IDs outside the plan: an experience proposal, an action
+the salvage dropped, an invented ID, experience claims) and checks that every case ends
 in a defined state, accounts for every need, applies only what the rules allow
 and leaves a record that validates. A habit seen in a new live run is added
 there.
@@ -801,8 +907,8 @@ classifier/reviewer matrix, added flags and entry terms, checks, removed labels,
 disputes with the label kept (v1/v2), source-stated additions, not-reviewed needs
 with their errors, after-discussion results, discussion actions on labelled needs,
 salvaged cases (and, since v12, those that kept no mediator action and the cases
-lost after such a salvage) and mediator actions rejected by salvage, reviewer usage
-and case stop reasons. The
+lost after such a salvage), mediator actions rejected by salvage, the checks of IDs
+outside the plan that v13 ignored, reviewer usage and case stop reasons. The
 CSV has `policy`, `errors` and `isolated` columns. Legacy v1 reports leave
 reviewer columns empty. Run this helper against a saved trial; it never starts
 inference or changes the run.

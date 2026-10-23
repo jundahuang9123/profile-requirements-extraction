@@ -24,7 +24,7 @@ EARLIER_ROUTING_POLICIES = ('rq1-needs-routing-v2',)
 POLICIES = {'generation_recovery': 'rq1-needs-row-recovery-v2', 'source_check': 'rq1-original-source-v2.2', 'proposal_support': 'rq1-proposal-support-v1', 'grouping': 'rq1-need-semantic-grouping-v2',
             'need_statement': 'rq1-need-statement-v3', 'need_membership': 'rq1-need-membership-v1',
             'classification': 'rq1-generic-domain-v4', 'base_search': 'rq1-base-needs-full-search-v3', 'base_gap': 'rq1-base-gap-status-v2',
-            'profile_scope': 'rq1-profile-scope-v6', 'dataset_applicability': 'rq1-dataset-applicability-v2', 'dataset_categories': CATEGORY_POLICY, 'selection': SELECTION_POLICY,
+            'profile_scope': 'rq1-profile-scope-v7', 'dataset_applicability': 'rq1-dataset-applicability-v2', 'dataset_categories': CATEGORY_POLICY, 'selection': SELECTION_POLICY,
             'scoping': 'rq1-use-case-contribution-v1',
             'scope_critic': 'rq1-use-case-contribution-critic-v1', 'assessment': 'rq1-need-support-v1', 'ranking': 'rq1-need-ranking-v1',
             'families': 'rq1-need-families-v2', 'routing': ROUTING_POLICY}
@@ -1016,25 +1016,16 @@ def judge_applicability(store, run, needs, client, registry):
         limitation='Applicability is independent of C1/C2; unchecked applicability retains the need for review.')
 
 
-def judge_profile_scope(store, run, needs, client, registry=None):
-    from .fa_requirements import enabled as fa_enabled, judge_scope
-    if fa_enabled(run):
-        retained=judge_scope(store, run, needs, client)
-        context=registry or {'categories':[],'scan_complete':False}
-        checked=[n for n in retained if (n.fa_scope or {}).get('status')=='checked']
-        if checked:judge_applicability(store,run,checked,client,context)
-        step_saved(store,run,'profile_scope',policy_version='rq1-find-access-v1',input_count=len(needs),retained_count=len(retained),
-            decisions=[n.fa_scope for n in needs],rule='F/A axes are independent of category applicability; uncertain rows remain visible.')
-        return retained
-    """C1/C2 decide relevance; independently checked applicability only labels retained needs."""
-    blocked = [n for n in needs if (n.verification or {}).get('status') != 'pass']
-    eligible = [n for n in needs if n not in blocked]
-    retained, decisions, unchecked, reasons = [], [], [], Counter()
-    registry = registry or {'categories': [], 'scan_complete': False}
+def record_scope_verdicts(store, run, needs, client):
+    """The catalogue-record test (C1/C2, SCOPE_SYSTEM) for each need, without setting any aside.
+
+    Returns {requirement_id: (profile_scope, failed_tests, decision)}. A need without a valid
+    judgement has status not_checked, no failed test and no decision; the caller keeps it."""
+    verdicts = {}
     def payload_for(batch):
         return {'needs': {n.requirement_id: {'statement': n.need_statement, 'condition': n.need_condition,
                         'scope': n.scope, 'excerpts': supporting_excerpts(store, n)} for n in batch}}
-    for batch in bounded_batches(eligible, 25, payload_for):
+    for batch in bounded_batches(needs, 25, payload_for):
         payload = payload_for(batch)
         def validate(result):
             errors = [d.need_id + ': give one concrete search, filter or access decision in example.'
@@ -1053,25 +1044,78 @@ def judge_profile_scope(store, run, needs, client, registry=None):
             identifier = need.requirement_id
             if identifier in fallbacks or identifier not in by_id:
                 failure = fallbacks.get(identifier, {}).get('reason', 'No judgement returned.')
-                need.profile_scope = {'policy_version': POLICIES['profile_scope'], 'status': 'not_checked',
-                                      'scope_class': 'review', 'reason': failure}
-                need.dataset_coverage = {'status': 'unresolved', 'category_ids': [], 'links': [], 'reason': failure}
-                need.processing_flags.append('profile_scope_not_checked'); refresh_need(need)
-                retained.append(need); unchecked.append(identifier)
+                verdicts[identifier] = ({'policy_version': POLICIES['profile_scope'], 'status': 'not_checked',
+                                         'scope_class': 'review', 'reason': failure}, [], None)
                 continue
             decision = by_id[identifier]; failed = failed_scope_tests(decision, need)
-            need.profile_scope = {'policy_version': POLICIES['profile_scope'], 'status': 'checked',
+            verdicts[identifier] = ({'policy_version': POLICIES['profile_scope'], 'status': 'checked',
                 **decision.model_dump(mode='json', exclude={'need_id'}), 'failed_tests': failed,
                 'guardrail_flags': [operational_scope_reason(need)] if operational_scope_reason(need) else [],
-                'scope_class': None if failed else 'review', 'representativeness': 'uncertain'}
+                'scope_class': None if failed else 'review', 'representativeness': 'uncertain'}, failed, decision)
+    return verdicts
+
+
+def judge_profile_scope(store, run, needs, client, registry=None):
+    from .fa_requirements import enabled as fa_enabled, judge_scope, POLICY as FA_POLICY
+    if fa_enabled(run):
+        kept=judge_scope(store, run, needs, client)
+        # Scope contract v1 (rq1-profile-scope-v7, Junda, 23 Oct): the F/A test sets a need aside only when
+        # it serves neither or is unsupported, so the catalogue-record test runs on the needs it keeps, and
+        # a need stays only when both pass. JRC and Stat v12 kept statements about the source documents and
+        # rules for publishers that no catalogue record states.
+        verdicts=record_scope_verdicts(store, run, kept, client)
+        retained, decisions, unchecked, reasons = [], [], [], Counter()
+        for need in kept:
+            scope, failed, decision = verdicts[need.requirement_id]
+            need.profile_scope = scope
+            if decision is None:
+                need.processing_flags=list(dict.fromkeys([*need.processing_flags,'profile_scope_not_checked']))
+                unchecked.append(need.requirement_id)
+            else:
+                decisions.append({**decision.model_dump(mode='json'), 'failed_tests': failed, 'scope_class': scope['scope_class']})
             refresh_need(need)
-            decisions.append({**decision.model_dump(mode='json'), 'failed_tests': failed,
-                              'scope_class': need.profile_scope['scope_class']})
             if failed:
                 reasons[failed[0]] += 1
-                aside_need(store, run, need, failed[0], decision.rationale, details={'profile_scope': need.profile_scope})
+                aside_need(store, run, need, failed[0], decision.rationale,
+                           details={'profile_scope': need.profile_scope, 'fa_scope': need.fa_scope})
             else:
                 retained.append(need)
+        context=registry or {'categories':[],'scan_complete':False}
+        # As in other runs, applicability labels only needs the record test judged.
+        checked=[n for n in retained if (n.fa_scope or {}).get('status')=='checked' and n.profile_scope.get('status')=='checked']
+        if checked:judge_applicability(store,run,checked,client,context)
+        if len(needs)>len(kept):reasons['fa_scope_set_aside']=len(needs)-len(kept)
+        step_saved(store,run,'profile_scope',fa_policy_version=FA_POLICY,input_count=len(needs),retained_count=len(retained),
+            set_aside_count=len(needs)-len(retained),fa_set_aside_count=len(needs)-len(kept),record_set_aside_count=len(kept)-len(retained),
+            set_aside_by_reason=dict(reasons),not_checked_ids=unchecked,
+            decisions=[n.fa_scope for n in needs],record_decisions=decisions,
+            rule='Scope contract v1: a need stays only when the F/A test and the catalogue-record test both pass; '
+                 'a missing judgement keeps the need, flagged. F/A axes are independent of category applicability; '
+                 'uncertain rows remain visible.')
+        return retained
+    """C1/C2 decide relevance; independently checked applicability only labels retained needs."""
+    blocked = [n for n in needs if (n.verification or {}).get('status') != 'pass']
+    eligible = [n for n in needs if n not in blocked]
+    retained, decisions, unchecked, reasons = [], [], [], Counter()
+    registry = registry or {'categories': [], 'scan_complete': False}
+    verdicts = record_scope_verdicts(store, run, eligible, client)
+    for need in eligible:
+        identifier = need.requirement_id
+        scope, failed, decision = verdicts[identifier]
+        need.profile_scope = scope
+        if decision is None:
+            need.dataset_coverage = {'status': 'unresolved', 'category_ids': [], 'links': [], 'reason': scope['reason']}
+            need.processing_flags.append('profile_scope_not_checked'); refresh_need(need)
+            retained.append(need); unchecked.append(identifier)
+            continue
+        refresh_need(need)
+        decisions.append({**decision.model_dump(mode='json'), 'failed_tests': failed,
+                          'scope_class': need.profile_scope['scope_class']})
+        if failed:
+            reasons[failed[0]] += 1
+            aside_need(store, run, need, failed[0], decision.rationale, details={'profile_scope': need.profile_scope})
+        else:
+            retained.append(need)
     applicability = [n for n in retained if n.profile_scope.get('status') == 'checked']
     judge_applicability(store, run, applicability, client, registry)
     retained.extend(blocked)

@@ -25,7 +25,9 @@ def test_checks_of_a_splits_new_needs_are_accepted_and_every_action_still_needs_
     assert errors('A1','A1.1','A1.2','A2')==[] and errors('A2','A1')==[]
     assert errors('A1.1','A1.2','A2')==['Check every action exactly once: {"missing":["A1"],"repeated":[],"unknown":[]}']
     assert errors('A1','A1','A2')==['Check every action exactly once: {"missing":[],"repeated":["A1"],"unknown":[]}']
-    assert errors('A1','A2','Z9')==['Check every action exactly once: {"missing":[],"repeated":[],"unknown":["Z9"]}']
+    # v13: a check of an ID outside the plan is ignored; it is named when an action is missing beside it.
+    assert errors('A1','A2','Z9')==[]
+    assert errors('A2','Z9')==['Check every action exactly once: {"missing":["A1"],"repeated":[],"unknown":["Z9"]}']
     # The legacy rule and wording stay.
     assert errors('A1','A1.1','A1.2','A2',policy='rq1-fa-dialogue-v1')==['Check every action exactly once.']
     assert errors('A1','A2',policy='rq1-fa-dialogue-v1')==[]
