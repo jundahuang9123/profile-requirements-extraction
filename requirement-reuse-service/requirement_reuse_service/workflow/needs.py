@@ -23,7 +23,7 @@ ROUTING_POLICY = 'rq1-needs-routing-v3'
 EARLIER_ROUTING_POLICIES = ('rq1-needs-routing-v2',)
 POLICIES = {'generation_recovery': 'rq1-needs-row-recovery-v2', 'source_check': 'rq1-original-source-v2.2', 'proposal_support': 'rq1-proposal-support-v1', 'grouping': 'rq1-need-semantic-grouping-v2',
             'need_statement': 'rq1-need-statement-v3', 'need_membership': 'rq1-need-membership-v1',
-            'classification': 'rq1-generic-domain-v3', 'base_search': 'rq1-base-needs-full-search-v3', 'base_gap': 'rq1-base-gap-status-v2',
+            'classification': 'rq1-generic-domain-v4', 'base_search': 'rq1-base-needs-full-search-v3', 'base_gap': 'rq1-base-gap-status-v2',
             'profile_scope': 'rq1-profile-scope-v6', 'dataset_applicability': 'rq1-dataset-applicability-v2', 'dataset_categories': CATEGORY_POLICY, 'selection': SELECTION_POLICY,
             'scoping': 'rq1-use-case-contribution-v1',
             'scope_critic': 'rq1-use-case-contribution-critic-v1', 'assessment': 'rq1-need-support-v1', 'ranking': 'rq1-need-ranking-v1',
@@ -224,7 +224,11 @@ def _has_additional_base_signal(need, entries):
     base_text=' '.join([part for entry in entries for part in [entry.get('need',''),entry.get('definition') or '',
         ' '.join(entry.get('usage_notes') or [])]])
     base_terms=_condition_terms(base_text)
-    need_terms=_condition_terms(' '.join(filter(None,[need.need_statement,need.need_condition,need.scope])))
+    # rq1-generic-domain-v4: 'Unspecified' is the placeholder of a need without a scope (the model
+    # default), not a word of the need. Counted as an added term, it let every need without a scope
+    # pass as a refinement of the entry it restates.
+    scope=None if (need.scope or '').strip().casefold()=='unspecified' else need.scope
+    need_terms=_condition_terms(' '.join(filter(None,[need.need_statement,need.need_condition,scope])))
     # Normalize catalogue/catalog and the common US/UK licence spelling.
     if 'catalogue' in base_terms: base_terms.add('catalog')
     if 'catalog' in base_terms: base_terms.add('catalogue')

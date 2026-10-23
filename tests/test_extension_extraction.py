@@ -80,7 +80,15 @@ def test_each_independent_role_gets_the_exact_pinned_compact_base_context(setup)
                and 'not_an_extension' in system and 'no peer outputs' in system for system in systems)
     assert all(o.extension_kind == 'new_information_need' and o.base_property is None for o in observations)
     units = [store.get('evidence', eid) for eid in run['evidence_ids']]
-    for report, (_, data) in zip(reports, scripted.calls):
+    # Roles are extracted in parallel threads, so their calls arrive in any order. Pairing reports with
+    # calls by position failed whenever a later role's call started first (4 of 12 runs under CPU load).
+    calls = {}
+    for _, data in scripted.calls:
+        calls.setdefault(data['role']['id'], []).append(data)
+    assert sorted(calls) == sorted(report['role_id'] for report in reports)
+    assert all(len(role_calls) == 1 for role_calls in calls.values())
+    for report in reports:
+        data = calls[report['role_id']][0]
         context = {key: value for key, value in data.items() if key != 'evidence_units'}
         assert report['context_hash'] == digest({**context, 'units': units, 'model': model_settings(report['provider'])})
 
