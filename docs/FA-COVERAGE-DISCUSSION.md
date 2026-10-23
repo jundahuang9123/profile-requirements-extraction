@@ -722,29 +722,39 @@ the mediator wrote:
 | A set-aside without a review question, twice | 1 |
 | A split whose new needs have no sources | 1 |
 
-`rq1-fa-dialogue-v12` (`rq1-fa-salvage-v2`) salvages such a plan too. Every need
-gets the marked system deferral, which keeps the original need for a person, and
-every action dropped from the applied plan appears as an unapplied review row with
-its full proposal, as salvage already does for the needs it cannot keep in larger
-cases (the actions a salvaged draft dropped stay in its salvage audit). The salvage
-applies nothing and writes or cites nothing. A salvaged draft goes through the
-response round and the final mediation as before, so the mediator writes a second
-plan; a valid final plan is checked and applied like any other. The salvage audit
-records `nothing_kept`; the case's mediation records `salvage_nothing_kept` when
-its applied plan kept no mediator action, and the run metric
-`salvaged_nothing_kept` counts those cases apart within `salvaged_cases`, so that
-the lost-case counts of earlier versions stay comparable. A plan that cannot be
-parsed, or whose salvaged form exceeds the plan contract or fails the plan rules,
-is still not salvaged.
+`rq1-fa-dialogue-v12` (`rq1-fa-salvage-v2`) salvages such a plan too: every need
+gets the marked system deferral, which keeps the original need for a person. The
+salvage applies nothing and writes or cites nothing. What v12 recovers is the rest
+of the discussion, not the dropped proposals. A salvaged draft goes through the
+response round and the final mediation as before, but the roles and the final
+mediator see only the system deferrals; the draft's dropped actions, with their
+full proposals, stay in its audit (`mediation.salvage.draft.dropped_actions`).
+Dropped actions become unapplied review rows (`salvage_rejected`) only when the
+applied plan is the salvaged one, which after a response round is the final: when
+the final keeps nothing too, its dropped actions are shown; when the final is
+valid, it is checked and applied like any other plan, and the draft's proposals
+remain only in the audit.
+
+The salvage audit records `nothing_kept`; the case's mediation records
+`salvage_nothing_kept` when its applied plan kept no mediator action, and the run
+metric `salvaged_nothing_kept` counts those cases apart within `salvaged_cases`,
+so that the lost-case counts of earlier versions stay comparable. A plan that
+cannot be parsed, or whose salvaged form exceeds the plan contract or fails the
+plan rules, is still not salvaged.
 
 A draft salvaged this way adds the response round, the final mediation and the
 check, about 6 to 8 calls. The 9 lost cases of those runs that stopped at the
 draft had used 6 or 7 of their 16 calls; the one that stopped at the final had
-used 14 and adds only the check.
+used 14 and adds only the check. A case whose extra calls run out stops as
+`budget_pending_human_review`, and one whose final or check stays invalid as
+`invalid_output_pending_human_review`, where v11 would have stopped it earlier as
+invalid output; the metric `lost_after_salvage_nothing_kept` counts these lost
+cases apart.
 
-A discussion planned under v11 cannot continue under v12. Cases of earlier
-versions keep the first salvage rule when `salvage_plan` is replayed on them.
-This is tested offline only.
+A discussion planned under v11 cannot continue under v12. Cases of v3 to v11 keep
+the first salvage rule when `salvage_plan` is replayed on them; v1, v2 and cases
+without a policy never reach salvage in a discussion. This is tested offline
+only.
 
 ### Answer habits
 
@@ -790,8 +800,9 @@ and coverage through GET requests and produces Markdown and CSV. It reports the
 classifier/reviewer matrix, added flags and entry terms, checks, removed labels,
 disputes with the label kept (v1/v2), source-stated additions, not-reviewed needs
 with their errors, after-discussion results, discussion actions on labelled needs,
-salvaged cases (and, since v12, those that kept no mediator action) and mediator
-actions rejected by salvage, reviewer usage and case stop reasons. The
+salvaged cases (and, since v12, those that kept no mediator action and the cases
+lost after such a salvage) and mediator actions rejected by salvage, reviewer usage
+and case stop reasons. The
 CSV has `policy`, `errors` and `isolated` columns. Legacy v1 reports leave
 reviewer columns empty. Run this helper against a saved trial; it never starts
 inference or changes the run.

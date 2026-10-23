@@ -394,6 +394,7 @@ def test_a_single_need_plan_that_keeps_no_action_is_salvaged_and_shown_to_a_pers
         assert row['status']=='human_review' and not row['applied'] and row['validation_errors']==d['problems']
         assert {k:v for k,v in row.items() if k in d['proposal'] and k!='human_question'}=={k:v for k,v in d['proposal'].items() if k!='human_question'}
     assert case['mediation']['salvage_nothing_kept'] and saved['metrics']['salvaged_nothing_kept']==saved['metrics']['salvaged_cases']==1
+    assert saved['metrics']['lost_after_salvage_nothing_kept']==0
 
 
 def test_a_valid_final_plan_after_a_draft_that_kept_nothing_is_applied(setup):

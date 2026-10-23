@@ -62,7 +62,9 @@ def main():
     lines+=['\n## Mediator actions rejected by salvage (not applied)',
         f'Salvaged cases (metrics): {(run.get("metrics") or {}).get("salvaged_cases","not recorded")}; mediator actions rejected by salvage: '
         f'{sum(bool(o.get("salvage_rejected")) for c in run.get("deliberations",[]) for o in (c.get("mediation") or {}).get("outcomes",[]))}. '
-        f'Salvaged with no mediator action kept (metrics): {(run.get("metrics") or {}).get("salvaged_nothing_kept","not recorded")}.']
+        f'Salvaged with no mediator action kept (metrics): {(run.get("metrics") or {}).get("salvaged_nothing_kept","not recorded")}; '
+        f'lost after such a salvage (budget or invalid output; v11 stopped these earlier as invalid output): '
+        f'{(run.get("metrics") or {}).get("lost_after_salvage_nothing_kept","not recorded")}.']
     for c in run.get('deliberations',[]):
         for action in (c.get('mediation') or {}).get('outcomes',[]):
             if action.get('salvage_rejected'):lines.append(f'- {c["case_id"]} · {action.get("action")} {action.get("action_id")}: '+'; '.join(action.get('validation_errors',[])))

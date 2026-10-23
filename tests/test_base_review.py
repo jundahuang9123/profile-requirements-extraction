@@ -205,7 +205,8 @@ def derivable(setup):
         r['machine_snapshot'].update(set_aside_observations=[],conflicts=[],consolidation_events=[])
         r['deliberations']=[{'case_id':'historical','status':'mediated','discussion_trace':{}}]
         r['stakeholder_audit'].update({'fa_discussion_plan':{'old':True},'fa_task_groups:0':{'old':True},'fa_task_labels:0':{'old':True}})
-        r['metrics'].update(mediated_changes=2,experience_claims=3,noted_concerns=4)
+        r['metrics'].update(mediated_changes=2,experience_claims=3,noted_concerns=4,salvaged_cases=2,salvaged_nothing_kept=1,
+            lost_after_salvage_nothing_kept=1)
     store.mutate(run['run_id'],None,'ready',ready,parts=True)
     return store,store.get('run',run['run_id'])
 
@@ -224,7 +225,8 @@ def test_derive_restores_snapshot_and_stepwise_pauses_before_discussion(setup):
     # Grouping and task labels of the parent's discussion are not inherited.
     assert not [k for k in child['stakeholder_audit'] if k.startswith(('fa_task_groups:','fa_task_labels:'))]
     # Discussion counters, including v6 experience counts, are not inherited.
-    assert not {'mediated_changes','experience_claims','noted_concerns'}&set(child['metrics'])
+    assert not {'mediated_changes','experience_claims','noted_concerns','salvaged_cases','salvaged_nothing_kept',
+        'lost_after_salvage_nothing_kept'}&set(child['metrics'])
     assert child['derived_from']['restored_from']=='machine_snapshot'
     assert child['derived_from']['inherited_discussions_hash']==digest(source['deliberations'])
     engine.execute_run(store,child['run_id'],Reviewer())

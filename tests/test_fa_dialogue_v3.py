@@ -221,6 +221,13 @@ def test_a_v11_case_without_a_valid_need_disposition_keeps_the_first_salvage_rul
     salvaged,audit=fd.salvage_plan(plan,{**case,'policy_version':'rq1-fa-dialogue-v11'},messages,allowed)
     assert salvaged is None and audit['status']=='not_salvaged' and audit['reason']=='No need has a valid disposition.'
     assert audit['policy_version']==fd.FIRST_SALVAGE_POLICY=='rq1-fa-salvage-v1'
+    # A plan that keeps one need is salvaged as v11 saved it, with no nothing_kept field.
+    partial=plan_model.model_validate({'actions':[{'action_id':'A1','action':'retain','parent_revision_ids':[rids[0]],'rationale':'Kept.'},
+        {'action_id':'A2','action':'revise','parent_revision_ids':[rids[1]],'rationale':'No source.'}],'summary':'p'})
+    _,v11=fd.salvage_plan(partial,{**case,'policy_version':'rq1-fa-dialogue-v11'},messages,allowed)
+    _,v12=fd.salvage_plan(partial,case,messages,allowed)
+    assert v11['status']==v12['status']=='salvaged' and 'nothing_kept' not in v11 and v12['nothing_kept'] is False
+    assert {k:v for k,v in v12.items() if k not in {'nothing_kept','policy_version'}}=={k:v for k,v in v11.items() if k!='policy_version'}
 
 
 def test_a_lifted_label_is_not_forced_to_defer_but_a_labelled_need_stays_visible(setup,plan_model):

@@ -5,7 +5,8 @@ import random
 from copy import deepcopy
 import pytest
 from test_routed_stakeholder_workflow import setup  # noqa: F401  (pytest fixture)
-from test_fa_dialogue_v3 import built
+from test_fa_dialogue_v3 import built, opted_in, ids, case_of
+from test_fa_quirks import Habits, parts_set_aside, sound
 from requirement_reuse_service.workflow import fa_discussion as fd
 
 
@@ -62,3 +63,40 @@ def test_salvage_always_gives_every_need_one_valid_disposition(setup,count,label
         salvaged_count+=audit['nothing_kept']
     # The random plans include many that keep nothing, which v11 refused to salvage.
     assert salvaged_count>20
+
+
+def test_a_case_that_runs_out_of_calls_after_a_salvage_that_kept_nothing_is_counted_apart(setup,monkeypatch):
+    # One need, two roles, and both plans keep nothing (Stat case-0182df950): 2 reviews, 2 draft tries,
+    # 2 responses and 2 final tries use 8 calls, so the check finds no call left. v11 stopped this case
+    # after the draft as invalid output.
+    monkeypatch.setattr(fd,'BASE_CASE_LIMITS',{**fd.BASE_CASE_LIMITS,'max_calls':8})
+    store,run=opted_in(setup,1);before=list(run['active_revision_ids'])
+    fd.deliberate(store,run['run_id'],Habits(parts_set_aside,'ideal'))
+    saved,case=sound(store,run)
+    assert case['stop_reason']=='budget_pending_human_review' and case['model_attempts']==8
+    salvage=case['discussion_trace']['salvage']
+    assert {k:(a['status'],a['nothing_kept']) for k,a in salvage.items()}=={'draft':('salvaged',True),'final':('salvaged',True)}
+    m=saved['metrics']
+    assert (m['lost_after_salvage_nothing_kept'],m['salvaged_nothing_kept'],m['salvaged_cases'])==(1,0,0)
+    assert saved['active_revision_ids']==before and m['mediated_changes']==0
+
+
+def overflowing(data,*_):
+    """An invalid plan whose salvage needs a 33rd question: 32 questions list the unanswered first concern,
+    and the other concerns are addressed by the invalid revise, so they go to the system review question."""
+    (n,),(first,*rest)=ids(data)
+    return {'actions':[{'action_id':'A1','action':'revise','parent_revision_ids':[n],'rationale':'No source.'}],
+        'concerns':[{'concern_id':c,'status':'addressed','action_ids':['A1'],'rationale':'Revised.'} for c in rest],
+        'questions':[{'question_id':f'Q{i}','revision_ids':[n],'concern_ids':[first],'question':'Which reading applies?',
+            'alternatives':['One','Other'],'rationale':'Open.'} for i in range(32)],'summary':'s'}
+
+
+def test_a_case_whose_salvage_is_refused_still_stops_as_invalid_output(setup):
+    store,run=opted_in(setup,1);before=list(run['active_revision_ids'])
+    fd.deliberate(store,run['run_id'],Habits(overflowing,'ideal'))
+    saved,case=case_of(store,run)
+    assert case['stop_reason']=='invalid_output_pending_human_review'
+    audit=case['discussion_trace']['salvage']['draft']
+    assert audit['status']=='not_salvaged' and audit['reason'].startswith('Salvaged plan exceeds the plan contract')
+    assert 'final' not in case['discussion_trace']['phases'] and saved['active_revision_ids']==before
+    assert saved['metrics']['lost_after_salvage_nothing_kept']==0 and saved['metrics']['salvaged_cases']==0

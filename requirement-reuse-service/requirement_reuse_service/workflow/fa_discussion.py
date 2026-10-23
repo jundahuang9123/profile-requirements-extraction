@@ -810,12 +810,15 @@ def salvage_plan(plan,case,messages,allowed):
     does not validly admit is dropped. v8: a set-aside without its reason is dropped like any
     invalid action, and a duplicate set-aside is dropped when the need it repeats is not kept as it is.
     v12 (rq1-fa-salvage-v2): a plan that keeps no action is salvaged too, so every need gets the
-    system deferral (audit nothing_kept). Up to v11 (rq1-fa-salvage-v1) such a plan was not
-    salvaged and its case stopped as invalid output: in JRC run-0834b623, JRC run-12a2c91a and
-    Stat run-1428af21, 10 of the 12 lost cases stopped there. All 10 held a single need, so one
-    invalid action on it lost the case, and with it the mediator's proposals (splits and revisions
-    of needs labelled as covered by the base, set-asides of the parts of a split) and the
-    response round. Returns (plan or None, audit).
+    system deferral (audit nothing_kept). Up to v11 (rq1-fa-salvage-v1, kept for cases of v3-v11)
+    such a plan was not salvaged and its case stopped as invalid output: in JRC run-0834b623, JRC
+    run-12a2c91a and Stat run-1428af21, 10 of the 12 lost cases stopped there, all with a single
+    need, so one invalid action on it ended the case. What v12 recovers is the rest of the
+    discussion, not the dropped proposals: after a draft that keeps nothing, the roles and the
+    final mediator see only the system deferrals, and the draft's dropped actions stay in its
+    audit (mediation.salvage.draft.dropped_actions). Dropped actions become review rows only
+    when the applied plan is the salvaged one, which after a response round is the final.
+    Returns (plan or None, audit).
     """
     data=plan.model_dump(mode='json');v6=isinstance(plan,ExperiencePlan)
     needs=[r['revision_id'] for r in case['frozen_requirements']]
@@ -907,7 +910,9 @@ def salvage_plan(plan,case,messages,allowed):
     concerns=[kept_rows.get(c) or {'concern_id':c,'status':'unresolved','action_ids':[],'question_ids':[review['question_id']],
         'rationale':'System salvage: the mediator gave this concern no valid disposition; a person reviews it.'}
         for c in concern_ids if c in kept_rows or c in replaced]
-    audit.update(status='salvaged',nothing_kept=not kept,deferred_revision_ids=deferred,system_action_ids=[d['action_id'] for d in defers],
+    # Replayed v3-v11 audits stay as v11 saved them.
+    if not first:audit['nothing_kept']=not kept
+    audit.update(status='salvaged',deferred_revision_ids=deferred,system_action_ids=[d['action_id'] for d in defers],
         replaced_concern_ids=replaced,system_question_id=review['question_id'] if review else None,
         dropped_question_ids=[q['question_id'] for q in data['questions'] if q['question_id'] not in {k['question_id'] for k in kept_questions}])
     note=' [Salvaged: invalid parts are deferred to human review.]'
@@ -2000,6 +2005,11 @@ def deliberate(store,run_id,client):
             # lost-case counts of earlier versions stay comparable.
             r['metrics']['salvaged_nothing_kept']=sum(c.get('stop_reason')=='bounded_fa_dialogue_salvaged'
                 and bool((c.get('mediation') or {}).get('salvage_nothing_kept')) for c in r['deliberations'])
+            # The calls such a salvage adds (response round, final plan, check) can end a case on its budget, or
+            # invalid later, where v11 stopped it earlier as invalid output; these lost cases are counted apart too.
+            r['metrics']['lost_after_salvage_nothing_kept']=sum(c.get('stop_reason') in {'budget_pending_human_review',
+                'invalid_output_pending_human_review'} and any(a.get('status')=='salvaged' and a.get('nothing_kept')
+                for a in ((c.get('discussion_trace') or {}).get('salvage') or {}).values()) for c in r['deliberations'])
             # Experience is a separate kind of argument; its use is counted apart, over completed cases.
             done=[c for c in r['deliberations'] if c.get('mediation',{}).get('phase')=='completed']
             decisions=[d for c in done for d in c['mediation'].get('experience_decisions',[])]
