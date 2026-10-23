@@ -313,8 +313,9 @@ revisions by internal IDs the model had never seen, and omitted the rejected pla
   not applied". Nothing is written or cited by salvage, and the result must pass the
   normal plan validators. A salvaged draft goes through the normal response round
   and final mediation; kept actions are then independently checked and applied
-  like any others. Salvage needs at least one valid disposition of an existing
-  need; otherwise the case stays `invalid_output_pending_human_review`. A case
+  like any others. Up to v11, salvage needs at least one valid disposition of an
+  existing need; otherwise the case stays `invalid_output_pending_human_review`
+  (v12 salvages such a plan too; see below). A case
   whose applied plan was salvaged stops as `bounded_fa_dialogue_salvaged`, its
   mediation lists `salvage` audits by phase, and metrics count `salvaged_cases`.
 
@@ -703,6 +704,48 @@ support check, which may still block them: in `run-efc543e4` it blocked 2 of the
 A discussion planned under v10 cannot continue under v11. This is tested offline
 only.
 
+### Plans that keep no need disposition (v12)
+
+Since v3 a plan that stays invalid after its correction is salvaged, but up to
+v11 only when at least one need keeps a valid disposition of the mediator.
+Otherwise the case stopped as `invalid_output_pending_human_review` with one
+general question, and the mediator's proposals were not shown. In JRC
+`run-0834b623`, JRC `run-12a2c91a` and Stat `run-1428af21`, 10 of the 12 lost
+cases stopped there (the other two: one schema failure, one budget stop). All 10
+held a single need, so one invalid action on it lost the case. On its last try
+the mediator wrote:
+
+| Habit | Cases |
+|---|---|
+| A split or revision of a need labelled as covered by the base; after the correction, covered_by_base beside the split | 5 |
+| One action per part: the parts of a split that have a source split off, the others set aside or deferred, each as an action on the one need (or set-asides of rejected ideas beside a revision) | 3 |
+| A set-aside without a review question, twice | 1 |
+| A split whose new needs have no sources | 1 |
+
+`rq1-fa-dialogue-v12` (`rq1-fa-salvage-v2`) salvages such a plan too. Every need
+gets the marked system deferral, which keeps the original need for a person, and
+every action dropped from the applied plan appears as an unapplied review row with
+its full proposal, as salvage already does for the needs it cannot keep in larger
+cases (the actions a salvaged draft dropped stay in its salvage audit). The salvage
+applies nothing and writes or cites nothing. A salvaged draft goes through the
+response round and the final mediation as before, so the mediator writes a second
+plan; a valid final plan is checked and applied like any other. The salvage audit
+records `nothing_kept`; the case's mediation records `salvage_nothing_kept` when
+its applied plan kept no mediator action, and the run metric
+`salvaged_nothing_kept` counts those cases apart within `salvaged_cases`, so that
+the lost-case counts of earlier versions stay comparable. A plan that cannot be
+parsed, or whose salvaged form exceeds the plan contract or fails the plan rules,
+is still not salvaged.
+
+A draft salvaged this way adds the response round, the final mediation and the
+check, about 6 to 8 calls. The 9 lost cases of those runs that stopped at the
+draft had used 6 or 7 of their 16 calls; the one that stopped at the final had
+used 14 and adds only the check.
+
+A discussion planned under v11 cannot continue under v12. Cases of earlier
+versions keep the first salvage rule when `salvage_plan` is replayed on them.
+This is tested offline only.
+
 ### Answer habits
 
 Unit tests with ideal scripted answers did not show what a change does to the
@@ -713,7 +756,10 @@ children or only of them, checks named after action types, one action per
 concern, invented need IDs, adds naming their need, a split written as several
 actions, oversized or unnamed splits, empty questions, loose set-asides, claim
 kinds as concern kinds, keep and second claims, quotations with a line break
-written as a space or a hyphen written as U+2011) and checks that every case ends
+written as a space or a hyphen written as U+2011, and single-need plans that keep
+no action: a labelled need split beside its covered_by_base, the parts of a split
+set aside or deferred on the one need, set-asides of rejected ideas beside a
+revision) and checks that every case ends
 in a defined state, accounts for every need, applies only what the rules allow
 and leaves a record that validates. A habit seen in a new live run is added
 there.
@@ -744,8 +790,8 @@ and coverage through GET requests and produces Markdown and CSV. It reports the
 classifier/reviewer matrix, added flags and entry terms, checks, removed labels,
 disputes with the label kept (v1/v2), source-stated additions, not-reviewed needs
 with their errors, after-discussion results, discussion actions on labelled needs,
-salvaged cases and mediator actions rejected by salvage, reviewer usage and case
-stop reasons. The
+salvaged cases (and, since v12, those that kept no mediator action) and mediator
+actions rejected by salvage, reviewer usage and case stop reasons. The
 CSV has `policy`, `errors` and `isolated` columns. Legacy v1 reports leave
 reviewer columns empty. Run this helper against a saved trial; it never starts
 inference or changes the run.

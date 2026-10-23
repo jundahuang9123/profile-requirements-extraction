@@ -23,9 +23,9 @@ def caps(client,*names):
 
 
 def test_policy_names():
-    assert fd.BASE_POLICY=='rq1-fa-dialogue-v11' and br.POLICY=='rq1-base-expert-v5'
+    assert fd.BASE_POLICY=='rq1-fa-dialogue-v12' and br.POLICY=='rq1-base-expert-v5'
     assert fd.BASE_POLICIES=={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5','rq1-fa-dialogue-v6','rq1-fa-dialogue-v7',
-        'rq1-fa-dialogue-v8','rq1-fa-dialogue-v9','rq1-fa-dialogue-v10','rq1-fa-dialogue-v11'}
+        'rq1-fa-dialogue-v8','rq1-fa-dialogue-v9','rq1-fa-dialogue-v10','rq1-fa-dialogue-v11','rq1-fa-dialogue-v12'}
 
 
 def test_stakeholders_get_the_concern_rules_and_plans_start_at_8000_tokens(setup):
@@ -82,16 +82,20 @@ def test_v4_measures_its_input_against_its_own_limit(setup,monkeypatch,lowered,s
     assert question['question_id']=='budget' and 'exceeds context budget' in question['question']
 
 
+class UnknownChecks(Mediator):
+    """The checker names every check after its action type, on both tries: the check stays invalid."""
+    def generate_structured(self,*,user,output_model,system='',step=None,**kw):
+        answer=super().generate_structured(user=user,output_model=output_model,system=system,step=step,**kw)
+        if contract_name(output_model)!='Checks':return answer
+        rows=answer.model_dump(mode='json')['checks'];plan=json.loads(user)['plan']
+        return output_model.model_validate({'checks':[{**r,'action_id':a['action']} for r,a in zip(rows,plan['actions'])]})
+
+
 def test_an_invalid_case_asks_under_invalid_output(setup):
+    # Since v12 a plan that keeps no need disposition is salvaged (test_fa_dialogue_v3), so an invalid
+    # check answer is what stops this case.
     store,run=opted_in(setup)
-    def plans(data,*_):
-        needs,concerns=ids(data)
-        # One action per concern and none per need: nothing can be salvaged.
-        return {'actions':[{'action_id':'A1','action':'defer','parent_revision_ids':[],'rationale':'One per concern.',
-                'human_question':'Which?','alternatives':['One','Other']}],
-            'concerns':[{'concern_id':c,'status':'unresolved','action_ids':['A1'],'rationale':'Open.'} for c in concerns],
-            'questions':[],'summary':'Draft.'}
-    fd.deliberate(store,run['run_id'],Mediator(plans))
+    fd.deliberate(store,run['run_id'],UnknownChecks(retain_all))
     case=case_of(store,run)[1]
     assert case['stop_reason']=='invalid_output_pending_human_review'
     [question]=case['mediation']['human_questions']

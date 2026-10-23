@@ -57,10 +57,12 @@ def main():
         for action in (c.get('mediation') or {}).get('outcomes',[]):
             if action.get('action')=='covered_by_base' or any('covered_by_base' in frozen.get(i,{}).get('processing_flags',[]) for i in action.get('parent_revision_ids',[])):
                 lines.append('- '+json.dumps({'case':c['case_id'],**action},ensure_ascii=False))
-    # Salvage (rq1-fa-salvage-v1) shows the actions it dropped as unapplied review rows.
+    # Salvage (rq1-fa-salvage-v1, v2) shows the actions it dropped as unapplied review rows; v2 also salvages
+    # a plan that keeps no mediator action, which the metrics count apart.
     lines+=['\n## Mediator actions rejected by salvage (not applied)',
         f'Salvaged cases (metrics): {(run.get("metrics") or {}).get("salvaged_cases","not recorded")}; mediator actions rejected by salvage: '
-        f'{sum(bool(o.get("salvage_rejected")) for c in run.get("deliberations",[]) for o in (c.get("mediation") or {}).get("outcomes",[]))}.']
+        f'{sum(bool(o.get("salvage_rejected")) for c in run.get("deliberations",[]) for o in (c.get("mediation") or {}).get("outcomes",[]))}. '
+        f'Salvaged with no mediator action kept (metrics): {(run.get("metrics") or {}).get("salvaged_nothing_kept","not recorded")}.']
     for c in run.get('deliberations',[]):
         for action in (c.get('mediation') or {}).get('outcomes',[]):
             if action.get('salvage_rejected'):lines.append(f'- {c["case_id"]} · {action.get("action")} {action.get("action_id")}: '+'; '.join(action.get('validation_errors',[])))

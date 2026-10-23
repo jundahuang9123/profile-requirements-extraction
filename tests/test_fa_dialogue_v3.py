@@ -186,19 +186,41 @@ def test_salvage_keeps_the_single_deferral_among_unchanged_dispositions(setup):
     assert not outcomes['A3'].get('salvage_rejected')
 
 
-def test_no_salvage_without_a_valid_need_disposition(setup):
+def no_need_disposition(data,*_):
+    """One action per concern and none per need: no need keeps a valid disposition."""
+    needs,concerns=ids(data)
+    return {'actions':[{'action_id':'A1','action':'defer','parent_revision_ids':[],'rationale':'One per concern.',
+            'human_question':'Which?','alternatives':['One','Other']}],
+        'concerns':[{'concern_id':c,'status':'unresolved','action_ids':['A1'],'rationale':'Open.'} for c in concerns],
+        'questions':[],'summary':'Draft.'}
+
+
+def test_a_plan_without_a_valid_need_disposition_is_salvaged_with_every_need_deferred(setup):
+    # rq1-fa-salvage-v2 (v12): up to v11 this case stopped as invalid output.
     store,run=opted_in(setup)
-    def plans(data,*_):
-        needs,concerns=ids(data)
-        return {'actions':[{'action_id':'A1','action':'defer','parent_revision_ids':[],'rationale':'One per concern.',
-                'human_question':'Which?','alternatives':['One','Other']}],
-            'concerns':[{'concern_id':c,'status':'unresolved','action_ids':['A1'],'rationale':'Open.'} for c in concerns],
-            'questions':[],'summary':'Draft.'}
-    fd.deliberate(store,run['run_id'],Mediator(plans))
+    fd.deliberate(store,run['run_id'],Mediator(no_need_disposition))
     saved,case=case_of(store,run)
-    assert case['stop_reason']=='invalid_output_pending_human_review' and case['mediation']['phase']=='human_review'
-    assert case['discussion_trace']['salvage']['draft']['status']=='not_salvaged'
-    assert saved['active_revision_ids']==run['active_revision_ids']
+    assert case['stop_reason']=='bounded_fa_dialogue_salvaged' and case['mediation']['phase']=='completed'
+    for phase in ('draft','final'):
+        audit=case['mediation']['salvage'][phase]
+        assert audit['policy_version']==fd.SALVAGE_POLICY=='rq1-fa-salvage-v2' and audit['nothing_kept'] and audit['kept_action_ids']==[]
+        assert audit['deferred_revision_ids']==case['revision_ids'] and [d['action_id'] for d in audit['dropped_actions']]==['A1']
+    outcomes={o['action_id']:o for o in case['mediation']['outcomes']}
+    assert {k:(o['action'],o['status']) for k,o in outcomes.items()}=={'salvage-1':('defer','human_review'),
+        'salvage-2':('defer','human_review'),'A1':('defer','human_review')}
+    assert outcomes['A1']['salvage_rejected'] and not outcomes['A1']['applied']
+    assert [outcomes[k]['parent_revision_ids'] for k in ('salvage-1','salvage-2')]==[[r] for r in case['revision_ids']]
+    assert case['mediation']['salvage_nothing_kept'] and saved['metrics']['salvaged_nothing_kept']==saved['metrics']['salvaged_cases']==1
+    assert saved['active_revision_ids']==run['active_revision_ids'] and saved['metrics']['mediated_changes']==0
+
+
+def test_a_v11_case_without_a_valid_need_disposition_keeps_the_first_salvage_rule(setup,plan_model):
+    case,rids,messages,allowed=built(setup)
+    plan=plan_model.model_validate(no_need_disposition({'packet':{'needs':[{'revision_id':r} for r in rids]},'messages':messages}))
+    assert fd.salvage_plan(plan,case,messages,allowed)[0] is not None
+    salvaged,audit=fd.salvage_plan(plan,{**case,'policy_version':'rq1-fa-dialogue-v11'},messages,allowed)
+    assert salvaged is None and audit['status']=='not_salvaged' and audit['reason']=='No need has a valid disposition.'
+    assert audit['policy_version']==fd.FIRST_SALVAGE_POLICY=='rq1-fa-salvage-v1'
 
 
 def test_a_lifted_label_is_not_forced_to_defer_but_a_labelled_need_stays_visible(setup,plan_model):
@@ -461,7 +483,13 @@ def test_salvage_never_keeps_an_addition(setup,plan_model):
     assert 'apply a rejected action after review' in salvaged.actions[1].human_question
     assert audit['deferred_revision_ids']==[n2] and audit['replaced_concern_ids']==['c1']
     assert salvaged.concerns[0].status=='unresolved' and salvaged.questions[0].concern_ids==['c1']
-    nothing,audit=fd.salvage_plan(plan_model(actions=[plan.actions[1],plan.actions[2]],summary='Only an addition.'),case,[],allowed)
+    # v12: a plan of only an addition and a parentless set-aside keeps nothing; every need is deferred.
+    only=plan_model(actions=[plan.actions[1],plan.actions[2]],summary='Only an addition.')
+    deferred,audit=fd.salvage_plan(only,case,[],allowed)
+    assert fd.plan_errors(deferred,case,[],allowed)==[] and audit['nothing_kept'] and audit['kept_action_ids']==[]
+    assert [(a.action_id,a.action,a.parent_revision_ids) for a in deferred.actions]==[('salvage-1','defer',[n1]),('salvage-2','defer',[n2])]
+    assert [d['action_id'] for d in audit['dropped_actions']]==['A2','A3']
+    nothing,audit=fd.salvage_plan(only,{**case,'policy_version':'rq1-fa-dialogue-v11'},[],allowed)
     assert nothing is None and audit['status']=='not_salvaged'
 
 
@@ -547,16 +575,16 @@ def test_the_discussion_refuses_labels_of_rq1_base_expert_v3(setup):
         r['requirements'][0].update(base_relation={'policy':'rq1-base-expert-v3','status':'checked','verdict':'new','effect':'dispute'})
         r['requirements'][1].update(base_relation={'status':'not_reviewed'})  # no policy: reported, not a TypeError
     store.mutate(run['run_id'],None,'fixture_v3_label',label)
-    with pytest.raises(ValueError,match='Stage 6a ran under None, rq1-base-expert-v3; rq1-fa-dialogue-v11 needs rq1-base-expert-v5'):
+    with pytest.raises(ValueError,match='Stage 6a ran under None, rq1-base-expert-v3; rq1-fa-dialogue-v12 needs rq1-base-expert-v5'):
         fd.deliberate(store,run['run_id'],Mediator(retain_all))
 
 
 @pytest.mark.parametrize('planned',['rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5','rq1-fa-dialogue-v6',
-    'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8','rq1-fa-dialogue-v9','rq1-fa-dialogue-v10'])
+    'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8','rq1-fa-dialogue-v9','rq1-fa-dialogue-v10','rq1-fa-dialogue-v11'])
 def test_a_discussion_planned_under_an_earlier_version_is_refused_by_name(setup,planned):
     store,run=opted_in(setup)
     old.save(store,run['run_id'],'fa_discussion_plan',{'policy_version':planned})
-    with pytest.raises(ValueError,match=f'planned under {planned}; the current protocol is rq1-fa-dialogue-v11. Derive a separate base-review trial'):
+    with pytest.raises(ValueError,match=f'planned under {planned}; the current protocol is rq1-fa-dialogue-v12. Derive a separate base-review trial'):
         fd.deliberate(store,run['run_id'],Mediator(retain_all))
 
 
