@@ -1,0 +1,546 @@
+[
+ {
+  "need_id": "N503",
+  "statement": "Users can know the update/modification date of a Catalog."
+ },
+ {
+  "need_id": "N550",
+  "statement": "Users can know that JRC data will be provided in an accepted, platform‑independent, machine‑readable format."
+ },
+ {
+  "need_id": "N616",
+  "statement": "Users can know the contact point information of a dataset for a Dataset."
+ },
+ {
+  "need_id": "N194",
+  "statement": "Users can find statistical information about a DCAT-described dataset expressed using VoID vocabulary terms."
+ },
+ {
+  "need_id": "N909",
+  "statement": "Users can know the keywords/tags of a dataset for a Dataset"
+ },
+ {
+  "need_id": "N614",
+  "statement": "Users can know what restrictions may be imposed on data acquired from third parties"
+ },
+ {
+  "need_id": "N561",
+  "statement": "Users can know that date values are encoded using the relevant ISO 8601 Date and Time compliant string and typed using the appropriate XML Schema datatype."
+ },
+ {
+  "need_id": "N814",
+  "statement": "Users can know the permissible uses of data, including reproduction, communication to the public, adaptation, modification, combination, and distribution"
+ },
+ {
+  "need_id": "N817",
+  "statement": "Users can obtain the download URL of a distribution to retrieve the associated data file."
+ },
+ {
+  "need_id": "N660",
+  "statement": "Users can know the ResourceType of a resource"
+ },
+ {
+  "need_id": "N900",
+  "statement": "Users can know the language of the dataset."
+ },
+ {
+  "need_id": "N174",
+  "statement": "Users can know the release date of a Catalog."
+ },
+ {
+  "need_id": "N107",
+  "statement": "Users can know that DCAT does not impose assumptions about the format of datasets"
+ },
+ {
+  "need_id": "N780",
+  "statement": "Users can know the download URL of a distribution when it is directly downloadable."
+ },
+ {
+  "need_id": "N472",
+  "statement": "Users can find additional non-DCAT metadata fields in a Catalog's RDF description."
+ },
+ {
+  "need_id": "N668",
+  "statement": "Users can know narrative descriptions that explain the resource, its methods or technical information for a dataset."
+ },
+ {
+  "need_id": "N155",
+  "statement": "Users can know the license document linked to a distribution for a Distribution"
+ },
+ {
+  "need_id": "N981",
+  "statement": "Users can know the size in bytes of a distribution."
+ },
+ {
+  "need_id": "N573",
+  "statement": "Users can know the access URL of a distribution for a Distribution"
+ },
+ {
+  "need_id": "N199",
+  "statement": "Users can find the download URL of a dataset distribution."
+ },
+ {
+  "need_id": "N933",
+  "statement": "Users can know that the JRC (or the European Commission) is not liable for any direct or indirect, incidental, consequential or other damages arising from the use of the JRC data."
+ },
+ {
+  "need_id": "N630",
+  "statement": "Users can know the landing page URL for a dataset when it is provided."
+ },
+ {
+  "need_id": "N235",
+  "statement": "Users can know that the dataset language overrides the catalog language in case of conflict."
+ },
+ {
+  "need_id": "N284",
+  "statement": "Users can know the concept scheme used for dataset themes."
+ },
+ {
+  "need_id": "N684",
+  "statement": "Users can know that metadata is open for access by default even when the underlying data are restricted."
+ },
+ {
+  "need_id": "N707",
+  "statement": "Users can know that using DCAT to describe datasets increases discoverability and enables applications to consume metadata from multiple catalogs."
+ },
+ {
+  "need_id": "N591",
+  "statement": "Users can know the unique identifier of the dataset."
+ },
+ {
+  "need_id": "N586",
+  "statement": "Users can know that a dataset is accessible only via a landing page that requires user interaction (clicking links, providing information, checking boxes)."
+ },
+ {
+  "need_id": "N176",
+  "statement": "Users can know that the JRC has no obligation to provide technical support or remedies for the data and does not warrant that the data are error‑free, complete, or of satisfactory quality."
+ },
+ {
+  "need_id": "N537",
+  "statement": "Users can know the direct download URL for a dataset."
+ },
+ {
+  "need_id": "N490",
+  "statement": "Users can know the publisher's identity, such as organization name and type, for a catalog."
+ },
+ {
+  "need_id": "N854",
+  "statement": "Users can know that a landing page link should be duplicated as accessURL on a distribution when direct download URLs are not known"
+ },
+ {
+  "need_id": "N159",
+  "statement": "Users can know which curation role types are associated with contributors for a dataset."
+ },
+ {
+  "need_id": "N984",
+  "statement": "Users can know that JRC data are provided “as is” without any warranty, to the extent permitted by law."
+ },
+ {
+  "need_id": "N891",
+  "statement": "Users may need to register or submit an individual application to access JRC data in specific exceptional cases."
+ },
+ {
+  "need_id": "N672",
+  "statement": "Users can know which contact role types are associated with contributors for a dataset."
+ },
+ {
+  "need_id": "N792",
+  "statement": "Users can know the modification date of a distribution for a Distribution."
+ },
+ {
+  "need_id": "N890",
+  "statement": "Users can know the spatial coverage of the dataset."
+ },
+ {
+  "need_id": "N198",
+  "statement": "Users can know acceptable controlled vocabularies or URI sets for properties in a Catalog."
+ },
+ {
+  "need_id": "N572",
+  "statement": "Interpret the meaning of an absent dataset last‑modification date, including that it may indicate never changed, unknown, or continuously updated."
+ },
+ {
+  "need_id": "N293",
+  "statement": "Users can know the licence terms that allow access to data acquired from third parties for the entire JRC and the European Commission where possible and feasible."
+ },
+ {
+  "need_id": "N105",
+  "statement": "Users can know that licences with third parties do not restrict use of derivative output produced by the JRC using the acquired data where possible and feasible."
+ },
+ {
+  "need_id": "N563",
+  "statement": "Find the most recent modification date of a dataset."
+ },
+ {
+  "need_id": "N211",
+  "statement": "Users can know the direct download URL for a dataset when it is provided."
+ },
+ {
+  "need_id": "N929",
+  "statement": "Users can know the rights statements that describe conditions of reuse."
+ },
+ {
+  "need_id": "N492",
+  "statement": "Users can know the categories of exceptions that may limit free, full, open and timely access to JRC data, such as security, defence, privacy, commercial interests, intellectual property, and audit purposes."
+ },
+ {
+  "need_id": "N244",
+  "statement": "Users can find metadata about catalog records such as issuance date"
+ },
+ {
+  "need_id": "N299",
+  "statement": "Users can find the domain (theme) a dataset is classified under."
+ },
+ {
+  "need_id": "N902",
+  "statement": "Users can know that, upon necessity, a procedure for amendment of the JRC Data Policy can be initiated."
+ },
+ {
+  "need_id": "N434",
+  "statement": "Users can know that the original PDF is not redistributed for a dataset."
+ },
+ {
+  "need_id": "N368",
+  "statement": "This non‑restriction applies where possible and feasible."
+ },
+ {
+  "need_id": "N153",
+  "statement": "Users can know the keywords/tags of a dataset for a Dataset."
+ },
+ {
+  "need_id": "N778",
+  "statement": "Users can know metadata is open for access"
+ },
+ {
+  "need_id": "N165",
+  "statement": "Users can know that DCAT does not impose assumptions about the format of datasets."
+ },
+ {
+  "need_id": "N642",
+  "statement": "Users can find the principles, conditions and exceptions governing access to JRC data."
+ },
+ {
+  "need_id": "N316",
+  "statement": "Users can know the spatial coverage of the dataset"
+ },
+ {
+  "need_id": "N186",
+  "statement": "Users can know both the landing page URL and a direct download URL for a dataset when both are provided"
+ },
+ {
+  "need_id": "N930",
+  "statement": "Users can know the media type of a distribution."
+ },
+ {
+  "need_id": "N579",
+  "statement": "Metadata for JRC datasets shall be open for access, even when the underlying data have access restrictions."
+ },
+ {
+  "need_id": "N135",
+  "statement": "Users can know that a publisher makes the resource available"
+ },
+ {
+  "need_id": "N907",
+  "statement": "Users can know the access URL of a distribution separate from the download URL."
+ },
+ {
+  "need_id": "N691",
+  "statement": "Users can know acquisition of data from third parties is governed by the Open Data principles"
+ },
+ {
+  "need_id": "N625",
+  "statement": "Users can know that DCAT is a W3C Recommendation."
+ },
+ {
+  "need_id": "N342",
+  "statement": "Users can know the license document linked to a distribution for a Distribution."
+ },
+ {
+  "need_id": "N991",
+  "statement": "Users can know the accepted interfaces through which the JRC data can be accessed."
+ },
+ {
+  "need_id": "N777",
+  "statement": "Users can know that date values are typed using the appropriate XML Schema datatype"
+ },
+ {
+  "need_id": "N508",
+  "statement": "Users can know the theme/category of a dataset for a Dataset"
+ },
+ {
+  "need_id": "N926",
+  "statement": "Users can know the identity of a publisher as a person or organization."
+ },
+ {
+  "need_id": "N510",
+  "statement": "Users can know the landing page of a dataset for a Dataset."
+ },
+ {
+  "need_id": "N497",
+  "statement": "Users can find an RDF description of the catalog, its datasets and distributions."
+ },
+ {
+  "need_id": "N495",
+  "statement": "Users can interpret the meaning of the dataset's last modification date, including that an absent value may indicate never changed, unknown, or continuously updated."
+ },
+ {
+  "need_id": "N925",
+  "statement": "Users can find data management plans associated with projects, activities, and JRC data."
+ },
+ {
+  "need_id": "N232",
+  "statement": "Users can know the download URL of a distribution."
+ },
+ {
+  "need_id": "N195",
+  "statement": "Users can know the access URL of a distribution."
+ },
+ {
+  "need_id": "N761",
+  "statement": "Users can know acquisition of data from third parties"
+ },
+ {
+  "need_id": "N840",
+  "statement": "Users can know the identifier (URI) of the catalog's publisher."
+ },
+ {
+  "need_id": "N191",
+  "statement": "Users can find that if the dataset is available in multiple languages, each language should be expressed either via multiple values for the language property or via separate distributions each with its own language value."
+ },
+ {
+  "need_id": "N775",
+  "statement": "Users can know that a landing page link is provided as an alternate download link on a distribution when direct download URLs are not known."
+ },
+ {
+  "need_id": "N694",
+  "statement": "Users can know the rights information associated with a distribution for a Distribution."
+ },
+ {
+  "need_id": "N841",
+  "statement": "Users can know that date values are encoded using the relevant ISO 8601 Date and Time compliant string."
+ },
+ {
+  "need_id": "N589",
+  "statement": "Users can know that date values are encoded using ISO‑8601 compliant strings"
+ },
+ {
+  "need_id": "N655",
+  "statement": "Users can find data type-, project- or activity-specific exceptions to access and use of JRC data."
+ },
+ {
+  "need_id": "N704",
+  "statement": "Users can know the release date of a distribution for a Distribution."
+ },
+ {
+  "need_id": "N759",
+  "statement": "Users can know what typed relationships connect the resource to related objects for a resource."
+ },
+ {
+  "need_id": "N256",
+  "statement": "Users can know the title of a Catalog."
+ },
+ {
+  "need_id": "N125",
+  "statement": "Users can know that the JRC has no obligation to provide technical support or remedies for the data and does not warrant that the data are error‑free, complete, or of satisfactory technical or scientific quality."
+ },
+ {
+  "need_id": "N698",
+  "statement": "Users can know both the landing page URL and a direct download URL for a dataset when both are provided."
+ },
+ {
+  "need_id": "N264",
+  "statement": "Users can know what JRC data exist and their descriptions for discovery."
+ },
+ {
+  "need_id": "N139",
+  "statement": "Users can know that the JRC (or the European Commission) shall not be held liable for any direct or indirect, incidental, consequential or other damages arising from the use of the JRC data."
+ },
+ {
+  "need_id": "N843",
+  "statement": "Users can know the permissible uses of data, including reproduction, communication to the public, adaptation, modification, combination, and distribution."
+ },
+ {
+  "need_id": "N934",
+  "statement": "Users can know the description of a distribution for a Distribution"
+ },
+ {
+  "need_id": "N736",
+  "statement": "Users can know the description of a distribution for a Distribution."
+ },
+ {
+  "need_id": "N649",
+  "statement": "Users can know that JRC data shall be made available in an accepted, platform‑independent, machine‑readable format via accepted interfaces where possible."
+ },
+ {
+  "need_id": "N701",
+  "statement": "Users can find metadata about catalog records such as issuance date."
+ },
+ {
+  "need_id": "N243",
+  "statement": "Users can know the creator of a dataset."
+ },
+ {
+  "need_id": "N119",
+  "statement": "Users can know the title, description, and listing date of a catalog record for a dataset."
+ },
+ {
+  "need_id": "N863",
+  "statement": "Users can know the ResourceType of a resource."
+ },
+ {
+  "need_id": "N435",
+  "statement": "Users can know the file format of a distribution."
+ },
+ {
+  "need_id": "N819",
+  "statement": "Users can know the title of a distribution for a Distribution"
+ },
+ {
+  "need_id": "N457",
+  "statement": "Users can know that the policy will be reviewed three years after its adoption."
+ },
+ {
+  "need_id": "N968",
+  "statement": "Users can know that licences with third parties do not restrict use of derivative output produced by the JRC using the acquired data."
+ },
+ {
+  "need_id": "N513",
+  "statement": "The policy obliges that JRC data shall be provided with free, full, open and timely access, subject to the policy’s conditions and exceptions."
+ },
+ {
+  "need_id": "N267",
+  "statement": "Users can know that date values are encoded using the relevant ISO 8601 Date and Time compliant string and typed using the appropriate XML Schema datatype"
+ },
+ {
+  "need_id": "N667",
+  "statement": "Users can find statistical information about a DCAT-described dataset expressed using VoID vocabulary terms"
+ },
+ {
+  "need_id": "N936",
+  "statement": "Users can know what restrictions may be imposed on data acquired from third parties, and that such restrictions shall be as minimal as possible."
+ },
+ {
+  "need_id": "N665",
+  "statement": "Users can know that JRC data shall be provided with free, full, open and timely access, subject to the policy’s conditions and exceptions."
+ },
+ {
+  "need_id": "N456",
+  "statement": "Users can know acceptable controlled vocabularies or URI sets for properties in a Catalog"
+ },
+ {
+  "need_id": "N848",
+  "statement": "Users can know that all JRC data shall be described by metadata as a matter of principle."
+ },
+ {
+  "need_id": "N295",
+  "statement": "Users can find the domain (theme) a dataset is classified under"
+ },
+ {
+  "need_id": "N569",
+  "statement": "Users can find that the JRC single access point is the only channel to make the JRC data available in the data portal."
+ },
+ {
+  "need_id": "N677",
+  "statement": "Users can know the conditions under which access to JRC data is restricted"
+ },
+ {
+  "need_id": "N893",
+  "statement": "Users can know the language of a Catalog."
+ },
+ {
+  "need_id": "N238",
+  "statement": "Users can find documentation property tables and appendices for the dataset."
+ },
+ {
+  "need_id": "N912",
+  "statement": "Users can access the first monitoring report on policy implementation within three years of adoption."
+ },
+ {
+  "need_id": "N468",
+  "statement": "Users can know the description of a Catalog."
+ },
+ {
+  "need_id": "N464",
+  "statement": "Users can find what elements of metadata are provided for JRC data."
+ },
+ {
+  "need_id": "N728",
+  "statement": "Users can know the conditions under which access to JRC data is restricted when sharing on the basis of the JRC Open Data principles is impossible"
+ },
+ {
+  "need_id": "N943",
+  "statement": "Users can know that JRC data is made available in an accepted, platform‑independent, machine‑readable format via accepted interfaces where possible."
+ },
+ {
+  "need_id": "N564",
+  "statement": "Users can know the release date (formal issuance) of a dataset."
+ },
+ {
+  "need_id": "N699",
+  "statement": "Users can know that all metadata fields about the catalog, its datasets and distributions are included in the RDF description"
+ },
+ {
+  "need_id": "N765",
+  "statement": "Users can know the landing page of a dataset for a Dataset"
+ },
+ {
+  "need_id": "N881",
+  "statement": "Users can know the landing page URL for a dataset."
+ },
+ {
+  "need_id": "N730",
+  "statement": "Users can know the entity responsible for making the dataset available (publisher)."
+ },
+ {
+  "need_id": "N743",
+  "statement": "Users can know a direct download URL of a dataset when it is provided."
+ },
+ {
+  "need_id": "N111",
+  "statement": "Users can know the landing page URL of a dataset when it is provided."
+ },
+ {
+  "need_id": "N167",
+  "statement": "Users can know that date values are typed using the appropriate XML Schema datatype."
+ },
+ {
+  "need_id": "N983",
+  "statement": "Users can know which role types (e.g., contact, curation) are associated with contributors for a dataset."
+ },
+ {
+  "need_id": "N523",
+  "statement": "Users can know that the policy will be reviewed three years after its adoption"
+ },
+ {
+  "need_id": "N164",
+  "statement": "Users can know the date of last change of a catalog entry (catalog metadata) for a dataset."
+ },
+ {
+  "need_id": "N419",
+  "statement": "Users can find both a broad type and a more specific description that characterise a resource."
+ },
+ {
+  "need_id": "N110",
+  "statement": "Users can know the licensing conditions that apply to research use."
+ },
+ {
+  "need_id": "N501",
+  "statement": "Users can know the download URL of a distribution for a Distribution when it is directly downloadable"
+ },
+ {
+  "need_id": "N328",
+  "statement": "Users shall acknowledge the source of JRC data when using it."
+ },
+ {
+  "need_id": "N889",
+  "statement": "Users can know identifiers other than the primary DOI together with their identifier types for a dataset."
+ },
+ {
+  "need_id": "N706",
+  "statement": "Users can find data management plans associated with projects, activities, and JRC data"
+ },
+ {
+  "need_id": "N272",
+  "statement": "Users can know that licences with third parties do not restrict use of derivative output produced by the JRC using the acquired data"
+ }
+]

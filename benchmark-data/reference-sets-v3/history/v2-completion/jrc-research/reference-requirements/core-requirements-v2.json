@@ -1,0 +1,210 @@
+{
+ "schema_version": "rq1-reference-set-2",
+ "case": "jrc-research",
+ "reference_document": "Perego et al., Using DCAT-AP for research data (SDSVoc 2016)",
+ "base": "DCAT-AP 1.1",
+ "supersedes": "core-requirements.json (v1 rows kept unchanged, marked added_in=v1)",
+ "completion_rule": "v2 adds every requirement the reference document states for the profile, its metadata or the systems around it that v1 did not contain: a requirement sentence, a rationale, a changed obligation or a reported request. Text copied from DCAT-AP and table entries that only repeat a base obligation without a rationale are not added. Rows that are only proposed, deferred or open issues are kept and marked in status_in_source.",
+ "scoring_note": "Score level=content rows for need recovery; profile and system rows are reported separately.",
+ "count": 11,
+ "count_by_level": {
+  "content": 10,
+  "system": 1
+ },
+ "count_added_in_v2": 6,
+ "requirements": [
+  {
+   "id": "JRC-1",
+   "statement": "Identify the people who created a dataset.",
+   "source_locator": "Metadata elements relevant for scientific data, numbered item 1",
+   "adopted_resolution": "dct:creator",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "added_in": "v1"
+  },
+  {
+   "id": "JRC-2",
+   "statement": "Describe the origin and processing history of data.",
+   "source_locator": "Metadata elements relevant for scientific data, numbered item 2",
+   "adopted_resolution": "dct:provenance",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "requirement",
+   "added_in": "v1"
+  },
+  {
+   "id": "JRC-3",
+   "statement": "Give prospective users practical guidance on using a dataset.",
+   "source_locator": "Metadata elements relevant for scientific data, numbered item 3",
+   "adopted_resolution": "vann:usageNote",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "added_in": "v1"
+  },
+  {
+   "id": "JRC-4",
+   "statement": "Connect datasets to associated scientific publications.",
+   "source_locator": "Metadata elements relevant for scientific data, numbered item 4",
+   "adopted_resolution": "dct:isReferencedBy",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "added_in": "v1"
+  },
+  {
+   "id": "JRC-5",
+   "statement": "Identify source datasets used in producing a dataset.",
+   "source_locator": "Metadata elements relevant for scientific data, numbered item 5",
+   "adopted_resolution": "dct:source",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "requirement",
+   "added_in": "v1"
+  },
+  {
+   "id": "JRC-6",
+   "statement": "Give datasets persistent identifiers, encoded as HTTP URIs where possible, and tell primary identifiers (e.g. DOIs) from alternative ones.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Data citation\", \"Identifiers\"",
+   "anchor_quote": "For this purpose, it would be desirable to promote the encoding of identifiers as HTTP URIs, whenever possible.",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "level": "content",
+   "relation_to_base": "tightens_base",
+   "status_in_source": "open_issue",
+   "atoms": 2,
+   "overlaps": [],
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "std",
+    "prac"
+   ],
+   "problem": "P4",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated"
+  },
+  {
+   "id": "JRC-7",
+   "statement": "Express the roles that agents play for a dataset beyond publisher and contact point, consistently across catalogues.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Data citation\", \"Agent roles\"",
+   "anchor_quote": "A consistent use of agent roles is crucial to enable metadata interoperability.",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "open_issue",
+   "atoms": 1,
+   "overlaps": [
+    "JRC-1"
+   ],
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "std",
+    "prac"
+   ],
+   "problem": "P4",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated"
+  },
+  {
+   "id": "JRC-8",
+   "statement": "Indicate when a distribution gives access through a service or API rather than to the data itself, and which service standard it follows.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Modelling service/API-based data access\"",
+   "anchor_quote": "Denote distributions as pointing to a service / API, and not directly to the actual data.",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "open_issue",
+   "atoms": 2,
+   "overlaps": [],
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "prac"
+   ],
+   "problem": "P2",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated"
+  },
+  {
+   "id": "JRC-9",
+   "statement": "Describe provenance in enough detail to support reproducibility and to track how data are used.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Additional requirements\" (detailed specification of data provenance)",
+   "anchor_quote": "The objectives include (a) data reproducibility and (b) ability to track the usage of data",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "open_issue",
+   "atoms": 2,
+   "overlaps": [
+    "JRC-2"
+   ],
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "prac"
+   ],
+   "problem": "P3",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated"
+  },
+  {
+   "id": "JRC-10",
+   "statement": "Describe data quality assessments and include users' feedback on the data.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Additional requirements\" (modelling and using data quality assessments)",
+   "anchor_quote": "it potentially includes the integration of users' feedback as part of the meta/data management life-cycle.",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "open_issue",
+   "atoms": 2,
+   "overlaps": [],
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "prac"
+   ],
+   "problem": "P3",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated"
+  },
+  {
+   "id": "JRC-11",
+   "statement": "Publish metadata on the Web so that the data are visible and discoverable through search engines.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Additional requirements\" (optimising metadata publication on the Web)",
+   "anchor_quote": "increasing visibility and discoverability of JRC data on the Web, also via search engines.",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "level": "system",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "open_issue",
+   "atoms": 1,
+   "overlaps": [],
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "prac"
+   ],
+   "problem": "P1",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated"
+  }
+ ]
+}

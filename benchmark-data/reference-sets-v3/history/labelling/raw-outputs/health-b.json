@@ -1,0 +1,879 @@
+[
+  {
+    "atom_id": "H-34.1",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 17] §4.4.3 Optional properties for Dataset", "quote": "This property refers to a web page that provides access to the Dataset, its Distributions and/or additional landing page dcat:landingPage foaf:Document information."},
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.4.17 Property: landing page", "quote": "A Web page that can be navigated to in a Web browser to gain access to the catalog, a dataset, its distributions and/or additional information."}
+      ],
+      "rationale": "DCAT-AP and DCAT define the landing page as a web page giving access to the dataset, its distributions and additional information."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions landing pages or web access pages."
+    }
+  },
+  {
+    "atom_id": "H-35.1",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 17] §4.4.3 Optional properties for Dataset", "quote": "This property refers to a language of the Dataset. This property can be"},
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.4.9 Property: language", "quote": "Repeat this property if the resource is available in multiple languages."}
+      ],
+      "rationale": "DCAT-AP defines dct:language for the language of the Dataset, repeatable when several languages occur."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions the language of a dataset."
+    }
+  },
+  {
+    "atom_id": "H-36.1",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 4]", "quote": "essential to improve the findability and reusability of the data by researchers and policy makers might be missing, such as the granularity of the data (aggregated/individual), topic of the health data (e.g. disease etc.), the age range and the sex"},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 19]", "quote": "observation unit type, number of observation units, universe/Population"},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 21]", "quote": "geo coverage, country, sex, target population, access information, age range from"}
+      ],
+      "rationale": "Landscape analysis names age range and sex as essential missing health properties; national catalogues record population and target population."
+    },
+    "consolidation": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-8", "quote": "Describe provenance, population and collection purpose in metadata that can support AI-assisted discovery."}
+      ],
+      "rationale": "TWG-8 directly asks to describe the population in dataset metadata."
+    }
+  },
+  {
+    "atom_id": "H-37.1",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 18]", "quote": "hdhrdf_hasQualityMeasurementSet, hdhrdf_medicalDataType, hdhrdf_itemsCount, hdhrdf_legalStatus"},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 19]", "quote": "observation unit type, number of observation units, universe/Population"}
+      ],
+      "rationale": "Inventoried national catalogue schemas include an items count (French Health Data Hub) and number of observation units (Finland)."
+    },
+    "consolidation": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-7", "quote": "Provide descriptive dataset metrics."}
+      ],
+      "rationale": "TWG-7 asks for descriptive dataset metrics but does not name the number of records."
+    }
+  },
+  {
+    "atom_id": "H-37.2",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 10]", "quote": "Quantitative descriptors (6 – ex: Population size by age)"},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 21]", "quote": "updating periodicity, sample size, personal identifier"},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 19]", "quote": "observation unit type, number of observation units, universe/Population"}
+      ],
+      "rationale": "Inventoried catalogues record population size, sample size and number of observation units, i.e. counts of individuals."
+    },
+    "consolidation": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-7", "quote": "Provide descriptive dataset metrics."}
+      ],
+      "rationale": "TWG-7 asks for descriptive dataset metrics but does not name the number of unique individuals."
+    }
+  },
+  {
+    "atom_id": "H-37.3",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.7.12 Property: byte size", "quote": "The size of a distribution in bytes."},
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 19] §4.5.3 Optional properties for Distribution", "quote": "rdfs:Literal typed as This property contains the size of a 0..1 byte size dcat:byteSize xsd:decimal Distribution in bytes."},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 18]", "quote": "dcat:distribution, dcat:accessURL, dcatap:availability, dct:description, dct:format, dct:license, dcat:accessService, dcat:byteSize, spdx:checksum,"}
+      ],
+      "rationale": "DCAT and DCAT-AP define dcat:byteSize for a distribution; the French Health Data Hub catalogue uses it."
+    },
+    "consolidation": {
+      "label": "uncertain",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-7", "quote": "Provide descriptive dataset metrics."}
+      ],
+      "rationale": "TWG-7 asks for dataset metrics; unclear whether distribution byte size is meant."
+    }
+  },
+  {
+    "atom_id": "H-38.1",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§9.1 Temporal properties (Example 25)", "quote": "Temporal coverage as open interval (no end date)"},
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 22] §4.13 Period of Time", "quote": "Please note that while both properties are recommended, one of the two must be present for each instance of the class dct:PeriodOfTime, if such an instance is present."},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 18]", "quote": "hdhrdf_linkedResourceTrainingProgram, hdhrdf_isDataCollectionOngoing, hdhrdf_sndsPaired"}
+      ],
+      "rationale": "DCAT shows temporal coverage as an open interval without end date; DCAT-AP allows a start date alone; HDH flags ongoing collection."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions temporal coverage or collection periods."
+    }
+  },
+  {
+    "atom_id": "H-39.1",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.6.6 Property: temporal resolution", "quote": "Minimum time period resolvable in the dataset."},
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 18] §4.4.3 Optional properties for Dataset", "quote": "temporal rdfs:Literal typed as This property refers to the minimum 0..1 dcat:temporalResolution resolution xsd:duration time period resolvable in the dataset."}
+      ],
+      "rationale": "DCAT and DCAT-AP define the dataset's temporal resolution; the reuse-judgement purpose is not stated but the property is defined."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions temporal resolution."
+    }
+  },
+  {
+    "atom_id": "H-40.1",
+    "raw": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-raw/gdpr.html", "locator": "Article 30(1)(f)", "quote": "where possible, the envisaged time limits for erasure of the different categories of data;"},
+        {"path": "healthdcat/input-raw/gdpr.html", "locator": "Article 13(2)(a)", "quote": "the period for which the personal data will be stored, or if that is not possible, the criteria used to determine that period;"},
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 19] §4.5.2 Recommended properties for Distribution", "quote": "This property indicates how long it is availability dcatap:availability skos:Concept planned to keep the Distribution of the 0..1 Dataset available."}
+      ],
+      "rationale": "GDPR requires documenting erasure time limits for personal data, but in processing records; no input puts a deletion date in dataset metadata."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions retention or deletion of datasets."
+    }
+  },
+  {
+    "atom_id": "H-40.2",
+    "raw": {
+      "label": "uncertain",
+      "sources": [
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.4.22 Property: is referenced by", "quote": "A related resource, such as a publication, that references, cites, or otherwise points to the cataloged resource."},
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§7 Dereferenceable identifiers", "quote": "DCAT primarily relies on persistent HTTP URIs as an effective way of making identifiers actionable."},
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 46(11)", "quote": "they shall acknowledge the electronic health data sources and the fact that electronic health data has been obtained in the context of the"}
+      ],
+      "rationale": "Inputs show publications citing datasets and persistent identifiers, but nothing on keeping a record after its dataset is deleted."
+    },
+    "consolidation": {
+      "label": "uncertain",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-3", "quote": "Make dataset identities stable and distinguishable across portals and consider a consistent description of data sources."}
+      ],
+      "rationale": "TWG-3 asks for stable dataset identities; it does not address records of deleted datasets."
+    }
+  },
+  {
+    "atom_id": "H-41.1",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 18] §4.4.3 Optional properties for Dataset", "quote": "This property contains a version version owl:versionInfo rdfs:Literal number or other version designation"},
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§10 Versioning", "quote": "It is up to data providers to decide when and why a new version should be released."}
+      ],
+      "rationale": "DCAT-AP defines owl:versionInfo as a version designation; DCAT leaves versioning decisions to data providers' practice."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions versions or versioning."
+    }
+  },
+  {
+    "atom_id": "H-42.1",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.6.4 Property: spatial resolution", "quote": "Minimum spatial separation resolvable in a dataset, measured in meters."},
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.6.4 Property: spatial resolution", "quote": "For other kinds of spatial datasets, this property will usually indicate the smallest distance between items in the dataset."},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 18]", "quote": "hdhrdf_legalDataCategory, hdhrdf_spatialGranularity, hdhrdf_sndsPairingType"}
+      ],
+      "rationale": "DCAT defines spatial resolution for spatial datasets; the French Health Data Hub catalogue has a spatial granularity property."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions spatial resolution."
+    }
+  },
+  {
+    "atom_id": "H-43.1",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.5.3 Property: listing date", "quote": "The date of listing (i.e. formal recording) of the corresponding dataset or service in the catalog."},
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 15] §4.2.2 Recommended properties for Catalogue Record", "quote": "This property contains the date on which the listing date dct:issued xsd:dateTime, description of the Dataset was included in the"}
+      ],
+      "rationale": "DCAT and DCAT-AP define the catalogue record listing date (dct:issued)."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions catalogue record dates."
+    }
+  },
+  {
+    "atom_id": "H-43.2",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 15] §4.2.1 Mandatory properties for Catalogue Record", "quote": "This property contains the most recent date modification dct:modified xsd:dateTime, on which the Catalogue entry was changed or 1..1"},
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.5.4 Property: update/modification date", "quote": "Most recent date on which the catalog entry was changed, updated or modified."}
+      ],
+      "rationale": "DCAT-AP makes the catalogue record modification date mandatory; DCAT defines it."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions catalogue record dates."
+    }
+  },
+  {
+    "atom_id": "H-43.3",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 15] §4.2.3 Optional properties for Catalogue Record", "quote": "This property refers to the original source dct:source dcat:CatalogRecord metadata that was used in creating"},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 9]", "quote": "It collects metadata from data providers and transforms them into DCAT-AP compliant data structure through defined transformation rules."}
+      ],
+      "rationale": "DCAT-AP defines the catalogue record's source metadata, the original metadata used to create it; harvesting aggregation is described."
+    },
+    "consolidation": {
+      "label": "uncertain",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-1", "quote": "Combine metadata from several health catalogues while retaining a consistent interpretation of records."}
+      ],
+      "rationale": "TWG-1 concerns combining metadata from several catalogues; tracing records to their source metadata is not mentioned."
+    }
+  },
+  {
+    "atom_id": "H-44.1",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 15] §4.2.2 Recommended properties for Catalogue Record", "quote": "This property refers to an Application Profile 0..1 dct:conformsTo dct:Standard profile that the Dataset’s metadata conforms to"},
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.5.6 Property: conforms to", "quote": "This property SHOULD be used to indicate the model, schema, ontology, view or profile that the catalog record metadata conforms to."},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 9]", "quote": "The last main component is the metadata quality assurance service. It checks metadata stored into the metadata registry according to two levels"}
+      ],
+      "rationale": "DCAT-AP and DCAT define the record's conformance to an application profile; data.europa.eu checks harvested metadata."
+    },
+    "consolidation": {
+      "label": "uncertain",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-1", "quote": "Combine metadata from several health catalogues while retaining a consistent interpretation of records."}
+      ],
+      "rationale": "TWG-1 seeks consistent interpretation of combined records; declaring the followed profile is not mentioned."
+    }
+  },
+  {
+    "atom_id": "H-45.1",
+    "raw": {
+      "label": "uncertain",
+      "sources": [
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 41(6)", "quote": "Data holders of non-personal electronic health data shall ensure access to data through trusted open databases"},
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 49(1)", "quote": "that applicant may file a data access application or a data request directly to the data holder."}
+      ],
+      "rationale": "EHDS mentions trusted open databases and direct applications to single data holders; no trusted-data-holder status or search facet."
+    },
+    "consolidation": {
+      "label": "uncertain",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-4", "quote": "Enable users to narrow searches using multiple descriptive attributes."}
+      ],
+      "rationale": "TWG-4 asks for multi-attribute search filtering but names no trusted-holder attribute."
+    }
+  },
+  {
+    "atom_id": "H-46.1",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 56(3)(d)", "quote": "coverage: representation of multi-disciplinary electronic health data, representativity of population sampled, average timeframe in which a natural person appears in a dataset;"},
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 56(2)", "quote": "Datasets with electronic health data collected and processed with the support of Union or national public funding shall have a data quality and utility label"}
+      ],
+      "rationale": "The EHDS label's coverage element names representativity of the sampled population and average timeframe a person appears; required for publicly funded datasets."
+    },
+    "consolidation": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-8", "quote": "Describe provenance, population and collection purpose in metadata that can support AI-assisted discovery."},
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-7", "quote": "Provide descriptive dataset metrics."}
+      ],
+      "rationale": "TWG-8 asks to describe the population and TWG-7 for dataset metrics; representativity and average timeframe are not named."
+    }
+  },
+  {
+    "atom_id": "H-46.2",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 56(3)(c)", "quote": "level of maturity of the data quality management processes, including review and audit processes, biases examination;"}
+      ],
+      "rationale": "EHDS quality label element (c) names this information directly."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation addresses data quality management processes."
+    }
+  },
+  {
+    "atom_id": "H-46.3",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 56(3)(e)", "quote": "access and provision: time between the collection of the electronic health data and their addition to the dataset, time to provide electronic health data following electronic health data access application approval;"}
+      ],
+      "rationale": "EHDS quality label element (e) names both time lags."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions collection-to-inclusion or provision times."
+    }
+  },
+  {
+    "atom_id": "H-46.4",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 56(3)(f)", "quote": "information on data enrichments: merging and adding data to an existing dataset, including links with other datasets"}
+      ],
+      "rationale": "EHDS quality label element (f) names merging, adding data and links with other datasets."
+    },
+    "consolidation": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-8", "quote": "Describe provenance, population and collection purpose in metadata that can support AI-assisted discovery."}
+      ],
+      "rationale": "TWG-8 asks for provenance descriptions; merging, additions and links with other datasets are not named."
+    }
+  },
+  {
+    "atom_id": "H-47.1",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 55(2)", "quote": "The Commission shall, by means of implementing acts, set out the minimum information elements data holders are to provide for datasets and their characteristics."},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 5]", "quote": "The aim of WP6 is to design, develop and implement a standardised descriptive metadata template for health-related datasets"}
+      ],
+      "rationale": "EHDS provides for minimum information elements data holders must provide; WP6 aims at a standardised metadata template."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation addresses a standardised minimum element set."
+    }
+  },
+  {
+    "atom_id": "H-48.1",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 4]", "quote": "compliant with and can be harvested by the data.europa.eu, we decided to use the DCAT-AP as the baseline metadata standard."},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 5]", "quote": "the provision of an extension to DCAT-AP: HealthDCAT-AP"},
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§4 Conformance", "quote": "A data catalog that conforms to the profile also conforms to DCAT."}
+      ],
+      "rationale": "WP6 takes DCAT-AP as baseline so catalogues stay harvestable by data.europa.eu, building HealthDCAT-AP as its extension."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions DCAT-AP compatibility."
+    }
+  },
+  {
+    "atom_id": "H-49.1",
+    "raw": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Recital 60", "quote": "be aligned with the data.europa.eu initiative and without prejudice to the requirements set out in the"},
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 41(6)", "quote": "Data holders of non-personal electronic health data shall ensure access to data through trusted open databases to ensure unrestricted access for all users"},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 4]", "quote": "compliant with and can be harvested by the data.europa.eu, we decided to use the DCAT-AP as the baseline metadata standard."}
+      ],
+      "rationale": "Inputs support aligning health catalogues with data.europa.eu and DCAT-AP and mention open health data; DCAT-AP for High-Value Datasets is never named."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions open data or High-Value Datasets."
+    }
+  },
+  {
+    "atom_id": "H-50.1",
+    "raw": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 37(1)(q)(i)", "quote": "The national dataset catalogue shall also be made available to single information points under Article 8 of Regulation"},
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Recital 60", "quote": "without prejudice to the requirements set out in the Regulation […] [ Data Governance Act"}
+      ],
+      "rationale": "EHDS makes national dataset catalogues available to Data Governance Act single information points; the non-open, non-personal cohort condition is not stated."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions single information points or the Data Governance Act."
+    }
+  },
+  {
+    "atom_id": "H-51.1",
+    "raw": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 29]", "quote": "The health DCAT-AP will enable metadata records to meet the specific discoverability needs of sensitive health data"},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 29]", "quote": "These specifications will determine the “required”, “optional” and “recommended” properties that will need to be filled in in a metadata record template."},
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§4 Conformance", "quote": "Cardinality constraints, including a minimum set of required metadata fields"}
+      ],
+      "rationale": "Inputs support required property sets and sensitive health data's specific needs, not stricter conditional sets per protected or sensitive category."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation addresses element sets for protected or sensitive data."
+    }
+  },
+  {
+    "atom_id": "H-52.1",
+    "raw": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 23] §5.1 Requirements for controlled vocabularies", "quote": "Have terms that are identified by URIs with each URI resolving to documentation about the term."},
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 23] §5.1 Requirements for controlled vocabularies", "quote": "Be operated and/or maintained by an institution of the European Union, by a recognised standards organisation or another trusted organisation."},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 28]", "quote": "there is a need to complement this standard by adding dedicated health data properties and controlled vocabularies in a collaborative way."}
+      ],
+      "rationale": "Inputs support URI-identified vocabularies from trusted maintainers and new health vocabularies; Wikidata or one shared knowledge base is not named."
+    },
+    "consolidation": {
+      "label": "uncertain",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-1", "quote": "Combine metadata from several health catalogues while retaining a consistent interpretation of records."}
+      ],
+      "rationale": "TWG-1 seeks consistent interpretation across catalogues, which shared coded values could serve; coded values are not mentioned."
+    }
+  },
+  {
+    "atom_id": "H-53.1",
+    "raw": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 56(3)(a)", "quote": "data documentation: meta-data, support documentation, data model, data dictionary, standards"},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 17]", "quote": "The scope is both standardised metadata about the data source (data set), metadata about the belonging variables, and the code lists/value sets the"},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 19]", "quote": "Download the variable and code list descriptions of a dataset in a CSV file."}
+      ],
+      "rationale": "EHDS lists the data dictionary as documentation; catalogues share standardised variable metadata and CSV downloads; CSVW is never named."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions data dictionaries or variable descriptions."
+    }
+  },
+  {
+    "atom_id": "H-54.1",
+    "raw": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 30] §8 Accessibility and multilingual aspects", "quote": "For free text, e.g. in the cases of titles, descriptions and keywords, the language tag is mandatory."},
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 23] §5.1 Requirements for controlled vocabularies", "quote": "Have labels in multiple languages, ideally in all official languages of the European Union."}
+      ],
+      "rationale": "DCAT-AP requires language-tagged descriptions and values EU official languages for vocabularies; a minimum of one official EU language is not set."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions languages of descriptions."
+    }
+  },
+  {
+    "atom_id": "H-54.2",
+    "raw": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 21]", "quote": "dct:title @en, dct:title @national language"},
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 30] §8 Accessibility and multilingual aspects", "quote": "The string is free text. Examples are descriptions and labels. Such text may be translated into several languages."},
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 30] §8 Accessibility and multilingual aspects", "quote": "A language tag will look like: \"en-t-es-t0-abcd\", which conveys the information that the string is in English, translated from Spanish by machine translation using a tool"}
+      ],
+      "rationale": "A catalogue records titles in the national language and DCAT-AP supports translated versions; no input encourages native-language authoring."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions native-language metadata."
+    }
+  },
+  {
+    "atom_id": "H-55.1",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 14]", "quote": "the objective is as well to set up an infrastructure with endpoints for sharing machine readable metadata between the national nodes, and with EHDS."},
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 37(1)(q)(i)", "quote": "The national dataset catalogue shall also be made available to single information points under Article 8 of Regulation"},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 3] (quoting EHDS Article 57)", "quote": "1. The Commission shall establish an EU Datasets Catalogue connecting the national catalogues of datasets established by the health data access bodies"}
+      ],
+      "rationale": "EHDS connects national catalogues to the EU catalogue and single information points; Nordic nodes plan endpoints sharing machine-readable metadata with EHDS."
+    },
+    "consolidation": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-1", "quote": "Combine metadata from several health catalogues while retaining a consistent interpretation of records."}
+      ],
+      "rationale": "TWG-1 supports aggregating metadata from several catalogues; harvestable endpoints and the named consumers are not stated."
+    }
+  },
+  {
+    "atom_id": "H-56.1",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 15] §4.2.3 Optional properties for Catalogue Record", "quote": "This property refers to the original source dct:source dcat:CatalogRecord metadata that was used in creating"},
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§7 Dereferenceable identifiers", "quote": "can be adopted for distinguishing authoritative datasets from dataset harvested by third parties catalogs."},
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 17] §4.4.3 Optional properties for Dataset", "quote": "a landing page at the original data provider, not to a page on a site of a third party, such as an aggregator."}
+      ],
+      "rationale": "DCAT-AP links records to their original metadata and landing pages to the original provider; DCAT distinguishes authoritative from harvested datasets."
+    },
+    "consolidation": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-3", "quote": "Make dataset identities stable and distinguishable across portals and consider a consistent description of data sources."},
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-1", "quote": "Combine metadata from several health catalogues while retaining a consistent interpretation of records."}
+      ],
+      "rationale": "TWG-3 and TWG-1 seek stable identities and consistent records across portals; linking copies to the source record is not stated."
+    }
+  },
+  {
+    "atom_id": "H-56.2",
+    "raw": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 41(2)", "quote": "The data holder shall communicate to the health data access body a general description of the dataset it holds in accordance with Article"},
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§7 Dereferenceable identifiers", "quote": "can be adopted for distinguishing authoritative datasets from dataset harvested by third parties catalogs."}
+      ],
+      "rationale": "EHDS makes data holders the source of dataset descriptions; that only they edit metadata, not access bodies, is not stated."
+    },
+    "consolidation": {
+      "label": "uncertain",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-1", "quote": "Combine metadata from several health catalogues while retaining a consistent interpretation of records."}
+      ],
+      "rationale": "TWG-1 seeks consistent interpretation of combined records; editing only at the primary source is not mentioned."
+    }
+  },
+  {
+    "atom_id": "H-56.3",
+    "raw": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§7 Dereferenceable identifiers", "quote": "Proxy dereferenceable URIs can be used when resources have not HTTP dereferenceable IDs."},
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§7 Dereferenceable identifiers", "quote": "The need to distinguish between primary and alternative (or legacy) identifiers for a dataset within DCAT has been posed as a requirement. However, it is very much application-specific and would be better addressed in DCAT profiles"},
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§7 Dereferenceable identifiers", "quote": "DCAT primarily relies on persistent HTTP URIs as an effective way of making identifiers actionable."}
+      ],
+      "rationale": "DCAT supports proxy persistent URIs alongside original identifiers and defers primary/alternative identifiers to profiles; the access body's role is not stated."
+    },
+    "consolidation": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-3", "quote": "Make dataset identities stable and distinguishable across portals and consider a consistent description of data sources."}
+      ],
+      "rationale": "TWG-3 asks for stable, distinguishable dataset identities; the conditional additional URI assigned by the access body is not stated."
+    }
+  },
+  {
+    "atom_id": "H-57.1",
+    "raw": {
+      "label": "uncertain",
+      "sources": [
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 9]", "quote": "it checks the format correctness of the metadata (missing properties, wrong data types…) but also the content of specific metadata properties (accessibility, most used data formats, most used licenses…)."},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 21]", "quote": "url of the data source, data source url status"}
+      ],
+      "rationale": "data.europa.eu checks an accessibility aspect and one portal records URL status; detecting broken links between catalogue resources is not explicit."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions link checking or broken URIs."
+    }
+  },
+  {
+    "atom_id": "H-58.1",
+    "raw": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Legislative financial statement, 1.4.4 Indicators of performance", "quote": "Number of datasets published in the European data catalogue;"},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 9]", "quote": "allows us to reflect on the current state and maturity level of available health related metadata catalogues in Europe."},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 28]", "quote": "conclude that 7 out of 18 metadata catalogues are using, mapping or are compliant with the DCAT-AP metadata standard."}
+      ],
+      "rationale": "EHDS monitors progress through catalogue counts and the landscape analysis rates catalogue maturity by DCAT-AP conformity; URI-share and interoperability metrics are absent."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation addresses measuring data-space maturity."
+    }
+  },
+  {
+    "atom_id": "H-59.1",
+    "raw": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "Inputs only list filters offered by existing catalogues; nothing on ordering facets by relevance or on pilot use cases."
+    },
+    "consolidation": {
+      "label": "uncertain",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-4", "quote": "Enable users to narrow searches using multiple descriptive attributes."}
+      ],
+      "rationale": "TWG-4 asks for multi-attribute search filtering; ordering facets by relevance is not addressed."
+    }
+  },
+  {
+    "atom_id": "H-60.1",
+    "raw": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 47(1)", "quote": "shall only provide an answer to a data request in an anonymised statistical format and the data user shall have no access to the electronic health data used to provide this answer."},
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Recital 55", "quote": "“bring questions to data instead of moving data” should be respected whenever possible."}
+      ],
+      "rationale": "EHDS data requests yield anonymised statistical answers and favour bringing questions to data; attaching an analysis script is not stated."
+    },
+    "consolidation": {
+      "label": "uncertain",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-6", "quote": "Provide non-sensitive proxy or subset data so users can explore restricted holdings."}
+      ],
+      "rationale": "TWG-6 seeks exploration of restricted holdings through proxy data, not scripted statistical requests."
+    }
+  },
+  {
+    "atom_id": "H-61.1",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 5]", "quote": "To support the implementation of the HealthDCAT-AP in the EHDS nodes by supporting the transition from existing metadata templates."},
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Recital 58", "quote": "to help data holders to publish their datasets"}
+      ],
+      "rationale": "WP6 objective 3 is to support nodes' transition from existing metadata templates to HealthDCAT-AP."
+    },
+    "consolidation": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-5", "quote": "Make it feasible for holders to produce rich descriptions without excessive administrative work."}
+      ],
+      "rationale": "TWG-5 seeks to ease holders' metadata work; transforming existing metadata into the profile is not named."
+    }
+  },
+  {
+    "atom_id": "H-61.2",
+    "raw": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 4]", "quote": "WP6 is responsible for the development of a standardised metadata template and an online tool to support the development of local, national and European metadata catalogues"},
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Recital 60", "quote": "The EU datasets catalogue should minimise the administrative burden for the data holders and other database users; be user-friendly, accessible and cost-effective"},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 9]", "quote": "external services connected to the metadata registry (External vocabulary, eTranslation service, EU login(CAS)..)."}
+      ],
+      "rationale": "Inputs call for an online metadata tool and a user-friendly, low-burden catalogue; a multilingual editor needing no technical expertise is not stated."
+    },
+    "consolidation": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-5", "quote": "Make it feasible for holders to produce rich descriptions without excessive administrative work."}
+      ],
+      "rationale": "TWG-5 seeks low-burden metadata production for holders; an editor, multilinguality and no-expertise use are not named."
+    }
+  },
+  {
+    "atom_id": "H-62.1",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 9]", "quote": "The last main component is the metadata quality assurance service. It checks metadata stored into the metadata registry according to two levels : it checks the format correctness of the metadata (missing properties, wrong data types…)"},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 29]", "quote": "design a validation testing plan to address them before publishing the extension. Based on the decisions made by the TWG, a SCHACL14 shape file will be uploaded in the FAIR DATA POINT"},
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 27] §6.1 Provider requirements", "quote": "For the properties listed in the table in section 5.1 , the associated controlled vocabularies MUST be used."}
+      ],
+      "rationale": "data.europa.eu validates aggregated metadata for missing properties and data types; WP6 plans SHACL validation; DCAT-AP mandates controlled vocabularies."
+    },
+    "consolidation": {
+      "label": "uncertain",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-1", "quote": "Combine metadata from several health catalogues while retaining a consistent interpretation of records."}
+      ],
+      "rationale": "TWG-1 seeks consistent interpretation of combined records; validation against the profile is not mentioned."
+    }
+  },
+  {
+    "atom_id": "H-63.1",
+    "raw": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 41(2)", "quote": "The data holder shall communicate to the health data access body a general description of the dataset it holds in accordance with Article"},
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 37(1)(j)", "quote": "cooperate with and supervise data holders to ensure the consistent and accurate implementation of the data quality and utility label"},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 10]", "quote": "the contact information of the responsible entity for the metadata catalogue."}
+      ],
+      "rationale": "EHDS assigns metadata duties to data holders and access bodies, and catalogues name responsible entities; designated metadata managers are not required."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions roles or responsibility for metadata."
+    }
+  },
+  {
+    "atom_id": "H-64.1",
+    "raw": {
+      "label": "uncertain",
+      "sources": [
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§7 Dereferenceable identifiers", "quote": "description for the dataset, which might dynamically enrich the description provided by"},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 9]", "quote": "It collects metadata from data providers and transforms them into DCAT-AP compliant data structure through defined transformation rules."}
+      ],
+      "rationale": "Only generic automatic enrichment or transformation of metadata appears; nothing on access bodies adding EHDS applicability from indicators."
+    },
+    "consolidation": {
+      "label": "uncertain",
+      "sources": [
+        {"path": "healthdcat/input-preconsolidation/twg-observations.json", "locator": "TWG-5", "quote": "Make it feasible for holders to produce rich descriptions without excessive administrative work."}
+      ],
+      "rationale": "TWG-5 seeks rich descriptions with little holder effort; automatic enrichment by access bodies is not mentioned."
+    }
+  },
+  {
+    "atom_id": "H-65.1",
+    "raw": {
+      "label": "uncertain",
+      "sources": [
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 6] §1.1 Context", "quote": "This document is the result of the major semantic change release process described in the Change and Release Management Policy for DCAT-AP"},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 5]", "quote": "To provide recommendations on further development and deployment for possible EU-wide uptake of the descriptive metadata template"},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 7]", "quote": "the need for high level anchoring, governance, capacity building, training, infrastructure, technical and semantic interoperability."}
+      ],
+      "rationale": "DCAT-AP follows a change and release policy and WP6 plans further development; no revision procedure or responsibility for the health profile."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation addresses profile maintenance or governance."
+    }
+  },
+  {
+    "atom_id": "H-66.1",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 16] §4.4.1 Mandatory properties for Dataset", "quote": "This property contains a name given to the Title dct:title rdfs:Literal Dataset. This property can be repeated for 1..n"},
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 27] §6.1 Provider requirements", "quote": "Provide descriptions of Datasets in the Catalogue, including at least the mandatory properties specified in section 4.4.1."}
+      ],
+      "rationale": "DCAT-AP makes dct:title mandatory (1..n) for every Dataset."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions dataset titles."
+    }
+  },
+  {
+    "atom_id": "H-66.2",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 16] §4.4.1 Mandatory properties for Dataset", "quote": "This property contains a free-text account of the Dataset. This property can be 1..n"},
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 41(2)", "quote": "The data holder shall communicate to the health data access body a general description of the dataset it holds in accordance with Article"}
+      ],
+      "rationale": "DCAT-AP makes dct:description mandatory (1..n) for every Dataset; EHDS requires holders to give a general dataset description."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation requires a free-text description per dataset."
+    }
+  },
+  {
+    "atom_id": "H-66.3",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 19] §4.5.1 Mandatory properties for Distribution", "quote": "This property contains a URL that gives access to a Distribution of the Dataset. The 1..n access URL dcat:accessURL rdfs:Resource resource at the access URL may contain information about how to get the Dataset."},
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.7.9 Property: access URL", "quote": "A URL of the resource that gives access to a distribution of the dataset. E.g. landing page, feed, SPARQL endpoint."}
+      ],
+      "rationale": "DCAT-AP makes the access URL mandatory; it may contain information on how to get the Dataset."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions access URLs or access procedures."
+    }
+  },
+  {
+    "atom_id": "H-67.1",
+    "raw": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 19] §4.5.2 Recommended properties for Distribution", "quote": "This property refers to the file format of the 0..1 format dct:format dct:MediaTypeOrExtent Distribution."},
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 45(2)(b)", "quote": "a description of the requested electronic health data, their format and data sources"}
+      ],
+      "rationale": "DCAT-AP recommends at most one file format per distribution (0..1); making it mandatory for protected (NSIP) data is not supported."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions file formats."
+    }
+  },
+  {
+    "atom_id": "H-67.2",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 8] §2 Terminology used in the DCAT Application Profile", "quote": "A Dataset is a collection of data, published or curated by a single source, and available for access or download in one or more formats."},
+        {"path": "healthdcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.7 Class: Distribution", "quote": "A specific representation of a dataset. A dataset might be available in multiple serializations that may differ in various ways, including natural language, media-type or format"}
+      ],
+      "rationale": "DCAT-AP and DCAT model a dataset available in several formats as separate distributions."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions formats or distributions."
+    }
+  },
+  {
+    "atom_id": "H-68.1",
+    "raw": {
+      "label": "supported",
+      "sources": [
+        {"path": "healthdcat/input-raw/dcat-ap-2.1.1.pdf", "locator": "[page 17] §4.4.3 Optional properties for Dataset", "quote": "This property refers to the frequency 0..1 frequency dct:accrualPeriodicity dct:Frequency at which the Dataset is updated."},
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 45(5)", "quote": "the period for which the data can be accessed, the frequency of that access or the frequency of the data updates"}
+      ],
+      "rationale": "DCAT-AP defines dct:accrualPeriodicity as update frequency; EHDS refers to the frequency of data updates."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions update frequency."
+    }
+  },
+  {
+    "atom_id": "H-69.1",
+    "raw": {
+      "label": "partial",
+      "sources": [
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Article 56(3)(b)", "quote": "technical quality, showing the completeness, uniqueness, accuracy, validity, timeliness and consistency of the data;"},
+        {"path": "healthdcat/input-raw/ehds-proposal.html", "locator": "Recital 61", "quote": "datasets are not harmonised, raising comparability issues and making cross-border research difficult."},
+        {"path": "healthdcat/input-raw/landscape-analysis-ms6.1.pdf", "locator": "[page 10]", "quote": "CDM mapping: Is the data source ETL-ed to a CDM?"}
+      ],
+      "rationale": "EHDS requires showing data validity and consistency and seeks harmonised data; a common validator in the infrastructure is not stated."
+    },
+    "consolidation": {
+      "label": "unsupported",
+      "sources": [],
+      "rationale": "No TWG observation mentions data validation or common data models."
+    }
+  }
+]

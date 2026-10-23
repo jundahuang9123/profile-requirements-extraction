@@ -1,0 +1,47 @@
+[
+ {
+  "atom_id": "JRC-6.1",
+  "atom_statement": "Use persistent identifiers for dataset authors and input data, so datasets can be reliably filtered and linked by them.",
+  "source_passage": "a key requirement is the ability to rely on persistent identifiers",
+  "need_id": "N591",
+  "need_statement": "Users can know the unique identifier of the dataset.",
+  "reviewer_1": {
+   "label": "partial",
+   "rationale": "Asks for a dataset's own unique identifier, not persistent identifiers for its authors and input data used for filtering and linking."
+  },
+  "reviewer_2": {
+   "label": "unrelated",
+   "rationale": "not listed, so unrelated"
+  }
+ },
+ {
+  "atom_id": "JRC-6.1",
+  "atom_statement": "Use persistent identifiers for dataset authors and input data, so datasets can be reliably filtered and linked by them.",
+  "source_passage": "a key requirement is the ability to rely on persistent identifiers",
+  "need_id": "N840",
+  "need_statement": "Users can know the identifier (URI) of the catalog's publisher.",
+  "reviewer_1": {
+   "label": "partial",
+   "rationale": "Asks for an agent identifier (URI), but for the catalogue's publisher rather than dataset authors, without persistence or the filtering/linking purpose."
+  },
+  "reviewer_2": {
+   "label": "unrelated",
+   "rationale": "not listed, so unrelated"
+  }
+ },
+ {
+  "atom_id": "JRC-6.4",
+  "atom_statement": "Use a DOI as the dataset identifier when generating DataCite citations.",
+  "source_passage": "DataCite requires the dataset identifier to be a DOI.",
+  "need_id": "N591",
+  "need_statement": "Users can know the unique identifier of the dataset.",
+  "reviewer_1": {
+   "label": "partial",
+   "rationale": "Asks for the dataset identifier without requiring it to be a DOI or the DataCite citation context."
+  },
+  "reviewer_2": {
+   "label": "unrelated",
+   "rationale": "not listed, so unrelated"
+  }
+ }
+]

@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reference requirements compared</title>
+<style>
+:root{
+  color-scheme: light;
+  --page:#f9f9f7; --surface:#fcfcfb; --surface2:#f3f2ee; --ink:#0b0b0b; --ink2:#52514e; --muted:#6f6e69;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10); --accent:#2a78d6;
+  %%TOK_LIGHT%%
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme: dark;
+    --page:#0d0d0d; --surface:#1a1a19; --surface2:#232321; --ink:#f0efec; --ink2:#c3c2b7; --muted:#a3a29b;
+    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10); --accent:#3987e5;
+    %%TOK_DARK%%
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --page:#0d0d0d; --surface:#1a1a19; --surface2:#232321; --ink:#f0efec; --ink2:#c3c2b7; --muted:#a3a29b;
+  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10); --accent:#3987e5;
+  %%TOK_DARK%%
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--page);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:1100px;margin:0 auto;padding:28px 16px 64px}
+h1{font-size:26px;line-height:1.2;margin:0 0 6px;font-weight:650;letter-spacing:-.01em}
+h2{font-size:18px;margin:0 0 4px;font-weight:650}
+h3{font-size:15px;margin:0 0 6px;font-weight:650}
+p{margin:0 0 10px}
+.sub{color:var(--ink2);margin:0 0 22px;max-width:820px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 18px 16px;margin:0 0 18px}
+.cap{color:var(--ink2);font-size:13.5px;margin:6px 0 12px;max-width:860px}
+.small{font-size:13px;color:var(--ink2)}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px}
+/* findings */
+.findings{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:0 0 18px}
+.find{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.find .big{font-size:30px;font-weight:650;line-height:1.1;margin:0 0 6px}
+.find .big small{font-size:15px;font-weight:500;color:var(--ink2);margin-left:6px}
+.find p{margin:0;font-size:14px;color:var(--ink2)}
+.find p b{color:var(--ink);font-weight:600}
+/* fig 1 */
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:2px 0 14px;font-size:13px;color:var(--ink2)}
+.lg{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+.barrow{display:grid;grid-template-columns:200px 1fr 190px;align-items:center;gap:12px;margin:0 0 10px}
+.barlab{display:flex;flex-direction:column;line-height:1.25}
+.bl1{font-weight:600;font-size:14px}
+.bl2{font-size:12px;color:var(--muted)}
+.bar{display:flex;gap:2px;height:22px;min-width:0}
+.seg{display:flex;align-items:center;justify-content:center;min-width:3px;outline:none;cursor:default}
+.seg:last-child{border-radius:0 4px 4px 0}
+.seg:focus-visible{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ink)}
+.seglab{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
+.barnote{font-size:12px;color:var(--muted)}
+.bardiv{height:1px;background:var(--grid);margin:14px 0 14px}
+%%SEGCSS%%
+details.tv{margin-top:10px}
+details.tv summary{cursor:pointer;font-size:13px;color:var(--ink2)}
+table.mini{border-collapse:collapse;font-size:12.5px;margin-top:8px;font-variant-numeric:tabular-nums}
+table.mini th,table.mini td{border-bottom:1px solid var(--grid);padding:4px 8px;text-align:right}
+table.mini th:first-child{text-align:left}
+table.mini thead th{color:var(--ink2);font-weight:600;vertical-align:bottom;max-width:110px}
+/* heatmaps */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.two>*{min-width:0}
+.card{min-width:0}
+.scroll{overflow-x:auto}
+table.heat{border-collapse:separate;border-spacing:2px;font-size:13px;font-variant-numeric:tabular-nums}
+table.heat thead th{font-weight:500;color:var(--ink2);font-size:11.5px;line-height:1.2;vertical-align:bottom;text-align:center;padding:0 2px 4px;max-width:64px}
+table.heat tbody th{text-align:left;font-weight:600;font-size:13px;padding-right:8px;white-space:nowrap}
+table.heat tbody th .n{color:var(--muted);font-weight:400;margin-left:6px;font-size:12px}
+table.heat td{width:44px;height:34px;text-align:center;border-radius:4px;font-weight:600;outline:none}
+table.heat td:focus-visible{box-shadow:0 0 0 2px var(--ink)}
+table.heat td.h0{background:var(--surface2);color:var(--muted);font-weight:400}
+table.heat tr.allrow th,table.heat tr.allrow td{border-top:0}
+table.heat tr.allrow th{padding-top:8px}
+%%HEATCSS%%
+.heatlegend{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);margin-top:8px}
+.heatlegend .hk{width:18px;height:12px;border-radius:3px;display:inline-block}
+.heatlegend span:first-child{margin-right:6px}
+.heatlegend span:last-child{margin-left:6px}
+/* writing table */
+table.write{border-collapse:collapse;font-size:13px;width:100%;min-width:860px}
+table.write th,table.write td{border-bottom:1px solid var(--grid);padding:8px 10px;vertical-align:top;text-align:left}
+table.write thead th{font-size:13px;color:var(--ink);font-weight:650;border-bottom:1px solid var(--axis)}
+table.write tbody th{color:var(--ink2);font-weight:600;width:150px}
+/* notes */
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.note{background:var(--surface2);border-radius:10px;padding:12px 14px;font-size:13.5px}
+.note h3{font-size:14px}
+.note p{margin:0 0 6px;color:var(--ink2)}
+/* rows table */
+.filters{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:4px 0 12px}
+.fgroup{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.fgroup .fl{font-size:12px;color:var(--muted);margin-right:2px}
+.chip{border:1px solid var(--border);background:var(--surface);color:var(--ink2);font:inherit;font-size:12.5px;border-radius:999px;padding:3px 10px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.chip .sw{width:9px;height:9px;margin-right:5px;vertical-align:0}
+input.search{font:inherit;font-size:13px;padding:5px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--ink);min-width:200px}
+button.dl{font:inherit;font-size:12.5px;border:1px solid var(--border);background:var(--surface);color:var(--ink);border-radius:8px;padding:4px 10px;cursor:pointer;margin-left:auto}
+.count{font-size:12.5px;color:var(--muted)}
+table.rows{border-collapse:collapse;width:100%;font-size:13px;min-width:960px;table-layout:fixed}
+table.rows th{text-align:left;font-size:12px;color:var(--ink2);font-weight:600;border-bottom:1px solid var(--axis);padding:6px 8px;position:sticky;top:0;background:var(--surface)}
+table.rows td{border-bottom:1px solid var(--grid);padding:8px;vertical-align:top}
+table.rows td.id{white-space:nowrap;font-weight:600}
+table.rows td.id .cs{display:block;font-weight:400;font-size:11.5px;color:var(--muted)}
+.stmt{overflow-wrap:anywhere}
+.loc{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
+.badge{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:12.5px}
+.terms{list-style:none;margin:5px 0 0;padding:0;font-size:12px;color:var(--ink2)}
+.terms li{margin:1px 0;overflow-wrap:anywhere}
+.terms .k{color:var(--muted)}
+.meta{font-size:12px;color:var(--ink2);line-height:1.45}
+.meta b{font-weight:600;color:var(--ink)}
+.rnote{font-size:12px;color:var(--ink2)}
+.conf{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.flag{display:inline-block;font-size:11px;color:var(--ink2);border:1px solid var(--border);border-radius:4px;padding:0 4px;margin-left:4px}
+/* method */
+dl.code{display:grid;grid-template-columns:200px 1fr;gap:6px 14px;font-size:13.5px;margin:6px 0 0}
+dl.code dt{font-weight:600}
+dl.code dd{margin:0;color:var(--ink2)}
+ul.tight{margin:6px 0 0;padding-left:18px;font-size:13.5px;color:var(--ink2)}
+ul.tight li{margin:3px 0}
+#tip{position:fixed;z-index:10;max-width:340px;background:var(--ink);color:var(--surface);font-size:12.5px;line-height:1.4;padding:7px 9px;border-radius:7px;pointer-events:none;opacity:0;transition:opacity .08s}
+@media (max-width:820px){
+  .two{grid-template-columns:1fr}
+  .barrow{grid-template-columns:1fr;gap:4px;margin-bottom:14px}
+  .barlab{flex-direction:row;gap:8px;align-items:baseline}
+  dl.code{grid-template-columns:1fr}
+  h1{font-size:22px}
+}
+@media (forced-colors: active){ .seg{border:1px solid CanvasText} }
+</style>
+</head>
+<body>
+<main>
+<h1>Reference requirements compared</h1>
+<p class="sub">The 75 reference rows in <span class="mono">benchmark-data</span> (repo snapshot <span class="mono">69f3c26</span>): mobilityDCAT-AP 40, HealthDCAT-AP 16, StatDCAT-AP 7, GeoDCAT-AP 7, DCAT-AP-JRC 5. EPOS has no enumerated rows and is left out. Each row is traced to what its published profile did, relative to the DCAT-AP release that profile extends.</p>
+
+<div class="findings">
+  <div class="find"><div class="big">40<small>of 75 rows</small></div><p>are <b>metadata-content needs</b>. 27 are rules for the profile itself (principles, alignment, obligations, documentation) and 8 concern systems or processes. All 7 Geo rows and 24 of 40 Mobility rows are of this kind.</p></div>
+  <div class="find"><div class="big">28<small>of 40 content rows</small></div><p>were met with a <b>new class or property</b>: 17 minted in the extension’s own namespace, 11 imported from other vocabularies (DCMI Terms, DQV, DPV, CSVW, VANN, a later DCAT-AP).</p></div>
+  <div class="find"><div class="big">6<small>of 40 content rows</small></div><p>were met by <b>constraining (3) or expanding (3) existing terms</b>. Most constraining is asked for as profile rules instead (obligations, value lists, usage notes: Req-15, 32, 33, 34, 37).</p></div>
+  <div class="find"><div class="big">5 + 3</div><p><b>restate the base</b>: Req-18, Req-35, S-7, JRC-2, JRC-5. Three more would under a later base: Req-20 with DCAT-AP 3.0.0, JRC-1 and JRC-4 with 2.0.1.</p></div>
+  <div class="find"><div class="big">7<small>of 12</small></div><p>Mobility rows that needed new terms cite the <b>CMC</b>, an earlier NAP metadata catalogue. Health rows mostly cite <b>law</b> (10 of 16); Stat rows <b>working-group</b> discussion; JRC rows <b>catalogue practice</b>.</p></div>
+  <div class="find"><div class="big">Before vs after</div><p>Mobility rows were written <b>before</b> the design: one “should” sentence, importance in its own column, often compound. Stat, Health and JRC rows were written <b>with or after</b> it, as rationale for adopted terms, and are near-atomic. The JSON paraphrases make all 75 look alike.</p></div>
+</div>
+
+<section class="card" id="fig1">
+  <h2>What each row needed from the vocabulary</h2>
+  <p class="cap">Share of rows by the main design response in the published profile. Numbers are row counts. The note next to each bar splits the case into content, profile and system rows.</p>
+  <div class="legend">%%LEGEND%%</div>
+  %%FIG1%%
+  <p class="cap" style="margin-top:12px">“Minted” includes Req-21 (new code lists) and four sub-properties of existing terms (mobility theme ⊑ dcat:theme; grammar and schema ⊑ dct:conformsTo; numSeries ⊑ dct:extent). “Constrained or expanded” = 8 constrained, 5 expanded. Most new-term rows also constrain base terms (e.g. Req-23 raises dct:spatial to mandatory).</p>
+  <details class="tv"><summary>Show as a table</summary>%%T1%%</details>
+</section>
+
+<div class="two">
+<section class="card">
+  <h2>What problem the row addresses</h2>
+  <p class="cap">Rows per case and problem, one problem per row. Understand = interpret content and judge fitness; Link = identifiers, related resources and responsible parties; Records = managing metadata records; Profile = rules for the profile itself.</p>
+  <div class="scroll">%%FIG2%%</div>
+  %%HEATLEGEND%%
+</section>
+<section class="card">
+  <h2>Where the row comes from</h2>
+  <p class="cap">Rows citing each kind of origin (a row can cite several). Mobility: NAPCORE’s Source column; others: the passage the row is drawn from.</p>
+  <div class="scroll">%%FIG3%%</div>
+  %%HEATLEGEND%%
+</section>
+</div>
+
+<section class="card">
+  <h2>How the rows are written in their source</h2>
+  <p class="cap">Original publications, not the benchmark JSON (which paraphrases every row as an imperative: “Describe …”, “Identify …”, “Use …”).</p>
+  <div class="scroll">%%WRITE%%</div>
+</section>
+
+<section class="card">
+  <h2>Three side findings</h2>
+  <div class="notes">
+    <div class="note"><h3>The base version decides the count</h3><p>Under the base each profile cites, 5 content rows restate it. Under a later DCAT-AP release, 3 more would: <span class="mono">dct:creator</span> and <span class="mono">dct:isReferencedBy</span> (JRC-1, JRC-4) are in DCAT-AP 2.0.1; <span class="mono">dcatap:applicableLegislation</span> (Req-20) is in 3.0.0.</p></div>
+    <div class="note"><h3>Profiles add and drop terms no row names</h3><p>mobilityDCAT-AP: 2 of 12 minted properties (application-layer protocol, communication method) come from CMC elements, not from a Table 1 row; 19 imported contact and address terms, mostly marked as analogue to GeoDCAT-AP, match no row directly. It also drops 41 optional or recommended DCAT-AP 2.0.1 properties; Req-15 asks for a common essential set but names none. HealthDCAT-AP: 2 of 14 minted properties (number of records, retention period) are outside the 16 curated rows.</p></div>
+    <div class="note"><h3>12 rows are reuse or alignment rules</h3><p>Mobility Req-5, 9, 10, 11, 12, 13, 16 and Geo G-1 to G-5 say which vocabularies to reuse or align with. They are reuse questions (RQ2), not needs to extract; all 12 got no term-level response.</p></div>
+  </div>
+</section>
+
+<section class="card" id="rows">
+  <h2>All 75 rows</h2>
+  <div class="filters">
+    <div class="fgroup" id="fcase"><span class="fl">Case</span></div>
+    <div class="fgroup" id="fresp"><span class="fl">Response</span></div>
+    <input class="search" id="q" type="search" placeholder="Search text or term" aria-label="Search rows">
+    <span class="count" id="cnt"></span>
+    <button class="dl" id="dl" type="button">Download CSV</button>
+  </div>
+  <div class="scroll"><table class="rows"><colgroup><col style="width:72px"><col style="width:27%"><col style="width:27%"><col style="width:22%"><col></colgroup><thead><tr><th>ID</th><th>Requirement (benchmark paraphrase)</th><th>Design response and terms</th><th>Problem · level · origin</th><th>Note</th></tr></thead><tbody id="tb"></tbody></table></div>
+</section>
+
+<section class="card">
+  <h2>Method and limits</h2>
+  <dl class="code">
+    <dt>Base per case</dt><dd>DCAT-AP 2.0.1 (Mobility), 3.0.0 (Health), 1.1 (Stat, Geo, JRC), as the paper pins them. “New” means the URI is in no class of that base; “on a new class” means the base has the term elsewhere.</dd>
+    <dt>Design sources</dt><dd>mobilityDCAT-AP 1.0.0 (repo HTML, incl. Annex A.2 additions and Annex B CMC mapping); D6.2 §5.2–5.3; StatDCAT-AP 1.0.0 §7.2; GeoDCAT-AP 1.0 §1.1, §4.1–4.3; the JRC SDSVoc 2016 paper.</dd>
+    <dt>Response codes</dt><dd>New class / new property (minted or imported) · new code lists · expand an existing term (base term on another class, or a base code list extended) · constrain an existing term (obligation raised, values restricted, usage narrowed) · already in base · no term-level response · proposed or not addressed. One main response per row; all term effects are listed per row.</dd>
+    <dt>Levels</dt><dd>Content = information a record should carry. Profile = rules about the specification. System = catalogue, validation, exchange or review behaviour.</dd>
+  </dl>
+  <ul class="tight">
+    <li>Single coder (Claude). Confidence per row: 51 high, 21 medium, 3 low. Mobility traces are reconstructions: NAPCORE publishes no row-to-term mapping.</li>
+    <li>All 96 term-status claims were checked against the repo’s base registries (<span class="mono">dcat-ap-1.1.0 / 2.0.1 / 3.0.0.json</span>): 0 conflicts.</li>
+    <li>The coding records what each profile did, not whether a base term could have served (e.g. mobilityDCAT-AP removed <span class="mono">dct:conformsTo</span> on Distribution and minted <span class="mono">schema</span> and <span class="mono">grammar</span> as its sub-properties).</li>
+    <li>NAPCORE Table 1 wording, Perspective, Source and Contributor were read from the official PDF via two web-fetch summaries that agree; check against the PDF before citing.</li>
+    <li>Health, Stat and Geo row counts are curator scopes, not complete requirement lists; some Health rows overlap (H-9/H-11, H-5/H-7).</li>
+    <li>This reads the held-out Mobility and Geo references. No pipeline output is compared, but the benchmark methodology asks to log it as an evaluator-side exposure.</li>
+  </ul>
+</section>
+</main>
+<div id="tip" role="tooltip"></div>
+<script>
+const ROWS = %%DATA%%;
+const PROB = %%PROB%%, DER = %%DER%%, LEVEL = %%LEVEL%%, KIND = %%KIND%%, GLABEL = %%GLABEL%%;
+const CASES = [['all','All'],['Mobility','Mobility'],['Health','Health'],['Stat','Stat'],['Geo','Geo'],['JRC','JRC']];
+const GROUPS = [['all','All']].concat(Object.entries(GLABEL));
+const state = {case:'all', group:'all', q:''};
+function el(t, a={}, html=''){ const e=document.createElement(t); for(const k in a) e.setAttribute(k,a[k]); if(html) e.innerHTML=html; return e; }
+function esc(s){ return String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function chips(id, items, key){
+  const box=document.getElementById(id);
+  items.forEach(([v,l])=>{
+    const b=el('button',{class:'chip',type:'button','aria-pressed':String(state[key]===v)});
+    b.innerHTML = (key==='group' && v!=='all' ? `<span class="sw s-${v}"></span>` : '') + esc(l);
+    b.onclick=()=>{ state[key]=v; box.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); render(); };
+    box.appendChild(b);
+  });
+}
+function render(){
+  const tb=document.getElementById('tb'); tb.innerHTML='';
+  const q=state.q.trim().toLowerCase();
+  const rs=ROWS.filter(r=>(state.case==='all'||r.case===state.case)&&(state.group==='all'||r.group===state.group)&&
+    (!q || JSON.stringify([r.id,r.statement,r.note,r.terms,r.respLabel]).toLowerCase().includes(q)));
+  for(const r of rs){
+    const terms = r.terms.length ? '<ul class="terms">'+r.terms.map(([t,c,k])=>`<li><span class="mono">${esc(t)}</span>${c&&c!=='(class)'?' <span class="k">on '+esc(c)+'</span>':''} <span class="k">· ${esc(KIND[k])}</span></li>`).join('')+'</ul>' : '';
+    const nap = r.nap ? `<br><b>NAPCORE</b> ${esc(r.napType)}, ${esc(r.importance)}; ${esc(r.nap[2])}; source: ${esc(r.nap[0])}` : '';
+    const tr=el('tr');
+    tr.innerHTML = `<td class="id">${esc(r.id)}<span class="cs">${esc(r.case)}</span></td>`+
+      `<td class="stmt">${esc(r.statement)}<span class="loc">${esc(r.locator)}</span></td>`+
+      `<td><span class="badge"><span class="sw s-${r.group}"></span>${esc(r.respLabel)}</span>${r.rq2?'<span class="flag">reuse rule</span>':''}${terms}</td>`+
+      `<td class="meta"><b>${esc(PROB[r.problem])}</b> · ${esc(LEVEL[r.level])} · ${r.atoms} item${r.atoms>1?'s':''}<br>${r.deriv.map(d=>esc(DER[d])).join(', ')}${nap}</td>`+
+      `<td class="rnote">${esc(r.note)} <span class="conf">· ${esc(r.conf)} confidence</span></td>`;
+    tb.appendChild(tr);
+  }
+  document.getElementById('cnt').textContent = rs.length+' of '+ROWS.length+' rows';
+}
+chips('fcase', CASES, 'case'); chips('fresp', GROUPS, 'group');
+document.getElementById('q').addEventListener('input', e=>{ state.q=e.target.value; render(); });
+render();
+document.getElementById('dl').onclick=()=>{
+  const head=['id','case','statement','locator','level','problem','origin','response','response_group','terms','confidence','items','reuse_rule','note'];
+  const lines=[head.join(',')].concat(ROWS.map(r=>[r.id,r.caseName,r.statement,r.locator,LEVEL[r.level],PROB[r.problem],r.deriv.map(d=>DER[d]).join('; '),r.respLabel,GLABEL[r.group],
+    r.terms.map(([t,c,k])=>`${t} [${c}] (${KIND[k]})`).join('; '),r.conf,r.atoms,r.rq2?'yes':'',r.note].map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')));
+  try{ const a=el('a',{href:URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/csv'})),download:'reference-requirements-coding.csv'}); document.body.appendChild(a); a.click(); a.remove(); }catch(e){}
+};
+// tooltip
+const tip=document.getElementById('tip');
+function show(t, x, y){ tip.textContent=t; tip.style.opacity='1'; const w=tip.offsetWidth, h=tip.offsetHeight;
+  let L=x+14, T=y+14; if(L+w>innerWidth-8) L=x-w-14; if(T+h>innerHeight-8) T=y-h-14; tip.style.left=Math.max(8,L)+'px'; tip.style.top=Math.max(8,T)+'px'; }
+document.querySelectorAll('[data-tip]').forEach(n=>{
+  n.addEventListener('mousemove', e=>show(n.dataset.tip, e.clientX, e.clientY));
+  n.addEventListener('mouseleave', ()=>tip.style.opacity='0');
+  n.addEventListener('focus', ()=>{ const b=n.getBoundingClientRect(); show(n.dataset.tip, b.left, b.bottom); });
+  n.addEventListener('blur', ()=>tip.style.opacity='0');
+});
+</script>
+</body>
+</html>

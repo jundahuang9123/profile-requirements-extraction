@@ -1,0 +1,450 @@
+[
+ {
+  "atom_id": "G-1.1",
+  "row_statement": "Provide RDF representations of spatial metadata that conform to DCAT-AP, retain meaning as far as practical and support cross-domain reuse.",
+  "statement": "Provide a DCAT-AP-conformant representation of geospatial metadata.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-1.2",
+  "row_statement": "Provide RDF representations of spatial metadata that conform to DCAT-AP, retain meaning as far as practical and support cross-domain reuse.",
+  "statement": "Provide an RDF representation of geospatial metadata that is as comprehensive as possible and avoids semantic loss.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-1.3",
+  "row_statement": "Provide RDF representations of spatial metadata that conform to DCAT-AP, retain meaning as far as practical and support cross-domain reuse.",
+  "statement": "Promote the cross-domain reuse of geospatial metadata.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-2.1",
+  "row_statement": "Include every mandatory baseline DCAT-AP element.",
+  "statement": "Include, at least, all mandatory DCAT-AP elements.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-3.1",
+  "row_statement": "Use other vocabularies for geospatial information only where the baseline does not cover it.",
+  "statement": "Use vocabularies other than DCAT-AP only for geospatial metadata elements that DCAT-AP does not support.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-4.1",
+  "row_statement": "Base alignments on established practice and working-group implementation experience.",
+  "statement": "Base the alignments as far as possible on existing practice, in particular the working group's experience.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-4.2",
+  "row_statement": "Base alignments on established practice and working-group implementation experience.",
+  "statement": "Avoid a negative impact on existing implementations.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-5.1",
+  "row_statement": "Assess any new terms carefully and avoid conflicting with ongoing standardisation.",
+  "statement": "Define new terms only when existing vocabularies offer no suitable candidate, and only after careful assessment.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-5.2",
+  "row_statement": "Assess any new terms carefully and avoid conflicting with ongoing standardisation.",
+  "statement": "Discard new terms that could conflict with standards under preparation.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-6.1",
+  "row_statement": "Cover the ISO core and common INSPIRE metadata elements; exclude only optional material where necessary, with theme-specific extensions outside the common scope.",
+  "statement": "Cover all metadata elements of the core profile of ISO 19115.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-6.2",
+  "row_statement": "Cover the ISO core and common INSPIRE metadata elements; exclude only optional material where necessary, with theme-specific extensions outside the common scope.",
+  "statement": "Cover the INSPIRE metadata elements, leaving out only those not common to all INSPIRE spatial data themes.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-6.3",
+  "row_statement": "Cover the ISO core and common INSPIRE metadata elements; exclude only optional material where necessary, with theme-specific extensions outside the common scope.",
+  "statement": "Exclude only optional elements.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-7.1",
+  "row_statement": "Offer an additional RDF publication route while retaining the existing INSPIRE metadata obligations and implementations.",
+  "statement": "Offer an RDF syntax binding as an additional way to implement and publish INSPIRE/ISO metadata on DCAT-AP-conformant portals.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-7.2",
+  "row_statement": "Offer an additional RDF publication route while retaining the existing INSPIRE metadata obligations and implementations.",
+  "statement": "Leave the INSPIRE metadata regulation and technical guidelines, and the collections maintained under them, unchanged.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-8.1",
+  "row_statement": "Identify who is responsible for a metadata record and how to contact them.",
+  "statement": "Identify who is responsible for a metadata record and how to contact them.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": "dcat:contactPoint, a DCAT-AP 1.1 dataset property, used on the catalogue record (Table 3)."
+ },
+ {
+  "atom_id": "G-9.1",
+  "row_statement": "Record the date of each metadata record.",
+  "statement": "Record the date of each metadata record.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-10.1",
+  "row_statement": "State the language of each metadata record.",
+  "statement": "State the language of each metadata record.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-11.1",
+  "row_statement": "State the character set of each metadata record.",
+  "statement": "State the character set of a metadata record.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-12.1",
+  "row_statement": "Give each metadata record its own identifier.",
+  "statement": "Give a metadata record a file identifier.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": "dct:identifier, a DCAT-AP 1.1 dataset property, used on the catalogue record (Annex II.17)."
+ },
+ {
+  "atom_id": "G-13.1",
+  "row_statement": "State the metadata standard a record follows.",
+  "statement": "State the metadata standard a record follows.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-14.1",
+  "row_statement": "State the version of the metadata standard a record follows.",
+  "statement": "State the version of the metadata standard a record follows.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-15.1",
+  "row_statement": "Give each resource a title.",
+  "statement": "Give each resource a title.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-16.1",
+  "row_statement": "Give the dates of creation, publication and last revision of a resource.",
+  "statement": "Give the date of creation of a resource.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-16.2",
+  "row_statement": "Give the dates of creation, publication and last revision of a resource.",
+  "statement": "Give the date of publication of a resource.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-16.3",
+  "row_statement": "Give the dates of creation, publication and last revision of a resource.",
+  "statement": "Give the date of last revision of a resource.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-17.1",
+  "row_statement": "Describe each resource in a short abstract.",
+  "statement": "Describe each resource in a short abstract.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-18.1",
+  "row_statement": "State the language or languages used in a resource.",
+  "statement": "State the language or languages used in a resource.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-19.1",
+  "row_statement": "Classify each resource by topic category.",
+  "statement": "Classify each resource by topic category.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-20.1",
+  "row_statement": "Give the geographic extent of a resource as a bounding box or a geographic identifier.",
+  "statement": "Give the geographic extent of a resource as a bounding box or a geographic identifier.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": "Annex II.10 adds encoding constraints (at least GML or WKT; the CRS must be specified); restates_base holds for the statement as worded."
+ },
+ {
+  "atom_id": "G-21.1",
+  "row_statement": "State the character encoding of a dataset.",
+  "statement": "State the character encoding of a dataset.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-22.1",
+  "row_statement": "Give the temporal extent a resource covers.",
+  "statement": "Give the temporal extent a resource covers.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": "DCAT-AP maps temporal extent to dct:temporal; the ISO element also includes vertical extent, which GeoDCAT-AP 1.0 does not cover."
+ },
+ {
+  "atom_id": "G-23.1",
+  "row_statement": "Describe the lineage of a dataset: how it was produced and processed.",
+  "statement": "Describe the lineage of a dataset: how it was produced and processed.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-24.1",
+  "row_statement": "State how spatial data are represented, e.g. as vector or grid data.",
+  "statement": "State how spatial data are represented, e.g. as vector or grid data.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-25.1",
+  "row_statement": "State the format in which each distribution is encoded.",
+  "statement": "State the format in which each distribution is encoded.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-26.1",
+  "row_statement": "State the spatial resolution of a dataset.",
+  "statement": "State the spatial resolution of a dataset.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": "GeoDCAT-AP 1.0 covers it as free text only."
+ },
+ {
+  "atom_id": "G-27.1",
+  "row_statement": "Identify the organisations responsible for a resource and the role each plays.",
+  "statement": "Identify the organisations responsible for a resource and the role each plays.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-28.1",
+  "row_statement": "Give links to the resource or to further information about it.",
+  "statement": "Give links to the resource or to further information about it.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-29.1",
+  "row_statement": "State the coordinate reference system of a dataset.",
+  "statement": "State the coordinate reference system of a dataset.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": "The source says no equivalent DCAT-AP term is foreseen and maps reference systems provisionally to dct:conformsTo (Annex II.23)."
+ },
+ {
+  "atom_id": "G-30.1",
+  "row_statement": "State the temporal reference system of a dataset.",
+  "statement": "State the temporal reference system of a dataset.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": "The source says no equivalent DCAT-AP term is foreseen and maps reference systems provisionally to dct:conformsTo (Annex II.23)."
+ },
+ {
+  "atom_id": "G-31.1",
+  "row_statement": "State the specifications a resource conforms to, and whether it conforms.",
+  "statement": "State the specifications a resource conforms to, and whether it conforms.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-32.1",
+  "row_statement": "State whether a resource is a dataset, a dataset series or a service.",
+  "statement": "State whether a resource is a dataset, a dataset series or a service.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-33.1",
+  "row_statement": "State the type of a spatial data service, e.g. discovery, view or download.",
+  "statement": "State the type of a spatial data service, e.g. discovery, view or download.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-34.1",
+  "row_statement": "Characterise each resource with keywords and name the vocabularies they come from.",
+  "statement": "Characterise each resource with keywords and name the vocabularies they come from.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-35.1",
+  "row_statement": "Link a service to the datasets or dataset series it operates on.",
+  "statement": "Link a service to the datasets or dataset series it operates on.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-36.1",
+  "row_statement": "Give each resource a unique identifier.",
+  "statement": "Give each resource a unique identifier.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-37.1",
+  "row_statement": "State the conditions for accessing and using a resource.",
+  "statement": "State the conditions for accessing and using a resource.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-38.1",
+  "row_statement": "State any limitations on public access to a resource.",
+  "statement": "State any limitations on public access to a resource.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-39.1",
+  "row_statement": "State how often a resource is maintained and updated.",
+  "statement": "State how often a resource is maintained and updated.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": "GeoDCAT-AP also covers it only partially."
+ },
+ {
+  "atom_id": "G-40.1",
+  "row_statement": "Report the topological consistency of a dataset as a data quality result.",
+  "statement": "Report the topological consistency of a dataset as a data quality result.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": "GeoDCAT-AP covers only conformance results."
+ },
+ {
+  "atom_id": "G-41.1",
+  "row_statement": "Report the conceptual and domain consistency of a dataset as data quality results.",
+  "statement": "Report the conceptual consistency of a dataset as a data quality result.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-41.2",
+  "row_statement": "Report the conceptual and domain consistency of a dataset as data quality results.",
+  "statement": "Report the domain consistency of a dataset as a data quality result.",
+  "stratum": "content",
+  "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-42.1",
+  "row_statement": "Make spatial datasets, dataset series and services searchable on general data portals.",
+  "statement": "Make spatial datasets, dataset series and services searchable on general data portals.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-43.1",
+  "row_statement": "Allow ISO 19115/INSPIRE metadata records to be converted into the RDF representation; conversion back is not required.",
+  "statement": "Support the conversion of ISO 19115/INSPIRE metadata records into the RDF representation; conversion back is not required.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-44.1",
+  "row_statement": "Keep the RDF binding as simple as possible, reusing existing vocabularies and avoiding new terms.",
+  "statement": "Keep the RDF syntax binding as simple as possible.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-45.1",
+  "row_statement": "Reuse the published alignments between EuroVoc, GEMET and the INSPIRE themes.",
+  "statement": "Reuse the published alignments between EuroVoc, GEMET and the INSPIRE themes.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "G-46.1",
+  "row_statement": "Feed recommendations into the DCAT-AP revision so that DCAT-AP and GeoDCAT-AP stay aligned.",
+  "statement": "Feed recommendations into the DCAT-AP revision so that DCAT-AP and GeoDCAT-AP stay aligned.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ }
+]
