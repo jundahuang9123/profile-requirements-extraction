@@ -1,0 +1,41 @@
+{
+  "status": "passed",
+  "cases": {
+    "mobilitydcat": {
+      "rows": 40,
+      "atoms": 98,
+      "scored_by_default": 39
+    },
+    "healthdcat": {
+      "rows": 69,
+      "atoms": 121,
+      "scored_by_default": 89
+    },
+    "statdcat": {
+      "rows": 22,
+      "atoms": 27,
+      "scored_by_default": 14
+    },
+    "geodcat": {
+      "rows": 46,
+      "atoms": 56,
+      "scored_by_default": 37
+    },
+    "jrc-research": {
+      "rows": 11,
+      "atoms": 18,
+      "scored_by_default": 17
+    }
+  },
+  "anchor_quotes": {
+    "from_web_fetch_not_verified_locally": 116,
+    "verified": 204
+  },
+  "evidence_quotes": {
+    "verified": 1320
+  },
+  "errors": [],
+  "notes": [
+    "Structurally valid only: not an approval for quantitative evaluation (AI evidence labels; no independent adjudication of the whole set)."
+  ]
+}

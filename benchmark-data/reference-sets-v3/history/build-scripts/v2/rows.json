@@ -1,0 +1,2296 @@
+[
+ {
+  "case": "Mobility",
+  "id": "Req-1",
+  "statement": "Use sufficiently expressive, context-aware and modular descriptions with explicit structure, types and rules; distinguish entity identities, preserve references, and support persistent identifiers.",
+  "locator": "Main report Table 1, original Req-1, PDF pages 15–19",
+  "napType": "General",
+  "importance": "mandatory",
+  "level": "G",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "med",
+  "atoms": 7,
+  "rq2": false,
+  "terms": [],
+  "note": "Design qualities of the description model; met by the RDF/DCAT-AP basis. PIDs only via usage notes on dct:identifier.",
+  "deriv": [
+   "proj"
+  ],
+  "nap": [
+   "Various literature; SPRINT project",
+   "DE, IT",
+   "NAP metadata user"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-2",
+  "statement": "Make data findable and reusable; provide a basis for NAP metadata databases, describe catalogues, data and their delivery options, and support metadata federation.",
+  "locator": "Main report Table 1, original Req-2, PDF pages 15–19",
+  "napType": "General",
+  "importance": "mandatory",
+  "level": "G",
+  "problem": "P1",
+  "resp": "G",
+  "conf": "med",
+  "atoms": 6,
+  "rq2": false,
+  "terms": [
+   [
+    "dcat:record",
+    "dcat:Catalog",
+    "constrained"
+   ],
+   [
+    "dct:spatial",
+    "dcat:Catalog",
+    "constrained"
+   ]
+  ],
+  "note": "Scope/purpose row; met by adopting the DCAT-AP class model. Federation aspects show up as raised obligations (catalogue records, catalogue country).",
+  "deriv": [
+   "exp",
+   "proj",
+   "prac"
+  ],
+  "nap": [
+   "Meeting with DCAT-AP experts; SPRINT project; EU EIP activity on NAP metadata; experience from DE NAP development",
+   "DE, IT",
+   "NAP metadata user; NAP developer"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-3",
+  "statement": "Expose descriptions in forms suitable for people and software.",
+  "locator": "Main report Table 1, original Req-3, PDF pages 15–19",
+  "napType": "General",
+  "importance": "mandatory",
+  "level": "G",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "high",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [],
+  "note": "RDF serialisations plus human-readable ReSpec.",
+  "deriv": [
+   "proj"
+  ],
+  "nap": [
+   "SPRINT project",
+   "IT",
+   "NAP metadata user"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-4",
+  "statement": "Accommodate descriptions in several languages.",
+  "locator": "Main report Table 1, original Req-4, PDF pages 15–19",
+  "napType": "General",
+  "importance": "mandatory",
+  "level": "G",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "med",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [],
+  "note": "Language-tagged literals (base mechanism) and section 8 guidance.",
+  "deriv": [
+   "proj"
+  ],
+  "nap": [
+   "SPRINT project",
+   "IT",
+   "NAP metadata user"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-5",
+  "statement": "Use shared vocabularies so participants interpret metadata consistently.",
+  "locator": "Main report Table 1, original Req-5, PDF pages 15–19",
+  "napType": "General",
+  "importance": "mandatory",
+  "level": "G",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "med",
+  "atoms": 1,
+  "rq2": true,
+  "terms": [],
+  "note": "Reuse of RDF vocabularies and mandated controlled vocabularies.",
+  "deriv": [
+   "proj"
+  ],
+  "nap": [
+   "SPRINT project",
+   "IT",
+   "NAP metadata user"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-6",
+  "statement": "Use a common serialization that software agents can process automatically.",
+  "locator": "Main report Table 1, original Req-6, PDF pages 15–19",
+  "napType": "General",
+  "importance": "mandatory",
+  "level": "G",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [],
+  "note": "RDF/XML, Turtle, JSON-LD.",
+  "deriv": [
+   "proj",
+   "prac"
+  ],
+  "nap": [
+   "SPRINT project; EU EIP activity on NAP metadata; experience from DE NAP development",
+   "DE, IT",
+   "NAP metadata user; NAP developer"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-7",
+  "statement": "Publish freely accessible documentation on the Web and, where feasible, provide digitally annotated repository documentation.",
+  "locator": "Main report Table 1, original Req-7, PDF pages 15–19",
+  "napType": "General",
+  "importance": "mandatory",
+  "level": "S",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "high",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [],
+  "note": "Open ReSpec specification on GitHub/w3id.",
+  "deriv": [
+   "prac",
+   "exp"
+  ],
+  "nap": [
+   "Own experience; Meeting with DCAT-AP experts",
+   "DE, IT",
+   "NAP developer"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-8",
+  "statement": "Establish governance and revision procedures, public issue discussion and release planning, and incorporate resolved changes in later versions.",
+  "locator": "Main report Table 1, original Req-8, PDF pages 15–19",
+  "napType": "General",
+  "importance": "mandatory",
+  "level": "S",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "high",
+  "atoms": 4,
+  "rq2": false,
+  "terms": [],
+  "note": "Governance and maintenance process.",
+  "deriv": [
+   "exp",
+   "prac"
+  ],
+  "nap": [
+   "Meeting with DCAT-AP experts; experience from DE NAP development; Good practice",
+   "CZ, DE, IT",
+   "Metadata standard experts"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-9",
+  "statement": "Build on DCAT-AP terms when suitable and follow its extension rules for additions.",
+  "locator": "Main report Table 1, original Req-9, PDF pages 15–19",
+  "napType": "Existing Vocabularies",
+  "importance": "mandatory",
+  "level": "G",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "high",
+  "atoms": 2,
+  "rq2": true,
+  "terms": [],
+  "note": "Extension of DCAT-AP 2.0.1 under the DCAT-AP extension guidelines.",
+  "deriv": [
+   "proj",
+   "exp"
+  ],
+  "nap": [
+   "SPRINT project; Meeting with DCAT-AP experts",
+   "DE, IT",
+   "Metadata standard experts"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-10",
+  "statement": "Account for subsequent changes to the DCAT-AP baseline.",
+  "locator": "Main report Table 1, original Req-10, PDF pages 15–19",
+  "napType": "Existing Vocabularies",
+  "importance": "optional",
+  "level": "G",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "med",
+  "atoms": 1,
+  "rq2": true,
+  "terms": [
+   [
+    "dcatap:applicableLegislation",
+    "dcat:Dataset",
+    "imported"
+   ]
+  ],
+  "note": "Partly visible: applicable legislation taken from the later DCAT-AP HVD release.",
+  "deriv": [
+   "exp"
+  ],
+  "nap": [
+   "Meeting with DCAT-AP experts",
+   "DE",
+   "Metadata standard experts"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-11",
+  "statement": "Review the complete CMC element set against mobility catalogue needs.",
+  "locator": "Main report Table 1, original Req-11, PDF pages 15–19",
+  "napType": "Existing Vocabularies",
+  "importance": "mandatory",
+  "level": "G",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": true,
+  "terms": [],
+  "note": "Method; result is Annex B (CMC element mapping).",
+  "deriv": [
+   "proj"
+  ],
+  "nap": [
+   "SPRINT project; EU EIP activity on NAP metadata",
+   "DE, IT",
+   "Metadata standard experts"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-12",
+  "statement": "Account for other DCAT-AP profiles and INSPIRE metadata practice.",
+  "locator": "Main report Table 1, original Req-12, PDF pages 15–19",
+  "napType": "Existing Vocabularies",
+  "importance": "optional",
+  "level": "G",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "high",
+  "atoms": 2,
+  "rq2": true,
+  "terms": [],
+  "note": "Method; explains many imported additions marked \"analogue to GeoDCAT-AP 2.0.0\" (dct:created, dct:rightsHolder, cnt:characterEncoding, reference system, agent/contact details).",
+  "deriv": [
+   "exp",
+   "prac"
+  ],
+  "nap": [
+   "Meeting with DCAT-AP experts; experience from CY NAP and BE NAP developments",
+   "IT, CY, BE",
+   "Metadata standard experts; NAP developer"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-13",
+  "statement": "Preserve interoperability with code lists already deployed by NAP operators.",
+  "locator": "Main report Table 1, original Req-13, PDF pages 15–19",
+  "napType": "Existing Vocabularies",
+  "importance": "optional",
+  "level": "G",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "low",
+  "atoms": 1,
+  "rq2": true,
+  "terms": [],
+  "note": "No explicit trace to code lists of operating NAPs in 1.0.0.",
+  "deriv": [
+   "exp",
+   "prac"
+  ],
+  "nap": [
+   "Meeting with DCAT-AP experts; experience from DE NAP development",
+   "DE",
+   "NAP developer"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-14",
+  "statement": "Describe the varied mobility domain in enough detail to distinguish its growing dataset inventory.",
+  "locator": "Main report Table 1, original Req-14, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "M",
+  "problem": "P1",
+  "resp": "B",
+  "sub": "minted",
+  "conf": "med",
+  "atoms": 1,
+  "rq2": false,
+  "umbrella": true,
+  "terms": [
+   [
+    "mobilitydcatap:mobilityTheme",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "mobilitydcatap:transportMode",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "mobilitydcatap:networkCoverage",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "mobilitydcatap:mobilityDataStandard",
+    "dcat:Distribution",
+    "minted"
+   ]
+  ],
+  "note": "Umbrella row (\"thorough descriptions\" to distinguish datasets); realised by the set of mobility-specific properties.",
+  "deriv": [
+   "proj"
+  ],
+  "nap": [
+   "EU EIP activity on NAP metadata; experience from other EU funded projects",
+   "DE, GR",
+   "NAP metadata user"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-15",
+  "statement": "Define a common essential element set while permitting deployment-specific additions.",
+  "locator": "Main report Table 1, original Req-15, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "G",
+  "problem": "P7",
+  "resp": "E",
+  "conf": "med",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [],
+  "note": "Minimum common set: 10 properties raised to mandatory, 41 optional or recommended DCAT-AP 2.0.1 properties removed; extra code lists MAY be used.",
+  "deriv": [
+   "prac"
+  ],
+  "nap": [
+   "Experience from DE NAP development",
+   "DE",
+   "NAP developer"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-16",
+  "statement": "Examine the established CMC/DCAT-AP correspondences to identify unrepresented information.",
+  "locator": "Main report Table 1, original Req-16, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "G",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": true,
+  "terms": [],
+  "note": "Method (CMC/DCAT-AP correspondences); Annex B.",
+  "deriv": [
+   "proj"
+  ],
+  "nap": [
+   "SPRINT project",
+   "IT",
+   "Metadata standard experts; NAP developer"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-17",
+  "statement": "Record creation and revision times, description language, and responsibility for maintaining a metadata record.",
+  "locator": "Main report Table 1, original Req-17, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "M",
+  "problem": "P6",
+  "resp": "B",
+  "sub": "imported",
+  "conf": "high",
+  "atoms": 4,
+  "rq2": false,
+  "terms": [
+   [
+    "dct:created",
+    "dcat:CatalogRecord",
+    "imported"
+   ],
+   [
+    "dct:modified",
+    "dcat:CatalogRecord",
+    "asis"
+   ],
+   [
+    "dct:language",
+    "dcat:CatalogRecord",
+    "constrained"
+   ],
+   [
+    "dct:publisher",
+    "dcat:CatalogRecord",
+    "newclass"
+   ]
+  ],
+  "note": "CMC 2.2.1.1-3. Creation date imported (mandatory); record language raised to mandatory; publisher placed on Catalogue Record.",
+  "deriv": [
+   "std"
+  ],
+  "nap": [
+   "CMC specification",
+   "IT",
+   "NAP metadata provider/user"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-18",
+  "statement": "State how the metadata record itself may be reused.",
+  "locator": "Main report Table 1, original Req-18, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "M",
+  "problem": "P6",
+  "resp": "F",
+  "conf": "med",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "dct:license",
+    "dcat:Catalog",
+    "asis"
+   ]
+  ],
+  "note": "Catalogue licence (base, recommended) covers reuse of the metadata.",
+  "deriv": [
+   "exp"
+  ],
+  "nap": [
+   "Meeting with DCAT-AP experts",
+   "IT",
+   "NAP metadata provider/user"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-19",
+  "statement": "Characterise the data using a title and synopsis, resource kind, dataset and service classifications including MMTIS service categories, language and payload georeferencing.",
+  "locator": "Main report Table 1, original Req-19, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "M",
+  "problem": "P1",
+  "resp": "B",
+  "sub": "minted",
+  "conf": "high",
+  "atoms": 7,
+  "rq2": false,
+  "terms": [
+   [
+    "mobilitydcatap:mobilityTheme",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "mobilitydcatap:intendedInformationService",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "mobilitydcatap:georeferencingMethod",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "dct:title",
+    "dcat:Dataset",
+    "asis"
+   ],
+   [
+    "dct:description",
+    "dcat:Dataset",
+    "asis"
+   ],
+   [
+    "dct:language",
+    "dcat:Dataset",
+    "asis"
+   ],
+   [
+    "dcat:theme",
+    "dcat:Dataset",
+    "constrained"
+   ],
+   [
+    "resource type (CMC 2.2.2.3)",
+    "dcat:Dataset",
+    "gap"
+   ]
+  ],
+  "note": "Mobility theme is a sub-property of dcat:theme. CMC \"resource type\" is not used in 1.0.0.",
+  "deriv": [
+   "std",
+   "proj",
+   "prac"
+  ],
+  "nap": [
+   "CMC specification; SPRINT project; experience from ongoing NAPCORE activities",
+   "IT, GR",
+   "NAP metadata provider/user"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-20",
+  "statement": "Indicate which ITS delegated regulations apply to a resource.",
+  "locator": "Main report Table 1, original Req-20, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "M",
+  "problem": "P5",
+  "resp": "B",
+  "sub": "imported",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "dcatap:applicableLegislation",
+    "dcat:Dataset",
+    "imported"
+   ]
+  ],
+  "note": "From DCAT-AP HVD; ELI identifiers recommended.",
+  "deriv": [
+   "prac"
+  ],
+  "nap": [
+   "Experience from BE NAP development",
+   "BE",
+   "NAP developer"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-21",
+  "statement": "Coordinate, host, maintain and extend multilingual code lists for describing dataset and service content.",
+  "locator": "Main report Table 1, original Req-21, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "G",
+  "problem": "P1",
+  "resp": "C",
+  "conf": "med",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [],
+  "note": "11 code lists created and hosted by mobilityDCAT-AP (9 for new properties, 2 for existing ones: update frequency, conditions for access and usage).",
+  "deriv": [
+   "prac"
+  ],
+  "nap": [
+   "Good practice",
+   "CZ",
+   "NAP metadata provider/user"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-22",
+  "statement": "Represent the interval over which the published data remain valid.",
+  "locator": "Main report Table 1, original Req-22, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "M",
+  "problem": "P3",
+  "resp": "D",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "dct:temporal",
+    "dcat:Distribution",
+    "newclass"
+   ],
+   [
+    "dct:temporal",
+    "dcat:Dataset",
+    "constrained"
+   ]
+  ],
+  "note": "CMC valid from/to. Dataset temporal coverage read as validity time; temporal coverage added to Distribution.",
+  "deriv": [
+   "std",
+   "proj"
+  ],
+  "nap": [
+   "CMC specification; SPRINT project",
+   "IT",
+   "NAP metadata provider/user"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-23",
+  "statement": "Describe spatial extent, applicable regions and network coverage using established functional classifications.",
+  "locator": "Main report Table 1, original Req-23, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "M",
+  "problem": "P1",
+  "resp": "B",
+  "sub": "minted",
+  "conf": "high",
+  "atoms": 3,
+  "rq2": false,
+  "terms": [
+   [
+    "mobilitydcatap:networkCoverage",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "dct:spatial",
+    "dcat:Dataset",
+    "constrained"
+   ],
+   [
+    "dct:identifier",
+    "dct:Location",
+    "newclass"
+   ],
+   [
+    "skos:prefLabel",
+    "dct:Location",
+    "newclass"
+   ],
+   [
+    "skos:inScheme",
+    "dct:Location",
+    "imported"
+   ]
+  ],
+  "note": "Spatial coverage raised to mandatory with EU place lists/GeoNames/NUTS.",
+  "deriv": [
+   "std",
+   "proj"
+  ],
+  "nap": [
+   "CMC specification; SPRINT project; transportDCAT-AP extension",
+   "IT, GR",
+   "NAP metadata provider/user"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-24",
+  "statement": "Identify payload location-reference methods and coordinate reference systems.",
+  "locator": "Main report Table 1, original Req-24, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "M",
+  "problem": "P3",
+  "resp": "B",
+  "sub": "minted",
+  "conf": "high",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [
+   [
+    "mobilitydcatap:georeferencingMethod",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "dct:conformsTo",
+    "dcat:Dataset",
+    "constrained"
+   ]
+  ],
+  "note": "dct:conformsTo re-labelled \"reference system\", values from the EPSG register.",
+  "deriv": [
+   "prac"
+  ],
+  "nap": [
+   "Good practice; experience from BE NAP development",
+   "CZ, BE",
+   "NAP metadata provider/user"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-25",
+  "statement": "Identify the transport modes and operators represented by the data.",
+  "locator": "Main report Table 1, original Req-25, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "M",
+  "problem": "P1",
+  "resp": "B",
+  "sub": "minted",
+  "conf": "high",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [
+   [
+    "mobilitydcatap:transportMode",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "transport operators",
+    "dcat:Dataset",
+    "gap"
+   ]
+  ],
+  "note": "No property for operators in 1.0.0.",
+  "deriv": [
+   "std",
+   "proj"
+  ],
+  "nap": [
+   "CMC specification; SPRINT project; transportDCAT-AP extension",
+   "IT",
+   "NAP metadata provider/user"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-26",
+  "statement": "Identify the publishing and owning parties for a dataset.",
+  "locator": "Main report Table 1, original Req-26, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "M",
+  "problem": "P4",
+  "resp": "B",
+  "sub": "imported",
+  "conf": "high",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [
+   [
+    "dct:rightsHolder",
+    "dcat:Dataset",
+    "imported"
+   ],
+   [
+    "dct:publisher",
+    "dcat:Dataset",
+    "constrained"
+   ]
+  ],
+  "note": "Owner = rights holder (imported, analogue to GeoDCAT-AP); publisher raised to mandatory.",
+  "deriv": [
+   "std",
+   "proj"
+  ],
+  "nap": [
+   "CMC specification; SPRINT project",
+   "IT",
+   "NAP metadata provider/user"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-27",
+  "statement": "Describe contractual, licensing and other conditions on data use.",
+  "locator": "Main report Table 1, original Req-27, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "M",
+  "problem": "P2",
+  "resp": "D",
+  "conf": "med",
+  "atoms": 3,
+  "rq2": false,
+  "terms": [
+   [
+    "dct:rights",
+    "dcat:Distribution",
+    "constrained"
+   ],
+   [
+    "dct:type",
+    "dct:RightsStatement",
+    "newclass"
+   ],
+   [
+    "dct:identifier",
+    "dct:LicenseDocument",
+    "newclass"
+   ],
+   [
+    "rdfs:label",
+    "dct:RightsStatement",
+    "imported"
+   ]
+  ],
+  "note": "Rights statement mandatory and typed with a new code list (conditions for access and usage); licence identifier from the EU licence list.",
+  "deriv": [
+   "std",
+   "proj"
+  ],
+  "nap": [
+   "CMC specification; SPRINT project",
+   "IT",
+   "NAP metadata provider/user"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-28",
+  "statement": "Describe the encoding, syntax, grammar and underlying data model used for access.",
+  "locator": "Main report Table 1, original Req-28, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "M",
+  "problem": "P2",
+  "resp": "B",
+  "sub": "minted",
+  "conf": "high",
+  "atoms": 4,
+  "rq2": false,
+  "terms": [
+   [
+    "mobilitydcatap:mobilityDataStandard",
+    "dcat:Distribution",
+    "minted"
+   ],
+   [
+    "mobilitydcatap:grammar",
+    "dcat:Distribution",
+    "minted"
+   ],
+   [
+    "cnt:characterEncoding",
+    "dcat:Distribution",
+    "imported"
+   ],
+   [
+    "dct:format",
+    "dcat:Distribution",
+    "constrained"
+   ]
+  ],
+  "note": "Grammar is a sub-property of dct:conformsTo; format raised to mandatory, dcat:mediaType removed. Application-layer protocol and communication method (CMC 2.2.8.6-7) are not named in this row.",
+  "deriv": [
+   "std",
+   "proj"
+  ],
+  "nap": [
+   "CMC specification; SPRINT project",
+   "IT",
+   "NAP metadata provider/user"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-29",
+  "statement": "Offer schema information and example data so consumers can assess suitability before integration.",
+  "locator": "Main report Table 1, original Req-29, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "M",
+  "problem": "P3",
+  "resp": "B",
+  "sub": "minted",
+  "conf": "high",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [
+   [
+    "mobilitydcatap:schema",
+    "mobilitydcatap:MobilityDataStandard",
+    "minted"
+   ],
+   [
+    "adms:sample",
+    "dcat:Distribution",
+    "newclass"
+   ]
+  ],
+  "note": "Schema is a sub-property of dct:conformsTo; sample moved from Dataset to Distribution.",
+  "deriv": [
+   "prac"
+  ],
+  "nap": [
+   "Experience from CZ NAP development",
+   "CZ",
+   "NAP metadata provider/user"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-30",
+  "statement": "Distinguish precise data-model versions, publication types and extensions, such as those used in DATEX II, for discovery.",
+  "locator": "Main report Table 1, original Req-30, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "M",
+  "problem": "P1",
+  "resp": "A",
+  "sub": "minted",
+  "conf": "high",
+  "atoms": 3,
+  "rq2": false,
+  "terms": [
+   [
+    "mobilitydcatap:MobilityDataStandard",
+    "(class)",
+    "minted"
+   ],
+   [
+    "owl:versionInfo",
+    "mobilitydcatap:MobilityDataStandard",
+    "newclass"
+   ],
+   [
+    "mobilitydcatap:dataFormatNotes",
+    "dcat:Distribution",
+    "minted"
+   ]
+  ],
+  "note": "Stated purpose is better searching (e.g. DATEX II version).",
+  "deriv": [
+   "prac"
+  ],
+  "nap": [
+   "Experience from CZ NAP development",
+   "CZ",
+   "NAP metadata provider/user"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-31",
+  "statement": "Record update cadence, quality criteria and the history and status of ITS-regulation compliance assessments.",
+  "locator": "Main report Table 1, original Req-31, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "M",
+  "problem": "P3",
+  "resp": "A",
+  "sub": "minted",
+  "conf": "high",
+  "atoms": 3,
+  "rq2": false,
+  "terms": [
+   [
+    "mobilitydcatap:Assessment",
+    "(class)",
+    "minted"
+   ],
+   [
+    "mobilitydcatap:assessmentResult",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "dqv:QualityAnnotation",
+    "(class)",
+    "imported"
+   ],
+   [
+    "dqv:hasQualityAnnotation",
+    "dcat:Dataset",
+    "imported"
+   ],
+   [
+    "dct:accrualPeriodicity",
+    "dcat:Dataset",
+    "constrained"
+   ],
+   [
+    "update-frequency code list",
+    "dct:accrualPeriodicity",
+    "cvext"
+   ]
+  ],
+  "note": "Assessment = compliance assessment by National Bodies. Frequency raised to mandatory; a mobility list adds missing intervals to the EU frequency table.",
+  "deriv": [
+   "std"
+  ],
+  "nap": [
+   "CMC specification",
+   "IT, GR",
+   "NAP metadata provider/user"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-32",
+  "statement": "Define occurrence limits and obligation levels and explain their consequences for database storage, user interfaces and harvesting, consistently with DCAT-AP.",
+  "locator": "Main report Table 1, original Req-32, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "G",
+  "problem": "P7",
+  "resp": "E",
+  "conf": "high",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [],
+  "note": "Obligation levels for every property; against DCAT-AP 2.0.1, 10 raised to mandatory, 1 to recommended, 2 lowered to optional.",
+  "deriv": [
+   "exp",
+   "proj"
+  ],
+  "nap": [
+   "Meeting with DCAT-AP experts; EU EIP activity on NAP metadata",
+   "DE, IT, GR",
+   "Metadata standard experts; NAP developer"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-33",
+  "statement": "Provide identifier guidance.",
+  "locator": "Main report Table 1, original Req-33, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "optional",
+  "level": "G",
+  "problem": "P4",
+  "resp": "E",
+  "conf": "med",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "dct:identifier",
+    "dcat:Catalog",
+    "newclass"
+   ],
+   [
+    "adms:identifier",
+    "dcat:Catalog",
+    "newclass"
+   ]
+  ],
+  "note": "Identifier guidance given as usage notes (identifier SHOULD be the resource URI).",
+  "deriv": [
+   "exp"
+  ],
+  "nap": [
+   "Meeting with DCAT-AP experts",
+   "IT",
+   "Metadata standard experts"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-34",
+  "statement": "Define permitted values for metadata elements, using suitable controlled vocabularies.",
+  "locator": "Main report Table 1, original Req-34, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "G",
+  "problem": "P7",
+  "resp": "E",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [],
+  "note": "Section 5.2 makes controlled vocabularies mandatory for listed properties (EU authority tables, EPSG) and adds mobility lists.",
+  "deriv": [
+   "exp"
+  ],
+  "nap": [
+   "Meeting with DCAT-AP experts",
+   "IT",
+   "Metadata standard experts"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-35",
+  "statement": "Track revisions and versions of catalogue metadata.",
+  "locator": "Main report Table 1, original Req-35, PDF pages 15–19",
+  "napType": "Content",
+  "importance": "mandatory",
+  "level": "M",
+  "problem": "P6",
+  "resp": "F",
+  "conf": "med",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [
+   [
+    "dct:modified",
+    "dcat:CatalogRecord",
+    "asis"
+   ],
+   [
+    "owl:versionInfo",
+    "dcat:Dataset",
+    "asis"
+   ],
+   [
+    "adms:versionNotes",
+    "dcat:Dataset",
+    "asis"
+   ],
+   [
+    "dct:hasVersion",
+    "dcat:Dataset",
+    "asis"
+   ]
+  ],
+  "note": "Base terms with version-history usage notes; record change type and listing date were removed.",
+  "deriv": [
+   "proj"
+  ],
+  "nap": [
+   "SPRINT project",
+   "IT",
+   "NAP metadata provider"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-36",
+  "statement": "Enable automated conformance checking of metadata.",
+  "locator": "Main report Table 1, original Req-36, PDF pages 15–19",
+  "napType": "Implementation",
+  "importance": "optional",
+  "level": "S",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "med",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [],
+  "note": "SHACL shapes published with 1.0.0; conformance section.",
+  "deriv": [
+   "exp"
+  ],
+  "nap": [
+   "Meeting with DCAT-AP experts",
+   "IT",
+   "Metadata standard experts"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-37",
+  "statement": "Explain element meanings and how to apply them within NAP operations.",
+  "locator": "Main report Table 1, original Req-37, PDF pages 15–19",
+  "napType": "Implementation",
+  "importance": "mandatory",
+  "level": "G",
+  "problem": "P7",
+  "resp": "E",
+  "conf": "med",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [],
+  "note": "Refined usage notes for inherited terms (section 1.3 lists this as a change type).",
+  "deriv": [
+   "prac"
+  ],
+  "nap": [
+   "Experience from DE NAP development",
+   "DE",
+   "NAP developer"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-38",
+  "statement": "Explain allocation of metadata between a dataset or service and its multiple delivery resources.",
+  "locator": "Main report Table 1, original Req-38, PDF pages 15–19",
+  "napType": "Implementation",
+  "importance": "optional",
+  "level": "G",
+  "problem": "P7",
+  "resp": "D",
+  "conf": "low",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "adms:sample",
+    "dcat:Distribution",
+    "newclass"
+   ],
+   [
+    "dct:temporal",
+    "dcat:Distribution",
+    "newclass"
+   ]
+  ],
+  "note": "Allocation guidance; visible as Dataset-level terms placed on Distribution.",
+  "deriv": [
+   "prac"
+  ],
+  "nap": [
+   "Experience from BE NAP development",
+   "BE",
+   "NAP developer"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-39",
+  "statement": "Explain exchange of mobility-specific descriptions with other-domain portals, including handling extensions during harvesting.",
+  "locator": "Main report Table 1, original Req-39, PDF pages 15–19",
+  "napType": "Implementation",
+  "importance": "optional",
+  "level": "S",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "low",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [],
+  "note": "Receiver \"processing\" rule; mobility theme as sub-property of dcat:theme keeps the generic theme for other portals.",
+  "deriv": [
+   "proj"
+  ],
+  "nap": [
+   "EU EIP activity on NAP metadata",
+   "DE",
+   "NAP developer"
+  ]
+ },
+ {
+  "case": "Mobility",
+  "id": "Req-40",
+  "statement": "Give guidance for assuring the quality of metadata received by a NAP.",
+  "locator": "Main report Table 1, original Req-40, PDF pages 15–19",
+  "napType": "Implementation",
+  "importance": "optional",
+  "level": "S",
+  "problem": "P6",
+  "resp": "H",
+  "conf": "med",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [],
+  "note": "Not addressed in 1.0.0 beyond the SHACL shapes.",
+  "deriv": [
+   "proj"
+  ],
+  "nap": [
+   "SPRINT project",
+   "IT",
+   "NAP metadata user"
+  ]
+ },
+ {
+  "case": "Health",
+  "id": "H-1",
+  "statement": "Use stable, resolvable identifiers so metadata records and their relationships remain reliably identifiable across catalogues.",
+  "locator": "D6.2 §5.2.1.1",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P4",
+  "resp": "E",
+  "conf": "high",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [
+   [
+    "dct:identifier",
+    "dcat:Dataset",
+    "constrained"
+   ]
+  ],
+  "note": "Persistent dereferenceable HTTP URIs; mandatory PURI for high-impact datasets; HDABs assign one if missing.",
+  "deriv": [
+   "tech"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Health",
+  "id": "H-2",
+  "statement": "Represent catalogue relationships as machine-interpretable links that support a health-data knowledge graph.",
+  "locator": "D6.2 §5.2.1.2",
+  "napType": null,
+  "importance": null,
+  "level": "G",
+  "problem": "P4",
+  "resp": "G",
+  "conf": "med",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [],
+  "note": "DCAT-AP already links resources by URI; adds operational needs (broken links, maturity).",
+  "deriv": [
+   "tech"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Health",
+  "id": "H-3",
+  "statement": "Define review responsibilities for metadata received by harvesting or direct publishing.",
+  "locator": "D6.2 §5.2.1.3",
+  "napType": null,
+  "importance": null,
+  "level": "S",
+  "problem": "P6",
+  "resp": "H",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "healthdcatap:reviewDate",
+    "dcat:CatalogRecord",
+    "proposed"
+   ]
+  ],
+  "note": "EHDS Art. 41 annual review. D6.2: \"would need a new property\", or keep it internal; not in the cardinality tables.",
+  "deriv": [
+   "law"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Health",
+  "id": "H-4",
+  "statement": "Make metadata sufficiently interpretable and informative to support machine-assisted search, including semantic and generative-AI use.",
+  "locator": "D6.2 §5.2.2",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P1",
+  "resp": "B",
+  "sub": "minted",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "healthdcatap:populationCoverage",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "healthdcatap:publisherNote",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "dpv:hasPurpose",
+    "dcat:Dataset",
+    "imported"
+   ],
+   [
+    "dct:description",
+    "dcat:Dataset",
+    "asis"
+   ],
+   [
+    "dct:provenance",
+    "dcat:Dataset",
+    "asis"
+   ]
+  ],
+  "note": "Free-text properties named for NLP/LLM search (what, why, how, who).",
+  "deriv": [
+   "tech"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Health",
+  "id": "H-5",
+  "statement": "Allow dataset discovery to be refined using health categories, access bodies, holder types, personal-data categories, age ranges, population size, quality labels and coding information.",
+  "locator": "D6.2 §5.2.3",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P1",
+  "resp": "B",
+  "sub": "minted",
+  "conf": "high",
+  "atoms": 8,
+  "rq2": false,
+  "terms": [
+   [
+    "healthdcatap:healthCategory",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "healthdcatap:hdab",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "healthdcatap:publisherType",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "healthdcatap:minTypicalAge",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "healthdcatap:maxTypicalAge",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "healthdcatap:numberOfUniqueIndividuals",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "healthdcatap:hasCodingSystem",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "healthdcatap:hasCodeValues",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "dpv:hasPersonalData",
+    "dcat:Dataset",
+    "imported"
+   ],
+   [
+    "dqv:hasQualityAnnotation",
+    "dcat:Dataset",
+    "imported"
+   ]
+  ],
+  "note": "New facets on top of the base facets (keyword, publisher, theme, temporal, spatial, format).",
+  "deriv": [
+   "tech",
+   "law"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Health",
+  "id": "H-6",
+  "statement": "Adapt displayed filters to whether the catalogue query concerns personal or non-personal data.",
+  "locator": "D6.2 §5.2.3",
+  "napType": null,
+  "importance": null,
+  "level": "S",
+  "problem": "P1",
+  "resp": "D",
+  "conf": "med",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "dct:type",
+    "dcat:Dataset",
+    "cvext"
+   ]
+  ],
+  "note": "Filter behaviour is a catalogue function; the profile side is dct:type with a proposed \"personal data\" value in the EU dataset-type list, plus three conditional cardinality sets.",
+  "deriv": [
+   "tech",
+   "law"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Health",
+  "id": "H-7",
+  "statement": "Use semantic annotations and shared coding vocabularies to make health descriptions interoperable and searchable.",
+  "locator": "D6.2 §5.2.5",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P1",
+  "resp": "B",
+  "sub": "minted",
+  "conf": "high",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [
+   [
+    "healthdcatap:healthTheme",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "healthdcatap:hasCodingSystem",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "healthdcatap:hasCodeValues",
+    "dcat:Dataset",
+    "minted"
+   ],
+   [
+    "dpv:hasPersonalData",
+    "dcat:Dataset",
+    "imported"
+   ],
+   [
+    "dct:conformsTo",
+    "dcat:Dataset",
+    "constrained"
+   ]
+  ],
+  "note": "Wikidata URIs for health theme, coding systems and conformsTo.",
+  "deriv": [
+   "tech"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Health",
+  "id": "H-8",
+  "statement": "Describe at least one safe sample distribution for non-public datasets so users can prepare analyses without accessing sensitive records.",
+  "locator": "D6.2 §5.2.6",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P3",
+  "resp": "E",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "adms:sample",
+    "dcat:Dataset",
+    "constrained"
+   ]
+  ],
+  "note": "Optional in DCAT-AP 3.0.0; MUST for non-public datasets (\"experimental\").",
+  "deriv": [
+   "exp"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Health",
+  "id": "H-9",
+  "statement": "Accompany sample data with definitions of its variables in a data dictionary.",
+  "locator": "D6.2 §5.2.6",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P3",
+  "resp": "A",
+  "sub": "imported",
+  "conf": "med",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "csvw:Table / csvw:Schema",
+    "(class)",
+    "imported"
+   ]
+  ],
+  "note": "Data dictionary in CSVW attached to the sample distribution (section 5.2.6.1); not in the cardinality tables.",
+  "deriv": [
+   "exp",
+   "law"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Health",
+  "id": "H-10",
+  "statement": "Allow applicants to identify the variables they need, supporting data minimisation.",
+  "locator": "D6.2 §5.2.6.1",
+  "napType": null,
+  "importance": null,
+  "level": "S",
+  "problem": "P2",
+  "resp": "G",
+  "conf": "med",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [],
+  "note": "Capability of the access-application form (data minimisation); relies on the H-9 data dictionary.",
+  "deriv": [
+   "law"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Health",
+  "id": "H-11",
+  "statement": "Provide usable descriptions of data structures and coding so datasets can be understood and processed consistently.",
+  "locator": "D6.2 §5.2.6.1",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P3",
+  "resp": "A",
+  "sub": "imported",
+  "conf": "med",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [
+   [
+    "csvw:Table / csvw:Schema",
+    "(class)",
+    "imported"
+   ],
+   [
+    "healthdcatap:hasCodingSystem",
+    "dcat:Dataset",
+    "minted"
+   ]
+  ],
+  "note": "Data Act Art. 33(1)(b). Overlaps with H-9.",
+  "deriv": [
+   "law"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Health",
+  "id": "H-12",
+  "statement": "Describe logical dataset subdivisions and their relationships where large holdings need to be partitioned.",
+  "locator": "D6.2 §5.2.6.2",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P1",
+  "resp": "H",
+  "conf": "med",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [],
+  "note": "D6.2 recommends one record per \"virtual\" data mart and leaves a method for breakdown structures to future work; base dataset series/relations are not adopted for it.",
+  "deriv": [
+   "exp",
+   "prac"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Health",
+  "id": "H-13",
+  "statement": "State intellectual-property and reuse conditions, including those on sample distributions.",
+  "locator": "D6.2 §5.2.6.3",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P2",
+  "resp": "E",
+  "conf": "high",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [
+   [
+    "dct:rights",
+    "dcat:Distribution",
+    "constrained"
+   ]
+  ],
+  "note": "Rights made mandatory, also for sample distributions.",
+  "deriv": [
+   "law"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Health",
+  "id": "H-14",
+  "statement": "Link to descriptive analytics that help prospective users assess a dataset.",
+  "locator": "D6.2 §5.2.7",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P3",
+  "resp": "B",
+  "sub": "minted",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "healthdcatap:analytics",
+    "dcat:Dataset",
+    "minted"
+   ]
+  ],
+  "note": "Range dcat:Distribution (dashboards, reports, query APIs).",
+  "deriv": [
+   "prac",
+   "law"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Health",
+  "id": "H-15",
+  "statement": "Expose quality annotations or labels that help assess fitness for reuse.",
+  "locator": "D6.2 §5.2.8",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P3",
+  "resp": "B",
+  "sub": "imported",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "dqv:hasQualityAnnotation",
+    "dcat:Dataset",
+    "imported"
+   ]
+  ],
+  "note": "Aligned with StatDCAT-AP and mobilityDCAT-AP.",
+  "deriv": [
+   "law",
+   "prac"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Health",
+  "id": "H-16",
+  "statement": "Describe the purpose of data collection and the legal basis for processing personal data.",
+  "locator": "D6.2 §5.2.9",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P5",
+  "resp": "B",
+  "sub": "imported",
+  "conf": "high",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [
+   [
+    "dpv:hasPurpose",
+    "dcat:Dataset",
+    "imported"
+   ],
+   [
+    "dpv:hasLegalBasis",
+    "dcat:Dataset",
+    "imported"
+   ]
+  ],
+  "note": "GDPR.",
+  "deriv": [
+   "law"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Stat",
+  "id": "S-1",
+  "statement": "Expose the dimensions that distinguish observations, including time and demographic or regional dimensions.",
+  "locator": "StatDCAT-AP 1.0 §7.2.1",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P3",
+  "resp": "B",
+  "sub": "minted",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "stat:dimension",
+    "dcat:Dataset",
+    "minted"
+   ]
+  ],
+  "note": "qb:dimension rejected: defined for a data structure definition, not a dataset.",
+  "deriv": [
+   "exp",
+   "std"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Stat",
+  "id": "S-2",
+  "statement": "Expose attributes needed to interpret observations, such as scaling and observation status.",
+  "locator": "StatDCAT-AP 1.0 §7.2.1",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P3",
+  "resp": "B",
+  "sub": "minted",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "stat:attribute",
+    "dcat:Dataset",
+    "minted"
+   ]
+  ],
+  "note": "Overlaps S-6 (units are attributes).",
+  "deriv": [
+   "exp",
+   "std"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Stat",
+  "id": "S-3",
+  "statement": "Associate statistical datasets with descriptive quality information.",
+  "locator": "StatDCAT-AP 1.0 §7.2.2",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P3",
+  "resp": "B",
+  "sub": "imported",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "dqv:hasQualityAnnotation",
+    "dcat:Dataset",
+    "imported"
+   ]
+  ],
+  "note": "Section 7.2.2 states importance, not a requirement sentence.",
+  "deriv": [
+   "exp"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Stat",
+  "id": "S-4",
+  "statement": "Identify delivery resources that present dataset visualisations.",
+  "locator": "StatDCAT-AP 1.0 §7.2.3",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P2",
+  "resp": "D",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "dct:type",
+    "dcat:Distribution",
+    "newclass"
+   ]
+  ],
+  "note": "Base has dct:type on Dataset; added to Distribution with the existing MDR distribution-type list (VISUALIZATION).",
+  "deriv": [
+   "exp"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Stat",
+  "id": "S-5",
+  "statement": "Indicate the actual number of statistical series represented in a dataset.",
+  "locator": "StatDCAT-AP 1.0 §7.2.4",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P3",
+  "resp": "B",
+  "sub": "minted",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "stat:numSeries",
+    "dcat:Dataset",
+    "minted"
+   ]
+  ],
+  "note": "Sub-property of dct:extent.",
+  "deriv": [
+   "exp"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Stat",
+  "id": "S-6",
+  "statement": "Identify the unit in which dataset observations are measured.",
+  "locator": "StatDCAT-AP 1.0 §7.2.5",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P3",
+  "resp": "B",
+  "sub": "minted",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "stat:statUnitMeasure",
+    "dcat:Dataset",
+    "minted"
+   ]
+  ],
+  "note": "Range skos:Concept.",
+  "deriv": [
+   "exp"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Stat",
+  "id": "S-7",
+  "statement": "Represent time-series coverage and periodicity without relying on an ambiguous shorthand.",
+  "locator": "StatDCAT-AP 1.0 §7.2.6",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P3",
+  "resp": "F",
+  "conf": "high",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [
+   [
+    "dct:temporal",
+    "dcat:Dataset",
+    "asis"
+   ],
+   [
+    "dct:accrualPeriodicity",
+    "dcat:Dataset",
+    "asis"
+   ]
+  ],
+  "note": "Guidance only.",
+  "deriv": [
+   "prac"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Geo",
+  "id": "G-1",
+  "statement": "Provide RDF representations of spatial metadata that conform to DCAT-AP, retain meaning as far as practical and support cross-domain reuse.",
+  "locator": "GeoDCAT-AP 1.0 §1.1;4.1",
+  "napType": null,
+  "importance": null,
+  "level": "G",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "high",
+  "atoms": 3,
+  "rq2": true,
+  "terms": [],
+  "note": "Core and Extended profiles.",
+  "deriv": [
+   "exp"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Geo",
+  "id": "G-2",
+  "statement": "Include every mandatory baseline DCAT-AP element.",
+  "locator": "GeoDCAT-AP 1.0 §4.1",
+  "napType": null,
+  "importance": null,
+  "level": "G",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": true,
+  "terms": [],
+  "note": "Core profile.",
+  "deriv": [
+   "exp",
+   "std"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Geo",
+  "id": "G-3",
+  "statement": "Use other vocabularies for geospatial information only where the baseline does not cover it.",
+  "locator": "GeoDCAT-AP 1.0 §4.1",
+  "napType": null,
+  "importance": null,
+  "level": "G",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": true,
+  "terms": [],
+  "note": "Extended profile.",
+  "deriv": [
+   "exp",
+   "std"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Geo",
+  "id": "G-4",
+  "statement": "Base alignments on established practice and working-group implementation experience.",
+  "locator": "GeoDCAT-AP 1.0 §4.1",
+  "napType": null,
+  "importance": null,
+  "level": "G",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "high",
+  "atoms": 2,
+  "rq2": true,
+  "terms": [],
+  "note": "Builds on JRC 2014 INSPIRE+DCAT-AP alignment.",
+  "deriv": [
+   "prac",
+   "exp"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Geo",
+  "id": "G-5",
+  "statement": "Assess any new terms carefully and avoid conflicting with ongoing standardisation.",
+  "locator": "GeoDCAT-AP 1.0 §4.1",
+  "napType": null,
+  "importance": null,
+  "level": "G",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "high",
+  "atoms": 2,
+  "rq2": true,
+  "terms": [],
+  "note": "GeoDCAT-AP 1.0 minted no new terms.",
+  "deriv": [
+   "exp"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Geo",
+  "id": "G-6",
+  "statement": "Cover the ISO core and common INSPIRE metadata elements; exclude only optional material where necessary, with theme-specific extensions outside the common scope.",
+  "locator": "GeoDCAT-AP 1.0 §4.2",
+  "napType": null,
+  "importance": null,
+  "level": "G",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "high",
+  "atoms": 3,
+  "rq2": false,
+  "terms": [],
+  "note": "Coverage scope; realised with existing vocabularies only.",
+  "deriv": [
+   "std",
+   "law"
+  ],
+  "nap": null
+ },
+ {
+  "case": "Geo",
+  "id": "G-7",
+  "statement": "Offer an additional RDF publication route while retaining the existing INSPIRE metadata obligations and implementations.",
+  "locator": "GeoDCAT-AP 1.0 §1.1",
+  "napType": null,
+  "importance": null,
+  "level": "G",
+  "problem": "P7",
+  "resp": "G",
+  "conf": "high",
+  "atoms": 2,
+  "rq2": false,
+  "terms": [],
+  "note": "Additional RDF binding next to INSPIRE/ISO 19139; XSLT reference implementation.",
+  "deriv": [
+   "law"
+  ],
+  "nap": null
+ },
+ {
+  "case": "JRC",
+  "id": "JRC-1",
+  "statement": "Identify the people who created a dataset.",
+  "locator": "Metadata elements relevant for scientific data, numbered item 1",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P4",
+  "resp": "B",
+  "sub": "imported",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "dct:creator",
+    "dcat:Dataset",
+    "imported"
+   ]
+  ],
+  "note": "DCAT-AP 1.1 only has publisher and contact point.",
+  "deriv": [
+   "std",
+   "prac"
+  ],
+  "nap": null
+ },
+ {
+  "case": "JRC",
+  "id": "JRC-2",
+  "statement": "Describe the origin and processing history of data.",
+  "locator": "Metadata elements relevant for scientific data, numbered item 2",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P3",
+  "resp": "F",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "dct:provenance",
+    "dcat:Dataset",
+    "asis"
+   ]
+  ],
+  "note": "",
+  "deriv": [
+   "prac"
+  ],
+  "nap": null
+ },
+ {
+  "case": "JRC",
+  "id": "JRC-3",
+  "statement": "Give prospective users practical guidance on using a dataset.",
+  "locator": "Metadata elements relevant for scientific data, numbered item 3",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P3",
+  "resp": "B",
+  "sub": "imported",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "vann:usageNote",
+    "dcat:Dataset",
+    "imported"
+   ]
+  ],
+  "note": "",
+  "deriv": [
+   "prac"
+  ],
+  "nap": null
+ },
+ {
+  "case": "JRC",
+  "id": "JRC-4",
+  "statement": "Connect datasets to associated scientific publications.",
+  "locator": "Metadata elements relevant for scientific data, numbered item 4",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P4",
+  "resp": "B",
+  "sub": "imported",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "dct:isReferencedBy",
+    "dcat:Dataset",
+    "imported"
+   ]
+  ],
+  "note": "",
+  "deriv": [
+   "prac"
+  ],
+  "nap": null
+ },
+ {
+  "case": "JRC",
+  "id": "JRC-5",
+  "statement": "Identify source datasets used in producing a dataset.",
+  "locator": "Metadata elements relevant for scientific data, numbered item 5",
+  "napType": null,
+  "importance": null,
+  "level": "M",
+  "problem": "P4",
+  "resp": "F",
+  "conf": "high",
+  "atoms": 1,
+  "rq2": false,
+  "terms": [
+   [
+    "dct:source",
+    "dcat:Dataset",
+    "asis"
+   ]
+  ],
+  "note": "",
+  "deriv": [
+   "prac"
+  ],
+  "nap": null
+ }
+]

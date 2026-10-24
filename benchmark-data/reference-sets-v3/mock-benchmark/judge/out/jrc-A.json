@@ -1,0 +1,52 @@
+{"case": "jrc", "judge": "A", "atoms": [
+  {"atom_id": "JRC-1.1", "matches": [
+    {"need_id": "N243", "label": "equivalent", "rationale": "The creator of a dataset is its author, a close synonym in this context."}
+  ]},
+  {"atom_id": "JRC-2.1", "matches": [
+    {"need_id": "N668", "label": "partial", "rationale": "Methods descriptions overlap with lineage, but the need also covers abstracts and technical information and does not target lineage as such."},
+    {"need_id": "N759", "label": "partial", "rationale": "Typed relationships can record derivation links that are part of lineage, but the need covers relationships in general rather than a lineage description."}
+  ]},
+  {"atom_id": "JRC-3.1", "matches": [
+    {"need_id": "N668", "label": "partial", "rationale": "Narrative technical information can carry guidance on using the data, but the need is about general descriptions rather than usage notes."}
+  ]},
+  {"atom_id": "JRC-4.1", "matches": [
+    {"need_id": "N759", "label": "broader", "rationale": "Typed relationships to related objects include a link from a dataset to publications about it, among other relations."}
+  ]},
+  {"atom_id": "JRC-5.1", "matches": [
+    {"need_id": "N759", "label": "broader", "rationale": "Typed relationships to related objects include a link from a dataset to its input data, among other relations."}
+  ]},
+  {"atom_id": "JRC-6.1", "matches": [
+    {"need_id": "N840", "label": "partial", "rationale": "Asks for an agent identifier (URI), but for the catalogue's publisher rather than dataset authors, without persistence or the filtering/linking purpose."},
+    {"need_id": "N591", "label": "partial", "rationale": "Asks for a dataset's own unique identifier, not persistent identifiers for its authors and input data used for filtering and linking."}
+  ]},
+  {"atom_id": "JRC-6.2", "matches": [
+    {"need_id": "N840", "label": "partial", "rationale": "The publisher's identifier given as a URI is one URI-encoded identifier, but the need sets no general HTTP-URI encoding rule."}
+  ]},
+  {"atom_id": "JRC-6.3", "matches": [
+    {"need_id": "N889", "label": "partial", "rationale": "Separates a dataset's alternative identifiers from its primary DOI, but covers only the alternative side and adds identifier types."}
+  ]},
+  {"atom_id": "JRC-6.4", "matches": [
+    {"need_id": "N591", "label": "partial", "rationale": "Asks for the dataset identifier without requiring it to be a DOI or the DataCite citation context."},
+    {"need_id": "N889", "label": "partial", "rationale": "Assumes a primary DOI for the dataset but asks for its other identifiers and their types, with no DataCite citation context."}
+  ]},
+  {"atom_id": "JRC-6.5", "matches": [
+    {"need_id": "N889", "label": "narrower", "rationale": "Covers identifier types only for a dataset's alternative identifiers other than the primary DOI."}
+  ]},
+  {"atom_id": "JRC-7.1", "matches": [
+    {"need_id": "N983", "label": "partial", "rationale": "Typed contributor roles overlap with additional agent roles, but include contact roles and do not ask for a minimal unambiguous role set."},
+    {"need_id": "N159", "label": "partial", "rationale": "Curation role types are one kind of additional agent role, without a minimal, consistent role set."},
+    {"need_id": "N672", "label": "partial", "rationale": "Contact role types for contributors are typed agent roles, but sit in the contact-point area and do not address a minimal unambiguous set."}
+  ]},
+  {"atom_id": "JRC-8.1", "matches": [
+    {"need_id": "N991", "label": "partial", "rationale": "Knowing the interfaces through which data are accessed overlaps with flagging service/API access, but the need does not mark individual distributions."}
+  ]},
+  {"atom_id": "JRC-8.2", "matches": [
+    {"need_id": "N991", "label": "partial", "rationale": "Asks to know the accepted access interfaces, not a description with query parameters for direct use by software agents."}
+  ]},
+  {"atom_id": "JRC-9.1", "matches": [
+    {"need_id": "N668", "label": "partial", "rationale": "Methods descriptions support reproducibility, but the need is not a provenance description and does not address usage tracking."},
+    {"need_id": "N759", "label": "partial", "rationale": "Typed relationships can record derivation and usage links, but the need is not a detailed provenance description for reproducibility."}
+  ]},
+  {"atom_id": "JRC-10.1", "matches": []},
+  {"atom_id": "JRC-10.2", "matches": []}
+]}

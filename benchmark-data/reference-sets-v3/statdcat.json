@@ -1,0 +1,2361 @@
+{
+ "schema_version": "rq1-reference-set-3",
+ "case": "statdcat",
+ "reference_document": "StatDCAT-AP 1.0.0 (2016-12-15)",
+ "base": "DCAT-AP 1.1",
+ "status": "merged reference set with AI input-evidence labels; provisional adjudication of the reviewed items (2026-10-23); not independently adjudicated as a whole",
+ "built_from": {
+  "v1": "statdcat/reference-requirements/requirements-and-resolutions.json (published identities kept)",
+  "claude_v2": "requirements-and-resolutions-v2.json (Claude completion, 2026-10-22)",
+  "pr45": "benchmark-data/reference-audit-2026-10-22 (PR #45, commit 7fec154)"
+ },
+ "decisions": [
+  "Mobility is scored at clause level (the PR #45 clauses, checked against NAPCORE Table 1).",
+  "Requirements that restate DCAT-AP are included and flagged (restates_dcat_ap); they may be left out at scoring time."
+ ],
+ "adjudication": {
+  "date": "2026-10-23",
+  "source": "reference-sets-v3/CODEX-REVIEW-2026-10-23.md",
+  "by": "Junda, provisional adjudication with ChatGPT/Codex assistance; applied by Claude",
+  "status": "provisional; not an independent human adjudication of the whole set",
+  "changes": [
+   "Overlap review: 4 pairs classified (0 equivalent, 1 subsumption, 3 related)."
+  ]
+ },
+ "merge_rules": [
+  "Rows: all v1 rows and all Claude v2 rows keep their IDs. A row statement, locator or status changes only where a source check showed it wrong; the earlier value is kept in statement_before_v3, source_locator_before_v3 or status_in_source_before_v3.",
+  "Atoms are the scoring units and every atom belongs to exactly one row. PR #45 splits are used where PR #45 split a need; PR #45 items that state the same need for another data group are merged into one atom whose applicability lists the groups.",
+  "Content found only in Claude v2 is split into atoms; content found only in PR #45 is added; a few needs found while checking anchors are added and marked added_in_merge.",
+  "Requirements that only restate DCAT-AP (relation_to_base = restates_base) are kept and flagged with restates_dcat_ap so they can be left out at scoring time.",
+  "Source inconsistencies and source errors are recorded on the atom (source_flags), not resolved.",
+  "Overlapping atoms point to each other in overlaps; under one-to-one matching a prediction can be credited to only one of them.",
+  "Adjudication (2026-10-23): equivalent atoms from different rows are scored once (the duplicate names its canonical atom in merged_into); an atom that only bundles separately scored atoms (umbrella_of) is not scored by default; every overlap pair carries a review (overlap_review)."
+ ],
+ "scoring": {
+  "unit": "atom",
+  "default_selection": "stratum = content, status_in_source != deferred, and neither merged_into another atom nor umbrella_of separately scored atoms (field scored_by_default)",
+  "optional_filters": {
+   "leave_out_dcat_ap_restatements": "restates_dcat_ap = true",
+   "leave_out_rq2_reuse_and_alignment_rules": "reuse_or_alignment_rule = true",
+   "leave_out_unsettled_status": "status_in_source in (proposed, open_issue, guidance)",
+   "leave_out_atoms_added_in_merge": "provenance.added_in_merge = true"
+  },
+  "never": "Score a row and its atoms together, or credit one prediction to two overlapping atoms.",
+  "row_level": "Rows remain available for a separate row-level recovery analysis."
+ },
+ "counts": {
+  "rows": 22,
+  "rows_by_added_in": {
+   "v1": 7,
+   "v2": 15
+  },
+  "atoms": 27,
+  "atoms_by_stratum": {
+   "content": 16,
+   "profile": 9,
+   "system": 2
+  },
+  "atoms_by_status": {
+   "requirement": 20,
+   "guidance": 4,
+   "deferred": 3
+  },
+  "atoms_by_relation_to_base": {
+   "beyond_base": 9,
+   "extends_base": 1,
+   "restates_base": 6,
+   "not_term_level": 11
+  },
+  "atoms_by_found_by": {
+   "v1 row (split by PR #45)": 9,
+   "v1 row": 2,
+   "Claude v2 only": 11,
+   "both": 5
+  },
+  "scored_by_default": 14,
+  "scored_by_default_without_dcat_ap_restatements": 8,
+  "scored_by_default_without_rq2_rules": 14,
+  "scored_by_default_requirement_status_only": 10,
+  "atoms_merged_for_scoring": 0,
+  "umbrella_atoms_not_scored": 0,
+  "atoms_provisionally_adjudicated": 3,
+  "atoms_with_source_flags": 0,
+  "atoms_with_evidence_labels": 27,
+  "raw_evidence_labels": {
+   "partial": 8,
+   "unsupported": 7,
+   "supported": 9,
+   "uncertain": 3
+  },
+  "scored_by_default_raw_supported": 4,
+  "scored_by_default_raw_supported_or_partial": 8,
+  "atoms_with_overlaps": 6
+ },
+ "requirements": [
+  {
+   "id": "S-1",
+   "statement": "Expose the dimensions that distinguish observations, including time and demographic or regional dimensions.",
+   "source_locator": "StatDCAT-AP 1.0 §7.2.1",
+   "adopted_resolution": "stat:dimension",
+   "statement_kind": "curator_paraphrase",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "origin": [
+    "exp",
+    "std"
+   ],
+   "problem": "P3",
+   "reuse_or_alignment_rule": false,
+   "added_in": "v1",
+   "pr45_legacy_review": "Retain published/scoped identity; adjudicate meaning and evidence before scoring.",
+   "derived_from": "StatDCAT-AP working-group requirement",
+   "atom_ids": [
+    "S-1.1"
+   ]
+  },
+  {
+   "id": "S-2",
+   "statement": "Expose attributes needed to interpret observations, such as scaling and observation status.",
+   "source_locator": "StatDCAT-AP 1.0 §7.2.1",
+   "adopted_resolution": "stat:attribute",
+   "statement_kind": "curator_paraphrase",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "origin": [
+    "exp",
+    "std"
+   ],
+   "problem": "P3",
+   "reuse_or_alignment_rule": false,
+   "added_in": "v1",
+   "pr45_legacy_review": "Retain published/scoped identity; adjudicate meaning and evidence before scoring.",
+   "derived_from": "StatDCAT-AP working-group requirement",
+   "atom_ids": [
+    "S-2.1"
+   ]
+  },
+  {
+   "id": "S-3",
+   "statement": "Associate statistical datasets with descriptive quality information.",
+   "source_locator": "StatDCAT-AP 1.0 §7.2.2",
+   "adopted_resolution": "dqv:hasQualityAnnotation",
+   "statement_kind": "curator_paraphrase",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "origin": [
+    "exp"
+   ],
+   "problem": "P3",
+   "reuse_or_alignment_rule": false,
+   "added_in": "v1",
+   "pr45_legacy_review": "Retain published/scoped identity; adjudicate meaning and evidence before scoring.",
+   "derived_from": "StatDCAT-AP working-group requirement; W3C DQV",
+   "atom_ids": [
+    "S-3.1",
+    "S-3.2",
+    "S-3.3"
+   ]
+  },
+  {
+   "id": "S-4",
+   "statement": "Identify delivery resources that present dataset visualisations.",
+   "source_locator": "StatDCAT-AP 1.0 §7.2.3",
+   "adopted_resolution": "dct:type on Distribution; VISUALIZATION authority concept",
+   "statement_kind": "curator_paraphrase",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "content",
+   "relation_to_base": "extends_base",
+   "status_in_source": "requirement",
+   "origin": [
+    "exp"
+   ],
+   "problem": "P2",
+   "reuse_or_alignment_rule": false,
+   "added_in": "v1",
+   "pr45_legacy_review": "Retain published/scoped identity; adjudicate meaning and evidence before scoring.",
+   "derived_from": "StatDCAT-AP working-group requirement",
+   "atom_ids": [
+    "S-4.1"
+   ]
+  },
+  {
+   "id": "S-5",
+   "statement": "Indicate the actual number of statistical series represented in a dataset.",
+   "source_locator": "StatDCAT-AP 1.0 §7.2.4",
+   "adopted_resolution": "stat:numSeries",
+   "statement_kind": "curator_paraphrase",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "origin": [
+    "exp"
+   ],
+   "problem": "P3",
+   "reuse_or_alignment_rule": false,
+   "added_in": "v1",
+   "pr45_legacy_review": "Retain published/scoped identity; adjudicate meaning and evidence before scoring.",
+   "derived_from": "StatDCAT-AP working-group requirement",
+   "atom_ids": [
+    "S-5.1"
+   ]
+  },
+  {
+   "id": "S-6",
+   "statement": "Identify the unit in which dataset observations are measured.",
+   "source_locator": "StatDCAT-AP 1.0 §7.2.5",
+   "adopted_resolution": "stat:statUnitMeasure",
+   "statement_kind": "curator_paraphrase",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "origin": [
+    "exp"
+   ],
+   "problem": "P3",
+   "reuse_or_alignment_rule": false,
+   "added_in": "v1",
+   "pr45_legacy_review": "Retain published/scoped identity; adjudicate meaning and evidence before scoring.",
+   "derived_from": "StatDCAT-AP working-group requirement",
+   "atom_ids": [
+    "S-6.1"
+   ]
+  },
+  {
+   "id": "S-7",
+   "statement": "Represent time-series coverage and periodicity without relying on an ambiguous shorthand.",
+   "source_locator": "StatDCAT-AP 1.0 §7.2.6",
+   "adopted_resolution": "dct:temporal with schema:startDate/schema:endDate; dct:accrualPeriodicity",
+   "statement_kind": "curator_paraphrase",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "guidance",
+   "origin": [
+    "prac"
+   ],
+   "problem": "P3",
+   "reuse_or_alignment_rule": false,
+   "added_in": "v1",
+   "pr45_legacy_review": "Split start/end/periodicity for atomic analysis; preserve representation-guidance status.",
+   "derived_from": "National statistical institutes and Eurostat practice (time-series notation)",
+   "v3_note": "Representation guidance in the source, split into start, end and periodicity atoms; not three new stakeholder requirements.",
+   "atom_ids": [
+    "S-7.1",
+    "S-7.2",
+    "S-7.3"
+   ]
+  },
+  {
+   "id": "S-8",
+   "statement": "Improve the discoverability of statistical datasets on general open data portals.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "StatDCAT-AP 1.0.0 §2.2 (charter); §5.1",
+   "anchor_quote": "an initial focus on discovery of those data sets in a wider context",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "profile",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "exp"
+   ],
+   "problem": "P1",
+   "note": "Purpose row.",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "StatDCAT-AP charter",
+   "atom_ids": [
+    "S-8.1"
+   ]
+  },
+  {
+   "id": "S-9",
+   "statement": "Let statistical portals feed general open data portals by exporting their metadata in the profile, with guidance for SDMX-based systems.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "StatDCAT-AP 1.0.0 §5.2; §8; Annexes IV–V",
+   "anchor_quote": "the provision of information based on the StatDCAT-AP specification will involve some form of extraction or mapping process",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "system",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "exp",
+    "std"
+   ],
+   "problem": "P7",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "StatDCAT-AP charter; SDMX practice",
+   "atom_ids": [
+    "S-9.1",
+    "S-9.2"
+   ]
+  },
+  {
+   "id": "S-10",
+   "statement": "Conform fully to DCAT-AP 1.1, meeting every obligation of its conformance statement.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "StatDCAT-AP 1.0.0 §7.1",
+   "anchor_quote": "it meets all obligations of the DCAT-AP Conformance Statement",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "profile",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": true,
+   "origin": [
+    "exp"
+   ],
+   "problem": "P7",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "DCAT-AP conformance statement",
+   "atom_ids": [
+    "S-10.1"
+   ]
+  },
+  {
+   "id": "S-11",
+   "statement": "Concentrate on metadata elements that help users discover datasets.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "StatDCAT-AP 1.0.0 §6.2",
+   "anchor_quote": "focus primarily on metadata elements that contribute to data discovery",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "profile",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "exp"
+   ],
+   "problem": "P7",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "StatDCAT-AP decision framework",
+   "atom_ids": [
+    "S-11.1"
+   ]
+  },
+  {
+   "id": "S-12",
+   "statement": "Take terms from existing, well-known and well-maintained vocabularies, including the ISA Core Vocabularies and Eurostat's metadata vocabularies.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "StatDCAT-AP 1.0.0 §6.2",
+   "anchor_quote": "use metadata terms from existing, well-known and well-maintained vocabularies",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "profile",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": true,
+   "origin": [
+    "exp"
+   ],
+   "problem": "P7",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "StatDCAT-AP decision framework",
+   "atom_ids": [
+    "S-12.1"
+   ]
+  },
+  {
+   "id": "S-13",
+   "statement": "Prefer common controlled vocabularies maintained by the EU Publications Office.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "StatDCAT-AP 1.0.0 §6.2",
+   "anchor_quote": "encourage the use of common controlled vocabularies, preferably those maintained by the Publications Office",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "profile",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": true,
+   "origin": [
+    "exp"
+   ],
+   "problem": "P7",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "StatDCAT-AP decision framework",
+   "atom_ids": [
+    "S-13.1"
+   ]
+  },
+  {
+   "id": "S-14",
+   "statement": "Balance simplicity and expressiveness for a wide, non-specialist audience.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "StatDCAT-AP 1.0.0 §6.2",
+   "anchor_quote": "find an appropriate balance between simplicity and complexity",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "profile",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "exp"
+   ],
+   "problem": "P7",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "StatDCAT-AP decision framework",
+   "atom_ids": [
+    "S-14.1"
+   ]
+  },
+  {
+   "id": "S-15",
+   "statement": "Make the profile usable for datasets in any format, such as SDMX, Data Cube or CSV.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "StatDCAT-AP 1.0.0 §7.1; Annex III",
+   "anchor_quote": "can be used to describe datasets in any format",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "profile",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "exp"
+   ],
+   "problem": "P7",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "StatDCAT-AP working-group requirement",
+   "atom_ids": [
+    "S-15.1"
+   ]
+  },
+  {
+   "id": "S-16",
+   "statement": "Classify statistical datasets by EU data theme, mapping Eurostat's own themes onto it.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "StatDCAT-AP 1.0.0 §7.8.3",
+   "anchor_quote": "Mappings between the Eurostat theme vocabulary and the MDR data themes",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "tightens_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "std",
+    "exp"
+   ],
+   "problem": "P1",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "Eurostat theme vocabulary; MDR data themes",
+   "atom_ids": [
+    "S-16.1"
+   ]
+  },
+  {
+   "id": "S-17",
+   "statement": "Link an RDF distribution to the data structure definition it follows.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "StatDCAT-AP 1.0.0 Annex III (resolution log)",
+   "anchor_quote": "a RDF distribution may use dct:conformsTo in addition",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "exp",
+    "std"
+   ],
+   "problem": "P3",
+   "note": "Clarification after public review; DCAT-AP 1.1 already has linked schemas on Distribution.",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "Public review issue (resolution log)",
+   "atom_ids": [
+    "S-17.1"
+   ]
+  },
+  {
+   "id": "S-18",
+   "statement": "Record publication and modification times to the time of day when data are published more than once a day.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "StatDCAT-AP 1.0.0 §11; Annex III",
+   "anchor_quote": "if a dataset is published more than once per day, more precise information about the actual publication time will be needed",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "exp"
+   ],
+   "problem": "P6",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "Public review issue (resolution log)",
+   "atom_ids": [
+    "S-18.1"
+   ]
+  },
+  {
+   "id": "S-19",
+   "statement": "Identify the measures a statistical dataset contains, as SDMX and Data Cube define them.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "StatDCAT-AP 1.0.0 Annex III (resolution log)",
+   "anchor_quote": "Consider adding 'measure' property for future revisions",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "deferred",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "exp",
+    "std"
+   ],
+   "problem": "P3",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "Public review issue (resolution log)",
+   "atom_ids": [
+    "S-19.1"
+   ]
+  },
+  {
+   "id": "S-20",
+   "statement": "Describe the quality of statistical data in more detail, e.g. following the ESS Single Integrated Metadata Structure (SIMS).",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "StatDCAT-AP 1.0.0 §7.2.2; Annex III",
+   "anchor_quote": "In future work, a more fundamental treatment of quality aspects may be undertaken",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "deferred",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "exp",
+    "std"
+   ],
+   "problem": "P3",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [
+    "S-3"
+   ],
+   "derived_from": "Eurostat Single Integrated Metadata Structure (future work)",
+   "atom_ids": [
+    "S-20.1"
+   ]
+  },
+  {
+   "id": "S-21",
+   "statement": "Show how DDI descriptions of datasets can be expressed with the profile.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "StatDCAT-AP 1.0.0 Annex III (resolution log)",
+   "anchor_quote": "Contacts have been established with the DDI initiative",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "profile",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "deferred",
+   "reuse_or_alignment_rule": true,
+   "origin": [
+    "exp",
+    "std"
+   ],
+   "problem": "P7",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "DDI initiative (resolution log)",
+   "atom_ids": [
+    "S-21.1"
+   ]
+  },
+  {
+   "id": "S-22",
+   "statement": "Document, with a full example, how datasets, distributions, Data Cube datasets and data structure definitions relate.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "StatDCAT-AP 1.0.0 Annex III; Annex VII",
+   "anchor_quote": "Add full example of a StatDCAT-AP-compliant description of a Data Cube DataSet",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "profile",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "exp"
+   ],
+   "problem": "P7",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "Public review issue (resolution log)",
+   "atom_ids": [
+    "S-22.1"
+   ]
+  }
+ ],
+ "atoms": [
+  {
+   "id": "S-1.1",
+   "parent_id": "S-1",
+   "statement": "Describe the dimensions that identify observations in a statistical dataset (e.g. time, sex, age, region), the same way whatever the distribution format.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "capability",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 §7.2.1",
+   "pr45_pdf_pages": [
+    30
+   ],
+   "anchor_page": 29,
+   "anchor_quote": "Dimensions: components that identify observations such as time, sex, age, regions",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [
+    "S-15.1"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [
+     "SC-006"
+    ],
+    "added_in_merge": false,
+    "found_by": "v1 row (split by PR #45)"
+   },
+   "notes": "SC-006 adds the format independence stated in §7.2.1.",
+   "restates_dcat_ap": false,
+   "derived_from": "StatDCAT-AP working-group requirement",
+   "origin": [
+    "exp",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "5.2 The cube model - dimensions, attributes, measures",
+       "quote": "The dimension components serve to identify the observations. A set of values for all the dimension components is sufficient to identify a single observation. Examples of dimensions include the time to which the observation applies, or a geographic region which the observation covers.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "6. Creating data structure definitions",
+       "quote": "A qb:DataStructureDefinition defines the structure of one or more datasets. In particular, it defines the dimensions, attributes and measures used in the dataset along with qualifying information such as ordering of dimensions and whether attributes are required or optional.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "1. Introduction",
+       "quote": "Data can come in many formats, ranging from spreadsheets over XML and RDF to various speciality formats. DCAT does not make any assumptions about the format of the datasets described in a catalog.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Data Cube defines dimensions identifying observations, declared in DSDs; DCAT is format-agnostic, but format-independent dimension description is not stated.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "overlap_review": [
+    {
+     "atom": "S-15.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "S-15.1 is a profile-level aim and not scored."
+    }
+   ]
+  },
+  {
+   "id": "S-2.1",
+   "parent_id": "S-2",
+   "statement": "Describe the attributes needed to qualify and interpret observed values (e.g. units of measure, scaling factors, observation status), the same way whatever the distribution format.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "capability",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 §7.2.1",
+   "pr45_pdf_pages": [
+    30
+   ],
+   "anchor_page": 29,
+   "anchor_quote": "Attributes: components used to qualify and interpret observed values such as units of measure, scaling factors",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [
+    "S-6.1",
+    "S-15.1"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [
+     "SC-007"
+    ],
+    "added_in_merge": false,
+    "found_by": "v1 row (split by PR #45)"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "StatDCAT-AP working-group requirement",
+   "origin": [
+    "exp",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "5.2 The cube model - dimensions, attributes, measures",
+       "quote": "The attribute components allow us to qualify and interpret the observed value(s). They enable specification of the units of measure, any scaling factors and metadata such as the status of the observation",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "5.1 Data Sets (Structural metadata)",
+       "quote": "Having located an observation, we need certain metadata in order to be able to interpret it. What is the unit of measurement? Is it a normal value or a series break? Is the value measured or estimated? These metadata are provided as attributes",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "1. Introduction",
+       "quote": "Data can come in many formats, ranging from spreadsheets over XML and RDF to various speciality formats. DCAT does not make any assumptions about the format of the datasets described in a catalog.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Data Cube attributes qualify and interpret observed values (units, scaling factors, status); DCAT is format-agnostic, but format-independent attribute description is not stated.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "overlap_review": [
+    {
+     "atom": "S-15.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "S-15.1 is a profile-level aim and not scored."
+    },
+    {
+     "atom": "S-6.1",
+     "relation": "subsumes",
+     "decision": "kept",
+     "rationale": "Units are one example among the attributes of S-2.1; scaling factors and observation status are not separate atoms."
+    }
+   ]
+  },
+  {
+   "id": "S-3.1",
+   "parent_id": "S-3",
+   "statement": "Link quality information to the statistical dataset or distribution it describes.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "usage_requirement",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 §7.2.2",
+   "pr45_pdf_pages": [
+    30
+   ],
+   "anchor_page": 30,
+   "anchor_quote": "an explicit link to the resource being annotated (oa:hasTarget)",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [
+    "S-20.1"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [
+     "SC-009"
+    ],
+    "added_in_merge": false,
+    "found_by": "v1 row (split by PR #45)"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "StatDCAT-AP working-group requirement; W3C DQV",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "unsupported",
+     "sources": [],
+     "rationale": "Neither input mentions quality information; Data Cube has only observation-level status attributes (estimated, provisional), not dataset or distribution quality links.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "overlap_review": [
+    {
+     "atom": "S-20.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "S-20.1 is deferred and not scored."
+    }
+   ]
+  },
+  {
+   "id": "S-3.2",
+   "parent_id": "S-3",
+   "statement": "State the motivation of each quality annotation.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "usage_requirement",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 §7.2.2",
+   "pr45_pdf_pages": [
+    30
+   ],
+   "anchor_page": 30,
+   "anchor_quote": "The annotation requires the provision of information about the motivation of the annotation (oa:motivation)",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [
+     "SC-008"
+    ],
+    "added_in_merge": false,
+    "found_by": "v1 row (split by PR #45)"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "StatDCAT-AP working-group requirement; W3C DQV",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "unsupported",
+     "sources": [],
+     "rationale": "No input discusses quality annotations or their motivation.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "S-3.3",
+   "parent_id": "S-3",
+   "statement": "Provide the quality information as text or as a link to quality information published elsewhere.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "usage_requirement",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 §7.2.2",
+   "pr45_pdf_pages": [
+    30
+   ],
+   "anchor_page": 30,
+   "anchor_quote": "either through linking to quality information that is already published elsewhere or by including text with quality information",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [
+     "SC-010"
+    ],
+    "added_in_merge": false,
+    "found_by": "v1 row (split by PR #45)"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "StatDCAT-AP working-group requirement; W3C DQV",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "unsupported",
+     "sources": [],
+     "rationale": "No input discusses quality information, whether as text or as links to quality information published elsewhere.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "S-4.1",
+   "parent_id": "S-4",
+   "statement": "Link to visualisations of the data (tables, graphs or interactive views), modelled as distributions of type visualisation.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "extends_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 §7.2.3",
+   "pr45_pdf_pages": [],
+   "anchor_page": 31,
+   "anchor_quote": "One of the requirements raised during discussions was the need to be able to link to a visualisation of the data",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "StatDCAT-AP working-group requirement",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "unsupported",
+     "sources": [],
+     "rationale": "Visualisations appear only as uses of statistical data and slice-based chart presentation; nothing links metadata to visualisations or models them as distributions.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "S-5.1",
+   "parent_id": "S-5",
+   "statement": "State the actual number of data series in a dataset, as distinct from the number of observations and the theoretical number of combinations.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "clarification",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 §7.2.4",
+   "pr45_pdf_pages": [
+    32
+   ],
+   "anchor_page": 32,
+   "anchor_quote": "One additional requirement was about expressing the number of data series contained in a dataset.",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [
+     "SC-011"
+    ],
+    "added_in_merge": false,
+    "found_by": "v1 row (split by PR #45)"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "StatDCAT-AP working-group requirement",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "unsupported",
+     "sources": [],
+     "rationale": "No passage asks for the number of series; Data Cube only defines time series as slices, and DCAT's VoID statistics concern RDF datasets.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "S-6.1",
+   "parent_id": "S-6",
+   "statement": "State the unit of measurement of the observations in a dataset.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 §7.2.5",
+   "pr45_pdf_pages": [],
+   "anchor_page": 32,
+   "anchor_quote": "A requirement was brought forward to allow expression of the unit of measurement.",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [
+    "S-2.1"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "StatDCAT-AP working-group requirement",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "6.3 Example dimensions and measure (Unit measure attribute)",
+       "quote": "The primary measure on its own is a plain decimal value. To correctly interpret this value we need to define what units it is measured in (years in this case). This is defined using attributes which qualify the interpretation of the observed value.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "7.1 Data sets and observations",
+       "quote": "For example, the unit of measure for the life expectancy is uniform across the whole data set and does not change between observations. To cater for situations like this the Data Cube vocabulary allows components to be attached at a high level in the nested structure.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Data Cube requires defining the units observed values are measured in and allows attaching the unit of measure at data-set level.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "overlap_review": [
+    {
+     "atom": "S-2.1",
+     "relation": "subsumed_by",
+     "decision": "kept",
+     "rationale": "Units are one example among the attributes of S-2.1; scaling factors and observation status are not separate atoms."
+    }
+   ]
+  },
+  {
+   "id": "S-7.1",
+   "parent_id": "S-7",
+   "statement": "State the start of the period a time series covers.",
+   "stratum": "content",
+   "status_in_source": "guidance",
+   "modality": "representation_guidance",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 §7.2.6",
+   "pr45_pdf_pages": [
+    33
+   ],
+   "anchor_page": 33,
+   "anchor_quote": "To describe such a time series, a StatDCAT-AP-compliant description would specify:",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [
+     "SC-012"
+    ],
+    "added_in_merge": false,
+    "found_by": "v1 row (split by PR #45)"
+   },
+   "notes": "",
+   "restates_dcat_ap": true,
+   "derived_from": "National statistical institutes and Eurostat practice (time-series notation)",
+   "origin": [
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "5.3 Class: Dataset, Property: temporal coverage",
+       "quote": "Definition: The temporal period that the dataset covers. Range: dct:PeriodOfTime (An interval of time that is named or defined by its start and end dates)",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT temporal coverage is the period a dataset covers, an interval defined by its start and end dates.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "S-7.2",
+   "parent_id": "S-7",
+   "statement": "State the end of the period a time series covers.",
+   "stratum": "content",
+   "status_in_source": "guidance",
+   "modality": "representation_guidance",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 §7.2.6",
+   "pr45_pdf_pages": [
+    33
+   ],
+   "anchor_page": 33,
+   "anchor_quote": "To describe such a time series, a StatDCAT-AP-compliant description would specify:",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [
+     "SC-013"
+    ],
+    "added_in_merge": false,
+    "found_by": "v1 row (split by PR #45)"
+   },
+   "notes": "",
+   "restates_dcat_ap": true,
+   "derived_from": "National statistical institutes and Eurostat practice (time-series notation)",
+   "origin": [
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "5.3 Class: Dataset, Property: temporal coverage",
+       "quote": "Definition: The temporal period that the dataset covers. Range: dct:PeriodOfTime (An interval of time that is named or defined by its start and end dates)",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT temporal coverage is the period a dataset covers, an interval defined by its start and end dates.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "S-7.3",
+   "parent_id": "S-7",
+   "statement": "State the periodicity of a time series.",
+   "stratum": "content",
+   "status_in_source": "guidance",
+   "modality": "representation_guidance",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 §7.2.6",
+   "pr45_pdf_pages": [
+    33
+   ],
+   "anchor_page": 33,
+   "anchor_quote": "To describe such a time series, a StatDCAT-AP-compliant description would specify:",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [
+     "SC-014"
+    ],
+    "added_in_merge": false,
+    "found_by": "v1 row (split by PR #45)"
+   },
+   "notes": "",
+   "restates_dcat_ap": true,
+   "derived_from": "National statistical institutes and Eurostat practice (time-series notation)",
+   "origin": [
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "uncertain",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "5.3 Class: Dataset, Property: frequency",
+       "quote": "Definition: The frequency at which dataset is published. Range: dct:Frequency (A rate at which something recurs)",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "4.1 Basic Example",
+       "quote": "In order to express frequency of update in the example above, we chose to use an instance from the Content-Oriented Guidelines developed as part of the W3C Data Cube Vocabulary efforts.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "5.3 Introducing Slices",
+       "quote": "to refer to such slices in which the single free dimension is time as Time Series",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT frequency is publication/update frequency (example uses an SDMX code); unclear whether it covers the periodicity of a time series's observations.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "S-8.1",
+   "parent_id": "S-8",
+   "statement": "Improve the discoverability of statistical datasets on general open data portals.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 §2.2 (charter); §5.1",
+   "pr45_pdf_pages": [],
+   "anchor_page": 12,
+   "anchor_quote": "an initial focus on discovery of those data sets in a wider context",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "S-8"
+    ],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "Claude v2 only"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "StatDCAT-AP charter",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "Abstract",
+       "quote": "By using DCAT to describe datasets in data catalogs, publishers increase discoverability and enable applications easily to consume metadata from multiple catalogs.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "9. DataSet metadata",
+       "quote": "DataSets should be marked up with metadata to support discovery, presentation and processing.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "9. DataSet metadata",
+       "quote": "provide additional recommendations for metadata terms for data sets which may be used for describing Data Cube DataSets.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT descriptions increase dataset discoverability in catalogs; Data Cube says statistical DataSets need discovery metadata and DCAT terms may describe them.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "S-9.1",
+   "parent_id": "S-9",
+   "statement": "Let statistical portals export their metadata in the profile, so general open data portals can take it up.",
+   "stratum": "system",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 §5.2; §8",
+   "pr45_pdf_pages": [],
+   "anchor_page": 48,
+   "anchor_quote": "the provision of information based on the StatDCAT-AP specification will involve some form of extraction or mapping process",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "S-9"
+    ],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "Claude v2 only"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "StatDCAT-AP charter; SDMX practice",
+   "origin": [
+    "exp",
+    "std"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "Abstract",
+       "quote": "By using DCAT to describe datasets in data catalogs, publishers increase discoverability and enable applications easily to consume metadata from multiple catalogs. It further enables decentralized publishing of catalogs and facilitates federated dataset search across sites.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "3. Conformance",
+       "quote": "A DCAT profile is a specification for data catalogs that adds additional constraints to DCAT. A data catalog that conforms to the profile also conforms to DCAT.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "9. DataSet metadata",
+       "quote": "provide additional recommendations for metadata terms for data sets which may be used for describing Data Cube DataSets.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT lets catalogs publish RDF metadata others consume and federate; a profile-conformant catalog also conforms to DCAT; Data Cube datasets may use DCAT terms.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "S-9.2",
+   "parent_id": "S-9",
+   "statement": "Give guidance for mapping and extracting metadata from SDMX-based systems.",
+   "stratum": "system",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 Annexes IV–V",
+   "pr45_pdf_pages": [],
+   "anchor_page": 63,
+   "anchor_quote": "It enables organisations using SDMX to know which metadata structures to use",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "S-9"
+    ],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "Claude v2 only"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "StatDCAT-AP charter; SDMX practice",
+   "origin": [
+    "exp",
+    "std"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "uncertain",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "2.3 Audience and scope",
+       "quote": "It is aimed at people wishing to publish statistical or other multi-dimension data in RDF. Mechanics of cross-format translation from other formats such as SDMX-ML are not covered here.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "Abstract",
+       "quote": "The model underpinning the Data Cube vocabulary is compatible with the cube model that underlies SDMX (Statistical Data and Metadata eXchange), an ISO standard for exchanging and sharing statistical data and metadata among organizations.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "2. Introduction",
+       "quote": "In particular, we see the need for an SDMX extension vocabulary to support the publication of additional context to statistical data (such as the encompassing Data Flows and associated Provision Agreements).",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Data Cube is SDMX-compatible but leaves SDMX-ML translation out of scope; unclear whether this supports mapping guidance for SDMX-based systems.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "S-10.1",
+   "parent_id": "S-10",
+   "statement": "Conform fully to DCAT-AP and keep statistical descriptions aligned with DCAT and DCAT-AP.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "principle",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": true,
+   "source_locator": "StatDCAT-AP 1.0.0 §6.2; §7.1",
+   "pr45_pdf_pages": [
+    26
+   ],
+   "anchor_page": 28,
+   "anchor_quote": "it meets all obligations of the DCAT-AP Conformance Statement",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "S-10"
+    ],
+    "pr45_ids": [
+     "SC-001"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "SC-001 (§6.2 principle) and S-10 (§7.1 conformance) express the same alignment need.",
+   "restates_dcat_ap": false,
+   "derived_from": "DCAT-AP conformance statement",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "3. Conformance",
+       "quote": "A DCAT profile is a specification for data catalogs that adds additional constraints to DCAT. A data catalog that conforms to the profile also conforms to DCAT.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "9. DataSet metadata",
+       "quote": "provide additional recommendations for metadata terms for data sets which may be used for describing Data Cube DataSets.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT says a profile's conforming catalogs also conform to DCAT and Data Cube points to DCAT terms; DCAT-AP is not mentioned in the inputs.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "S-11.1",
+   "parent_id": "S-11",
+   "statement": "Concentrate on the metadata elements that help users discover datasets.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "principle",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 §6.2",
+   "pr45_pdf_pages": [
+    26
+   ],
+   "anchor_page": 26,
+   "anchor_quote": "focus primarily on metadata elements that contribute to data discovery",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "S-11"
+    ],
+    "pr45_ids": [
+     "SC-002"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "StatDCAT-AP decision framework",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "Abstract",
+       "quote": "By using DCAT to describe datasets in data catalogs, publishers increase discoverability",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "9. DataSet metadata",
+       "quote": "DataSets should be marked up with metadata to support discovery, presentation and processing.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Inputs tie dataset metadata to discoverability, but neither restricts or prioritises a profile's elements to discovery; Data Cube also cites presentation and processing.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "S-12.1",
+   "parent_id": "S-12",
+   "statement": "Take terms from existing, well-known and well-maintained vocabularies.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "principle",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": true,
+   "source_locator": "StatDCAT-AP 1.0.0 §6.2",
+   "pr45_pdf_pages": [
+    26
+   ],
+   "anchor_page": 26,
+   "anchor_quote": "use metadata terms from existing, well-known and well-maintained vocabularies",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "S-12"
+    ],
+    "pr45_ids": [
+     "SC-003"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "StatDCAT-AP decision framework",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "Status of This Document",
+       "quote": "DCAT incorporates terms from pre-existing vocabularies, where stable terms with appropriate meanings could be found, such as foaf:homepage and dct:title.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "2. Namespaces",
+       "quote": "DCAT makes extensive use of terms from other vocabularies, in particular Dublin Core",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "2. Introduction",
+       "quote": "The Data Cube in turn builds upon the following existing RDF vocabularies: SKOS for concept schemes SCOVO for core statistical structures Dublin Core Terms for metadata VoiD for data access FOAF for agents ORG for organizations",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT reuses stable terms from pre-existing vocabularies such as Dublin Core, and Data Cube builds on existing RDF vocabularies.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "S-13.1",
+   "parent_id": "S-13",
+   "statement": "Prefer common controlled vocabularies, preferably those maintained by the EU Publications Office.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "principle",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": true,
+   "source_locator": "StatDCAT-AP 1.0.0 §6.2",
+   "pr45_pdf_pages": [
+    26
+   ],
+   "anchor_page": 26,
+   "anchor_quote": "encourage the use of common controlled vocabularies, preferably those maintained by the Publications Office",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "S-13"
+    ],
+    "pr45_ids": [
+     "SC-004"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "StatDCAT-AP decision framework",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "3. Conformance",
+       "quote": "Additional constraints in a profile MAY include: A minimum set of required metadata fields Classes and properties for additional metadata fields not covered in DCAT Controlled vocabularies or URI sets as acceptable values for properties",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "2.2 SDMX and related standards",
+       "quote": "a set of cross-domain concepts, code lists, and categories that support interoperability and comparability between datasets by providing a shared terminology between SDMX implementers",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT lets profiles fix controlled vocabularies as values and Data Cube promotes shared SDMX code lists; the EU Publications Office is never mentioned.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "S-14.1",
+   "parent_id": "S-14",
+   "statement": "Balance simplicity and expressiveness for a wide, non-specialist audience.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "principle",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 §6.2",
+   "pr45_pdf_pages": [
+    26
+   ],
+   "anchor_page": 26,
+   "anchor_quote": "find an appropriate balance between simplicity and complexity",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "S-14"
+    ],
+    "pr45_ids": [
+     "SC-005"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "StatDCAT-AP decision framework",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "unsupported",
+     "sources": [],
+     "rationale": "No passage addresses balancing simplicity against expressiveness or a non-specialist audience; Data Cube targets people publishing statistical data in RDF.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "S-15.1",
+   "parent_id": "S-15",
+   "statement": "Make the profile usable for datasets in any format, such as SDMX, Data Cube or CSV.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 §7.1; Annex III",
+   "pr45_pdf_pages": [],
+   "anchor_page": 8,
+   "anchor_quote": "can be used to describe datasets in any format",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [
+    "S-1.1",
+    "S-2.1"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "S-15"
+    ],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "Claude v2 only"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "StatDCAT-AP working-group requirement",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "1. Introduction",
+       "quote": "Data can come in many formats, ranging from spreadsheets over XML and RDF to various speciality formats. DCAT does not make any assumptions about the format of the datasets described in a catalog.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "2.2 SDMX and related standards",
+       "quote": "The SDMX specification defines a core information model which is reflected in concrete form in two syntaxes - SDMX-ML (an XML syntax) and SDMX-EDI.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "4.1 Basic Example",
+       "quote": "The dataset distribution :dataset-001-csv can be downloaded as a 5Kb CSV file.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT makes no assumption about dataset format (examples use CSV); the inputs present SDMX syntaxes and Data Cube as statistical formats.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "overlap_review": [
+    {
+     "atom": "S-1.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "S-15.1 is a profile-level aim and not scored."
+    },
+    {
+     "atom": "S-2.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "S-15.1 is a profile-level aim and not scored."
+    }
+   ]
+  },
+  {
+   "id": "S-16.1",
+   "parent_id": "S-16",
+   "statement": "Classify statistical datasets by EU data theme, mapping Eurostat's own themes onto it.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 §7.8.3",
+   "pr45_pdf_pages": [],
+   "anchor_page": 6,
+   "anchor_quote": "Mappings between the Eurostat theme vocabulary and the MDR data themes",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "S-16"
+    ],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "Claude v2 only"
+   },
+   "notes": "StatDCAT-AP \"uses the same controlled vocabularies as DCAT-AP\" (§7.8); dcat:theme stays recommended. The Eurostat mapping (Table 2) is guidance.",
+   "restates_dcat_ap": true,
+   "derived_from": "Eurostat theme vocabulary; MDR data themes",
+   "origin": [
+    "std",
+    "exp"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "5.3 Class: Dataset, Property: theme/category",
+       "quote": "Property: theme/category RDF Property: dcat:theme Definition: The main category of the dataset. A dataset can have multiple themes.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "9.1 Categorizing a data set",
+       "quote": "We encourage use of dct:subject to record such a classification of a whole data set. The classification terms can include coarse grained classifications, such as the List of Subject-matter Domains from the SDMX Content-oriented Guidelines",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT dcat:theme and Data Cube's statistical-domain classification support theme classification; the EU data theme vocabulary and a Eurostat mapping are absent.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "S-17.1",
+   "parent_id": "S-17",
+   "statement": "Link an RDF distribution to the data structure definition it follows.",
+   "stratum": "content",
+   "status_in_source": "guidance",
+   "modality": "optional",
+   "applicability": "",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 Annex III (resolution log)",
+   "pr45_pdf_pages": [],
+   "anchor_page": 60,
+   "anchor_quote": "a RDF distribution may use dct:conformsTo in addition",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "S-17"
+    ],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "Claude v2 only"
+   },
+   "notes": "The proposal to use dct:conformsTo instead of stat:dimension and stat:attribute was rejected; an RDF distribution \"may use\" it in addition.",
+   "restates_dcat_ap": true,
+   "derived_from": "Public review issue (resolution log)",
+   "origin": [
+    "exp",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "7.1 Data sets and observations",
+       "quote": "A resource representing the entire data set is created and typed as qb:DataSet and linked to the corresponding data structure definition via the qb:structure property.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "11.1 Integrity constraints, IC-2. Unique DSD",
+       "quote": "Every qb:DataSet has exactly one associated qb:DataStructureDefinition",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "6. Creating data structure definitions",
+       "quote": "The notion of a Data Structure Definition (DSD) allows us to define that structure once and then reuse it for each publication in the series. Consumers can then be confident that the structure of the data has not changed.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Data Cube links each RDF qb:DataSet to its data structure definition via qb:structure; IC-2 requires exactly one, so consumers know the structure.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "S-18.1",
+   "parent_id": "S-18",
+   "statement": "Record publication and modification times to the time of day when data are published more than once a day.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 §11; Annex III",
+   "pr45_pdf_pages": [],
+   "anchor_page": 52,
+   "anchor_quote": "if a dataset is published more than once per day, more precise information about the actual publication time will be needed",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "S-18"
+    ],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "Claude v2 only"
+   },
+   "notes": "",
+   "restates_dcat_ap": true,
+   "derived_from": "Public review issue (resolution log)",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "5.3 Class: Dataset, Property: release date",
+       "quote": "Date of formal issuance (e.g., publication) of the dataset. Range: rdfs:Literal encoded using the relevant ISO 8601 Date and Time compliant string and typed using the appropriate XML Schema datatype",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "5.3 Class: Dataset, Property: update/modification date",
+       "quote": "Most recent date on which the dataset was changed, updated or modified. Range: rdfs:Literal encoded using the relevant ISO 8601 Date and Time compliant string and typed using the appropriate XML Schema datatype",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT dates may be ISO 8601 date-and-time literals with an XML Schema datatype; the condition of several publications per day is not stated.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "S-19.1",
+   "parent_id": "S-19",
+   "statement": "Identify the measures a statistical dataset contains, as SDMX and Data Cube define them.",
+   "stratum": "content",
+   "status_in_source": "deferred",
+   "modality": "deferred_future_work",
+   "applicability": "",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 Annex III (resolution log)",
+   "pr45_pdf_pages": [],
+   "anchor_page": 60,
+   "anchor_quote": "Consider adding 'measure' property for future revisions",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "S-19"
+    ],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "Claude v2 only"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "Public review issue (resolution log)",
+   "origin": [
+    "exp",
+    "std"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "provisional_adjudication_2026_10_23",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "5.2 The cube model - dimensions, attributes, measures",
+       "quote": "The measure components represent the phenomenon being observed.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "6. Creating data structure definitions",
+       "quote": "A qb:DataStructureDefinition defines the structure of one or more datasets. In particular, it defines the dimensions, attributes and measures used in the dataset",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "6.5 Handling multiple measures",
+       "quote": "This measure dimension approach is the one supported by the SDMX information model.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Data Cube defines measures as the observed phenomenon, declared in each data set's DSD, with measure handling following the SDMX information model.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "register",
+     "change": "accepted: deferred, excluded from default scoring"
+    }
+   ]
+  },
+  {
+   "id": "S-20.1",
+   "parent_id": "S-20",
+   "statement": "Describe the quality of statistical data in more detail, e.g. following the ESS Single Integrated Metadata Structure (SIMS).",
+   "stratum": "content",
+   "status_in_source": "deferred",
+   "modality": "deferred_future_work",
+   "applicability": "",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 §7.2.2; Annex III",
+   "pr45_pdf_pages": [],
+   "anchor_page": 31,
+   "anchor_quote": "In future work, a more fundamental treatment of quality aspects may be undertaken",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [
+    "S-3.1"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "S-20"
+    ],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "Claude v2 only"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "Eurostat Single Integrated Metadata Structure (future work)",
+   "origin": [
+    "exp",
+    "std"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "provisional_adjudication_2026_10_23",
+   "input_evidence": {
+    "raw": {
+     "label": "unsupported",
+     "sources": [],
+     "rationale": "Neither input mentions data quality or SIMS; Data Cube only foresees extensions for statistical reference metadata without naming quality.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "register",
+     "change": "accepted: deferred, excluded from default scoring"
+    }
+   ],
+   "overlap_review": [
+    {
+     "atom": "S-3.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "S-20.1 is deferred and not scored."
+    }
+   ]
+  },
+  {
+   "id": "S-21.1",
+   "parent_id": "S-21",
+   "statement": "Show how DDI descriptions of datasets can be expressed with the profile.",
+   "stratum": "profile",
+   "status_in_source": "deferred",
+   "modality": "deferred_future_work",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": true,
+   "source_locator": "StatDCAT-AP 1.0.0 Annex III (resolution log)",
+   "pr45_pdf_pages": [],
+   "anchor_page": 62,
+   "anchor_quote": "Contacts have been established with the DDI initiative",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "S-21"
+    ],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "Claude v2 only"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "DDI initiative (resolution log)",
+   "origin": [
+    "exp",
+    "std"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "provisional_adjudication_2026_10_23",
+   "input_evidence": {
+    "raw": {
+     "label": "uncertain",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "2. Introduction",
+       "quote": "Other extensions are possible to support metadata for surveys (so called \"micro-data\", as encompassed by DDI",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Data Cube mentions DDI only as a possible extension for survey micro-data metadata; unclear whether this supports expressing DDI descriptions with a DCAT profile.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "register",
+     "change": "accepted: deferred, excluded from default scoring"
+    }
+   ]
+  },
+  {
+   "id": "S-22.1",
+   "parent_id": "S-22",
+   "statement": "Document, with a full example, how datasets, distributions, Data Cube datasets and data structure definitions relate.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "StatDCAT-AP 1.0.0 Annex III; Annex VII",
+   "pr45_pdf_pages": [],
+   "anchor_page": 62,
+   "anchor_quote": "Add full example of a StatDCAT-AP-compliant description of a Data Cube DataSet",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "S-22"
+    ],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "Claude v2 only"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "Public review issue (resolution log)",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "9. DataSet metadata",
+       "quote": "provide additional recommendations for metadata terms for data sets which may be used for describing Data Cube DataSets.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-data-cube-2014.html",
+       "locator": "C. Complete example Data Cube",
+       "quote": "This is a complete Data Cube encoding of the running example introduced in section 5.4",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "statdcat/input-raw/w3c-dcat-2014.html",
+       "locator": "4. Vocabulary Overview",
+       "quote": "dcat:Distribution represents an accessible form of a dataset as for example a downloadable file, an RSS feed or a web service that provides the data.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Data Cube's complete example links qb:DataSet to its DSD and DCAT terms may describe it; distribution-to-Data-Cube relations are undocumented.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  }
+ ]
+}

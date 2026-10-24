@@ -1,0 +1,5260 @@
+{
+ "schema_version": "rq1-reference-set-3",
+ "case": "geodcat",
+ "reference_document": "GeoDCAT-AP 1.0 (2015-12-23)",
+ "base": "DCAT-AP 1.1",
+ "status": "merged reference set with AI input-evidence labels; provisional adjudication of the reviewed items (2026-10-23); not independently adjudicated as a whole",
+ "built_from": {
+  "v1": "geodcat/reference-requirements/alignment-requirements.json (published identities kept)",
+  "claude_v2": "alignment-requirements-v2.json (Claude completion, 2026-10-22)",
+  "pr45": "benchmark-data/reference-audit-2026-10-22 (PR #45, commit 7fec154)"
+ },
+ "decisions": [
+  "Mobility is scored at clause level (the PR #45 clauses, checked against NAPCORE Table 1).",
+  "Requirements that restate DCAT-AP are included and flagged (restates_dcat_ap); they may be left out at scoring time.",
+  "Geo restatement tags stay as coded: the INSPIRE and ISO obligation levels are kept as fields but are not part of each need, since requirements are scored on the need and implementations may differ later (Junda, 2026-10-22)."
+ ],
+ "adjudication": {
+  "date": "2026-10-23",
+  "source": "reference-sets-v3/CODEX-REVIEW-2026-10-23.md",
+  "by": "Junda, provisional adjudication with ChatGPT/Codex assistance; applied by Claude",
+  "status": "provisional; not an independent human adjudication of the whole set",
+  "changes": [
+   "Overlap review: 5 pairs classified (0 equivalent, 0 subsumption, 5 related).",
+   "Geo M/C/O scoring choice left unresolved as a declared scope choice (register): need-level scoring is kept distinct from obligation-sensitive scoring; INSPIRE/ISO conditions stay in the source fields."
+  ]
+ },
+ "merge_rules": [
+  "Rows: all v1 rows and all Claude v2 rows keep their IDs. A row statement, locator or status changes only where a source check showed it wrong; the earlier value is kept in statement_before_v3, source_locator_before_v3 or status_in_source_before_v3.",
+  "Atoms are the scoring units and every atom belongs to exactly one row. PR #45 splits are used where PR #45 split a need; PR #45 items that state the same need for another data group are merged into one atom whose applicability lists the groups.",
+  "Content found only in Claude v2 is split into atoms; content found only in PR #45 is added; a few needs found while checking anchors are added and marked added_in_merge.",
+  "Requirements that only restate DCAT-AP (relation_to_base = restates_base) are kept and flagged with restates_dcat_ap so they can be left out at scoring time.",
+  "Source inconsistencies and source errors are recorded on the atom (source_flags), not resolved.",
+  "Overlapping atoms point to each other in overlaps; under one-to-one matching a prediction can be credited to only one of them.",
+  "Adjudication (2026-10-23): equivalent atoms from different rows are scored once (the duplicate names its canonical atom in merged_into); an atom that only bundles separately scored atoms (umbrella_of) is not scored by default; every overlap pair carries a review (overlap_review)."
+ ],
+ "scoring": {
+  "unit": "atom",
+  "default_selection": "stratum = content, status_in_source != deferred, and neither merged_into another atom nor umbrella_of separately scored atoms (field scored_by_default)",
+  "optional_filters": {
+   "leave_out_dcat_ap_restatements": "restates_dcat_ap = true",
+   "leave_out_rq2_reuse_and_alignment_rules": "reuse_or_alignment_rule = true",
+   "leave_out_unsettled_status": "status_in_source in (proposed, open_issue, guidance)",
+   "leave_out_atoms_added_in_merge": "provenance.added_in_merge = true"
+  },
+  "never": "Score a row and its atoms together, or credit one prediction to two overlapping atoms.",
+  "row_level": "Rows remain available for a separate row-level recovery analysis."
+ },
+ "counts": {
+  "rows": 46,
+  "rows_by_added_in": {
+   "v1": 7,
+   "v2": 39
+  },
+  "atoms": 56,
+  "atoms_by_stratum": {
+   "profile": 17,
+   "content": 37,
+   "system": 2
+  },
+  "atoms_by_status": {
+   "requirement": 56
+  },
+  "atoms_by_relation_to_base": {
+   "not_term_level": 19,
+   "extends_base": 5,
+   "restates_base": 16,
+   "beyond_base": 11,
+   "partly_base": 5
+  },
+  "atoms_by_found_by": {
+   "v1 row": 14,
+   "both": 37,
+   "Claude v2 only": 5
+  },
+  "scored_by_default": 37,
+  "scored_by_default_without_dcat_ap_restatements": 21,
+  "scored_by_default_without_rq2_rules": 37,
+  "scored_by_default_requirement_status_only": 37,
+  "atoms_merged_for_scoring": 0,
+  "umbrella_atoms_not_scored": 0,
+  "atoms_provisionally_adjudicated": 0,
+  "atoms_with_source_flags": 9,
+  "atoms_with_evidence_labels": 56,
+  "raw_evidence_labels": {
+   "partial": 7,
+   "supported": 39,
+   "uncertain": 7,
+   "unsupported": 3
+  },
+  "scored_by_default_raw_supported": 37,
+  "scored_by_default_raw_supported_or_partial": 37,
+  "atoms_with_overlaps": 9
+ },
+ "requirements": [
+  {
+   "id": "G-1",
+   "statement": "Provide RDF representations of spatial metadata that conform to DCAT-AP, retain meaning as far as practical and support cross-domain reuse.",
+   "source_locator": "GeoDCAT-AP 1.0 §1.1;4.1",
+   "statement_kind": "curator_paraphrase",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "profile",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "origin": [
+    "exp"
+   ],
+   "problem": "P7",
+   "reuse_or_alignment_rule": true,
+   "added_in": "v1",
+   "pr45_legacy_review": "Architectural/alignment constraint; do not score as equivalent to all content capabilities.",
+   "derived_from": "GeoDCAT-AP working-group objectives",
+   "atom_ids": [
+    "G-1.1",
+    "G-1.2",
+    "G-1.3"
+   ]
+  },
+  {
+   "id": "G-2",
+   "statement": "Include every mandatory baseline DCAT-AP element.",
+   "source_locator": "GeoDCAT-AP 1.0 §4.1",
+   "statement_kind": "curator_paraphrase",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "profile",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "origin": [
+    "exp",
+    "std"
+   ],
+   "problem": "P7",
+   "reuse_or_alignment_rule": true,
+   "added_in": "v1",
+   "pr45_legacy_review": "Architectural/alignment constraint; do not score as equivalent to all content capabilities.",
+   "derived_from": "DCAT-AP conformance",
+   "atom_ids": [
+    "G-2.1"
+   ]
+  },
+  {
+   "id": "G-3",
+   "statement": "Use other vocabularies for geospatial information only where the baseline does not cover it.",
+   "source_locator": "GeoDCAT-AP 1.0 §4.1",
+   "statement_kind": "curator_paraphrase",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "profile",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "origin": [
+    "exp",
+    "std"
+   ],
+   "problem": "P7",
+   "reuse_or_alignment_rule": true,
+   "added_in": "v1",
+   "pr45_legacy_review": "Architectural/alignment constraint; do not score as equivalent to all content capabilities.",
+   "derived_from": "DCAT-AP conformance",
+   "atom_ids": [
+    "G-3.1"
+   ]
+  },
+  {
+   "id": "G-4",
+   "statement": "Base alignments on established practice and working-group implementation experience.",
+   "source_locator": "GeoDCAT-AP 1.0 §4.1",
+   "statement_kind": "curator_paraphrase",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "profile",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "origin": [
+    "prac",
+    "exp"
+   ],
+   "problem": "P7",
+   "reuse_or_alignment_rule": true,
+   "added_in": "v1",
+   "pr45_legacy_review": "Architectural/alignment constraint; do not score as equivalent to all content capabilities.",
+   "derived_from": "GeoDCAT-AP working-group practice",
+   "atom_ids": [
+    "G-4.1",
+    "G-4.2"
+   ]
+  },
+  {
+   "id": "G-5",
+   "statement": "Assess any new terms carefully and avoid conflicting with ongoing standardisation.",
+   "source_locator": "GeoDCAT-AP 1.0 §4.1",
+   "statement_kind": "curator_paraphrase",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "profile",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "origin": [
+    "exp"
+   ],
+   "problem": "P7",
+   "reuse_or_alignment_rule": true,
+   "added_in": "v1",
+   "pr45_legacy_review": "Architectural/alignment constraint; do not score as equivalent to all content capabilities.",
+   "derived_from": "W3C/OGC standardisation work",
+   "atom_ids": [
+    "G-5.1",
+    "G-5.2"
+   ]
+  },
+  {
+   "id": "G-6",
+   "statement": "Cover the ISO core and common INSPIRE metadata elements; exclude only optional material where necessary, with theme-specific extensions outside the common scope.",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2",
+   "statement_kind": "curator_paraphrase",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "profile",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "origin": [
+    "std",
+    "law"
+   ],
+   "problem": "P7",
+   "reuse_or_alignment_rule": false,
+   "added_in": "v1",
+   "pr45_legacy_review": "Architectural/alignment constraint; do not score as equivalent to all content capabilities.",
+   "derived_from": "INSPIRE Directive and ISO 19115 core profile",
+   "atom_ids": [
+    "G-6.1",
+    "G-6.2",
+    "G-6.3"
+   ]
+  },
+  {
+   "id": "G-7",
+   "statement": "Offer an additional RDF publication route while retaining the existing INSPIRE metadata obligations and implementations.",
+   "source_locator": "GeoDCAT-AP 1.0 §1.1",
+   "statement_kind": "curator_paraphrase",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "profile",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "origin": [
+    "law"
+   ],
+   "problem": "P7",
+   "reuse_or_alignment_rule": false,
+   "added_in": "v1",
+   "pr45_legacy_review": "Architectural/alignment constraint; do not score as equivalent to all content capabilities.",
+   "derived_from": "INSPIRE Metadata Regulation and technical guidelines",
+   "atom_ids": [
+    "G-7.1",
+    "G-7.2"
+   ]
+  },
+  {
+   "id": "G-8",
+   "statement": "Identify who is responsible for a metadata record and how to contact them.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.16, II.20",
+   "anchor_quote": "II.20 Metadata point of contact - *Metadata point of contact",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law",
+    "std"
+   ],
+   "problem": "P6",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "M",
+   "iso19115_core_obligation": "M",
+   "dcat_ap_coverage": "—",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-8.1"
+   ]
+  },
+  {
+   "id": "G-9",
+   "statement": "Record the date of each metadata record.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.11, II.21",
+   "anchor_quote": "II.21 Metadata date - *Metadata date stamp",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law",
+    "std"
+   ],
+   "problem": "P6",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "M",
+   "iso19115_core_obligation": "M",
+   "dcat_ap_coverage": "Yes",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-9.1"
+   ]
+  },
+  {
+   "id": "G-10",
+   "statement": "State the language of each metadata record.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.7, II.22",
+   "anchor_quote": "II.22 Metadata language - *Metadata language",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law",
+    "std"
+   ],
+   "problem": "P6",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "M",
+   "iso19115_core_obligation": "C",
+   "dcat_ap_coverage": "Yes",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-10.1"
+   ]
+  },
+  {
+   "id": "G-11",
+   "statement": "State the character set of each metadata record.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.19, II.24",
+   "anchor_quote": "II.19 *Metadata characterset",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "std"
+   ],
+   "problem": "P6",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "—",
+   "iso19115_core_obligation": "C",
+   "dcat_ap_coverage": "—",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-11.1"
+   ]
+  },
+  {
+   "id": "G-12",
+   "statement": "Give each metadata record its own identifier.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.17",
+   "anchor_quote": "This element identifies a metadata record.",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "std"
+   ],
+   "problem": "P6",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "—",
+   "iso19115_core_obligation": "O",
+   "dcat_ap_coverage": "—",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-12.1"
+   ]
+  },
+  {
+   "id": "G-13",
+   "statement": "State the metadata standard a record follows.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.18",
+   "anchor_quote": "II.18 *Metadata standard name, *Metadata standard version",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "std"
+   ],
+   "problem": "P6",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "—",
+   "iso19115_core_obligation": "O",
+   "dcat_ap_coverage": "—",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-13.1"
+   ]
+  },
+  {
+   "id": "G-14",
+   "statement": "State the version of the metadata standard a record follows.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.18",
+   "anchor_quote": "II.18 *Metadata standard name, *Metadata standard version",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "std"
+   ],
+   "problem": "P6",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "—",
+   "iso19115_core_obligation": "O",
+   "dcat_ap_coverage": "—",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-14.1"
+   ]
+  },
+  {
+   "id": "G-15",
+   "statement": "Give each resource a title.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.1",
+   "anchor_quote": "II.1 Resource title - *Dataset title",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law",
+    "std"
+   ],
+   "problem": "P1",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "M",
+   "iso19115_core_obligation": "M",
+   "dcat_ap_coverage": "Yes",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-15.1"
+   ]
+  },
+  {
+   "id": "G-16",
+   "statement": "Give the dates of creation, publication and last revision of a resource.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.11",
+   "anchor_quote": "II.11 Temporal reference and metadata date",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "partly_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law",
+    "std"
+   ],
+   "problem": "P3",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "C",
+   "iso19115_core_obligation": "M",
+   "dcat_ap_coverage": "Partially (creation date not included)",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-16.1",
+    "G-16.2",
+    "G-16.3"
+   ]
+  },
+  {
+   "id": "G-17",
+   "statement": "Describe each resource in a short abstract.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.2",
+   "anchor_quote": "II.2 Resource abstract - *Abstract describing the dataset",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law",
+    "std"
+   ],
+   "problem": "P1",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "M",
+   "iso19115_core_obligation": "M",
+   "dcat_ap_coverage": "Yes",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-17.1"
+   ]
+  },
+  {
+   "id": "G-18",
+   "statement": "State the language or languages used in a resource.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.7",
+   "anchor_quote": "II.7 Resource language and metadata language - *Dataset language and Metadata language",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law",
+    "std"
+   ],
+   "problem": "P3",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "C",
+   "iso19115_core_obligation": "M",
+   "dcat_ap_coverage": "Yes",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-18.1"
+   ]
+  },
+  {
+   "id": "G-19",
+   "statement": "Classify each resource by topic category.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.8",
+   "anchor_quote": "II.8 Topic category, originating controlled vocabulary, and keyword value",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law",
+    "std"
+   ],
+   "problem": "P1",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "M",
+   "iso19115_core_obligation": "M",
+   "dcat_ap_coverage": "—",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-19.1"
+   ]
+  },
+  {
+   "id": "G-20",
+   "statement": "Give the geographic extent of a resource as a bounding box or a geographic identifier.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.10",
+   "anchor_quote": "II.10 Geographic bounding box - *Geographic location of the dataset (by 4 coordinates or by geographic identifier)",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law",
+    "std"
+   ],
+   "problem": "P1",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "M",
+   "iso19115_core_obligation": "C",
+   "dcat_ap_coverage": "Yes",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-20.1"
+   ]
+  },
+  {
+   "id": "G-21",
+   "statement": "State the character encoding of a dataset.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.24",
+   "anchor_quote": "II.24 Character encoding - *Dataset character set and *Metadata character set",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law",
+    "std"
+   ],
+   "problem": "P3",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "C",
+   "iso19115_core_obligation": "C",
+   "dcat_ap_coverage": "—",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-21.1"
+   ]
+  },
+  {
+   "id": "G-22",
+   "statement": "Give the temporal extent a resource covers.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.11",
+   "anchor_quote": "Additional extent information for the dataset (vertical and temporal)",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "partly_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law",
+    "std"
+   ],
+   "problem": "P1",
+   "note": "GeoDCAT-AP also covers it only partially (temporal extent only).",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "C",
+   "iso19115_core_obligation": "O",
+   "dcat_ap_coverage": "Partially (temporal extent only)",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-22.1"
+   ]
+  },
+  {
+   "id": "G-23",
+   "statement": "Describe the lineage of a dataset: how it was produced and processed.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.12",
+   "anchor_quote": "Following DCAT-AP, this element is mapped to property dct:provenance.",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law",
+    "std"
+   ],
+   "problem": "P3",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "M",
+   "iso19115_core_obligation": "O",
+   "dcat_ap_coverage": "Yes",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-23.1"
+   ]
+  },
+  {
+   "id": "G-24",
+   "statement": "State how spatial data are represented, e.g. as vector or grid data.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.26",
+   "anchor_quote": "II.26 Spatial representation type – *Spatial representation type",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law",
+    "std"
+   ],
+   "problem": "P3",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "M",
+   "iso19115_core_obligation": "O",
+   "dcat_ap_coverage": "—",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-24.1"
+   ]
+  },
+  {
+   "id": "G-25",
+   "statement": "State the format in which each distribution is encoded.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.25",
+   "anchor_quote": "II.25 Encoding - *Distribution format",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law",
+    "std"
+   ],
+   "problem": "P2",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "M",
+   "iso19115_core_obligation": "O",
+   "dcat_ap_coverage": "Yes",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-25.1"
+   ]
+  },
+  {
+   "id": "G-26",
+   "statement": "State the spatial resolution of a dataset.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.13",
+   "anchor_quote": "II.13 Spatial resolution – Spatial resolution of the dataset",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law",
+    "std"
+   ],
+   "problem": "P3",
+   "note": "GeoDCAT-AP 1.0 covers it as free text only.",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "C",
+   "iso19115_core_obligation": "O",
+   "dcat_ap_coverage": "—",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-26.1"
+   ]
+  },
+  {
+   "id": "G-27",
+   "statement": "Identify the organisations responsible for a resource and the role each plays.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.16",
+   "anchor_quote": "II.16 Responsible party and metadata point of contact - *Dataset responsible party and *Metadata point of contact",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "partly_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law",
+    "std"
+   ],
+   "problem": "P4",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "M",
+   "iso19115_core_obligation": "O",
+   "dcat_ap_coverage": "Partially (only 3 of the 11 responsible party roles are supported)",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-27.1"
+   ]
+  },
+  {
+   "id": "G-28",
+   "statement": "Give links to the resource or to further information about it.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.4",
+   "anchor_quote": "II.4 Resource locator - *On-line resource",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law",
+    "std"
+   ],
+   "problem": "P2",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "C",
+   "iso19115_core_obligation": "O",
+   "dcat_ap_coverage": "Yes",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-28.1"
+   ]
+  },
+  {
+   "id": "G-29",
+   "statement": "State the coordinate reference system of a dataset.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.23",
+   "anchor_quote": "II.23 Coordinate reference systems and Temporal reference systems",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law",
+    "std"
+   ],
+   "problem": "P3",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "M",
+   "iso19115_core_obligation": "O",
+   "dcat_ap_coverage": "—",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-29.1"
+   ]
+  },
+  {
+   "id": "G-30",
+   "statement": "State the temporal reference system of a dataset.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.23",
+   "anchor_quote": "II.23 Coordinate reference systems and Temporal reference systems",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law",
+    "std"
+   ],
+   "problem": "P3",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "C",
+   "iso19115_core_obligation": "O",
+   "dcat_ap_coverage": "—",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "statement_before_v3": "State the temporal reference system of a dataset where it is not the default one.",
+   "changed_in_v3": "\"where it is not the default one\" is not in GeoDCAT-AP 1.0 (independent check).",
+   "atom_ids": [
+    "G-30.1"
+   ]
+  },
+  {
+   "id": "G-31",
+   "statement": "State the specifications a resource conforms to, and whether it conforms.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.14",
+   "anchor_quote": "II.14 Conformity and data quality - *not in ISO 19115 core",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law"
+   ],
+   "problem": "P3",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "M",
+   "iso19115_core_obligation": "—",
+   "dcat_ap_coverage": "Yes",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-31.1"
+   ]
+  },
+  {
+   "id": "G-32",
+   "statement": "State whether a resource is a dataset, a dataset series or a service.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.3",
+   "anchor_quote": "II.3 Resource type - *not in ISO 19115 core",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "partly_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law"
+   ],
+   "problem": "P1",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "M",
+   "iso19115_core_obligation": "—",
+   "dcat_ap_coverage": "Partially (only datasets, series and discovery / catalogue services)",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-32.1"
+   ]
+  },
+  {
+   "id": "G-33",
+   "statement": "State the type of a spatial data service, e.g. discovery, view or download.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.9",
+   "anchor_quote": "II.9 Spatial data service type - *not in ISO 19115 core",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law"
+   ],
+   "problem": "P2",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "M",
+   "iso19115_core_obligation": "—",
+   "dcat_ap_coverage": "—",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-33.1"
+   ]
+  },
+  {
+   "id": "G-34",
+   "statement": "Characterise each resource with keywords and name the vocabularies they come from.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.8",
+   "anchor_quote": "II.8 Topic category, originating controlled vocabulary, and keyword value",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "partly_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law"
+   ],
+   "problem": "P1",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "M",
+   "iso19115_core_obligation": "—",
+   "dcat_ap_coverage": "Partially (only for datasets and dataset series)",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-34.1"
+   ]
+  },
+  {
+   "id": "G-35",
+   "statement": "Link a service to the datasets or dataset series it operates on.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.6",
+   "anchor_quote": "This element is used to link a service to the target datasets or dataset series.",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law"
+   ],
+   "problem": "P4",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "C",
+   "iso19115_core_obligation": "—",
+   "dcat_ap_coverage": "—",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-35.1"
+   ]
+  },
+  {
+   "id": "G-36",
+   "statement": "Give each resource a unique identifier.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.5",
+   "anchor_quote": "II.5 Unique resource identifier - *not in ISO 19115 core",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law"
+   ],
+   "problem": "P4",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "M",
+   "iso19115_core_obligation": "—",
+   "dcat_ap_coverage": "Yes",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-36.1"
+   ]
+  },
+  {
+   "id": "G-37",
+   "statement": "State the conditions for accessing and using a resource.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.15",
+   "anchor_quote": "II.15 Conditions for access and use and limitations on public access",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law"
+   ],
+   "problem": "P2",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "M",
+   "iso19115_core_obligation": "—",
+   "dcat_ap_coverage": "Yes",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-37.1"
+   ]
+  },
+  {
+   "id": "G-38",
+   "statement": "State any limitations on public access to a resource.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.15",
+   "anchor_quote": "II.15 Conditions for access and use and limitations on public access",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law"
+   ],
+   "problem": "P2",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "M",
+   "iso19115_core_obligation": "—",
+   "dcat_ap_coverage": "Yes",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "statement_before_v3": "State any limitations on public access to a resource, and the reasons for them.",
+   "changed_in_v3": "\"and the reasons for them\" is not in GeoDCAT-AP 1.0 (independent check).",
+   "atom_ids": [
+    "G-38.1"
+   ]
+  },
+  {
+   "id": "G-39",
+   "statement": "State how often a resource is maintained and updated.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.27",
+   "anchor_quote": "II.27 Maintenance information - *not in ISO 19115 core",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "partly_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law"
+   ],
+   "problem": "P3",
+   "note": "GeoDCAT-AP also covers it only partially.",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "O",
+   "iso19115_core_obligation": "—",
+   "dcat_ap_coverage": "Partially (only maintenance and update frequency)",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-39.1"
+   ]
+  },
+  {
+   "id": "G-40",
+   "statement": "Report the topological consistency of a dataset as a data quality result.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.14; §5.3",
+   "anchor_quote": "Topological Consistency (C)",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law"
+   ],
+   "problem": "P3",
+   "note": "GeoDCAT-AP covers only conformance results.",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "C",
+   "iso19115_core_obligation": "—",
+   "dcat_ap_coverage": "—",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "atom_ids": [
+    "G-40.1"
+   ]
+  },
+  {
+   "id": "G-41",
+   "statement": "Report the conceptual and domain consistency of a dataset as data quality results.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.14",
+   "anchor_quote": "Conceptual and domain consistency (Data quality – Logical consistency).",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "law"
+   ],
+   "problem": "P3",
+   "note": "GeoDCAT-AP covers only conformance results.",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "inspire_obligation": "O",
+   "iso19115_core_obligation": "—",
+   "dcat_ap_coverage": "—",
+   "overlaps_v2": [],
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "v3_note": "Conceptual and domain consistency are separate rows of Annex I Table 5 and become separate atoms (as in PR #45).",
+   "atom_ids": [
+    "G-41.1",
+    "G-41.2"
+   ]
+  },
+  {
+   "id": "G-42",
+   "statement": "Make spatial datasets, dataset series and services searchable on general data portals.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §1; §3",
+   "anchor_quote": "Its basic use case is to make spatial datasets, dataset series, and services searchable",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "profile",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "exp"
+   ],
+   "problem": "P1",
+   "note": "Purpose row.",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "GeoDCAT-AP basic use case (general data portals)",
+   "atom_ids": [
+    "G-42.1"
+   ]
+  },
+  {
+   "id": "G-43",
+   "statement": "Allow ISO 19115/INSPIRE metadata records to be converted into the RDF representation; conversion back is not required.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §1.1",
+   "anchor_quote": "The defined syntax binding must enable the conversion of metadata records from ISO 19115 / INSPIRE to a harmonised RDF representation",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "system",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "exp"
+   ],
+   "problem": "P7",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "GeoDCAT-AP objectives",
+   "atom_ids": [
+    "G-43.1"
+   ]
+  },
+  {
+   "id": "G-44",
+   "statement": "Keep the RDF binding as simple as possible, reusing existing vocabularies and avoiding new terms.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §1.1",
+   "anchor_quote": "principle is to make the resulting RDF syntax as simple as possible",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "profile",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": true,
+   "origin": [
+    "exp"
+   ],
+   "problem": "P7",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [
+    "G-3",
+    "G-5"
+   ],
+   "derived_from": "GeoDCAT-AP design principle",
+   "v3_note": "Its \"reuse existing vocabularies\" and \"avoid new terms\" parts are the same needs as G-3.1 and G-5.1 and are scored there.",
+   "atom_ids": [
+    "G-44.1"
+   ]
+  },
+  {
+   "id": "G-45",
+   "statement": "Reuse the published alignments between EuroVoc, GEMET and the INSPIRE themes.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §1.1",
+   "anchor_quote": "To take into account and refer to alignment of relevant controlled vocabularies",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "profile",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": true,
+   "origin": [
+    "exp"
+   ],
+   "problem": "P7",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "Publications Office alignments (EuroVoc, GEMET, INSPIRE themes)",
+   "atom_ids": [
+    "G-45.1"
+   ]
+  },
+  {
+   "id": "G-46",
+   "statement": "Feed recommendations into the DCAT-AP revision so that DCAT-AP and GeoDCAT-AP stay aligned.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "GeoDCAT-AP 1.0 §1.1",
+   "anchor_quote": "To formulate recommendations to the Working Group dealing with the revision",
+   "anchor_check": "verbatim_in_source_text",
+   "level": "system",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "requirement",
+   "reuse_or_alignment_rule": true,
+   "origin": [
+    "exp"
+   ],
+   "problem": "P7",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "DCAT-AP revision working group",
+   "atom_ids": [
+    "G-46.1"
+   ]
+  }
+ ],
+ "atoms": [
+  {
+   "id": "G-1.1",
+   "parent_id": "G-1",
+   "statement": "Provide a DCAT-AP-conformant representation of geospatial metadata.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": true,
+   "source_locator": "GeoDCAT-AP 1.0 §4.1",
+   "pr45_pdf_pages": [],
+   "anchor_page": 13,
+   "anchor_quote": "Provide a DCAT-AP-conformant representation of geospatial metadata.",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "GeoDCAT-AP working-group objectives",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "3. Conformance",
+       "quote": "A DCAT profile is a specification for data catalogs that adds additional constraints to DCAT. A data catalog that conforms to the profile also conforms to DCAT.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "3. Conformance",
+       "quote": "A data catalog conforms to DCAT if: It is organized into datasets and distributions. An RDF description of the catalog itself and its datasets and distributions is available",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT defines conformance and DCAT profiles, supporting a DCAT-conformant representation; DCAT-AP itself is absent from the inputs.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-1.2",
+   "parent_id": "G-1",
+   "statement": "Provide an RDF representation of geospatial metadata that is as comprehensive as possible and avoids semantic loss.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": true,
+   "source_locator": "GeoDCAT-AP 1.0 §4.1",
+   "pr45_pdf_pages": [],
+   "anchor_page": 13,
+   "anchor_quote": "Provide an as much as possible comprehensive RDF-based representation of geospatial metadata",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "GeoDCAT-AP working-group objectives",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "3. Conformance",
+       "quote": "The contents of all metadata fields that are held in the catalog, and that contain data about the catalog itself and its dataset and distributions, are included in this RDF description, expressed using the appropriate classes and properties from DCAT, except where no such class or property exists.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "3. Conformance",
+       "quote": "All classes and properties defined in DCAT are used in a way consistent with the semantics declared in this specification.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 13] 1.1.3 Conclusion",
+       "quote": "the minimum requirements expressed in the implementing rules have also to be met semantically, i.e. with metadata contents strictly satisfying the INSPIRE requirements.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT conformance puts all held metadata fields into the RDF description with consistent semantics; guidelines require encodings to meet INSPIRE semantics.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-1.3",
+   "parent_id": "G-1",
+   "statement": "Promote the cross-domain reuse of geospatial metadata.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": true,
+   "source_locator": "GeoDCAT-AP 1.0 §4.1",
+   "pr45_pdf_pages": [],
+   "anchor_page": 13,
+   "anchor_quote": "trying, at the same time, to avoid semantic loss and to promote cross-domain re-use.",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [
+    "G-42.1"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "GeoDCAT-AP working-group objectives",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-directive.html",
+       "locator": "Recital (3)",
+       "quote": "Solving these problems requires measures that address exchange, sharing, access and use of interoperable spatial data and spatial data services across the various levels of public authority and across different sectors.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 4] Acknowledgements",
+       "quote": "technical guidelines that aid cross-sector and cross-border interoperability and the implementation of the INSPIRE Directive.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "Abstract",
+       "quote": "By using DCAT to describe datasets in data catalogs, publishers increase discoverability and enable applications easily to consume metadata from multiple catalogs.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Inputs support cross-sector sharing and interoperability of spatial data and multi-catalog metadata consumption, not cross-domain reuse of geospatial metadata as such.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "overlap_review": [
+    {
+     "atom": "G-42.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (profile level)."
+    }
+   ]
+  },
+  {
+   "id": "G-2.1",
+   "parent_id": "G-2",
+   "statement": "Include, at least, all mandatory DCAT-AP elements.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": true,
+   "source_locator": "GeoDCAT-AP 1.0 §4.1",
+   "pr45_pdf_pages": [],
+   "anchor_page": 13,
+   "anchor_quote": "GeoDCAT-AP must include, at least, all the mandatory DCAT-AP elements.",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "DCAT-AP conformance",
+   "origin": [
+    "exp",
+    "std"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "uncertain",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "3. Conformance",
+       "quote": "A data catalog that conforms to the profile also conforms to DCAT. Additional constraints in a profile MAY include: A minimum set of required metadata fields",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Only DCAT's generic profile rule relates (profiles may require fields, conformance carries to the base); DCAT-AP and its mandatory elements are absent.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-3.1",
+   "parent_id": "G-3",
+   "statement": "Use vocabularies other than DCAT-AP only for geospatial metadata elements that DCAT-AP does not support.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": true,
+   "source_locator": "GeoDCAT-AP 1.0 §4.1",
+   "pr45_pdf_pages": [],
+   "anchor_page": 13,
+   "anchor_quote": "Vocabularies different from DCAT-AP can be used only for those geospatial metadata elements not supported in DCAT-AP.",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [
+    "G-44.1"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "DCAT-AP conformance",
+   "origin": [
+    "exp",
+    "std"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "3. Conformance",
+       "quote": "The contents of all metadata fields that are held in the catalog, and that contain data about the catalog itself and its dataset and distributions, are included in this RDF description, expressed using the appropriate classes and properties from DCAT, except where no such class or property exists.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "3. Conformance",
+       "quote": "DCAT-compliant catalogs MAY include additional non-DCAT metadata fields and additional RDF data in the catalog's RDF description.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "3. Conformance",
+       "quote": "Classes and properties for additional metadata fields not covered in DCAT",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT requires its own terms except where none exists and admits non-DCAT fields; the named baseline DCAT-AP is not in the inputs.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "overlap_review": [
+    {
+     "atom": "G-44.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (profile level)."
+    }
+   ]
+  },
+  {
+   "id": "G-4.1",
+   "parent_id": "G-4",
+   "statement": "Base the alignments as far as possible on existing practice, in particular the working group's experience.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": true,
+   "source_locator": "GeoDCAT-AP 1.0 §4.1",
+   "pr45_pdf_pages": [],
+   "anchor_page": 13,
+   "anchor_quote": "Another key criterion was to base as much as possible the defined alignments on existing practices",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "GeoDCAT-AP working-group practice",
+   "origin": [
+    "prac",
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-directive.html",
+       "locator": "Recital (11)",
+       "quote": "it will also build upon existing experience and initiatives rather than duplicate the work that has already been done.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 4] Acknowledgements",
+       "quote": "This version 1.3 of the Technical Guidelines clarifies some aspects of the implementation of the discovery metadata elements based on the experience built during the period of implementation 2010-13.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-directive.html",
+       "locator": "Recital (28)",
+       "quote": "In order to benefit from the state of the art and actual experience of information infrastructures",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "INSPIRE builds on existing experience and initiatives, and the guidelines on implementation experience; alignments and a working group are not addressed.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-4.2",
+   "parent_id": "G-4",
+   "statement": "Avoid a negative impact on existing implementations.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": true,
+   "source_locator": "GeoDCAT-AP 1.0 §4.1",
+   "pr45_pdf_pages": [],
+   "anchor_page": 13,
+   "anchor_quote": "to avoid a negative impact on existing implementations",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [
+    "G-7.2"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "GeoDCAT-AP working-group practice",
+   "origin": [
+    "prac",
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "uncertain",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-directive.html",
+       "locator": "Article 1(2)",
+       "quote": "Inspire shall build upon infrastructures for spatial information established and operated by the Member States.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-directive.html",
+       "locator": "Article 7(2)",
+       "quote": "the Commission shall undertake analyses to ensure that the rules are feasible and proportionate in terms of their likely costs and benefits",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-directive.html",
+       "locator": "Recital (16)",
+       "quote": "Implementing rules should be based, where possible, on international standards and should not result in excessive costs for Member States.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Building on existing infrastructures and avoiding excessive costs relate to protecting implementations, but no passage addresses impact on existing implementations.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "overlap_review": [
+    {
+     "atom": "G-7.2",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (profile level)."
+    }
+   ]
+  },
+  {
+   "id": "G-5.1",
+   "parent_id": "G-5",
+   "statement": "Define new terms only when existing vocabularies offer no suitable candidate, and only after careful assessment.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": true,
+   "source_locator": "GeoDCAT-AP 1.0 §1.1; §4.1",
+   "pr45_pdf_pages": [],
+   "anchor_page": 13,
+   "anchor_quote": "the possibility of defining new terms was not excluded. However, this option needed to be carefully assessed",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [
+    "G-44.1"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "W3C/OGC standardisation work",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "Status of This Document",
+       "quote": "DCAT incorporates terms from pre-existing vocabularies, where stable terms with appropriate meanings could be found, such as foaf:homepage and dct:title.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "2. Namespaces",
+       "quote": "DCAT itself defines a minimal set of classes and properties of its own.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "3. Conformance",
+       "quote": "Classes and properties for additional metadata fields not covered in DCAT",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT reuses pre-existing terms where suitable and defines few of its own; the careful-assessment condition for new terms is not stated.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "overlap_review": [
+    {
+     "atom": "G-44.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (profile level)."
+    }
+   ]
+  },
+  {
+   "id": "G-5.2",
+   "parent_id": "G-5",
+   "statement": "Discard new terms that could conflict with standards under preparation.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": true,
+   "source_locator": "GeoDCAT-AP 1.0 §4.1",
+   "pr45_pdf_pages": [],
+   "anchor_page": 13,
+   "anchor_quote": "discarded whenever it might have led to a specification that was conflicting with standards under preparation",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "W3C/OGC standardisation work",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "unsupported",
+     "sources": [],
+     "rationale": "No input addresses standards under preparation or discarding new terms that could conflict with them.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-6.1",
+   "parent_id": "G-6",
+   "statement": "Cover all metadata elements of the core profile of ISO 19115.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2",
+   "pr45_pdf_pages": [],
+   "anchor_page": 14,
+   "anchor_quote": "All the metadata elements in the core profile of ISO 19115.",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE Directive and ISO 19115 core profile",
+   "origin": [
+    "std",
+    "law"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 10] 1.1.1 Spatial dataset and spatial dataset series",
+       "quote": "The table below compares the core requirements of ISO 19115 (see Table 3 in 6.5 of ISO 19115:2003) to the requirements of INSPIRE for spatial dataset and spatial dataset series as defined in the Implementing Rules for metadata.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 13] 1.1.3 Conclusion",
+       "quote": "However, full conformance to ISO 19115 implies the provision of additional metadata elements which are not required by the INSPIRE Implementing Rule on Metadata.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Guidelines enumerate the ISO 19115 core requirements element by element and note ISO conformance needs elements beyond INSPIRE.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-6.2",
+   "parent_id": "G-6",
+   "statement": "Cover the INSPIRE metadata elements, leaving out only those not common to all INSPIRE spatial data themes.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2",
+   "pr45_pdf_pages": [],
+   "anchor_page": 14,
+   "anchor_quote": "All the metadata elements defined in INSPIRE, with the exclusion of those not common to all the INSPIRE spatial data themes.",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE Directive and ISO 19115 core profile",
+   "origin": [
+    "std",
+    "law"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Article 3",
+       "quote": "The metadata describing a spatial data set, a spatial data set series or a spatial data service shall comprise the metadata elements or groups of metadata elements set out in Part B of the Annex",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 95] Annex B, B.1",
+       "quote": "The following metadata elements are defined as “metadata required for interoperability” in Article 13 of the Implementing Rules on the Interoperability of Spatial Datasets and Services. They are applicable to all Spatial Data Themes from Annexes I, II and III.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 96] Annex B, B.2",
+       "quote": "The following tables give an overview of additional metadata elements that are recommended for specific Spatial Data Themes from Annex II and III.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "INSPIRE elements are mandated and guidelines separate elements common to all themes from theme-specific ones, but excluding the latter is not stated.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-6.3",
+   "parent_id": "G-6",
+   "statement": "Exclude only optional elements.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2",
+   "pr45_pdf_pages": [],
+   "anchor_page": 13,
+   "anchor_quote": "with the requirement that only optional elements might be excluded",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE Directive and ISO 19115 core profile",
+   "origin": [
+    "std",
+    "law"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "uncertain",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part C",
+       "quote": "When no condition is expressed in relation to a particular metadata element, that element shall be mandatory.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part C",
+       "quote": "the fourth column contains a conditional statement if the multiplicity of the element does not apply to all types of resources. All elements are mandatory in other circumstances.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Inputs fix obligation levels for metadata elements but say nothing about which elements a profile may exclude.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-7.1",
+   "parent_id": "G-7",
+   "statement": "Offer an RDF syntax binding as an additional way to implement and publish INSPIRE/ISO metadata on DCAT-AP-conformant portals.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §1",
+   "pr45_pdf_pages": [],
+   "anchor_page": 7,
+   "anchor_quote": "providing the means of an additional implementation through harmonised RDF syntax bindings",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [
+    "G-43.1"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE Metadata Regulation and technical guidelines",
+   "origin": [
+    "law"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "uncertain",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Recital (2)",
+       "quote": "Nor does it preclude the possibility to adopt guidelines established and kept up to date by the Commission, in particular when it is necessary to ensure the interoperability of metadata.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 68] Annex A, A.1 Introduction",
+       "quote": "This annex defines the XML ISO/TS 19139 encoding of the INSPIRE metadata elements.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "3. Conformance",
+       "quote": "An RDF description of the catalog itself and its datasets and distributions is available",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "The regulation permits further Commission guidelines for metadata interoperability and guidelines define ISO 19139 XML; nothing calls for an additional RDF binding.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "overlap_review": [
+    {
+     "atom": "G-43.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (system level)."
+    }
+   ]
+  },
+  {
+   "id": "G-7.2",
+   "parent_id": "G-7",
+   "statement": "Leave the INSPIRE metadata regulation and technical guidelines, and the collections maintained under them, unchanged.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §1",
+   "pr45_pdf_pages": [],
+   "anchor_page": 7,
+   "anchor_quote": "The GeoDCAT-AP specification does not replace the INSPIRE Metadata Regulation",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [
+    "G-4.2"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE Metadata Regulation and technical guidelines",
+   "origin": [
+    "law"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "unsupported",
+     "sources": [],
+     "rationale": "No input requires leaving the INSPIRE regulation, technical guidelines or existing metadata collections unchanged by a new binding.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "overlap_review": [
+    {
+     "atom": "G-4.2",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (profile level)."
+    }
+   ]
+  },
+  {
+   "id": "G-8.1",
+   "parent_id": "G-8",
+   "statement": "Identify who is responsible for a metadata record and how to contact them.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "extends_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.16, II.20",
+   "pr45_pdf_pages": [
+    39
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.20 Metadata point of contact - *Metadata point of contact",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-8"
+    ],
+    "pr45_ids": [
+     "GC-001"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "dcat:contactPoint, a DCAT-AP 1.1 dataset property, used on the catalogue record (Table 3).",
+   "geo": {
+    "inspire_obligation": "M",
+    "iso19115_core_obligation": "M",
+    "dcat_ap_coverage": "—",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 10.1 (Metadata point of contact)",
+       "quote": "This is the description of the organisation responsible for the creation and maintenance of the metadata. This description shall include: — the name of the organisation as free text, — a contact e-mail address as a character string.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Metadata point of contact names the organisation responsible for the metadata and requires a contact e-mail address.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-9.1",
+   "parent_id": "G-9",
+   "statement": "Record the date of each metadata record.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.11, II.21",
+   "pr45_pdf_pages": [
+    39
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.21 Metadata date - *Metadata date stamp",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [
+    "Source inconsistency: Table 5 marks metadata date as covered by DCAT-AP, but Annex II.11 says \"DCAT-AP does not foresee a property equivalent to the INSPIRE metadata element metadata date\" and maps it to dct:modified."
+   ],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-9"
+    ],
+    "pr45_ids": [
+     "GC-002"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "M",
+    "iso19115_core_obligation": "M",
+    "dcat_ap_coverage": "Yes",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": true,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 10.2 (Metadata date)",
+       "quote": "The date which specifies when the metadata record was created or updated.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "5.2 Class: Catalog record",
+       "quote": "Most recent date on which the catalog entry was changed, updated or modified.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Metadata date is a mandatory INSPIRE element recording when the metadata record was created or updated.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-10.1",
+   "parent_id": "G-10",
+   "statement": "State the language of each metadata record.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.7, II.22",
+   "pr45_pdf_pages": [
+    39
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.22 Metadata language - *Metadata language",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-10"
+    ],
+    "pr45_ids": [
+     "GC-003"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "M",
+    "iso19115_core_obligation": "C",
+    "dcat_ap_coverage": "Yes",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": true,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 10.3 (Metadata language)",
+       "quote": "This is the language in which the metadata elements are expressed.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 13] 1.2 INSPIRE specific constraints (SC)",
+       "quote": "SC1. MD_Metadata.language is mandatory;",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Metadata language is a mandatory INSPIRE element giving the language of the metadata record.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-11.1",
+   "parent_id": "G-11",
+   "statement": "State the character set of a metadata record.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.19, II.24",
+   "pr45_pdf_pages": [
+    39
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.19 *Metadata characterset",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-11"
+    ],
+    "pr45_ids": [
+     "GC-004"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "—",
+    "iso19115_core_obligation": "C",
+    "dcat_ap_coverage": "—",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 11] 1.1.1 Spatial dataset and spatial dataset series",
+       "quote": "metadata character set has to be documented in ISO 19115 when ISO 10646-1 is not used.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 70] A.6.1 The default language",
+       "quote": "The default language of a metadata set is defined by the language property of MD_Metadata while the characterSet property defines the corresponding character encoding.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 73] A.8 Character encoding",
+       "quote": "Character encoding is defined in MD_Metadata.characterEncoding and MD_Metadata.locale.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Guidelines list metadata character set as a conditional ISO 19115 core element, required when ISO 10646-1 is not used.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-12.1",
+   "parent_id": "G-12",
+   "statement": "Give a metadata record a file identifier.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "extends_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.17",
+   "pr45_pdf_pages": [
+    39
+   ],
+   "anchor_page": 69,
+   "anchor_quote": "This element identifies a metadata record.",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-12"
+    ],
+    "pr45_ids": [
+     "GC-005"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "dct:identifier, a DCAT-AP 1.1 dataset property, used on the catalogue record (Annex II.17).",
+   "geo": {
+    "inspire_obligation": "—",
+    "iso19115_core_obligation": "O",
+    "dcat_ap_coverage": "—",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 10] 1.1.1 Spatial dataset and spatial dataset series",
+       "quote": "The table below compares the core requirements of ISO 19115 (see Table 3 in 6.5 of ISO 19115:2003)",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 11] 1.1.1 Spatial dataset and spatial dataset series",
+       "quote": "Metadata file identifier (O)",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 70] A.6 ISO 19139 and multilingual metadata",
+       "quote": "+ fileIdentifier [0..1] : CharacterString",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Metadata file identifier is listed as an optional ISO 19115 core element and appears in the MD_Metadata model.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-13.1",
+   "parent_id": "G-13",
+   "statement": "State the metadata standard a record follows.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.18",
+   "pr45_pdf_pages": [
+    39
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.18 *Metadata standard name, *Metadata standard version",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [
+    "Source inconsistency: Table 5 leaves the DCAT-AP column empty, but Annex II.18 says \"Following DCAT-AP, GeoDCAT-AP uses dct:conformsTo\" on the catalogue record (recommended in DCAT-AP 1.1)."
+   ],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-13"
+    ],
+    "pr45_ids": [
+     "GC-006"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "—",
+    "iso19115_core_obligation": "O",
+    "dcat_ap_coverage": "—",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": true,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 10] 1.1.1 Spatial dataset and spatial dataset series",
+       "quote": "The table below compares the core requirements of ISO 19115 (see Table 3 in 6.5 of ISO 19115:2003)",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 11] 1.1.1 Spatial dataset and spatial dataset series",
+       "quote": "Metadata standard name - - (O)",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 70] A.6 ISO 19139 and multilingual metadata",
+       "quote": "+ metadataStandardName [0..1] : CharacterString",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Metadata standard name is listed as an optional ISO 19115 core element and appears in the MD_Metadata model.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-14.1",
+   "parent_id": "G-14",
+   "statement": "State the version of the metadata standard a record follows.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "extends_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.18",
+   "pr45_pdf_pages": [
+    39
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.18 *Metadata standard name, *Metadata standard version",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [
+    "Source inconsistency: Table 5 leaves the DCAT-AP column empty, but Annex II.18 encodes the version with the standard referenced through dct:conformsTo."
+   ],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-14"
+    ],
+    "pr45_ids": [
+     "GC-007"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "—",
+    "iso19115_core_obligation": "O",
+    "dcat_ap_coverage": "—",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 10] 1.1.1 Spatial dataset and spatial dataset series",
+       "quote": "The table below compares the core requirements of ISO 19115 (see Table 3 in 6.5 of ISO 19115:2003)",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 11] 1.1.1 Spatial dataset and spatial dataset series",
+       "quote": "Metadata standard version - - (O)",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 70] A.6 ISO 19139 and multilingual metadata",
+       "quote": "+ metadataStandardVersion [0..1] : CharacterString",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Metadata standard version is listed as an optional ISO 19115 core element and appears in the MD_Metadata model.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-15.1",
+   "parent_id": "G-15",
+   "statement": "Give each resource a title.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.1",
+   "pr45_pdf_pages": [
+    39
+   ],
+   "anchor_page": 3,
+   "anchor_quote": "II.1 Resource title - *Dataset title",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-15"
+    ],
+    "pr45_ids": [
+     "GC-008"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "M",
+    "iso19115_core_obligation": "M",
+    "dcat_ap_coverage": "Yes",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": true,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 1.1 (Resource title)",
+       "quote": "This a characteristic, and often unique, name by which the resource is known.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "5.3 Class: Dataset",
+       "quote": "Property: title RDF Property: dct:title Definition: A name given to the dataset.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Resource title is a mandatory INSPIRE identification element; DCAT defines dataset title.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-16.1",
+   "parent_id": "G-16",
+   "statement": "Give the date of creation of a resource.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.11",
+   "pr45_pdf_pages": [
+    39
+   ],
+   "anchor_page": 59,
+   "anchor_quote": "By contrast, date of publication, last revision, and creation are mapped, respectively, to dct:issued, dct:modified (both core and extended GeoDCAT-AP profiles), and dct:created (only for the extended profile of GeoDCAT-AP).",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-16"
+    ],
+    "pr45_ids": [
+     "GC-009"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "C",
+    "iso19115_core_obligation": "M",
+    "dcat_ap_coverage": "No (creation date not included)",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 5.4 (Date of creation)",
+       "quote": "This is the date of creation of the resource. There shall not be more than one date of creation.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Date of creation is an INSPIRE temporal reference element for the resource.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-16.2",
+   "parent_id": "G-16",
+   "statement": "Give the date of publication of a resource.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.11",
+   "pr45_pdf_pages": [
+    39
+   ],
+   "anchor_page": 59,
+   "anchor_quote": "By contrast, date of publication, last revision, and creation are mapped, respectively, to dct:issued, dct:modified (both core and extended GeoDCAT-AP profiles), and dct:created (only for the extended profile of GeoDCAT-AP).",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-16"
+    ],
+    "pr45_ids": [
+     "GC-010"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "C",
+    "iso19115_core_obligation": "M",
+    "dcat_ap_coverage": "Yes",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": true,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 5.2 (Date of publication)",
+       "quote": "This is the date of publication of the resource when available, or the date of entry into force. There may be more than one date of publication.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "5.3 Class: Dataset",
+       "quote": "Property: release date RDF Property: dct:issued Definition: Date of formal issuance (e.g., publication) of the dataset.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Date of publication is an INSPIRE temporal reference element; DCAT defines dataset release date.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-16.3",
+   "parent_id": "G-16",
+   "statement": "Give the date of last revision of a resource.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.11",
+   "pr45_pdf_pages": [
+    39
+   ],
+   "anchor_page": 59,
+   "anchor_quote": "By contrast, date of publication, last revision, and creation are mapped, respectively, to dct:issued, dct:modified (both core and extended GeoDCAT-AP profiles), and dct:created (only for the extended profile of GeoDCAT-AP).",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-16"
+    ],
+    "pr45_ids": [
+     "GC-011"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "C",
+    "iso19115_core_obligation": "M",
+    "dcat_ap_coverage": "Yes",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": true,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 5.3 (Date of last revision)",
+       "quote": "This is the date of last revision of the resource, if the resource has been revised. There shall not be more than one date of last revision.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "5.3 Class: Dataset",
+       "quote": "Most recent date on which the dataset was changed, updated or modified.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Date of last revision is an INSPIRE temporal reference element; DCAT defines dataset modification date.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-17.1",
+   "parent_id": "G-17",
+   "statement": "Describe each resource in a short abstract.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.2",
+   "pr45_pdf_pages": [
+    39
+   ],
+   "anchor_page": 3,
+   "anchor_quote": "II.2 Resource abstract - *Abstract describing the dataset",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-17"
+    ],
+    "pr45_ids": [
+     "GC-012"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "M",
+    "iso19115_core_obligation": "M",
+    "dcat_ap_coverage": "Yes",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": true,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 1.2 (Resource abstract)",
+       "quote": "This is a brief narrative summary of the content of the resource.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "5.3 Class: Dataset",
+       "quote": "Property: description RDF Property: dct:description Definition: free-text account of the dataset.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Resource abstract is a mandatory INSPIRE element summarising the resource; DCAT defines dataset description.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-18.1",
+   "parent_id": "G-18",
+   "statement": "State the language or languages used in a resource.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.7",
+   "pr45_pdf_pages": [
+    40
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.7 Resource language and metadata language - *Dataset language and Metadata language",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-18"
+    ],
+    "pr45_ids": [
+     "GC-013"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "C",
+    "iso19115_core_obligation": "M",
+    "dcat_ap_coverage": "Yes",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": true,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 1.7 (Resource language)",
+       "quote": "The language(s) used within the resource. The value domain of this metadata element is limited to the languages defined in ISO 639-2.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part C, Table 1",
+       "quote": "Mandatory if the resource includes textual information.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "5.3 Class: Dataset",
+       "quote": "Property: language RDF Property: dct:language Definition: The language of the dataset.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Resource language gives the language(s) used within the resource, mandatory when it contains text.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-19.1",
+   "parent_id": "G-19",
+   "statement": "Classify each resource by topic category.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.8",
+   "pr45_pdf_pages": [
+    40
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.8 Topic category, originating controlled vocabulary, and keyword value",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-19"
+    ],
+    "pr45_ids": [
+     "GC-014"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "M",
+    "iso19115_core_obligation": "M",
+    "dcat_ap_coverage": "—",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 2.1 (Topic category)",
+       "quote": "The topic category is a high-level classification scheme to assist in the grouping and topic-based search of available spatial data resources.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part D.2",
+       "quote": "TOPIC CATEGORIES IN ACCORDANCE WITH EN ISO 19115",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Topic category is an INSPIRE classification element with the ISO 19115 topic categories as value domain.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-20.1",
+   "parent_id": "G-20",
+   "statement": "Give the geographic extent of a resource as a bounding box or a geographic identifier.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.10",
+   "pr45_pdf_pages": [
+    40
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.10 Geographic bounding box - *Geographic location of the dataset (by 4 coordinates or by geographic identifier)",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-20"
+    ],
+    "pr45_ids": [
+     "GC-015"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "Annex II.10 adds encoding constraints (at least GML or WKT; the CRS must be specified); restates_base holds for the statement as worded.",
+   "geo": {
+    "inspire_obligation": "M",
+    "iso19115_core_obligation": "C",
+    "dcat_ap_coverage": "Yes",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": true,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 4 (Geographic location)",
+       "quote": "The requirement for geographic location referred to in Article 11(2)(e) of Directive 2007/2/EC shall be expressed with the metadata element geographic bounding box.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 4.1 (Geographic bounding box)",
+       "quote": "This is the extent of the resource in the geographic space, given as a bounding box.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "5.3 Class: Dataset",
+       "quote": "Property: spatial/geographical coverage RDF Property: dct:spatial Definition: Spatial coverage of the dataset. Range: dct:Location (A spatial region or named place)",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "INSPIRE mandates a geographic bounding box; DCAT spatial coverage accepts a named place, covering the identifier option.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-21.1",
+   "parent_id": "G-21",
+   "statement": "State the character encoding of a dataset.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.24",
+   "pr45_pdf_pages": [
+    40
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.24 Character encoding - *Dataset character set and *Metadata character set",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-21"
+    ],
+    "pr45_ids": [
+     "GC-016"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "C",
+    "iso19115_core_obligation": "C",
+    "dcat_ap_coverage": "—",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-interoperability.html",
+       "locator": "Article 13(5)",
+       "quote": "Character Encoding : The character encoding used in the data set. This element is mandatory only if an encoding is used that is not based on UTF-8.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 10] 1.1.1 Spatial dataset and spatial dataset series",
+       "quote": "Dataset character set (C) - ISO 19115 is more demanding. The dataset character set has to be documented in ISO 19115 when ISO 10646-1 is not used.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Character Encoding is an interoperability metadata element, conditional on non-UTF-8 encodings; ISO core lists dataset character set.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-22.1",
+   "parent_id": "G-22",
+   "statement": "Give the temporal extent a resource covers.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.11",
+   "pr45_pdf_pages": [
+    40
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "Additional extent information for the dataset (vertical and temporal)",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-22"
+    ],
+    "pr45_ids": [
+     "GC-017"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "DCAT-AP maps temporal extent to dct:temporal; the ISO element also includes vertical extent, which GeoDCAT-AP 1.0 does not cover.",
+   "geo": {
+    "inspire_obligation": "C",
+    "iso19115_core_obligation": "O",
+    "dcat_ap_coverage": "Partially (temporal extent only)",
+    "geodcat_ap_representation": "temporal_only"
+   },
+   "restates_dcat_ap": true,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 5.1 (Temporal extent)",
+       "quote": "The temporal extent defines the time period covered by the content of the resource.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "5.3 Class: Dataset",
+       "quote": "Property: temporal coverage RDF Property: dct:temporal Definition: The temporal period that the dataset covers.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Temporal extent is an INSPIRE temporal reference element; DCAT defines temporal coverage.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-23.1",
+   "parent_id": "G-23",
+   "statement": "Describe the lineage of a dataset: how it was produced and processed.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.12",
+   "pr45_pdf_pages": [
+    40
+   ],
+   "anchor_page": 61,
+   "anchor_quote": "Following DCAT-AP, this element is mapped to property dct:provenance.",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-23"
+    ],
+    "pr45_ids": [
+     "GC-018"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "M",
+    "iso19115_core_obligation": "O",
+    "dcat_ap_coverage": "Yes",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": true,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 6.1 (Lineage)",
+       "quote": "This is a statement on process history and/or overall quality of the spatial data set.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part A (Interpretation)",
+       "quote": "the history of a data set, and the life cycle from collection and acquisition through compilation and derivation to its current form",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Lineage is a mandatory INSPIRE quality element describing process history and life cycle of the data set.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-24.1",
+   "parent_id": "G-24",
+   "statement": "State how spatial data are represented, e.g. as vector or grid data.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.26",
+   "pr45_pdf_pages": [
+    40
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.26 Spatial representation type – *Spatial representation type",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-24"
+    ],
+    "pr45_ids": [
+     "GC-019"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "M",
+    "iso19115_core_obligation": "O",
+    "dcat_ap_coverage": "—",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 11] 1.1.1 Spatial dataset and spatial dataset series",
+       "quote": "mandatory “Spatial Representation Type” metadata element defined in Art. 13(6) of the Implementing Rules on interoperability",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Guidelines map ISO spatial representation type to the mandatory interoperability element Spatial Representation Type.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-25.1",
+   "parent_id": "G-25",
+   "statement": "State the format in which each distribution is encoded.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.25",
+   "pr45_pdf_pages": [
+    40
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.25 Encoding - *Distribution format",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-25"
+    ],
+    "pr45_ids": [
+     "GC-020"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "M",
+    "iso19115_core_obligation": "O",
+    "dcat_ap_coverage": "Yes",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": true,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-interoperability.html",
+       "locator": "Article 13(3)",
+       "quote": "Encoding : Description of the computer language construct(s) specifying the representation of data objects in a record, file, message, storage device or transmission channel.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 10] 1.1.1 Spatial dataset and spatial dataset series",
+       "quote": "Distribution format (O) - The ISO 19115 element maps to the mandatory “Encoding” metadata element defined in Art. 13(3) of the Implementing Rules on interoperability of spatial data sets and services.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "5.4 Class: Distribution",
+       "quote": "Property: format RDF Property: dct:format Definition: The file format of the distribution.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Encoding is a mandatory interoperability element mapped to ISO distribution format; DCAT defines distribution format.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-26.1",
+   "parent_id": "G-26",
+   "statement": "State the spatial resolution of a dataset.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.13",
+   "pr45_pdf_pages": [
+    40
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.13 Spatial resolution – Spatial resolution of the dataset",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-26"
+    ],
+    "pr45_ids": [
+     "GC-021"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "GeoDCAT-AP 1.0 covers it as free text only.",
+   "geo": {
+    "inspire_obligation": "C",
+    "iso19115_core_obligation": "O",
+    "dcat_ap_coverage": "—",
+    "geodcat_ap_representation": "free_text_only"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 6.2 (Spatial resolution)",
+       "quote": "Spatial resolution refers to the level of detail of the data set. It shall be expressed as a set of zero to many resolution distances (typically for gridded data and imagery-derived products) or equivalent scales (typically for maps or map-derived products).",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Spatial resolution is an INSPIRE quality and validity element for the data set.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-27.1",
+   "parent_id": "G-27",
+   "statement": "Identify the organisations responsible for a resource and the role each plays.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "partly_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.16",
+   "pr45_pdf_pages": [
+    40
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.16 Responsible party and metadata point of contact - *Dataset responsible party and *Metadata point of contact",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [
+    "Source inconsistency: Table 5 says DCAT-AP supports 3 of the 11 responsible-party roles; Table 2 says \"DCAT-AP foresees only 2 of the 11\"."
+   ],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-27"
+    ],
+    "pr45_ids": [
+     "GC-022"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "M",
+    "iso19115_core_obligation": "O",
+    "dcat_ap_coverage": "Partially (only 3 of the 11 responsible party roles are supported)",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 9.1 (Responsible party)",
+       "quote": "This is the description of the organisation responsible for the establishment, management, maintenance and distribution of the resource.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 9.2 (Responsible party role)",
+       "quote": "This is the role of the responsible organisation.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-directive.html",
+       "locator": "Article 5(2)(d)",
+       "quote": "the public authorities responsible for the establishment, management, maintenance and distribution of spatial data sets and services;",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "INSPIRE requires the responsible party and its role for each resource.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-28.1",
+   "parent_id": "G-28",
+   "statement": "Give links to the resource or to further information about it.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.4",
+   "pr45_pdf_pages": [
+    40
+   ],
+   "anchor_page": 3,
+   "anchor_quote": "II.4 Resource locator - *On-line resource",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-28"
+    ],
+    "pr45_ids": [
+     "GC-023"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "C",
+    "iso19115_core_obligation": "O",
+    "dcat_ap_coverage": "Yes",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": true,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 1.4 (Resource locator)",
+       "quote": "The resource locator defines the link(s) to the resource and/or the link to additional information about the resource.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "5.3 Class: Dataset",
+       "quote": "A Web page that can be navigated to in a Web browser to gain access to the dataset, its distributions and/or additional information.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Resource locator gives links to the resource or to additional information about it.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-29.1",
+   "parent_id": "G-29",
+   "statement": "State the coordinate reference system of a dataset.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "extends_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.23",
+   "pr45_pdf_pages": [
+    40
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.23 Coordinate reference systems and Temporal reference systems",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-29"
+    ],
+    "pr45_ids": [
+     "GC-024"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "The source says no equivalent DCAT-AP term is foreseen and maps reference systems provisionally to dct:conformsTo (Annex II.23).",
+   "geo": {
+    "inspire_obligation": "M",
+    "iso19115_core_obligation": "O",
+    "dcat_ap_coverage": "—",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-interoperability.html",
+       "locator": "Article 13(1)",
+       "quote": "The metadata describing a spatial data set shall include the following metadata elements required for interoperability: 1. Coordinate Reference System : Description of the coordinate reference system(s) used in the data set.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 11] 1.1.1 Spatial dataset and spatial dataset series",
+       "quote": "Reference system (O) - The ISO 19115 element maps to the mandatory “Coordinate Reference System” and the conditional “Temporal Reference System” metadata elements defined in Art. 13(1) and (2)",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Coordinate Reference System is a mandatory interoperability metadata element for data sets.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-30.1",
+   "parent_id": "G-30",
+   "statement": "State the temporal reference system of a dataset.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "extends_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.23",
+   "pr45_pdf_pages": [
+    40
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.23 Coordinate reference systems and Temporal reference systems",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-30"
+    ],
+    "pr45_ids": [
+     "GC-025"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "The source says no equivalent DCAT-AP term is foreseen and maps reference systems provisionally to dct:conformsTo (Annex II.23).",
+   "geo": {
+    "inspire_obligation": "C",
+    "iso19115_core_obligation": "O",
+    "dcat_ap_coverage": "—",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law",
+    "std"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-interoperability.html",
+       "locator": "Article 13(2)",
+       "quote": "Temporal Reference System : Description of the temporal reference system(s) used in the data set. This element is mandatory only if the spatial data set contains temporal information that does not refer to the default temporal reference system.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-interoperability.html",
+       "locator": "Article 11(2)",
+       "quote": "If other temporal reference systems are used, these shall be specified in the data set metadata.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Temporal Reference System is an interoperability metadata element, mandatory when a non-default temporal reference system is used.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-31.1",
+   "parent_id": "G-31",
+   "statement": "State the specifications a resource conforms to, and whether it conforms.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "partly_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.14",
+   "pr45_pdf_pages": [
+    40
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.14 Conformity and data quality - *not in ISO 19115 core",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [
+    "Source inconsistency: Table 5 marks conformity as covered by DCAT-AP, but Annex II.14 says dct:conformsTo \"can be used to map only a conformity of degree 'conformant'\"."
+   ],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-31"
+    ],
+    "pr45_ids": [
+     "GC-026"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "M",
+    "iso19115_core_obligation": "—",
+    "dcat_ap_coverage": "Yes",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 7.1 (Specification)",
+       "quote": "This is a citation of the implementing rules adopted under Article 7(1) of Directive 2007/2/EC or other specification to which a particular resource conforms.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 7.2 (Degree)",
+       "quote": "This is the degree of conformity of the resource to the implementing rules adopted under Article 7(1) of Directive 2007/2/EC or other specification.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "INSPIRE conformity comprises the cited specification and the degree of conformity.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-32.1",
+   "parent_id": "G-32",
+   "statement": "State whether a resource is a dataset, a dataset series or a service.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "partly_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.3",
+   "pr45_pdf_pages": [
+    41
+   ],
+   "anchor_page": 3,
+   "anchor_quote": "II.3 Resource type - *not in ISO 19115 core",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-32"
+    ],
+    "pr45_ids": [
+     "GC-027"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "M",
+    "iso19115_core_obligation": "—",
+    "dcat_ap_coverage": "Partially (only datasets, series and discovery / catalogue services)",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 1.3 (Resource type)",
+       "quote": "This is the type of resource being described by the metadata.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part D.1 (Resource type)",
+       "quote": "RESOURCE TYPE 1.1. Spatial data set series (series) 1.2. Spatial data set (dataset) 1.3. Spatial data services (services)",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Resource type is mandatory, with values dataset series, dataset and services.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-33.1",
+   "parent_id": "G-33",
+   "statement": "State the type of a spatial data service, e.g. discovery, view or download.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.9",
+   "pr45_pdf_pages": [
+    41
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.9 Spatial data service type - *not in ISO 19115 core",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-33"
+    ],
+    "pr45_ids": [
+     "GC-028"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "M",
+    "iso19115_core_obligation": "—",
+    "dcat_ap_coverage": "—",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 2.2 (Spatial data service type)",
+       "quote": "This is a classification to assist in the search of available spatial data services. A specific service shall be categorised in only one category.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 15] 1.3.1 Spatial data service type",
+       "quote": "Discovery Service (discovery) View Service (view) Download Service (download) Transformation Service (transformation) Invoke Spatial Data Service (invoke) Other Services (other)",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Spatial data service type is an INSPIRE element with discovery, view, download and other values.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-34.1",
+   "parent_id": "G-34",
+   "statement": "Characterise each resource with keywords and name the vocabularies they come from.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "partly_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.8",
+   "pr45_pdf_pages": [
+    41
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.8 Topic category, originating controlled vocabulary, and keyword value",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-34"
+    ],
+    "pr45_ids": [
+     "GC-029"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "M",
+    "iso19115_core_obligation": "—",
+    "dcat_ap_coverage": "Partially (only for datasets and dataset series)",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 3.1 (Keyword value)",
+       "quote": "The keyword value is a commonly used word, formalised word or phrase used to describe the subject.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 3.2 (Originating controlled vocabulary)",
+       "quote": "If the keyword value originates from a controlled vocabulary (thesaurus, ontology), for example GEMET, the citation of the originating controlled vocabulary shall be provided.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "INSPIRE requires keywords and the citation of their originating controlled vocabulary.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-35.1",
+   "parent_id": "G-35",
+   "statement": "Link a service to the datasets or dataset series it operates on.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.6",
+   "pr45_pdf_pages": [
+    41
+   ],
+   "anchor_page": 49,
+   "anchor_quote": "This element is used to link a service to the target datasets or dataset series.",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-35"
+    ],
+    "pr45_ids": [
+     "GC-030"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "C",
+    "iso19115_core_obligation": "—",
+    "dcat_ap_coverage": "—",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 1.6 (Coupled resource)",
+       "quote": "If the resource is a spatial data service, this metadata element identifies, where relevant, the target spatial data set(s) of the service through their unique resource identifiers (URI).",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part C, Table 2",
+       "quote": "Mandatory if linkage to data sets on which the service operates are available.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Coupled resource links a service to the data sets it operates on.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-36.1",
+   "parent_id": "G-36",
+   "statement": "Give each resource a unique identifier.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.5",
+   "pr45_pdf_pages": [
+    41
+   ],
+   "anchor_page": 3,
+   "anchor_quote": "II.5 Unique resource identifier - *not in ISO 19115 core",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-36"
+    ],
+    "pr45_ids": [
+     "GC-031"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "M",
+    "iso19115_core_obligation": "—",
+    "dcat_ap_coverage": "Yes",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": true,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 1.5 (Unique resource identifier)",
+       "quote": "A value uniquely identifying the resource.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "5.3 Class: Dataset",
+       "quote": "Property: identifier RDF Property: dct:identifier Definition: A unique identifier of the dataset.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Unique resource identifier is an INSPIRE identification element; DCAT defines a unique dataset identifier.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-37.1",
+   "parent_id": "G-37",
+   "statement": "State the conditions for accessing and using a resource.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.15",
+   "pr45_pdf_pages": [
+    41
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.15 Conditions for access and use and limitations on public access",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-37"
+    ],
+    "pr45_ids": [
+     "GC-032"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "M",
+    "iso19115_core_obligation": "—",
+    "dcat_ap_coverage": "Yes",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": true,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 8.1 (Conditions applying to access and use)",
+       "quote": "This metadata element defines the conditions for access and use of spatial data sets and services, and where applicable, corresponding fees as required by Article 5(2)(b) and Article 11(2)(f) of Directive 2007/2/EC.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-directive.html",
+       "locator": "Article 5(2)(b)",
+       "quote": "conditions applying to access to, and use of, spatial data sets and services and, where applicable, corresponding fees;",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Conditions applying to access and use are a mandatory INSPIRE element required by the Directive.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-38.1",
+   "parent_id": "G-38",
+   "statement": "State any limitations on public access to a resource.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.15",
+   "pr45_pdf_pages": [
+    41
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.15 Conditions for access and use and limitations on public access",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [
+    "Obligation inconsistency: limitations on public access are M in Table 5 and (C) in Table 2."
+   ],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-38"
+    ],
+    "pr45_ids": [
+     "GC-033"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "M",
+    "iso19115_core_obligation": "—",
+    "dcat_ap_coverage": "Yes",
+    "geodcat_ap_representation": "full"
+   },
+   "restates_dcat_ap": true,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 8.2 (Limitations on public access)",
+       "quote": "When Member States limit public access to spatial data sets and spatial data services under Article 13 of Directive 2007/2/EC, this metadata element shall provide information on the limitations and the reasons for them.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata.html",
+       "locator": "Annex, Part B 8.2 (Limitations on public access)",
+       "quote": "If there are no limitations on public access, this metadata element shall indicate that fact.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-directive.html",
+       "locator": "Article 5(2)(e)",
+       "quote": "limitations on public access and the reasons for such limitations, in accordance with Article 13.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Limitations on public access is a mandatory INSPIRE element, also required when no limitations apply.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-39.1",
+   "parent_id": "G-39",
+   "statement": "State how often a resource is maintained and updated.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "partly_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.27",
+   "pr45_pdf_pages": [
+    41
+   ],
+   "anchor_page": 4,
+   "anchor_quote": "II.27 Maintenance information - *not in ISO 19115 core",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [
+    "Obligation inconsistency: maintenance information is O in Table 5 and (R) in Table 2."
+   ],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-39"
+    ],
+    "pr45_ids": [
+     "GC-034"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "GeoDCAT-AP also covers it only partially.",
+   "geo": {
+    "inspire_obligation": "O",
+    "iso19115_core_obligation": "—",
+    "dcat_ap_coverage": "Partially (only maintenance and update frequency)",
+    "geodcat_ap_representation": "frequency_only"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 96] Annex B, B.2",
+       "quote": "The following metadata elements are recommended as common metadata elements for all Spatial Data Themes from Annexes I, II and III.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 96] Annex B, B.2",
+       "quote": "Maintenance information 0..1",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "5.3 Class: Dataset",
+       "quote": "Property: frequency RDF Property: dct:accrualPeriodicity Definition: The frequency at which dataset is published.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Guidelines recommend maintenance information for all themes; DCAT defines dataset frequency (accrual periodicity).",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-40.1",
+   "parent_id": "G-40",
+   "statement": "Report the topological consistency of a dataset as a data quality result.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.14; §5.3",
+   "pr45_pdf_pages": [
+    41
+   ],
+   "anchor_page": 25,
+   "anchor_quote": "Topological Consistency (C)",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-40"
+    ],
+    "pr45_ids": [
+     "GC-035"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "GeoDCAT-AP covers only conformance results.",
+   "geo": {
+    "inspire_obligation": "C",
+    "iso19115_core_obligation": "—",
+    "dcat_ap_coverage": "—",
+    "geodcat_ap_representation": "conformance_results_only"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-interoperability.html",
+       "locator": "Article 13(4)",
+       "quote": "Topological Consistency : Correctness of the explicitly encoded topological characteristics of the data set as described by the scope.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-interoperability.html",
+       "locator": "Article 13(4)",
+       "quote": "This element is mandatory only if the data set includes types from the Generic Network Model and does not assure centreline topology (connectivity of centrelines) for the network.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Topological Consistency is an interoperability (data quality) metadata element, conditional on Generic Network Model types.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-41.1",
+   "parent_id": "G-41",
+   "statement": "Report the conceptual consistency of a dataset as a data quality result.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.14",
+   "pr45_pdf_pages": [
+    41
+   ],
+   "anchor_page": 41,
+   "anchor_quote": "Conceptual consistency",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [
+    "Obligation inconsistency: conceptual and domain consistency are O in Table 5 and (R) in Table 3."
+   ],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-41"
+    ],
+    "pr45_ids": [
+     "GC-036"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "O",
+    "iso19115_core_obligation": "—",
+    "dcat_ap_coverage": "—",
+    "geodcat_ap_representation": "conformance_results_only"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 96] Annex B, B.2",
+       "quote": "The following metadata elements are recommended as common metadata elements for all Spatial Data Themes from Annexes I, II and III.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 96] Annex B, B.2",
+       "quote": "Data Quality – Logical Consistency – 0..* Conceptual Consistency",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Guidelines recommend the data quality element Logical Consistency – Conceptual Consistency for all spatial data themes.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-41.2",
+   "parent_id": "G-41",
+   "statement": "Report the domain consistency of a dataset as a data quality result.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "source_table_obligation",
+   "applicability": "Use the dataset, series or service applicability and conditions of Annex II; not every element is mandatory for every resource.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.14",
+   "pr45_pdf_pages": [
+    41
+   ],
+   "anchor_page": 41,
+   "anchor_quote": "Domain consistency",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [
+    "Obligation inconsistency: conceptual and domain consistency are O in Table 5 and (R) in Table 3."
+   ],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-41"
+    ],
+    "pr45_ids": [
+     "GC-037"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "geo": {
+    "inspire_obligation": "O",
+    "iso19115_core_obligation": "—",
+    "dcat_ap_coverage": "—",
+    "geodcat_ap_representation": "conformance_results_only"
+   },
+   "restates_dcat_ap": false,
+   "derived_from": "INSPIRE metadata elements and ISO 19115 core profile (Annex I, Table 5)",
+   "origin": [
+    "law"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 96] Annex B, B.2",
+       "quote": "The following metadata elements are recommended as common metadata elements for all Spatial Data Themes from Annexes I, II and III.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 96] Annex B, B.2",
+       "quote": "Data Quality – Logical Consistency – 0..* Domain Consistency",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 47] 2.8 Conformity, TG Requirement 29",
+       "quote": "When the conformity to any specification has been evaluated, it shall be reported as a domain consistency element (i.e. an instance of DQ_DomainConsistency) in ISO 19115 metadata",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Guidelines recommend Logical Consistency – Domain Consistency for all themes and report conformity results as DQ_DomainConsistency.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-42.1",
+   "parent_id": "G-42",
+   "statement": "Make spatial datasets, dataset series and services searchable on general data portals.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §1; §3",
+   "pr45_pdf_pages": [],
+   "anchor_page": 7,
+   "anchor_quote": "Its basic use case is to make spatial datasets, dataset series, and services searchable",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [
+    "G-1.3"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-42"
+    ],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "Claude v2 only"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "GeoDCAT-AP basic use case (general data portals)",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-directive.html",
+       "locator": "Article 11(1)(a)",
+       "quote": "discovery services making it possible to search for spatial data sets and services on the basis of the content of the corresponding metadata and to display the content of the metadata;",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "Abstract",
+       "quote": "By using DCAT to describe datasets in data catalogs, publishers increase discoverability and enable applications easily to consume metadata from multiple catalogs. It further enables decentralized publishing of catalogs and facilitates federated dataset search across sites.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "4. Vocabulary Overview",
+       "quote": "DCAT is an RDF vocabulary well-suited to representing government data catalogs such as Data.gov and data.gov.uk",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "INSPIRE requires searchability via discovery services and DCAT targets discoverability in general catalogs; no passage combines them for spatial resources.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "overlap_review": [
+    {
+     "atom": "G-1.3",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (profile level)."
+    }
+   ]
+  },
+  {
+   "id": "G-43.1",
+   "parent_id": "G-43",
+   "statement": "Support the conversion of ISO 19115/INSPIRE metadata records into the RDF representation; conversion back is not required.",
+   "stratum": "system",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "GeoDCAT-AP 1.0 §1.1",
+   "pr45_pdf_pages": [],
+   "anchor_page": 7,
+   "anchor_quote": "The defined syntax binding must enable the conversion of metadata records from ISO 19115 / INSPIRE to a harmonised RDF representation",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [
+    "G-7.1"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-43"
+    ],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "Claude v2 only"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "GeoDCAT-AP objectives",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "uncertain",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "3. Conformance",
+       "quote": "The contents of all metadata fields that are held in the catalog, and that contain data about the catalog itself and its dataset and distributions, are included in this RDF description, expressed using the appropriate classes and properties from DCAT, except where no such class or property exists.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 68] A.4.2 Parsing of metadata files",
+       "quote": "To accommodate polymorphism of the data types, parsing of metadata files has to be driven by the XML elements corresponding to the properties of the UML models",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT conformance implies RDF descriptions of held records and guidelines discuss parsing ISO files; conversion and its one-way scope are not stated.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "overlap_review": [
+    {
+     "atom": "G-7.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (system level)."
+    }
+   ]
+  },
+  {
+   "id": "G-44.1",
+   "parent_id": "G-44",
+   "statement": "Keep the RDF syntax binding as simple as possible.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": true,
+   "source_locator": "GeoDCAT-AP 1.0 §1.1",
+   "pr45_pdf_pages": [],
+   "anchor_page": 7,
+   "anchor_quote": "principle is to make the resulting RDF syntax as simple as possible",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [
+    "G-3.1",
+    "G-5.1"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-44"
+    ],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "Claude v2 only"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "GeoDCAT-AP design principle",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "uncertain",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "2. Namespaces",
+       "quote": "DCAT itself defines a minimal set of classes and properties of its own.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/w3c-dcat-2014.html",
+       "locator": "Status of This Document",
+       "quote": "DCAT incorporates terms from pre-existing vocabularies, where stable terms with appropriate meanings could be found",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT's minimal own terms and reuse of existing vocabularies relate to simplicity, but no input asks to keep a binding simple.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "overlap_review": [
+    {
+     "atom": "G-3.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (profile level)."
+    },
+    {
+     "atom": "G-5.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Neither is scored (profile level)."
+    }
+   ]
+  },
+  {
+   "id": "G-45.1",
+   "parent_id": "G-45",
+   "statement": "Reuse the published alignments between EuroVoc, GEMET and the INSPIRE themes.",
+   "stratum": "profile",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": true,
+   "source_locator": "GeoDCAT-AP 1.0 §1.1",
+   "pr45_pdf_pages": [],
+   "anchor_page": 8,
+   "anchor_quote": "To take into account and refer to alignment of relevant controlled vocabularies",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-45"
+    ],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "Claude v2 only"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "Publications Office alignments (EuroVoc, GEMET, INSPIRE themes)",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "uncertain",
+     "sources": [
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 30] 2.4 Keyword",
+       "quote": "The titles and definitions of all 34 INSPIRE Spatial Data Themes have been integrated into a dedicated branch of the General Environmental Multilingual Thesaurus (GEMET) in the 24 official Community languages",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "geodcat/input-raw/inspire-metadata-guidelines-1.3.pdf",
+       "locator": "[page 30] 2.4 Keyword, TG Requirement 16",
+       "quote": "If other keywords are added and they originate from a Controlled Vocabulary (thesaurus or ontology), for example GEMET - Concepts, EUROVOC or AGROVOC, then the citation of the originating Controlled Vocabulary shall be provided.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "INSPIRE themes are published as a GEMET branch and EUROVOC is named as a keyword source, but no EuroVoc alignment is mentioned.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "G-46.1",
+   "parent_id": "G-46",
+   "statement": "Feed recommendations into the DCAT-AP revision so that DCAT-AP and GeoDCAT-AP stay aligned.",
+   "stratum": "system",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": true,
+   "source_locator": "GeoDCAT-AP 1.0 §1.1",
+   "pr45_pdf_pages": [],
+   "anchor_page": 7,
+   "anchor_quote": "To formulate recommendations to the Working Group dealing with the revision",
+   "anchor_check": "verbatim_in_source_text",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "G-46"
+    ],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "Claude v2 only"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "DCAT-AP revision working group",
+   "origin": [
+    "exp"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "unsupported",
+     "sources": [],
+     "rationale": "DCAT-AP and its revision process are absent from the inputs; nothing calls for feeding recommendations back to keep profiles aligned.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  }
+ ]
+}
