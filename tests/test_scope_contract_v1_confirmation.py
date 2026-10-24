@@ -75,7 +75,7 @@ def test_a_record_test_failure_that_passes_alone_keeps_the_need_flagged(needs_se
     assert aside['details']['profile_scope']['confirmation']['outcome'] == 'confirmed'
     assert aside['details']['profile_scope']['confirmation']['verdict']['rationale'] == 'Alone.'
     step = store.get('run', run['run_id'])['need_steps']['profile_scope']
-    assert step['policy_version'] == 'rq1-profile-scope-v8'
+    assert step['policy_version'] == 'rq1-profile-scope-v9'
     assert step['confirmation_counts'] == {'confirmed': 1, 'disputed': 1}
     assert step['confirmation_ids'] == {'confirmed': ['need-third'], 'disputed': ['need-uses']}
     decisions = step['record_decisions'] if find_access else step['decisions']
@@ -92,6 +92,8 @@ def test_a_need_first_judged_alone_is_judged_again(needs_setup):
     # One need is a batch of one: the second judgement has its own cache step, or it would be the first one again.
     statements = {'need-uses': USES}
     store, run, _, made = variants(needs_setup, statements)
+    # A real run names its needs policies from creation, so both judgements carry the same policy in their keys.
+    store.mutate(run['run_id'], None, 'fixture_policies', lambda r: r.update(needs_policies=dict(needs.POLICIES)))
     run = fa_run(store, run)
     class FirstFails(InContext):
         def generate_structured(self, **kwargs):

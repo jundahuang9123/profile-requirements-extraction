@@ -864,9 +864,16 @@ call (plus at most one correction), with no case budget, like the other scope ca
 A need the data-processing guard catches is not judged again. A run whose needs
 policies name v7 keeps one judgement.
 
+Since `rq1-profile-scope-v9`, a written need that fails the F/A test is judged again
+alone in the same way: the change is blocked only when both judgements fail;
+otherwise the need is written with the flag `fa_scope_disputed`, and its
+`scope_tests` row keeps both (`fa_scope.confirmation`). A run whose needs policies
+name v8 keeps one F/A judgement.
+
 Retained, deferred, base-covered and set-aside needs write nothing and are not judged
-again. `scripts/fa_base_report.py` lists the needs the record test set aside at
-normalisation and the changes the scope tests blocked at apply, each counted apart
+again. `scripts/fa_base_report.py` lists the needs the record test and the F/A test
+set aside at normalisation, the needs kept against a first failed judgement of either
+test, and the changes the scope tests blocked at apply, each counted apart
 from the other set-asides and blocks. The model's judgement shows only live; the
 tests use scripted answers.
 
