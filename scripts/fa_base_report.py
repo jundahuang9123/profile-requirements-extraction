@@ -106,6 +106,30 @@ def main():
         lines.append(f'- {stated(r["revision_id"])} — second judgement: {outcome}; record now: {(r.get("profile_scope") or {}).get("record_resource")}; '
                      f'first: {", ".join(first.get("failed_tests") or [])}; {first.get("rationale","")}'
                      +(f'; second missing: {first["second_missing"]}' if first.get('second_missing') else ''))
+    # rq1-profile-scope-v9: the same rule for the F/A test; the needs kept against their first F/A judgement are
+    # flagged fa_scope_disputed.
+    fa_asides=[a for a in run.get('set_aside_observations',[]) if a.get('reason')=='fa_scope_set_aside']
+    lines+=['\n## Scope contract v1: set aside by the F/A test at normalisation',f'{len(fa_asides)} needs.']
+    for a in fa_asides:
+        scope=(a.get('details') or {}).get('fa_scope') or {}
+        confirmed=' (failed again alone)' if (scope.get('confirmation') or {}).get('outcome')=='confirmed' else ''
+        lines.append(f'- {stated(a.get("revision_id"),a.get("need_id",""))} — serves {scope.get("serves","not recorded")}, '
+                     f'support {scope.get("support","not recorded")}{confirmed}; {a.get("rationale","")}')
+    def first_fa_verdict(r):
+        # As first_verdict: not_checked keeps the first judgement in fa_scope itself.
+        scope=r.get('fa_scope') or {};c=scope.get('confirmation') or {}
+        if c.get('outcome')=='not_checked':
+            return {'serves':c.get('first_serves'),'support':c.get('first_support'),'rationale':scope.get('rationale',''),'second_missing':c.get('reason','')}
+        return c.get('verdict') or {}
+    fa_disputed=[r for r in records.values() if 'fa_scope_disputed' in r.get('processing_flags',[])]
+    lines+=['\n## Scope contract v1: kept against a first failed F/A test (fa_scope_disputed)',
+        f'{len(fa_disputed)} need revisions ({sum(r["revision_id"] in run.get("active_revision_ids",[]) for r in fa_disputed)} active); '
+        f'second judgements by outcome at normalisation: {(run.get("need_steps",{}).get("profile_scope") or {}).get("fa_confirmation_counts","not recorded")}.']
+    for r in fa_disputed:
+        scope=r.get('fa_scope') or {};first=first_fa_verdict(r)
+        lines.append(f'- {stated(r["revision_id"])} — second judgement: {(scope.get("confirmation") or {}).get("outcome")}; '
+                     f'serves now: {scope.get("serves")}; first: serves {first.get("serves")}, support {first.get("support")}; {first.get("rationale","")}'
+                     +(f'; second missing: {first["second_missing"]}' if first.get('second_missing') else ''))
     outcomes=[(c['case_id'],o) for c in run.get('deliberations',[]) for o in (c.get('mediation') or {}).get('outcomes',[])]
     blocked=[(case,o) for case,o in outcomes if o.get('scope_block')]
     unjudged=[t for _,o in outcomes if o.get('applied') for t in o.get('scope_tests',[]) if (t.get('profile_scope') or {}).get('status')!='checked']

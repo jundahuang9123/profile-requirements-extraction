@@ -57,8 +57,8 @@ def fallback_row(name, identifier):
 
 
 def generation(store, run, step, payload, output_model, system, client, validate, policy=None):
-    """policy: for a step that is not a needs policy of its own (profile_scope_confirmation), the policy it
-    belongs to; by default the run's needs policy for the step."""
+    """policy: for a step that is not a needs policy of its own (profile_scope_confirmation,
+    fa_scope_confirmation), the policy it belongs to; by default the run's needs policy for the step."""
     from ..llm.step_models import for_contract, model_identity
     client = for_contract(client, output_model)
     model = model_identity(client)

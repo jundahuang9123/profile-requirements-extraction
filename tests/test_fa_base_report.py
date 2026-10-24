@@ -184,3 +184,41 @@ def test_report_lists_the_needs_kept_against_a_first_failed_record_test(tmp_path
     # A missing second judgement: the first judgement's own rationale, and why the second is missing, apart.
     assert ('- Users can know the typed relations of a resource. — second judgement: not_checked; record now: none; '
             'first: not_catalogue_level; A modelling concept.; second missing: Row missing or invalid.') in disputed
+
+
+def test_report_lists_the_needs_kept_against_a_first_failed_fa_test(tmp_path, monkeypatch):
+    # rq1-profile-scope-v9: an F/A failure counts only when the need, judged again alone, fails too.
+    path = Path(__file__).resolve().parents[1] / 'scripts' / 'fa_base_report.py'
+    spec = importlib.util.spec_from_file_location('fa_base_report', path)
+    report = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(report)
+    release = 'Users can know release date for a Catalog'
+    first = {'serves': 'neither', 'support': 'explicit', 'rationale': 'In a batch.'}
+    run = {'run_id': 'report-test', 'status': 'awaiting_human', 'model_calls': [], 'active_revision_ids': ['revision-1'], 'metrics': {},
+           'need_steps': {'profile_scope': {'fa_confirmation_counts': {'confirmed': 1, 'disputed': 1, 'not_checked': 1}}},
+           'requirements': [{'revision_id': 'revision-1', 'need_statement': release, 'normalized_statement': release,
+                             'processing_flags': ['fa_scope_disputed'],
+                             'fa_scope': {'serves': 'find', 'support': 'explicit', 'confirmation': {'outcome': 'disputed', 'verdict': first}}},
+                            {'revision_id': 'revision-2', 'need_statement': 'Users can know that DCAT is a W3C Recommendation.',
+                             'normalized_statement': 'Users can know that DCAT is a W3C Recommendation.'},
+                            {'revision_id': 'revision-3', 'need_statement': 'Users can know the units of the measured values.',
+                             'normalized_statement': 'Users can know the units of the measured values.',
+                             'processing_flags': ['fa_scope_disputed', 'fa_scope_review_required'],
+                             'fa_scope': {'serves': 'neither', 'support': 'explicit', 'rationale': 'In a batch.',
+                                          'confirmation': {'outcome': 'not_checked', 'first_serves': 'neither', 'first_support': 'explicit',
+                                                           'reason': 'Row missing or invalid.'}}}],
+           'set_aside_observations': [
+               {'revision_id': 'revision-2', 'need_id': 'need-2', 'reason': 'fa_scope_set_aside', 'rationale': 'About the document.',
+                'details': {'fa_scope': {'serves': 'neither', 'support': 'explicit', 'confirmation': {'outcome': 'confirmed', 'verdict': first}}}}],
+           'deliberations': []}
+    monkeypatch.setattr(report, 'get', lambda url: run if url.endswith('?audit=true') else {'counts': {}})
+    monkeypatch.setattr(sys, 'argv', ['fa_base_report.py', '--api', 'http://local-test', '--run', 'report-test', '--out', str(tmp_path)])
+    report.main()
+    markdown = (tmp_path / 'base-review.md').read_text()
+    asides = markdown.split('## Scope contract v1: set aside by the F/A test at normalisation')[1].split('\n## ')[0]
+    assert '- Users can know that DCAT is a W3C Recommendation. — serves neither, support explicit (failed again alone); About the document.' in asides
+    disputed = markdown.split('## Scope contract v1: kept against a first failed F/A test (fa_scope_disputed)')[1].split('\n## ')[0]
+    assert "2 need revisions (1 active); second judgements by outcome at normalisation: {'confirmed': 1, 'disputed': 1, 'not_checked': 1}." in disputed
+    assert f'- {release} — second judgement: disputed; serves now: find; first: serves neither, support explicit; In a batch.' in disputed
+    assert ('- Users can know the units of the measured values. — second judgement: not_checked; serves now: neither; '
+            'first: serves neither, support explicit; In a batch.; second missing: Row missing or invalid.') in disputed

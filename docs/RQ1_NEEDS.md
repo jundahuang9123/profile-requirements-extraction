@@ -371,7 +371,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Dataset categories | `rq1-dataset-categories-v1` | Up to 12 evidence rows / 22,000 input characters; exact source citations; partial scans explicit |
 | Compact selection | `rq1-compact-coverage-v1` | Up to 20 needs / 22,000 input characters per equivalence call; bounded exact cover; all retained needs preserved |
 | Base-gap status | `rq1-base-gap-status-v1` | Deterministic; from the classification and the number of entries compared |
-| Profile scope (D5) | `rq1-profile-scope-v8` (named catalogue record; in F/A runs also after the F/A test; a failure is judged again alone) | Up to 25 needs / 24,000 input characters; statement, condition, scope, supporting excerpts and source-linked dataset categories; one verdict per offered need ID; an example is required unless serves is neither |
+| Profile scope (D5) | `rq1-profile-scope-v9` (named catalogue record; in F/A runs also after the F/A test; a failure of either test is judged again alone) | Up to 25 needs / 24,000 input characters; statement, condition, scope, supporting excerpts and source-linked dataset categories; one verdict per offered need ID; an example is required unless serves is neither |
 | Contribution linking | `rq1-use-case-contribution-v1` | Up to 25 needs / 24,000 input characters; at most 32 task links per response row; necessity as an annotation |
 | Link critic | `rq1-use-case-contribution-critic-v1` | Up to 25 links / 24,000 input characters; judges contribution only |
 | Need assessment | `rq1-need-support-v1` | One logical assessment per kept need; complete selected excerpts, max 45,000 input characters; at most two generations for schema/cutoff recovery |
@@ -697,6 +697,35 @@ one call, plus at most one correction (21 failures in the JRC run). Passing need
 not judged again; the F/A test is unchanged. As before, a run whose needs policies
 name v6 or v7 is refused at normalisation (derive a trial); continued at apply in
 the discussion, it keeps one judgement and its own policy label.
+
+`rq1-profile-scope-v9` applies the same rule to the F/A test (Junda, 24 October). Its
+texts and frozen contract are unchanged. Between two v8 runs of the same input, the
+F/A test's set-asides on needs both runs judged differed in almost every case (JRC 3
+of 4, Stat 4 of 4; under v13: 4 of 4 and 6 of 6). In Stat `run-ec6d1c79`, 8 of its 11
+F/A set-asides came from one batch of 8 in which every row came back "serves
+neither", "Users can know release date for a Catalog" among them. In Stat
+`run-0440c1b9` it set aside the units of the measured values as serving neither,
+while its rationale said the source supports them.
+
+Since v9, wherever the F/A test runs (normalisation in F/A runs, and at apply in the
+discussion):
+- A need that fails (serves neither, or unsupported) is judged again alone with the
+  same prompt, under its own cache step (`fa_scope_confirmation`; the calls appear in
+  `model_calls` under `profile_scope`).
+- Both fail: the need is set aside (at apply: the change is blocked) with the first
+  judgement; `fa_scope.confirmation` holds the second (outcome `confirmed`).
+- They disagree: the need stays with the second judgement as `fa_scope`, flagged
+  `fa_scope_disputed`; `fa_scope.confirmation` holds the first (outcome `disputed`).
+  The record test then judges it as any other kept need.
+- The second judgement is missing: the need stays with the first judgement, flagged
+  `fa_scope_disputed` and `fa_scope_review_required`, with outcome `not_checked`
+  (`first_serves`, `first_support` and the reason).
+- The step records count the second judgements by outcome (`fa_scope`:
+  `confirmation_counts`; `profile_scope`: `fa_confirmation_counts`).
+
+Each F/A failure costs one call, plus at most one correction. Passing needs are not
+judged again. A run whose needs policies name v8 keeps one F/A judgement when it is
+continued at apply; at normalisation it is refused, as before.
 
 The base search (`rq1-base-needs-full-search-v3`) changes in three ways:
 
