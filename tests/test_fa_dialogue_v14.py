@@ -49,6 +49,17 @@ def test_a_requirement_id_outside_the_case_or_shared_by_two_of_its_needs_is_not_
     assert fd.repair_review(review([r2]),narrowed,None)==(review([r2]),[])
 
 
+def test_a_claim_naming_a_need_by_its_requirement_id_gets_that_need(setup):
+    # In the budget-stopped cases, most first reviews named the need by its requirement ID in a claim as well.
+    case,(n1,n2),_,_=built(setup);r1,r2=requirement_ids(case)
+    answer=fd.ExperienceReview(summary='s',concerns=[{'revision_ids':[r1],'kind':'scope','statement':'Missing.'}],
+        experience=[{'kind':'drop','revision_ids':[r2],'task':'t','experience':'e','claim':'c'}])
+    fixed,repairs=fd.repair_review(answer,case,None)
+    assert isinstance(fixed,fd.ExperienceReview) and fixed.concerns[0].revision_ids==[n1] and fixed.experience[0].revision_ids==[n2]
+    assert repairs==[{'kind':'concern_need_from_requirement_id','concern_index':0,'from':r1,'to':[n1]},
+        {'kind':'experience_need_from_requirement_id','experience_index':0,'from':r2,'to':[n2]}]
+
+
 class NamesRequirementId(Mediator):
     """In its first review, the first concern names the first need by its requirement ID, the ID the packet shows
     beside the alias N1."""

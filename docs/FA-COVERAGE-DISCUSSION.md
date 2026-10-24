@@ -887,8 +887,10 @@ gets a correction call for that alone.
 The calls of the 8 cases that stopped for budget in the v8 and v13 runs (Stat
 `run-b99eecd5` 4, `run-0440c1b9` 2, JRC `run-4563163a` 1, Stat `run-e6d61e61` 1)
 were traced phase by phase, and the count was checked independently. All 8 are one-need cases
-with four roles. Such a case makes at least 11 calls (8 reviews, the draft and
-final plans, the check), so 16 leave 5 for corrections. These cases needed 6 or
+with four roles, and in each every role was asked to respond, so each makes at
+least 11 calls (4 reviews, the draft, 4 responses, the final plan, the check) and
+16 leave 5 for corrections. (A case in which no role is asked to respond makes 6:
+the final plan is then the draft.) These cases needed 6 or
 7, and the check got no call in any of them. Output tokens and time were never
 the limit.
 - **Reviews: 32 corrections.**
