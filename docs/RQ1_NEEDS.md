@@ -362,7 +362,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Fresh need extraction | `rq1-independent-elicitation-v3.3` | Selected role descriptions exclude discovery citations and merge history; no `extension_kind` or `base_property` in the needs provider contract |
 | Normalization | `rq1-need-normalization-v1` | Uncited and base-only filtering; historical extraction annotations remain readable |
 | Source check | `rq1-original-source-v2.2` | Deterministic; every cited link checked |
-| Proposal support | `rq1-proposal-support-v1` | At most 25 proposals / 24,000 input characters; only own excerpt IDs allowed |
+| Proposal support | `rq1-proposal-support-v2` (a rejection is judged again alone) | At most 25 proposals / 24,000 input characters; only own excerpt IDs allowed |
 | Grouping | `rq1-semantic-consolidation-v3` | 40 candidates, 24,000 input characters, at most 25 prior offered groups; audited exact fallback for invalid model grouping |
 | Need writing / rewrite critic | `rq1-need-statement-v3` | At most 20 groups; 24,000 writer input characters; independent critic up to 48,000 characters; initial response plus one output correction; a failed rewrite is retried member by member, a single need keeps its statement |
 | Additional member checking | `rq1-need-membership-v1` | Large groups use a bounded writing basis (up to 20 members / 16,000 statement characters); every remaining member checked in batches up to 40 / 24,000 characters |
@@ -398,6 +398,32 @@ provider failures stop the stage visibly. The chunk records `transport_failed`,
 the error class and requested IDs, without consuming an attempt or creating
 fallbacks. Resume retries unfinished rows and preserves previously accepted rows.
 Historical v1 runs retain their frozen conditions; use a derived trial to apply v2.
+
+`rq1-proposal-support-v2` (Junda, 24 October, decision 7 A) treats a rejection of the
+proposal-support check as v8 and v9 treat a failed scope test. The check was repeated on the saved
+inputs of five runs (JRC `run-9f5519c8`, `run-b8286b8f`, `run-4563163a`; Stat `run-b99eecd5`,
+`run-0440c1b9`; 85 to 91 proposals each), each proposal three times in the run's batches, in
+shuffled batches and alone:
+- in batches, it rejected 0 to 4 proposals per repeat, and two repeats differed on 0.7 to 2.7;
+- confirming a rejection alone left 0 to 2, differing on 0 to 2.0;
+- judged alone only, it rejected 7 to 17 per repeat: it is stricter alone, mostly where a quote
+  does not state the information (a bare label such as "Creator", or a quote that ends at the
+  header of the property it is about).
+
+Since v2:
+- A proposal rejected in its batch is judged again alone with the same prompt and contract,
+  under its own cache step (`proposal_support_confirmation`).
+- Both reject it: it is set aside (`not_supported_by_quote`) with the first judgement;
+  `proposal_support.confirmation` holds the second (outcome `confirmed`).
+- They disagree: it stays with the second judgement and its selected quotes, flagged
+  `proposal_support_disputed`; `confirmation` holds the first (outcome `disputed`).
+- The second judgement is missing: it stays as for a missing first judgement (support
+  `not_checked`, flagged `support_not_checked`, all authentic quotes kept), with outcome
+  `not_checked` and the first judgement.
+- The step record counts the second judgements by outcome (`confirmation_counts`).
+
+Each rejection costs one call, plus at most one correction. A run whose needs policies name v1
+is refused at normalisation (derive a trial).
 
 | Exhausted row | Visible fallback |
 |---|---|
