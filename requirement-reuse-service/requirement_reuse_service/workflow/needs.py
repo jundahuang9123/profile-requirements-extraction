@@ -24,7 +24,7 @@ EARLIER_ROUTING_POLICIES = ('rq1-needs-routing-v2',)
 POLICIES = {'generation_recovery': 'rq1-needs-row-recovery-v2', 'source_check': 'rq1-original-source-v2.2', 'proposal_support': 'rq1-proposal-support-v1', 'grouping': 'rq1-need-semantic-grouping-v2',
             'need_statement': 'rq1-need-statement-v3', 'need_membership': 'rq1-need-membership-v1',
             'classification': 'rq1-generic-domain-v4', 'base_search': 'rq1-base-needs-full-search-v3', 'base_gap': 'rq1-base-gap-status-v2',
-            'profile_scope': 'rq1-profile-scope-v8', 'dataset_applicability': 'rq1-dataset-applicability-v2', 'dataset_categories': CATEGORY_POLICY, 'selection': SELECTION_POLICY,
+            'profile_scope': 'rq1-profile-scope-v9', 'dataset_applicability': 'rq1-dataset-applicability-v2', 'dataset_categories': CATEGORY_POLICY, 'selection': SELECTION_POLICY,
             'scoping': 'rq1-use-case-contribution-v1',
             'scope_critic': 'rq1-use-case-contribution-critic-v1', 'assessment': 'rq1-need-support-v1', 'ranking': 'rq1-need-ranking-v1',
             'families': 'rq1-need-families-v2', 'routing': ROUTING_POLICY}
@@ -1021,7 +1021,7 @@ def judge_applicability(store, run, needs, client, registry):
 # profile_scope_disputed. In JRC run-ea22d18c the test set aside 21 of 72 needs in batches of up to 25; judged
 # alone, two of them passed 3 of 3 (permissible uses of the data; typed relationships to related objects), and
 # both had shared a batch of 12 with 7 policy statements. Runs under an earlier policy keep one judgement.
-CONFIRMING_SCOPE_POLICIES = frozenset({'rq1-profile-scope-v8'})
+CONFIRMING_SCOPE_POLICIES = frozenset({'rq1-profile-scope-v8', 'rq1-profile-scope-v9'})
 
 
 def scope_confirmation_flags(profile_scope):
@@ -1107,7 +1107,7 @@ def record_scope_verdicts(store, run, needs, client):
 
 
 def judge_profile_scope(store, run, needs, client, registry=None):
-    from .fa_requirements import enabled as fa_enabled, judge_scope, POLICY as FA_POLICY
+    from .fa_requirements import enabled as fa_enabled, judge_scope, fa_confirmation_counts, POLICY as FA_POLICY
     if fa_enabled(run):
         kept=judge_scope(store, run, needs, client)
         # Scope contract v1 (rq1-profile-scope-v7, Junda, 23 Oct): the F/A test sets a need aside only when
@@ -1142,8 +1142,10 @@ def judge_profile_scope(store, run, needs, client, registry=None):
             set_aside_count=len(needs)-len(retained),fa_set_aside_count=len(needs)-len(kept),record_set_aside_count=len(kept)-len(retained),
             set_aside_by_reason=dict(reasons),not_checked_ids=unchecked,
             decisions=[n.fa_scope for n in needs],record_decisions=decisions,**confirmation_counts(kept),
+            fa_confirmation_counts=fa_confirmation_counts([n.fa_scope for n in needs]),
             rule='Scope contract v1: a need stays only when the F/A test and the catalogue-record test both pass; '
-                 'a record-test failure counts only when the need, judged again alone, fails too (rq1-profile-scope-v8); '
+                 'a record-test failure counts only when the need, judged again alone, fails too (rq1-profile-scope-v8), '
+                 'and so does an F/A failure (rq1-profile-scope-v9, flag fa_scope_disputed); '
                  'when the two disagree, or the second judgement is missing, the need stays, flagged profile_scope_disputed; '
                  'a missing judgement keeps the need, flagged. F/A axes are independent of category applicability; '
                  'uncertain rows remain visible.')

@@ -53,17 +53,32 @@ class FAScopeDecision(Contract):
 class FAScopeResult(Contract):
     decisions: list[FAScopeDecision] = Field(max_length=25)
 
+# rq1-profile-scope-v9 (Junda, 24 Oct): a failed F/A test is confirmed by a second judgement of the need alone before
+# the need is set aside or blocks a change; when the two disagree the need stays, flagged fa_scope_disputed. Between
+# two v8 runs of the same version almost every F/A set-aside differed (JRC 3 of 4, Stat 4 of 4); in one Stat run 8 of
+# its 11 came from one batch of 8 in which every row was judged to serve neither. The texts and contract() are
+# unchanged; runs under an earlier needs policy keep one judgement.
+CONFIRMING_FA_POLICIES = frozenset({'rq1-profile-scope-v9'})
+
+
+def fa_confirmation_flags(fa_scope):
+    """The flag a need kept against a failed first F/A judgement carries (rq1-profile-scope-v9)."""
+    return ['fa_scope_disputed'] if ((fa_scope or {}).get('confirmation') or {}).get('outcome') in {'disputed', 'not_checked'} else []
+
+
 def scope_verdicts(store,run,needs,client):
     """The F/A test for each need, without setting any aside: {requirement_id: (fa_scope, fails, review)}.
 
     fails is the set-aside rule (a checked serves neither or support unsupported); review is the
-    flag a kept need gets when its judgement is missing or not a definite information requirement."""
-    from .needs import bounded_batches,cached_generation,supporting_excerpts
+    flag a kept need gets when its judgement is missing or not a definite information requirement.
+    Under rq1-profile-scope-v9 a failure counts only when the need, judged again alone, fails too;
+    fa_scope['confirmation'] keeps the other judgement and its outcome."""
+    from .needs import bounded_batches,cached_generation,supporting_excerpts,POLICIES
     verdicts={}
     def payload_for(batch):
         return {'policy':POLICY,'needs':{n.requirement_id:{'statement':n.need_statement,
             'condition':n.need_condition,'excerpts':supporting_excerpts(store,n)} for n in batch}}
-    for batch in bounded_batches(needs,20,payload_for):
+    def judged(batch,step,key_policy=None):
         payload=payload_for(batch)
         allowed={n.requirement_id:{l.evidence_id for l in n.evidence_links} for n in batch}
         def validate(answer):
@@ -74,9 +89,10 @@ def scope_verdicts(store,run,needs,client):
                 if d.serves in {'find','access','both'} and (not d.actor.strip() or not d.task.strip() or not d.example.strip() or not d.evidence_ids):
                     errors.append(d.need_id+': relevance requires source-grounded actor, task, example and evidence')
             return errors
-        result=cached_generation(store,run,'profile_scope',payload,FAScopeResult,SCOPE_SYSTEM,client,validate)
+        result=cached_generation(store,run,step,payload,FAScopeResult,SCOPE_SYSTEM,client,validate,key_policy)
         by_id={d.need_id:d for d in result.decisions}
         fallbacks=getattr(result,'_fallbacks',{})
+        found={}
         for n in batch:
             decision=by_id.get(n.requirement_id)
             checked=decision is not None and n.requirement_id not in fallbacks
@@ -84,8 +100,40 @@ def scope_verdicts(store,run,needs,client):
             fa_scope={'policy_version':POLICY,'status':'checked' if checked else 'not_checked',**data}
             fails=checked and (data['serves']=='neither' or data['support']=='unsupported')
             review=not checked or data['serves']=='unresolved' or data['support'] in {'uncertain','disputed'} or data['nature']!='information_requirement'
-            verdicts[n.requirement_id]=(fa_scope,fails,review)
+            found[n.requirement_id]=(fa_scope,fails,review)
+        return found
+    for batch in bounded_batches(needs,20,payload_for):
+        verdicts.update(judged(batch,'profile_scope'))
+    # A run records its needs policies when created; one that names none follows this code.
+    policy=(run.get('needs_policies') or {}).get('profile_scope') or POLICIES['profile_scope']
+    if policy not in CONFIRMING_FA_POLICIES:
+        return verdicts
+    for n in needs:
+        fa_scope,fails,review=verdicts[n.requirement_id]
+        if not fails:
+            continue
+        # Its own cache step: a need first judged alone (a change writing one need) would otherwise get its first
+        # judgement back instead of a second one.
+        second,second_fails,second_review=judged([n],'fa_scope_confirmation',policy)[n.requirement_id]
+        first={k:v for k,v in fa_scope.items() if k!='confirmation'}
+        if second['status']!='checked':
+            # As for a missing judgement: the need stays, flagged for review.
+            verdicts[n.requirement_id]=({**first,'confirmation':{'outcome':'not_checked','first_serves':first.get('serves'),
+                'first_support':first.get('support'),'reason':second.get('rationale','')}},False,True)
+        elif second_fails:
+            verdicts[n.requirement_id]=({**first,'confirmation':{'outcome':'confirmed','verdict':second}},True,review)
+        else:
+            verdicts[n.requirement_id]=({**second,'confirmation':{'outcome':'disputed','verdict':first}},False,second_review)
     return verdicts
+
+
+def fa_confirmation_counts(fa_scopes):
+    """The step record of the second F/A judgements (rq1-profile-scope-v9), by outcome."""
+    counts={}
+    for scope in fa_scopes:
+        outcome=((scope or {}).get('confirmation') or {}).get('outcome')
+        if outcome:counts[outcome]=counts.get(outcome,0)+1
+    return dict(sorted(counts.items()))
 
 def judge_scope(store,run,needs,client):
     from .needs import refresh_need,aside_need
@@ -94,6 +142,7 @@ def judge_scope(store,run,needs,client):
     for n in needs:
         n.fa_scope,definite,review=verdicts[n.requirement_id]
         data=n.fa_scope
+        n.processing_flags=list(dict.fromkeys([*n.processing_flags,*fa_confirmation_flags(n.fa_scope)]))
         # Keep the existing display axis separate from category applicability.
         n.profile_scope={**n.fa_scope,'scope_class':'review','failed_tests':[]}
         decisions.append(deepcopy(n.fa_scope))
@@ -106,7 +155,7 @@ def judge_scope(store,run,needs,client):
             refresh_need(n);retained.append(n)
     from .stakeholder_workflow import save
     save(store,run['run_id'],'fa_scope',{'policy_version':POLICY,'decisions':decisions,
-        'retained':len(retained),'set_aside':len(needs)-len(retained)})
+        'retained':len(retained),'set_aside':len(needs)-len(retained),'confirmation_counts':fa_confirmation_counts(decisions)})
     return retained
 
 def coverage_ledger(run):
