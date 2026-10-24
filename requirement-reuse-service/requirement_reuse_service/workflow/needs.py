@@ -1144,9 +1144,10 @@ def judge_profile_scope(store, run, needs, client, registry=None):
             decisions=[n.fa_scope for n in needs],record_decisions=decisions,**confirmation_counts(kept),
             fa_confirmation_counts=fa_confirmation_counts([n.fa_scope for n in needs]),
             rule='Scope contract v1: a need stays only when the F/A test and the catalogue-record test both pass; '
-                 'a record-test failure counts only when the need, judged again alone, fails too (rq1-profile-scope-v8), '
-                 'and so does an F/A failure (rq1-profile-scope-v9, flag fa_scope_disputed); '
+                 'a record-test failure counts only when the need, judged again alone, fails too (rq1-profile-scope-v8); '
                  'when the two disagree, or the second judgement is missing, the need stays, flagged profile_scope_disputed; '
+                 'an F/A failure counts the same way (rq1-profile-scope-v9): the need stays, flagged fa_scope_disputed, '
+                 'and also fa_scope_review_required when the second judgement is missing; '
                  'a missing judgement keeps the need, flagged. F/A axes are independent of category applicability; '
                  'uncertain rows remain visible.')
         return retained

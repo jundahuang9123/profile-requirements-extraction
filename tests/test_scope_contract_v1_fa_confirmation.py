@@ -56,7 +56,10 @@ def test_an_fa_failure_that_passes_alone_keeps_the_need_flagged(needs_setup):
     kept = {n.requirement_id: n for n in retained}
     # The record test still judges what the F/A test keeps; DOCUMENT failed both F/A judgements.
     assert sorted(kept) == ['need-dimensions', 'need-release']
+    assert [sorted(d['needs']) for name, d in client.calls if name == 'ProfileScope'] == [['need-dimensions', 'need-release']]
     release = kept['need-release']
+    assert release.profile_scope['status'] == 'checked' and release.profile_scope['record_resource'] == 'dataset'
+    assert 'profile_scope_not_checked' not in release.processing_flags
     assert 'fa_scope_disputed' in release.processing_flags
     assert release.fa_scope['serves'] == 'find' and release.fa_scope['rationale'] == 'Alone.'
     assert release.fa_scope['confirmation']['outcome'] == 'disputed'
@@ -79,6 +82,8 @@ def test_a_need_first_judged_alone_by_the_fa_test_is_judged_again(needs_setup):
     # One need is a batch of one: the second judgement has its own cache step, or it would be the first one again.
     statements = {'need-release': RELEASE}
     store, run, _, made = variants(needs_setup, statements)
+    # A real run names its needs policies from creation, so both judgements carry the same policy in their keys.
+    store.mutate(run['run_id'], None, 'fixture_policies', lambda r: r.update(needs_policies=dict(needs.POLICIES)))
     run = fa_run(store, run)
     class FirstFails(FAInContext):
         def generate_structured(self, **kwargs):
@@ -94,6 +99,8 @@ def test_a_need_first_judged_alone_by_the_fa_test_is_judged_again(needs_setup):
     assert [n.requirement_id for n in retained] == ['need-release']
     assert retained[0].fa_scope['confirmation']['outcome'] == 'disputed'
     assert fa_calls(client) == [['need-release'], ['need-release']]
+    steps = {chunk.get('step') for chunk in store.get_run(run['run_id'])['need_chunks'].values() if isinstance(chunk, dict)}
+    assert 'fa_scope_confirmation' in steps
 
 
 def test_a_missing_second_fa_judgement_keeps_the_need_for_review(needs_setup):
@@ -107,12 +114,40 @@ def test_a_missing_second_fa_judgement_keeps_the_need_for_review(needs_setup):
     assert {'fa_scope_disputed', 'fa_scope_review_required'} <= set(release.processing_flags)
     confirmation = release.fa_scope['confirmation']
     assert confirmation['outcome'] == 'not_checked' and confirmation['first_serves'] == 'neither'
+    # Why the second judgement is missing, not the fallback row's stock rationale.
+    assert confirmation['reason'] == 'Row missing or invalid.'
     assert store.get('run', run['run_id'])['need_steps']['profile_scope']['fa_confirmation_counts'] == {'not_checked': 1}
     # Asked alone twice (the correction), then kept.
     assert fa_calls(client) == [sorted(statements), ['need-release'], ['need-release']]
 
 
 # At apply (rq1-fa-dialogue-v13): a need a change writes is judged in a batch of the change's needs.
+class FAFailsAlways(Scoped):
+    """The F/A test fails DOCUMENT every time it is asked."""
+    def generate_structured(self, *, user, output_model, system='', step=None, **kw):
+        if output_model.__name__ == 'FAScopeResult':
+            data = json.loads(user); self.scope_calls.append((step, 'FAScopeResult', [r['statement'] for r in data['needs'].values()]))
+            rows = fa_rows(data)['decisions']
+            for row in rows:
+                if data['needs'][row['need_id']]['statement'] == DOCUMENT:
+                    row.update(NEITHER)
+            return output_model.model_validate({'decisions': rows})
+        return super().generate_structured(user=user, output_model=output_model, system=system, step=step, **kw)
+
+
+def test_a_need_the_discussion_writes_that_fails_the_fa_test_twice_blocks_the_change(setup):
+    store, run = opted_in(setup)
+    client = FAFailsAlways(revise_into(DOCUMENT)); fd.deliberate(store, run['run_id'], client)
+    saved, case = sound(store, run)
+    outcome = change(case); parent, = outcome['parent_revision_ids']
+    assert outcome['status'] == 'blocked_change' and [b['test'] for b in outcome['scope_block']] == ['fa_scope_set_aside']
+    tested, = outcome['scope_tests']
+    assert tested['fa_scope']['confirmation']['outcome'] == 'confirmed' and tested['failed_tests'][0] == 'fa_scope_set_aside'
+    assert parent in saved['active_revision_ids']
+    # Both tests judge every need a change writes; DOCUMENT fails the record test too, which confirms its own failure.
+    assert [c[1] for c in client.scope_calls] == ['FAScopeResult', 'FAScopeResult', 'ProfileScope', 'ProfileScope']
+
+
 class FAFailsFirstTime(Scoped):
     """The F/A test fails RELEASE the first time it is asked and passes it after that."""
     def generate_structured(self, *, user, output_model, system='', step=None, **kw):

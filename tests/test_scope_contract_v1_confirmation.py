@@ -92,6 +92,8 @@ def test_a_need_first_judged_alone_is_judged_again(needs_setup):
     # One need is a batch of one: the second judgement has its own cache step, or it would be the first one again.
     statements = {'need-uses': USES}
     store, run, _, made = variants(needs_setup, statements)
+    # A real run names its needs policies from creation, so both judgements carry the same policy in their keys.
+    store.mutate(run['run_id'], None, 'fixture_policies', lambda r: r.update(needs_policies=dict(needs.POLICIES)))
     run = fa_run(store, run)
     class FirstFails(InContext):
         def generate_structured(self, **kwargs):

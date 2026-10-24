@@ -74,7 +74,7 @@ def scope_verdicts(store,run,needs,client):
     Under rq1-profile-scope-v9 a failure counts only when the need, judged again alone, fails too;
     fa_scope['confirmation'] keeps the other judgement and its outcome."""
     from .needs import bounded_batches,cached_generation,supporting_excerpts,POLICIES
-    verdicts={}
+    verdicts={};missing={}
     def payload_for(batch):
         return {'policy':POLICY,'needs':{n.requirement_id:{'statement':n.need_statement,
             'condition':n.need_condition,'excerpts':supporting_excerpts(store,n)} for n in batch}}
@@ -98,6 +98,8 @@ def scope_verdicts(store,run,needs,client):
             checked=decision is not None and n.requirement_id not in fallbacks
             data=decision.model_dump(mode='json') if decision else {'support':'uncertain','serves':'unresolved','nature':'uncertain','rationale':'No valid judgement returned.'}
             fa_scope={'policy_version':POLICY,'status':'checked' if checked else 'not_checked',**data}
+            # Why a judgement is missing: a fallback row only carries a stock rationale.
+            if not checked:missing[n.requirement_id]=fallbacks.get(n.requirement_id,{}).get('reason','No judgement returned.')
             fails=checked and (data['serves']=='neither' or data['support']=='unsupported')
             review=not checked or data['serves']=='unresolved' or data['support'] in {'uncertain','disputed'} or data['nature']!='information_requirement'
             found[n.requirement_id]=(fa_scope,fails,review)
@@ -119,7 +121,7 @@ def scope_verdicts(store,run,needs,client):
         if second['status']!='checked':
             # As for a missing judgement: the need stays, flagged for review.
             verdicts[n.requirement_id]=({**first,'confirmation':{'outcome':'not_checked','first_serves':first.get('serves'),
-                'first_support':first.get('support'),'reason':second.get('rationale','')}},False,True)
+                'first_support':first.get('support'),'reason':missing[n.requirement_id]}},False,True)
         elif second_fails:
             verdicts[n.requirement_id]=({**first,'confirmation':{'outcome':'confirmed','verdict':second}},True,review)
         else:
