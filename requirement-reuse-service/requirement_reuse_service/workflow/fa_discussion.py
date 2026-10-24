@@ -35,12 +35,13 @@ POLICY='rq1-fa-dialogue-v1'
 # which no need has a valid disposition: every need gets the system deferral, and the actions
 # dropped from the applied plan go to a person (see salvage_plan). v13 (23 Oct) ignores a check of an
 # ID that is not an action of the plan, as long as every action has exactly one check (see
-# check_errors). A discussion planned under an earlier version cannot continue; derive a separate
-# base-review trial.
-BASE_POLICY='rq1-fa-dialogue-v13'
+# check_errors). v14 (24 Oct) maps a need a stakeholder review names by its requirement ID to that need,
+# in either round, as an audited repair (see repair_review). A discussion planned under an earlier
+# version cannot continue; derive a separate base-review trial.
+BASE_POLICY='rq1-fa-dialogue-v14'
 BASE_POLICIES={'rq1-fa-dialogue-v2','rq1-fa-dialogue-v3','rq1-fa-dialogue-v4','rq1-fa-dialogue-v5','rq1-fa-dialogue-v6',
     'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8','rq1-fa-dialogue-v9','rq1-fa-dialogue-v10','rq1-fa-dialogue-v11',
-    'rq1-fa-dialogue-v12',BASE_POLICY}
+    'rq1-fa-dialogue-v12','rq1-fa-dialogue-v13',BASE_POLICY}
 # v11: how a quotation that is not exact text of its source unit is found (see folded_span).
 QUOTE_MATCH_POLICY='rq1-fa-quote-match-v1'
 SALVAGE_POLICY='rq1-fa-salvage-v2'
@@ -611,7 +612,7 @@ def plan_errors(plan,case,messages,allowed):
         # its own: 5 of the 6 invalid drafts in JRC run-a89957db failed on that alone, with
         # sourced children.
         own=a.action=='recover' or (a.action=='split' and case.get('policy_version') not in {'rq1-fa-dialogue-v7','rq1-fa-dialogue-v8',
-            'rq1-fa-dialogue-v9','rq1-fa-dialogue-v10','rq1-fa-dialogue-v11','rq1-fa-dialogue-v12',BASE_POLICY})
+            'rq1-fa-dialogue-v9','rq1-fa-dialogue-v10','rq1-fa-dialogue-v11','rq1-fa-dialogue-v12','rq1-fa-dialogue-v13',BASE_POLICY})
         if own and (not a.statement.strip() or not a.evidence_links):
             errors.append('Recovery/split requires source-supported statement and links.')
         if a.action=='split' and len(a.children)<2: errors.append('Split requires at least two supported children.')
@@ -952,10 +953,20 @@ def repair_review(answer,case,draft):
     names. An ID the model invented ("N4" in a one-need case, "M1") is never guessed.
     v6 experience claims name needs the same way and are mapped by the same rule, and a v6
     draft's proposal ("P1") maps to the closest needs it names, when it names any.
+
+    v14: a need named by its requirement ID ("req-…") maps to that need, in either round. The packet
+    shows each need's requirement_id beside its alias N1, and roles copy it. In the 8 cases of the v8
+    and v13 runs that stopped for budget (one need, four roles), 13 of the 32 stakeholder-review
+    corrections were for this alone, all in the first round. A requirement ID that two needs of
+    the case share is not mapped.
     """
     data=answer.model_dump(mode='json');repairs=[]
     # The needs the validator accepts (stakeholder_review_errors).
     needs=set(case['revision_ids'])
+    owners={}
+    for r in case.get('frozen_requirements',[]):
+        if r.get('revision_id') in needs and r.get('requirement_id'):owners.setdefault(r['requirement_id'],set()).add(r['revision_id'])
+    internal={req:sorted(revs) for req,revs in owners.items() if len(revs)==1}
     targets={}
     for key,field,rows in (('action_id','parent_revision_ids',(draft or {}).get('actions',[])),
                            ('question_id','revision_ids',(draft or {}).get('questions',[])),
@@ -969,7 +980,7 @@ def repair_review(answer,case,draft):
         for i,item in enumerate(items):
             linked=[];mapped=[]
             for rid in item['revision_ids']:
-                to=targets.get(rid) if rid not in needs else None
+                to=(targets.get(rid) or internal.get(rid)) if rid not in needs else None
                 if to and set(to)<=needs:
                     # As in repair_plan: deduplicate only what the mapping adds.
                     linked+=[p for p in to if rid in mapped or (p not in linked and p not in item['revision_ids'])]
@@ -977,7 +988,8 @@ def repair_review(answer,case,draft):
                 else:linked.append(rid)
             if mapped and len(linked)<=4:
                 item['revision_ids']=linked
-                repairs.extend({'kind':kind,index:i,'from':rid,'to':list(targets[rid])} for rid in dict.fromkeys(mapped))
+                repairs.extend({'kind':kind if targets.get(rid) else kind.replace('_from_draft','_from_requirement_id'),index:i,'from':rid,
+                    'to':list(targets.get(rid) or internal[rid])} for rid in dict.fromkeys(mapped))
     return type(answer).model_validate(data),repairs
 
 
@@ -1490,9 +1502,10 @@ def execute_case(store,run_id,case_id,client,roles):
                 # Audited bookkeeping repairs; the model's own plan is kept beside the repaired one.
                 raw=answer.model_dump(mode='json');answer,repairs=repair_plan(answer,case,payload.get('messages',[]))
                 if repairs:attempt.update(model_output=raw,repairs=repairs)
-            elif policy==BASE_POLICY and step=='stakeholder_review' and payload.get('draft'):
-                # A response may name the draft's action or question where a need belongs.
-                raw=answer.model_dump(mode='json');answer,repairs=repair_review(answer,case,payload['draft'])
+            elif policy==BASE_POLICY and step=='stakeholder_review':
+                # A response may name the draft's action or question where a need belongs; v14: a review in
+                # either round may name a need by its requirement ID.
+                raw=answer.model_dump(mode='json');answer,repairs=repair_review(answer,case,payload.get('draft'))
                 if repairs:attempt.update(model_output=raw,repairs=repairs)
             errors=validate(answer) if validate else []
             if errors and v6 and step=='stakeholder_review' and len(saved['attempts'])==1:

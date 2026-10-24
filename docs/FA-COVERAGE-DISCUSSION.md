@@ -877,6 +877,54 @@ test, and the changes the scope tests blocked at apply, each counted apart
 from the other set-asides and blocks. The model's judgement shows only live; the
 tests use scripted answers.
 
+### Requirement IDs in stakeholder reviews (v14)
+
+A stakeholder review sees each need of its case as an alias (N1, N2, …), and the
+validator accepts only those. The packet also shows each need's `requirement_id`
+("req-…") without an alias, and roles copy it into `revision_ids`. The review then
+gets a correction call for that alone.
+
+The calls of the 8 cases that stopped for budget in the v8 and v13 runs (Stat
+`run-b99eecd5` 4, `run-0440c1b9` 2, JRC `run-4563163a` 1, Stat `run-e6d61e61` 1)
+were traced phase by phase, and the count was checked independently. All 8 are one-need cases
+with four roles, and in each every role was asked to respond, so each makes at
+least 11 calls (4 reviews, the draft, 4 responses, the final plan, the check) and
+16 leave 5 for corrections. (A case in which no role is asked to respond makes 6:
+the final plan is then the draft.) These cases needed 6 or
+7, and the check got no call in any of them. Output tokens and time were never
+the limit.
+- **Reviews: 32 corrections.**
+  - 13: the need named by its requirement ID and nothing else; 3 more beside a
+    concern kind that does not exist. All 16 were in the first round.
+  - 11: only a concern kind that does not exist: `missing_need` 4, `obligation` 3,
+    `atomicity` 3, `review` 1. The last three are the criterion and severity
+    labels of the need's quality findings in the packet.
+  - 4: a response naming a split's new need from the draft (A1.1) or an invented
+    need (N2).
+  - 1: an extra field.
+- **Mediator plans: 17 corrections.**
+  - 10 to plan rules, 8 of them with an experience claim left undecided.
+  - 7 to the format: `experience_ids` on a split's new needs (4, each while
+    correcting an undecided claim), too many new needs in one split (2), an empty
+    rationale (1).
+- In all 511 cases of these 8 runs, 50 review corrections were for the
+  requirement ID alone.
+
+`rq1-fa-dialogue-v14` maps a need named by its requirement ID to that need, in
+either round, as `repair_review` maps a draft's action or question in a response.
+The attempt keeps the model's answer (`model_output`) and lists the
+`concern_need_from_requirement_id` or `experience_need_from_requirement_id`
+repairs. A requirement ID that two needs of the case share, or that is not the ID
+of a need of the case, is not mapped, and the correction runs as before. The
+packet, its aliases and the phase checkpoints are unchanged.
+
+In the 8 cases, the freed calls would have reached the check in 3 (one call short;
+4 freed in two of them, 2 in the third) and possibly in a fourth (2 freed, 2
+short). Finishing also takes the apply-time assessment calls, which share the 16.
+The other 4 cases were short for other reasons: concern kinds and plan
+corrections. A discussion planned under v13 cannot continue under v14. The
+model's habit shows only live; the tests use scripted answers.
+
 ### Answer habits
 
 Unit tests with ideal scripted answers did not show what a change does to the

@@ -17,7 +17,7 @@ def refused(missing=(),repeated=(),unknown=()):
 
 
 def test_policy_names():
-    assert fd.BASE_POLICY=='rq1-fa-dialogue-v13' and fd.POLICY=='rq1-fa-dialogue-v1'
+    assert 'rq1-fa-dialogue-v13' in fd.BASE_POLICIES and fd.POLICY=='rq1-fa-dialogue-v1'
     assert 'rq1-fa-dialogue-v12' in fd.BASE_POLICIES and fd.BASE_POLICY not in fd.FIRST_SALVAGE_POLICIES
 
 
