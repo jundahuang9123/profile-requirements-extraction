@@ -52,7 +52,8 @@ def test_invalid_applicability_cannot_erase_valid_c1_c2_and_cache_reuses_core(se
     assert saved['set_aside_observations'][0]['reason']=='not_catalogue_level'
     assert saved['need_steps']['profile_scope']['not_checked_ids']==[]
     assert saved['need_steps']['dataset_applicability']['not_checked_ids']==['need-0']
-    assert [name for name,_ in client.calls]==['ProfileScope','NeedApplicability','NeedApplicability']
+    # v8: need-2's failure was judged again, alone, before it was set aside.
+    assert [name for name,_ in client.calls]==['ProfileScope','ProfileScope','NeedApplicability','NeedApplicability']
     before=len(client.calls)
     needs.judge_profile_scope(store,run,made,client,registry)
     assert len(client.calls)==before

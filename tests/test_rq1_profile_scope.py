@@ -99,7 +99,7 @@ def test_only_dataset_level_and_discovery_set_aside_and_specialised_needs_stay(s
     assert kept.need_statement == STATEMENTS['need-0']
     assert engine.verify(store, kept, run['evidence_ids'])['status'] == 'pass'  # integrity binds the judgement
     step = store.get('run', run['run_id'])['need_steps']['profile_scope']
-    assert step['policy_version'] == 'rq1-profile-scope-v7'
+    assert step['policy_version'] == 'rq1-profile-scope-v8'
     assert step['retained_count'] == 3 and step['set_aside_count'] == 3
     assert step['set_aside_by_reason'] == {'not_catalogue_level': 2, 'not_find_or_access': 1}
     # Without category evidence, a model's confident common/specialized label remains review.
@@ -225,7 +225,8 @@ def test_a_need_no_catalogue_record_would_state_is_not_catalogue_level(setup):
     assert aside['reason'] == 'not_catalogue_level'
     assert aside['details']['profile_scope']['record_resource'] == 'none'
     assert aside['details']['profile_scope']['failed_tests'] == ['not_catalogue_level']
-    assert len(client.calls) == 1  # a named-none record is judged, not retried
+    # A named-none record is judged, not corrected; v8 judges the failure again, alone.
+    assert [sorted(data['needs']) for _, data in client.calls] == [['need-document', 'need-structure'], ['need-document']]
 
 
 def test_a_missing_record_statement_gets_one_correction_for_that_need_only(setup):

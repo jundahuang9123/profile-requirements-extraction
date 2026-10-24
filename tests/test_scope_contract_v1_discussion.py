@@ -1,4 +1,4 @@
-"""Scope contract v1 at apply (rq1-profile-scope-v7 and rq1-fa-dialogue-v13, Junda, 23 Oct): every need, wherever
+"""Scope contract v1 at apply (rq1-profile-scope-v7 and v8, rq1-fa-dialogue-v13, Junda, 23 Oct): every need, wherever
 it is written, passes the F/A test and the catalogue-record test.
 
 Live shapes: the F/A test sets a need aside only when it serves neither or is unsupported, so JRC and Stat
@@ -126,8 +126,9 @@ def test_a_split_with_one_part_that_fails_is_blocked_whole(setup):
     # Nothing of the split is applied; its need stays.
     assert parent in saved['active_revision_ids']
     assert not any(r.get('need_statement') in {DIMENSIONS, RULE} for r in saved['requirements'])
-    # Both parts went to each test in one call.
-    assert [(name, sorted(statements)) for _, name, statements in client.scope_calls] == [('FAScopeResult', sorted([DIMENSIONS, RULE])), ('ProfileScope', sorted([DIMENSIONS, RULE]))]
+    # Both parts went to each test in one call; the failing part was judged again alone (rq1-profile-scope-v8).
+    assert [(name, sorted(statements)) for _, name, statements in client.scope_calls] == [('FAScopeResult', sorted([DIMENSIONS, RULE])), ('ProfileScope', sorted([DIMENSIONS, RULE])), ('ProfileScope', [RULE])]
+    assert outcome['scope_tests'][1]['profile_scope']['confirmation']['outcome'] == 'confirmed'
 
 
 @pytest.mark.parametrize('plans', [revise_into(DIMENSIONS), split_into(DIMENSIONS, ACCESS)])

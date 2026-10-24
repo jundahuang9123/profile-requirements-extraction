@@ -146,3 +146,41 @@ def test_report_lists_what_the_scope_contract_set_aside_and_blocked_apart(tmp_pa
     assert ("1 changes blocked by a failed test (first failure by test: {'not_catalogue_level': 1}; other blocked changes: 1); "
             '2 changes tested; 1 applied needs without a record judgement (kept, flagged).') in apply
     assert '- case-1 · revise A2: Publishers must use all DCAT classes consistently. — not_catalogue_level; record: none; A rule for publishers.' in apply
+
+
+def test_report_lists_the_needs_kept_against_a_first_failed_record_test(tmp_path, monkeypatch):
+    # rq1-profile-scope-v8: a failure counts only when the need, judged again alone, fails too.
+    path = Path(__file__).resolve().parents[1] / 'scripts' / 'fa_base_report.py'
+    spec = importlib.util.spec_from_file_location('fa_base_report', path)
+    report = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(report)
+    uses = 'Users can know the permissible uses of data, including adaptation.'
+    first = {'record_resource': 'none', 'failed_tests': ['not_catalogue_level'], 'rationale': 'A licence term, not metadata.'}
+    run = {'run_id': 'report-test', 'status': 'awaiting_human', 'model_calls': [], 'active_revision_ids': ['revision-1'], 'metrics': {},
+           'need_steps': {'profile_scope': {'confirmation_counts': {'confirmed': 1, 'disputed': 1}}},
+           'requirements': [{'revision_id': 'revision-1', 'need_statement': uses, 'normalized_statement': uses,
+                             'processing_flags': ['profile_scope_disputed'],
+                             'profile_scope': {'record_resource': 'dataset', 'confirmation': {'outcome': 'disputed', 'verdict': first}}},
+                            {'revision_id': 'revision-2', 'need_statement': 'Users can know the Open Data principles.',
+                             'normalized_statement': 'Users can know the Open Data principles.'},
+                            {'revision_id': 'revision-3', 'need_statement': 'Users can know the typed relations of a resource.',
+                             'normalized_statement': 'Users can know the typed relations of a resource.',
+                             'processing_flags': ['profile_scope_disputed'],
+                             'profile_scope': {'record_resource': 'none', 'rationale': 'A modelling concept.', 'failed_tests': [],
+                                               'confirmation': {'outcome': 'not_checked', 'first_failed_tests': ['not_catalogue_level'],
+                                                                'reason': 'Row missing or invalid.'}}}],
+           'set_aside_observations': [
+               {'revision_id': 'revision-2', 'need_id': 'need-2', 'reason': 'not_catalogue_level', 'rationale': 'A policy.',
+                'details': {'profile_scope': {'record_resource': 'none', 'confirmation': {'outcome': 'confirmed', 'verdict': first}}}}],
+           'deliberations': []}
+    monkeypatch.setattr(report, 'get', lambda url: run if url.endswith('?audit=true') else {'counts': {}})
+    monkeypatch.setattr(sys, 'argv', ['fa_base_report.py', '--api', 'http://local-test', '--run', 'report-test', '--out', str(tmp_path)])
+    report.main()
+    markdown = (tmp_path / 'base-review.md').read_text()
+    assert '- Users can know the Open Data principles. — not_catalogue_level (failed again alone); record: none; A policy.' in markdown
+    disputed = markdown.split('## Scope contract v1: kept against a first failed record test (profile_scope_disputed)')[1].split('\n## ')[0]
+    assert "2 need revisions (1 active); second judgements by outcome at normalisation: {'confirmed': 1, 'disputed': 1}." in disputed
+    assert f'- {uses} — second judgement: disputed; record now: dataset; first: not_catalogue_level; A licence term, not metadata.' in disputed
+    # A missing second judgement: the first judgement's own rationale, and why the second is missing, apart.
+    assert ('- Users can know the typed relations of a resource. — second judgement: not_checked; record now: none; '
+            'first: not_catalogue_level; A modelling concept.; second missing: Row missing or invalid.') in disputed
