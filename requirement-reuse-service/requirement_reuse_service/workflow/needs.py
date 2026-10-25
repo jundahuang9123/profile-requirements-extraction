@@ -928,12 +928,12 @@ SCOPE_ACCESS_CONDITIONS = ('Likewise, whether access to a dataset requires regis
 SCOPE_SYSTEM = SCOPE_SYSTEM_V9.replace('or who may grant access to it. ', 'or who may grant access to it. ' + SCOPE_ACCESS_CONDITIONS)
 if SCOPE_SYSTEM == SCOPE_SYSTEM_V9:
     raise RuntimeError('The record-test prompt lost the sentence the access-conditions clause follows.')
-EARLIER_SCOPE_PROMPT_POLICIES = frozenset({'rq1-profile-scope-v6', 'rq1-profile-scope-v7', 'rq1-profile-scope-v8', 'rq1-profile-scope-v9'})
+ACCESS_CONDITION_SCOPE_POLICIES = frozenset({'rq1-profile-scope-v10'})
 
 
 def scope_system(policy):
-    """The record-test prompt of a needs policy: runs under v9 and earlier keep theirs."""
-    return SCOPE_SYSTEM_V9 if policy in EARLIER_SCOPE_PROMPT_POLICIES else SCOPE_SYSTEM
+    """The record-test prompt of a needs policy: a run under any earlier label (v1 to v9) keeps the prompt it had."""
+    return SCOPE_SYSTEM if policy in ACCESS_CONDITION_SCOPE_POLICIES else SCOPE_SYSTEM_V9
 
 
 class ApplicabilityQuote(Contract):
