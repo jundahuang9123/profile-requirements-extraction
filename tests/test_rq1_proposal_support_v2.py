@@ -3,6 +3,7 @@ and set aside only when both judgements reject it; when the second passes it, th
 proposal_support_disputed. Scripted clients test the plumbing only: in five runs repeated offline, judged alone the check
 rejected more proposals than in a batch, not fewer."""
 import json
+import pytest
 from test_resume_discussions import setup  # noqa: F401  (pytest fixture)
 from test_rq1_need_grouping import need_inputs, NeedsClient
 from requirement_reuse_service.workflow import needs
@@ -103,3 +104,27 @@ def test_a_supported_proposal_is_not_judged_again(setup):
     kept = needs.check_proposal_support(store, run, records, client)
     assert len(kept) == 2 and all('confirmation' not in r.proposal_support for r in kept)
     assert len(support_calls(client)) == 1
+
+
+class OneRejected(SupportClient):
+    """Supports the first offered proposal in a batch and rejects the second; alone, as SupportClient."""
+    def generate_structured(self, **kwargs):
+        if kwargs['output_model'].__name__ != 'ProposalSupport': return super().generate_structured(**kwargs)
+        data = json.loads(kwargs['user'])
+        if len(data['proposals']) == 1: return super().generate_structured(**kwargs)
+        self.calls.append(('ProposalSupport', data)); first, second = list(data['proposals'])
+        row = lambda i, ok: {'proposal_id': i, 'support': 'supported' if ok else 'not_supported',
+            'supporting_evidence_ids': list(data['proposals'][i]['excerpts'])[:1] if ok else [], 'obligation_stated': False,
+            'rationale': 'Scripted batch.'}
+        return kwargs['output_model'].model_validate({'proposals': [row(first, True), row(second, False)]})
+
+
+@pytest.mark.parametrize('alone,counts,asides', [('reject', {'confirmed': 1}, 1), ('pass', {'disputed': 1}, 0),
+                                                   ('omit', {'not_checked': 1}, 0)])
+def test_a_batch_with_one_rejection_counts_only_the_judged_again(setup, alone, counts, asides):
+    # The usual shape of a run: most proposals pass in their batch and a few are judged again.
+    store, run, records = need_inputs(setup)
+    kept = needs.check_proposal_support(store, run, records, OneRejected(alone))
+    step = store.get('run', run['run_id'])['need_steps']['proposal_support']
+    assert step['confirmation_counts'] == counts and step['set_aside_count'] == asides
+    assert len(kept) == 2 - asides

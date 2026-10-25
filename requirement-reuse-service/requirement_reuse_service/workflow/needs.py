@@ -519,8 +519,9 @@ CONFIRMING_SUPPORT_POLICIES = frozenset({'rq1-proposal-support-v2'})
 
 def support_counts(decisions):
     """The step record of the second judgements (rq1-proposal-support-v2), by outcome."""
+    # Proposals that were not judged again have no outcome; drop them before sorting.
     counts = Counter((d.get('confirmation') or {}).get('outcome') for d in decisions)
-    return {k: v for k, v in sorted(counts.items()) if k}
+    return dict(sorted((k, v) for k, v in counts.items() if k))
 
 
 def check_proposal_support(store, run, records, client):
