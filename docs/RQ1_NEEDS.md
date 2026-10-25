@@ -371,7 +371,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Dataset categories | `rq1-dataset-categories-v1` | Up to 12 evidence rows / 22,000 input characters; exact source citations; partial scans explicit |
 | Compact selection | `rq1-compact-coverage-v1` | Up to 20 needs / 22,000 input characters per equivalence call; bounded exact cover; all retained needs preserved |
 | Base-gap status | `rq1-base-gap-status-v1` | Deterministic; from the classification and the number of entries compared |
-| Profile scope (D5) | `rq1-profile-scope-v9` (named catalogue record; in F/A runs also after the F/A test; a failure of either test is judged again alone) | Up to 25 needs / 24,000 input characters; statement, condition, scope, supporting excerpts and source-linked dataset categories; one verdict per offered need ID; an example is required unless serves is neither |
+| Profile scope (D5) | `rq1-profile-scope-v10` (named catalogue record; access conditions are dataset information; in F/A runs also after the F/A test; a failure of either test is judged again alone) | Up to 25 needs / 24,000 input characters; statement, condition, scope, supporting excerpts and source-linked dataset categories; one verdict per offered need ID; an example is required unless serves is neither |
 | Contribution linking | `rq1-use-case-contribution-v1` | Up to 25 needs / 24,000 input characters; at most 32 task links per response row; necessity as an annotation |
 | Link critic | `rq1-use-case-contribution-critic-v1` | Up to 25 links / 24,000 input characters; judges contribution only |
 | Need assessment | `rq1-need-support-v1` | One logical assessment per kept need; complete selected excerpts, max 45,000 input characters; at most two generations for schema/cutoff recovery |
@@ -752,6 +752,24 @@ discussion):
 Each F/A failure costs one call, plus at most one correction. Passing needs are not
 judged again. A run whose needs policies name v8 keeps one F/A judgement when it is
 continued at apply; at normalisation it is refused, as before.
+
+`rq1-profile-scope-v10` changes the record-test prompt (25 October). The prompt
+sends a legal or administrative procedure to no record, and the model read access
+conditions as such a procedure. In the three JRC runs under v9 and
+`rq1-fa-dialogue-v14`, it set aside each of three access-condition needs in two runs
+and kept it in the third. The three needs were:
+- users may need to register or submit an individual application;
+- the categories of exceptions that may limit access;
+- the principles, conditions and exceptions governing access.
+
+The prompt now says that two things are access conditions a dataset's record states:
+whether access to the dataset requires registration, an individual application or
+request, or a fee, and the conditions or exceptions under which its access is
+restricted. Only the steps, deadlines and duties of such a procedure still have no
+record. Nothing else changes: the rest of the prompt, the F/A test, the contract and
+both second judgements stay as they were. A run whose needs policies name v9 or
+earlier keeps its prompt when it is continued at apply. At normalisation such a run
+is refused, as before.
 
 The base search (`rq1-base-needs-full-search-v3`) changes in three ways:
 
