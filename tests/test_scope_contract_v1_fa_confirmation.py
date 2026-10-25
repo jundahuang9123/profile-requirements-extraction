@@ -69,7 +69,7 @@ def test_an_fa_failure_that_passes_alone_keeps_the_need_flagged(needs_setup):
     assert aside['need_id'] == 'need-doc' and aside['reason'] == 'fa_scope_set_aside'
     assert aside['details']['fa_scope']['confirmation']['outcome'] == 'confirmed'
     step = store.get('run', run['run_id'])['need_steps']['profile_scope']
-    assert step['policy_version'] == 'rq1-profile-scope-v9' and step['fa_confirmation_counts'] == {'confirmed': 1, 'disputed': 1}
+    assert step['policy_version'] == 'rq1-profile-scope-v10' and step['fa_confirmation_counts'] == {'confirmed': 1, 'disputed': 1}
     assert step['fa_set_aside_count'] == 1
     # One batch, then each F/A failure alone in needs order; a resume reuses all three.
     assert fa_calls(client) == [sorted(statements), ['need-release'], ['need-doc']]

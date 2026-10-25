@@ -53,10 +53,10 @@ def test_in_fa_runs_needs_about_the_sources_are_set_aside_by_the_record_test(set
     # Kept needs carry both verdicts.
     for need in retained:
         assert need.fa_scope['status'] == 'checked' and need.profile_scope['status'] == 'checked'
-        assert need.profile_scope['policy_version'] == 'rq1-profile-scope-v9' and not need.profile_scope['failed_tests']
+        assert need.profile_scope['policy_version'] == 'rq1-profile-scope-v10' and not need.profile_scope['failed_tests']
     assert {n.requirement_id: n.profile_scope['record_resource'] for n in retained} == {'need-dimensions': 'dataset', 'need-access': 'distribution'}
     step = saved['need_steps']['profile_scope']
-    assert step['policy_version'] == 'rq1-profile-scope-v9' and step['fa_policy_version'] == 'rq1-find-access-v1'
+    assert step['policy_version'] == 'rq1-profile-scope-v10' and step['fa_policy_version'] == 'rq1-find-access-v1'
     assert step['fa_set_aside_count'] == 0 and step['record_set_aside_count'] == 2 and step['set_aside_count'] == 2
     assert step['set_aside_by_reason'] == {'not_catalogue_level': 2}
     # The record test sees only the needs the F/A test kept; each failure was judged again alone (v8).

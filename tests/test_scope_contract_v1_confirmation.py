@@ -75,7 +75,7 @@ def test_a_record_test_failure_that_passes_alone_keeps_the_need_flagged(needs_se
     assert aside['details']['profile_scope']['confirmation']['outcome'] == 'confirmed'
     assert aside['details']['profile_scope']['confirmation']['verdict']['rationale'] == 'Alone.'
     step = store.get('run', run['run_id'])['need_steps']['profile_scope']
-    assert step['policy_version'] == 'rq1-profile-scope-v9'
+    assert step['policy_version'] == 'rq1-profile-scope-v10'
     assert step['confirmation_counts'] == {'confirmed': 1, 'disputed': 1}
     assert step['confirmation_ids'] == {'confirmed': ['need-third'], 'disputed': ['need-uses']}
     decisions = step['record_decisions'] if find_access else step['decisions']

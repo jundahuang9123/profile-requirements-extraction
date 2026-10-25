@@ -58,7 +58,7 @@ class FAScopeResult(Contract):
 # two v8 runs of the same version almost every F/A set-aside differed (JRC 3 of 4, Stat 4 of 4); in one Stat run 8 of
 # its 11 came from one batch of 8 in which every row was judged to serve neither. The texts and contract() are
 # unchanged; runs under an earlier needs policy keep one judgement.
-CONFIRMING_FA_POLICIES = frozenset({'rq1-profile-scope-v9'})
+CONFIRMING_FA_POLICIES = frozenset({'rq1-profile-scope-v9', 'rq1-profile-scope-v10'})
 
 
 def fa_confirmation_flags(fa_scope):
