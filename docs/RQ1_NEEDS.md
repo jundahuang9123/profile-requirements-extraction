@@ -537,6 +537,34 @@ The reviewer summary is built from the trace alone. It says:
 - what the discussion did;
 - what the person is asked to decide.
 
+The format was chosen in a blind test on 14 active needs of the three JRC runs. They
+were sampled across the cases that matter: an overruled first judgement, an open
+question, merged proposals, base coverage, and the standard path.
+- **Panels:** for each format, two reviewer agents saw only that view and answered
+  five questions per need: source and supporting clause, extracting agent, anything
+  unusual, the discussion's conclusion, and what they must decide. A grader holding
+  the full traces scored the answers.
+- **Formats tested:** today's view (the need and its question), a one-line chain, a
+  card, and an exceptions-only note.
+- **Results:** the card was the most accurate. It is the only view that always says
+  what to decide.
+
+| Format | Correct answers | Effort (1–5) | Words |
+|---|---|---|---|
+| Need and question (today) | 11% | 4.5 | 30 |
+| One-line chain | 83% | 2.5 | 76 |
+| Card | 90% | 2.8 | 79 |
+| Exceptions only | 72% | 2.3 | 56 |
+
+The card then got three changes:
+- it shows the stretch of the first quotation that best matches the need, instead of
+  its first 90 characters, which often stopped before the supporting clause;
+- the discussion reason has room for 220 characters;
+- base coverage is taken from the flag as well.
+
+A second blind panel compared the two cards: 95% correct for the first card, 99% for
+the new one, at the same effort and 98 words.
+
 `GET /api/rq1/v2/runs/{run_id}/traceability` returns the saved summary, or builds one
 for a run finished before this version. `GET /api/rq1/v2/runs/{run_id}/needs/{revision_id}/trace`
 returns the full chain of one need.
