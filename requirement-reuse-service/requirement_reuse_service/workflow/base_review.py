@@ -6,6 +6,7 @@ from typing import Literal
 from pydantic import Field, ValidationError
 from .models import Contract, RequirementRecord
 from .storage import canonical, digest, now
+from .call_log import recorded_calls
 from .base_needs import load_catalogue, offer_entries, item_picks
 from .stakeholder_workflow import audit, save
 from ..llm.step_models import for_step, model_identity
@@ -251,16 +252,17 @@ def generation(store,run,key,step,contract,system,payload,aliases,client,validat
     if not saved:saved={'identity':identity,'model':model_identity(bound),'attempts':[]}
     if saved.get('output'):return contract.model_validate(saved['output']),saved
     while len(saved['attempts'])<2:
-        errors=[];parsed=None
+        errors=[];parsed=None;calls=[]
         try:
-            result=bound.generate_structured(system=system+(correction(saved['attempts'][-1],aliases) if saved['attempts'] else ''),
-                user=canonical(translate_ids(payload,{v:k for k,v in aliases.items()})),output_model=contract,max_tokens=4000)
+            with recorded_calls(calls):
+                result=bound.generate_structured(system=system+(correction(saved['attempts'][-1],aliases) if saved['attempts'] else ''),
+                    user=canonical(translate_ids(payload,{v:k for k,v in aliases.items()})),output_model=contract,max_tokens=4000)
             result=contract.model_validate(translate_ids(result.model_dump(mode='json'),aliases))
             errors=validate(result)
             output=result.model_dump(mode='json')
         except (OutputValidationError,OutputTokenLimitError) as exc:
             errors=[str(exc)];output=None;parsed=getattr(exc,'parsed_payload',None)
-        attempt={'output':output,'errors':errors}
+        attempt={'output':output,'errors':errors,'call_ids':calls}
         # The complete JSON of a schema-invalid answer, saved for row recovery on resume too.
         if isinstance(parsed,dict):attempt['parsed']=translate_ids(parsed,aliases)
         saved['attempts'].append(attempt)

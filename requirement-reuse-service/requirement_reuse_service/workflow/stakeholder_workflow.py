@@ -16,6 +16,7 @@ from pydantic import Field
 
 from ..models import AgentRoleConfig
 from ..llm.step_models import for_step, model_identity
+from .call_log import recorded_calls
 from .models import Contract, EvidenceLink, Observation, RequirementRecord, NormalizedIntent, DeliberationCase
 from .storage import canonical, digest, now, uid, ConflictError, RUN_PARTS
 
@@ -499,9 +500,10 @@ def apply_plan(store, run, case, plan, checks, client, allowed_evidence_ids=None
                     raise ValueError('Mediator revision assessment checkpoint changed.')
                 record.qualification=Qualification.model_validate(saved_assessment['output'])
             else:
-                record.qualification=assess(store,record,client)
+                with recorded_calls() as calls:
+                    record.qualification=assess(store,record,client)
                 save(store,run['run_id'],assessment_key,{'input_hash':assessment_hash,'saved_at':now(),
-                    'output':record.qualification.model_dump(mode='json')})
+                    'output':record.qualification.model_dump(mode='json'),'call_ids':calls})
             if (record.verification['status']!='pass' or record.qualification.support!='explicit' or
                     any(f.severity=='blocking' for f in record.qualification.findings)):
                 item.update(status='blocked_change',draft_record=record.model_dump(mode='json'),

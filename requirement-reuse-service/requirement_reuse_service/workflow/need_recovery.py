@@ -11,6 +11,7 @@ from typing import get_args
 from pydantic import ValidationError
 from ..llm.client import LLMError, OutputTokenLimitError, OutputValidationError
 from .storage import RUN_PARTS, canonical, digest, now
+from .call_log import recorded_calls
 
 POLICY = 'rq1-needs-row-recovery-v2'
 
@@ -95,13 +96,14 @@ def generation(store, run, step, payload, output_model, system, client, validate
         pending=[i for i in offered if i not in accepted]
         request=subset(payload,input_field,id_field,set(pending))
         correction=(' Correct only these failing rows; valid rows from the prior response are already saved. Errors: '+canonical(errors)) if audit['attempts'] else ''
-        started=time.monotonic(); raw=None; technical=None
+        started=time.monotonic(); raw=None; technical=None; calls=[]
         try:
             limit=48000 if output_model.__name__=='NeedGrounding' else 24000
             if len(canonical(request))>limit:
                 raise InputBoundError('Input bound exceeded; no provider request was sent.')
-            answer=client.generate_structured(system=system+correction,user=canonical(request),
-                output_model=output_model,max_tokens=8000 if not audit['attempts'] else 12000)
+            with recorded_calls(calls):
+                answer=client.generate_structured(system=system+correction,user=canonical(request),
+                    output_model=output_model,max_tokens=8000 if not audit['attempts'] else 12000)
             raw=answer.model_dump(mode='json')
         except OutputValidationError as exc:
             raw=exc.parsed_payload; technical=str(exc)
@@ -115,7 +117,7 @@ def generation(store, run, step, payload, output_model, system, client, validate
             audit.setdefault('transport_failures',[]).append({
                 'error_class':type(exc).__name__, 'error':str(exc),
                 'requested_ids':pending, 'seconds':time.monotonic()-started,
-                'saved_at':now()})
+                'saved_at':now(), 'call_ids':calls})
             save()
             raise
         # Unexpected runtime errors are implementation defects, not a reason to
@@ -148,7 +150,7 @@ def generation(store, run, step, payload, output_model, system, client, validate
         errors={i:e for i,e in errors.items() if e}
         audit['attempts'].append({'attempt':len(audit['attempts'])+1,'requested_ids':pending,
             'validation_errors':errors,'unexpected_ids':unexpected,'error':technical,
-            'output':raw,'seconds':time.monotonic()-started})
+            'output':raw,'seconds':time.monotonic()-started,'call_ids':calls})
         save()
     rows=[]
     for identifier in offered:

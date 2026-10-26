@@ -541,6 +541,32 @@ def export_needs(run_id: str, download: bool = False):
     return downloadable(translate(lambda: needs_export(Store(), run_id)), download, 'needs.json')
 
 
+@router.get('/runs/{run_id}/traceability')
+def run_traceability(run_id: str, download: bool = False):
+    """The saved traceability summary of a finished run, or one built now for a run finished before rq1-need-trace-v1."""
+    def read():
+        from .need_trace import TraceIndex, need_summary, need_trace, produced_needs, review_items, traceability
+        store = Store(); run = store.get_run(run_id)
+        if (run.get('stage_results') or {}).get('traceability'): return run['stage_results']['traceability']
+        index = TraceIndex(store, run); traces = {r: need_trace(index, r) for r in produced_needs(run)}
+        return {**traceability(traces, set(run['active_revision_ids'])), 'saved': False, 'review_items_unresolved': review_items(index),
+                'needs': {r: {'solid': t['completeness']['solid'], 'missing': t['completeness']['missing'],
+                              'call_links': t['completeness']['call_links'], 'summary': need_summary(t)} for r, t in traces.items()}}
+    return downloadable(translate(read), download, 'traceability.json')
+
+
+@router.get('/runs/{run_id}/needs/{revision_id}/trace')
+def need_trace_view(run_id: str, revision_id: str, download: bool = False):
+    """The full chain behind one need: quotations, extraction, every decision with its reason and calls, discussion."""
+    def read():
+        from .need_trace import TraceIndex, need_summary, need_trace
+        store = Store(); run = store.get_run(run_id); index = TraceIndex(store, run)
+        if revision_id not in index.records: raise KeyError(f'No revision {revision_id} in {run_id}.')
+        trace = need_trace(index, revision_id)
+        return {**trace, 'summary': need_summary(trace)}
+    return downloadable(translate(read), download, f'trace-{revision_id}.json')
+
+
 @router.post('/runs/{run_id}/restore')
 def restore_aside(run_id: str, request: RestoreRequest):
     from .needs import restore_need

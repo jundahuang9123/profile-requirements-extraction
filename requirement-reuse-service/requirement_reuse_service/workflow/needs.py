@@ -11,6 +11,7 @@ from pydantic import Field
 from typing import Literal
 from .models import Contract, Observation, NormalizedIntent, ObligationAlternative, RequirementRecord
 from .storage import RUN_PARTS, canonical, digest, now, uid
+from .call_log import recorded_calls
 from .terms import collect_hints, detect_terms, union_hints
 from .semantic_consolidation import grouped_block, partition_exact, FAMILY_POLICY, NEED_SEMANTIC_POLICY
 from .coverage import (CATEGORY_POLICY, SELECTION_POLICY, CategoryLink, discover_categories,
@@ -1377,10 +1378,11 @@ def assess_needs(store, run, needs, client):
         else:
             # One logical assessment per retained need, with at most two bounded
             # generations for output recovery. Source failures make no model call.
-            need.qualification=assess(store,need,client)
+            with recorded_calls() as calls:
+                need.qualification=assess(store,need,client)
             saved={'step':'assessment','policy_version':POLICIES['assessment'],
                    'need_id':need.requirement_id,'provider':client.describe() if client else 'offline',
-                   'qualification':need.qualification.model_dump(mode='json')}
+                   'qualification':need.qualification.model_dump(mode='json'),'call_ids':calls}
             saved['checkpoint_hash']=digest(saved)
             store.mutate(run['run_id'],None,'need_assessment_saved',lambda r:r['need_chunks'].__setitem__(key,saved))
         if need.verification['status']!='pass':

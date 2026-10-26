@@ -20,6 +20,7 @@ from .models import (BaselineRequest, CorpusSnapshot, DecisionRequest, Deliberat
                      SpanElicitationResult, NeedSpanElicitationResult, NEEDS_ELICITATION_POLICY, ELICITATION_POLICY_VERSION, NORMALIZATION_POLICY_VERSION, NEEDS_NORMALIZATION_POLICY, EvidenceLink, EvidenceUnit, Finding, Observation,
                      NormalizedIntent, Qualification, RequirementRecord, RunRequest, SnapshotRequest, WorkflowRun)
 from .storage import ConflictError, RUN_PARTS, Store, canonical, digest, now, uid
+from .call_log import recorded_calls, report_call
 from .role_selection import initial_manifest, panel_roles, select_roles
 from .semantic_consolidation import EXACT_POLICY, SEMANTIC_POLICY, NEED_SEMANTIC_POLICY, SEMANTIC_POLICIES
 from .base_profile import BASE_CHECK_POLICY_VERSION, PROFILE_ID_PATTERN, check_record, load_profile
@@ -143,6 +144,7 @@ class TrackedClient:
                 call['output_tokens_reserved'] = (max_tokens or 0) * max(1, len(generations))
             call['latency_seconds'] = round(time.monotonic() - started, 4)
             self.store.append_run_part(self.run_id, 'model_calls', call, event_type='model_call_recorded')
+            report_call(call['call_id'])
 
 
 def freeze_snapshot(store: Store, request: SnapshotRequest) -> dict:
@@ -1095,11 +1097,13 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
                 if citation_retry:
                     selection['citation_retry'] = True
                 citation_selections.append(selection)
+                selection['call_ids'] = []
                 try:
-                    result = client.generate_structured(
-                        system=extraction_system + (CITATION_RETRY_NOTE if citation_retry else ''),
-                        user=prompt, output_model=output_model, max_tokens=response_budget,
-                        schema_repair_attempts=1)
+                    with recorded_calls(selection['call_ids']):
+                        result = client.generate_structured(
+                            system=extraction_system + (CITATION_RETRY_NOTE if citation_retry else ''),
+                            user=prompt, output_model=output_model, max_tokens=response_budget,
+                            schema_repair_attempts=1)
                 except OutputValidationError as exc:
                     # A typed label outside its values (such as a resource type the contract
                     # does not list) becomes unknown; nothing else of the answer changes.
@@ -1168,6 +1172,7 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
                     observation.observation_id = uid('obs', run['run_id'], role.id, batch_index, index,
                                                      observation.model_dump(mode='json'))
                     observations.append(observation)
+                selection['observation_ids'] = [observation.observation_id for observation in materialized]
                 save_progress()
         if batch_failures:
             kinds = ', '.join(f'{sum(f["kind"] == kind for f in batch_failures)} {kind}'
@@ -1715,6 +1720,8 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
                 from .fa_discussion import deliberate
             start_stage('deliberation', 'deliberating')
             deliberate(store, run_id, client)
+            from .need_trace import record_traceability
+            record_traceability(store, run_id)
             return
         routed, routing = route_cases(run, active, conflicts, request.discussion)
         # On resume, finished discussions of unchanged candidates keep their results.
@@ -1741,6 +1748,8 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
                 r.setdefault('stage_results', {}).update(deliberation={
                     'deliberations': deepcopy(r['deliberations']),
                     **{key: r.get(key) for key in RUN_POLICY_FIELDS}}))
+        from .need_trace import record_traceability
+        record_traceability(store, run_id)
     except ConflictError:
         # Cancellation or another worker's claim never overwrites a valid run.
         return

@@ -377,6 +377,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Need assessment | `rq1-need-support-v1` | One logical assessment per kept need; complete selected excerpts, max 45,000 input characters; at most two generations for schema/cutoff recovery |
 | Row recovery | `rq1-needs-row-recovery-v2` | Valid rows saved; correction includes only failing rows; invalid/cutoff output gets durable fallbacks after exhaustion; provider failures stop and remain retryable |
 | Rank | `rq1-need-ranking-v1` | Deterministic; every kept need remains listed |
+| Traceability | `rq1-need-trace-v1` | Deterministic, at the end of a needs run; an active need whose chain is incomplete is set aside (`trace_incomplete`); call IDs recorded where each decision is made |
 | Families (D5) | `rq1-need-families-v1` | 40 needs, 24,000 input characters and at most 60 earlier families per grouping call (`grouping` model setting); invalid grouping keeps that chunk's needs as singleton families, audited |
 | Discussion routing | `rq1-needs-routing-v3` | An obligation that no source states opens no case by itself (since v2), nor does the lexical 'and' hint when the model judged atomicity (v3); both stay on the need for review. Runs saved under v2 keep v2 routing; runs saved without a routing policy keep their original routing |
 
@@ -475,6 +476,76 @@ machine prefixes; they do not hide other needs or measure effort saved.
 calls, failures and latency per processing step and rejected outputs separately. A logical assessment can need
 two generations. Sequential call latency is not parallel wall time; missing token
 usage/cost remains unknown.
+
+## Traceability of every produced need (rq1-need-trace-v1)
+
+Junda, 26 October: every need a run produces must be traceable through the whole chain:
+- which material it comes from;
+- which agent extracted it;
+- what each step decided about it and why, and which model call made that decision;
+- why the discussion ended as it did.
+
+A need whose chain cannot be shown is not found solidly. Reviewers must not get more
+work from this.
+
+`need_trace` builds the chain from what the run stores; no model is asked. A need is
+**solid** when four kinds of link hold:
+1. **Sources:** every supporting quotation is found in its evidence unit.
+2. **Origin:** it comes from at least one extracted observation of a named agent
+   (role run, prompt version, model). A need the discussion wrote (split, add,
+   revise) has its origin in the outcome that made it.
+3. **Decisions:** every step that judges needs one by one in the run has recorded a
+   decision with a reason for it. These steps are:
+   - proposal support, for each proposal it was written from;
+   - need writing;
+   - classification;
+   - the F/A test and the record test;
+   - assessment;
+   - base review (6a).
+
+   A step that did not run is not expected; a run without a base profile, for
+   example, classifies nothing.
+4. **Discussion:** if it was discussed, an outcome, concern or question names it, and
+   every revision an outcome names exists. Another action of the same plan also
+   counts, such as a defer of a proposed addition.
+
+Model-call links are bookkeeping, not part of solidity:
+- Since this version every decision point stores the IDs of the calls behind it:
+  extraction batches (`citation_selections[].call_ids` with their `observation_ids`),
+  need-row attempts, assessments, base review and its check, discussion phases, and
+  the assessment of a mediated need.
+- `TrackedClient` reports each call to the logs open in the calling thread
+  (`call_log`).
+- Earlier runs are matched by output, input hash or verbatim rationale. A derived run
+  follows `derived_from` to the run that extracted.
+
+At the end of a needs run `record_traceability` traces every produced need and saves
+the result under `stage_results.traceability`:
+- counts: produced, solid, active, active solid;
+- the failing links, and the call-link counts;
+- review items that name no revision or action;
+- a short reviewer summary per need.
+
+An active need whose chain is incomplete is set aside as `trace_incomplete`, with
+its missing links as the rationale. It is not counted as found and not put in front
+of a reviewer. It stays visible and restorable like any set-aside.
+
+The reviewer summary is built from the trace alone. It says:
+- where the need comes from (source and quotation);
+- who extracted it;
+- what the checks found;
+- what the discussion did;
+- what the person is asked to decide.
+
+`GET /api/rq1/v2/runs/{run_id}/traceability` returns the saved summary, or builds one
+for a run finished before this version. `GET /api/rq1/v2/runs/{run_id}/needs/{revision_id}/trace`
+returns the full chain of one need.
+
+On the three JRC runs under v9 + v14 (`run-9f5519c8`, `run-f36c8783`, `run-2f7b8d7a`):
+- every one of the 65, 78 and 60 active needs (and every produced need) is solid;
+- about 2,100 model decisions link to their calls by matching, 2 do not.
+
+On a scripted run of this version every decision's calls are recorded at the source.
 
 ## Discussion routing
 
