@@ -541,7 +541,15 @@ Model-call links are bookkeeping, not part of solidity:
 - The F/A test and the record test share a step but answer in different contracts.
   The writer and its critics do too, so each decision is linked to the call of its
   own contract.
-- The writer is linked through the group it was offered (`written_group_id`).
+- The writer is linked through the group it was offered (`written_group_id`). An
+  older event is matched by rebuilding that group under the run that wrote it, which
+  can be the source of a base-review trial.
+- Under one requirement ID, the cached rows can be a parent's (from normalisation) or
+  its revision's (scope tests at apply). Each decision is linked to the row that says
+  what the decision says.
+- In a needs run without the F/A test, `profile_scope.decisions` is the record
+  test.
+- An error text that occurs in two runs links to neither.
 - Base review records the calls its verdict and check were read from on the need
   (`review_call_ids`, `check_call_ids`).
 
@@ -557,13 +565,17 @@ its missing links as the rationale. It is not counted as found and not put in fr
 of a reviewer. It stays visible and restorable like any set-aside.
 - **Restoring:** restoring a set-aside now finds the set-aside revision itself. Before,
   restore looked the record up by requirement ID alone, which for a revision written
-  by the discussion found, and overwrote, its parent.
+  by the discussion found, and overwrote, its parent. The flag is part of the need's
+  integrity hash, which is refreshed when the need is set aside, so the restored need
+  passes its source check.
 - **Safety valve:** when more than three active needs, and more than a tenth of them,
   fail at once, the trace is more likely wrong than the needs. Nothing is set aside;
   they are listed as `held_ids` and the run gets a diagnostic. None of the 203
   active needs of the three JRC runs failed.
 
-The reviewer summary is built from the trace alone. It says:
+The reviewer summary is built from the trace alone. A check a step could not make is
+never reported as passed: it says that the check could not judge the need, or that a
+second judgement is missing. The summary says:
 - where the need comes from (source and quotation);
 - who extracted it;
 - what the checks found;
@@ -604,7 +616,7 @@ returns the full chain of one need.
 
 On the three JRC runs under v9 + v14 (`run-9f5519c8`, `run-f36c8783`, `run-2f7b8d7a`):
 - every one of the 65, 78 and 60 active needs (and every produced need) is solid;
-- 2,107 model decisions link to their calls: 27 through call IDs the runs already recorded, 2,080 by matching. 2 do not.
+- 2,165 model decisions link to their calls: 27 through call IDs the runs already recorded, 2,136 by matching. 2 do not.
 
 On a scripted run of this version every decision's calls are recorded at the source.
 

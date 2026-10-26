@@ -55,6 +55,7 @@ class TraceIndex:
                                                                  'requirements', 'stakeholder_audit', 'catalogues'))
             except Exception: break
             self.earlier_runs.append(self.origin_run); hops += 1
+        self.run_ids = [run.get('run_id'), *[r.get('run_id') for r in self.earlier_runs]]
         extraction_calls = defaultdict(list)
         for call in self.origin_run.get('model_calls') or []:
             if call.get('step') == 'extraction' and call.get('output') is not None:
@@ -77,10 +78,14 @@ class TraceIndex:
         for aside in run.get('set_aside_observations', []):
             if aside.get('revision_id'): self.set_asides[aside['revision_id']].append(aside)
         steps = run.get('need_steps') or {}
+        self.fa_run = fa_run(run)
         self.decisions = defaultdict(dict)  # step -> row id -> decision row
+        # In an F/A run profile_scope.decisions are the F/A test and record_decisions the record test; in any other
+        # needs run the one ProfileScope judgement (the record test) is profile_scope.decisions.
+        layout = ((('profile_scope', 'decisions', 'need_id'), ('record_test', 'record_decisions', 'need_id')) if self.fa_run
+                  else (('record_test', 'decisions', 'need_id'),))
         for step, key, field in (('proposal_support', 'decisions', 'proposal_id'), ('classification', 'decisions', 'need_id'),
-                                 ('profile_scope', 'decisions', 'need_id'), ('record_test', 'record_decisions', 'need_id'),
-                                 ('dataset_applicability', 'decisions', 'need_id')):
+                                 *layout, ('dataset_applicability', 'decisions', 'need_id')):
             source_step = 'profile_scope' if step == 'record_test' else step
             for row in (steps.get(source_step) or {}).get(key) or []:
                 if isinstance(row, dict) and row.get(field): self.decisions[step][row[field]] = row
@@ -102,12 +107,14 @@ class TraceIndex:
                                                   'call_ids': chunk.get('call_ids') or []}
         self.calls = {c['call_id']: c for c in run.get('model_calls') or [] if c.get('call_id')}
         self.calls_by_output = defaultdict(list); self.calls_by_context = defaultdict(list)
+        self.calls_by_error = defaultdict(list)
         for earlier in reversed(self.earlier_runs):
             for call in earlier.get('model_calls') or []:
                 if call.get('output') is not None and call.get('call_id'): self.calls_by_output[digest(call['output'])].append(call['call_id'])
+                if call.get('output') is None and call.get('error'): self.calls_by_error[call['error']].append(call['call_id'])
         self.calls_by_rationale = defaultdict(list)  # assessment and base review keep the call's rationale verbatim
-        # A failed call stores no output, but the rows recovered from it keep the call's error text.
-        self.calls_by_error = defaultdict(list)
+        # A failed call stores no output, but the rows recovered from it keep the call's error text; one error text
+        # in two runs (an attempt copied by a derived run) links to neither.
         for call in self.calls.values():
             if call.get('output') is None and call.get('error'): self.calls_by_error[call['error']].append(call['call_id'])
             if call.get('output') is not None: self.calls_by_output[digest(call['output'])].append(call['call_id'])
@@ -182,6 +189,22 @@ class TraceIndex:
 
 def call_status(calls, link):
     return {'call_ids': calls, 'call_link': link}
+
+
+def fa_run(run):
+    request = run.get('request') or {}
+    return request.get('requirements_scope') == 'find_access_v1' or request.get('stakeholder_workflow') == 'fa_mediated'
+
+
+def matching_row(index, step, identifier, kind, wanted, latest=False):
+    """The cached row that made a decision: the one saying what the decision says. A revision written by the discussion
+    keeps its parent's requirement ID, so the rows under one ID can be the parent's (earliest) and the scope tests
+    at apply of its revisions (latest)."""
+    rows = index.chunk_rows.get((step, kind, identifier)) or []
+    said = folded((wanted or {}).get('rationale'))
+    same = [r for r in rows if said and folded(r[2].get('rationale')) == said]
+    if same: return same[-1]
+    return (rows[-1] if latest else rows[0]) if rows else None
 
 
 def result_ids(outcome):
@@ -287,7 +310,9 @@ def need_trace(index, revision_id):
         for event in index.merges.get(revision) or (index.group_merges.get(current.get('group_id')) if revision == revision_id else []) or []:
             # The writer and its critics answer for the group they were offered; when the writer left a member out,
             # the event names the smaller group it wrote.
-            offered = event.get('written_group_id') or uid('group', index.run.get('run_id'),
+            writer_run = next((rid for rid in index.run_ids if uid('group', rid, list(event.get('inputs') or [])) == event.get('group_id')),
+                              index.run.get('run_id'))
+            offered = event.get('written_group_id') or uid('group', writer_run,
                                                            sorted([*(event.get('inputs') or []), *(event.get('split_member_ids') or [])]))
             groups = list(dict.fromkeys([offered, event.get('group_id')]))
             writer = next((hit for g in groups for hit in [step_rows(index, 'need_statement', g, 'writer')] if hit), None)
@@ -307,8 +332,10 @@ def need_trace(index, revision_id):
                 decision = (own.get('serves') or own.get('status') if label == 'fa_test' else
                             'failed ' + ', '.join(own['failed_tests']) if own.get('failed_tests') else
                             'passed' if own.get('rationale') else own.get('status'))
+                hit = matching_row(index, 'profile_scope', need_id, 'fa' if label == 'fa_test' else 'record', own, latest=True)
+                same = hit and folded(hit[2].get('rationale')) == folded(own.get('rationale'))
                 decided(label, revision_id, decision, own.get('rationale') or own.get('reason'), own.get('policy_version'),
-                        required=False)
+                        call_status(*hit[3:]) if same else None, required=False)
     by_need = (('classification', 'rationale', 'classification', ''), ('profile_scope', 'rationale', 'fa_test', 'fa'),
                ('record_test', 'rationale', 'record_test', 'record'), ('dataset_applicability', None, 'dataset_applicability', ''))
     for step, field, label, kind in () if made_here else by_need:
@@ -317,12 +344,12 @@ def need_trace(index, revision_id):
         kept = record.get({'fa_test': 'fa_scope', 'record_test': 'profile_scope'}.get(label, '')) or {}
         if not row and kept.get('status') == 'not_checked':
             # No valid row after the correction: the need is kept, flagged, with the reason on its record.
-            hit = step_rows(index, chunk_step, need_id, kind)
+            hit = matching_row(index, chunk_step, need_id, kind, kept)
             decided(label, revision_id, 'not_checked', kept.get('reason') or (kept.get('fallback') or {}).get('reason'),
                     kept.get('policy_version'), call_status(*hit[3:]) if hit else None)
             continue
         if not row: continue
-        hit = step_rows(index, chunk_step, need_id, kind)
+        hit = matching_row(index, chunk_step, need_id, kind, row)
         reason = row.get(field) if field else '; '.join(l.get('rationale', '') for l in row.get('category_links') or [])
         decision = {'classification': row.get('classification'), 'fa_test': row.get('serves'),
                     'record_test': 'failed ' + ', '.join(row['failed_tests']) if row.get('failed_tests') else 'passed',
@@ -333,7 +360,7 @@ def need_trace(index, revision_id):
                                ('profile_scope', 'record_test_confirmation', 'profile_scope_confirmation')):
         confirmation = (record.get(field) or {}).get('confirmation')
         if confirmation:
-            hit = step_rows(index, step, need_id)
+            hit = matching_row(index, step, need_id, '', confirmation.get('verdict'), latest=made_here)
             decided(label, revision_id, confirmation.get('outcome'), (confirmation.get('verdict') or {}).get('rationale')
                     or confirmation.get('reason'), None, call_status(*hit[3:]) if hit else None)
     qualification = record.get('qualification') or {}
@@ -398,12 +425,11 @@ def expected_decisions(index, record, lineage, decisions, missing):
     # A step is expected only when it judged needs one by one in this run (a run without a base profile, for
     # instance, classifies nothing).
     ran = lambda step, key: bool((steps.get(step) or {}).get(key))
-    fa_run = (run.get('request') or {}).get('requirements_scope') == 'find_access_v1'
     # Classification and the record test skip a need whose source check failed; that failure is its missing link.
     verified = (record.get('verification') or {}).get('status', 'pass') == 'pass'
     for step, label, wanted in (('classification', 'classification', verified and ran('classification', 'decisions')),
-                                ('profile_scope', 'fa_test', fa_run and ran('profile_scope', 'decisions')),
-                                ('record_test', 'record_test', verified and ran('profile_scope', 'record_decisions')),
+                                ('profile_scope', 'fa_test', index.fa_run and ran('profile_scope', 'decisions')),
+                                ('record_test', 'record_test', verified and ran('profile_scope', 'record_decisions' if index.fa_run else 'decisions')),
                                 ('assessment', 'assessment', ran('assessment', 'records')),
                                 ('base_review', 'base_review', bool(((run.get('stage_results') or {}).get('base_review') or {}).get('phases')))):
         if wanted and label not in made:
@@ -547,17 +573,26 @@ def need_summary(trace, style='card'):
     for d in trace['decisions']: by_step.setdefault(d['step'], []).append(d)
     def last(step): return (by_step.get(step) or [{}])[-1]
     plain = {'proposal_support': 'quote check', 'fa_test': 'find/access test', 'record_test': 'record test'}
-    disputed = [plain.get(d['step'].replace('_confirmation', ''), d['step'].replace('_confirmation', '')) for d in trace['decisions']
-                if d['step'].endswith('_confirmation') and d['decision'] in {'disputed', 'not_checked'}]
+    second = lambda outcome: [plain.get(d['step'].replace('_confirmation', ''), d['step']) for d in trace['decisions']
+                              if d['step'].endswith('_confirmation') and d['decision'] == outcome]
     serves = {'find': 'find data', 'access': 'access data', 'both': 'find and access data'}
+    # Each phrase says what the decision was; a judgement a step could not make is never reported as passed.
     checks = []
-    if by_step.get('proposal_support'): checks.append('the quote supports it')
-    if last('fa_test').get('decision'): checks.append(f"it helps users {serves.get(last('fa_test')['decision'], last('fa_test')['decision'])}")
-    if last('record_test').get('decision'): checks.append(f"record test {last('record_test')['decision']}")
+    support = last('proposal_support').get('decision')
+    if support: checks.append({'supported': 'the quote supports it', 'partly': 'the quote partly supports it',
+                               'not_checked': 'the quote check could not judge it'}.get(support, f'quote check: {support}'))
+    fa = last('fa_test').get('decision')
+    if fa: checks.append(f'it helps users {serves[fa]}' if fa in serves else 'it does not help users find or access data'
+                         if fa == 'neither' else 'judged by the discussion check' if fa == 'checked_mediation'
+                         else 'the find/access test could not judge it')
+    record_test = last('record_test').get('decision')
+    if record_test: checks.append('the record test could not judge it' if record_test == 'not_checked' else f'record test {record_test}')
     if 'covered_by_base' in trace['flags'] or last('classification').get('decision') == 'generic':
         checks.append('already in the base profile')
     elif last('classification').get('decision'): checks.append('not in the base profile')
+    disputed, unchecked = second('disputed'), second('not_checked')
     if disputed: checks.append('a first judgement was overruled at the ' + ', '.join(disputed))
+    if unchecked: checks.append('a second judgement is missing at the ' + ', '.join(unchecked))
     made = [o for c in trace['discussion'] for o in c['outcomes'] if trace['revision_id'] in o['result_revision_ids']]
     for outcome in made:
         tests = [s for s in outcome['scope_tests'] if s['need_id'] == trace['requirement_id']]
@@ -587,6 +622,8 @@ def need_summary(trace, style='card'):
     notable = []
     if merged > 1: notable.append(f'merged from {merged} extracted proposals ({", ".join(agents)})')
     if disputed: notable.append('a first judgement was overruled at the ' + ', '.join(disputed))
+    if unchecked: notable.append('a second judgement is missing at the ' + ', '.join(unchecked))
+    notable += [c for c in checks if 'could not judge' in c]
     if 'covered_by_base' in trace['flags']: notable.append('already in the base profile')
     notable += [f'discussion: {d}' for d in discussion if not d.startswith('retain (retained)')]
     notable += [f'asks you: {q}' for q in questions]
@@ -599,6 +636,8 @@ def record_traceability(store, run_id, style='card'):
     """At the end of a needs run: trace every produced need, save the summary under stage_results.traceability, and
     set aside each active need whose chain is incomplete (trace_incomplete): it is not found solidly, and it is not
     put in front of a reviewer. It stays visible and restorable like any set-aside."""
+    from .models import RequirementRecord
+    from .needs import need_integrity
     run = store.get_run(run_id)
     if run.get('status') != 'awaiting_human' or not produced_needs(run): return None
     index = TraceIndex(store, run)
@@ -624,6 +663,8 @@ def record_traceability(store, run_id, style='card'):
             record = next(x for x in r['requirements'] if x['revision_id'] == trace['revision_id'])
             record['lifecycle_state'] = 'set_aside'
             record['processing_flags'] = list(dict.fromkeys([*(record.get('processing_flags') or []), 'trace_incomplete']))
+            # The flag is part of the need's integrity hash; a stale hash fails verification on restore.
+            record['need_integrity_hash'] = need_integrity(RequirementRecord.model_validate(record))
             if not any(a.get('need_id') == record['requirement_id'] and a['reason'] == 'trace_incomplete' for a in r['set_aside_observations']):
                 r['set_aside_observations'].append({'observation_id': (record.get('observation_ids') or [''])[0],
                     'role_id': (record.get('contributing_roles') or [''])[0], 'revision_id': record['revision_id'],
