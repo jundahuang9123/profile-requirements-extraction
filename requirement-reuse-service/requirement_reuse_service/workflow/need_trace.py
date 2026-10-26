@@ -83,9 +83,11 @@ class TraceIndex:
             source_step = 'profile_scope' if step == 'record_test' else step
             for row in (steps.get(source_step) or {}).get(key) or []:
                 if isinstance(row, dict) and row.get(field): self.decisions[step][row[field]] = row
-        self.merges = defaultdict(list)
+        # Writing events name the revisions they wrote; a revision re-hashed later (refresh_need) keeps its group.
+        self.merges, self.group_merges = defaultdict(list), defaultdict(list)
         for event in (steps.get('need_statement') or {}).get('events') or []:
             for output in event.get('outputs') or []: self.merges[output].append(event)
+            if event.get('group_id'): self.group_merges[event['group_id']].append(event)
         self.groupings = {}
         for chunk in (run.get('consolidation_chunks') or {}).values():
             if not isinstance(chunk, dict) or chunk.get('block_key') != 'underlying_needs': continue
@@ -233,10 +235,13 @@ def need_trace(index, revision_id):
             decided('source_check', revision, check.get('status'), check.get('message') or
                     ('Every cited quotation was found in its source.' if check.get('status') == 'pass' else ''),
                     check.get('method_version'), required=False)
-        row = index.decisions['proposal_support'].get(revision)
+        # The record keeps its own support judgement, including one the check could not make (not_checked, with
+        # the reason); the step's decision list holds the valid rows.
+        row = current.get('proposal_support') or index.decisions['proposal_support'].get(revision)
         if row:
             hit = step_rows(index, 'proposal_support', revision)
-            decided('proposal_support', revision, row.get('support'), row.get('rationale'), row.get('policy_version'),
+            decided('proposal_support', revision, row.get('support'),
+                    row.get('rationale') or (row.get('fallback') or {}).get('reason'), row.get('policy_version'),
                     call_status(*hit[3:]) if hit else None)
             confirmation = (current.get('proposal_support') or {}).get('confirmation')
             if confirmation:
@@ -248,7 +253,7 @@ def need_trace(index, revision_id):
             decided('grouping', revision, 'merged with ' + ', '.join(m for m in grouping['members'] if m != revision),
                     grouping['rationale'], None, call_status(grouping['call_ids'], 'recorded' if grouping['call_ids'] else 'missing'),
                     required=False)
-        for event in index.merges.get(revision, []):
+        for event in index.merges.get(revision) or (index.group_merges.get(current.get('group_id')) if revision == revision_id else []) or []:
             group = event.get('group_id')
             writer = step_rows(index, 'need_statement', group)
             checks = [r for r in index.chunk_rows.get(('need_statement', group), []) if 'rationale' in r[2]]
@@ -329,9 +334,10 @@ def expected_decisions(index, record, lineage, decisions, missing):
     if 'proposal_support' in steps:
         for revision in lineage:
             current = index.records.get(revision) or {}
-            if current.get('observation_ids') and not current.get('parent_revision_ids') and revision not in index.decisions['proposal_support']:
+            if (current.get('observation_ids') and not current.get('parent_revision_ids') and not current.get('proposal_support')
+                    and revision not in index.decisions['proposal_support']):
                 missing.append({'link': 'decisions', 'detail': f'proposal_support recorded no decision for {revision}.'})
-    if not any(index.merges.get(r) for r in lineage):
+    if not any(index.merges.get(r) for r in lineage) and not index.group_merges.get(record.get('group_id')):
         missing.append({'link': 'decisions', 'detail': 'need_statement recorded no writing event for it.'})
     # A step is expected only when it judged needs one by one in this run (a run without a base profile, for
     # instance, classifies nothing).
@@ -380,7 +386,8 @@ def discussion_trace(index, revision_id, missing):
         calls = sorted({c for phase in phases.values() if isinstance(phase, dict)
                         for c in ([c for a in phase.get('attempts') or [] for c in a.get('call_ids') or []]
                                   or index.calls_by_context.get((phase.get('context_budget') or {}).get('wire_hash'), []))})
-        if not outcomes and not concerns and not questions:
+        # A mediated case accounts for each of its needs; an earlier free discussion (messages only) does not.
+        if mediation.get('outcomes') and not outcomes and not concerns and not questions:
             missing.append({'link': 'discussion', 'detail': f"Case {case.get('case_id')} discussed it but no outcome or concern names it."})
         cases.append({'case_id': case.get('case_id'), 'stop_reason': case.get('stop_reason'), 'roles': case.get('participants') or [],
                       'concerns': concerns, 'outcomes': outcomes, 'questions': questions,
@@ -441,12 +448,36 @@ def short(text, limit):
     return text if len(text) <= limit else text[:limit].rstrip() + '…'
 
 
+def quote_window(quote, statement, limit=180):
+    """The part of a quotation that best matches the need's words: reviewers judged sources from the first 90
+    characters of a quotation, which often stopped before the clause that supports the need."""
+    words = folded(quote).split()
+    if len(' '.join(words)) <= limit: return ' '.join(words)
+    norm = lambda w: ''.join(c for c in w.lower() if c.isalnum())
+    wanted = {norm(w) for w in folded(statement).split() if len(norm(w)) > 3}
+    hits = lambda word: any(w in norm(word) or (len(norm(word)) > 3 and norm(word) in w) for w in wanted)
+    best, best_score = 0, -1
+    for start in range(len(words)):
+        span, size = [], 0
+        for word in words[start:]:
+            if size + len(word) + 1 > limit: break
+            span.append(word); size += len(word) + 1
+        score = sum(hits(w) for w in span)
+        if score > best_score: best, best_score = start, score
+    span, size = [], 0
+    for word in words[best:]:
+        if size + len(word) + 1 > limit: break
+        span.append(word); size += len(word) + 1
+    return ('…' if best else '') + ' '.join(span) + ('…' if best + len(span) < len(words) else '')
+
+
 def need_summary(trace, style='card'):
     """A short account of the trace for a reviewer, built from the trace alone (no model): where the need comes from,
     who extracted it, what the checks decided, what the discussion did and what is asked of the person."""
     sources = trace['sources']
     first = sources[0] if sources else {}
-    source = f'{first.get("source") or first.get("evidence_id")}: "{short(first.get("quote"), 90)}"' if first else 'no quotation'
+    source = (f'{first.get("source") or first.get("evidence_id")}: "{quote_window(first.get("quote"), trace["statement"])}"'
+              if first else 'no quotation')
     if len(sources) > 1: source += f' (+{len(sources) - 1} more)'
     agents = list(dict.fromkeys(o['agent_name'] or o['agent'] for o in trace['origin'] if o.get('agent')))
     merged = len(trace['origin'])
@@ -462,8 +493,9 @@ def need_summary(trace, style='card'):
     if by_step.get('proposal_support'): checks.append('the quote supports it')
     if last('fa_test').get('decision'): checks.append(f"it helps users {serves.get(last('fa_test')['decision'], last('fa_test')['decision'])}")
     if last('record_test').get('decision'): checks.append(f"record test {last('record_test')['decision']}")
-    if last('classification').get('decision'):
-        checks.append('already in the base profile' if last('classification')['decision'] == 'generic' else 'not in the base profile')
+    if 'covered_by_base' in trace['flags'] or last('classification').get('decision') == 'generic':
+        checks.append('already in the base profile')
+    elif last('classification').get('decision'): checks.append('not in the base profile')
     if disputed: checks.append('a first judgement was overruled at the ' + ', '.join(disputed))
     made = [o for c in trace['discussion'] for o in c['outcomes'] if trace['revision_id'] in o['result_revision_ids']]
     for outcome in made:
@@ -473,7 +505,7 @@ def need_summary(trace, style='card'):
     discussion, questions = [], []
     for case in trace['discussion']:
         for outcome in case['outcomes']:
-            discussion.append(f"{outcome['action']} ({outcome['status']}): {short(outcome['rationale'], 110)}")
+            discussion.append(f"{outcome['action']} ({outcome['status']}): {short(outcome['rationale'], 220)}")
             if outcome.get('question'): questions.append(short(outcome['question'], 160))
         if case.get('stop_reason') and not case['outcomes']: discussion.append(f"stopped ({case['stop_reason']})")
         questions += [short(q, 160) for q in case.get('questions') or []]
