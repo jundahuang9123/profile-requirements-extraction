@@ -15,7 +15,7 @@ run, but a missing one does not make a need less solid. Since this version the p
 decision is made; for earlier runs they are matched by output or input hash.
 """
 from collections import defaultdict
-from .storage import canonical, digest
+from .storage import canonical, digest, uid
 
 TRACE_POLICY = 'rq1-need-trace-v1'
 NEED_STEPS = ('proposal_support', 'proposal_support_confirmation', 'need_statement', 'classification', 'base_search',
@@ -46,14 +46,15 @@ class TraceIndex:
         self.observations = {o['observation_id']: o for o in run.get('observations', [])}
         # A derived run copies the extraction (role runs and observations) but not its model calls: those stay in the
         # run that extracted, possibly several derivations back.
-        self.origin_run, hops = run, 0
+        # It can also reuse the cached judgements of the run it was derived from, whose calls stay there.
+        self.origin_run, hops, self.earlier_runs = run, 0, []
         while hops < 10 and not any(c.get('step') == 'extraction' for c in self.origin_run.get('model_calls') or []):
             source = (self.origin_run.get('derived_from') or {}).get('run_id')
             if not source: break
             try: self.origin_run = store.get_run(source, omit=('need_chunks', 'deliberations', 'stage_results', 'machine_snapshot',
                                                                  'requirements', 'stakeholder_audit', 'catalogues'))
             except Exception: break
-            hops += 1
+            self.earlier_runs.append(self.origin_run); hops += 1
         extraction_calls = defaultdict(list)
         for call in self.origin_run.get('model_calls') or []:
             if call.get('step') == 'extraction' and call.get('output') is not None:
@@ -101,8 +102,14 @@ class TraceIndex:
                                                   'call_ids': chunk.get('call_ids') or []}
         self.calls = {c['call_id']: c for c in run.get('model_calls') or [] if c.get('call_id')}
         self.calls_by_output = defaultdict(list); self.calls_by_context = defaultdict(list)
+        for earlier in reversed(self.earlier_runs):
+            for call in earlier.get('model_calls') or []:
+                if call.get('output') is not None and call.get('call_id'): self.calls_by_output[digest(call['output'])].append(call['call_id'])
         self.calls_by_rationale = defaultdict(list)  # assessment and base review keep the call's rationale verbatim
+        # A failed call stores no output, but the rows recovered from it keep the call's error text.
+        self.calls_by_error = defaultdict(list)
         for call in self.calls.values():
+            if call.get('output') is None and call.get('error'): self.calls_by_error[call['error']].append(call['call_id'])
             if call.get('output') is not None: self.calls_by_output[digest(call['output'])].append(call['call_id'])
             if call.get('context_hash'): self.calls_by_context[call['context_hash']].append(call['call_id'])
             output = call.get('output') if isinstance(call.get('output'), dict) else {}
@@ -110,8 +117,12 @@ class TraceIndex:
                 if call.get('step') in {'assessment', 'base_review', 'base_review_check'} and len(str(row.get('rationale') or '')) >= 20:
                     self.calls_by_rationale[(call['step'], folded(row['rationale']))].append(call['call_id'])
         self.audit = run.get('stakeholder_audit') or {}
-        self.assessment_calls = {c['need_id']: c['call_ids'] for c in (run.get('need_chunks') or {}).values()
-                                 if isinstance(c, dict) and c.get('step') == 'assessment' and c.get('call_ids')}
+        # A revision keeps its parent's requirement ID, so an assessment is found by what it says, not by the need.
+        self.assessment_calls = {digest(c['qualification']): c['call_ids'] for c in (run.get('need_chunks') or {}).values()
+                                 if isinstance(c, dict) and c.get('step') == 'assessment' and c.get('call_ids') and c.get('qualification')}
+        self.assessment_calls.update({digest(entry['output']): entry['call_ids'] for key, entry in self.audit.items()
+                                      if key.startswith('mediation_assessment:') and isinstance(entry, dict)
+                                      and entry.get('call_ids') and entry.get('output')})
         self.chunk_rows = defaultdict(list)  # (step, row id) -> [(chunk key, attempt number, row, call ids, link)]
         for key, chunk in (run.get('need_chunks') or {}).items():
             if not isinstance(chunk, dict) or chunk.get('step') not in NEED_STEPS: continue
@@ -123,12 +134,12 @@ class TraceIndex:
                         if not isinstance(row, dict): continue
                         for field in ROW_IDS:
                             if isinstance(row.get(field), str):
-                                self.chunk_rows[(chunk['step'], row[field])].append((key, number, row, calls, link))
+                                self.chunk_rows[(chunk['step'], row_kind(chunk['step'], row), row[field])].append((key, number, row, calls, link))
         self.cases = defaultdict(list)
         for case in run.get('deliberations') or []:
             named = set(case.get('revision_ids') or [])
             for outcome in ((case.get('mediation') or {}).get('outcomes') or []):
-                named.update(outcome.get('result_revision_ids') or [])
+                named.update(result_ids(outcome))
             for identifier in named: self.cases[identifier].append(case)
         self.evidence, self.sources = {}, {}
         manifest = run.get('role_manifest') or {}
@@ -149,6 +160,8 @@ class TraceIndex:
         if attempt.get('output') is not None:
             found = self.calls_by_output.get(digest(attempt['output']))
             if found: return list(found), 'matched'
+        found = self.calls_by_error.get(attempt.get('error')) if attempt.get('error') else None
+        if found and len(found) == 1: return list(found), 'matched'
         return [], 'missing'
 
     def unit(self, evidence_id):
@@ -171,14 +184,27 @@ def call_status(calls, link):
     return {'call_ids': calls, 'call_link': link}
 
 
+def result_ids(outcome):
+    """The revisions an outcome wrote: result_revision_ids (F/A discussion) or result_revision_id (routed discussion)."""
+    return [*(outcome.get('result_revision_ids') or []), *([outcome['result_revision_id']] if outcome.get('result_revision_id') else [])]
+
+
+def row_kind(step, row):
+    """One step keeps rows of several contracts under the same IDs: the F/A test and the record test (profile_scope),
+    the writer and its critics (need_statement)."""
+    if step == 'profile_scope': return 'record' if 'catalogue_level' in row or 'record_resource' in row else 'fa'
+    if step == 'need_statement': return 'writer' if 'statement' in row else 'check'
+    return ''
+
+
 def rationale_calls(index, step, decision, recorded=None):
     if recorded: return call_status(list(recorded), 'recorded')
     found = index.calls_by_rationale.get((step, folded(decision.get('rationale'))), [])
     return call_status(list(dict.fromkeys(found)), 'matched' if found else 'missing')
 
 
-def step_rows(index, step, identifier):
-    rows = index.chunk_rows.get((step, identifier)) or []
+def step_rows(index, step, identifier, kind=''):
+    rows = index.chunk_rows.get((step, kind, identifier)) or []
     return rows[-1] if rows else None
 
 
@@ -200,6 +226,11 @@ def need_trace(index, revision_id):
                         'component': link.get('component'), 'found': found})
         if not found: missing.append({'link': 'sources', 'detail': f"Quotation not found in {link.get('evidence_id')}."})
     if not sources: missing.append({'link': 'sources', 'detail': 'No supporting quotation.'})
+    verification = record.get('verification') or {}
+    if verification and verification.get('status') != 'pass':
+        failed = [l.get('evidence_id') for l in verification.get('links') or [] if l.get('status') != 'pass']
+        missing.append({'link': 'sources', 'detail': 'The source check failed' + (f" for {', '.join(map(str, failed))}" if failed else '')
+                        + (f": {verification['message']}" if verification.get('message') else '.')})
     # Origin: the extracted observations and the agent (role run) behind each.
     origin = []
     observation_ids = list(dict.fromkeys(o for r in lineage for o in (index.records.get(r) or {}).get('observation_ids') or []))
@@ -254,20 +285,44 @@ def need_trace(index, revision_id):
                     grouping['rationale'], None, call_status(grouping['call_ids'], 'recorded' if grouping['call_ids'] else 'missing'),
                     required=False)
         for event in index.merges.get(revision) or (index.group_merges.get(current.get('group_id')) if revision == revision_id else []) or []:
-            group = event.get('group_id')
-            writer = step_rows(index, 'need_statement', group)
-            checks = [r for r in index.chunk_rows.get(('need_statement', group), []) if 'rationale' in r[2]]
-            reason = ' '.join(r[2]['rationale'] for r in checks if r[2].get('rationale')) or (grouping or {}).get('rationale', '')
+            # The writer and its critics answer for the group they were offered; when the writer left a member out,
+            # the event names the smaller group it wrote.
+            offered = event.get('written_group_id') or uid('group', index.run.get('run_id'),
+                                                           sorted([*(event.get('inputs') or []), *(event.get('split_member_ids') or [])]))
+            groups = list(dict.fromkeys([offered, event.get('group_id')]))
+            writer = next((hit for g in groups for hit in [step_rows(index, 'need_statement', g, 'writer')] if hit), None)
+            checks = [r for g in groups for r in index.chunk_rows.get(('need_statement', 'check', g), []) if r[2].get('rationale')]
+            reason = ' '.join(dict.fromkeys(r[2]['rationale'] for r in checks)) or (grouping or {}).get('rationale', '')
             decided('need_statement', revision, f"{event.get('action')} of {len(event.get('inputs') or [])} member(s)",
                     reason, event.get('policy_version'), call_status(*writer[3:]) if writer else None,
                     required=len(event.get('inputs') or []) > 1)
     need_id = record.get('requirement_id')
-    for step, field, label in (('classification', 'rationale', 'classification'), ('profile_scope', 'rationale', 'fa_test'),
-                               ('record_test', 'rationale', 'record_test'), ('dataset_applicability', None, 'dataset_applicability')):
+    made_here = trace_from_discussion(index, revision_id)
+    if made_here:
+        # A need the discussion wrote keeps its parent's requirement ID, so the step rows under that ID are the
+        # parent's; its own scope judgements are on its record (scope tests at apply, or the mediation check).
+        for field, label in (('fa_scope', 'fa_test'), ('profile_scope', 'record_test')):
+            own = record.get(field) or {}
+            if own.get('rationale') or own.get('status'):
+                decision = (own.get('serves') or own.get('status') if label == 'fa_test' else
+                            'failed ' + ', '.join(own['failed_tests']) if own.get('failed_tests') else
+                            'passed' if own.get('rationale') else own.get('status'))
+                decided(label, revision_id, decision, own.get('rationale') or own.get('reason'), own.get('policy_version'),
+                        required=False)
+    by_need = (('classification', 'rationale', 'classification', ''), ('profile_scope', 'rationale', 'fa_test', 'fa'),
+               ('record_test', 'rationale', 'record_test', 'record'), ('dataset_applicability', None, 'dataset_applicability', ''))
+    for step, field, label, kind in () if made_here else by_need:
+        chunk_step = 'profile_scope' if step == 'record_test' else step
         row = index.decisions[step].get(need_id)
+        kept = record.get({'fa_test': 'fa_scope', 'record_test': 'profile_scope'}.get(label, '')) or {}
+        if not row and kept.get('status') == 'not_checked':
+            # No valid row after the correction: the need is kept, flagged, with the reason on its record.
+            hit = step_rows(index, chunk_step, need_id, kind)
+            decided(label, revision_id, 'not_checked', kept.get('reason') or (kept.get('fallback') or {}).get('reason'),
+                    kept.get('policy_version'), call_status(*hit[3:]) if hit else None)
+            continue
         if not row: continue
-        chunk_step = {'record_test': 'profile_scope', 'classification': 'classification'}.get(step, step)
-        hit = step_rows(index, chunk_step, need_id)
+        hit = step_rows(index, chunk_step, need_id, kind)
         reason = row.get(field) if field else '; '.join(l.get('rationale', '') for l in row.get('category_links') or [])
         decision = {'classification': row.get('classification'), 'fa_test': row.get('serves'),
                     'record_test': 'failed ' + ', '.join(row['failed_tests']) if row.get('failed_tests') else 'passed',
@@ -285,20 +340,21 @@ def need_trace(index, revision_id):
     if qualification:
         decided('assessment', revision_id, qualification.get('support'),
                 qualification.get('rationale') or '; '.join(f.get('message', '') for f in qualification.get('findings') or []),
-                qualification.get('assessor'), rationale_calls(index, 'assessment', qualification, index.assessment_calls.get(need_id)),
+                qualification.get('assessor'), rationale_calls(index, 'assessment', qualification,
+                                                               index.assessment_calls.get(digest(qualification))),
                 required=False)
     relation = record.get('base_relation') or {}
     if relation:
         check = relation.get('check') or {}
-        key = relation.get('batch_key') or ''
-        recorded = ((index.audit.get(key) or {}).get('attempts') or [{}])[-1].get('call_ids')
-        checked = ((index.audit.get(key.replace('base_review:', 'base_review_check:', 1)) or {}).get('attempts') or [{}])[-1].get('call_ids')
+        reviewed = relation.get('status') != 'not_reviewed' or relation.get('review_call_ids') or relation.get('errors')
         decided('base_review', revision_id, f"{relation.get('verdict') or relation.get('status')} ({relation.get('effect')})",
-                relation.get('rationale') or check.get('rationale') or '; '.join(map(str, relation.get('errors') or [])),
-                None, rationale_calls(index, 'base_review', relation, recorded))
+                relation.get('rationale') or check.get('rationale') or '; '.join(map(str, relation.get('errors') or []))
+                or (f"not reviewed: {relation['reason']}" if relation.get('reason') else ''),
+                None, rationale_calls(index, 'base_review', relation, relation.get('review_call_ids')) if reviewed else None)
         if check:
             decided('base_review_check', revision_id, 'supported' if check.get('verdict_supported') else 'not supported',
-                    check.get('rationale'), None, rationale_calls(index, 'base_review_check', check, checked), required=False)
+                    check.get('rationale'), None, rationale_calls(index, 'base_review_check', check, relation.get('check_call_ids')),
+                    required=False)
     for aside in index.set_asides.get(revision_id, []):
         decided('set_aside', revision_id, aside.get('reason'), aside.get('rationale'))
     discussion = discussion_trace(index, revision_id, missing)
@@ -319,16 +375,16 @@ def need_trace(index, revision_id):
 def expected_decisions(index, record, lineage, decisions, missing):
     """An active need must show a decision at every step that judges each need: proposal support for each proposal it
     was written from, and classification, the scope tests, assessment and base review where the run ran them. A need
-    the discussion created shows the outcome that made it and that outcome's scope tests instead."""
+    the discussion created shows instead the outcome that made it, with its reason."""
     run, made = index.run, {d['step'] for d in decisions}
     if trace_from_discussion(index, record['revision_id']):
+        # Its reason is the outcome's; scope tests at apply exist only where the discussion policy runs them (v13 and
+        # later), so they are shown when present but not required.
         outcome = next(o for case in index.cases.get(record['revision_id'], [])
                        for o in ((case.get('mediation') or {}).get('outcomes') or [])
-                       if record['revision_id'] in (o.get('result_revision_ids') or []))
+                       if record['revision_id'] in result_ids(o))
         if not (outcome.get('rationale') or '').strip():
             missing.append({'link': 'decisions', 'detail': f"Outcome {outcome.get('action_id')} that made it recorded no reason."})
-        if outcome.get('action') in {'add', 'split', 'revise'} and not outcome.get('scope_tests'):
-            missing.append({'link': 'decisions', 'detail': f"Outcome {outcome.get('action_id')} recorded no scope tests."})
         return
     steps = run.get('need_steps') or {}
     if 'proposal_support' in steps:
@@ -343,9 +399,11 @@ def expected_decisions(index, record, lineage, decisions, missing):
     # instance, classifies nothing).
     ran = lambda step, key: bool((steps.get(step) or {}).get(key))
     fa_run = (run.get('request') or {}).get('requirements_scope') == 'find_access_v1'
-    for step, label, wanted in (('classification', 'classification', ran('classification', 'decisions')),
+    # Classification and the record test skip a need whose source check failed; that failure is its missing link.
+    verified = (record.get('verification') or {}).get('status', 'pass') == 'pass'
+    for step, label, wanted in (('classification', 'classification', verified and ran('classification', 'decisions')),
                                 ('profile_scope', 'fa_test', fa_run and ran('profile_scope', 'decisions')),
-                                ('record_test', 'record_test', ran('profile_scope', 'record_decisions')),
+                                ('record_test', 'record_test', verified and ran('profile_scope', 'record_decisions')),
                                 ('assessment', 'assessment', ran('assessment', 'records')),
                                 ('base_review', 'base_review', bool(((run.get('stage_results') or {}).get('base_review') or {}).get('phases')))):
         if wanted and label not in made:
@@ -354,7 +412,7 @@ def expected_decisions(index, record, lineage, decisions, missing):
 
 def trace_from_discussion(index, revision_id):
     """A need the discussion created (add, split, revise) has its origin in the outcome that made it."""
-    return any(revision_id in (o.get('result_revision_ids') or [])
+    return any(revision_id in result_ids(o)
                for case in index.cases.get(revision_id, [])
                for o in ((case.get('mediation') or {}).get('outcomes') or []))
 
@@ -367,10 +425,12 @@ def discussion_trace(index, revision_id, missing):
                     for m in case.get('messages') or [] for c in m.get('concerns') or [] if revision_id in (c.get('revision_ids') or [])]
         outcomes = []
         for outcome in mediation.get('outcomes') or []:
-            named = set(outcome.get('parent_revision_ids') or []) | set(outcome.get('result_revision_ids') or [])
+            named = set(outcome.get('parent_revision_ids') or []) | set(result_ids(outcome))
             if revision_id not in named: continue
             dangling = [r for r in named if r not in index.records and r not in plan_actions(case)]
-            if dangling:
+            # A proposal the salvage rejected is shown to the person as the model wrote it, names and all; it is
+            # listed with the review items, and does not break the chain of the need that was kept.
+            if dangling and not outcome.get('salvage_rejected'):
                 missing.append({'link': 'discussion', 'detail': f"Outcome {outcome.get('action_id')} names {', '.join(sorted(dangling))}, which is no revision."})
             check = outcome.get('independent_check') or {}
             outcomes.append({'action_id': outcome.get('action_id'), 'action': outcome.get('action'), 'status': outcome.get('status'),
@@ -378,7 +438,7 @@ def discussion_trace(index, revision_id, missing):
                              'check': {k: v for k, v in check.items() if k != 'item_id'} if check else None,
                              'question': (outcome.get('human_question') or {}).get('question') if isinstance(outcome.get('human_question'), dict)
                                          else outcome.get('human_question'),
-                             'result_revision_ids': outcome.get('result_revision_ids') or [],
+                             'result_revision_ids': result_ids(outcome),
                              'scope_tests': [{'need_id': (s.get('fa_scope') or {}).get('need_id'), 'failed_tests': s.get('failed_tests') or [],
                                               'serves': (s.get('fa_scope') or {}).get('serves')} for s in outcome.get('scope_tests') or []]})
         questions = [q.get('question') for q in mediation.get('human_questions') or [] if revision_id in (q.get('revision_ids') or [])]
@@ -407,7 +467,7 @@ def review_items(index):
         actions = plan_actions(case)
         for outcome in ((case.get('mediation') or {}).get('outcomes') or []):
             if outcome.get('status') != 'human_review': continue
-            named = list(outcome.get('parent_revision_ids') or []) + list(outcome.get('result_revision_ids') or [])
+            named = list(outcome.get('parent_revision_ids') or []) + result_ids(outcome)
             unresolved = [r for r in named if r not in index.records and r not in actions]
             if unresolved or (not named and outcome.get('action') not in {'add', 'experience_proposal'}):
                 loose.append({'case_id': case.get('case_id'), 'action_id': outcome.get('action_id'),
@@ -441,6 +501,7 @@ def traceability(traces, active):
 
 
 SUMMARY_STYLES = ('line', 'card', 'exceptions')
+MAX_SET_ASIDE_COUNT, MAX_SET_ASIDE_SHARE = 3, 0.1
 
 
 def short(text, limit):
@@ -544,13 +605,21 @@ def record_traceability(store, run_id, style='card'):
     traces = {r: need_trace(index, r) for r in produced_needs(run)}
     active = set(run['active_revision_ids'])
     weak = [traces[r] for r in run['active_revision_ids'] if r in traces and not traces[r]['completeness']['solid']]
+    # A broken chain is rare (none of the 203 active needs of three JRC runs). When many needs of one run fail at
+    # once, the trace is more likely wrong than the needs: nothing is set aside, and the run says so.
+    held = len(weak) > max(MAX_SET_ASIDE_COUNT, MAX_SET_ASIDE_SHARE * len(active))
     result = {**traceability(traces, active), 'summary_style': style, 'review_items_unresolved': review_items(index),
-              'set_aside_ids': [t['revision_id'] for t in weak],
+              'set_aside_ids': [] if held else [t['revision_id'] for t in weak],
+              'held_ids': [t['revision_id'] for t in weak] if held else [],
               'needs': {r: {'solid': t['completeness']['solid'], 'missing': t['completeness']['missing'],
                             'call_links': t['completeness']['call_links'], 'summary': need_summary(t, style)}
                         for r, t in traces.items()}}
     def save(r):
         r['stage_results']['traceability'] = result
+        if held:
+            r['diagnostics'] = [*r.get('diagnostics', []), f'Traceability: {len(weak)} of {len(active)} active needs have an '
+                                'incomplete chain; none was set aside, since so many at once points to the trace, not the needs.']
+            return
         for trace in weak:
             record = next(x for x in r['requirements'] if x['revision_id'] == trace['revision_id'])
             record['lifecycle_state'] = 'set_aside'

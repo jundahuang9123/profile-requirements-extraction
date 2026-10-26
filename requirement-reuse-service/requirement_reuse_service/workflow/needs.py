@@ -464,7 +464,7 @@ def write_needs(store, run, groups, client, profile):
                     'Term-free synthesis of source-checked proposals; independent rewrite critic passed.', profile)
                 complete.append(need)
                 events.append({'action':'merge_need', 'policy_version':POLICIES['need_statement'], 'group_id':group_id,
-                    'inputs':[r.revision_id for r in kept], 'outputs':[need.revision_id],
+                    'written_group_id':written.group_id, 'inputs':[r.revision_id for r in kept], 'outputs':[need.revision_id],
                     'split_member_ids':[r.revision_id for r in rejected],
                     'obligation_alternatives':[a.model_dump(mode='json') for a in need.obligation_alternatives]})
     return complete, events
@@ -1491,7 +1491,10 @@ def restore_need(store,run_id,request,actor):
         if len(matches)!=1 or matches[0].get('restored'):
             raise ValueError('Select one current, unrestored set-aside item.')
         aside=matches[0]
-        stored=next((r for r in run['requirements'] if r.get('requirement_id')==aside.get('need_id')),None)
+        # The set-aside revision itself: a revision written by the discussion keeps its parent's requirement ID, so
+        # the requirement ID alone found the superseded parent (rq1-need-trace-v1 review).
+        stored=(next((r for r in run['requirements'] if aside.get('revision_id') and r['revision_id']==aside['revision_id']),None)
+                or next((r for r in run['requirements'] if r.get('requirement_id')==aside.get('need_id')),None))
         if stored:
             record=RequirementRecord.model_validate(stored)
         else:
@@ -1515,7 +1518,8 @@ def restore_need(store,run_id,request,actor):
             record.qualification=None
             record.lifecycle_state=('blocked_support' if aside['reason'] in {'not_supported_by_quote','rewrite_rejected'} else 'awaiting_human') if record.verification['status']=='pass' else 'blocked_evidence'
             record.decision_id=decision_id
-            prior=next((r for r in run['requirements'] if r['requirement_id']==record.requirement_id),None)
+            prior=(next((r for r in run['requirements'] if r['revision_id']==record.revision_id),None)
+                   or next((r for r in run['requirements'] if r['requirement_id']==record.requirement_id),None))
             if prior: prior.update(record.model_dump(mode='json'))
             else: run['requirements'].append(record.model_dump(mode='json'))
             if record.revision_id not in run['active_revision_ids']: run['active_revision_ids'].append(record.revision_id)

@@ -490,7 +490,8 @@ work from this.
 
 `need_trace` builds the chain from what the run stores; no model is asked. A need is
 **solid** when four kinds of link hold:
-1. **Sources:** every supporting quotation is found in its evidence unit.
+1. **Sources:** every supporting quotation is found in its evidence unit, and the
+   need passed the source check.
 2. **Origin:** it comes from at least one extracted observation of a named agent
    (role run, prompt version, model). A need the discussion wrote (split, add,
    revise) has its origin in the outcome that made it.
@@ -503,11 +504,28 @@ work from this.
    - assessment;
    - base review (6a).
 
-   A step that did not run is not expected; a run without a base profile, for
-   example, classifies nothing.
-4. **Discussion:** if it was discussed, an outcome, concern or question names it, and
-   every revision an outcome names exists. Another action of the same plan also
-   counts, such as a defer of a proposed addition.
+   Details:
+   - A step that did not run is not expected; a run without a base profile, for
+     example, classifies nothing.
+   - A judgement a step could not make counts when it is recorded with its reason:
+     - proposal support or a scope test `not_checked`, kept and flagged;
+     - base review `not_reviewed` (for example `payload_budget`).
+   - A need whose source check failed is not expected at classification or the record
+     test, since both skip it; the failed check is its missing link.
+   - A need the discussion wrote shows the outcome that made it, with its reason, and
+     its own scope judgements. It keeps its parent's requirement ID, so the step rows
+     under that ID belong to the parent. Scope tests at apply (`scope_tests`) exist
+     only under discussion policies that run them, so they are shown but not
+     required.
+4. **Discussion:** if it was discussed, the discussion accounts for it, and every
+   revision an outcome names exists.
+   - A mediated case accounts for a need through an outcome, concern or question
+     that names it. A free discussion (messages only) has no per-need outcomes.
+   - Another action of the same plan also counts as a valid name, such as a defer of a
+     proposed addition.
+   - A routed discussion names its result as `result_revision_id`.
+   - A proposal the salvage rejected is shown as the model wrote it. It is listed
+     among the review items and does not break the chain of the need that was kept.
 
 Model-call links are bookkeeping, not part of solidity:
 - Since this version every decision point stores the IDs of the calls behind it:
@@ -516,8 +534,16 @@ Model-call links are bookkeeping, not part of solidity:
   the assessment of a mediated need.
 - `TrackedClient` reports each call to the logs open in the calling thread
   (`call_log`).
-- Earlier runs are matched by output, input hash or verbatim rationale. A derived run
-  follows `derived_from` to the run that extracted.
+- Earlier runs are matched by output, input hash, verbatim rationale, or the error
+  text of a failed call whose valid rows were kept.
+- A derived run follows `derived_from` to the run that extracted, and to the runs
+  whose cached judgements it reused.
+- The F/A test and the record test share a step but answer in different contracts.
+  The writer and its critics do too, so each decision is linked to the call of its
+  own contract.
+- The writer is linked through the group it was offered (`written_group_id`).
+- Base review records the calls its verdict and check were read from on the need
+  (`review_call_ids`, `check_call_ids`).
 
 At the end of a needs run `record_traceability` traces every produced need and saves
 the result under `stage_results.traceability`:
@@ -529,6 +555,13 @@ the result under `stage_results.traceability`:
 An active need whose chain is incomplete is set aside as `trace_incomplete`, with
 its missing links as the rationale. It is not counted as found and not put in front
 of a reviewer. It stays visible and restorable like any set-aside.
+- **Restoring:** restoring a set-aside now finds the set-aside revision itself. Before,
+  restore looked the record up by requirement ID alone, which for a revision written
+  by the discussion found, and overwrote, its parent.
+- **Safety valve:** when more than three active needs, and more than a tenth of them,
+  fail at once, the trace is more likely wrong than the needs. Nothing is set aside;
+  they are listed as `held_ids` and the run gets a diagnostic. None of the 203
+  active needs of the three JRC runs failed.
 
 The reviewer summary is built from the trace alone. It says:
 - where the need comes from (source and quotation);
@@ -571,7 +604,7 @@ returns the full chain of one need.
 
 On the three JRC runs under v9 + v14 (`run-9f5519c8`, `run-f36c8783`, `run-2f7b8d7a`):
 - every one of the 65, 78 and 60 active needs (and every produced need) is solid;
-- about 2,100 model decisions link to their calls by matching, 2 do not.
+- 2,107 model decisions link to their calls: 27 through call IDs the runs already recorded, 2,080 by matching. 2 do not.
 
 On a scripted run of this version every decision's calls are recorded at the source.
 
