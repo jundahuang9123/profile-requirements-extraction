@@ -1,4 +1,7 @@
 import RunTraceView from './RunTraceView';
+import { NeedTraceView } from './NeedTraceView';
+import { ResultViewer } from './ResultViewer';
+import { TraceLink } from '../lib/traceApi';
 import { NeedCoverageView } from './NeedCoverageView';
 import { useEffect, useState } from 'react';
 import { NeedSummaryView } from './NeedSummaryView';
@@ -82,6 +85,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
   const [selectedRevisions, setSelectedRevisions] = useState<string[]>([]);
   const [evidence, setEvidence] = useState<Evidence | null>(null);
   const [activeRecord, setActiveRecord] = useState<string | null>(null);
+  const [resultLink, setResultLink] = useState<TraceLink | null>(null);
 
   const refreshLists = async () => {
     const [sourceList, runList, profiles, cases] = await Promise.all([workflowApi<Source[]>('/sources'), workflowApi<RunSummary[]>('/runs'), workflowApi<BaseProfileSummary[]>('/base-profiles'), workflowApi<BenchmarkSummary[]>('/benchmarks')]);
@@ -121,7 +125,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
   }, [run?.run_id, run?.status, run?.deliberations.some(item => item.status === 'running'), run?.worker_id]);
 
   const navigate = (next: string, runId = run?.run_id ?? 'new') => {
-    setPage(next); setEvidence(null); window.location.hash = `/workflow/${runId}/${next}`;
+    setPage(next); setEvidence(null); setResultLink(null); window.location.hash = `/workflow/${runId}/${next}`;
     localStorage.setItem(`rq1-workflow-page-${runId}`, next);
   };
   const newWorkflow = () => { setRun(null); setSnapshot(null); setActiveRecord(null); setSelectedRevisions([]); localStorage.removeItem('rq1-v2-last-run'); navigate('acquisition', 'new'); };
@@ -226,7 +230,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
   const filteredAside = setAside.filter(item => asideFilter === 'all' || item.reason === asideFilter);
   const baseSummary = run?.stage_results?.normalization?.base_check ?? run?.metrics.base_check;
 
-  return <main className="workflow-workbench">
+  return <main className={`workflow-workbench${resultLink ? ' with-result-drawer' : ''}`}>
     <div className="workflow-intro"><div><h1>{stageNumbers[pageIndex]} · {labels[pageIndex]}</h1><p>Each step has saved results. Step by step for human review, or automatic processing for tests. Results save to the run; review actions save when submitted.</p></div><button onClick={newWorkflow}>New workflow</button></div>
     {error && <div className="workflow-error" role="alert">{error}</div>}
     <div className="workflow-toolbar"><label>Saved run<select value={run?.run_id ?? ''} onChange={event => void act(async () => {
@@ -368,7 +372,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
           </section>
     </>}
     <div hidden={page !== 'adjudication'}>
-          {run && record && <RequirementEditor key={record.revision_id} record={record} run={run} busy={busy || !['awaiting_human', 'completed'].includes(run.status) || record.lifecycle_state === 'set_aside'} inspect={id => void inspectEvidence(id)} submit={(path, payload) => act(async () => { await command(path, payload); })} />}
+          {run && record && <RequirementEditor key={record.revision_id} record={record} run={run} busy={busy || !['awaiting_human', 'completed'].includes(run.status) || record.lifecycle_state === 'set_aside'} inspect={id => void inspectEvidence(id)} openResult={setResultLink} submit={(path, payload) => act(async () => { await command(path, payload); })} />}
     </div>
     {run?.request?.output_form === 'needs' && ['consolidation','adjudication'].includes(page) && <NeedCoverageView run={run} inspect={id => void inspectEvidence(id)} review={id => { setActiveRecord(id); navigate('adjudication'); }} />}
     {run?.request?.output_form === 'needs' && ['normalization','consolidation','adjudication'].includes(page) && <NeedAsidesView run={run} busy={busy} review={id => { setActiveRecord(id); navigate('adjudication'); }} restore={(item,rationale) => act(async () => { await command('/restore', { expected_version:run.version, idempotency_key:commandKey(), observation_id:item.observation_id, reason:item.reason, need_id:item.need_id ?? null, rationale }); })} />}
@@ -392,9 +396,10 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     </>}
     {!run && !['acquisition', 'decomposition', 'role_selection'].includes(page) && <section className="workflow-empty"><h2>No saved run selected</h2><p>Choose a saved run above, or configure roles to start a new workflow.</p><button onClick={() => navigate('role_selection')}>Configure workflow</button></section>}
     {run?.request?.output_form === 'needs' && <section className="workflow-panel"><h2>Needs processing progress</h2><p>Source-checked proposals become grouped needs before classification, profile scope (D5), use-case scoping and support assessment; source-linked dataset kinds inform scope, and kept needs are grouped into families with a compact coverage selection. No automatic result is a human approval.</p><div className="workflow-tags">{Object.entries(run.need_steps ?? {}).map(([step, result]) => <span key={step}>{humanLabel(step)} · {String(result.retained_count ?? result.family_count ?? result.need_count ?? result.passed_count ?? result.group_count ?? result.input_count ?? 'saved')}</span>)}</div><details><summary>Saved needs policies</summary><pre>{JSON.stringify(run.needs_policies, null, 2)}</pre></details></section>}
-    {run && <RunTraceView run={run} stage={page} inspect={id => void inspectEvidence(id)} />}
+    {run && <RunTraceView run={run} stage={page} inspect={id => void inspectEvidence(id)} openResult={setResultLink} />}
     {run && <details className="workflow-panel"><summary>Saved history & metrics</summary><a className="workflow-download" href={`/api/rq1/v2/runs/${run.run_id}/evaluation?download=true`}>Download metrics</a><pre>{JSON.stringify({ metrics: run.metrics, attempts: run.attempt_history }, null, 2)}</pre></details>}
     <div className="workflow-toolbar workflow-page-footer"><button disabled={pageIndex === 0} onClick={() => navigate(stages[pageIndex - 1])}>Previous step</button><span>{pageIndex + 1} of {stages.length} views · saved results stay with this run</span><button disabled={pageIndex === stages.length - 1} onClick={() => navigate(stages[pageIndex + 1])}>Next step</button></div>
+    {resultLink && <aside className="result-drawer" aria-label="Saved result of a traced step"><ResultViewer link={resultLink} onClose={() => setResultLink(null)} /></aside>}
     {evidence && <div className="workflow-evidence-overlay" role="dialog" aria-modal="true" aria-label="Evidence inspector"><section className="workflow-panel"><button onClick={() => setEvidence(null)}>Close evidence inspector</button><h2>{humanLabel(evidence.unit.kind)}</h2><p>{humanLabel(evidence.unit.source_claim_kind)} · source {evidence.resolution.status}</p><pre>{evidence.unit.content}</pre><details open><summary>Address and structural context</summary><pre>{JSON.stringify({ selector: evidence.unit.selector, context: evidence.unit.structural_context, resolution: evidence.resolution }, null, 2)}</pre></details></section></div>}
   </main>;
 }
@@ -424,7 +429,7 @@ function AdditionEditor({ run, busy, submit }: { run: Run; busy: boolean; submit
   </details>;
 }
 
-function RequirementEditor({ record, run, busy, submit, inspect }: { record: Requirement; run: Run; busy: boolean; submit: (path: string, payload: unknown) => Promise<void>; inspect: (id: string) => void }) {
+function RequirementEditor({ record, run, busy, submit, inspect, openResult }: { record: Requirement; run: Run; busy: boolean; submit: (path: string, payload: unknown) => Promise<void>; inspect: (id: string) => void; openResult: (link: TraceLink) => void }) {
   const [statement, setStatement] = useState(record.normalized_statement);
   const [scope, setScope] = useState(record.scope);
   const [rationale, setRationale] = useState('');
@@ -442,6 +447,7 @@ function RequirementEditor({ record, run, busy, submit, inspect }: { record: Req
   const applicable = run.conflicts.filter(c => c.revision_ids.includes(record.revision_id) && c.status !== 'resolved');
   const draft = () => ({ statement, evidence_links: links, requirement_type: type, intent: { ...record.normalized_intent, metadata_need: metadataNeed, value_kind: valueKind, resource_type: resource, obligation_hint: obligation }, scope, rationale });
   return <section className="workflow-panel"><h2>8 · Inspect and adjudicate</h2><p>{record.normalized_statement}</p><div className="workflow-tags"><span>Source {record.verification?.status}</span><span>Support {record.qualification?.support}</span><span>{humanLabel(record.lifecycle_state)}</span></div>
+    {record.need_statement && <NeedTraceView run={run} revisionId={record.revision_id} open={openResult} />}
     {record.need_statement && <NeedSummaryView record={record} run={run} inspect={inspect} />}
     {record.base_check && <BaseCheckView check={record.base_check} />}
     {record.evidence_links.map((link, i) => <blockquote key={i}><p className="workflow-quote">{link.quote}</p><button onClick={() => inspect(link.evidence_id)}>{link.relation} · {link.component} · inspect original evidence</button></blockquote>)}

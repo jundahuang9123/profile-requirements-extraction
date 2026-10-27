@@ -579,9 +579,9 @@ def quote_window(quote, statement, limit=180):
     return ('…' if best else '') + ' '.join(span) + ('…' if best + len(span) < len(words) else '')
 
 
-def need_summary(trace, style='card'):
-    """A short account of the trace for a reviewer, built from the trace alone (no model): where the need comes from,
-    who extracted it, what the checks decided, what the discussion did and what is asked of the person."""
+def summary_items(trace):
+    """The phrases of a reviewer's account of the trace, each with the trace entry it reports (a JSON pointer into the
+    trace, or None), so the workbench can link every phrase to the saved result it comes from."""
     sources = trace['sources']
     first = sources[0] if sources else {}
     source = (f'{first.get("source") or first.get("evidence_id")}: "{quote_window(first.get("quote"), trace["statement"])}"'
@@ -591,51 +591,89 @@ def need_summary(trace, style='card'):
     merged = len(trace['origin'])
     who = (', '.join(agents) or 'the discussion') + (f'; {merged} extracted proposals merged' if merged > 1 else '')
     by_step = {}
-    for d in trace['decisions']: by_step.setdefault(d['step'], []).append(d)
-    def last(step): return (by_step.get(step) or [{}])[-1]
+    for i, d in enumerate(trace['decisions']): by_step.setdefault(d['step'], []).append((f'/decisions/{i}', d))
+    def last(step): return (by_step.get(step) or [(None, {})])[-1]
     plain = {'proposal_support': 'quote check', 'fa_test': 'find/access test', 'record_test': 'record test'}
-    second = lambda outcome: [plain.get(d['step'].replace('_confirmation', ''), d['step']) for d in trace['decisions']
+    second = lambda outcome: [(f'/decisions/{i}', plain.get(d['step'].replace('_confirmation', ''), d['step']))
+                              for i, d in enumerate(trace['decisions'])
                               if d['step'].endswith('_confirmation') and d['decision'] == outcome]
     serves = {'find': 'find data', 'access': 'access data', 'both': 'find and access data'}
     # Each phrase says what the decision was; a judgement a step could not make is never reported as passed.
     checks = []
-    supports = [d['decision'] for d in by_step.get('proposal_support') or []]
+    supports = by_step.get('proposal_support') or []
     if supports:
         # A merged need was written from several proposals: it is supported only if each of them is.
-        unjudged = supports.count('not_checked')
-        checks.append(('the quote check could not judge it' if len(supports) == 1 else
-                       f'the quote check could not judge {unjudged} of its {len(supports)} proposals') if unjudged else
-                      'the quote supports it' if set(supports) == {'supported'} else
-                      'the quote partly supports it' if 'partly' in supports else 'quote check: ' + ', '.join(sorted(set(supports))))
-    fa = last('fa_test').get('decision')
-    if fa: checks.append(f'it helps users {serves[fa]}' if fa in serves else 'it does not help users find or access data'
-                         if fa == 'neither' else 'judged by the discussion check' if fa == 'checked_mediation'
-                         else 'the find/access test could not judge it')
-    record_test = last('record_test').get('decision')
-    if record_test: checks.append('the record test could not judge it' if record_test == 'not_checked' else f'record test {record_test}')
-    if 'covered_by_base' in trace['flags'] or last('classification').get('decision') == 'generic':
-        checks.append('already in the base profile')
-    elif last('classification').get('decision') == 'not_checked': checks.append('the base search could not judge it')
-    elif last('classification').get('decision'): checks.append('not in the base profile')
+        said = [d['decision'] for _, d in supports]
+        unjudged = said.count('not_checked')
+        ref = next((r for r, d in supports if d['decision'] == 'not_checked'), supports[0][0]) if unjudged else supports[0][0]
+        checks.append((('the quote check could not judge it' if len(said) == 1 else
+                        f'the quote check could not judge {unjudged} of its {len(said)} proposals') if unjudged else
+                       'the quote supports it' if set(said) == {'supported'} else
+                       'the quote partly supports it' if 'partly' in said else 'quote check: ' + ', '.join(sorted(set(said))), ref))
+    ref, fa = last('fa_test'); fa = fa.get('decision')
+    if fa: checks.append((f'it helps users {serves[fa]}' if fa in serves else 'it does not help users find or access data'
+                          if fa == 'neither' else 'judged by the discussion check' if fa == 'checked_mediation'
+                          else 'the find/access test could not judge it', ref))
+    ref, record_test = last('record_test'); record_test = record_test.get('decision')
+    if record_test: checks.append(('the record test could not judge it' if record_test == 'not_checked' else f'record test {record_test}', ref))
+    ref, classification = last('classification'); classification = classification.get('decision')
+    if 'covered_by_base' in trace['flags'] or classification == 'generic':
+        checks.append(('already in the base profile', ref))
+    elif classification == 'not_checked': checks.append(('the base search could not judge it', ref))
+    elif classification: checks.append(('not in the base profile', ref))
     disputed, unchecked = second('disputed'), second('not_checked')
-    if disputed: checks.append('a first judgement was overruled at the ' + ', '.join(disputed))
-    if unchecked: checks.append('a second judgement is missing at the ' + ', '.join(unchecked))
-    made = [o for c in trace['discussion'] for o in c['outcomes'] if trace['revision_id'] in o['result_revision_ids']]
-    for outcome in made:
+    if disputed: checks.append(('a first judgement was overruled at the ' + ', '.join(s for _, s in disputed), disputed[0][0]))
+    if unchecked: checks.append(('a second judgement is missing at the ' + ', '.join(s for _, s in unchecked), unchecked[0][0]))
+    outcomes = [(f'/discussion/{c}/outcomes/{o}', outcome) for c, case in enumerate(trace['discussion'])
+                for o, outcome in enumerate(case['outcomes'])]
+    for ref, outcome in outcomes:
+        if trace['revision_id'] not in outcome['result_revision_ids']: continue
         tests = [s for s in outcome['scope_tests'] if s['need_id'] == trace['requirement_id']]
-        checks.append(f"written by the discussion ({outcome['action']})" + (
+        checks.append((f"written by the discussion ({outcome['action']})" + (
             '; a scope test failed' if any(s['failed_tests'] for s in tests) else
             '; its scope tests passed' if all(s.get('judged', True) for s in tests) else
-            '; no scope test failed, but one could not judge it') if tests else '')
-    discussion, questions = [], []
-    for case in trace['discussion']:
-        for outcome in case['outcomes']:
-            discussion.append(f"{outcome['action']} ({outcome['status']}): {short(outcome['rationale'], 220)}")
-            if outcome.get('question'): questions.append(short(outcome['question'], 160))
-        if case.get('stop_reason') and not case['outcomes']: discussion.append(f"stopped ({case['stop_reason']})")
-        questions += [short(q, 160) for q in case.get('questions') or []]
-    questions = list(dict.fromkeys(questions))
-    missing = [m['detail'] for m in trace['completeness']['missing']]
+            '; no scope test failed, but one could not judge it') if tests else '', ref))
+    discussion, questions = [], {}
+    for c, case in enumerate(trace['discussion']):
+        for o, outcome in enumerate(case['outcomes']):
+            ref = f'/discussion/{c}/outcomes/{o}'
+            discussion.append((f"{outcome['action']} ({outcome['status']}): {short(outcome['rationale'], 220)}", ref))
+            if outcome.get('question'): questions.setdefault(short(outcome['question'], 160), ref)
+        if case.get('stop_reason') and not case['outcomes']: discussion.append((f"stopped ({case['stop_reason']})", f'/discussion/{c}'))
+        for q in case.get('questions') or []: questions.setdefault(short(q, 160), f'/discussion/{c}')
+    return {'source': (source, '/sources/0' if first else None), 'agents': agents, 'merged': merged,
+            'who': (who, '/origin/0' if trace['origin'] else None), 'checks': checks, 'discussion': discussion,
+            'questions': list(questions.items()), 'disputed': [s for _, s in disputed], 'unchecked': [s for _, s in unchecked],
+            'missing': [m['detail'] for m in trace['completeness']['missing']]}
+
+
+def summary_parts(trace):
+    """The reviewer card (style 'card') as lines of phrases, each phrase with the trace entry it reports."""
+    items = summary_items(trace)
+    def joined(pairs, sep):
+        parts = []
+        for n, (text, ref) in enumerate(pairs):
+            if n: parts.append({'text': sep, 'ref': None})
+            parts.append({'text': text, 'ref': ref})
+        return parts
+    lines = [('Source', [items['source']]), ('Extracted by', [items['who']]),
+             ('Checks', items['checks'] or [('none recorded', None)])]
+    if items['discussion']: lines.append(('Discussion', items['discussion']))
+    lines.append(('For you', items['questions'] or [('confirm, edit or reject.', None)]))
+    if items['missing']: lines.append(('Chain incomplete', [(m, '/completeness') for m in items['missing']]))
+    sep = {'Checks': '; ', 'Chain incomplete': '; '}
+    return [{'label': label, 'parts': joined(pairs, sep.get(label, ' / '))} for label, pairs in lines]
+
+
+def need_summary(trace, style='card'):
+    """A short account of the trace for a reviewer, built from the trace alone (no model): where the need comes from,
+    who extracted it, what the checks decided, what the discussion did and what is asked of the person."""
+    items = summary_items(trace)
+    source, who, agents, merged = items['source'][0], items['who'][0], items['agents'], items['merged']
+    checks = [text for text, _ in items['checks']]
+    discussion = [text for text, _ in items['discussion']]
+    questions = [text for text, _ in items['questions']]
+    disputed, unchecked, missing = items['disputed'], items['unchecked'], items['missing']
     if style == 'line':
         parts = [f'From {source}', f'extracted by {who}', 'checks: ' + ('; '.join(checks) or 'none recorded')]
         if discussion: parts.append('discussion: ' + ' / '.join(discussion))

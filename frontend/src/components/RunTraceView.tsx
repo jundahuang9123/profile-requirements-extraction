@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Run, Requirement } from '../lib/workflowApi';
+import { TraceLink } from '../lib/traceApi';
+import { NeedTraceView } from './NeedTraceView';
 
 type Route = { evidence_id: string; kind: string; role_ids: string[]; rationale: string };
-export default function RunTraceView({ run, stage, inspect }: { run: Run; stage: string; inspect: (id: string) => void }) {
+export default function RunTraceView({ run, stage, inspect, openResult }: { run: Run; stage: string; inspect: (id: string) => void; openResult: (link: TraceLink) => void }) {
   const [selected, setSelected] = useState('');
   const audit = run.stakeholder_audit ?? {};
   const plan = audit.routing_plan as { routes?: Route[]; source_unit_count?: number; assignment_count?: number } | undefined;
@@ -33,7 +35,8 @@ export default function RunTraceView({ run, stage, inspect }: { run: Run; stage:
       </tr>)}</tbody></table></details>}
     <label>Follow a need back to its sources<select value={selected} onChange={e => setSelected(e.target.value)}><option value="">Choose a current need</option>
       {run.requirements.filter(r => run.active_revision_ids.includes(r.revision_id)).map(r => <option key={r.revision_id} value={r.revision_id}>{r.need_statement ?? r.normalized_statement}</option>)}</select></label>
-    {selected && byId.get(selected) && node(byId.get(selected)!, new Set())}
+    {selected && byId.get(selected)?.need_statement && <NeedTraceView run={run} revisionId={selected} open={openResult} />}
+    {selected && byId.get(selected) && <details><summary>Saved revisions and checks of this need</summary>{node(byId.get(selected)!, new Set())}</details>}
     <details><summary>Saved stage inputs, outputs, routing and mediation audit</summary><pre>{JSON.stringify(audit, null, 2)}</pre></details>
     <details><summary>Saved results for this stage</summary><pre>{JSON.stringify(run.stage_results?.[stage] ?? { status: run.stages[stage], message: 'No completed stage output yet.' }, null, 2)}</pre></details>
   </section>;

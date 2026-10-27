@@ -377,7 +377,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Need assessment | `rq1-need-support-v1` | One logical assessment per kept need; complete selected excerpts, max 45,000 input characters; at most two generations for schema/cutoff recovery |
 | Row recovery | `rq1-needs-row-recovery-v2` | Valid rows saved; correction includes only failing rows; invalid/cutoff output gets durable fallbacks after exhaustion; provider failures stop and remain retryable |
 | Rank | `rq1-need-ranking-v1` | Deterministic; every kept need remains listed |
-| Traceability | `rq1-need-trace-v1` | Deterministic, at the end of a needs run; an active need whose chain is incomplete is set aside (`trace_incomplete`); call IDs recorded where each decision is made |
+| Traceability | `rq1-need-trace-v1` | Deterministic, at the end of a needs run; an active need whose chain is incomplete is set aside (`trace_incomplete`); call IDs recorded where each decision is made; every trace entry links to the saved step result, model call or source text it comes from |
 | Families (D5) | `rq1-need-families-v1` | 40 needs, 24,000 input characters and at most 60 earlier families per grouping call (`grouping` model setting); invalid grouping keeps that chunk's needs as singleton families, audited |
 | Discussion routing | `rq1-needs-routing-v3` | An obligation that no source states opens no case by itself (since v2), nor does the lexical 'and' hint when the model judged atomicity (v3); both stay on the need for review. Runs saved under v2 keep v2 routing; runs saved without a routing policy keep their original routing |
 
@@ -627,6 +627,73 @@ On the three JRC runs under v9 + v14 (`run-9f5519c8`, `run-f36c8783`, `run-2f7b8
   - 2 needs base review did not reach.
 
 On a scripted run of this version every decision's calls are recorded at the source.
+
+### Links to the saved results
+
+Junda, 27 October: every trace entry should link to where it was traced from. The
+link opens the result file of the step that made it, with the traced part
+highlighted, so the reviewer does not go back through the step pages.
+
+Each step of a run saves a result file: the workbench's "Download this step". The trace
+returned by `GET /runs/{run_id}/needs/{revision_id}/trace` carries a list of `links`
+on every entry (`trace_links`). Each link names:
+- a `file`: an API path;
+- a `pointer`: a JSON pointer (RFC 6901) to the traced row in that file;
+- for a quotation, the quoted text (`mark`) and where it sits in its evidence unit
+  (`quote_span`).
+
+Where each entry links:
+
+| Trace entry | File | Place |
+|---|---|---|
+| Quotation | the source document (`/sources/{id}/document`): parsed text and evidence units | the unit, with the quotation marked |
+| Extracted observation | step 3b, plus the model call that extracted it | the observation; the agent's role run; the call's row |
+| Source check | step 5 (proposals); the step 6 copy of the record for a need written in step 6 | the record's `verification` |
+| Proposal support, classification, F/A test, record test, dataset applicability | step 6 (`need_steps`) | the decision row, matched by ID and reason |
+| Grouping, need writing | step 6 | the grouping chunk and its rationale; the writing event |
+| Assessment | step 6 (`need_steps.assessment.records`) | the record's `qualification` |
+| Base review and its check | step 6a | the record's `base_relation` |
+| Discussion case and outcome | step 7 | the case; the outcome |
+| Set-aside | step 6; the traceability summary for `trace_incomplete` | the set-aside entry; the need's missing links |
+| Model call behind a decision | `/runs/{run_id}/calls/{call_id}`, in the run that made it | the output row about the need, found by ID, verbatim reason, statement or member alias |
+
+Details:
+- **Fallback:** a judgement kept on the record links to the first step file whose copy
+  of the record says what the run says now. A revision the discussion wrote has its
+  scope judgements in the step 7 file, not in its parent's step 6 rows. The last
+  fallback is step 8, the current saved state.
+- **Discussion-made observations:** an observation ID that no agent extracted (one the
+  discussion gave a revision it wrote) links to the outcome that wrote that revision.
+- **Reviewer card:** each phrase carries the trace entry it reports
+  (`summary_parts`). The workbench links each phrase to that entry's first link. The
+  card text is unchanged: it is byte-identical on the 255 produced needs of the three
+  JRC runs.
+- **Files:** `GET /runs/{run_id}/stages/{stage}` serves the step file, built by the same
+  function as the links (`stage_results`), so the pointers hold.
+  `GET /runs/{run_id}/calls/{call_id}` serves one saved call; inputs are kept only as
+  hashes. `GET /sources/{source_version_id}/document` serves a source's parsed text with
+  its units in reading order.
+
+**In the workbench**, the inspect page of a need (step 8) and the run trace show the
+card with every phrase linked, and a "Full chain" with the links of every entry.
+- A link opens the file in a panel beside the trace. The page moves left so the trace
+  stays clickable, and the highlighted part is scrolled into view.
+- A JSON file opens as a tree: the path to the row is expanded, the row is highlighted,
+  and long lists show the rows around it.
+- A source opens as its parsed text: the evidence unit in blue, the quotation in yellow.
+- "Open in new tab" (or a middle click) opens the same view on its own page
+  (`#/result?file=…&pointer=…`).
+
+**Checks:**
+- On the three JRC runs, all 4,141 trace entries of the 255 produced needs have at
+  least one link: 9,884 links in total.
+- Every link resolves in the file its endpoint serves. Every step link lands on an
+  object about the entry: its revision, need, group, observation, case or outcome.
+- All 314 quotations are located in their source text. Each unit's span in the text
+  equals its content.
+- Of the 5,473 model-call links, 2,154 open at the row about the need. The rest open
+  at the call's whole output: the discussion's own calls, one-need assessments (whose
+  output is the row), and a few writer and F/A calls whose rows use aliases.
 
 ## Discussion routing
 
