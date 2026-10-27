@@ -671,10 +671,16 @@ Details:
   other. Each is linked to the call that gave it: the cached row that says what it
   says, in either step. When the second judgement overruled the first ("disputed"),
   the decision opens the second call and the confirmation the first.
+  - A second judgement that failed leaves the proposal `not_checked`, with that call's
+    failure as its reason: the decision opens the failed call, and its confirmation
+    opens the first judgement.
   - A classification can come from any chunk of the base search, so it is linked
     to the chunk whose row says what it says.
-  - A need no chunk matched ("No matching entry was found") is linked to every chunk's
-    call.
+  - A decision that sums up several chunks is linked to each chunk's kept answer (its
+    last attempt; a rejected attempt is left out):
+    - a need no chunk matched ("No matching entry was found"): every chunk;
+    - a refinement of the base, whose reason joins the matching chunks' reasons:
+      those chunks.
   - Before this, on the three JRC runs, the linked row contradicted the decision for
     22 classifications and for the overruled judgements of 24 needs. Now it
     contradicts none.
@@ -732,24 +738,37 @@ card with every phrase linked, and a "Full chain" with the links of every entry.
 
 **Checks:**
 - On the three JRC runs, all 4,141 trace entries of the 255 produced needs have at
-  least one link: 10,184 links in total.
+  least one link: 10,179 links in total.
 - Every link resolves in the file its endpoint serves. Every step link lands on an
   object about the entry: its revision, need, group, observation, case or outcome.
 - All 314 quotations are located in their evidence unit. 280 come from parsed text,
   where each unit's span in the text equals its content. 34 come from a structured
   (AAS JSON) source and open unit by unit.
-- Of the 5,773 model-call links, 2,455 open at the row about the need.
-  - In none of them does the row name another need.
-  - In every one, the row gives the decision's own reason. The exceptions are 18
-    earlier attempts of a grouping chunk, which are linked beside the final answer.
-- The rest open at the call's whole output:
-  - the discussion's own calls (50 of them failed);
-  - one-need assessments, whose output is the row;
-  - 84 failed writer and F/A calls, with no answer saved.
-- **Reviews:** two independent reviews found links that opened the wrong row:
+- Of the 5,768 model-call links, 2,450 open at the row about the need. In none of
+  them does the row name another need. By what the row says:
+
+  | Row | Links |
+  |---|---|
+  | the extracted observation | 270 |
+  | the decision's own reason | 1,396 |
+  | a chunk of a search that found no match, with that chunk's own reason | 375 |
+  | the need's dataset applicability (its reason joins the category links' reasons) | 180 |
+  | the writer's row, which gives no reason | 202 |
+  | a grouping row without a reason | 5 |
+  | an earlier attempt of a grouping chunk, linked beside the final answer (4 calls) | 22 |
+
+- 134 links go to failed calls, with no answer saved:
+  - 84 to 7 writer and F/A calls;
+  - 50 to 36 discussion calls.
+- The other 3,184 open at the call's whole output:
+  - 2,968 are the discussion's own calls;
+  - 215 are one-need assessments, whose output is the row;
+  - 1 is an earlier grouping attempt.
+- **Reviews:** three independent reviews found links that opened the wrong row:
   - a neighbour with the same reason;
   - the other judgement of an overruled pair;
-  - the first chunk of a base search.
+  - the first chunk of a base search;
+  - a rejected attempt.
 
   They also found labels of a step that did not run. A test for each fails on the
   version before its fix.

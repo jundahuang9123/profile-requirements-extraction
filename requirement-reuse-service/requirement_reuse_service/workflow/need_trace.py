@@ -323,7 +323,9 @@ def need_trace(index, revision_id):
         # the reason); the step's decision list holds the valid rows.
         row = current.get('proposal_support') or index.decisions['proposal_support'].get(revision)
         if row:
-            hit = judged_row(index, SUPPORT, revision, row, latest=True)
+            # A second judgement that failed leaves the proposal not_checked, with that call's failure as its reason.
+            failed = ((current.get('proposal_support') or {}).get('confirmation') or {}).get('outcome') == 'not_checked'
+            hit = judged_row(index, SUPPORT[::-1] if failed else SUPPORT, revision, row, latest=True)
             decided('proposal_support', revision, row.get('support'),
                     row.get('rationale') or (row.get('fallback') or {}).get('reason'), row.get('policy_version'),
                     call_status(*hit[3:]) if hit else None)
@@ -379,8 +381,13 @@ def need_trace(index, revision_id):
         if not row: continue
         hit = judged_row(index, JUDGED_IN[label], need_id, row)
         if label == 'classification' and not judged_row(index, JUDGED_IN[label], need_id, row, exact=True):
-            # A need no chunk matched: the decision sums up every chunk of the search, each answered by its own call.
-            rows = [h for step, kind in JUDGED_IN[label] for h in index.chunk_rows.get((step, kind, need_id)) or []]
+            # The decision sums up several chunks of the search, each answered by its own call (a chunk's last attempt
+            # is the answer it kept): every chunk when none matched, else the chunks that matched.
+            final = {}
+            for step, kind in JUDGED_IN[label]:
+                for h in index.chunk_rows.get((step, kind, need_id)) or []:
+                    if h[0] not in final or h[1] > final[h[0]][1]: final[h[0]] = h
+            rows = [h for h in final.values() if row.get('classification') == 'domain' or h[2].get('classification') != 'domain']
             calls = list(dict.fromkeys(c for h in rows for c in h[3]))
             if calls: hit = (None, None, row, calls, 'recorded' if all(h[4] == 'recorded' for h in rows) else 'matched')
         reason = row.get(field) if field else '; '.join(l.get('rationale', '') for l in row.get('category_links') or [])

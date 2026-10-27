@@ -3,6 +3,7 @@ the result file of the step that made it at the traced row (a JSON pointer), a m
 the quotation marked. Each test follows the links over the API, as the workbench does."""
 import collections
 import copy
+import json
 from fastapi.testclient import TestClient
 from test_routed_stakeholder_workflow import setup  # noqa: F401  (pytest fixture)
 from test_need_trace_v1 import finished, full_client  # noqa: F401  (pytest fixture)
@@ -374,12 +375,15 @@ def test_an_overruled_judgement_links_to_the_call_that_gave_the_judgement_kept(s
     client = full_client(); base = client.generate_structured; seen = collections.Counter()
     def generate(**kw):
         answer = base(**kw); name = kw['output_model'].__name__
-        if name not in {'ProposalSupport', 'ProfileScope'}: return answer
+        if name not in {'ProposalSupport', 'ProfileScope', 'FAScopeResult'}: return answer
         raw = answer.model_dump(mode='json')
         for row in raw['proposals' if name == 'ProposalSupport' else 'decisions']:
             key = (name, row.get('proposal_id') or row.get('need_id')); seen[key] += 1
             first = seen[key] == 1
-            if name == 'ProposalSupport':
+            if name == 'FAScopeResult':
+                row.update(serves='neither', rationale='FIRST judgement: it helps users neither find nor access data.') if first else \
+                    row.update(rationale='SECOND judgement: it helps users find data.')
+            elif name == 'ProposalSupport':
                 row.update(rationale=('FIRST judgement: the quote does not support it.' if first else 'SECOND judgement: the quote supports it.'),
                            **({'support': 'not_supported', 'supporting_evidence_ids': []} if first else {}))
             elif first: row.update(catalogue_level=False, record_resource='none', record_statement='', rationale='FIRST judgement: no catalogue record states it.')
@@ -395,7 +399,8 @@ def test_an_overruled_judgement_links_to_the_call_that_gave_the_judgement_kept(s
     for revision in saved['active_revision_ids']:
         trace = linked(api, saved, revision)
         for decision in trace['decisions']:
-            if decision['step'] not in {'proposal_support', 'proposal_support_confirmation', 'record_test', 'record_test_confirmation'}: continue
+            if decision['step'] not in {'proposal_support', 'proposal_support_confirmation', 'fa_test', 'fa_test_confirmation',
+                                        'record_test', 'record_test_confirmation'}: continue
             calls = [l for l in decision['links'] if '/calls/' in l['file']]
             assert calls, decision
             said = follow(api, calls[0])[1]['rationale']
@@ -403,7 +408,8 @@ def test_an_overruled_judgement_links_to_the_call_that_gave_the_judgement_kept(s
             assert said.startswith('FIRST' if decision['step'].endswith('_confirmation') else 'SECOND'), (decision['step'], said)
             assert said == decision['reason']
             checked[decision['step']] += 1
-    assert checked['proposal_support'] and checked['proposal_support_confirmation'] and checked['record_test'] and checked['record_test_confirmation']
+    assert all(checked[step] for step in ('proposal_support', 'proposal_support_confirmation', 'fa_test', 'fa_test_confirmation',
+                                          'record_test', 'record_test_confirmation')), checked
 
 
 def test_the_card_links_a_label_set_by_base_review_to_the_base_review():
@@ -432,8 +438,125 @@ def test_a_need_no_search_chunk_matched_links_to_every_chunk_of_its_search(setup
         decision = next((d for d in trace['decisions'] if d['step'] == 'classification'), None)
         if not decision or decision['decision'] != 'domain': continue
         chunks = [h for step in ('classification', 'base_search') for h in index.chunk_rows.get((step, '', trace['requirement_id'])) or []]
-        assert len(chunks) > 1
-        assert decision['call_ids'] == list(dict.fromkeys(c for h in chunks for c in h[3]))
+        kept = [h for h in chunks if h[1] == max(x[1] for x in chunks if x[0] == h[0])]
+        assert len(kept) > 1
+        assert decision['call_ids'] == list(dict.fromkeys(c for h in kept for c in h[3]))
         assert {l['file'].rsplit('/', 1)[1] for l in decision['links'] if '/calls/' in l['file']} == set(decision['call_ids'])
         checked += 1
     assert checked
+
+
+# Final verification of the links (27 Oct).
+
+def test_a_classification_a_later_search_chunk_gave_links_to_that_chunks_call(setup):
+    from test_need_trace_v1_shapes import client_for
+    store, original, _, _ = setup
+    client = client_for('revise'); inner = client.generate_structured; asked = collections.Counter()
+    def generate(**kw):
+        if kw['output_model'].__name__ != 'NeedClassifications': return inner(**kw)
+        data = json.loads(kw['user']); need = next(iter(data['needs'])); asked[need] += 1
+        if asked[need] == 1:
+            row = {'need_id': need, 'classification': 'domain', 'base_need_ids': [], 'rationale': 'The first chunk has no entry for it.'}
+        else:
+            row = {'need_id': need, 'classification': 'generic', 'base_need_ids': [next(iter(data['base_needs']))],
+                   'rationale': 'A later chunk lists the entry that serves it.'}
+        return kw['output_model'].model_validate({'classifications': [row]})
+    client.generate_structured = generate
+    run = new_fa_run(store, original, base_profile_id='dcat-ap-1.1.0', base_review='expert_v1')
+    engine.execute_run(store, run['run_id'], client)
+    saved = store.get_run(run['run_id'])
+    api = TestClient(app); found = 0
+    for revision in need_trace.produced_needs(saved):
+        decision = next((d for d in linked(api, saved, revision)['decisions'] if d['step'] == 'classification'), None)
+        if not decision or decision['decision'] != 'generic': continue
+        call = next(l for l in decision['links'] if '/calls/' in l['file'])
+        row = follow(api, call)[1]
+        assert row['classification'] == 'generic' and row['rationale'] == decision['reason'] == 'A later chunk lists the entry that serves it.'
+        found += 1
+    assert found
+
+
+def test_a_proposal_whose_second_judgement_failed_links_to_both_calls(setup):
+    # The first judgement rejects it; the second, made alone, keeps breaking its contract: the proposal is kept
+    # not_checked with that failure as its reason. It opens the failed call; its confirmation, the first.
+    store, original, _, _ = setup
+    client = full_client(); base = client.generate_structured; seen = collections.Counter()
+    def generate(**kw):
+        answer = base(**kw)
+        if kw['output_model'].__name__ != 'ProposalSupport': return answer
+        raw = answer.model_dump(mode='json')
+        for row in raw['proposals']:
+            seen[row['proposal_id']] += 1
+            if seen[row['proposal_id']] == 1:
+                row.update(support='not_supported', supporting_evidence_ids=[], rationale='FIRST judgement: the quote does not support it.')
+            else:
+                row.update(support='supported', supporting_evidence_ids=[], rationale='SECOND judgement, without a quote.')
+        return kw['output_model'].model_validate(raw)
+    client.generate_structured = generate
+    run = new_fa_run(store, original)
+    engine.execute_run(store, run['run_id'], client)
+    saved = store.get_run(run['run_id'])
+    api = TestClient(app); checked = 0
+    for record in saved['requirements']:
+        if ((record.get('proposal_support') or {}).get('confirmation') or {}).get('outcome') != 'not_checked': continue
+        trace = linked(api, saved, next(r for r in need_trace.produced_needs(saved) if record['revision_id'] in saved_record(saved, r)['parent_revision_ids'] or r == record['revision_id']))
+        steps = {d['step']: d for d in trace['decisions'] if d['revision_id'] == record['revision_id']}
+        opened = {step: follow(api, next(l for l in steps[step]['links'] if '/calls/' in l['file']))[1]['rationale']
+                  for step in ('proposal_support', 'proposal_support_confirmation')}
+        assert opened == {'proposal_support': 'SECOND judgement, without a quote.', 'proposal_support_confirmation': 'FIRST judgement: the quote does not support it.'}
+        checked += 1
+    assert checked
+
+
+def base_profile_run(store, original, classify):
+    from test_need_trace_v1_shapes import client_for
+    client = client_for('revise'); inner = client.generate_structured
+    client.generate_structured = lambda **kw: classify(json.loads(kw['user']), kw) if kw['output_model'].__name__ == 'NeedClassifications' else inner(**kw)
+    run = new_fa_run(store, original, base_profile_id='dcat-ap-1.1.0', base_review='expert_v1')
+    engine.execute_run(store, run['run_id'], client)
+    return store.get_run(run['run_id'])
+
+
+def classification_of(saved):
+    api = TestClient(app)
+    for revision in need_trace.produced_needs(saved):
+        decision = next((d for d in linked(api, saved, revision)['decisions'] if d['step'] == 'classification'), None)
+        if decision: return api, revision, decision
+
+
+def test_a_rejected_attempt_of_a_search_chunk_is_not_linked(setup):
+    # The second chunk's first answer names an entry outside the chunk and is rejected; its second answer is kept.
+    store, original, _, _ = setup
+    asked = collections.Counter()
+    def classify(data, kw):
+        need = next(iter(data['needs'])); asked[need] += 1
+        row = ({'need_id': need, 'classification': 'generic', 'base_need_ids': ['base-not-offered'], 'rationale': 'Rejected answer.'}
+               if asked[need] == 2 else {'need_id': need, 'classification': 'domain', 'base_need_ids': [], 'rationale': f'Chunk answer {asked[need]}.'})
+        return kw['output_model'].model_validate({'classifications': [row]})
+    saved = base_profile_run(store, original, classify)
+    api, revision, decision = classification_of(saved)
+    assert decision['decision'] == 'domain' and len(decision['call_ids']) > 1
+    rows = [follow(api, l)[1] for l in decision['links'] if '/calls/' in l['file'] and l['pointer'] not in ('', '/output')]
+    assert rows and all(r['classification'] == 'domain' for r in rows)
+
+
+def test_a_refinement_found_in_some_chunks_links_to_those_chunks_only(setup):
+    # A refinement of the base joins the reasons of the chunks that found it; the chunks that found nothing are not
+    # what it says.
+    store, original, _, _ = setup
+    saved = base_profile_run(store, original, lambda data, kw: kw['output_model'].model_validate({'classifications': [
+        {'need_id': next(iter(data['needs'])), 'classification': 'domain', 'base_need_ids': [], 'rationale': 'Nothing here.'}]}))
+    need = next(d['need_id'] for d in saved['need_steps']['classification']['decisions'])
+    keys = [k for k, c in saved['need_chunks'].items() if c.get('step') == 'base_search']
+    def refine(r):
+        for key in keys[:2]:
+            row = r['need_chunks'][key]['attempts'][-1]['output']['classifications'][0]
+            row.update(classification='domain_use_of_base', base_need_ids=['base-x'], rationale=f'Refines an entry ({key[:6]}).')
+        for steps in (r['need_steps'], r['stage_results']['consolidation']['need_steps']):
+            decision = next(d for d in steps['classification']['decisions'] if d['need_id'] == need)
+            decision.update(classification='domain_use_of_base', rationale=' '.join(f'Refines an entry ({k[:6]}).' for k in keys[:2]))
+    store.mutate(saved['run_id'], None, 'fixture_refinement', refine, parts=True)
+    saved = store.get_run(saved['run_id'])
+    api, revision, decision = classification_of(saved)
+    wanted = [c for k in keys[:2] for c in saved['need_chunks'][k]['attempts'][-1]['call_ids']]
+    assert decision['decision'] == 'domain_use_of_base' and decision['call_ids'] == wanted

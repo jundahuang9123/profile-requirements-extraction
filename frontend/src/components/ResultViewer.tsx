@@ -60,7 +60,9 @@ export function ResultViewer({ link, onClose }: { link: TraceLink; onClose?: () 
 
 function DocumentView({ doc, link }: { doc: SourceDocument; link: TraceLink }) {
   const [all, setAll] = useState(false);
-  useEffect(() => setAll(false), [link]);
+  // Reset while rendering a new link (not in an effect), so the unit is shown before the viewer scrolls to it.
+  const [forLink, setForLink] = useState(link);
+  if (forLink !== link) { setForLink(link); setAll(false); }
   const evidenceId = pointerKeys(link.pointer)[1];
   const unit = doc.units[evidenceId];
   if (unit?.span && doc.text.slice(unit.span[0], unit.span[1]) === unit.content) {
@@ -82,7 +84,9 @@ type Context = { target: string; mark?: string; open: Record<string, boolean>; t
 
 function JsonView({ value, link }: { value: unknown; link: TraceLink }) {
   const [open, setOpen] = useState<Record<string, boolean>>({});
-  useEffect(() => setOpen({}), [link]);
+  // A node the reviewer collapsed opens again for a new click while rendering it, so the row is there to scroll to.
+  const [forLink, setForLink] = useState(link);
+  if (forLink !== link) { setForLink(link); setOpen({}); }
   const context: Context = { target: link.pointer, mark: link.mark, open, toggle: (pointer, next) => setOpen(previous => ({ ...previous, [pointer]: next })) };
   return <div className="result-json"><JsonNode name={null} value={value} pointer="" context={context} /></div>;
 }
