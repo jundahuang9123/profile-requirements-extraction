@@ -196,7 +196,16 @@ def fa_run(run):
     return request.get('requirements_scope') == 'find_access_v1' or request.get('stakeholder_workflow') == 'fa_mediated'
 
 
-def matching_row(index, step, identifier, kind, wanted, latest=False):
+def record_outcome(scope):
+    """The record test's outcome on a record: a first judgement that failed it stands when the second is missing."""
+    confirmation = scope.get('confirmation') or {}
+    if scope.get('failed_tests'): return 'failed ' + ', '.join(scope['failed_tests'])
+    if confirmation.get('outcome') == 'not_checked' and confirmation.get('first_failed_tests'):
+        return 'failed once (' + ', '.join(confirmation['first_failed_tests']) + '), second judgement missing'
+    return 'passed'
+
+
+def matching_row(index, step, identifier, kind, wanted, latest=False, exact=False):
     """The cached row that made a decision: the one saying what the decision says. A revision written by the discussion
     keeps its parent's requirement ID, so the rows under one ID can be the parent's (earliest) and the scope tests
     at apply of its revisions (latest)."""
@@ -204,6 +213,7 @@ def matching_row(index, step, identifier, kind, wanted, latest=False):
     said = folded((wanted or {}).get('rationale'))
     same = [r for r in rows if said and folded(r[2].get('rationale')) == said]
     if same: return same[-1]
+    if exact: return None
     return (rows[-1] if latest else rows[0]) if rows else None
 
 
@@ -330,8 +340,7 @@ def need_trace(index, revision_id):
             own = record.get(field) or {}
             if own.get('rationale') or own.get('status'):
                 decision = (own.get('serves') or own.get('status') if label == 'fa_test' else
-                            'failed ' + ', '.join(own['failed_tests']) if own.get('failed_tests') else
-                            'passed' if own.get('rationale') else own.get('status'))
+                            record_outcome(own) if own.get('rationale') else own.get('status'))
                 hit = matching_row(index, 'profile_scope', need_id, 'fa' if label == 'fa_test' else 'record', own, latest=True)
                 same = hit and folded(hit[2].get('rationale')) == folded(own.get('rationale'))
                 decided(label, revision_id, decision, own.get('rationale') or own.get('reason'), own.get('policy_version'),
@@ -352,8 +361,16 @@ def need_trace(index, revision_id):
         hit = matching_row(index, chunk_step, need_id, kind, row)
         reason = row.get(field) if field else '; '.join(l.get('rationale', '') for l in row.get('category_links') or [])
         decision = {'classification': row.get('classification'), 'fa_test': row.get('serves'),
-                    'record_test': 'failed ' + ', '.join(row['failed_tests']) if row.get('failed_tests') else 'passed',
+                    'record_test': record_outcome({**kept, 'failed_tests': row.get('failed_tests') or kept.get('failed_tests')}),
                     'dataset_applicability': f"{len(row.get('category_links') or [])} categories"}[label]
+        gap = record.get('base_gap') or {}
+        if label == 'classification' and (gap.get('status') == 'not_checked' or 'not_classified' in (record.get('processing_flags') or [])):
+            # The base search fell back after invalid answers: the 'domain' row records no search, only its absence.
+            hit = matching_row(index, chunk_step, need_id, kind, row, exact=True)
+            decided(label, revision_id, 'not_checked', 'The base search returned no valid classification'
+                    + (f" ({len(gap.get('checked_entry_ids') or [])} of {gap.get('catalogue_entry_count')} entries checked)." if gap else '.'),
+                    row.get('policy_version'), call_status(*hit[3:]) if hit else call_status([], 'missing'))
+            continue
         decided(label, revision_id, decision, reason, row.get('policy_version'), call_status(*hit[3:]) if hit else None,
                 required=label != 'dataset_applicability')
     for field, label, step in (('fa_scope', 'fa_test_confirmation', 'fa_scope_confirmation'),
@@ -466,7 +483,11 @@ def discussion_trace(index, revision_id, missing):
                                          else outcome.get('human_question'),
                              'result_revision_ids': result_ids(outcome),
                              'scope_tests': [{'need_id': (s.get('fa_scope') or {}).get('need_id'), 'failed_tests': s.get('failed_tests') or [],
-                                              'serves': (s.get('fa_scope') or {}).get('serves')} for s in outcome.get('scope_tests') or []]})
+                                              'serves': (s.get('fa_scope') or {}).get('serves'),
+                                              'judged': all((s.get(f) or {}).get('status', 'checked') == 'checked'
+                                                            and ((s.get(f) or {}).get('confirmation') or {}).get('outcome') != 'not_checked'
+                                                            for f in ('fa_scope', 'profile_scope'))}
+                                             for s in outcome.get('scope_tests') or []]})
         questions = [q.get('question') for q in mediation.get('human_questions') or [] if revision_id in (q.get('revision_ids') or [])]
         phases = (case.get('discussion_trace') or {}).get('phases') or {}
         calls = sorted({c for phase in phases.values() if isinstance(phase, dict)
@@ -578,9 +599,14 @@ def need_summary(trace, style='card'):
     serves = {'find': 'find data', 'access': 'access data', 'both': 'find and access data'}
     # Each phrase says what the decision was; a judgement a step could not make is never reported as passed.
     checks = []
-    support = last('proposal_support').get('decision')
-    if support: checks.append({'supported': 'the quote supports it', 'partly': 'the quote partly supports it',
-                               'not_checked': 'the quote check could not judge it'}.get(support, f'quote check: {support}'))
+    supports = [d['decision'] for d in by_step.get('proposal_support') or []]
+    if supports:
+        # A merged need was written from several proposals: it is supported only if each of them is.
+        unjudged = supports.count('not_checked')
+        checks.append(('the quote check could not judge it' if len(supports) == 1 else
+                       f'the quote check could not judge {unjudged} of its {len(supports)} proposals') if unjudged else
+                      'the quote supports it' if set(supports) == {'supported'} else
+                      'the quote partly supports it' if 'partly' in supports else 'quote check: ' + ', '.join(sorted(set(supports))))
     fa = last('fa_test').get('decision')
     if fa: checks.append(f'it helps users {serves[fa]}' if fa in serves else 'it does not help users find or access data'
                          if fa == 'neither' else 'judged by the discussion check' if fa == 'checked_mediation'
@@ -589,6 +615,7 @@ def need_summary(trace, style='card'):
     if record_test: checks.append('the record test could not judge it' if record_test == 'not_checked' else f'record test {record_test}')
     if 'covered_by_base' in trace['flags'] or last('classification').get('decision') == 'generic':
         checks.append('already in the base profile')
+    elif last('classification').get('decision') == 'not_checked': checks.append('the base search could not judge it')
     elif last('classification').get('decision'): checks.append('not in the base profile')
     disputed, unchecked = second('disputed'), second('not_checked')
     if disputed: checks.append('a first judgement was overruled at the ' + ', '.join(disputed))
@@ -597,7 +624,9 @@ def need_summary(trace, style='card'):
     for outcome in made:
         tests = [s for s in outcome['scope_tests'] if s['need_id'] == trace['requirement_id']]
         checks.append(f"written by the discussion ({outcome['action']})" + (
-            ('; its scope tests passed' if not any(s['failed_tests'] for s in tests) else '; a scope test failed') if tests else ''))
+            '; a scope test failed' if any(s['failed_tests'] for s in tests) else
+            '; its scope tests passed' if all(s.get('judged', True) for s in tests) else
+            '; no scope test failed, but one could not judge it') if tests else '')
     discussion, questions = [], []
     for case in trace['discussion']:
         for outcome in case['outcomes']:
@@ -623,7 +652,7 @@ def need_summary(trace, style='card'):
     if merged > 1: notable.append(f'merged from {merged} extracted proposals ({", ".join(agents)})')
     if disputed: notable.append('a first judgement was overruled at the ' + ', '.join(disputed))
     if unchecked: notable.append('a second judgement is missing at the ' + ', '.join(unchecked))
-    notable += [c for c in checks if 'could not judge' in c]
+    notable += [c for c in checks if 'could not judge' in c or 'second judgement missing' in c]
     if 'covered_by_base' in trace['flags']: notable.append('already in the base profile')
     notable += [f'discussion: {d}' for d in discussion if not d.startswith('retain (retained)')]
     notable += [f'asks you: {q}' for q in questions]

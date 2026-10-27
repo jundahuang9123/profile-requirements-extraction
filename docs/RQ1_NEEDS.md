@@ -575,7 +575,12 @@ of a reviewer. It stays visible and restorable like any set-aside.
 
 The reviewer summary is built from the trace alone. A check a step could not make is
 never reported as passed: it says that the check could not judge the need, or that a
-second judgement is missing. The summary says:
+second judgement is missing.
+- A record test that failed once without a second judgement is reported as such.
+- A merged need counts as supported only if every proposal it was written from is.
+- A base search that fell back is not reported as "not in the base profile".
+
+The summary says:
 - where the need comes from (source and quotation);
 - who extracted it;
 - what the checks found;
@@ -616,7 +621,10 @@ returns the full chain of one need.
 
 On the three JRC runs under v9 + v14 (`run-9f5519c8`, `run-f36c8783`, `run-2f7b8d7a`):
 - every one of the 65, 78 and 60 active needs (and every produced need) is solid;
-- 2,165 model decisions link to their calls: 27 through call IDs the runs already recorded, 2,136 by matching. 2 do not.
+- 2,154 model decisions link to their calls: 27 through call IDs the runs already recorded, 2,127 by matching.
+  11 do not, and they say so:
+  - 9 base searches that returned no valid classification, whose fallback row comes from no call;
+  - 2 needs base review did not reach.
 
 On a scripted run of this version every decision's calls are recorded at the source.
 

@@ -486,3 +486,34 @@ def test_a_base_review_trial_of_an_older_run_keeps_its_merged_need(setup):
     group = saved_record(trial, event['outputs'][0]).get('group_id')
     merged = [r['revision_id'] for r in trial['requirements'] if r.get('group_id') == group and r['revision_id'] in trial['active_revision_ids']]
     assert merged and all(solid_and_active(trial, r) for r in merged)
+
+
+# Third review (27 Oct): the card says no more than the decisions do.
+
+def test_the_card_reports_a_record_test_failed_once_without_a_second_judgement(setup):
+    store, original, _, _ = setup
+    run = new_fa_run(store, original)
+    engine.execute_run(store, run['run_id'], full_client())
+    saved = copy.deepcopy(store.get_run(run['run_id']))
+    need = saved['active_revision_ids'][0]
+    saved_record(saved, need)['profile_scope'].update(failed_tests=[], confirmation={'outcome': 'not_checked',
+        'first_failed_tests': ['not_catalogue_level'], 'reason': 'Row missing or invalid.'})
+    trace = need_trace.need_trace(need_trace.TraceIndex(store, saved), need)
+    assert next(d for d in trace['decisions'] if d['step'] == 'record_test')['decision'] == \
+        'failed once (not_catalogue_level), second judgement missing'
+    card = need_trace.need_summary(trace)
+    assert 'record test failed once (not_catalogue_level)' in card and 'record test passed' not in card
+
+
+def test_the_card_names_unjudged_scope_tests_base_searches_and_proposals():
+    discussed = [{'outcomes': [{'action': 'revise', 'status': 'machine_revised', 'rationale': 'Restated.', 'result_revision_ids': ['r1'],
+                                'scope_tests': [{'need_id': 'q1', 'failed_tests': [], 'judged': False}]}]}]
+    trace = {'revision_id': 'r1', 'requirement_id': 'q1', 'statement': 'Users can find X.', 'flags': [],
+             'sources': [{'source': 's.txt', 'quote': 'Users can find X.'}], 'origin': [], 'discussion': discussed,
+             'completeness': {'missing': []},
+             'decisions': [{'step': 'proposal_support', 'decision': 'supported'}, {'step': 'proposal_support', 'decision': 'not_checked'},
+                           {'step': 'classification', 'decision': 'not_checked'}]}
+    card = need_trace.need_summary(trace)
+    assert 'the quote check could not judge 1 of its 2 proposals' in card and 'the quote supports it' not in card
+    assert 'the base search could not judge it' in card and 'not in the base profile' not in card
+    assert 'no scope test failed, but one could not judge it' in card and 'its scope tests passed' not in card
