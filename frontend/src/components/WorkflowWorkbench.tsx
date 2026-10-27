@@ -86,6 +86,8 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
   const [evidence, setEvidence] = useState<Evidence | null>(null);
   const [activeRecord, setActiveRecord] = useState<string | null>(null);
   const [resultLink, setResultLink] = useState<TraceLink | null>(null);
+  // An open result belongs to the need and run it was followed from.
+  useEffect(() => setResultLink(null), [run?.run_id, activeRecord]);
 
   const refreshLists = async () => {
     const [sourceList, runList, profiles, cases] = await Promise.all([workflowApi<Source[]>('/sources'), workflowApi<RunSummary[]>('/runs'), workflowApi<BaseProfileSummary[]>('/base-profiles'), workflowApi<BenchmarkSummary[]>('/benchmarks')]);
@@ -131,7 +133,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
   const newWorkflow = () => { setRun(null); setSnapshot(null); setActiveRecord(null); setSelectedRevisions([]); localStorage.removeItem('rq1-v2-last-run'); navigate('acquisition', 'new'); };
   useEffect(() => {
     const change = () => {
-      const route = currentRoute(); setPage(route.page); setEvidence(null);
+      const route = currentRoute(); setPage(route.page); setEvidence(null); setResultLink(null);
       if (route.runId === 'new') { setRun(null); setSnapshot(null); }
       else if (route.runId && route.runId !== run?.run_id) void act(async () => { await loadRun(route.runId!); });
     };
@@ -396,7 +398,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
     </>}
     {!run && !['acquisition', 'decomposition', 'role_selection'].includes(page) && <section className="workflow-empty"><h2>No saved run selected</h2><p>Choose a saved run above, or configure roles to start a new workflow.</p><button onClick={() => navigate('role_selection')}>Configure workflow</button></section>}
     {run?.request?.output_form === 'needs' && <section className="workflow-panel"><h2>Needs processing progress</h2><p>Source-checked proposals become grouped needs before classification, profile scope (D5), use-case scoping and support assessment; source-linked dataset kinds inform scope, and kept needs are grouped into families with a compact coverage selection. No automatic result is a human approval.</p><div className="workflow-tags">{Object.entries(run.need_steps ?? {}).map(([step, result]) => <span key={step}>{humanLabel(step)} · {String(result.retained_count ?? result.family_count ?? result.need_count ?? result.passed_count ?? result.group_count ?? result.input_count ?? 'saved')}</span>)}</div><details><summary>Saved needs policies</summary><pre>{JSON.stringify(run.needs_policies, null, 2)}</pre></details></section>}
-    {run && <RunTraceView run={run} stage={page} inspect={id => void inspectEvidence(id)} openResult={setResultLink} />}
+    {run && <RunTraceView run={run} stage={page} inspect={id => void inspectEvidence(id)} openResult={setResultLink} closeResult={() => setResultLink(null)} />}
     {run && <details className="workflow-panel"><summary>Saved history & metrics</summary><a className="workflow-download" href={`/api/rq1/v2/runs/${run.run_id}/evaluation?download=true`}>Download metrics</a><pre>{JSON.stringify({ metrics: run.metrics, attempts: run.attempt_history }, null, 2)}</pre></details>}
     <div className="workflow-toolbar workflow-page-footer"><button disabled={pageIndex === 0} onClick={() => navigate(stages[pageIndex - 1])}>Previous step</button><span>{pageIndex + 1} of {stages.length} views · saved results stay with this run</span><button disabled={pageIndex === stages.length - 1} onClick={() => navigate(stages[pageIndex + 1])}>Next step</button></div>
     {resultLink && <aside className="result-drawer" aria-label="Saved result of a traced step"><ResultViewer link={resultLink} onClose={() => setResultLink(null)} /></aside>}

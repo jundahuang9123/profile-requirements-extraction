@@ -1,6 +1,7 @@
 """rq1-need-trace-v1, trace links (Junda, 27 Oct): every entry of a need's trace links to where it was traced from:
 the result file of the step that made it at the traced row (a JSON pointer), a model call, or the source document with
 the quotation marked. Each test follows the links over the API, as the workbench does."""
+import collections
 import copy
 from fastapi.testclient import TestClient
 from test_routed_stakeholder_workflow import setup  # noqa: F401  (pytest fixture)
@@ -8,6 +9,7 @@ from test_need_trace_v1 import finished, full_client  # noqa: F401  (pytest fixt
 from test_need_trace_v1_shapes import RevisingDialogue, build_source, new_fa_run, saved_record, trial
 from requirement_reuse_service.main import app
 from requirement_reuse_service.workflow import engine, need_trace
+from requirement_reuse_service.workflow.models import RunRequest
 
 API = '/api/rq1/v2'
 IDS = ('revision_id', 'need_id', 'proposal_id', 'group_id', 'observation_id', 'case_id', 'action_id')
@@ -154,7 +156,13 @@ def test_every_entry_of_every_produced_need_links_to_the_place_it_was_traced_fro
                           ('record_test', 'profile_scope/record_decisions')):
             assert steps[step]['links'][0]['file'].endswith('/stages/consolidation')
             assert steps[step]['links'][0]['pointer'].startswith(f'/results/need_steps/{row}/')
-        assert all(o['links'][0]['file'].endswith('/stages/elicitation') for o in trace['origin'])
+        for origin in trace['origin']:
+            link = origin['links'][0]
+            assert link['file'].endswith('/stages/elicitation') and link['pointer'].startswith('/results/observations/')
+            assert follow(client, link)[1]['observation_id'] == origin['observation_id']
+        # A discussion links to every model call it made.
+        for case in trace['discussion']:
+            assert [l['file'].rsplit('/', 1)[1] for l in case['links'] if '/calls/' in l['file']] == case['call_ids']
 
 
 def test_every_phrase_of_the_reviewer_card_links_to_its_entry(finished):
@@ -166,6 +174,12 @@ def test_every_phrase_of_the_reviewer_card_links_to_its_entry(finished):
         assert [f"{line['label']}: " + ''.join(p['text'] for p in line['parts']) for line in trace['summary_parts']] == lines
         refs = [p['ref'] for line in trace['summary_parts'] for p in line['parts'] if p['ref'] and p['ref'] != '/completeness']
         assert refs
+        reported = {'the quote': 'proposal_support', 'it helps users': 'fa_test', 'record test': 'record_test',
+                    'in the base profile': ('classification', 'base_review')}
+        for part in (p for line in trace['summary_parts'] if line['label'] == 'Checks' for p in line['parts'] if p['ref']):
+            step = trace['decisions'][int(part['ref'].rsplit('/', 1)[1])]['step']
+            wanted = next((v for k, v in reported.items() if k in part['text']), None)
+            if wanted: assert step in (wanted if isinstance(wanted, tuple) else (wanted,)), (part, step)
         for ref in refs:
             entry = trace
             for key in ref.split('/')[1:]: entry = entry[int(key)] if isinstance(entry, list) else entry[key]
@@ -331,12 +345,95 @@ def test_an_outcome_saved_after_the_step_7_file_links_to_the_current_run(setup):
     def earlier(r):
         for case in r['stage_results']['deliberation']['deliberations']:
             case['mediation']['outcomes'] = [o for o in case['mediation']['outcomes'] if o['action'] != 'revise']
+        # Another discussion first, and in the revised need's discussion an outcome under the same action ID that
+        # wrote another revision: the link must find the case and the outcome by what they are about.
+        case = r['deliberations'][0]
+        revise = next(o for o in case['mediation']['outcomes'] if o['action'] == 'revise')
+        decoy = {**copy.deepcopy(revise), 'action': 'retain', 'result_revision_ids': ['rev-another'], 'rationale': 'Another outcome.'}
+        case['mediation']['outcomes'].insert(0, decoy)
+        other = {**copy.deepcopy(case), 'case_id': 'case-another', 'revision_ids': ['rev-another']}
+        other['mediation'] = {**case['mediation'], 'outcomes': [decoy]}
+        r['deliberations'].insert(0, other)
     store.mutate(run['run_id'], None, 'fixture_step7_before_revise', earlier, parts=True)
     saved = store.get_run(run['run_id'])
     made = next(o for c in saved['deliberations'] for o in c['mediation']['outcomes'] if o['action'] == 'revise')['result_revision_ids'][0]
     trace = linked(TestClient(app), saved, made)
     outcome = next(o for c in trace['discussion'] for o in c['outcomes'] if made in o['result_revision_ids'])
     link = outcome['links'][0]
-    assert link['file'] == f"/runs/{saved['run_id']}?audit=false"
+    assert link['file'] == f"/runs/{saved['run_id']}?audit=false" and link['pointer'] == '/deliberations/1/mediation/outcomes/1'
     _, node, _ = follow(TestClient(app), link)
     assert node['action'] == 'revise' and made in node['result_revision_ids']
+
+
+# Second review of the links (27 Oct).
+
+def test_an_overruled_judgement_links_to_the_call_that_gave_the_judgement_kept(setup):
+    # Every first judgement fails and every second one, made alone, passes: the record keeps the second verdict and
+    # the confirmation keeps the first. Each entry opens the row of the call that gave its own judgement.
+    store, original, _, _ = setup
+    client = full_client(); base = client.generate_structured; seen = collections.Counter()
+    def generate(**kw):
+        answer = base(**kw); name = kw['output_model'].__name__
+        if name not in {'ProposalSupport', 'ProfileScope'}: return answer
+        raw = answer.model_dump(mode='json')
+        for row in raw['proposals' if name == 'ProposalSupport' else 'decisions']:
+            key = (name, row.get('proposal_id') or row.get('need_id')); seen[key] += 1
+            first = seen[key] == 1
+            if name == 'ProposalSupport':
+                row.update(rationale=('FIRST judgement: the quote does not support it.' if first else 'SECOND judgement: the quote supports it.'),
+                           **({'support': 'not_supported', 'supporting_evidence_ids': []} if first else {}))
+            elif first: row.update(catalogue_level=False, record_resource='none', record_statement='', rationale='FIRST judgement: no catalogue record states it.')
+            else: row.update(rationale='SECOND judgement: a dataset record states it.')
+        return kw['output_model'].model_validate(raw)
+    client.generate_structured = generate
+    run = engine.new_run(store, RunRequest(snapshot_id=original['snapshot_id'], strategy='multi_agent', role_ids=['consumer_discovery', 'publisher_feasibility'],
+                                           stakeholder_workflow='fa_mediated', discussion='automatic', scoping='off', base_check=False))
+    engine.execute_run(store, run['run_id'], client)
+    saved = store.get_run(run['run_id'])
+    api = TestClient(app)
+    checked = collections.Counter()
+    for revision in saved['active_revision_ids']:
+        trace = linked(api, saved, revision)
+        for decision in trace['decisions']:
+            if decision['step'] not in {'proposal_support', 'proposal_support_confirmation', 'record_test', 'record_test_confirmation'}: continue
+            calls = [l for l in decision['links'] if '/calls/' in l['file']]
+            assert calls, decision
+            said = follow(api, calls[0])[1]['rationale']
+            # The decision says what the second judgement said; the disputed confirmation, what the first said.
+            assert said.startswith('FIRST' if decision['step'].endswith('_confirmation') else 'SECOND'), (decision['step'], said)
+            assert said == decision['reason']
+            checked[decision['step']] += 1
+    assert checked['proposal_support'] and checked['proposal_support_confirmation'] and checked['record_test'] and checked['record_test_confirmation']
+
+
+def test_the_card_links_a_label_set_by_base_review_to_the_base_review():
+    trace = {'revision_id': 'r1', 'requirement_id': 'q1', 'statement': 'Users can find X.', 'flags': ['covered_by_base'],
+             'sources': [], 'origin': [], 'discussion': [], 'completeness': {'missing': []},
+             'decisions': [{'step': 'classification', 'decision': 'domain'}, {'step': 'base_review', 'decision': 'restates_base (flag_added)'}]}
+    part = next(p for line in need_trace.summary_parts(trace) for p in line['parts'] if p['text'] == 'already in the base profile')
+    assert part['ref'] == '/decisions/1'
+    trace['decisions'][0]['decision'] = 'generic'
+    part = next(p for line in need_trace.summary_parts(trace) for p in line['parts'] if p['text'] == 'already in the base profile')
+    assert part['ref'] == '/decisions/0'
+
+
+def test_a_need_no_search_chunk_matched_links_to_every_chunk_of_its_search(setup):
+    # The base search offers the catalogue in chunks, each answered by its own call; when no chunk matches, the
+    # decision ("no matching entry") sums them all up.
+    from test_need_trace_v1_shapes import client_for
+    store, original, _, _ = setup
+    run = new_fa_run(store, original, base_profile_id='dcat-ap-1.1.0', base_review='expert_v1')
+    engine.execute_run(store, run['run_id'], client_for('revise'))
+    saved = store.get_run(run['run_id'])
+    index = need_trace.TraceIndex(store, saved)
+    checked = 0
+    for revision in need_trace.produced_needs(saved):
+        trace = linked(TestClient(app), saved, revision)
+        decision = next((d for d in trace['decisions'] if d['step'] == 'classification'), None)
+        if not decision or decision['decision'] != 'domain': continue
+        chunks = [h for step in ('classification', 'base_search') for h in index.chunk_rows.get((step, '', trace['requirement_id'])) or []]
+        assert len(chunks) > 1
+        assert decision['call_ids'] == list(dict.fromkeys(c for h in chunks for c in h[3]))
+        assert {l['file'].rsplit('/', 1)[1] for l in decision['links'] if '/calls/' in l['file']} == set(decision['call_ids'])
+        checked += 1
+    assert checked

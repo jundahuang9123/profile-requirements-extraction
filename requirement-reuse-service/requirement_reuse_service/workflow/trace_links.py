@@ -203,7 +203,9 @@ class Linker:
                 if path is not None and resolve(call.get('output'), path) is None: path = None
             if path is None:
                 path = next((found for test in tests for found in [row_path(call.get('output'), test)] if found is not None), None)
-            links.append({'label': f"Model call {call_id[:8]} ({call.get('step')}, {call.get('model')})",
+            # A failed call (an answer that broke its contract) saves no output; the decision kept the valid rows.
+            failed = ', failed, no answer saved' if call.get('output') is None else ''
+            links.append({'label': f"Model call {call_id[:8]} ({call.get('step')}, {call.get('model')}{failed})",
                           'file': f'/runs/{owner}/calls/{call_id}',
                           'pointer': pointer('output', *path) if path is not None else pointer('output') if call.get('output') is not None else ''})
         return links

@@ -217,6 +217,26 @@ def matching_row(index, step, identifier, kind, wanted, latest=False, exact=Fals
     return (rows[-1] if latest else rows[0]) if rows else None
 
 
+# A judgement made twice (a first judgement, then one made alone) keeps on the record the one that stands; the other
+# is its confirmation's verdict. A classification can come from any chunk of the base search. Each is linked to the
+# call that gave it: the row that says what it says, in any of the steps that make that judgement.
+SUPPORT = (('proposal_support', ''), ('proposal_support_confirmation', ''))
+FA_TEST = (('profile_scope', 'fa'), ('fa_scope_confirmation', ''))
+RECORD_TEST = (('profile_scope', 'record'), ('profile_scope_confirmation', ''))
+JUDGED_IN = {'classification': (('classification', ''), ('base_search', '')), 'fa_test': FA_TEST, 'record_test': RECORD_TEST,
+             'dataset_applicability': (('dataset_applicability', ''),),
+             'fa_test_confirmation': FA_TEST[::-1], 'record_test_confirmation': RECORD_TEST[::-1]}
+
+
+def judged_row(index, places, identifier, wanted, latest=False, exact=False):
+    """The cached row that gave a judgement: the one saying what it says in any of its steps, else (unless exact) the
+    first step's row under the ID."""
+    for step, kind in places:
+        hit = matching_row(index, step, identifier, kind, wanted, latest=latest, exact=True)
+        if hit: return hit
+    return None if exact else matching_row(index, places[0][0], identifier, places[0][1], wanted, latest=latest)
+
+
 def result_ids(outcome):
     """The revisions an outcome wrote: result_revision_ids (F/A discussion) or result_revision_id (routed discussion)."""
     return [*(outcome.get('result_revision_ids') or []), *([outcome['result_revision_id']] if outcome.get('result_revision_id') else [])]
@@ -303,13 +323,13 @@ def need_trace(index, revision_id):
         # the reason); the step's decision list holds the valid rows.
         row = current.get('proposal_support') or index.decisions['proposal_support'].get(revision)
         if row:
-            hit = step_rows(index, 'proposal_support', revision)
+            hit = judged_row(index, SUPPORT, revision, row, latest=True)
             decided('proposal_support', revision, row.get('support'),
                     row.get('rationale') or (row.get('fallback') or {}).get('reason'), row.get('policy_version'),
                     call_status(*hit[3:]) if hit else None)
             confirmation = (current.get('proposal_support') or {}).get('confirmation')
             if confirmation:
-                hit = step_rows(index, 'proposal_support_confirmation', revision)
+                hit = judged_row(index, SUPPORT[::-1], revision, confirmation.get('verdict'), latest=True)
                 decided('proposal_support_confirmation', revision, confirmation.get('outcome'),
                         (confirmation.get('verdict') or {}).get('rationale'), None, call_status(*hit[3:]) if hit else None)
         grouping = index.groupings.get(revision)
@@ -341,24 +361,28 @@ def need_trace(index, revision_id):
             if own.get('rationale') or own.get('status'):
                 decision = (own.get('serves') or own.get('status') if label == 'fa_test' else
                             record_outcome(own) if own.get('rationale') else own.get('status'))
-                hit = matching_row(index, 'profile_scope', need_id, 'fa' if label == 'fa_test' else 'record', own, latest=True)
+                hit = judged_row(index, JUDGED_IN[label], need_id, own, latest=True, exact=True)
                 same = hit and folded(hit[2].get('rationale')) == folded(own.get('rationale'))
                 decided(label, revision_id, decision, own.get('rationale') or own.get('reason'), own.get('policy_version'),
                         call_status(*hit[3:]) if same else None, required=False)
-    by_need = (('classification', 'rationale', 'classification', ''), ('profile_scope', 'rationale', 'fa_test', 'fa'),
-               ('record_test', 'rationale', 'record_test', 'record'), ('dataset_applicability', None, 'dataset_applicability', ''))
-    for step, field, label, kind in () if made_here else by_need:
-        chunk_step = 'profile_scope' if step == 'record_test' else step
+    by_need = (('classification', 'rationale', 'classification'), ('profile_scope', 'rationale', 'fa_test'),
+               ('record_test', 'rationale', 'record_test'), ('dataset_applicability', None, 'dataset_applicability'))
+    for step, field, label in () if made_here else by_need:
         row = index.decisions[step].get(need_id)
         kept = record.get({'fa_test': 'fa_scope', 'record_test': 'profile_scope'}.get(label, '')) or {}
         if not row and kept.get('status') == 'not_checked':
             # No valid row after the correction: the need is kept, flagged, with the reason on its record.
-            hit = matching_row(index, chunk_step, need_id, kind, kept)
+            hit = judged_row(index, JUDGED_IN[label], need_id, kept)
             decided(label, revision_id, 'not_checked', kept.get('reason') or (kept.get('fallback') or {}).get('reason'),
                     kept.get('policy_version'), call_status(*hit[3:]) if hit else None)
             continue
         if not row: continue
-        hit = matching_row(index, chunk_step, need_id, kind, row)
+        hit = judged_row(index, JUDGED_IN[label], need_id, row)
+        if label == 'classification' and not judged_row(index, JUDGED_IN[label], need_id, row, exact=True):
+            # A need no chunk matched: the decision sums up every chunk of the search, each answered by its own call.
+            rows = [h for step, kind in JUDGED_IN[label] for h in index.chunk_rows.get((step, kind, need_id)) or []]
+            calls = list(dict.fromkeys(c for h in rows for c in h[3]))
+            if calls: hit = (None, None, row, calls, 'recorded' if all(h[4] == 'recorded' for h in rows) else 'matched')
         reason = row.get(field) if field else '; '.join(l.get('rationale', '') for l in row.get('category_links') or [])
         decision = {'classification': row.get('classification'), 'fa_test': row.get('serves'),
                     'record_test': record_outcome({**kept, 'failed_tests': row.get('failed_tests') or kept.get('failed_tests')}),
@@ -366,7 +390,7 @@ def need_trace(index, revision_id):
         gap = record.get('base_gap') or {}
         if label == 'classification' and (gap.get('status') == 'not_checked' or 'not_classified' in (record.get('processing_flags') or [])):
             # The base search fell back after invalid answers: the 'domain' row records no search, only its absence.
-            hit = matching_row(index, chunk_step, need_id, kind, row, exact=True)
+            hit = judged_row(index, JUDGED_IN[label], need_id, row, exact=True)
             decided(label, revision_id, 'not_checked', 'The base search returned no valid classification'
                     + (f" ({len(gap.get('checked_entry_ids') or [])} of {gap.get('catalogue_entry_count')} entries checked)." if gap else '.'),
                     row.get('policy_version'), call_status(*hit[3:]) if hit else call_status([], 'missing'))
@@ -377,7 +401,7 @@ def need_trace(index, revision_id):
                                ('profile_scope', 'record_test_confirmation', 'profile_scope_confirmation')):
         confirmation = (record.get(field) or {}).get('confirmation')
         if confirmation:
-            hit = matching_row(index, step, need_id, '', confirmation.get('verdict'), latest=made_here)
+            hit = judged_row(index, JUDGED_IN[label], need_id, confirmation.get('verdict'), latest=made_here)
             decided(label, revision_id, confirmation.get('outcome'), (confirmation.get('verdict') or {}).get('rationale')
                     or confirmation.get('reason'), None, call_status(*hit[3:]) if hit else None)
     qualification = record.get('qualification') or {}
@@ -618,7 +642,8 @@ def summary_items(trace):
     if record_test: checks.append(('the record test could not judge it' if record_test == 'not_checked' else f'record test {record_test}', ref))
     ref, classification = last('classification'); classification = classification.get('decision')
     if 'covered_by_base' in trace['flags'] or classification == 'generic':
-        checks.append(('already in the base profile', ref))
+        # The label comes from the classification, or else from the base review that found the need restated.
+        checks.append(('already in the base profile', ref if classification == 'generic' else last('base_review')[0]))
     elif classification == 'not_checked': checks.append(('the base search could not judge it', ref))
     elif classification: checks.append(('not in the base profile', ref))
     disputed, unchecked = second('disputed'), second('not_checked')

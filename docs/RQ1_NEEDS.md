@@ -646,10 +646,12 @@ Where each entry links:
 
 | Trace entry | File | Place |
 |---|---|---|
-| Quotation | the source document (`/sources/{id}/document`): parsed text and evidence units | the unit, with the quotation marked |
+| Quotation | the source document (`/sources/{id}/document`): parsed text and evidence units | the unit, with the quotation marked; a structured source (AAS JSON) opens unit by unit |
 | Extracted observation | step 3b, plus the model call that extracted it | the observation; the agent's role run; the call's row |
 | Source check | step 5 (proposals); the step 6 copy of the record for a need written in step 6 | the record's `verification` |
-| Proposal support, classification, F/A test, record test, dataset applicability | step 6 (`need_steps`) | the decision row, matched by ID and reason |
+| Proposal support, classification, F/A test, record test | step 6 (`need_steps`) | the decision row, matched by ID and reason |
+| Dataset applicability | step 6 (`need_steps`) | the decision row, matched by need ID (its reason joins the category links' reasons) |
+| Second judgement (confirmation) of proposal support, the F/A test or the record test | step 6 | the confirmation on the record |
 | Grouping, need writing | step 6 | the grouping chunk and its rationale; the writing event |
 | Assessment | step 6 (`need_steps.assessment.records`) | the record's `qualification` |
 | Base review and its check | step 6a | the record's `base_relation` |
@@ -664,6 +666,18 @@ Details:
   its own name. A revision the discussion wrote has its scope judgements in the step 7
   file, not in its parent's step 6 rows. The last fallback is step 8, the current saved
   state. A discussion outcome saved after the step 7 file links to the current saved run.
+- **Which call:** a judgement made twice (a first judgement that failed, then one made
+  alone) keeps on the record the one that stands, and its confirmation shows the
+  other. Each is linked to the call that gave it: the cached row that says what it
+  says, in either step. When the second judgement overruled the first ("disputed"),
+  the decision opens the second call and the confirmation the first.
+  - A classification can come from any chunk of the base search, so it is linked
+    to the chunk whose row says what it says.
+  - A need no chunk matched ("No matching entry was found") is linked to every chunk's
+    call.
+  - Before this, on the three JRC runs, the linked row contradicted the decision for
+    22 classifications and for the overruled judgements of 24 needs. Now it
+    contradicts none.
 - **Rows of a model call:** the rows of one batch often give the same reason, so the
   row is searched over the whole output in turn:
   1. the decision's own revision;
@@ -678,15 +692,20 @@ Details:
   run saved before call IDs, through the call that gives the same reasons in the same
   order.
 - **Grouping:** a grouping link opens the chunk's grouping row (never its salvage row),
-  at the group that holds the revision.
+  at the group that holds the revision. A chunk's calls include earlier attempts; their
+  row for the group can give a different reason than the final answer.
+- **Failed calls:** a call whose answer broke its contract saves no output; the decision
+  kept the valid rows recovered from it. Its link opens the call record without a row,
+  labelled "failed, no answer saved".
 - **Re-hashed proposals:** a proposal the support check re-hashed (an obligation its
   quote does not state) is found in the decision rows by its new revision ID.
 - **Discussion-made observations:** an observation ID that no agent extracted (one the
   discussion gave a revision it wrote) links to the outcome that wrote that revision.
 - **Reviewer card:** each phrase carries the trace entry it reports
-  (`summary_parts`). The workbench links each phrase to that entry's first link. The
-  card text is unchanged: it is byte-identical on the 255 produced needs of the three
-  JRC runs.
+  (`summary_parts`). The workbench links each phrase to that entry's first link.
+  "Already in the base profile" reports the classification when it says generic, and
+  otherwise the base review that found the need restated. The card text is unchanged:
+  it is byte-identical on the 255 produced needs of the three JRC runs.
 - **Files:** `GET /runs/{run_id}/stages/{stage}` serves the step file, built by the same
   function as the links (`stage_results`), so the pointers hold.
   `GET /runs/{run_id}/calls/{call_id}` serves one saved call; inputs are kept only as
@@ -697,6 +716,11 @@ Details:
 card with every phrase linked, and a "Full chain" with the links of every entry.
 - A link opens the file in a panel beside the trace. The page moves left so the trace
   stays clickable, and the highlighted part is scrolled into view.
+- The panel names the need it was opened for. It closes when the reviewer turns to
+  another need or run.
+- Every click reads the file again, so following a link again scrolls back to its place
+  and shows the state after a reviewer's action. A new saved version of the run keeps
+  the trace, and its open sections, on screen.
 - A JSON file opens as a tree: the path to the row is expanded, the row is highlighted,
   and long lists show the rows around it.
 - A source opens as its parsed text: the evidence unit in blue, the quotation in yellow.
@@ -708,18 +732,27 @@ card with every phrase linked, and a "Full chain" with the links of every entry.
 
 **Checks:**
 - On the three JRC runs, all 4,141 trace entries of the 255 produced needs have at
-  least one link: 9,884 links in total.
+  least one link: 10,184 links in total.
 - Every link resolves in the file its endpoint serves. Every step link lands on an
   object about the entry: its revision, need, group, observation, case or outcome.
-- All 314 quotations are located in their source text. Each unit's span in the text
-  equals its content.
-- Of the 5,473 model-call links, 2,154 open at the row about the need. In none of
-  them does the row name another need. The rest open at the call's whole output:
-  - the discussion's own calls;
+- All 314 quotations are located in their evidence unit. 280 come from parsed text,
+  where each unit's span in the text equals its content. 34 come from a structured
+  (AAS JSON) source and open unit by unit.
+- Of the 5,773 model-call links, 2,455 open at the row about the need.
+  - In none of them does the row name another need.
+  - In every one, the row gives the decision's own reason. The exceptions are 18
+    earlier attempts of a grouping chunk, which are linked beside the final answer.
+- The rest open at the call's whole output:
+  - the discussion's own calls (50 of them failed);
   - one-need assessments, whose output is the row;
-  - a few writer and F/A calls whose rows use aliases.
-- An independent review found links that opened the wrong row, and labels of a step
-  that did not run. A test for each fails on the first version of the links.
+  - 84 failed writer and F/A calls, with no answer saved.
+- **Reviews:** two independent reviews found links that opened the wrong row:
+  - a neighbour with the same reason;
+  - the other judgement of an overruled pair;
+  - the first chunk of a base search.
+
+  They also found labels of a step that did not run. A test for each fails on the
+  version before its fix.
 
 ## Discussion routing
 

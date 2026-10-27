@@ -4,7 +4,7 @@ import { TraceLink } from '../lib/traceApi';
 import { NeedTraceView } from './NeedTraceView';
 
 type Route = { evidence_id: string; kind: string; role_ids: string[]; rationale: string };
-export default function RunTraceView({ run, stage, inspect, openResult }: { run: Run; stage: string; inspect: (id: string) => void; openResult: (link: TraceLink) => void }) {
+export default function RunTraceView({ run, stage, inspect, openResult, closeResult }: { run: Run; stage: string; inspect: (id: string) => void; openResult: (link: TraceLink) => void; closeResult: () => void }) {
   const [selected, setSelected] = useState('');
   const audit = run.stakeholder_audit ?? {};
   const plan = audit.routing_plan as { routes?: Route[]; source_unit_count?: number; assignment_count?: number } | undefined;
@@ -33,7 +33,7 @@ export default function RunTraceView({ run, stage, inspect, openResult }: { run:
       <table><thead><tr><th>Source section</th><th>Assigned perspective</th><th>Reason</th></tr></thead><tbody>{plan.routes?.map(r => <tr key={r.evidence_id}>
         <td><button onClick={() => inspect(r.evidence_id)}>{r.evidence_id}</button></td><td>{r.kind} · {r.role_ids.map(id => run.role_manifest?.selected_roles.find(s => s.role_id === id)?.label ?? id).join(', ')}</td><td>{r.rationale}</td>
       </tr>)}</tbody></table></details>}
-    <label>Follow a need back to its sources<select value={selected} onChange={e => setSelected(e.target.value)}><option value="">Choose a current need</option>
+    <label>Follow a need back to its sources<select value={selected} onChange={e => { setSelected(e.target.value); closeResult(); }}><option value="">Choose a current need</option>
       {run.requirements.filter(r => run.active_revision_ids.includes(r.revision_id)).map(r => <option key={r.revision_id} value={r.revision_id}>{r.need_statement ?? r.normalized_statement}</option>)}</select></label>
     {selected && byId.get(selected)?.need_statement && <NeedTraceView run={run} revisionId={selected} open={openResult} />}
     {selected && byId.get(selected) && <details><summary>Saved revisions and checks of this need</summary>{node(byId.get(selected)!, new Set())}</details>}

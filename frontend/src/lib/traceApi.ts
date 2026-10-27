@@ -1,6 +1,6 @@
 // A need's trace (rq1-need-trace-v1) with links to the saved results each entry comes from.
 // A link names a saved file (an API path) and a JSON pointer to the traced part; a quotation also names its text.
-export type TraceLink = { label: string; file: string; pointer: string; mark?: string; quote_span?: [number, number] | null };
+export type TraceLink = { label: string; file: string; pointer: string; mark?: string; quote_span?: [number, number] | null; need?: string };
 export type TraceSource = { evidence_id: string; source_version_id?: string | null; source?: string | null; quote: string; quote_start?: number | null; component?: string; found: boolean; links: TraceLink[] };
 export type TraceOrigin = { observation_id: string; statement?: string | null; agent?: string | null; agent_name?: string | null; prompt_version?: string | null; model?: string | null; extraction_run_id?: string | null; call_ids: string[]; call_link: string; links: TraceLink[] };
 export type TraceDecision = { step: string; revision_id: string; decision: string | null; reason: string; policy_version?: string | null; call_ids: string[]; call_link: string; links: TraceLink[] };
@@ -31,6 +31,7 @@ export function resultHref(link: TraceLink) {
   const query = new URLSearchParams({ file: link.file, pointer: link.pointer, label: link.label });
   if (link.mark) query.set('mark', link.mark);
   if (link.quote_span) query.set('span', link.quote_span.join(','));
+  if (link.need) query.set('need', link.need);
   return `#/result?${query.toString()}`;
 }
 
@@ -45,7 +46,7 @@ export function linkFromHash(hash: string): TraceLink | null {
   if (!file || !isResultFile(file)) return null;
   const span = query.get('span')?.split(',').map(Number);
   return { file, pointer: query.get('pointer') ?? '', label: query.get('label') ?? file, mark: query.get('mark') ?? undefined,
-           quote_span: span?.length === 2 && span.every(Number.isFinite) ? [span[0], span[1]] : null };
+           quote_span: span?.length === 2 && span.every(Number.isFinite) ? [span[0], span[1]] : null, need: query.get('need') ?? undefined };
 }
 
 const files = new Map<string, { at: number; body: Promise<unknown> }>();

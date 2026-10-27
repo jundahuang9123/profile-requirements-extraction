@@ -28,12 +28,17 @@ export function ResultViewer({ link, onClose }: { link: TraceLink; onClose?: () 
   const [file, setFile] = useState<unknown>(undefined);
   const [error, setError] = useState('');
   const body = useRef<HTMLDivElement>(null);
+  const shown = useRef('');
   useEffect(() => {
-    let active = true; setFile(undefined); setError('');
+    // Every click reads the file again (step files come from a short cache; the current saved state is always
+    // fetched), so a link followed after a reviewer's action shows the state after it.
+    let active = true; setError('');
+    if (shown.current !== link.file) setFile(undefined);
+    shown.current = link.file;
     loadResultFile(link.file).then(value => { if (active) setFile(value); })
       .catch(cause => { if (active) setError(cause instanceof Error ? cause.message : String(cause)); });
     return () => { active = false; };
-  }, [link.file]);
+  }, [link]);
   useEffect(() => {
     // A marked quotation is centred; a highlighted row is shown from its first line.
     const mark = body.current?.querySelector('[data-mark]');
@@ -44,7 +49,7 @@ export function ResultViewer({ link, onClose }: { link: TraceLink; onClose?: () 
   const isDocument = link.file.startsWith('/sources/') && typeof file === 'object' && file !== null && 'units' in file;
   const found = file !== undefined && resolvePointer(file, link.pointer) !== undefined;
   return <section className="result-viewer" aria-label="Saved result">
-    <header><div><strong>{link.label}</strong><code>{link.file}{link.pointer && ` · ${link.pointer}`}</code></div>
+    <header><div><strong>{link.label}</strong>{link.need && <small className="result-need">For the need: {link.need}</small>}<code>{link.file}{link.pointer && ` · ${link.pointer}`}</code></div>
       <div className="workflow-toolbar"><a href={resultHref(link)} target="_blank" rel="noreferrer">Open in new tab</a><a href={download}>Download file</a>{onClose && <button onClick={onClose}>Close</button>}</div></header>
     {error && <p className="workflow-error" role="alert">{error}</p>}
     {file === undefined && !error && <p>Loading the saved result…</p>}
