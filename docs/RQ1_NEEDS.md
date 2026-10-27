@@ -362,7 +362,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Fresh need extraction | `rq1-independent-elicitation-v3.3` | Selected role descriptions exclude discovery citations and merge history; no `extension_kind` or `base_property` in the needs provider contract |
 | Normalization | `rq1-need-normalization-v1` | Uncited and base-only filtering; historical extraction annotations remain readable |
 | Source check | `rq1-original-source-v2.2` | Deterministic; every cited link checked |
-| Proposal support | `rq1-proposal-support-v1` | At most 25 proposals / 24,000 input characters; only own excerpt IDs allowed |
+| Proposal support | `rq1-proposal-support-v2` (a rejection is judged again alone) | At most 25 proposals / 24,000 input characters; only own excerpt IDs allowed |
 | Grouping | `rq1-semantic-consolidation-v3` | 40 candidates, 24,000 input characters, at most 25 prior offered groups; audited exact fallback for invalid model grouping |
 | Need writing / rewrite critic | `rq1-need-statement-v3` | At most 20 groups; 24,000 writer input characters; independent critic up to 48,000 characters; initial response plus one output correction; a failed rewrite is retried member by member, a single need keeps its statement |
 | Additional member checking | `rq1-need-membership-v1` | Large groups use a bounded writing basis (up to 20 members / 16,000 statement characters); every remaining member checked in batches up to 40 / 24,000 characters |
@@ -377,6 +377,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Need assessment | `rq1-need-support-v1` | One logical assessment per kept need; complete selected excerpts, max 45,000 input characters; at most two generations for schema/cutoff recovery |
 | Row recovery | `rq1-needs-row-recovery-v2` | Valid rows saved; correction includes only failing rows; invalid/cutoff output gets durable fallbacks after exhaustion; provider failures stop and remain retryable |
 | Rank | `rq1-need-ranking-v1` | Deterministic; every kept need remains listed |
+| Traceability | `rq1-need-trace-v1` | Deterministic, at the end of a needs run; an active need whose chain is incomplete is set aside (`trace_incomplete`); call IDs recorded where each decision is made; every trace entry links to the saved step result, model call or source text it comes from |
 | Families (D5) | `rq1-need-families-v1` | 40 needs, 24,000 input characters and at most 60 earlier families per grouping call (`grouping` model setting); invalid grouping keeps that chunk's needs as singleton families, audited |
 | Discussion routing | `rq1-needs-routing-v3` | An obligation that no source states opens no case by itself (since v2), nor does the lexical 'and' hint when the model judged atomicity (v3); both stay on the need for review. Runs saved under v2 keep v2 routing; runs saved without a routing policy keep their original routing |
 
@@ -398,6 +399,32 @@ provider failures stop the stage visibly. The chunk records `transport_failed`,
 the error class and requested IDs, without consuming an attempt or creating
 fallbacks. Resume retries unfinished rows and preserves previously accepted rows.
 Historical v1 runs retain their frozen conditions; use a derived trial to apply v2.
+
+`rq1-proposal-support-v2` (Junda, 24 October, decision 7 A) treats a rejection of the
+proposal-support check as v8 and v9 treat a failed scope test. The check was repeated on the saved
+inputs of five runs (JRC `run-9f5519c8`, `run-b8286b8f`, `run-4563163a`; Stat `run-b99eecd5`,
+`run-0440c1b9`; 85 to 91 proposals each), each proposal three times in the run's batches, in
+shuffled batches and alone:
+- in batches, it rejected 0 to 4 proposals per repeat, and two repeats differed on 0.7 to 2.7;
+- confirming a rejection alone left 0 to 2, differing on 0 to 2.0;
+- judged alone only, it rejected 7 to 17 per repeat: it is stricter alone, mostly where a quote
+  does not state the information (a bare label such as "Creator", or a quote that ends at the
+  header of the property it is about).
+
+Since v2:
+- A proposal rejected in its batch is judged again alone with the same prompt and contract,
+  under its own cache step (`proposal_support_confirmation`).
+- Both reject it: it is set aside (`not_supported_by_quote`) with the first judgement;
+  `proposal_support.confirmation` holds the second (outcome `confirmed`).
+- They disagree: it stays with the second judgement and its selected quotes, flagged
+  `proposal_support_disputed`; `confirmation` holds the first (outcome `disputed`).
+- The second judgement is missing: it stays as for a missing first judgement (support
+  `not_checked`, flagged `support_not_checked`, all authentic quotes kept), with outcome
+  `not_checked` and the first judgement.
+- The step record counts the second judgements by outcome (`confirmation_counts`).
+
+Each rejection costs one call, plus at most one correction. A run whose needs policies name v1
+is refused at normalisation (derive a trial).
 
 | Exhausted row | Visible fallback |
 |---|---|
@@ -449,6 +476,302 @@ machine prefixes; they do not hide other needs or measure effort saved.
 calls, failures and latency per processing step and rejected outputs separately. A logical assessment can need
 two generations. Sequential call latency is not parallel wall time; missing token
 usage/cost remains unknown.
+
+## Traceability of every produced need (rq1-need-trace-v1)
+
+Junda, 26 October: every need a run produces must be traceable through the whole chain:
+- which material it comes from;
+- which agent extracted it;
+- what each step decided about it and why, and which model call made that decision;
+- why the discussion ended as it did.
+
+A need whose chain cannot be shown is not found solidly. Reviewers must not get more
+work from this.
+
+`need_trace` builds the chain from what the run stores; no model is asked. A need is
+**solid** when four kinds of link hold:
+1. **Sources:** every supporting quotation is found in its evidence unit, and the
+   need passed the source check.
+2. **Origin:** it comes from at least one extracted observation of a named agent
+   (role run, prompt version, model). A need the discussion wrote (split, add,
+   revise) has its origin in the outcome that made it.
+3. **Decisions:** every step that judges needs one by one in the run has recorded a
+   decision with a reason for it. These steps are:
+   - proposal support, for each proposal it was written from;
+   - need writing;
+   - classification;
+   - the F/A test and the record test;
+   - assessment;
+   - base review (6a).
+
+   Details:
+   - A step that did not run is not expected; a run without a base profile, for
+     example, classifies nothing.
+   - A judgement a step could not make counts when it is recorded with its reason:
+     - proposal support or a scope test `not_checked`, kept and flagged;
+     - base review `not_reviewed` (for example `payload_budget`).
+   - A need whose source check failed is not expected at classification or the record
+     test, since both skip it; the failed check is its missing link.
+   - A need the discussion wrote shows the outcome that made it, with its reason, and
+     its own scope judgements. It keeps its parent's requirement ID, so the step rows
+     under that ID belong to the parent. Scope tests at apply (`scope_tests`) exist
+     only under discussion policies that run them, so they are shown but not
+     required.
+4. **Discussion:** if it was discussed, the discussion accounts for it, and every
+   revision an outcome names exists.
+   - A mediated case accounts for a need through an outcome, concern or question
+     that names it. A free discussion (messages only) has no per-need outcomes.
+   - Another action of the same plan also counts as a valid name, such as a defer of a
+     proposed addition.
+   - A routed discussion names its result as `result_revision_id`.
+   - A proposal the salvage rejected is shown as the model wrote it. It is listed
+     among the review items and does not break the chain of the need that was kept.
+
+Model-call links are bookkeeping, not part of solidity:
+- Since this version every decision point stores the IDs of the calls behind it:
+  extraction batches (`citation_selections[].call_ids` with their `observation_ids`),
+  need-row attempts, assessments, base review and its check, discussion phases, and
+  the assessment of a mediated need.
+- `TrackedClient` reports each call to the logs open in the calling thread
+  (`call_log`).
+- Earlier runs are matched by output, input hash, verbatim rationale, or the error
+  text of a failed call whose valid rows were kept.
+- A derived run follows `derived_from` to the run that extracted, and to the runs
+  whose cached judgements it reused.
+- The F/A test and the record test share a step but answer in different contracts.
+  The writer and its critics do too, so each decision is linked to the call of its
+  own contract.
+- The writer is linked through the group it was offered (`written_group_id`). An
+  older event is matched by rebuilding that group under the run that wrote it, which
+  can be the source of a base-review trial.
+- Under one requirement ID, the cached rows can be a parent's (from normalisation) or
+  its revision's (scope tests at apply). Each decision is linked to the row that says
+  what the decision says.
+- In a needs run without the F/A test, `profile_scope.decisions` is the record
+  test.
+- An error text that occurs in two runs links to neither.
+- Base review records the calls its verdict and check were read from on the need
+  (`review_call_ids`, `check_call_ids`).
+
+At the end of a needs run `record_traceability` traces every produced need and saves
+the result under `stage_results.traceability`:
+- counts: produced, solid, active, active solid;
+- the failing links, and the call-link counts;
+- review items that name no revision or action;
+- a short reviewer summary per need.
+
+An active need whose chain is incomplete is set aside as `trace_incomplete`, with
+its missing links as the rationale. It is not counted as found and not put in front
+of a reviewer. It stays visible and restorable like any set-aside.
+- **Restoring:** restoring a set-aside now finds the set-aside revision itself. Before,
+  restore looked the record up by requirement ID alone, which for a revision written
+  by the discussion found, and overwrote, its parent. The flag is part of the need's
+  integrity hash, which is refreshed when the need is set aside, so the restored need
+  passes its source check.
+- **Safety valve:** when more than three active needs, and more than a tenth of them,
+  fail at once, the trace is more likely wrong than the needs. Nothing is set aside;
+  they are listed as `held_ids` and the run gets a diagnostic. None of the 203
+  active needs of the three JRC runs failed.
+
+The reviewer summary is built from the trace alone. A check a step could not make is
+never reported as passed: it says that the check could not judge the need, or that a
+second judgement is missing.
+- A record test that failed once without a second judgement is reported as such.
+- A merged need counts as supported only if every proposal it was written from is.
+- A base search that fell back is not reported as "not in the base profile".
+
+The summary says:
+- where the need comes from (source and quotation);
+- who extracted it;
+- what the checks found;
+- what the discussion did;
+- what the person is asked to decide.
+
+The format was chosen in a blind test on 14 active needs of the three JRC runs. They
+were sampled across the cases that matter: an overruled first judgement, an open
+question, merged proposals, base coverage, and the standard path.
+- **Panels:** for each format, two reviewer agents saw only that view and answered
+  five questions per need: source and supporting clause, extracting agent, anything
+  unusual, the discussion's conclusion, and what they must decide. A grader holding
+  the full traces scored the answers.
+- **Formats tested:** today's view (the need and its question), a one-line chain, a
+  card, and an exceptions-only note.
+- **Results:** the card was the most accurate. It is the only view that always says
+  what to decide.
+
+| Format | Correct answers | Effort (1–5) | Words |
+|---|---|---|---|
+| Need and question (today) | 11% | 4.5 | 30 |
+| One-line chain | 83% | 2.5 | 76 |
+| Card | 90% | 2.8 | 79 |
+| Exceptions only | 72% | 2.3 | 56 |
+
+The card then got three changes:
+- it shows the stretch of the first quotation that best matches the need, instead of
+  its first 90 characters, which often stopped before the supporting clause;
+- the discussion reason has room for 220 characters;
+- base coverage is taken from the flag as well.
+
+A second blind panel compared the two cards: 95% correct for the first card, 99% for
+the new one, at the same effort and 98 words.
+
+`GET /api/rq1/v2/runs/{run_id}/traceability` returns the saved summary, or builds one
+for a run finished before this version. `GET /api/rq1/v2/runs/{run_id}/needs/{revision_id}/trace`
+returns the full chain of one need.
+
+On the three JRC runs under v9 + v14 (`run-9f5519c8`, `run-f36c8783`, `run-2f7b8d7a`):
+- every one of the 65, 78 and 60 active needs (and every produced need) is solid;
+- 2,154 model decisions link to their calls: 27 through call IDs the runs already recorded, 2,127 by matching.
+  11 do not, and they say so:
+  - 9 base searches that returned no valid classification, whose fallback row comes from no call;
+  - 2 needs base review did not reach.
+
+On a scripted run of this version every decision's calls are recorded at the source.
+
+### Links to the saved results
+
+Junda, 27 October: every trace entry should link to where it was traced from. The
+link opens the result file of the step that made it, with the traced part
+highlighted, so the reviewer does not go back through the step pages.
+
+Each step of a run saves a result file: the workbench's "Download this step". The trace
+returned by `GET /runs/{run_id}/needs/{revision_id}/trace` carries a list of `links`
+on every entry (`trace_links`). Each link names:
+- a `file`: an API path;
+- a `pointer`: a JSON pointer (RFC 6901) to the traced row in that file;
+- for a quotation, the quoted text (`mark`) and where it sits in its evidence unit
+  (`quote_span`).
+
+Where each entry links:
+
+| Trace entry | File | Place |
+|---|---|---|
+| Quotation | the source document (`/sources/{id}/document`): parsed text and evidence units | the unit, with the quotation marked; a structured source (AAS JSON) opens unit by unit |
+| Extracted observation | step 3b, plus the model call that extracted it | the observation; the agent's role run; the call's row |
+| Source check | step 5 (proposals); the step 6 copy of the record for a need written in step 6 | the record's `verification` |
+| Proposal support, classification, F/A test, record test | step 6 (`need_steps`) | the decision row, matched by ID and reason |
+| Dataset applicability | step 6 (`need_steps`) | the decision row, matched by need ID (its reason joins the category links' reasons) |
+| Second judgement (confirmation) of proposal support, the F/A test or the record test | step 6 | the confirmation on the record |
+| Grouping, need writing | step 6 | the grouping chunk and its rationale; the writing event |
+| Assessment | step 6 (`need_steps.assessment.records`) | the record's `qualification` |
+| Base review and its check | step 6a | the record's `base_relation` |
+| Discussion case and outcome | step 7 | the case; the outcome |
+| Set-aside | step 6; the traceability summary for `trace_incomplete` | the set-aside entry; the need's missing links |
+| Model call behind a decision | `/runs/{run_id}/calls/{call_id}`, in the run that made it | the output row about the need (see below) |
+
+Details:
+- **Fallback:** a judgement kept on the record links to the first step file whose copy
+  of the record says what the run says now. Only steps that saved a result count: a
+  step that did not run (base review, by default) would serve the current state under
+  its own name. A revision the discussion wrote has its scope judgements in the step 7
+  file, not in its parent's step 6 rows. The last fallback is step 8, the current saved
+  state. A discussion outcome saved after the step 7 file links to the current saved run.
+- **Which call:** a judgement made twice (a first judgement that failed, then one made
+  alone) keeps on the record the one that stands, and its confirmation shows the
+  other. Each is linked to the call that gave it: the cached row that says what it
+  says, in either step. When the second judgement overruled the first ("disputed"),
+  the decision opens the second call and the confirmation the first.
+  - A second judgement that failed leaves the proposal `not_checked`, with that call's
+    failure as its reason: the decision opens the failed call, and its confirmation
+    opens the first judgement.
+  - A classification can come from any chunk of the base search, so it is linked
+    to the chunk whose row says what it says.
+  - A decision that sums up several chunks is linked to each chunk's kept answer (its
+    last attempt; a rejected attempt is left out):
+    - a need no chunk matched ("No matching entry was found"): every chunk;
+    - a refinement of the base, whose reason joins the matching chunks' reasons:
+      those chunks.
+  - Before this, on the three JRC runs, the linked row contradicted the decision for
+    22 classifications and for the overruled judgements of 24 needs. Now it
+    contradicts none.
+- **Rows of a model call:** the rows of one batch often give the same reason, so the
+  row is searched over the whole output in turn:
+  1. the decision's own revision;
+  2. its requirement ID;
+  3. its group, and for the writer the members it wrote from;
+  4. the reason the decision keeps verbatim;
+  5. the statement the writer wrote.
+
+  A grouping row is found by the member's alias in the chunk (c1, c2, …). Base review
+  shows the model aliases (N1, B1, E1) and saves its answer with real IDs, in the same
+  order. The row is found in the saved answer, through the attempt's call ID, or, for a
+  run saved before call IDs, through the call that gives the same reasons in the same
+  order.
+- **Grouping:** a grouping link opens the chunk's grouping row (never its salvage row),
+  at the group that holds the revision. A chunk's calls include earlier attempts; their
+  row for the group can give a different reason than the final answer.
+- **Failed calls:** a call whose answer broke its contract saves no output; the decision
+  kept the valid rows recovered from it. Its link opens the call record without a row,
+  labelled "failed, no answer saved".
+- **Re-hashed proposals:** a proposal the support check re-hashed (an obligation its
+  quote does not state) is found in the decision rows by its new revision ID.
+- **Discussion-made observations:** an observation ID that no agent extracted (one the
+  discussion gave a revision it wrote) links to the outcome that wrote that revision.
+- **Reviewer card:** each phrase carries the trace entry it reports
+  (`summary_parts`). The workbench links each phrase to that entry's first link.
+  "Already in the base profile" reports the classification when it says generic, and
+  otherwise the base review that found the need restated. The card text is unchanged:
+  it is byte-identical on the 255 produced needs of the three JRC runs.
+- **Files:** `GET /runs/{run_id}/stages/{stage}` serves the step file, built by the same
+  function as the links (`stage_results`), so the pointers hold.
+  `GET /runs/{run_id}/calls/{call_id}` serves one saved call; inputs are kept only as
+  hashes. `GET /sources/{source_version_id}/document` serves a source's parsed text with
+  its units in reading order.
+
+**In the workbench**, the inspect page of a need (step 8) and the run trace show the
+card with every phrase linked, and a "Full chain" with the links of every entry.
+- A link opens the file in a panel beside the trace. The page moves left so the trace
+  stays clickable, and the highlighted part is scrolled into view.
+- The panel names the need it was opened for. It closes when the reviewer turns to
+  another need or run.
+- Every click reads the file again, so following a link again scrolls back to its place
+  and shows the state after a reviewer's action. A new saved version of the run keeps
+  the trace, and its open sections, on screen.
+- A JSON file opens as a tree: the path to the row is expanded, the row is highlighted,
+  and long lists show the rows around it.
+- A source opens as its parsed text: the evidence unit in blue, the quotation in yellow.
+- "Open in new tab" (or a middle click) opens the same view on its own page
+  (`#/result?file=…&pointer=…`). That page opens only the saved results listed above
+  (step files, calls, the traceability summary, the current run, source documents).
+- Files of the current saved state are always read afresh. Step files are cached for
+  a minute.
+
+**Checks:**
+- On the three JRC runs, all 4,141 trace entries of the 255 produced needs have at
+  least one link: 10,179 links in total.
+- Every link resolves in the file its endpoint serves. Every step link lands on an
+  object about the entry: its revision, need, group, observation, case or outcome.
+- All 314 quotations are located in their evidence unit. 280 come from parsed text,
+  where each unit's span in the text equals its content. 34 come from a structured
+  (AAS JSON) source and open unit by unit.
+- Of the 5,768 model-call links, 2,450 open at the row about the need. In none of
+  them does the row name another need. By what the row says:
+
+  | Row | Links |
+  |---|---|
+  | the extracted observation | 270 |
+  | the decision's own reason | 1,396 |
+  | a chunk of a search that found no match, with that chunk's own reason | 375 |
+  | the need's dataset applicability (its reason joins the category links' reasons) | 180 |
+  | the writer's row, which gives no reason | 202 |
+  | a grouping row without a reason | 5 |
+  | an earlier attempt of a grouping chunk, linked beside the final answer (4 calls) | 22 |
+
+- 134 links go to failed calls, with no answer saved:
+  - 84 to 7 writer and F/A calls;
+  - 50 to 36 discussion calls.
+- The other 3,184 open at the call's whole output:
+  - 2,968 are the discussion's own calls;
+  - 215 are one-need assessments, whose output is the row;
+  - 1 is an earlier grouping attempt.
+- **Reviews:** three independent reviews found links that opened the wrong row:
+  - a neighbour with the same reason;
+  - the other judgement of an overruled pair;
+  - the first chunk of a base search;
+  - a rejected attempt.
+
+  They also found labels of a step that did not run. A test for each fails on the
+  version before its fix.
 
 ## Discussion routing
 

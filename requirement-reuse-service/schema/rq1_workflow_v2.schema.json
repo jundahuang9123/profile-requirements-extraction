@@ -5197,7 +5197,8 @@
             "not_commonly_agreed",
             "fa_scope_set_aside",
             "mediated_fa_set_aside",
-            "operational_data_processing"
+            "operational_data_processing",
+            "trace_incomplete"
           ],
           "title": "Reason",
           "type": "string"

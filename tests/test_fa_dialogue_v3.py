@@ -269,7 +269,8 @@ def test_legacy_v1_correction_and_plans_are_unchanged(setup):
     client=Mediator(plans);fd.deliberate(store,run['run_id'],client)
     saved,case=case_of(store,run)
     first=case['discussion_trace']['phases']['draft']['attempts'][0]
-    assert set(first)=={'output','errors'} and first['errors']
+    # rq1-need-trace-v1 records the calls behind every attempt, for every policy; nothing else is added to v1.
+    assert set(first)=={'output','errors','call_ids'} and first['errors']
     assert ' Correct only these validation errors: ' in client.plan_systems[1]
     assert 'Your previous answer was rejected' not in client.plan_systems[1]
     assert fd.BASE_MEDIATOR_GUIDANCE not in client.plan_systems[0]

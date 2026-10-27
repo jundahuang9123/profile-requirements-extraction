@@ -128,6 +128,13 @@ def get_source(source_version_id: str):
     return translate(lambda: Store().get('source', source_version_id))
 
 
+@router.get('/sources/{source_version_id}/document')
+def source_document_view(source_version_id: str, download: bool = False):
+    """A source's parsed text with its evidence units in reading order; trace quotations link here."""
+    from .trace_links import source_document
+    return downloadable(translate(lambda: source_document(Store(), source_version_id)), download, f'{source_version_id}.json')
+
+
 @router.get('/sources/{source_version_id}/evidence')
 def source_evidence(source_version_id: str):
     def read():
@@ -216,10 +223,10 @@ def create_run(request: RunRequest, background: BackgroundTasks):
 
 
 @router.get('/runs/{run_id}')
-def get_run(run_id: str, audit: bool = True):
+def get_run(run_id: str, audit: bool = True, download: bool = False):
     """The saved run. ``audit=false`` leaves out the model-call log, the frozen machine
     snapshot and the excerpt catalogues, which the workbench does not display."""
-    return translate(lambda: JSONResponse(Store().get_run(run_id, omit=() if audit else AUDIT_PARTS)))
+    return downloadable(translate(lambda: Store().get_run(run_id, omit=() if audit else AUDIT_PARTS)), download, f'{run_id}.json')
 
 
 @router.post('/runs/{run_id}/derive', status_code=202)
@@ -290,12 +297,9 @@ def export_stage(run_id: str, stage: str, download: bool = False):
     def read():
         store = Store()
         run = store.get('run', run_id)
-        from .engine import STAGE_RESULT_FIELDS
-        fields = STAGE_RESULT_FIELDS
-        if stage not in fields:
-            raise ValueError('Unknown workflow step.')
+        from .trace_links import stage_results
+        results = stage_results(run, stage)
         checkpoint = run.get('stage_results', {}).get(stage) if stage not in {'adjudication', 'baseline'} else None
-        results = checkpoint if checkpoint is not None else {key: run.get(key) for key in fields[stage]}
         snapshot_kind = 'stage_checkpoint' if checkpoint is not None else 'current_saved_state'
         if stage in {'acquisition', 'decomposition'}:
             results['snapshot'] = store.get('snapshot', run['snapshot_id'])
@@ -539,6 +543,46 @@ def export_coverage(run_id: str):
 def export_needs(run_id: str, download: bool = False):
     from .needs import needs_export
     return downloadable(translate(lambda: needs_export(Store(), run_id)), download, 'needs.json')
+
+
+@router.get('/runs/{run_id}/traceability')
+def run_traceability(run_id: str, download: bool = False):
+    """The saved traceability summary of a finished run, or one built now for a run finished before rq1-need-trace-v1."""
+    def read():
+        from .need_trace import TraceIndex, need_summary, need_trace, produced_needs, review_items, traceability
+        store = Store(); run = store.get_run(run_id)
+        if (run.get('stage_results') or {}).get('traceability'): return run['stage_results']['traceability']
+        index = TraceIndex(store, run); traces = {r: need_trace(index, r) for r in produced_needs(run)}
+        return {**traceability(traces, set(run['active_revision_ids'])), 'saved': False, 'review_items_unresolved': review_items(index),
+                'needs': {r: {'solid': t['completeness']['solid'], 'missing': t['completeness']['missing'],
+                              'call_links': t['completeness']['call_links'], 'summary': need_summary(t)} for r, t in traces.items()}}
+    return downloadable(translate(read), download, 'traceability.json')
+
+
+@router.get('/runs/{run_id}/needs/{revision_id}/trace')
+def need_trace_view(run_id: str, revision_id: str, download: bool = False):
+    """The full chain behind one need: quotations, extraction, every decision with its reason and calls, discussion;
+    each entry links to the saved result it comes from, and each phrase of the reviewer card to its entry."""
+    def read():
+        from .need_trace import TraceIndex, need_summary, need_trace, summary_parts
+        from .trace_links import link_trace
+        store = Store(); run = store.get_run(run_id); index = TraceIndex(store, run)
+        if revision_id not in index.records: raise KeyError(f'No revision {revision_id} in {run_id}.')
+        trace = need_trace(index, revision_id)
+        return {**link_trace(index, trace), 'summary': need_summary(trace), 'summary_parts': summary_parts(trace)}
+    return downloadable(translate(read), download, f'trace-{revision_id}.json')
+
+
+@router.get('/runs/{run_id}/calls/{call_id}')
+def model_call_view(run_id: str, call_id: str, download: bool = False):
+    """One saved model call: its step, model, output and hashes (inputs are kept only as hashes)."""
+    def read():
+        from .storage import RUN_PARTS
+        run = Store().get_run(run_id, omit=tuple(p for p in RUN_PARTS if p != 'model_calls'))
+        call = next((c for c in run.get('model_calls') or [] if c.get('call_id') == call_id), None)
+        if call is None: raise KeyError(f'No model call {call_id} in {run_id}.')
+        return {'run_id': run_id, **call}
+    return downloadable(translate(read), download, f'call-{call_id}.json')
 
 
 @router.post('/runs/{run_id}/restore')

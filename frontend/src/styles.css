@@ -2819,3 +2819,51 @@ button.danger {
 .workflow-workbench [hidden] { display:none; }
 @media(max-width:1000px) { .workflow-stages { grid-template-columns:repeat(3,minmax(0,1fr)); } }
 @media(max-width:650px) { .workflow-stages { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
+/* Trace links (rq1-need-trace-v1): the chain behind a need, and the saved result each entry links to. */
+.need-trace { margin:12px 0; padding:12px 14px; border:1px solid var(--border); border-radius:8px; background:var(--panel-strong); }
+.need-trace h3 { margin:0 0 8px; font-size:15px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.trace-solid, .trace-incomplete { font-size:12px; font-weight:600; padding:2px 8px; border-radius:999px; }
+.trace-solid { color:var(--accent-strong); background:#ccfbf1; }
+.trace-incomplete { color:var(--danger); background:#fee2e2; }
+.trace-card { margin:0; display:grid; gap:6px; font-size:13px; }
+.trace-card>div { display:grid; grid-template-columns:110px minmax(0,1fr); gap:8px; }
+.trace-card dt { font-weight:600; color:var(--muted); }
+.trace-card dd { margin:0; overflow-wrap:anywhere; }
+.trace-link { color:var(--accent-strong); text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px; }
+.trace-link:hover, .trace-link:focus { background:#ccfbf1; text-decoration-style:solid; }
+.trace-links { display:inline-flex; flex-wrap:wrap; gap:4px 10px; margin-left:4px; font-size:12px; }
+.trace-chain { margin:8px 0 0; padding-left:20px; display:grid; gap:6px; font-size:13px; overflow-wrap:anywhere; }
+.trace-chain small { color:var(--muted); }
+.result-drawer { position:fixed; top:0; right:0; bottom:0; z-index:90; width:min(720px, 46vw); background:var(--panel); border-left:1px solid var(--border); box-shadow:-8px 0 24px rgba(15,23,42,.18); display:flex; }
+.result-page { padding:16px; height:100vh; box-sizing:border-box; display:flex; }
+.result-viewer { display:flex; flex-direction:column; min-width:0; width:100%; }
+.result-viewer>header { padding:12px 14px; border-bottom:1px solid var(--border); display:grid; gap:8px; }
+.result-viewer>header code { display:block; font-size:11px; color:var(--muted); overflow-wrap:anywhere; }
+.result-viewer>header .result-need { display:block; font-size:12px; color:var(--muted); }
+.result-viewer>header .workflow-toolbar { margin:0; gap:12px; font-size:13px; }
+.result-body { flex:1; overflow:auto; padding:12px 14px; }
+.result-viewer .result-document { white-space:pre-wrap; overflow-wrap:anywhere; font-size:13px; line-height:1.5; margin:0; max-height:none; overflow:visible; }
+.result-document article { margin:8px 0; padding:6px 8px; }
+.result-viewer .result-document article pre { white-space:pre-wrap; margin:4px 0 0; max-height:none; overflow:visible; }
+.result-target { background:#fef9c3; outline:2px solid #facc15; border-radius:4px; }
+.result-document span.result-target { background:#e0f2fe; outline:none; border-radius:0; box-decoration-break:clone; -webkit-box-decoration-break:clone; }
+.result-legend { margin:0 0 8px; font-size:12px; color:var(--muted); }
+.result-legend span { padding:0 4px; }
+.result-unit { background:#e0f2fe; }
+.result-viewer mark { background:#fde047; color:inherit; padding:0 1px; }
+.result-json { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; line-height:1.45; }
+.result-children { padding-left:16px; border-left:1px dotted var(--border); margin-left:5px; }
+.result-viewer button.result-toggle { all:unset; cursor:pointer; display:block; padding:1px 2px; }
+.result-viewer button.result-toggle:hover, .result-viewer button.result-toggle:focus-visible { background:var(--panel-strong); outline:1px solid var(--border); }
+.result-key { color:#7c3aed; }
+.result-preview { color:var(--muted); margin-left:6px; }
+.result-leaf { padding:1px 2px; overflow-wrap:anywhere; }
+.result-long { white-space:pre-wrap; }
+.result-string { color:#0f5132; }
+.result-number, .result-boolean { color:#1d4ed8; }
+.result-null { color:var(--muted); }
+.result-more { margin:4px 0; font-size:12px; }
+/* The page moves left of an open result, so the trace stays clickable beside it; narrow screens show the result alone. */
+.workflow-workbench.with-result-drawer { margin-right:min(720px, 46vw); }
+@media(max-width:1100px) { .result-drawer { width:100vw; }.workflow-workbench.with-result-drawer { margin-right:0; } }

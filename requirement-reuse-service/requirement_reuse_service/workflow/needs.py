@@ -11,6 +11,7 @@ from pydantic import Field
 from typing import Literal
 from .models import Contract, Observation, NormalizedIntent, ObligationAlternative, RequirementRecord
 from .storage import RUN_PARTS, canonical, digest, now, uid
+from .call_log import recorded_calls
 from .terms import collect_hints, detect_terms, union_hints
 from .semantic_consolidation import grouped_block, partition_exact, FAMILY_POLICY, NEED_SEMANTIC_POLICY
 from .coverage import (CATEGORY_POLICY, SELECTION_POLICY, CategoryLink, discover_categories,
@@ -21,7 +22,7 @@ from .coverage import (CATEGORY_POLICY, SELECTION_POLICY, CategoryLink, discover
 ROUTING_POLICY = 'rq1-needs-routing-v3'
 # Routing runs after needs processing, so a run saved under an earlier routing policy keeps it.
 EARLIER_ROUTING_POLICIES = ('rq1-needs-routing-v2',)
-POLICIES = {'generation_recovery': 'rq1-needs-row-recovery-v2', 'source_check': 'rq1-original-source-v2.2', 'proposal_support': 'rq1-proposal-support-v1', 'grouping': 'rq1-need-semantic-grouping-v2',
+POLICIES = {'generation_recovery': 'rq1-needs-row-recovery-v2', 'source_check': 'rq1-original-source-v2.2', 'proposal_support': 'rq1-proposal-support-v2', 'grouping': 'rq1-need-semantic-grouping-v2',
             'need_statement': 'rq1-need-statement-v3', 'need_membership': 'rq1-need-membership-v1',
             'classification': 'rq1-generic-domain-v4', 'base_search': 'rq1-base-needs-full-search-v3', 'base_gap': 'rq1-base-gap-status-v2',
             'profile_scope': 'rq1-profile-scope-v9', 'dataset_applicability': 'rq1-dataset-applicability-v2', 'dataset_categories': CATEGORY_POLICY, 'selection': SELECTION_POLICY,
@@ -463,7 +464,7 @@ def write_needs(store, run, groups, client, profile):
                     'Term-free synthesis of source-checked proposals; independent rewrite critic passed.', profile)
                 complete.append(need)
                 events.append({'action':'merge_need', 'policy_version':POLICIES['need_statement'], 'group_id':group_id,
-                    'inputs':[r.revision_id for r in kept], 'outputs':[need.revision_id],
+                    'written_group_id':written.group_id, 'inputs':[r.revision_id for r in kept], 'outputs':[need.revision_id],
                     'split_member_ids':[r.revision_id for r in rejected],
                     'obligation_alternatives':[a.model_dump(mode='json') for a in need.obligation_alternatives]})
     return complete, events
@@ -509,17 +510,33 @@ def supporting_links(record):
     return [l for l in record.evidence_links if excerpt_id(l) in selected and l.relation == 'supports']
 
 
+# rq1-proposal-support-v2 (Junda, 24 Oct, decision 7 A): a proposal the check rejects is judged again alone,
+# as v8 and v9 do for the scope tests, and is set aside only when both judgements reject it. Repeated on the
+# saved inputs of five runs (JRC and Stat), the rejections in a batch flipped between repeats on 0.7 to 2.7
+# proposals per run; confirming them alone halves that. Judged alone, the check is stricter (7 to 17
+# rejections per run), so a second judgement alone rarely keeps a proposal its quote does not support.
+CONFIRMING_SUPPORT_POLICIES = frozenset({'rq1-proposal-support-v2'})
+
+
+def support_counts(decisions):
+    """The step record of the second judgements (rq1-proposal-support-v2), by outcome."""
+    # Proposals that were not judged again have no outcome; drop them before sorting.
+    counts = Counter((d.get('confirmation') or {}).get('outcome') for d in decisions)
+    return dict(sorted((k, v) for k, v in counts.items() if k))
+
+
 def check_proposal_support(store, run, records, client):
     from .engine import verify
     from .models import UnbackedObligation
     retained, decisions = [], []
+    policy = (run.get('needs_policies') or {}).get('proposal_support') or POLICIES['proposal_support']
     def payload_for(batch):
         return {'proposals': {r.revision_id: {'statement': r.normalized_statement,
             'obligation': r.normalized_intent.obligation_hint,
             'excerpts': {excerpt_id(l): {'quote': l.quote,
                 'components': sorted({x.component for x in r.evidence_links if excerpt_id(x) == excerpt_id(l)}),
                 'evidence_id': l.evidence_id} for l in r.evidence_links if l.relation == 'supports'}} for r in batch}}
-    for batch in bounded_batches(records, 25, payload_for):
+    def judged(batch, step, key_policy=None):
         payload = payload_for(batch)
         def validate(result):
             errors = []; counts = Counter(d.proposal_id for d in result.proposals)
@@ -539,19 +556,42 @@ def check_proposal_support(store, run, records, client):
                     'obligation' in offered['excerpts'].get(i, {}).get('components', []) for i in selected):
                     errors.append(d.proposal_id + ': a stated obligation requires its selected obligation quote.')
             return errors
-        result = cached_generation(store, run, 'proposal_support', payload, ProposalSupport, SUPPORT_SYSTEM, client, validate)
+        return cached_generation(store, run, step, payload, ProposalSupport, SUPPORT_SYSTEM, client, validate, key_policy)
+    def not_checked(record, failure, confirmation=None):
+        # A missing judgement keeps the need with all its authentic quotes, flagged for review.
+        record.proposal_support = {'policy_version':policy,'support':'not_checked',
+            'supporting_evidence_ids':[], 'claimed_obligation':record.normalized_intent.obligation_hint, 'fallback':failure,
+            **({'confirmation':confirmation} if confirmation else {})}
+        record.processing_flags.append('support_not_checked')
+        record.normalized_intent.obligation_hint='unknown';refresh_need(record)
+        record.verification=verify(store,record,run['evidence_ids'],policy_version=POLICIES['source_check'])
+        retained.append(record); decisions.append({'revision_id':record.revision_id,**record.proposal_support})
+    for batch in bounded_batches(records, 25, payload_for):
+        result = judged(batch, 'proposal_support')
         by_id = {r.revision_id:r for r in batch}
         for identifier, failure in getattr(result,'_fallbacks',{}).items():
-            record = by_id[identifier]
-            record.proposal_support = {'policy_version':POLICIES['proposal_support'],'support':'not_checked',
-                'supporting_evidence_ids':[], 'claimed_obligation':record.normalized_intent.obligation_hint, 'fallback':failure}
-            record.processing_flags.append('support_not_checked')
-            record.normalized_intent.obligation_hint='unknown';refresh_need(record)
-            record.verification=verify(store,record,run['evidence_ids'],policy_version=POLICIES['source_check'])
-            retained.append(record); decisions.append({'revision_id':record.revision_id,**record.proposal_support})
+            not_checked(by_id[identifier], failure)
         for decision in result.proposals:
             record = by_id[decision.proposal_id]
-            record.proposal_support = {'policy_version':POLICIES['proposal_support'], **decision.model_dump(mode='json')}
+            confirmation = None
+            if decision.support == 'not_supported' and policy in CONFIRMING_SUPPORT_POLICIES:
+                # Its own cache step: a proposal first judged alone would otherwise get its first judgement back.
+                second = judged([record], 'proposal_support_confirmation', policy)
+                failure = getattr(second, '_fallbacks', {}).get(record.revision_id)
+                rows = [d for d in second.proposals if d.proposal_id == record.revision_id]
+                first = decision.model_dump(mode='json')
+                if failure or not rows:
+                    not_checked(record, failure or {'reason': 'No judgement returned.'},
+                                {'outcome': 'not_checked', 'verdict': first})
+                    continue
+                if rows[0].support == 'not_supported':
+                    confirmation = {'outcome': 'confirmed', 'verdict': rows[0].model_dump(mode='json')}
+                else:
+                    confirmation = {'outcome': 'disputed', 'verdict': first}
+                    decision = rows[0]
+                    record.processing_flags.append('proposal_support_disputed')
+            record.proposal_support = {'policy_version':policy, **decision.model_dump(mode='json'),
+                                       **({'confirmation':confirmation} if confirmation else {})}
             if record.normalized_intent.obligation_hint != 'unknown' and not decision.obligation_stated:
                 record.unbacked_obligation = UnbackedObligation(label=record.normalized_intent.obligation_hint,
                     reason='quote_does_not_state_it')
@@ -562,7 +602,7 @@ def check_proposal_support(store, run, records, client):
                 aside_need(store,run,record,'not_supported_by_quote',decision.rationale)
             else: retained.append(record)
     step_saved(store,run,'proposal_support',input_count=len(records),retained_count=len(retained),
-               set_aside_count=len(records)-len(retained),decisions=decisions)
+               set_aside_count=len(records)-len(retained),decisions=decisions,confirmation_counts=support_counts(decisions))
     return retained
 
 
@@ -1338,10 +1378,11 @@ def assess_needs(store, run, needs, client):
         else:
             # One logical assessment per retained need, with at most two bounded
             # generations for output recovery. Source failures make no model call.
-            need.qualification=assess(store,need,client)
+            with recorded_calls() as calls:
+                need.qualification=assess(store,need,client)
             saved={'step':'assessment','policy_version':POLICIES['assessment'],
                    'need_id':need.requirement_id,'provider':client.describe() if client else 'offline',
-                   'qualification':need.qualification.model_dump(mode='json')}
+                   'qualification':need.qualification.model_dump(mode='json'),'call_ids':calls}
             saved['checkpoint_hash']=digest(saved)
             store.mutate(run['run_id'],None,'need_assessment_saved',lambda r:r['need_chunks'].__setitem__(key,saved))
         if need.verification['status']!='pass':
@@ -1450,7 +1491,10 @@ def restore_need(store,run_id,request,actor):
         if len(matches)!=1 or matches[0].get('restored'):
             raise ValueError('Select one current, unrestored set-aside item.')
         aside=matches[0]
-        stored=next((r for r in run['requirements'] if r.get('requirement_id')==aside.get('need_id')),None)
+        # The set-aside revision itself: a revision written by the discussion keeps its parent's requirement ID, so
+        # the requirement ID alone found the superseded parent (rq1-need-trace-v1 review).
+        stored=(next((r for r in run['requirements'] if aside.get('revision_id') and r['revision_id']==aside['revision_id']),None)
+                or next((r for r in run['requirements'] if r.get('requirement_id')==aside.get('need_id')),None))
         if stored:
             record=RequirementRecord.model_validate(stored)
         else:
@@ -1474,7 +1518,8 @@ def restore_need(store,run_id,request,actor):
             record.qualification=None
             record.lifecycle_state=('blocked_support' if aside['reason'] in {'not_supported_by_quote','rewrite_rejected'} else 'awaiting_human') if record.verification['status']=='pass' else 'blocked_evidence'
             record.decision_id=decision_id
-            prior=next((r for r in run['requirements'] if r['requirement_id']==record.requirement_id),None)
+            prior=(next((r for r in run['requirements'] if r['revision_id']==record.revision_id),None)
+                   or next((r for r in run['requirements'] if r['requirement_id']==record.requirement_id),None))
             if prior: prior.update(record.model_dump(mode='json'))
             else: run['requirements'].append(record.model_dump(mode='json'))
             if record.revision_id not in run['active_revision_ids']: run['active_revision_ids'].append(record.revision_id)

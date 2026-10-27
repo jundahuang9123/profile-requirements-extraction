@@ -9,6 +9,7 @@ from . import stakeholder_workflow as old
 from .models import Contract, DeliberationCase, RequirementRecord
 from .storage import canonical, digest, now, uid, ConflictError
 from ..llm.step_models import for_step, model_identity
+from .call_log import recorded_calls
 from .fa_requirements import WRITE_GUIDANCE, coverage_ledger
 
 POLICY='rq1-fa-dialogue-v1'
@@ -1486,18 +1487,20 @@ def execute_case(store,run_id,case_id,client,roles):
                 from .base_review import correction
                 note=correction(saved['attempts'][-1],aliases,translate)
             else:note=' Correct only these validation errors: '+canonical(errors)
-            start=monotonic()
+            start=monotonic();calls=[]
             try:
-                answer=bounded_stage_output(bound,system=system+note,
-                    user=wire,output_model=model,initial_tokens=first_cap,retry_tokens=8000,before_attempt=before)
+                with recorded_calls(calls):
+                    answer=bounded_stage_output(bound,system=system+note,
+                        user=wire,output_model=model,initial_tokens=first_cap,retry_tokens=8000,before_attempt=before)
                 answer=model.model_validate(translate(answer.model_dump(mode='json'),aliases))
             except (OutputValidationError,OutputTokenLimitError) as exc:
-                saved.update(status='invalid_output',validation_error={'type':type(exc).__name__,'message':str(exc)})
+                saved.update(status='invalid_output',validation_error={'type':type(exc).__name__,'message':str(exc)},
+                             failed_call_ids=calls)
                 persist()
                 raise DiscussionValidationError('Bounded structured-output recovery failed in '+key+': '+str(exc)) from exc
             finally:
                 seconds+=monotonic()-start;persist()
-            attempt={}
+            attempt={'call_ids':calls}
             if policy==BASE_POLICY and step=='mediation':
                 # Audited bookkeeping repairs; the model's own plan is kept beside the repaired one.
                 raw=answer.model_dump(mode='json');answer,repairs=repair_plan(answer,case,payload.get('messages',[]))

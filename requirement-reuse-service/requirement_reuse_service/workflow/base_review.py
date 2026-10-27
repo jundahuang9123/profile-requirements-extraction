@@ -6,6 +6,7 @@ from typing import Literal
 from pydantic import Field, ValidationError
 from .models import Contract, RequirementRecord
 from .storage import canonical, digest, now
+from .call_log import recorded_calls
 from .base_needs import load_catalogue, offer_entries, item_picks
 from .stakeholder_workflow import audit, save
 from ..llm.step_models import for_step, model_identity
@@ -251,16 +252,17 @@ def generation(store,run,key,step,contract,system,payload,aliases,client,validat
     if not saved:saved={'identity':identity,'model':model_identity(bound),'attempts':[]}
     if saved.get('output'):return contract.model_validate(saved['output']),saved
     while len(saved['attempts'])<2:
-        errors=[];parsed=None
+        errors=[];parsed=None;calls=[]
         try:
-            result=bound.generate_structured(system=system+(correction(saved['attempts'][-1],aliases) if saved['attempts'] else ''),
-                user=canonical(translate_ids(payload,{v:k for k,v in aliases.items()})),output_model=contract,max_tokens=4000)
+            with recorded_calls(calls):
+                result=bound.generate_structured(system=system+(correction(saved['attempts'][-1],aliases) if saved['attempts'] else ''),
+                    user=canonical(translate_ids(payload,{v:k for k,v in aliases.items()})),output_model=contract,max_tokens=4000)
             result=contract.model_validate(translate_ids(result.model_dump(mode='json'),aliases))
             errors=validate(result)
             output=result.model_dump(mode='json')
         except (OutputValidationError,OutputTokenLimitError) as exc:
             errors=[str(exc)];output=None;parsed=getattr(exc,'parsed_payload',None)
-        attempt={'output':output,'errors':errors}
+        attempt={'output':output,'errors':errors,'call_ids':calls}
         # The complete JSON of a schema-invalid answer, saved for row recovery on resume too.
         if isinstance(parsed,dict):attempt['parsed']=translate_ids(parsed,aliases)
         saved['attempts'].append(attempt)
@@ -268,6 +270,11 @@ def generation(store,run,key,step,contract,system,payload,aliases,client,validat
         save(store,run['run_id'],key,saved)
         if not errors:return result,saved
     return None,saved
+
+
+def used_calls(saved):
+    """The calls of the attempt a verdict or check is read from: the newest with an answer (see isolated)."""
+    return next((a.get('call_ids') or [] for a in reversed(saved['attempts']) if a.get('output') or isinstance(a.get('parsed'),dict)),[])
 
 
 def check_errors(answer,records):
@@ -364,18 +371,20 @@ def review_base(store,run,client,phase='before_discussion'):
         verdict,saved=generation(store,run,key,'base_review',BaseReview,REVIEW_SYSTEM,payload,aliases,client,
             lambda a:verdict_errors(a,batch,payload,catalogue))
         if verdict:
-            check_batch(batch,verdict,key,saved['model']);return
+            check_batch(batch,verdict,key,saved['model'],review_calls=used_calls(saved));return
         if len(batch)==1:
-            finish(batch,None,None,'invalid_output',payload,aliases,key,saved['model'],errors=saved['attempts'][-1]['errors']);return
+            finish(batch,None,None,'invalid_output',payload,aliases,key,saved['model'],errors=saved['attempts'][-1]['errors'],
+                   review_calls=used_calls(saved));return
         # One invalid judgement no longer leaves its batch-mates unreviewed (v2: 10 of 46
         # JRC needs in 3 batches). Judgements that are valid on their own are kept and
         # still independently checked; each other need is reviewed alone.
         kept=isolated(saved,batch,lambda v,n:not verdict_errors(BaseReview(verdicts=[v]),[n],payload,catalogue),'verdicts')
         accepted=[n for n in batch if n.revision_id in kept]
-        if accepted:check_batch(accepted,BaseReview(verdicts=[kept[n.revision_id] for n in accepted]),key,saved['model'],{'review':key})
+        if accepted:check_batch(accepted,BaseReview(verdicts=[kept[n.revision_id] for n in accepted]),key,saved['model'],{'review':key},
+                                used_calls(saved))
         for n in batch:
             if n.revision_id not in kept:process([n])
-    def check_batch(batch,verdict,key,model,isolation=None):
+    def check_batch(batch,verdict,key,model,isolation=None,review_calls=()):
         payload,aliases=make_payload(store,run,batch,catalogue,phase)
         ids={n.revision_id for n in batch}
         selected_verdict=BaseReview(verdicts=[v for v in verdict.verdicts if v.item_id in ids])
@@ -384,22 +393,22 @@ def review_base(store,run,client,phase='before_discussion'):
             if len(batch)>1:
                 half=len(batch)//2
                 # Split the independent checks only; never repeat an accepted review.
-                check_batch(batch[:half],verdict,key,model,isolation);check_batch(batch[half:],verdict,key,model,isolation);return
-            finish(batch,None,None,'payload_budget',payload,aliases,key,model,isolation);return
+                check_batch(batch[:half],verdict,key,model,isolation,review_calls);check_batch(batch[half:],verdict,key,model,isolation,review_calls);return
+            finish(batch,None,None,'payload_budget',payload,aliases,key,model,isolation,review_calls=review_calls);return
         check_key='base_review_check:'+phase+':'+digest([n.revision_id for n in batch])
         checks,saved=generation(store,run,check_key,'base_review_check',BaseReviewChecks,CHECK_SYSTEM,check_payload,aliases,client,
             lambda a:check_errors(a,batch))
         if checks or len(batch)==1:
             # An unchecked verdict is not stored as a judgement; the report reads 'verdict' as reviewed.
             finish(batch,selected_verdict,checks,None if checks else 'check_invalid_output',payload,aliases,key,model,isolation,
-                None if checks else saved['attempts'][-1]['errors']);return
+                None if checks else saved['attempts'][-1]['errors'],review_calls,used_calls(saved));return
         kept=isolated(saved,batch,lambda c,n:True,'checks')
         accepted=[n for n in batch if n.revision_id in kept]
         if accepted:finish(accepted,selected_verdict,BaseReviewChecks(checks=[kept[n.revision_id] for n in accepted]),None,
-            payload,aliases,key,model,{**(isolation or {}),'check':check_key})
+            payload,aliases,key,model,{**(isolation or {}),'check':check_key},None,review_calls,used_calls(saved))
         for n in batch:
-            if n.revision_id not in kept:check_batch([n],verdict,key,model,isolation)
-    def finish(batch,answer,checks,reason,payload,aliases,key=None,model=None,isolation=None,errors=None):
+            if n.revision_id not in kept:check_batch([n],verdict,key,model,isolation,review_calls)
+    def finish(batch,answer,checks,reason,payload,aliases,key=None,model=None,isolation=None,errors=None,review_calls=(),check_calls=()):
         by_id={v.item_id:v for v in answer.verdicts} if answer else {};checked={c.item_id:c for c in checks.checks} if checks else {}
         updates={}
         for n in batch:
@@ -412,6 +421,9 @@ def review_base(store,run,client,phase='before_discussion'):
                 n.processing_flags=list(dict.fromkeys([*n.processing_flags,'base_review_pending']))
             else:apply_verdict(n,by_id[n.revision_id],checked.get(n.revision_id),phase,catalogue,key,model,payload)
             if isolation:n.base_relation['isolated_from_failed_batch']=dict(isolation)
+            # rq1-need-trace-v1: the calls the verdict and its check were read from.
+            if review_calls:n.base_relation['review_call_ids']=list(review_calls)
+            if check_calls:n.base_relation['check_call_ids']=list(check_calls)
             refresh_need(n);updates[n.revision_id]=n.model_dump(mode='json');results.append(deepcopy(n.base_relation)|{'revision_id':n.revision_id})
             effect=n.base_relation.get('effect')
             if effect in {'flag_added','flag_removed'}:questions.append({'revision_id':n.revision_id,'effect':effect,'question':(
