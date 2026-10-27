@@ -11,6 +11,7 @@ from requirement_reuse_service.workflow import engine, need_trace
 
 API = '/api/rq1/v2'
 IDS = ('revision_id', 'need_id', 'proposal_id', 'group_id', 'observation_id', 'case_id', 'action_id')
+ROW_FIELDS = ('proposal_id', 'need_id', 'group_id', 'member_id', 'revision_id', 'item_id')
 
 
 def linked(client, run, revision):
@@ -26,7 +27,7 @@ def entries(trace):
     for decision in trace['decisions']: yield decision['step'], decision['revision_id'], decision
     for case in trace['discussion']:
         yield 'case', case['case_id'], case
-        for outcome in case['outcomes']: yield 'outcome', outcome['action_id'], outcome
+        for outcome in case['outcomes']: yield 'outcome', (case['case_id'], outcome['action_id']), outcome
 
 
 def follow(client, link):
@@ -48,31 +49,90 @@ def names(trail, wanted):
                                         or wanted & set(n.get('observation_ids') or [])) for n in trail)
 
 
+folded = lambda text: ' '.join(str(text or '').split())
+
+
+def alias(run, revision):
+    chunk = next((c for c in run['consolidation_chunks'].values() if revision in (c.get('revision_ids') or [])), None)
+    return f"c{chunk['revision_ids'].index(revision) + 1}" if chunk else None
+
+
+def own(run, trace, decision):
+    """The items a decision is about: its revision, that revision's requirement ID and group (and, for the writer, the
+    members it wrote from)."""
+    record = saved_record(run, decision['revision_id'])
+    items = {decision['revision_id'], record.get('requirement_id'), record.get('group_id')}
+    if decision['step'] == 'need_statement': items |= set(trace['lineage'])
+    return items - {None}
+
+
+def about_row(row, items, said='', statement='', member=None, known=()):
+    """A model's output row is about the item when an ID it names is the item's; a row under aliases (or naming no
+    item of the run), when its member alias, verbatim reason or written statement is the item's."""
+    named = [row[f] for f in ROW_FIELDS if isinstance(row.get(f), str) and (not known or row[f] in known)]
+    if named: return bool(set(named) & items)
+    return bool((member and member in (row.get('member_ids') or [])) or (len(said) >= 20 and folded(row.get('rationale')) == said)
+                or (statement and folded(row.get('statement')) == statement))
+
+
+def translated(run, call_id, pointer):
+    """A base-review row as saved with real IDs: the model saw aliases (N1, B1)."""
+    for entry in run['stakeholder_audit'].values():
+        for attempt in (entry.get('attempts') or []) if isinstance(entry, dict) else []:
+            if (attempt.get('call_ids') or [None])[-1] == call_id:
+                node = attempt.get('output') or attempt.get('parsed')
+                for key in pointer.split('/')[2:]: node = node[int(key)] if isinstance(node, list) else node[key]
+                return node
+    return None
+
+
 def check_links(client, run, revision):
     trace = linked(client, run, revision)
-    record = saved_record(run, revision)
-    wanted = {revision, trace['requirement_id'], *trace['lineage'], record.get('group_id')} - {None}
     calls = {c['call_id'] for c in run['model_calls']}
     for kind, identifier, entry in entries(trace):
         assert entry['links'], (kind, identifier)
         for link in entry['links']:
             document, node, trail = follow(client, link)
+            if '/stages/' in link['file'] and not link['file'].endswith('/stages/adjudication'):
+                # A step link opens a result the step saved, never the current state under the step's name.
+                assert document['snapshot_kind'] == 'stage_checkpoint', link
             if '/calls/' in link['file']:
                 assert document['call_id'] == link['file'].rsplit('/', 1)[1]
+                if link['pointer'] in ('', '/output') or kind in {'case', 'outcome'}: continue
+                if kind == 'origin': assert folded(node.get('statement')) == folded(entry['statement']), link
+                else:
+                    record = saved_record(run, entry['revision_id'])
+                    node = translated(run, document['call_id'], link['pointer']) or node
+                    assert about_row(node, own(run, trace, entry), folded(entry['reason']),
+                                     folded(record.get('need_statement')) if kind == 'need_statement' else '',
+                                     alias(run, entry['revision_id']) if kind == 'grouping' else None,
+                                     {i for r in run['requirements'] for i in (r['revision_id'], r['requirement_id'], r.get('group_id')) if i}), (kind, link, node)
             elif kind == 'source':
                 # The unit sits at its span in the source's text, and the mark covers the quotation.
                 unit = node
                 if unit['span']: assert document['text'][unit['span'][0]:unit['span'][1]] == unit['content']
                 start, end = link['quote_span']
-                assert ' '.join(unit['content'][start:end].split()) == ' '.join(entry['quote'].split())
+                assert folded(unit['content'][start:end]) == folded(entry['quote'])
+            elif kind == 'origin' and '/stages/deliberation' in link['file']:
+                # An observation the discussion gave a revision it wrote: the outcome wrote that revision.
+                assert any(identifier in (saved_record(run, r).get('observation_ids') or []) for r in trail[-1]['result_revision_ids'])
             elif kind == 'origin':
-                assert names(trail, {identifier}) or names(trail, wanted)
-            elif kind in {'case', 'outcome'}:
+                assert names(trail, {identifier}), link
+            elif kind == 'case':
                 assert names(trail, {identifier})
+            elif kind == 'outcome':
+                assert trail[-1].get('action_id') == identifier[1] and any(n.get('case_id') == identifier[0] for n in trail if isinstance(n, dict))
             elif kind == 'grouping':
-                assert trail[-1] == node and (isinstance(node, str) or names(trail, wanted) or node.get('action') == 'grouping_chunk')
+                # The chunk's grouping row, at the group that holds the revision.
+                row = next(n for n in trail if isinstance(n, dict) and n.get('action') == 'grouping_chunk')
+                assert entry['revision_id'] in row['inputs']
+                chunk = next(c for c in run['consolidation_chunks'].values() if c.get('chunk_key') == row['chunk_key'])
+                group = int(link['pointer'].rsplit('/', 1)[1])
+                assert alias(run, entry['revision_id']) in chunk['result']['groups'][group]['member_ids']
+            elif kind == 'need':
+                assert trail[-1]['revision_id'] == identifier
             else:
-                assert names(trail, wanted), (kind, link)
+                assert names(trail, own(run, trace, entry)), (kind, link)
     return trace, calls
 
 
@@ -184,3 +244,99 @@ def test_a_quotation_is_found_where_the_source_check_finds_it():
     assert quote_span(content, 'dataset has a licence') == [40, 61]
     assert quote_span('Title.  The dataset  has\na licence.', 'The dataset has a licence.') == [8, 35]
     assert quote_span(content, 'Not there.') is None and quote_span(content, '') is None
+
+
+# Review of the links (27 Oct).
+
+def call_row(client, link):
+    _, node, _ = follow(client, link)
+    return node
+
+
+def test_a_call_link_opens_the_row_of_its_own_proposal_when_the_batch_gives_one_reason(finished):
+    # The scripted support check gives every proposal of a batch the same reason; the row is found by ID first.
+    store, run = finished
+    client = TestClient(app)
+    trace = linked(client, run, run['active_revision_ids'][0])
+    decisions = [d for d in trace['decisions'] if d['step'] == 'proposal_support']
+    assert len({d['reason'] for d in decisions}) == 1 and len({d['revision_id'] for d in decisions}) > 1
+    for decision in decisions:
+        link = next(l for l in decision['links'] if '/calls/' in l['file'])
+        assert call_row(client, link)['proposal_id'] == decision['revision_id']
+
+
+def test_a_record_judgement_never_links_to_a_step_that_did_not_run(setup):
+    # Base review did not run: the step 6a download serves the current state, which is not a base review result.
+    store, original, _, _ = setup
+    client = full_client(); client.dialogue = RevisingDialogue()
+    run = new_fa_run(store, original)
+    engine.execute_run(store, run['run_id'], client)
+    saved = store.get_run(run['run_id'])
+    assert 'base_review' not in saved['stage_results']
+    made = next(o for c in saved['deliberations'] for o in c['mediation']['outcomes'] if o['action'] == 'revise')['result_revision_ids'][0]
+    trace = linked(TestClient(app), saved, made)
+    assessment = next(d for d in trace['decisions'] if d['step'] == 'assessment')
+    assert assessment['links'][0]['file'].endswith('/stages/deliberation')
+    assert not any(l['file'].endswith('/stages/base_review') for _, _, e in entries(trace) for l in e['links'])
+
+
+def test_a_grouping_link_opens_the_chunks_grouping_row_at_the_group_that_holds_it(finished):
+    # A salvaged chunk has a salvage row under the same key before its grouping row, and groups that give no reason.
+    store, run = finished
+    def salvage(r):
+        chunk = next(c for c in r['consolidation_chunks'].values() if c.get('block_key') == 'underlying_needs')
+        groups = chunk['result']['groups']
+        chunk['result']['groups'] = [{'member_ids': ['c99'], 'join_group_id': None, 'rationale': ''}, *groups]
+        for steps in (r['need_steps'], r['stage_results']['consolidation']['need_steps']):
+            audit = steps['grouping']['audit']
+            row = next(a for a in audit if a['action'] == 'grouping_chunk')
+            row['rationales'] = ['', *row['rationales']]
+            audit.insert(0, {'action': 'semantic_grouping_salvaged', 'chunk_key': row['chunk_key'], 'inputs': row['inputs'],
+                             'reason': 'fixture', 'model_call_ids': row['model_call_ids']})
+    store.mutate(run['run_id'], None, 'fixture_salvage', salvage, parts=True)
+    saved = store.get_run(run['run_id'])
+    client = TestClient(app)
+    trace = linked(client, saved, saved['active_revision_ids'][0])
+    groupings = [d for d in trace['decisions'] if d['step'] == 'grouping']
+    assert groupings
+    for decision in groupings:
+        link = decision['links'][0]
+        _, node, trail = follow(client, link)
+        assert trail[-3]['action'] == 'grouping_chunk' and link['pointer'].endswith('/rationales/1')
+    check_links(client, saved, saved['active_revision_ids'][0])
+
+
+def test_a_proposal_the_support_check_rehashed_links_to_its_row(finished):
+    # The check re-hashes a proposal whose obligation its quote does not state: the row keeps the old proposal ID.
+    store, run = finished
+    proposal = next(d['revision_id'] for d in need_trace.need_trace(need_trace.TraceIndex(store, run), run['active_revision_ids'][0])['decisions']
+                    if d['step'] == 'proposal_support')
+    def rehash(r):
+        for steps in (r['need_steps'], r['stage_results']['consolidation']['need_steps']):
+            row = next(x for x in steps['proposal_support']['decisions'] if x['proposal_id'] == proposal)
+            row.update(proposal_id='rev-before-the-check', revision_id=proposal)
+    store.mutate(run['run_id'], None, 'fixture_rehash', rehash, parts=True)
+    saved = store.get_run(run['run_id'])
+    trace = linked(TestClient(app), saved, saved['active_revision_ids'][0])
+    decision = next(d for d in trace['decisions'] if d['step'] == 'proposal_support' and d['revision_id'] == proposal)
+    assert '/need_steps/proposal_support/decisions/' in decision['links'][0]['pointer']
+    assert call_row(TestClient(app), decision['links'][0])['revision_id'] == proposal
+
+
+def test_an_outcome_saved_after_the_step_7_file_links_to_the_current_run(setup):
+    store, original, _, _ = setup
+    client = full_client(); client.dialogue = RevisingDialogue()
+    run = new_fa_run(store, original)
+    engine.execute_run(store, run['run_id'], client)
+    def earlier(r):
+        for case in r['stage_results']['deliberation']['deliberations']:
+            case['mediation']['outcomes'] = [o for o in case['mediation']['outcomes'] if o['action'] != 'revise']
+    store.mutate(run['run_id'], None, 'fixture_step7_before_revise', earlier, parts=True)
+    saved = store.get_run(run['run_id'])
+    made = next(o for c in saved['deliberations'] for o in c['mediation']['outcomes'] if o['action'] == 'revise')['result_revision_ids'][0]
+    trace = linked(TestClient(app), saved, made)
+    outcome = next(o for c in trace['discussion'] for o in c['outcomes'] if made in o['result_revision_ids'])
+    link = outcome['links'][0]
+    assert link['file'] == f"/runs/{saved['run_id']}?audit=false"
+    _, node, _ = follow(TestClient(app), link)
+    assert node['action'] == 'revise' and made in node['result_revision_ids']

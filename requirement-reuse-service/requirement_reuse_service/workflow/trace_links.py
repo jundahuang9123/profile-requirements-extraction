@@ -80,6 +80,20 @@ def dig(value, path):
     return value
 
 
+def reasons(output):
+    """The reasons of an answer's rows, in order: what a saved answer and the call that gave it share."""
+    rows = [r for v in (output.values() if isinstance(output, dict) else []) if isinstance(v, list) for r in v if isinstance(r, dict)]
+    return tuple(folded(r.get('rationale')) for r in rows) if rows and all(r.get('rationale') for r in rows) else ()
+
+
+def resolve(value, path):
+    for key in path:
+        if isinstance(value, dict) and key in value: value = value[key]
+        elif isinstance(value, list) and isinstance(key, int) and key < len(value): value = value[key]
+        else: return None
+    return value
+
+
 def quote_span(content, quote, start=None):
     """Where a quotation sits in its unit's content: at its recorded offset, else found exactly or with its spacing
     folded (the source check accepts both)."""
@@ -94,7 +108,7 @@ def quote_span(content, quote, start=None):
 
 
 def row_path(value, test, path=(), depth=0):
-    """The path to the first object in a model output that is about the traced item."""
+    """The path to the first object in a model output that passes the test."""
     if depth > 6: return None
     if isinstance(value, dict):
         if test(value): return path
@@ -118,6 +132,20 @@ class Linker:
         for owner in reversed([self.run, *index.earlier_runs]):
             for call in owner.get('model_calls') or []:
                 if call.get('call_id'): self.calls[call['call_id']] = (owner['run_id'], call)
+        # Base review shows the model aliases (N1, B1, E1) and saves its answer with the real IDs, in the same order:
+        # the saved answer of a call says which of its rows is about which need.
+        # A run saved before call IDs were recorded pairs each saved answer with the call whose rows give the same
+        # reasons in the same order.
+        self.translated, by_reasons = {}, {}
+        for call_id, (_, call) in self.calls.items():
+            if call.get('step') in {'base_review', 'base_review_check'} and reasons(call.get('output')):
+                by_reasons.setdefault(reasons(call['output']), []).append(call_id)
+        for entry in (self.run.get('stakeholder_audit') or {}).values():
+            for attempt in (entry.get('attempts') or []) if isinstance(entry, dict) else []:
+                answer = attempt.get('output') or attempt.get('parsed')
+                if not isinstance(answer, dict): continue
+                if attempt.get('call_ids'): self.translated[attempt['call_ids'][-1]] = answer
+                elif len(by_reasons.get(reasons(answer), [])) == 1: self.translated[by_reasons[reasons(answer)][0]] = answer
 
     def results(self, stage):
         if stage not in self.cache:
@@ -133,7 +161,11 @@ class Linker:
         """The record's field in the first step file whose copy of the record says what the run says now."""
         current = dig(self.index.records.get(revision_id) or {}, field)
         fallback = None
+        saved = self.run.get('stage_results') or {}
         for stage in stages:
+            # A step that saved no result (base review when it did not run) would serve the current state under
+            # its own name.
+            if stage != 'adjudication' and stage not in saved: continue
             rows = self.results(stage).get('requirements') or []
             at = position(rows, lambda r: r.get('revision_id') == revision_id)
             if at is None: continue
@@ -150,17 +182,27 @@ class Linker:
         else: return None
         rows = (((self.results('consolidation').get('need_steps') or {}).get(need_step) or {}).get(rows_key)) or []
         said = folded(decision.get('reason'))
-        at = last_position(rows, lambda r: r.get(field) == row_id and said and folded(r.get('rationale')) == said)
-        if at is None: at = last_position(rows, lambda r: r.get(field) == row_id)
+        # A proposal the support check re-hashed (an obligation its quote does not state) keeps its proposal ID in
+        # the row, with the new revision ID beside it.
+        about = lambda r: r.get(field) == row_id or (step == 'proposal_support' and r.get('revision_id') == row_id)
+        at = last_position(rows, lambda r: about(r) and said and folded(r.get('rationale')) == said)
+        if at is None: at = last_position(rows, about)
         if at is None: return None
         return self.stage_link('consolidation', f'{need_step} row', 'need_steps', need_step, rows_key, at)
 
-    def call_links(self, call_ids, test):
+    def call_links(self, call_ids, tests=()):
+        """Links to the calls, each at the output row about the traced item: the tests are tried in turn over the
+        whole output, the most specific first, since rows of one batch often give the same reason."""
         links = []
         for call_id in call_ids or []:
             owner, call = self.calls.get(call_id, (None, None))
             if not call: continue
-            path = row_path(call.get('output'), test) if test else None
+            path = None
+            if call_id in self.translated:
+                path = next((found for test in tests for found in [row_path(self.translated[call_id], test)] if found is not None), None)
+                if path is not None and resolve(call.get('output'), path) is None: path = None
+            if path is None:
+                path = next((found for test in tests for found in [row_path(call.get('output'), test)] if found is not None), None)
             links.append({'label': f"Model call {call_id[:8]} ({call.get('step')}, {call.get('model')})",
                           'file': f'/runs/{owner}/calls/{call_id}',
                           'pointer': pointer('output', *path) if path is not None else pointer('output') if call.get('output') is not None else ''})
@@ -194,7 +236,7 @@ class Linker:
                     if o is not None: links.append(file[0](f'the outcome that wrote {revision}', 'mediation', 'outcomes', o))
                 if links: break
         statement = folded(entry.get('statement'))
-        links += self.call_links(entry.get('call_ids'), lambda row: bool(statement) and folded(row.get('statement')) == statement)
+        links += self.call_links(entry.get('call_ids'), [lambda row: bool(statement) and folded(row.get('statement')) == statement])
         return links
 
     def decision(self, entry, trace):
@@ -204,10 +246,11 @@ class Linker:
         if step == 'grouping':
             grouping = self.index.groupings.get(revision) or {}
             audit = ((self.results('consolidation').get('need_steps') or {}).get('grouping') or {}).get('audit') or []
-            at = position(audit, lambda a: a.get('chunk_key') == grouping.get('chunk_key'))
+            at = position(audit, lambda a: a.get('action') == 'grouping_chunk' and a.get('chunk_key') == grouping.get('chunk_key'))
             if at is not None:
-                which = (audit[at].get('rationales') or [])
-                sub = ('rationales', which.index(grouping['rationale'])) if grouping.get('rationale') in which else ()
+                # The row keeps one rationale per group of the chunk's answer, in its order.
+                group = self.group_index(revision)
+                sub = ('rationales', group) if group is not None and group < len(audit[at].get('rationales') or []) else ()
                 links.append(self.stage_link('consolidation', 'grouping', 'need_steps', 'grouping', 'audit', at, *sub))
         elif step == 'need_statement':
             events = ((self.results('consolidation').get('need_steps') or {}).get('need_statement') or {}).get('events') or []
@@ -237,26 +280,33 @@ class Linker:
             field, stages = RECORD_FIELDS[step]
             link = self.record_link(revision, field, stages, step.replace('_', ' ') + ' on the record')
             if link: links.append(link)
-        # The model's row: by ID, else (rows under aliases) by the reason the decision keeps verbatim, else by the
-        # statement the writer wrote.
+        # The model's row: by the decision's own revision, then its requirement ID, then its group (for the writer
+        # also the members it wrote from), then (rows under aliases) the reason the decision keeps verbatim, then the
         # statement the writer wrote; a grouping row names its members by their alias in the chunk (c1, c2, ...).
-        ids = {revision, trace['requirement_id'], record.get('group_id')} - {None}
-        if step == 'need_statement': ids |= set(trace['lineage'])
+        names = lambda wanted: lambda row: any(isinstance(row.get(f), str) and row[f] in wanted for f in (*ROW_IDS, 'revision_id', 'item_id'))
         reason, statement = folded(entry.get('reason')), folded(record.get('need_statement'))
         alias = self.alias(revision) if step == 'grouping' else None
-        links += self.call_links(entry.get('call_ids'), lambda row: any(isinstance(row.get(f), str) and row[f] in ids
-                                                                         for f in (*ROW_IDS, 'revision_id', 'item_id'))
-                                 or (len(reason) >= 20 and folded(row.get('rationale')) == reason)
-                                 or (step == 'need_statement' and bool(statement) and folded(row.get('statement')) == statement)
-                                 or (alias is not None and alias in (row.get('member_ids') or [])))
+        tests = ([lambda row: alias in (row.get('member_ids') or [])] if alias else []) + [
+            names({revision}), names({record.get('requirement_id') or trace['requirement_id']} - {None}),
+            names({record.get('group_id')} - {None}), *([names(set(trace['lineage']))] if step == 'need_statement' else []),
+            lambda row: len(reason) >= 20 and folded(row.get('rationale')) == reason,
+            *([lambda row: bool(statement) and folded(row.get('statement')) == statement] if step == 'need_statement' else [])]
+        links += self.call_links(entry.get('call_ids'), tests)
         return links
 
-    def alias(self, revision):
+    def chunk(self, revision):
         chunk_key = (self.index.groupings.get(revision) or {}).get('chunk_key')
-        chunk = next((c for c in (self.run.get('consolidation_chunks') or {}).values()
-                      if isinstance(c, dict) and c.get('chunk_key') == chunk_key), None)
-        members = (chunk or {}).get('revision_ids') or []
+        return next((c for c in (self.run.get('consolidation_chunks') or {}).values()
+                     if isinstance(c, dict) and c.get('chunk_key') == chunk_key and c.get('block_key') == 'underlying_needs'), None)
+
+    def alias(self, revision):
+        members = (self.chunk(revision) or {}).get('revision_ids') or []
         return f'c{members.index(revision) + 1}' if revision in members else None
+
+    def group_index(self, revision):
+        alias = self.alias(revision)
+        groups = ((self.chunk(revision) or {}).get('result') or {}).get('groups') or []
+        return position(groups, lambda g: alias in (g.get('member_ids') or [])) if alias else None
 
     def case_file(self, case_id):
         """The file holding a discussion case (the step 7 file, else the current saved run): a link maker and the case."""
@@ -274,11 +324,19 @@ class Linker:
         if not file: return [], lambda outcome: []
         base, stored = file
         outcomes = ((stored.get('mediation') or {}).get('outcomes') or [])
+        current = position(self.run.get('deliberations'), lambda c: c.get('case_id') == case['case_id'])
+        def find(rows, outcome):
+            o = position(rows, lambda x: x.get('action_id') == outcome['action_id'] and result_ids(x) == outcome['result_revision_ids'])
+            return o if o is not None else position(rows, lambda x: x.get('action_id') == outcome['action_id'])
         def outcome_links(outcome):
-            o = position(outcomes, lambda x: x.get('action_id') == outcome['action_id'] and result_ids(x) == outcome['result_revision_ids'])
-            if o is None: o = position(outcomes, lambda x: x.get('action_id') == outcome['action_id'])
-            return [base(f"outcome {outcome['action_id']}", 'mediation', 'outcomes', o)] if o is not None else []
-        return [base(f"case {case['case_id']}"), *self.call_links(case.get('call_ids'), None)], outcome_links
+            o = find(outcomes, outcome)
+            if o is not None: return [base(f"outcome {outcome['action_id']}", 'mediation', 'outcomes', o)]
+            # An outcome added after the step 7 file was saved (a later discussion round) is in the current run.
+            later = ((self.run['deliberations'][current].get('mediation') or {}).get('outcomes') or []) if current is not None else []
+            o = find(later, outcome)
+            return [{'label': f"Current saved run: outcome {outcome['action_id']}", 'file': f'/runs/{self.run_id}?audit=false',
+                     'pointer': pointer('deliberations', current, 'mediation', 'outcomes', o)}] if o is not None else []
+        return [base(f"case {case['case_id']}"), *self.call_links(case.get('call_ids'))], outcome_links
 
     def need(self, revision_id):
         stage = 'adjudication'

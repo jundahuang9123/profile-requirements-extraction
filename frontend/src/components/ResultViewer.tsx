@@ -54,16 +54,23 @@ export function ResultViewer({ link, onClose }: { link: TraceLink; onClose?: () 
 }
 
 function DocumentView({ doc, link }: { doc: SourceDocument; link: TraceLink }) {
+  const [all, setAll] = useState(false);
+  useEffect(() => setAll(false), [link]);
   const evidenceId = pointerKeys(link.pointer)[1];
   const unit = doc.units[evidenceId];
   if (unit?.span && doc.text.slice(unit.span[0], unit.span[1]) === unit.content) {
     // The unit in the parsed text of the whole source, the quotation marked inside it.
     const [start, end] = unit.span;
-    return <><p className="result-legend"><span className="result-target">Blue</span> the evidence unit · <mark>yellow</mark> the quotation, in the parsed text of {doc.name ?? 'the source'}</p>
+    return <><p className="result-legend"><span className="result-unit">Blue</span> the evidence unit · <mark>yellow</mark> the quotation, in the parsed text of {doc.name ?? 'the source'}</p>
       <pre className="result-document">{doc.text.slice(0, start)}<span className="result-target" data-target>{markText(unit.content, link.mark, link.quote_span)}</span>{doc.text.slice(end)}</pre></>;
   }
-  return <div className="result-document">{Object.entries(doc.units).map(([id, item]) => <article key={id} className={id === evidenceId ? 'result-target' : undefined} data-target={id === evidenceId ? '' : undefined}>
-    <small>{id} · {item.kind}</small><pre>{id === evidenceId ? markText(item.content, link.mark, link.quote_span) : item.content}</pre></article>)}</div>;
+  // A source without one parsed text (structured data) is shown unit by unit: the linked unit and its neighbours.
+  const units = Object.entries(doc.units);
+  const at = units.findIndex(([id]) => id === evidenceId);
+  const shown = all || units.length <= 60 ? units : at >= 0 ? units.slice(Math.max(0, at - 10), at + 11) : units.slice(0, 40);
+  return <div className="result-document">{shown.map(([id, item]) => <article key={id} className={id === evidenceId ? 'result-target' : undefined} data-target={id === evidenceId ? '' : undefined}>
+    <small>{id} · {item.kind}</small><pre>{id === evidenceId ? markText(item.content, link.mark, link.quote_span) : item.content}</pre></article>)}
+    {shown.length < units.length && <button className="result-more" onClick={() => setAll(true)}>Show all {units.length} units ({units.length - shown.length} hidden)</button>}</div>;
 }
 
 type Context = { target: string; mark?: string; open: Record<string, boolean>; toggle: (pointer: string, value: boolean) => void };

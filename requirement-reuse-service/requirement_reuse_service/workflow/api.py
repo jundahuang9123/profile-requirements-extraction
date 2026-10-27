@@ -223,10 +223,10 @@ def create_run(request: RunRequest, background: BackgroundTasks):
 
 
 @router.get('/runs/{run_id}')
-def get_run(run_id: str, audit: bool = True):
+def get_run(run_id: str, audit: bool = True, download: bool = False):
     """The saved run. ``audit=false`` leaves out the model-call log, the frozen machine
     snapshot and the excerpt catalogues, which the workbench does not display."""
-    return translate(lambda: JSONResponse(Store().get_run(run_id, omit=() if audit else AUDIT_PARTS)))
+    return downloadable(translate(lambda: Store().get_run(run_id, omit=() if audit else AUDIT_PARTS)), download, f'{run_id}.json')
 
 
 @router.post('/runs/{run_id}/derive', status_code=202)

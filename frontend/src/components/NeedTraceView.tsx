@@ -57,7 +57,7 @@ export function NeedTraceView({ run, revisionId, open }: { run: Run; revisionId:
         {trace.decisions.map((decision, i) => <li key={`d${i}`}><strong>{humanLabel(decision.step)}</strong> {decision.decision ?? '—'}{decision.reason && <>: {short(decision.reason, 260)}</>} <small>{decision.revision_id}{decision.call_link !== 'not_applicable' ? ` · model call ${decision.call_link}` : ''}</small> <Links links={decision.links} open={open} /></li>)}
         {trace.discussion.map(item => <li key={item.case_id}><strong>Discussion</strong> {item.case_id}{item.stop_reason && ` · stopped: ${humanLabel(item.stop_reason)}`} <Links links={item.links.slice(0, 1)} open={open} />
           {item.links.length > 1 && <details><summary>{item.links.length - 1} model calls of this discussion</summary><Links links={item.links.slice(1)} open={open} /></details>}
-          <ul>{item.outcomes.map(outcome => <li key={`${outcome.action_id}-${outcome.result_revision_ids.join()}`}>{outcome.action} ({outcome.status}): {short(outcome.rationale, 260)}{outcome.question && <> · asks: {short(outcome.question, 200)}</>} <Links links={outcome.links} open={open} /></li>)}
+          <ul>{item.outcomes.map((outcome, i) => <li key={`o${i}`}>{outcome.action} ({outcome.status}): {short(outcome.rationale, 260)}{outcome.question && <> · asks: {short(outcome.question, 200)}</>} <Links links={outcome.links} open={open} /></li>)}
             {item.concerns.map((concern, i) => <li key={`c${i}`}>Concern of {role(concern.role_id)}{concern.round ? ` (round ${concern.round})` : ''}: {short(concern.statement, 200)}</li>)}</ul></li>)}
       </ol>
       {!trace.completeness.solid && <p className="workflow-error">Missing: {trace.completeness.missing.map(m => m.detail).join('; ')}</p>}

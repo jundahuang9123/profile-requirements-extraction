@@ -2849,6 +2849,7 @@ button.danger {
 .result-document span.result-target { background:#e0f2fe; outline:none; border-radius:0; box-decoration-break:clone; -webkit-box-decoration-break:clone; }
 .result-legend { margin:0 0 8px; font-size:12px; color:var(--muted); }
 .result-legend span { padding:0 4px; }
+.result-unit { background:#e0f2fe; }
 .result-viewer mark { background:#fde047; color:inherit; padding:0 1px; }
 .result-json { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; line-height:1.45; }
 .result-children { padding-left:16px; border-left:1px dotted var(--border); margin-left:5px; }

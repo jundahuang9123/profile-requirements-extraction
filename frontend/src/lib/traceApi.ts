@@ -34,21 +34,27 @@ export function resultHref(link: TraceLink) {
   return `#/result?${query.toString()}`;
 }
 
+// The saved results a link may open; a crafted #/result link cannot point the viewer at any other path.
+const RESULT_FILE = /^\/(runs\/[\w.-]+(\/stages\/\w+|\/calls\/[\w.-]+|\/traceability|\?audit=false)|sources\/[\w.-]+\/document)$/;
+export const isResultFile = (file: string) => RESULT_FILE.test(file);
+
 export function linkFromHash(hash: string): TraceLink | null {
   if (!hash.startsWith('#/result?')) return null;
   const query = new URLSearchParams(hash.slice('#/result?'.length));
   const file = query.get('file');
-  if (!file || !file.startsWith('/')) return null;
+  if (!file || !isResultFile(file)) return null;
   const span = query.get('span')?.split(',').map(Number);
   return { file, pointer: query.get('pointer') ?? '', label: query.get('label') ?? file, mark: query.get('mark') ?? undefined,
            quote_span: span?.length === 2 && span.every(Number.isFinite) ? [span[0], span[1]] : null };
 }
 
 const files = new Map<string, { at: number; body: Promise<unknown> }>();
-// Following a trace opens the same few files again and again; they are kept for a minute (the current saved state
-// changes when a reviewer acts) and only the most recent six (step files run to several megabytes).
+// Files of the current saved state change whenever a reviewer acts, and are always read afresh.
+const current = (file: string) => file.endsWith('/stages/adjudication') || file.endsWith('?audit=false') || file.endsWith('/traceability');
+// Following a trace opens the same few step files again and again; they are kept for a minute, and only the most
+// recent six (step files run to several megabytes).
 export function loadResultFile(file: string): Promise<unknown> {
-  const cached = files.get(file);
+  const cached = current(file) ? undefined : files.get(file);
   if (cached && Date.now() - cached.at < 60_000) return cached.body;
   const body = fetch(`/api/rq1/v2${file}`).then(async response => {
     const value = await response.json();

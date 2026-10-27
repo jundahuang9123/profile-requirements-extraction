@@ -655,13 +655,32 @@ Where each entry links:
 | Base review and its check | step 6a | the record's `base_relation` |
 | Discussion case and outcome | step 7 | the case; the outcome |
 | Set-aside | step 6; the traceability summary for `trace_incomplete` | the set-aside entry; the need's missing links |
-| Model call behind a decision | `/runs/{run_id}/calls/{call_id}`, in the run that made it | the output row about the need, found by ID, verbatim reason, statement or member alias |
+| Model call behind a decision | `/runs/{run_id}/calls/{call_id}`, in the run that made it | the output row about the need (see below) |
 
 Details:
 - **Fallback:** a judgement kept on the record links to the first step file whose copy
-  of the record says what the run says now. A revision the discussion wrote has its
-  scope judgements in the step 7 file, not in its parent's step 6 rows. The last
-  fallback is step 8, the current saved state.
+  of the record says what the run says now. Only steps that saved a result count: a
+  step that did not run (base review, by default) would serve the current state under
+  its own name. A revision the discussion wrote has its scope judgements in the step 7
+  file, not in its parent's step 6 rows. The last fallback is step 8, the current saved
+  state. A discussion outcome saved after the step 7 file links to the current saved run.
+- **Rows of a model call:** the rows of one batch often give the same reason, so the
+  row is searched over the whole output in turn:
+  1. the decision's own revision;
+  2. its requirement ID;
+  3. its group, and for the writer the members it wrote from;
+  4. the reason the decision keeps verbatim;
+  5. the statement the writer wrote.
+
+  A grouping row is found by the member's alias in the chunk (c1, c2, …). Base review
+  shows the model aliases (N1, B1, E1) and saves its answer with real IDs, in the same
+  order. The row is found in the saved answer, through the attempt's call ID, or, for a
+  run saved before call IDs, through the call that gives the same reasons in the same
+  order.
+- **Grouping:** a grouping link opens the chunk's grouping row (never its salvage row),
+  at the group that holds the revision.
+- **Re-hashed proposals:** a proposal the support check re-hashed (an obligation its
+  quote does not state) is found in the decision rows by its new revision ID.
 - **Discussion-made observations:** an observation ID that no agent extracted (one the
   discussion gave a revision it wrote) links to the outcome that wrote that revision.
 - **Reviewer card:** each phrase carries the trace entry it reports
@@ -682,7 +701,10 @@ card with every phrase linked, and a "Full chain" with the links of every entry.
   and long lists show the rows around it.
 - A source opens as its parsed text: the evidence unit in blue, the quotation in yellow.
 - "Open in new tab" (or a middle click) opens the same view on its own page
-  (`#/result?file=…&pointer=…`).
+  (`#/result?file=…&pointer=…`). That page opens only the saved results listed above
+  (step files, calls, the traceability summary, the current run, source documents).
+- Files of the current saved state are always read afresh. Step files are cached for
+  a minute.
 
 **Checks:**
 - On the three JRC runs, all 4,141 trace entries of the 255 produced needs have at
@@ -691,9 +713,13 @@ card with every phrase linked, and a "Full chain" with the links of every entry.
   object about the entry: its revision, need, group, observation, case or outcome.
 - All 314 quotations are located in their source text. Each unit's span in the text
   equals its content.
-- Of the 5,473 model-call links, 2,154 open at the row about the need. The rest open
-  at the call's whole output: the discussion's own calls, one-need assessments (whose
-  output is the row), and a few writer and F/A calls whose rows use aliases.
+- Of the 5,473 model-call links, 2,154 open at the row about the need. In none of
+  them does the row name another need. The rest open at the call's whole output:
+  - the discussion's own calls;
+  - one-need assessments, whose output is the row;
+  - a few writer and F/A calls whose rows use aliases.
+- An independent review found links that opened the wrong row, and labels of a step
+  that did not run. A test for each fails on the first version of the links.
 
 ## Discussion routing
 
