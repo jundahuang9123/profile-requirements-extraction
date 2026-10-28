@@ -106,15 +106,15 @@ class TraceIndex:
                                                   'join_group_id': group.get('join_group_id'), 'chunk_key': chunk.get('chunk_key'),
                                                   'call_ids': chunk.get('call_ids') or []}
         # rq1-need-semantic-grouping-v3: a group the model formed over different resources was split, one group per
-        # resource; a member stays merged only with its own part.
+        # resource; a member stays merged only with its own part, the group that was written.
         for event in (steps.get('grouping') or {}).get('audit') or []:
             if not isinstance(event, dict) or event.get('action') != 'kept_apart_by_resource': continue
             for part in event.get('parts') or []:
-                own = part.get('revision_ids') or []
+                own = list(part.get('revision_ids') or [])
                 for identifier in own:
-                    grouping = self.groupings.setdefault(identifier, {'members': [identifier], 'rationale': '', 'call_ids': []})
-                    grouping['members'] = [m for m in grouping['members'] if m in own] or [identifier]
-                    grouping['kept_apart'] = {'resource': part.get('resource'), 'reason': event.get('reason') or '',
+                    grouping = self.groupings.setdefault(identifier, {'rationale': '', 'call_ids': []})
+                    grouping['members'] = own
+                    grouping['kept_apart'] = {'resources': list(part.get('resources') or []), 'reason': event.get('reason') or '',
                         'policy_version': event.get('policy_version'),
                         'from': [m for p in event['parts'] if p is not part for m in p.get('revision_ids') or []]}
         self.calls = {c['call_id']: c for c in run.get('model_calls') or [] if c.get('call_id')}
@@ -353,7 +353,8 @@ def need_trace(index, revision_id):
                     required=False)
         if grouping and grouping.get('kept_apart'):
             apart = grouping['kept_apart']
-            decided('resource_guard', revision, f"kept apart from {', '.join(apart['from'])} (about {apart['resource']})",
+            about = f"about {', '.join(apart['resources'])}" if apart['resources'] else 'it names no resource'
+            decided('resource_guard', revision, f"kept apart from {', '.join(apart['from'])} ({about})",
                     apart['reason'], apart['policy_version'], required=False)
         for event in index.merges.get(revision) or (index.group_merges.get(current.get('group_id')) if revision == revision_id else []) or []:
             # The writer and its critics answer for the group they were offered; when the writer left a member out,
@@ -365,7 +366,9 @@ def need_trace(index, revision_id):
             groups = list(dict.fromkeys([offered, event.get('group_id')]))
             writer = next((hit for g in groups for hit in [step_rows(index, 'need_statement', g, 'writer')] if hit), None)
             checks = [r for g in groups for r in index.chunk_rows.get(('need_statement', 'check', g), []) if r[2].get('rationale')]
-            reason = ' '.join(dict.fromkeys(r[2]['rationale'] for r in checks)) or (grouping or {}).get('rationale', '')
+            # A group the writer could not write (split_unwritten_group, keep_unwritten_need) keeps the reason on its event.
+            reason = (' '.join(dict.fromkeys(r[2]['rationale'] for r in checks)) or (grouping or {}).get('rationale', '')
+                      or event.get('reason') or '')
             decided('need_statement', revision, f"{event.get('action')} of {len(event.get('inputs') or [])} member(s)",
                     reason, event.get('policy_version'), call_status(*writer[3:]) if writer else None,
                     required=len(event.get('inputs') or []) > 1)

@@ -2,7 +2,7 @@
 In the three JRC runs on v9 + v14, 5 of the 10 needs lost went with the same information about another resource:
 grouping merged a catalogue's title, modification date and release date with a catalogue record's, and the writer
 put the catalogue's and the dataset's publisher under a need that names no resource. Grouping now writes each
-resource as its own group, and a written need names the resource its members are about."""
+resource as its own group, and a written need names a resource of each member it expresses."""
 import json
 import pytest
 from test_rq1_need_grouping import NeedsClient, need_inputs
@@ -12,24 +12,42 @@ from requirement_reuse_service.workflow import needs
 from requirement_reuse_service.workflow.engine import verify
 
 
-@pytest.mark.parametrize('statement,resource', [
-    ('Users can know the title of a Catalog.', 'catalogue'),
-    ("Users can know the publisher's identity, such as organization name and type, for a catalog.", 'catalogue'),
-    ('Users can know the title, description, and listing date of a catalog record for a dataset.', 'catalogue record'),
-    ('Users can know the date of last change of a catalog entry (catalog metadata) for a dataset.', 'catalogue record'),
-    ('Users can find metadata about catalog records such as issuance date', 'catalogue record'),
-    ('Users can find the download URL of a dataset distribution.', 'distribution'),
-    ('Users can know when a dataset’s distribution is only accessible via a landing page.', 'distribution'),
-    ('Users can know the entity responsible for making the dataset available (publisher).', 'dataset'),
-    ('Users can know the endpoint URL of a data service.', 'data service'),
-    ('The dct:modified of a dcat:CatalogRecord is given.', 'catalogue record'),
-    ('A dcat:DataService has an endpoint URL.', 'data service'),
-    ('A dcat:Catalog lists dcat:Dataset entries.', 'catalogue'),
-    ('Users can know the identity of a publisher as a person or organization.', None),
-    ('Users can know that a publisher makes the resource available', None),
+@pytest.mark.parametrize('statement,resources', [
+    ('Users can know the title of a Catalog.', {'catalogue'}),
+    ("Users can know the publisher's identity, such as organization name and type, for a catalog.", {'catalogue'}),
+    ('Users can know the title, description, and listing date of a catalog record for a dataset.', {'catalogue record', 'dataset'}),
+    # "catalog metadata" may mean the catalogue's own metadata or its records: it names neither.
+    ('Users can know the date of last change of a catalog entry (catalog metadata) for a dataset.', {'catalogue record', 'dataset'}),
+    ('Users can find metadata about catalog records such as issuance date', {'catalogue record'}),
+    ('Users can know the modification date of a metadata record.', {'catalogue record'}),
+    # A resource word right before another one only qualifies it.
+    ('Users can find the download URL of a dataset distribution.', {'distribution'}),
+    ('Users can know when a dataset’s distribution is only accessible via a landing page.', {'distribution'}),
+    ("Users can know the language of a dataset's catalogue record.", {'catalogue record'}),
+    ("Users can know the licences of the datasets' distributions.", {'distribution'}),
+    ('Users can browse the dataset catalogue by theme.', {'catalogue'}),
+    ('Users can know the entity responsible for making the dataset available (publisher).', {'dataset'}),
+    ('Users can know the endpoint URL of a data service.', {'data service'}),
+    ('Users can know the title of a dataset series.', {'dataset series'}),
+    # Word order does not decide: both phrasings of a relationship name the same two resources.
+    ('Users can know which datasets a catalogue lists.', {'dataset', 'catalogue'}),
+    ('A dcat:Catalog lists dcat:Dataset entries.', {'catalogue', 'dataset'}),
+    # A class name in a vocabulary term counts, a property name does not.
+    ('The dct:modified of a dcat:CatalogRecord is given.', {'catalogue record'}),
+    ('A dcat:DataService has an endpoint URL.', {'data service'}),
+    ('A dcat:DatasetSeries groups datasets.', {'dataset series', 'dataset'}),
+    ('The dcat:distribution property links to files.', set()),
+    # Words that mean no DCAT resource here.
+    ('Users can know the age distribution of the population covered.', set()),
+    ('Users can know the restrictions on distribution of the data.', set()),
+    ('Users can know the catalogue entry point of the portal.', {'catalogue'}),
+    ('Users can know when the catalogue records the change.', {'catalogue'}),
+    ('Users can know the catalog‑record language.', {'catalogue record'}),
+    ('Users can know the identity of a publisher as a person or organization.', set()),
+    ('Users can know that a publisher makes the resource available', set()),
 ])
-def test_a_need_is_about_the_first_resource_its_statement_names(statement, resource):
-    assert needs.need_resource(statement) == resource
+def test_the_resources_a_need_names(statement, resources):
+    assert needs.need_resources(statement) == resources
 
 
 def resource_inputs(setup, statements):
@@ -40,8 +58,8 @@ def resource_inputs(setup, statements):
     return store, run, records
 
 
-CATALOGUE_AND_RECORD = ['Users can know the title of a Catalog.', 'Users can know the catalogue title.',
-                        'Users can know the title of a catalog record for a dataset.', 'Users can know the title.']
+CATALOGUE_AND_RECORD = ['Users can know the title of a Catalog.', 'Users can know the title of a catalog record.',
+                        'Users can know the title.']
 
 
 def test_grouping_writes_each_resource_as_its_own_group(setup, monkeypatch):
@@ -57,36 +75,39 @@ def test_grouping_writes_each_resource_as_its_own_group(setup, monkeypatch):
     monkeypatch.setattr(needs, 'write_needs', write)
     with pytest.raises(Written):
         needs.process_needs(store, run, records, NeedsClient(), None)
-    # The title naming no resource joins the larger part, the catalogue's.
-    statements = sorted(sorted(r.normalized_statement for r in group) for group in written['groups'])
-    assert statements == [sorted([CATALOGUE_AND_RECORD[0], CATALOGUE_AND_RECORD[1], CATALOGUE_AND_RECORD[3]]), [CATALOGUE_AND_RECORD[2]]]
+    # One group per resource, and the title naming no resource as a group of its own.
+    assert [[r.normalized_statement for r in group] for group in written['groups']] == [[s] for s in CATALOGUE_AND_RECORD]
     grouping = store.get_run(run['run_id'])['need_steps']['grouping']
-    assert grouping['policy_version'] == 'rq1-need-semantic-grouping-v3' and grouping['group_count'] == 2
+    assert grouping['policy_version'] == 'rq1-need-semantic-grouping-v3' and grouping['group_count'] == 3
     [event] = [a for a in grouping['audit'] if a['action'] == 'kept_apart_by_resource']
     assert event['inputs'] == sorted(r.revision_id for r in records)
-    assert [p['resource'] for p in event['parts']] == ['catalogue', 'catalogue record'] and 'different resources' in event['reason']
+    assert [(p['resources'], p['revision_ids']) for p in event['parts']] == [
+        (['catalogue'], [records[0].revision_id]), (['catalogue record'], [records[1].revision_id]), ([], [records[2].revision_id])]
+    assert 'different resources (catalogue; catalogue record)' in event['reason'] and 'their own group' in event['reason']
 
 
-def test_needs_naming_no_resource_join_one_part_the_same_way_each_time():
-    # Two parts of one size: the part holding the lowest revision ID takes the needs naming no resource, so a replay
-    # of the run writes the same groups.
-    class Record:
-        def __init__(self, statement, revision_id): self.normalized_statement, self.revision_id = statement, revision_id
+class Record:
+    def __init__(self, statement, revision_id): self.normalized_statement, self.revision_id = statement, revision_id
+
+
+def test_needs_linked_through_a_shared_resource_stay_together():
+    # Two phrasings of one relationship, a group about one resource, and a chain of needs sharing resources pairwise.
+    for statements in (['Users can know which datasets a catalogue lists.', 'A dcat:Catalog lists dcat:Dataset entries.'],
+                       ['Users can know the download URL of a distribution.', 'Users can find the download URL of a dataset distribution.',
+                        'Users can know where to download the data.'],
+                       ['Users can know the title of a catalogue.', 'Users can know the datasets of a catalogue.',
+                        'Users can know the title of a dataset.']):
+        group = [Record(s, f'rev-{i}') for i, s in enumerate(statements)]
+        assert needs.keep_resources_apart([group]) == ([group], [])
+
+
+def test_the_same_split_whatever_the_order_of_members():
     group = [Record('Users can know the title.', 'rev-a'), Record('Users can know the title of a catalog record.', 'rev-c'),
              Record('Users can know the title of a Catalog.', 'rev-b')]
-    for order in (group, group[::-1]):
-        kept, [event] = needs.keep_resources_apart([order])
-        assert sorted(sorted(r.revision_id for r in part) for part in kept) == [['rev-a', 'rev-b'], ['rev-c']]
-        assert event['parts'][0] == {'resource': 'catalogue', 'revision_ids': ['rev-a', 'rev-b']}
-
-
-def test_a_group_about_one_resource_stays_whole():
-    class Record:
-        def __init__(self, statement, revision_id): self.normalized_statement, self.revision_id = statement, revision_id
-    group = [Record('Users can know the download URL of a distribution.', 'rev-1'),
-             Record('Users can find the download URL of a dataset distribution.', 'rev-2'),
-             Record('Users can know where to download the data.', 'rev-3')]
-    assert needs.keep_resources_apart([group]) == ([group], [])
+    (first, [one]), (second, [other]) = (needs.keep_resources_apart([order]) for order in (group, group[::-1]))
+    assert sorted(sorted(r.revision_id for r in part) for part in first) == [['rev-a'], ['rev-b'], ['rev-c']]
+    assert sorted(sorted(r.revision_id for r in part) for part in second) == [['rev-a'], ['rev-b'], ['rev-c']]
+    assert sorted(map(json.dumps, one['parts'])) == sorted(map(json.dumps, other['parts'])) and one['inputs'] == other['inputs']
 
 
 class ResourceWriter(NeedsClient):
@@ -129,22 +150,38 @@ def test_a_writer_that_keeps_dropping_the_resource_loses_no_need(setup):
     active, events = needs.write_needs(store, run, [records], ResourceWriter(keeps_dropping=True), None)
     # The group goes back to the writer member by member; the catalogue's publisher keeps its own statement, flagged,
     # and the need naming no resource is written as before.
-    assert events[0]['action'] == 'split_unwritten_group' and 'catalogue' in events[0]['reason']
+    assert events[0]['action'] == 'split_unwritten_group' and '(catalogue)' in events[0]['reason']
     by_statement = {n.need_statement: n for n in active}
     assert set(by_statement) == {PUBLISHER[0], 'Users can know the identity of a publisher.'}
     assert 'rewrite_not_applied' in by_statement[PUBLISHER[0]].processing_flags
     assert {r for n in active for r in n.parent_revision_ids} == {r.revision_id for r in records}
 
 
-def test_members_about_different_resources_cannot_share_a_written_need():
-    offered = {'g': {'obligation': 'unknown', 'members': {'a': {'statement': 'Users can know the title of a Catalog.'},
-                                                         'b': {'statement': 'Users can know the title of a catalog record.'}}}}
-    answer = needs.NeedStatements(needs=[{'group_id': 'g', 'statement': 'Users can know the title of a catalogue.',
-        'members': [{'member_id': 'a', 'expresses_need': True}, {'member_id': 'b', 'expresses_need': True}]}])
-    [error] = needs.statement_errors(answer, offered, None)
-    assert error.startswith('g: members about different resources (catalogue, catalogue record)')
+def offered(*statements):
+    return {'g': {'obligation': 'unknown', 'members': {f'm{i}': {'statement': s} for i, s in enumerate(statements)}}}
+
+
+def written(statement, *expressed):
+    return needs.NeedStatements(needs=[{'group_id': 'g', 'statement': statement,
+        'members': [{'member_id': f'm{i}', 'expresses_need': e} for i, e in enumerate(expressed)]}])
+
+
+def test_members_about_unrelated_resources_cannot_share_a_written_need():
+    group = offered('Users can know the title of a Catalog.', 'Users can know the title of a catalog record.')
+    [error] = needs.statement_errors(written('Users can know the title of a catalogue.', True, True), group, None)
+    assert error.startswith('g: members about different resources (catalogue; catalogue record)')
     # The member about the other resource, marked as not expressed, is written separately.
-    answer.needs[0].members[1].expresses_need = False
-    assert needs.statement_errors(answer, offered, None) == []
-    answer.needs[0].statement = 'Users can know the title of a catalog record.'
-    assert 'name the resource its members are about (catalogue)' in needs.statement_errors(answer, offered, None)[0]
+    assert needs.statement_errors(written('Users can know the title of a catalogue.', True, False), group, None) == []
+    [error] = needs.statement_errors(written('Users can know the title of a catalog record.', True, False), group, None)
+    assert 'name the resource its members are about (catalogue) in the need' in error
+
+
+def test_a_rewrite_that_names_the_resource_anywhere_passes():
+    # The writer's template puts the information first; when that information is itself a resource, the members'
+    # resource comes second.
+    group = offered('A dcat:Catalog lists dcat:Dataset entries.')
+    assert needs.statement_errors(written('Users can know the datasets listed in a catalogue.', True), group, None) == []
+    group = offered('Users can know the distributions of a dataset.')
+    assert needs.statement_errors(written("Users can know a dataset's distributions.", True), group, None) == []
+    [error] = needs.statement_errors(written('Users can know the available files.', True), group, None)
+    assert 'name the resource its members are about (dataset or distribution)' in error
