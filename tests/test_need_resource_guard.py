@@ -40,8 +40,8 @@ def resource_inputs(setup, statements):
     return store, run, records
 
 
-CATALOGUE_AND_RECORD = ['Users can know the title of a Catalog.', 'Users can know the title of a catalog record for a dataset.',
-                        'Users can know the title.']
+CATALOGUE_AND_RECORD = ['Users can know the title of a Catalog.', 'Users can know the catalogue title.',
+                        'Users can know the title of a catalog record for a dataset.', 'Users can know the title.']
 
 
 def test_grouping_writes_each_resource_as_its_own_group(setup, monkeypatch):
@@ -57,13 +57,27 @@ def test_grouping_writes_each_resource_as_its_own_group(setup, monkeypatch):
     monkeypatch.setattr(needs, 'write_needs', write)
     with pytest.raises(Written):
         needs.process_needs(store, run, records, NeedsClient(), None)
+    # The title naming no resource joins the larger part, the catalogue's.
     statements = sorted(sorted(r.normalized_statement for r in group) for group in written['groups'])
-    assert statements == [[CATALOGUE_AND_RECORD[0], CATALOGUE_AND_RECORD[2]], [CATALOGUE_AND_RECORD[1]]]
+    assert statements == [sorted([CATALOGUE_AND_RECORD[0], CATALOGUE_AND_RECORD[1], CATALOGUE_AND_RECORD[3]]), [CATALOGUE_AND_RECORD[2]]]
     grouping = store.get_run(run['run_id'])['need_steps']['grouping']
     assert grouping['policy_version'] == 'rq1-need-semantic-grouping-v3' and grouping['group_count'] == 2
     [event] = [a for a in grouping['audit'] if a['action'] == 'kept_apart_by_resource']
     assert event['inputs'] == sorted(r.revision_id for r in records)
     assert [p['resource'] for p in event['parts']] == ['catalogue', 'catalogue record'] and 'different resources' in event['reason']
+
+
+def test_needs_naming_no_resource_join_one_part_the_same_way_each_time():
+    # Two parts of one size: the part holding the lowest revision ID takes the needs naming no resource, so a replay
+    # of the run writes the same groups.
+    class Record:
+        def __init__(self, statement, revision_id): self.normalized_statement, self.revision_id = statement, revision_id
+    group = [Record('Users can know the title.', 'rev-a'), Record('Users can know the title of a catalog record.', 'rev-c'),
+             Record('Users can know the title of a Catalog.', 'rev-b')]
+    for order in (group, group[::-1]):
+        kept, [event] = needs.keep_resources_apart([order])
+        assert sorted(sorted(r.revision_id for r in part) for part in kept) == [['rev-a', 'rev-b'], ['rev-c']]
+        assert event['parts'][0] == {'resource': 'catalogue', 'revision_ids': ['rev-a', 'rev-b']}
 
 
 def test_a_group_about_one_resource_stays_whole():
