@@ -22,6 +22,9 @@ from requirement_reuse_service.workflow.engine import verify
     ('Users can know when a dataset’s distribution is only accessible via a landing page.', 'distribution'),
     ('Users can know the entity responsible for making the dataset available (publisher).', 'dataset'),
     ('Users can know the endpoint URL of a data service.', 'data service'),
+    ('The dct:modified of a dcat:CatalogRecord is given.', 'catalogue record'),
+    ('A dcat:DataService has an endpoint URL.', 'data service'),
+    ('A dcat:Catalog lists dcat:Dataset entries.', 'catalogue'),
     ('Users can know the identity of a publisher as a person or organization.', None),
     ('Users can know that a publisher makes the resource available', None),
 ])

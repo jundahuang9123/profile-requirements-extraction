@@ -186,11 +186,11 @@ def conditions(text):
 # catalogue's title, modification date and release date merged under a catalogue record's (or the other way round),
 # and the catalogue's and the dataset's publisher under a need that names no resource. A plain word check names the
 # resource: the first DCAT resource a statement names, a longer phrase claiming its words first ("catalog record",
-# "dataset distribution"). Replayed on 17 JRC and Stat runs: 11 groups mixed resources, and 8 of 1,144 written needs
+# "dataset distribution"); a class name in a vocabulary term counts too (dcat:CatalogRecord). Replayed on 17 JRC and Stat runs: 11 groups mixed resources, and 8 of 1,144 written needs
 # dropped or changed the resource of their members.
 RESOURCES = (
-    ('catalogue record', re.compile(r'\b(?:catalog(?:ue)?[\s-]+(?:records?|entry|entries)|metadata[\s-]+records?)\b', re.I)),
-    ('data service', re.compile(r'\bdata[\s-]+services?\b', re.I)),
+    ('catalogue record', re.compile(r'\b(?:catalog(?:ue)?[\s-]*(?:records?|entry|entries)|metadata[\s-]+records?)\b', re.I)),
+    ('data service', re.compile(r'\bdata[\s-]*services?\b', re.I)),
     ('distribution', re.compile(r"\b(?:data[\s-]?set(?:'s|’s)?[\s-]+)?distributions?\b", re.I)),
     ('dataset', re.compile(r'\bdata[\s-]?sets?\b', re.I)),
     ('catalogue', re.compile(r"\bcatalog(?:ue)?(?:'s|’s|s)?\b", re.I)))
