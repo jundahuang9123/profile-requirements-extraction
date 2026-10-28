@@ -258,6 +258,10 @@ class Linker:
             audit = ((self.results('consolidation').get('need_steps') or {}).get('grouping') or {}).get('audit') or []
             at = position(audit, lambda a: a.get('action') == 'kept_apart_by_resource' and revision in (a.get('inputs') or []))
             if at is not None: links.append(self.stage_link('consolidation', 'grouping kept apart by resource', 'need_steps', 'grouping', 'audit', at))
+        elif step == 'writer_split':
+            events = ((self.results('consolidation').get('need_steps') or {}).get('need_statement') or {}).get('events') or []
+            at = position(events, lambda e: e.get('action') == 'split_unwritten_group' and revision in (e.get('inputs') or []))
+            if at is not None: links.append(self.stage_link('consolidation', 'need writing event', 'need_steps', 'need_statement', 'events', at))
         elif step == 'need_statement':
             events = ((self.results('consolidation').get('need_steps') or {}).get('need_statement') or {}).get('events') or []
             at = position(events, lambda e: revision in (e.get('outputs') or []))

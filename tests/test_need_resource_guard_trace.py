@@ -53,3 +53,31 @@ def test_a_need_naming_no_resource_says_so(finished):
     index, trace = active_trace(store, store.get_run(run['run_id']))
     kept = {d['revision_id']: d['decision'] for d in trace['decisions'] if d['step'] == 'resource_guard'}
     assert kept == {a: f'kept apart from {b} (about dataset)', b: f'kept apart from {a} (it names no resource)'}
+
+
+def test_the_trace_shows_a_group_the_writer_wrote_member_by_member(finished):
+    store, run = finished
+    [chunk] = [c for c in run['consolidation_chunks'].values() if c.get('block_key') == 'underlying_needs']
+    a, b = chunk['revision_ids']
+    need = run['active_revision_ids'][0]
+    split = {'action': 'split_unwritten_group', 'policy_version': 'rq1-need-statement-v4', 'group_id': 'group-fixture',
+             'inputs': sorted([a, b]), 'reason': 'g: name the resource its members are about (catalogue) in the need.', 'rewrites': []}
+    kept = {'action': 'keep_unwritten_need', 'policy_version': 'rq1-need-statement-v4', 'group_id': 'group-fixture-kept',
+            'inputs': [a], 'outputs': [need], 'reason': 'Writer output unavailable: (catalogue).', 'rewrites': []}
+    def add(r):
+        for steps in (r['need_steps'], r['stage_results']['consolidation']['need_steps']):
+            steps['need_statement']['events'] = [*steps['need_statement']['events'], copy.deepcopy(split), copy.deepcopy(kept)]
+    store.mutate(run['run_id'], None, 'fixture_writer_split', add, parts=True)
+    run = store.get_run(run['run_id'])
+    index, trace = active_trace(store, run)
+    splits = {d['revision_id']: d for d in trace['decisions'] if d['step'] == 'writer_split'}
+    assert splits[a]['decision'] == f'written apart from {b}' and splits[b]['decision'] == f'written apart from {a}'
+    assert splits[a]['reason'] == split['reason'] and splits[a]['policy_version'] == 'rq1-need-statement-v4'
+    # A writing event without a critic row gives its own reason.
+    [unwritten] = [d for d in trace['decisions'] if d['step'] == 'need_statement' and d['decision'].startswith('keep_unwritten_need')]
+    assert unwritten['reason'] == kept['reason']
+    trace = link_trace(index, trace)
+    at = len(run['need_steps']['need_statement']['events']) - 2
+    for d in trace['decisions']:
+        if d['step'] == 'writer_split':
+            assert d['links'][0]['pointer'] == f'/results/need_steps/need_statement/events/{at}'

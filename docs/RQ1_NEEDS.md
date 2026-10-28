@@ -105,14 +105,16 @@ need that names no resource.
 A plain word check now finds the DCAT resources a statement names: catalogue, catalogue
 record (also "catalog entry", "metadata record"), dataset, dataset series, distribution
 and data service.
-- Word order does not count, so "the datasets of a catalogue" and "a catalogue lists
-  datasets" name the same two.
+- Which comes first does not count, so "the datasets of a catalogue" and "a catalogue
+  lists datasets" name the same two.
 - A resource word right before another one only qualifies it ("a dataset's
-  distribution", "the dataset catalogue").
+  distribution", "the dataset catalogue"). So "a catalogue's datasets" names the
+  datasets alone.
 - A class name in a vocabulary term counts (`dcat:CatalogRecord`); a property name does
   not (`dcat:distribution`).
 - Phrases where the words mean no DCAT resource are passed over ("catalogue metadata",
-  "age distribution", "restrictions on distribution").
+  "age distribution", "restrictions on distribution", "combination and distribution" as
+  acts of reuse).
 - Other paraphrases of a catalogue record ("when the dataset was added to the
   catalogue") are not recognised.
 
@@ -125,8 +127,8 @@ Grouping and writing apply it as follows:
 - **Writing:** a written need names at least one resource of each member it expresses.
   A rewrite that names none of them, or that expresses members of unrelated parts, gets
   the writer's one correction. If the correction fails too, the group is rewritten
-  member by member, as for any failed rewrite. The trace shows the reason of a group the
-  writer could not write.
+  member by member, as for any failed rewrite. The trace shows on each member that it was
+  written apart from the others, with the writer's reason (`writer_split`).
 
 On 17 saved JRC and Stat runs:
 - 11 groups would be split.
@@ -135,9 +137,13 @@ On 17 saved JRC and Stat runs:
 - Blind labels (two judges, one adjudicator) agree with all 11 splits and with 5 of the
   6 corrections. The sixth is harmless: a member names its dataset only in a purpose
   clause.
-- Two written needs that keep a distribution but drop the dataset from a rule about
-  languages are not caught. The check accepts a rewrite that names any of a member's
-  resources, so a relationship need written in the template's order is not sent back.
+- Some cases are not caught. The check accepts a rewrite that names any one of a
+  member's resources, so a relationship need written in the template's order is not sent
+  back. As a result:
+  - two written needs keep a distribution but drop the dataset from a rule about
+    languages;
+  - a HealthDCAT need about the publisher of a "Catalogue or Dataset" may be written for
+    one of the two.
 
 ## Scope choices
 
@@ -699,6 +705,7 @@ Where each entry links:
 | Second judgement (confirmation) of proposal support, the F/A test or the record test | step 6 | the confirmation on the record |
 | Grouping, need writing | step 6 | the grouping chunk and its rationale; the writing event |
 | Resource guard (a group split by resource) | step 6 | the grouping step's `kept_apart_by_resource` audit row |
+| Writer split (a group the writer rewrote member by member) | step 6 | the `split_unwritten_group` writing event |
 | Assessment | step 6 (`need_steps.assessment.records`) | the record's `qualification` |
 | Base review and its check | step 6a | the record's `base_relation` |
 | Discussion case and outcome | step 7 | the case; the outcome |

@@ -20,6 +20,9 @@ from requirement_reuse_service.workflow.engine import verify
     ('Users can know the date of last change of a catalog entry (catalog metadata) for a dataset.', {'catalogue record', 'dataset'}),
     ('Users can find metadata about catalog records such as issuance date', {'catalogue record'}),
     ('Users can know the modification date of a metadata record.', {'catalogue record'}),
+    ('Find the catalog records that are part of a catalog.', {'catalogue record', 'catalogue'}),
+    ('Users can know the modification date of a catalogue record when it changes.', {'catalogue record'}),
+    ('A catalogue record which describes a dataset has a language.', {'catalogue record', 'dataset'}),
     # A resource word right before another one only qualifies it.
     ('Users can find the download URL of a dataset distribution.', {'distribution'}),
     ('Users can know when a dataset’s distribution is only accessible via a landing page.', {'distribution'}),
@@ -29,6 +32,8 @@ from requirement_reuse_service.workflow.engine import verify
     ('Users can know the entity responsible for making the dataset available (publisher).', {'dataset'}),
     ('Users can know the endpoint URL of a data service.', {'data service'}),
     ('Users can know the title of a dataset series.', {'dataset series'}),
+    # A possessive qualifies the resource after it, so a catalogue's datasets are the datasets alone (a known limit).
+    ("Users can know a catalogue's datasets.", {'dataset'}),
     # Word order does not decide: both phrasings of a relationship name the same two resources.
     ('Users can know which datasets a catalogue lists.', {'dataset', 'catalogue'}),
     ('A dcat:Catalog lists dcat:Dataset entries.', {'catalogue', 'dataset'}),
@@ -40,6 +45,9 @@ from requirement_reuse_service.workflow.engine import verify
     # Words that mean no DCAT resource here.
     ('Users can know the age distribution of the population covered.', set()),
     ('Users can know the restrictions on distribution of the data.', set()),
+    ('Users can know the rights of the distribution.', {'distribution'}),
+    ('Users can know the permissible uses of data, including reproduction, adaptation, modification, combination, and distribution.', set()),
+    ('Users can know the distri\u00adbution format.', {'distribution'}),
     ('Users can know the catalogue entry point of the portal.', {'catalogue'}),
     ('Users can know when the catalogue records the change.', {'catalogue'}),
     ('Users can know the catalog‑record language.', {'catalogue record'}),
@@ -75,15 +83,17 @@ def test_grouping_writes_each_resource_as_its_own_group(setup, monkeypatch):
     monkeypatch.setattr(needs, 'write_needs', write)
     with pytest.raises(Written):
         needs.process_needs(store, run, records, NeedsClient(), None)
-    # One group per resource, and the title naming no resource as a group of its own.
-    assert [[r.normalized_statement for r in group] for group in written['groups']] == [[s] for s in CATALOGUE_AND_RECORD]
+    # One group per resource, and the title naming no resource as a group of its own, last.
+    groups = [[r.normalized_statement for r in group] for group in written['groups']]
+    assert sorted(groups) == sorted([s] for s in CATALOGUE_AND_RECORD) and groups[-1] == [CATALOGUE_AND_RECORD[2]]
     grouping = store.get_run(run['run_id'])['need_steps']['grouping']
     assert grouping['policy_version'] == 'rq1-need-semantic-grouping-v3' and grouping['group_count'] == 3
     [event] = [a for a in grouping['audit'] if a['action'] == 'kept_apart_by_resource']
     assert event['inputs'] == sorted(r.revision_id for r in records)
-    assert [(p['resources'], p['revision_ids']) for p in event['parts']] == [
-        (['catalogue'], [records[0].revision_id]), (['catalogue record'], [records[1].revision_id]), ([], [records[2].revision_id])]
-    assert 'different resources (catalogue; catalogue record)' in event['reason'] and 'their own group' in event['reason']
+    assert {tuple(p['resources']): p['revision_ids'] for p in event['parts']} == {
+        ('catalogue',): [records[0].revision_id], ('catalogue record',): [records[1].revision_id], (): [records[2].revision_id]}
+    assert event['parts'][-1]['resources'] == []
+    assert 'their own group' in event['reason'] and ('(catalogue; catalogue record)' in event['reason'] or '(catalogue record; catalogue)' in event['reason'])
 
 
 class Record:
@@ -105,9 +115,9 @@ def test_the_same_split_whatever_the_order_of_members():
     group = [Record('Users can know the title.', 'rev-a'), Record('Users can know the title of a catalog record.', 'rev-c'),
              Record('Users can know the title of a Catalog.', 'rev-b')]
     (first, [one]), (second, [other]) = (needs.keep_resources_apart([order]) for order in (group, group[::-1]))
-    assert sorted(sorted(r.revision_id for r in part) for part in first) == [['rev-a'], ['rev-b'], ['rev-c']]
-    assert sorted(sorted(r.revision_id for r in part) for part in second) == [['rev-a'], ['rev-b'], ['rev-c']]
-    assert sorted(map(json.dumps, one['parts'])) == sorted(map(json.dumps, other['parts'])) and one['inputs'] == other['inputs']
+    # Parts in the order of their lowest revision ID, the needs naming no resource last.
+    assert [[r.revision_id for r in part] for part in first] == [[r.revision_id for r in part] for part in second] == [['rev-b'], ['rev-c'], ['rev-a']]
+    assert one == other and [p['resources'] for p in one['parts']] == [['catalogue'], ['catalogue record'], []]
 
 
 class ResourceWriter(NeedsClient):
@@ -174,6 +184,18 @@ def test_members_about_unrelated_resources_cannot_share_a_written_need():
     assert needs.statement_errors(written('Users can know the title of a catalogue.', True, False), group, None) == []
     [error] = needs.statement_errors(written('Users can know the title of a catalog record.', True, False), group, None)
     assert 'name the resource its members are about (catalogue) in the need' in error
+
+
+def test_each_expressed_member_keeps_a_resource_even_when_another_member_links_them():
+    # The dataset member names both a dataset and its catalogue record, so the three stay one group; a rewrite about
+    # the dataset alone would drop the record's own member.
+    group = offered('Users can know the modification date of a catalogue record.',
+                    'Users can know the modification date of a dataset and of its catalogue record.',
+                    'Users can know the modification date of a dataset.')
+    [error] = needs.statement_errors(written('Users can know the modification date of a dataset.', True, True, True), group, None)
+    assert 'name the resource its members are about (catalogue record)' in error
+    assert needs.statement_errors(written('Users can know the modification date of a dataset and of its catalogue record.',
+                                          True, True, True), group, None) == []
 
 
 def test_a_rewrite_that_names_the_resource_anywhere_passes():

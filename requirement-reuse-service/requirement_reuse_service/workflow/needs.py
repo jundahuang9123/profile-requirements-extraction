@@ -185,18 +185,20 @@ def conditions(text):
 # three JRC runs on v9 + v14, 5 of the 10 needs lost went with the same information about another resource: a
 # catalogue's title, modification date and release date merged under a catalogue record's (or the other way round),
 # and the catalogue's and the dataset's publisher under a need that names no resource. A plain word check finds the DCAT
-# resources a statement names. Word order does not count, so "the datasets of a catalogue" and "a catalogue lists
+# resources a statement names. Which comes first does not count, so "the datasets of a catalogue" and "a catalogue lists
 # datasets" name the same two. A longer phrase claims its words first ("catalog record"); a resource word right before
-# another one only qualifies it ("a dataset's distribution", "the dataset catalogue"). A class name in a vocabulary term
-# counts (dcat:CatalogRecord); a property name does not (dcat:distribution). Phrases where the words mean no DCAT resource
-# ("catalogue metadata", "age distribution", "restrictions on distribution") are passed over. Replayed on 17 JRC and Stat
-# runs: 11 groups mixed unrelated resources, and 6 more of 1,144 written needs named none of their members' resources.
+# another one only qualifies it ("a dataset's distribution", "the dataset catalogue"), so "a catalogue's datasets" names
+# the datasets alone. A class name in a vocabulary term counts (dcat:CatalogRecord); a property name does not
+# (dcat:distribution). Phrases where the words mean no DCAT resource ("catalogue metadata", "age distribution",
+# "restrictions on distribution", "combination and distribution" as acts of reuse) are passed over. Replayed on 17 JRC and
+# Stat runs: 11 groups mixed unrelated resources, and 6 more of 1,144 written needs named none of their members' resources.
 RESOURCES = (
-    ('catalogue record', re.compile(r'\b(?:catalog(?:ue)?[\s-]*(?:records?(?![\s-]+(?:the|which|what|when|whether|its|how|who|that)\b)'
+    ('catalogue record', re.compile(r'\b(?:catalog(?:ue)?[\s-]*(?:record(?!s)|records(?![\s-]+(?:the|its)\b)'
                                     r'|entry(?![\s-]*points?\b)|entries)|metadata[\s-]+records?)\b', re.I)),
     (None, re.compile(r'\bcatalog(?:ue)?[\s-]+metadata\b|\b(?:age|geographic(?:al)?|spatial|statistical|frequency|population|'
                       r'income|size|probability|normal|regional|temporal)[\s-]+distributions?\b|\b(?:restrictions?|conditions?|'
-                      r'terms|rights?)\s+(?:on|of|for)\s+(?:the\s+)?(?:re)?distribution\b', re.I)),
+                      r'terms|rights?)\s+(?:on|of|for)\s+(?:re)?distribution\b|\b(?:reproduction|adaptation|modification|'
+                      r'combination|translation|use|reuse),?\s+(?:and|or)\s+(?:re)?distribution\b', re.I)),
     ('data service', re.compile(r'\bdata[\s-]*services?\b', re.I)),
     ('dataset series', re.compile(r'\bdata[\s-]?sets?[\s-]*series\b', re.I)),
     ('distribution', re.compile(r'\bdistributions?\b', re.I)),
@@ -208,7 +210,7 @@ QUALIFIER = re.compile(r"(?:'s?)?[\s-]+(?:metadata[\s-]+)?")
 
 def need_resources(text):
     """The DCAT resources a need statement names (see RESOURCES)."""
-    text = re.sub('[\u2010-\u2013\u00ad]', '-', (text or '').replace('\u2019', "'"))
+    text = re.sub('[\u2010-\u2013]', '-', (text or '').replace('\u00ad', '').replace('\u2019', "'"))
     text = PROPERTY_TERM.sub(lambda m: ' ' * len(m.group(0)), text)
     taken, found = [], []
     for name, pattern in RESOURCES:
@@ -241,7 +243,9 @@ def keep_resources_apart(groups):
         if len(parts) < 2:
             kept.append(group); continue
         named = {i for _, indexes in parts for i in indexes}
-        parts = [(sorted(resources), [group[i] for i in indexes]) for resources, indexes in parts]
+        # In the order of each part's lowest revision ID, so the same members give the same groups and audit.
+        parts = sorted(((sorted(resources), [group[i] for i in indexes]) for resources, indexes in parts),
+                       key=lambda part: min(r.revision_id for r in part[1]))
         loose = [r for i, r in enumerate(group) if i not in named]
         if loose: parts.append(([], loose))
         kept.extend(members for _, members in parts)
@@ -331,12 +335,14 @@ def statement_errors(answer, offered, profile, allow_modality=False):
         expressed = [members[m.member_id]['statement'] for m in need.members if m.expresses_need and m.member_id in members]
         parts = resource_parts(expressed)
         written = need_resources(need.statement)
+        unnamed = [named for named in map(need_resources, expressed) if named and not named & written]
         if len(parts) > 1:
             errors.append(need.group_id + ': members about different resources (' + '; '.join(', '.join(sorted(p[0]))
                           for p in parts) + ') cannot share one need; mark those about another resource as not expressing it.')
-        elif parts and not written & parts[0][0]:
-            errors.append(need.group_id + ': name the resource its members are about (' + ' or '.join(sorted(parts[0][0])) +
-                          ') in the need; the same information about another resource is a separate need.')
+        elif unnamed:
+            errors.append(need.group_id + ': name the resource its members are about (' + '; '.join(dict.fromkeys(
+                          ' or '.join(sorted(named)) for named in unnamed)) + ') in the need; the same information about '
+                          'another resource is a separate need.')
         text = ' '.join(m['statement'] for m in members.values())
         normalized = ' '.join(text.split()).casefold()
         for field in (need.condition, need.scope, *conditions(need.statement)):
