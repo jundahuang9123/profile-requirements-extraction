@@ -202,6 +202,7 @@ def test_a_replay_keeps_the_order_of_split_groups_and_makes_no_calls(setup):
 
 
 def test_the_policy_name_changes_so_v2_runs_are_not_continued_under_v3():
-    assert needs.POLICIES['need_statement']=='rq1-need-statement-v3'
+    # rq1-need-statement-v4 (resource guard) is a later name again.
+    assert needs.POLICIES['need_statement'] not in {'rq1-need-statement-v2','rq1-need-statement-v3'}
     with pytest.raises(ValueError,match='Needs policies changed'):
         needs.run_needs_policies({'needs_policies':{**needs.POLICIES,'need_statement':'rq1-need-statement-v2'}})

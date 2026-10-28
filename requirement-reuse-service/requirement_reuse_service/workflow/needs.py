@@ -22,8 +22,8 @@ from .coverage import (CATEGORY_POLICY, SELECTION_POLICY, CategoryLink, discover
 ROUTING_POLICY = 'rq1-needs-routing-v3'
 # Routing runs after needs processing, so a run saved under an earlier routing policy keeps it.
 EARLIER_ROUTING_POLICIES = ('rq1-needs-routing-v2',)
-POLICIES = {'generation_recovery': 'rq1-needs-row-recovery-v2', 'source_check': 'rq1-original-source-v2.2', 'proposal_support': 'rq1-proposal-support-v2', 'grouping': 'rq1-need-semantic-grouping-v2',
-            'need_statement': 'rq1-need-statement-v3', 'need_membership': 'rq1-need-membership-v1',
+POLICIES = {'generation_recovery': 'rq1-needs-row-recovery-v2', 'source_check': 'rq1-original-source-v2.2', 'proposal_support': 'rq1-proposal-support-v2', 'grouping': 'rq1-need-semantic-grouping-v3',
+            'need_statement': 'rq1-need-statement-v4', 'need_membership': 'rq1-need-membership-v1',
             'classification': 'rq1-generic-domain-v4', 'base_search': 'rq1-base-needs-full-search-v3', 'base_gap': 'rq1-base-gap-status-v2',
             'profile_scope': 'rq1-profile-scope-v9', 'dataset_applicability': 'rq1-dataset-applicability-v2', 'dataset_categories': CATEGORY_POLICY, 'selection': SELECTION_POLICY,
             'scoping': 'rq1-use-case-contribution-v1',
@@ -181,6 +181,53 @@ def conditions(text):
     return found
 
 
+# rq1-need-semantic-grouping-v3 and rq1-need-statement-v4 (Junda, 28 Oct): a need keeps the resource it is about. In the
+# three JRC runs on v9 + v14, 5 of the 10 needs lost went with the same information about another resource: a
+# catalogue's title, modification date and release date merged under a catalogue record's (or the other way round),
+# and the catalogue's and the dataset's publisher under a need that names no resource. A plain word check names the
+# resource: the first DCAT resource a statement names, a longer phrase claiming its words first ("catalog record",
+# "dataset distribution"). Replayed on 17 JRC and Stat runs: 11 groups mixed resources, and 8 of 1,144 written needs
+# dropped or changed the resource of their members.
+RESOURCES = (
+    ('catalogue record', re.compile(r'\b(?:catalog(?:ue)?[\s-]+(?:records?|entry|entries)|metadata[\s-]+records?)\b', re.I)),
+    ('data service', re.compile(r'\bdata[\s-]+services?\b', re.I)),
+    ('distribution', re.compile(r"\b(?:data[\s-]?set(?:'s|’s)?[\s-]+)?distributions?\b", re.I)),
+    ('dataset', re.compile(r'\bdata[\s-]?sets?\b', re.I)),
+    ('catalogue', re.compile(r"\bcatalog(?:ue)?(?:'s|’s|s)?\b", re.I)))
+
+
+def need_resource(text):
+    """The DCAT resource a need statement is about: the first one it names, or None."""
+    taken, found = [], []
+    for name, pattern in RESOURCES:
+        for match in pattern.finditer(text or ''):
+            if any(match.start() < end and start < match.end() for start, end in taken): continue
+            taken.append((match.start(), match.end())); found.append((match.start(), name))
+    return min(found)[1] if found else None
+
+
+def keep_resources_apart(groups):
+    """Split a group whose members are about different resources into one group per resource; members naming none
+    join the largest. Returns the groups and an audit event for each group split."""
+    kept, audit = [], []
+    for group in groups:
+        by_resource, loose = {}, []
+        for record in group:
+            resource = need_resource(record.normalized_statement)
+            (by_resource.setdefault(resource, []) if resource else loose).append(record)
+        if len(by_resource) < 2:
+            kept.append(group); continue
+        parts = sorted(by_resource.items(), key=lambda item: (-len(item[1]), min(r.revision_id for r in item[1])))
+        parts[0] = (parts[0][0], parts[0][1] + loose)
+        kept.extend(members for _, members in parts)
+        audit.append({'action': 'kept_apart_by_resource', 'policy_version': POLICIES['grouping'],
+            'inputs': sorted(r.revision_id for r in group),
+            'parts': [{'resource': resource, 'revision_ids': sorted(r.revision_id for r in members)} for resource, members in parts],
+            'reason': 'Grouped needs about different resources (' + ', '.join(resource for resource, _ in parts) + '): the same '
+                      'information about another resource is a separate need. Needs naming no resource stay with the largest part.'})
+    return kept, audit
+
+
 _BASE_CONDITION_STOP = set('a an the if when where applicable provided that only for only when must shall should may can has have is are be being to of for with in on as by and or this that which whose'.split())
 
 
@@ -254,6 +301,15 @@ def statement_errors(answer, offered, profile, allow_modality=False):
             errors.append(need.group_id + ': at least one member must express the written need.')
         terms = detect_terms(need.statement, profile)
         if terms: errors.append(need.group_id + ': forbidden vocabulary terms: ' + ', '.join(terms))
+        # rq1-need-statement-v4: the need names the resource the members it expresses are about (see need_resource).
+        about = {need_resource(members[m.member_id]['statement']) for m in need.members
+                 if m.expresses_need and m.member_id in members} - {None}
+        if len(about) > 1:
+            errors.append(need.group_id + ': members about different resources (' + ', '.join(sorted(about)) + ') cannot '
+                          'share one need; mark those about another resource as not expressing it.')
+        elif about and need_resource(need.statement) not in about:
+            errors.append(need.group_id + ': name the resource its members are about (' + next(iter(about)) + ') as the '
+                          "need's resource; the same information about another resource is a separate need.")
         text = ' '.join(m['statement'] for m in members.values())
         normalized = ' '.join(text.split()).casefold()
         for field in (need.condition, need.scope, *conditions(need.statement)):
@@ -637,6 +693,8 @@ def process_needs(store, run, records, client, profile):
         # One bounded stream avoids semantic blocking on noisy typed labels. The
         # cap of 25 offered earlier groups can still miss distant duplicates.
         groups, audit = grouped_block(store, run, 'underlying_needs', passing, client, saved['consolidation_chunks'])
+    groups, apart = keep_resources_apart(groups)
+    audit = [*audit, *apart]
     step_saved(store, run, 'grouping', input_count=len(records), group_count=len(groups), audit=audit)
     needs, events = write_needs(store, run, groups, client, profile)
     step_saved(store, run, 'need_statement', input_count=len(records), need_count=len(needs),

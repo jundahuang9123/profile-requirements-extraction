@@ -105,6 +105,18 @@ class TraceIndex:
                     self.groupings[identifier] = {'members': ids, 'rationale': group.get('rationale') or '',
                                                   'join_group_id': group.get('join_group_id'), 'chunk_key': chunk.get('chunk_key'),
                                                   'call_ids': chunk.get('call_ids') or []}
+        # rq1-need-semantic-grouping-v3: a group the model formed over different resources was split, one group per
+        # resource; a member stays merged only with its own part.
+        for event in (steps.get('grouping') or {}).get('audit') or []:
+            if not isinstance(event, dict) or event.get('action') != 'kept_apart_by_resource': continue
+            for part in event.get('parts') or []:
+                own = part.get('revision_ids') or []
+                for identifier in own:
+                    grouping = self.groupings.setdefault(identifier, {'members': [identifier], 'rationale': '', 'call_ids': []})
+                    grouping['members'] = [m for m in grouping['members'] if m in own] or [identifier]
+                    grouping['kept_apart'] = {'resource': part.get('resource'), 'reason': event.get('reason') or '',
+                        'policy_version': event.get('policy_version'),
+                        'from': [m for p in event['parts'] if p is not part for m in p.get('revision_ids') or []]}
         self.calls = {c['call_id']: c for c in run.get('model_calls') or [] if c.get('call_id')}
         self.calls_by_output = defaultdict(list); self.calls_by_context = defaultdict(list)
         self.calls_by_error = defaultdict(list)
@@ -339,6 +351,10 @@ def need_trace(index, revision_id):
             decided('grouping', revision, 'merged with ' + ', '.join(m for m in grouping['members'] if m != revision),
                     grouping['rationale'], None, call_status(grouping['call_ids'], 'recorded' if grouping['call_ids'] else 'missing'),
                     required=False)
+        if grouping and grouping.get('kept_apart'):
+            apart = grouping['kept_apart']
+            decided('resource_guard', revision, f"kept apart from {', '.join(apart['from'])} (about {apart['resource']})",
+                    apart['reason'], apart['policy_version'], required=False)
         for event in index.merges.get(revision) or (index.group_merges.get(current.get('group_id')) if revision == revision_id else []) or []:
             # The writer and its critics answer for the group they were offered; when the writer left a member out,
             # the event names the smaller group it wrote.
