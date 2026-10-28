@@ -116,19 +116,24 @@ and data service.
   "age distribution", "restrictions on distribution", "combination and distribution" as
   acts of reuse).
 - Other paraphrases of a catalogue record ("when the dataset was added to the
-  catalogue") are not recognised.
+  catalogue") are not recognised. "The catalogue records when …" reads as a catalogue
+  record, since the verb and the plural noun look the same there. Only "records
+  the/its …" is taken as the verb.
 
 Grouping and writing apply it as follows:
 - **Grouping:** a group splits only when its members fall into parts that share no
   resource, directly or through other members. Each part is written as its own group,
-  and members naming no resource stay together as a group of their own. The grouping
+  in the order of its lowest revision ID, and members naming no resource stay together
+  as a last group of their own. The grouping
   step's audit records the split (`kept_apart_by_resource`), and the trace shows it on
   each member (`resource_guard`).
 - **Writing:** a written need names at least one resource of each member it expresses.
   A rewrite that names none of them, or that expresses members of unrelated parts, gets
   the writer's one correction. If the correction fails too, the group is rewritten
   member by member, as for any failed rewrite. The trace shows on each member that it was
-  written apart from the others, with the writer's reason (`writer_split`).
+  written apart from the others, with the writer's reason and calls (`writer_split`).
+  Members beyond the writer's basis of 20 are judged by the membership check, which does
+  not apply this rule.
 
 On 17 saved JRC and Stat runs:
 - 11 groups would be split.

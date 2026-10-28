@@ -364,8 +364,9 @@ def need_trace(index, revision_id):
             decided('resource_guard', revision, f"kept apart from {', '.join(apart['from'])} ({about})",
                     apart['reason'], apart['policy_version'], required=False)
         for event in index.writer_splits.get(revision) or []:
+            writer = step_rows(index, 'need_statement', event.get('group_id'), 'writer')
             decided('writer_split', revision, 'written apart from ' + ', '.join(m for m in event.get('inputs') or [] if m != revision),
-                    event.get('reason'), event.get('policy_version'), required=False)
+                    event.get('reason'), event.get('policy_version'), call_status(*writer[3:]) if writer else None, required=False)
         for event in index.merges.get(revision) or (index.group_merges.get(current.get('group_id')) if revision == revision_id else []) or []:
             # The writer and its critics answer for the group they were offered; when the writer left a member out,
             # the event names the smaller group it wrote.

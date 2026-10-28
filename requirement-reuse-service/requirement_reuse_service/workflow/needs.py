@@ -198,7 +198,8 @@ RESOURCES = (
     (None, re.compile(r'\bcatalog(?:ue)?[\s-]+metadata\b|\b(?:age|geographic(?:al)?|spatial|statistical|frequency|population|'
                       r'income|size|probability|normal|regional|temporal)[\s-]+distributions?\b|\b(?:restrictions?|conditions?|'
                       r'terms|rights?)\s+(?:on|of|for)\s+(?:re)?distribution\b|\b(?:reproduction|adaptation|modification|'
-                      r'combination|translation|use|reuse),?\s+(?:and|or)\s+(?:re)?distribution\b', re.I)),
+                      r'combination|translation|use|reuse),?\s+(?:and|or)\s+(?:re)?distribution\b(?![\s-]+(?:formats?|licen[cs]es?|'
+                      r'access|download|urls?|media|titles?|descriptions?|files?|types?|sizes?|checksums?))', re.I)),
     ('data service', re.compile(r'\bdata[\s-]*services?\b', re.I)),
     ('dataset series', re.compile(r'\bdata[\s-]?sets?[\s-]*series\b', re.I)),
     ('distribution', re.compile(r'\bdistributions?\b', re.I)),

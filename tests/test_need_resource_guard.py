@@ -48,6 +48,7 @@ from requirement_reuse_service.workflow.engine import verify
     ('Users can know the rights of the distribution.', {'distribution'}),
     ('Users can know the permissible uses of data, including reproduction, adaptation, modification, combination, and distribution.', set()),
     ('Users can know the distri\u00adbution format.', {'distribution'}),
+    ('Users can know the intended use and distribution format of a dataset.', {'dataset', 'distribution'}),
     ('Users can know the catalogue entry point of the portal.', {'catalogue'}),
     ('Users can know when the catalogue records the change.', {'catalogue'}),
     ('Users can know the catalog‑record language.', {'catalogue record'}),
