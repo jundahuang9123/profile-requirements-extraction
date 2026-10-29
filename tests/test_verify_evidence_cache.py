@@ -6,6 +6,7 @@ import pytest
 from test_rq1_need_grouping import NeedsClient, need_inputs
 from test_rq1_need_assessment import FullNeedsClient
 from test_resume_discussions import setup  # noqa: F401  (pytest fixture)
+from requirement_reuse_service.llm.client import OutputTokenLimitError
 from requirement_reuse_service.workflow import evidence, needs
 from requirement_reuse_service.workflow.engine import verify
 
@@ -66,3 +67,26 @@ def test_assessment_parses_each_source_once(setup, parses):
     for need in written:
         assert need.verification['status'] == 'pass'
         assert same(need.verification, verify(store, need, run['evidence_ids']))
+
+
+def test_needs_kept_unwritten_parse_each_source_once(setup, parses):
+    # The rewrite adds a condition, so the group is split and each member kept as its own need.
+    store, run, records = need_inputs(setup)
+    parses.clear()
+    _, events = needs.write_needs(store, run, [records], NeedsClient('invent'), None)
+    assert [e['action'] for e in events].count('keep_unwritten_need') == 2 and len(parses) == 1
+
+
+class Truncating(NeedsClient):
+    def generate_structured(self, **kwargs):
+        if kwargs['output_model'].__name__ == 'ProposalSupport':
+            raise OutputTokenLimitError('Output truncated (scripted).')
+        return super().generate_structured(**kwargs)
+
+
+def test_proposals_not_checked_parse_each_source_once(setup, parses):
+    # A judgement that falls back keeps the record, checked again with the shared parse.
+    store, run, records = need_inputs(setup)
+    parses.clear()
+    retained = needs.check_proposal_support(store, run, records, Truncating())
+    assert [r.proposal_support['support'] for r in retained] == ['not_checked', 'not_checked'] and len(parses) == 1
