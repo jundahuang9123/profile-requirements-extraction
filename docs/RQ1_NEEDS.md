@@ -151,7 +151,9 @@ On 17 saved JRC and Stat runs:
     one of the two.
 
 A written need is stored with its whitespace folded (`rq1-need-statement-v5`, 29 Oct), as
-its normalised statement is. Before, a rewrite that began with a space or held a line break
+its normalised statement is, and the writer checks read it folded: a blank rewrite is
+rejected, and a condition split by a line break is still an added condition. Before, a
+rewrite with stray whitespace (a leading or trailing space, a line break or a doubled space)
 failed its integrity check, and the need was set aside as `trace_incomplete`: once each in
 Stat `run-327cb53a` and `run-49298834`.
 

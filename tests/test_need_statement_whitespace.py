@@ -30,6 +30,30 @@ def test_a_rewrite_with_stray_whitespace_keeps_its_integrity(setup, written):
     member.verification = verify(store, member, run['evidence_ids'])
     [need], [event] = needs.write_needs(store, run, [[member]], SpacedWriter(written), None)
     assert need.need_statement == need.normalized_statement == ' '.join(written.split())
-    assert need.verification.get('message') != 'Need metadata integrity mismatch.'
-    assert verify(store, need, run['evidence_ids']).get('message') != 'Need metadata integrity mismatch.'
+    assert need.verification['status'] == 'pass' and need.lifecycle_state == 'need_assessment_pending'
+    assert verify(store, need, run['evidence_ids'])['status'] == 'pass'
     assert event['action'] == 'merge_need' and event['policy_version'] == 'rq1-need-statement-v5'
+
+
+@pytest.mark.parametrize('written', [' ', '\n'])
+def test_a_blank_rewrite_is_not_a_need(setup, written):
+    # Folded, a blank rewrite would be an empty need that passes its integrity check; the writer check rejects it.
+    # The member names no resource, so the resource rule does not reject the blank rewrite first.
+    store, run, records = need_inputs(setup)
+    member = revised(run, records[0], statement='Users can know the licence under which they may reuse the data.', observation_id='obs-blank')
+    member.verification = verify(store, member, run['evidence_ids'])
+    [need], [event] = needs.write_needs(store, run, [[member]], SpacedWriter(written), None)
+    assert event['action'] != 'merge_need'
+    assert need.need_statement == 'Users can know the licence under which they may reuse the data.'
+
+
+@pytest.mark.parametrize('written', ['Users can know the size of a distribution of a dataset provided\nthat it is published',
+                                     'Users can know the size of a distribution of a dataset where  applicable'])
+def test_a_condition_split_by_whitespace_is_still_an_added_condition(setup, written):
+    # The added-condition check reads the statement as it is stored, folded; 'provided\nthat' is 'provided that'.
+    store, run, records = need_inputs(setup)
+    member = revised(run, records[0], statement='Users can know the size of a Distribution via dcat:byteSize.', observation_id='obs-cond')
+    member.verification = verify(store, member, run['evidence_ids'])
+    [need], [event] = needs.write_needs(store, run, [[member]], SpacedWriter(written), None)
+    assert event['action'] != 'merge_need'
+    assert need.need_statement == 'Users can know the size of a Distribution via dcat:byteSize.'
