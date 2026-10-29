@@ -334,7 +334,6 @@ def statement_errors(answer, offered, profile, allow_modality=False):
         statement = ' '.join(need.statement.split())
         if not statement:
             errors.append(need.group_id + ': state the need; the statement is blank.')
-            continue
         terms = detect_terms(statement, profile)
         if terms: errors.append(need.group_id + ': forbidden vocabulary terms: ' + ', '.join(terms))
         # rq1-need-statement-v4: the need names a resource of each member it expresses (see need_resources).

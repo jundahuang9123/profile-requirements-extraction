@@ -57,3 +57,14 @@ def test_a_condition_split_by_whitespace_is_still_an_added_condition(setup, writ
     [need], [event] = needs.write_needs(store, run, [[member]], SpacedWriter(written), None)
     assert event['action'] != 'merge_need'
     assert need.need_statement == 'Users can know the size of a Distribution via dcat:byteSize.'
+
+
+def test_a_blank_rewrite_is_corrected_with_the_other_errors_of_its_group():
+    # The one output correction names every error of the group, not only the blank statement.
+    offered = {'g1': {'members': {'m1': {'statement': 'Users can know the licence under which they may reuse the data.'}},
+                      'obligation': 'unknown'}}
+    answer = needs.NeedStatements.model_validate({'needs': [{'group_id': 'g1', 'statement': ' ', 'condition': 'when access is restricted',
+        'members': [{'member_id': 'm1', 'expresses_need': True}]}]})
+    errors = needs.statement_errors(answer, offered, None)
+    assert 'g1: state the need; the statement is blank.' in errors
+    assert 'g1: added condition or scope: when access is restricted' in errors
