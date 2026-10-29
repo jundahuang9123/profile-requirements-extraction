@@ -94,6 +94,62 @@ still hold vocabulary terms or obligation words the writer would have removed, s
 acceptance asks a human to edit it first; the flag makes it visible for review.
 Failed groups are retried in batch order, so a replay sends the same requests.
 
+A need keeps the resource it is about (`rq1-need-semantic-grouping-v3`,
+`rq1-need-statement-v4`, Junda, 28 Oct). DCAT-AP puts the same property on different
+resources: a catalogue's title is not its catalogue record's title. In the three JRC
+runs on v9 + v14, 5 of the 10 needs lost went with the same information about another
+resource. Grouping merged a catalogue's title, modification date and release date with
+a catalogue record's. The writer put the catalogue's and the dataset's publisher under a
+need that names no resource.
+
+A plain word check now finds the DCAT resources a statement names: catalogue, catalogue
+record (also "catalog entry", "metadata record"), dataset, dataset series, distribution
+and data service.
+- Which comes first does not count, so "the datasets of a catalogue" and "a catalogue
+  lists datasets" name the same two.
+- A resource word right before another one only qualifies it ("a dataset's
+  distribution", "the dataset catalogue"). So "a catalogue's datasets" names the
+  datasets alone.
+- A class name in a vocabulary term counts (`dcat:CatalogRecord`); a property name does
+  not (`dcat:distribution`).
+- Phrases where the words mean no DCAT resource are passed over ("catalogue metadata",
+  "age distribution", "restrictions on distribution", "combination and distribution" as
+  acts of reuse).
+- Other paraphrases of a catalogue record ("when the dataset was added to the
+  catalogue") are not recognised. "The catalogue records when …" reads as a catalogue
+  record, since the verb and the plural noun look the same there. Only "records
+  the/its …" is taken as the verb.
+
+Grouping and writing apply it as follows:
+- **Grouping:** a group splits only when its members fall into parts that share no
+  resource, directly or through other members. Each part is written as its own group,
+  in the order of its lowest revision ID, and members naming no resource stay together
+  as a last group of their own. The grouping
+  step's audit records the split (`kept_apart_by_resource`), and the trace shows it on
+  each member (`resource_guard`).
+- **Writing:** a written need names at least one resource of each member it expresses.
+  A rewrite that names none of them, or that expresses members of unrelated parts, gets
+  the writer's one correction. If the correction fails too, the group is rewritten
+  member by member, as for any failed rewrite. The trace shows on each member that it was
+  written apart from the others, with the writer's reason and calls (`writer_split`).
+  Members beyond the writer's basis of 20 are judged by the membership check, which does
+  not apply this rule.
+
+On 17 saved JRC and Stat runs:
+- 11 groups would be split.
+- 6 more written needs named none of their members' resources.
+- This covers all five losses above.
+- Blind labels (two judges, one adjudicator) agree with all 11 splits and with 5 of the
+  6 corrections. The sixth is harmless: a member names its dataset only in a purpose
+  clause.
+- Some cases are not caught. The check accepts a rewrite that names any one of a
+  member's resources, so a relationship need written in the template's order is not sent
+  back. As a result:
+  - two written needs keep a distribution but drop the dataset from a rule about
+    languages;
+  - a HealthDCAT need about the publisher of a "Catalogue or Dataset" may be written for
+    one of the two.
+
 ## Scope choices
 
 The form offers automatic resolution, use-case scoping or off. Automatic resolution
@@ -363,8 +419,8 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Normalization | `rq1-need-normalization-v1` | Uncited and base-only filtering; historical extraction annotations remain readable |
 | Source check | `rq1-original-source-v2.2` | Deterministic; every cited link checked |
 | Proposal support | `rq1-proposal-support-v2` (a rejection is judged again alone) | At most 25 proposals / 24,000 input characters; only own excerpt IDs allowed |
-| Grouping | `rq1-semantic-consolidation-v3` | 40 candidates, 24,000 input characters, at most 25 prior offered groups; audited exact fallback for invalid model grouping |
-| Need writing / rewrite critic | `rq1-need-statement-v3` | At most 20 groups; 24,000 writer input characters; independent critic up to 48,000 characters; initial response plus one output correction; a failed rewrite is retried member by member, a single need keeps its statement |
+| Grouping | `rq1-need-semantic-grouping-v3` (model grouping `rq1-semantic-consolidation-v4`; a group over unrelated resources is split by resource) | 40 candidates, 24,000 input characters, at most 25 prior offered groups; audited exact fallback for invalid model grouping |
+| Need writing / rewrite critic | `rq1-need-statement-v4` (a written need names a resource of each member it expresses) | At most 20 groups; 24,000 writer input characters; independent critic up to 48,000 characters; initial response plus one output correction; a failed rewrite is retried member by member, a single need keeps its statement |
 | Additional member checking | `rq1-need-membership-v1` | Large groups use a bounded writing basis (up to 20 members / 16,000 statement characters); every remaining member checked in batches up to 40 / 24,000 characters |
 | Base catalogue | `rq1-base-needs-catalogue-v2` | Frozen base-only file and checksum; optional hash-bound human phrase review |
 | Generic/domain and base search | `rq1-generic-domain-v4`, `rq1-base-needs-full-search-v3` | One need per call against the complete catalogue in chunks (first chunk 10–20 entries, then 20); a need listing several items is generic when one listed entry covers each item; a match without an entry ID counts as no match in that chunk |
@@ -653,6 +709,8 @@ Where each entry links:
 | Dataset applicability | step 6 (`need_steps`) | the decision row, matched by need ID (its reason joins the category links' reasons) |
 | Second judgement (confirmation) of proposal support, the F/A test or the record test | step 6 | the confirmation on the record |
 | Grouping, need writing | step 6 | the grouping chunk and its rationale; the writing event |
+| Resource guard (a group split by resource) | step 6 | the grouping step's `kept_apart_by_resource` audit row |
+| Writer split (a group the writer rewrote member by member) | step 6 | the `split_unwritten_group` writing event |
 | Assessment | step 6 (`need_steps.assessment.records`) | the record's `qualification` |
 | Base review and its check | step 6a | the record's `base_relation` |
 | Discussion case and outcome | step 7 | the case; the outcome |

@@ -22,8 +22,8 @@ from .coverage import (CATEGORY_POLICY, SELECTION_POLICY, CategoryLink, discover
 ROUTING_POLICY = 'rq1-needs-routing-v3'
 # Routing runs after needs processing, so a run saved under an earlier routing policy keeps it.
 EARLIER_ROUTING_POLICIES = ('rq1-needs-routing-v2',)
-POLICIES = {'generation_recovery': 'rq1-needs-row-recovery-v2', 'source_check': 'rq1-original-source-v2.2', 'proposal_support': 'rq1-proposal-support-v2', 'grouping': 'rq1-need-semantic-grouping-v2',
-            'need_statement': 'rq1-need-statement-v3', 'need_membership': 'rq1-need-membership-v1',
+POLICIES = {'generation_recovery': 'rq1-needs-row-recovery-v2', 'source_check': 'rq1-original-source-v2.2', 'proposal_support': 'rq1-proposal-support-v2', 'grouping': 'rq1-need-semantic-grouping-v3',
+            'need_statement': 'rq1-need-statement-v4', 'need_membership': 'rq1-need-membership-v1',
             'classification': 'rq1-generic-domain-v4', 'base_search': 'rq1-base-needs-full-search-v3', 'base_gap': 'rq1-base-gap-status-v2',
             'profile_scope': 'rq1-profile-scope-v9', 'dataset_applicability': 'rq1-dataset-applicability-v2', 'dataset_categories': CATEGORY_POLICY, 'selection': SELECTION_POLICY,
             'scoping': 'rq1-use-case-contribution-v1',
@@ -181,6 +181,84 @@ def conditions(text):
     return found
 
 
+# rq1-need-semantic-grouping-v3 and rq1-need-statement-v4 (Junda, 28 Oct): a need keeps the resource it is about. In the
+# three JRC runs on v9 + v14, 5 of the 10 needs lost went with the same information about another resource: a
+# catalogue's title, modification date and release date merged under a catalogue record's (or the other way round),
+# and the catalogue's and the dataset's publisher under a need that names no resource. A plain word check finds the DCAT
+# resources a statement names. Which comes first does not count, so "the datasets of a catalogue" and "a catalogue lists
+# datasets" name the same two. A longer phrase claims its words first ("catalog record"); a resource word right before
+# another one only qualifies it ("a dataset's distribution", "the dataset catalogue"), so "a catalogue's datasets" names
+# the datasets alone. A class name in a vocabulary term counts (dcat:CatalogRecord); a property name does not
+# (dcat:distribution). Phrases where the words mean no DCAT resource ("catalogue metadata", "age distribution",
+# "restrictions on distribution", "combination and distribution" as acts of reuse) are passed over. Replayed on 17 JRC and
+# Stat runs: 11 groups mixed unrelated resources, and 6 more of 1,144 written needs named none of their members' resources.
+RESOURCES = (
+    ('catalogue record', re.compile(r'\b(?:catalog(?:ue)?[\s-]*(?:record(?!s)|records(?![\s-]+(?:the|its)\b)'
+                                    r'|entry(?![\s-]*points?\b)|entries)|metadata[\s-]+records?)\b', re.I)),
+    (None, re.compile(r'\bcatalog(?:ue)?[\s-]+metadata\b|\b(?:age|geographic(?:al)?|spatial|statistical|frequency|population|'
+                      r'income|size|probability|normal|regional|temporal)[\s-]+distributions?\b|\b(?:restrictions?|conditions?|'
+                      r'terms|rights?)\s+(?:on|of|for)\s+(?:re)?distribution\b|\b(?:reproduction|adaptation|modification|'
+                      r'combination|translation|use|reuse),?\s+(?:and|or)\s+(?:re)?distribution\b(?![\s-]+(?:formats?|licen[cs]es?|'
+                      r'access|download|urls?|media|titles?|descriptions?|files?|types?|sizes?|checksums?))', re.I)),
+    ('data service', re.compile(r'\bdata[\s-]*services?\b', re.I)),
+    ('dataset series', re.compile(r'\bdata[\s-]?sets?[\s-]*series\b', re.I)),
+    ('distribution', re.compile(r'\bdistributions?\b', re.I)),
+    ('dataset', re.compile(r'\bdata[\s-]?sets?\b', re.I)),
+    ('catalogue', re.compile(r"\bcatalog(?:ue)?(?:'s|s)?\b", re.I)))
+PROPERTY_TERM = re.compile(r'(?<![\w/:])[A-Za-z][\w.-]*:[a-z][\w.-]*')
+QUALIFIER = re.compile(r"(?:'s?)?[\s-]+(?:metadata[\s-]+)?")
+
+
+def need_resources(text):
+    """The DCAT resources a need statement names (see RESOURCES)."""
+    text = re.sub('[\u2010-\u2013]', '-', (text or '').replace('\u00ad', '').replace('\u2019', "'"))
+    text = PROPERTY_TERM.sub(lambda m: ' ' * len(m.group(0)), text)
+    taken, found = [], []
+    for name, pattern in RESOURCES:
+        for match in pattern.finditer(text):
+            if any(match.start() < end and start < match.end() for start, end in taken): continue
+            taken.append((match.start(), match.end())); found.append((match.start(), match.end(), name))
+    found.sort()
+    return {name for i, (start, end, name) in enumerate(found) if name and not (
+        i + 1 < len(found) and found[i + 1][2] and QUALIFIER.fullmatch(text[end:found[i + 1][0]]))}
+
+
+def resource_parts(statements):
+    """Indexes of statements whose named resources link them (sharing one, directly or through others), one list per
+    part; statements naming none are left out."""
+    parts = []
+    for i, named in enumerate(map(need_resources, statements)):
+        if not named: continue
+        joined = [part for part in parts if part[0] & named]
+        parts = [part for part in parts if not part[0] & named] + [(set().union(named, *(p[0] for p in joined)),
+                                                                   sorted([i, *(j for p in joined for j in p[1])]))]
+    return sorted(parts, key=lambda part: part[1])
+
+
+def keep_resources_apart(groups):
+    """Split a group whose members are about unrelated resources into one group per resource; members naming none stay
+    together as a group of their own. Returns the groups and an audit event for each group split."""
+    kept, audit = [], []
+    for group in groups:
+        parts = resource_parts([r.normalized_statement for r in group])
+        if len(parts) < 2:
+            kept.append(group); continue
+        named = {i for _, indexes in parts for i in indexes}
+        # In the order of each part's lowest revision ID, so the same members give the same groups and audit.
+        parts = sorted(((sorted(resources), [group[i] for i in indexes]) for resources, indexes in parts),
+                       key=lambda part: min(r.revision_id for r in part[1]))
+        loose = [r for i, r in enumerate(group) if i not in named]
+        if loose: parts.append(([], loose))
+        kept.extend(members for _, members in parts)
+        audit.append({'action': 'kept_apart_by_resource', 'policy_version': POLICIES['grouping'],
+            'inputs': sorted(r.revision_id for r in group),
+            'parts': [{'resources': resources, 'revision_ids': sorted(r.revision_id for r in members)} for resources, members in parts],
+            'reason': 'Grouped needs about different resources (' + '; '.join(', '.join(resources) for resources, _ in parts
+                      if resources) + '): the same information about another resource is a separate need.' +
+                      (' Needs naming no resource stay together as their own group.' if loose else '')})
+    return kept, audit
+
+
 _BASE_CONDITION_STOP = set('a an the if when where applicable provided that only for only when must shall should may can has have is are be being to of for with in on as by and or this that which whose'.split())
 
 
@@ -254,6 +332,18 @@ def statement_errors(answer, offered, profile, allow_modality=False):
             errors.append(need.group_id + ': at least one member must express the written need.')
         terms = detect_terms(need.statement, profile)
         if terms: errors.append(need.group_id + ': forbidden vocabulary terms: ' + ', '.join(terms))
+        # rq1-need-statement-v4: the need names a resource of each member it expresses (see need_resources).
+        expressed = [members[m.member_id]['statement'] for m in need.members if m.expresses_need and m.member_id in members]
+        parts = resource_parts(expressed)
+        written = need_resources(need.statement)
+        unnamed = [named for named in map(need_resources, expressed) if named and not named & written]
+        if len(parts) > 1:
+            errors.append(need.group_id + ': members about different resources (' + '; '.join(', '.join(sorted(p[0]))
+                          for p in parts) + ') cannot share one need; mark those about another resource as not expressing it.')
+        elif unnamed:
+            errors.append(need.group_id + ': name the resource its members are about (' + '; '.join(dict.fromkeys(
+                          ' or '.join(sorted(named)) for named in unnamed)) + ') in the need; the same information about '
+                          'another resource is a separate need.')
         text = ' '.join(m['statement'] for m in members.values())
         normalized = ' '.join(text.split()).casefold()
         for field in (need.condition, need.scope, *conditions(need.statement)):
@@ -637,6 +727,8 @@ def process_needs(store, run, records, client, profile):
         # One bounded stream avoids semantic blocking on noisy typed labels. The
         # cap of 25 offered earlier groups can still miss distant duplicates.
         groups, audit = grouped_block(store, run, 'underlying_needs', passing, client, saved['consolidation_chunks'])
+    groups, apart = keep_resources_apart(groups)
+    audit = [*audit, *apart]
     step_saved(store, run, 'grouping', input_count=len(records), group_count=len(groups), audit=audit)
     needs, events = write_needs(store, run, groups, client, profile)
     step_saved(store, run, 'need_statement', input_count=len(records), need_count=len(needs),
