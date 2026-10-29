@@ -150,6 +150,11 @@ On 17 saved JRC and Stat runs:
   - a HealthDCAT need about the publisher of a "Catalogue or Dataset" may be written for
     one of the two.
 
+A written need is stored with its whitespace folded (`rq1-need-statement-v5`, 29 Oct), as
+its normalised statement is. Before, a rewrite that began with a space or held a line break
+failed its integrity check, and the need was set aside as `trace_incomplete`: once each in
+Stat `run-327cb53a` and `run-49298834`.
+
 ## Scope choices
 
 The form offers automatic resolution, use-case scoping or off. Automatic resolution
@@ -420,7 +425,7 @@ stronger alternatives hidden behind a group’s `unknown` obligation.
 | Source check | `rq1-original-source-v2.2` | Deterministic; every cited link checked |
 | Proposal support | `rq1-proposal-support-v2` (a rejection is judged again alone) | At most 25 proposals / 24,000 input characters; only own excerpt IDs allowed |
 | Grouping | `rq1-need-semantic-grouping-v3` (model grouping `rq1-semantic-consolidation-v4`; a group over unrelated resources is split by resource) | 40 candidates, 24,000 input characters, at most 25 prior offered groups; audited exact fallback for invalid model grouping |
-| Need writing / rewrite critic | `rq1-need-statement-v4` (a written need names a resource of each member it expresses) | At most 20 groups; 24,000 writer input characters; independent critic up to 48,000 characters; initial response plus one output correction; a failed rewrite is retried member by member, a single need keeps its statement |
+| Need writing / rewrite critic | `rq1-need-statement-v5` (a written need names a resource of each member it expresses; v5: its whitespace is folded) | At most 20 groups; 24,000 writer input characters; independent critic up to 48,000 characters; initial response plus one output correction; a failed rewrite is retried member by member, a single need keeps its statement |
 | Additional member checking | `rq1-need-membership-v1` | Large groups use a bounded writing basis (up to 20 members / 16,000 statement characters); every remaining member checked in batches up to 40 / 24,000 characters |
 | Base catalogue | `rq1-base-needs-catalogue-v2` | Frozen base-only file and checksum; optional hash-bound human phrase review |
 | Generic/domain and base search | `rq1-generic-domain-v4`, `rq1-base-needs-full-search-v3` | One need per call against the complete catalogue in chunks (first chunk 10–20 entries, then 20); a need listing several items is generic when one listed entry covers each item; a match without an entry ID counts as no match in that chunk |
