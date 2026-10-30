@@ -23,7 +23,7 @@ ROUTING_POLICY = 'rq1-needs-routing-v3'
 # Routing runs after needs processing, so a run saved under an earlier routing policy keeps it.
 EARLIER_ROUTING_POLICIES = ('rq1-needs-routing-v2',)
 POLICIES = {'generation_recovery': 'rq1-needs-row-recovery-v2', 'source_check': 'rq1-original-source-v2.2', 'proposal_support': 'rq1-proposal-support-v2', 'grouping': 'rq1-need-semantic-grouping-v3',
-            'need_statement': 'rq1-need-statement-v4', 'need_membership': 'rq1-need-membership-v1',
+            'need_statement': 'rq1-need-statement-v5', 'need_membership': 'rq1-need-membership-v1',
             'classification': 'rq1-generic-domain-v4', 'base_search': 'rq1-base-needs-full-search-v3', 'base_gap': 'rq1-base-gap-status-v2',
             'profile_scope': 'rq1-profile-scope-v9', 'dataset_applicability': 'rq1-dataset-applicability-v2', 'dataset_categories': CATEGORY_POLICY, 'selection': SELECTION_POLICY,
             'scoping': 'rq1-use-case-contribution-v1',
@@ -330,12 +330,16 @@ def statement_errors(answer, offered, profile, allow_modality=False):
             errors.append(need.group_id + ': account for each member exactly once.')
         if not any(m.expresses_need for m in need.members):
             errors.append(need.group_id + ': at least one member must express the written need.')
-        terms = detect_terms(need.statement, profile)
+        # rq1-need-statement-v5: the checks read the statement as need_record stores it, with its whitespace folded.
+        statement = ' '.join(need.statement.split())
+        if not statement:
+            errors.append(need.group_id + ': state the need; the statement is blank.')
+        terms = detect_terms(statement, profile)
         if terms: errors.append(need.group_id + ': forbidden vocabulary terms: ' + ', '.join(terms))
         # rq1-need-statement-v4: the need names a resource of each member it expresses (see need_resources).
         expressed = [members[m.member_id]['statement'] for m in need.members if m.expresses_need and m.member_id in members]
         parts = resource_parts(expressed)
-        written = need_resources(need.statement)
+        written = need_resources(statement)
         unnamed = [named for named in map(need_resources, expressed) if named and not named & written]
         if len(parts) > 1:
             errors.append(need.group_id + ': members about different resources (' + '; '.join(', '.join(sorted(p[0]))
@@ -346,10 +350,10 @@ def statement_errors(answer, offered, profile, allow_modality=False):
                           'another resource is a separate need.')
         text = ' '.join(m['statement'] for m in members.values())
         normalized = ' '.join(text.split()).casefold()
-        for field in (need.condition, need.scope, *conditions(need.statement)):
+        for field in (need.condition, need.scope, *conditions(statement)):
             if field and ' '.join(field.split()).casefold() not in normalized:
                 errors.append(need.group_id + ': added condition or scope: ' + field)
-        words=set(re.findall(r'\b(?:must|shall|should)\b', need.statement, re.I))
+        words=set(re.findall(r'\b(?:must|shall|should)\b', statement, re.I))
         obligation=offered[need.group_id].get('obligation','unknown')
         modality_ok=allow_modality and all((word.lower() in {'must','shall'} and obligation=='mandatory') or (word.lower()=='should' and obligation=='recommended') for word in words)
         if words and not modality_ok:
@@ -430,6 +434,10 @@ def checked_rewrites(store, run, payload, answer, members, client, profile, fail
 def need_record(store, run, kept, statement, condition, scope, rationale, profile, flags=()):
     """The consolidated need of the members kept, stated as statement; the members become inactive."""
     from .engine import record_from_observation, verify
+    # rq1-need-statement-v5: the need is stated with its whitespace folded, as record_from_observation folds the
+    # normalised statement. A rewrite starting with a space (Stat run-327cb53a, run-49298834) was stored unfolded, its
+    # integrity check failed, and the need was set aside as trace_incomplete.
+    statement = ' '.join(statement.split())
     obligation, alternatives = obligation_summary(kept)
     passing = [r for r in kept if (r.verification or {}).get('status') == 'pass']
     links = {canonical(l.model_dump(mode='json')): l for r in passing for l in supporting_links(r)}

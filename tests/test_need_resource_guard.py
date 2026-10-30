@@ -150,7 +150,7 @@ def test_the_written_need_names_the_resource_its_members_are_about(setup):
     active, events = needs.write_needs(store, run, [records], client, None)
     assert [n.need_statement for n in active] == ['Users can know the publisher of a catalogue.']
     writes = [d for name, d in client.calls if name == 'NeedStatements']
-    assert len(writes) == 2 and [e['action'] for e in events] == ['merge_need'] and events[0]['policy_version'] == 'rq1-need-statement-v4'
+    assert len(writes) == 2 and [e['action'] for e in events] == ['merge_need'] and events[0]['policy_version'] == 'rq1-need-statement-v5'
     calls = len(client.calls)
     needs.write_needs(store, run, [records], client, None)
     assert len(client.calls) == calls
