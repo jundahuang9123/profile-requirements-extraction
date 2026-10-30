@@ -10,7 +10,7 @@ import time
 from typing import get_args
 from pydantic import ValidationError
 from ..llm.client import LLMError, OutputTokenLimitError, OutputValidationError
-from .storage import RUN_PARTS, canonical, digest, now
+from .storage import canonical, digest, now
 from .call_log import recorded_calls
 
 POLICY = 'rq1-needs-row-recovery-v2'
@@ -69,7 +69,7 @@ def generation(store, run, step, payload, output_model, system, client, validate
              else [r[id_field] for r in payload[input_field]])
     if policy is None: policy=run.get('needs_policies',{}).get(step)
     key=digest([POLICY,step,policy,system,payload,output_model.model_json_schema(),model])
-    saved=store.get_run(run['run_id'],omit=tuple(p for p in RUN_PARTS if p!='need_chunks'))['need_chunks'].get(key)
+    saved=store.get_run_part_entry(run['run_id'],'need_chunks',key)
     if saved and saved.get('checkpoint_hash')!=digest({k:v for k,v in saved.items() if k!='checkpoint_hash'}):
         raise ValueError('Need row checkpoint integrity mismatch.')
     def materialize(audit):

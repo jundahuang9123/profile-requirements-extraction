@@ -10,7 +10,7 @@ import time
 from pydantic import Field
 from typing import Literal
 from .models import Contract, Observation, NormalizedIntent, ObligationAlternative, RequirementRecord
-from .storage import RUN_PARTS, canonical, digest, now, uid
+from .storage import canonical, digest, now, uid
 from .call_log import recorded_calls
 from .terms import collect_hints, detect_terms, union_hints
 from .semantic_consolidation import grouped_block, partition_exact, FAMILY_POLICY, NEED_SEMANTIC_POLICY
@@ -431,8 +431,9 @@ def checked_rewrites(store, run, payload, answer, members, client, profile, fail
     return NeedStatements(needs=accepted)
 
 
-def need_record(store, run, kept, statement, condition, scope, rationale, profile, flags=()):
-    """The consolidated need of the members kept, stated as statement; the members become inactive."""
+def need_record(store, run, kept, statement, condition, scope, rationale, profile, flags=(), cache=None):
+    """The consolidated need of the members kept, stated as statement; the members become inactive. cache holds
+    the parsed sources across the needs of one step, as in the verification stage."""
     from .engine import record_from_observation, verify
     # rq1-need-statement-v5: the need is stated with its whitespace folded, as record_from_observation folds the
     # normalised statement. A rewrite starting with a space (Stat run-327cb53a, run-49298834) was stored unfolded, its
@@ -458,7 +459,7 @@ def need_record(store, run, kept, statement, condition, scope, rationale, profil
     need.rq2_hints = union_hints([h for r in kept for h in collect_hints(r.raw_statement, r.evidence_links,
         profile, r.revision_id, r.rq2_hints)])
     refresh_need(need)
-    need.verification = verify(store, need, run['evidence_ids'])
+    need.verification = verify(store, need, run['evidence_ids'], cache)
     if not passing:
         need.verification.update(status='fail', parent_source_gate=False,
             message='No member passed original-source checks; human repair is required.')
@@ -472,6 +473,7 @@ def need_record(store, run, kept, statement, condition, scope, rationale, profil
 def write_needs(store, run, groups, client, profile):
     pending = [sorted(group, key=lambda r:r.revision_id) for group in groups]
     complete, events = [], []
+    cache = {}  # Each original source is parsed once per step, not once per need (Mobility: 5 PDFs of 3-15 s each).
     while pending:
         indexed = {uid('group', run['run_id'], [r.revision_id for r in group]): group for group in pending}
         pending = []
@@ -528,7 +530,7 @@ def write_needs(store, run, groups, client, profile):
                     return field if field and ' '.join(field.split()).casefold() in text else ''
                 need, group_id = need_record(store, run, members, statement, stated(member.need_condition),
                     stated(member.scope), 'Normalised statement kept unchanged: its term-free rewrite was unavailable '
-                    'or not shown to be lossless.', profile, flags=('rewrite_not_applied',))
+                    'or not shown to be lossless.', profile, flags=('rewrite_not_applied',), cache=cache)
                 complete.append(need)
                 events.append({'action':'keep_unwritten_need', 'policy_version':POLICIES['need_statement'], 'group_id':group_id,
                     'inputs':[member.revision_id], 'outputs':[need.revision_id], 'reason':rationale, 'rewrites':rewrites})
@@ -559,7 +561,7 @@ def write_needs(store, run, groups, client, profile):
                 # Strictly shrinking follow-up groups cannot loop indefinitely.
                 pending.extend([[r] for r in rejected])
                 need, group_id = need_record(store, run, kept, written.statement, written.condition, written.scope,
-                    'Term-free synthesis of source-checked proposals; independent rewrite critic passed.', profile)
+                    'Term-free synthesis of source-checked proposals; independent rewrite critic passed.', profile, cache=cache)
                 complete.append(need)
                 events.append({'action':'merge_need', 'policy_version':POLICIES['need_statement'], 'group_id':group_id,
                     'written_group_id':written.group_id, 'inputs':[r.revision_id for r in kept], 'outputs':[need.revision_id],
@@ -627,6 +629,7 @@ def check_proposal_support(store, run, records, client):
     from .engine import verify
     from .models import UnbackedObligation
     retained, decisions = [], []
+    cache = {}  # Each original source is parsed once for the step's source checks.
     policy = (run.get('needs_policies') or {}).get('proposal_support') or POLICIES['proposal_support']
     def payload_for(batch):
         return {'proposals': {r.revision_id: {'statement': r.normalized_statement,
@@ -662,7 +665,7 @@ def check_proposal_support(store, run, records, client):
             **({'confirmation':confirmation} if confirmation else {})}
         record.processing_flags.append('support_not_checked')
         record.normalized_intent.obligation_hint='unknown';refresh_need(record)
-        record.verification=verify(store,record,run['evidence_ids'],policy_version=POLICIES['source_check'])
+        record.verification=verify(store,record,run['evidence_ids'],cache,policy_version=POLICIES['source_check'])
         retained.append(record); decisions.append({'revision_id':record.revision_id,**record.proposal_support})
     for batch in bounded_batches(records, 25, payload_for):
         result = judged(batch, 'proposal_support')
@@ -694,7 +697,7 @@ def check_proposal_support(store, run, records, client):
                 record.unbacked_obligation = UnbackedObligation(label=record.normalized_intent.obligation_hint,
                     reason='quote_does_not_state_it')
                 record.normalized_intent.obligation_hint = 'unknown'; refresh_need(record)
-                record.verification = verify(store,record,run['evidence_ids'],policy_version=POLICIES['source_check'])
+                record.verification = verify(store,record,run['evidence_ids'],cache,policy_version=POLICIES['source_check'])
             decisions.append({'revision_id':record.revision_id, **record.proposal_support})
             if decision.support == 'not_supported':
                 aside_need(store,run,record,'not_supported_by_quote',decision.rationale)
@@ -1464,12 +1467,13 @@ def assess_needs(store, run, needs, client):
     from ..llm.step_models import for_step, model_identity
     client = for_step(client, 'assessment')
     assessed=0; blocked=0
+    cache={}  # Each original source is parsed once for the step's source checks.
     for need in needs:
         refresh_need(need)
-        need.verification=verify(store,need,run['evidence_ids'])
+        need.verification=verify(store,need,run['evidence_ids'],cache)
         key=digest([POLICIES['assessment'],need.content_hash,need.need_integrity_hash,
                     model_identity(client)])
-        saved=store.get_run(run['run_id'],omit=tuple(p for p in RUN_PARTS if p!='need_chunks'))['need_chunks'].get(key)
+        saved=store.get_run_part_entry(run['run_id'],'need_chunks',key)
         if saved:
             if saved.get('checkpoint_hash')!=digest({k:v for k,v in saved.items() if k!='checkpoint_hash'}):
                 raise ValueError('Need assessment checkpoint hash mismatch.')
