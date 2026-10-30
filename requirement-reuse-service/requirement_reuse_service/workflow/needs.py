@@ -10,7 +10,7 @@ import time
 from pydantic import Field
 from typing import Literal
 from .models import Contract, Observation, NormalizedIntent, ObligationAlternative, RequirementRecord
-from .storage import RUN_PARTS, canonical, digest, now, uid
+from .storage import canonical, digest, now, uid
 from .call_log import recorded_calls
 from .terms import collect_hints, detect_terms, union_hints
 from .semantic_consolidation import grouped_block, partition_exact, FAMILY_POLICY, NEED_SEMANTIC_POLICY
@@ -1473,7 +1473,7 @@ def assess_needs(store, run, needs, client):
         need.verification=verify(store,need,run['evidence_ids'],cache)
         key=digest([POLICIES['assessment'],need.content_hash,need.need_integrity_hash,
                     model_identity(client)])
-        saved=store.get_run(run['run_id'],omit=tuple(p for p in RUN_PARTS if p!='need_chunks'))['need_chunks'].get(key)
+        saved=store.get_run_part_entry(run['run_id'],'need_chunks',key)
         if saved:
             if saved.get('checkpoint_hash')!=digest({k:v for k,v in saved.items() if k!='checkpoint_hash'}):
                 raise ValueError('Need assessment checkpoint hash mismatch.')

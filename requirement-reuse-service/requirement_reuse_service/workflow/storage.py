@@ -136,6 +136,9 @@ class Store:
                   sequence INTEGER NOT NULL, run_id TEXT NOT NULL, part TEXT NOT NULL,
                   key TEXT NOT NULL, body TEXT NOT NULL, retired_at INTEGER NOT NULL);
                 CREATE INDEX IF NOT EXISTS run_part_history_by_run ON run_part_history (run_id, sequence);
+                -- A run's events are read without scanning every run's events; the scan held the read lock
+                -- for over 30 s on the 1.8 GB store and a live run's next write failed (30 Oct).
+                CREATE INDEX IF NOT EXISTS events_by_run ON events (run_id, sequence);
             ''')
             # Databases written by this layout before saved responses recorded their parts.
             if 'replay_sequence' not in {row[1] for row in db.execute('PRAGMA table_info(run_state)')}:
@@ -194,6 +197,26 @@ class Store:
                 return self._without_parts(run)
             run = self._attach_parts(db, run_id, run, omit=omit)
             return {key: value for key, value in run.items() if key not in omit}
+
+    def get_run_part_entry(self, run_id: str, part: str, key: str) -> Any:
+        """``get_run(run_id)[part].get(key)`` for a keyed part, reading only that entry's row.
+
+        A step looking up one saved answer otherwise reads the run document and every part row,
+        which grows with the run. A run whose document still holds the part inline (an earlier
+        layout) is read in full, where its inline and stored entries are merged.
+        """
+        if part in _LISTS or part in _VALUES or part not in RUN_PARTS:
+            raise ValueError(f'{part} is not a keyed part of a run.')
+        with self.connect() as db:
+            db.execute('BEGIN')
+            inline = db.execute("SELECT json_type(body, '$.' || ?) FROM objects WHERE kind='run' AND id=?",
+                                (part, run_id)).fetchone()
+            row = db.execute('SELECT body FROM run_parts WHERE run_id=? AND part=? AND key=?', (run_id, part, key)).fetchone()
+        if inline is None:
+            raise KeyError(f'run {run_id} not found')
+        if inline[0] is not None:
+            return self.get_run(run_id, omit=tuple(name for name in RUN_PARTS if name != part))[part].get(key)
+        return json.loads(row[0]) if row else None
 
     def mutate(self, run_id: str, expected_version: int | None, event_type: str,
                change: Callable[[dict], Any], *, key: str | None = None, payload: dict | None = None,
@@ -362,8 +385,11 @@ class Store:
                                [(run_id, name, key, canonical(item)) for key, item in entries.items()])
 
     def _read_parts(self, db, run_id: str, *, with_bodies: bool = False, omit: tuple[str, ...] = ()):
-        """Stored parts; with ``with_bodies`` also their serialized rows, to detect changes."""
-        rows = db.execute('SELECT part,key,body FROM run_parts WHERE run_id=? ORDER BY sequence', (run_id,))
+        """Stored parts; with ``with_bodies`` also their serialized rows, to detect changes.
+        Omitted parts are not read."""
+        names = [name for name in RUN_PARTS if name not in omit]
+        rows = db.execute(f'SELECT part,key,body FROM run_parts WHERE run_id=? AND part IN ({",".join("?" * len(names))}) '
+                          'ORDER BY sequence', (run_id, *names))
         return self._collect_parts(rows, with_bodies=with_bodies, omit=omit)
 
     @staticmethod
