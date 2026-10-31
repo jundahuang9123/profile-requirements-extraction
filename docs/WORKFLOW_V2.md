@@ -192,7 +192,7 @@ New endpoints use `/api/rq1/v2`; `/docs` exposes complete request contracts.
 | `GET /evidence/{id}` | Inspect source resolution and selectors |
 | `POST /runs` | Return 202 and queue execution; `discussion` is `automatic` or `on_request` |
 | `GET /runs`, `GET /runs/{id}` | Restore run state/progress; `?audit=false` leaves out the model-call log, machine snapshot and excerpt catalogues |
-| `POST /runs/{id}/cancel`, `/resume` | Cancel or resume interrupted unreviewed work |
+| `POST /runs/{id}/cancel`, `/resume` | Cancel or resume interrupted unreviewed work; resume accepts a run left in any stage, base review included, once its worker lease has expired |
 | `GET /runs/{id}/events`, `/export`, `/evaluation` | Audit events, saved review and metrics |
 | `POST /runs/{id}/assessments`, `/decisions`, `/requirements` | Human assessment, decisions/revisions and additions |
 | `POST /runs/{id}/deliberations` | Open a targeted case |
