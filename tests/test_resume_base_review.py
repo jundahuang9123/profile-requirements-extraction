@@ -1,7 +1,8 @@
 """A run whose worker stops during base review can be resumed; reviewed batches are not sent again."""
-import re
+import ast
+import inspect
+import textwrap
 import time
-from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -86,7 +87,24 @@ def test_resume_during_base_review_still_waits_for_an_active_lease(stopped_in_ba
     assert store.get('run', run_id)['status'] == 'reviewing_base'
 
 
-def test_every_status_a_stage_starts_with_can_be_resumed():
-    started = set(re.findall(r"start_stage\('[a-z_]+', '([a-z_]+)'\)", Path(engine.__file__).read_text()))
-    assert 'reviewing_base' in started
-    assert started <= api.RESUMABLE_STATUSES
+def statuses_set_by_the_worker():
+    """Every status execute_run writes: start_stage(stage, status), {'status': ...} updates and status=... keywords."""
+    tree = ast.parse(textwrap.dedent(inspect.getsource(engine.execute_run)))
+    found = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == 'start_stage':
+            assert len(node.args) == 2 and isinstance(node.args[1], ast.Constant), ast.unparse(node)
+            found.add(node.args[1].value)
+        elif isinstance(node, ast.Call):
+            found |= {k.value.value for k in node.keywords if k.arg == 'status' and isinstance(k.value, ast.Constant)}
+        elif isinstance(node, ast.Dict):
+            found |= {v.value for k, v in zip(node.keys, node.values)
+                      if isinstance(k, ast.Constant) and k.value == 'status' and isinstance(v, ast.Constant)}
+    return found
+
+
+def test_every_status_the_worker_leaves_a_run_in_can_be_resumed():
+    found = statuses_set_by_the_worker()
+    assert {'selecting_roles', 'reviewing_base', 'routing', 'deliberating'} <= found
+    # A stepwise pause continues through /continue, not /resume.
+    assert found - {'paused'} <= api.RESUMABLE_STATUSES
