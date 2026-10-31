@@ -111,6 +111,11 @@ def downloadable(value, enabled: bool, filename: str):
 
 # Audit parts the workbench does not display; the export always includes them.
 AUDIT_PARTS = ('model_calls', 'machine_snapshot', 'catalogues', 'assessment_reuse', 'consolidation_chunks', 'base_check_audit', 'need_chunks')
+# Statuses a run can be left in when its worker stops (a failure, a cancel or a server restart), plus
+# awaiting_human for failed roles or unfinished discussions. Every status a stage starts with belongs here,
+# reviewing_base included: a restart during base review otherwise strands the run.
+RESUMABLE_STATUSES = frozenset({'failed', 'cancelled', 'awaiting_human', 'created', 'selecting_roles', 'eliciting',
+                                'normalizing', 'verifying', 'consolidating', 'reviewing_base', 'routing', 'deliberating'})
 
 
 @router.post('/sources')
@@ -343,7 +348,7 @@ def resume_run(run_id: str, request: VersionRequest, background: BackgroundTasks
     def resume(run):
         if run.get('worker_id') and run.get('job_lease_until', 0) > time.time():
             raise ConflictError('A worker lease is active. Retry after it finishes or after the 15-minute restart lease expires.')
-        if run['status'] not in {'failed', 'cancelled', 'awaiting_human', 'created', 'selecting_roles', 'eliciting', 'normalizing', 'verifying', 'consolidating', 'routing', 'deliberating'} or run['decisions']:
+        if run['status'] not in RESUMABLE_STATUSES or run['decisions']:
             raise ValueError('Resume only an interrupted/partial unreviewed run; create a new run after adjudication.')
         # A run awaiting review can be resumed for failed roles or unfinished routed discussions.
         unfinished_discussion = any(case['status'] in UNFINISHED_CASE_STATES and not is_human_request(case)
