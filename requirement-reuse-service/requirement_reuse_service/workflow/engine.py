@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import json
+import hashlib
 from copy import deepcopy
 import time
 import uuid
@@ -19,7 +20,7 @@ from .output_recovery import LABEL_POLICY, reset_unknown_labels
 from .models import (BaselineRequest, CorpusSnapshot, DecisionRequest, DeliberationCase, DeriveRequest,
                      SpanElicitationResult, NeedSpanElicitationResult, NEEDS_ELICITATION_POLICY, ELICITATION_POLICY_VERSION, NORMALIZATION_POLICY_VERSION, NEEDS_NORMALIZATION_POLICY, EvidenceLink, EvidenceUnit, Finding, Observation,
                      NormalizedIntent, Qualification, RequirementRecord, RunRequest, SnapshotRequest, WorkflowRun)
-from .storage import ConflictError, RUN_PARTS, Store, canonical, digest, now, uid
+from .storage import ConflictError, MAX_VALUE_BYTES, RUN_PARTS, Store, canonical, digest, now, uid
 from .call_log import recorded_calls, report_call
 from .role_selection import initial_manifest, panel_roles, select_roles
 from .semantic_consolidation import EXACT_POLICY, SEMANTIC_POLICY, NEED_SEMANTIC_POLICY, SEMANTIC_POLICIES
@@ -86,7 +87,7 @@ STAGE_RESULT_FIELDS = {
     'consolidation': ['requirements', 'active_revision_ids', 'consolidation_events', 'conflicts', 'consolidation_policy_version'],
     'base_review': ['requirements', 'active_revision_ids'],
     'deliberation': ['deliberations'], 'adjudication': ['requirements', 'decisions', 'assessment_history'],
-    'baseline': ['baselines'],
+    'baseline': ['baseline_summaries'],
 }
 RUN_POLICY_FIELDS = ('elicitation_policy_version', 'normalization_policy_version',
                      'consolidation_policy_version', 'base_profile_id', 'base_profile_sha256',
@@ -364,8 +365,8 @@ def pin_base_needs_catalogue(run: WorkflowRun):
 
 def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='local-reviewer') -> dict:
     """Restart from a frozen panel or extraction without mutating the source."""
-    # A trial starts with no attempts of its own; the source's are not copied.
-    source = store.get_run(source_run_id, omit=('attempt_history',))
+    # A trial starts with no attempts or baselines of its own; the source's are not copied.
+    source = store.get_run(source_run_id, omit=('attempt_history', 'baselines'))
     if source['version'] != request.expected_version:
         raise ConflictError('Source run changed. Refresh before deriving a run.')
     if source.get('worker_id') and source.get('job_lease_until', 0) > time.time():
@@ -2035,7 +2036,20 @@ def decide(store: Store, run_id: str, request: DecisionRequest, actor: str) -> d
                         key=request.idempotency_key, payload=request.model_dump(mode='json'))
 
 
+def baseline_too_large(size, at_least=''):
+    return ValueError(f'This baseline would take {at_least}{size / 1e6:,.0f} MB, more than the run store keeps in one '
+                      f'record ({MAX_VALUE_BYTES / 1e6:,.0f} MB). It was not published.')
+
+
 def publish_baseline(store: Store, run_id: str, request: BaselineRequest, actor: str) -> dict:
+    # The model calls and the machine snapshot appear verbatim in a baseline: refuse before loading them.
+    copied = store.part_bytes(run_id, ('model_calls', 'machine_snapshot'))
+    if copied + 1_000 > MAX_VALUE_BYTES:
+        def refuse(run):
+            raise baseline_too_large(copied, 'at least ')
+        # Through mutate, so that a command repeated under its key still returns its saved response.
+        return store.mutate(run_id, request.expected_version, 'baseline_published', refuse, hydrate=True,
+                            key=request.idempotency_key, payload=request.model_dump(mode='json'))
     def apply(run):
         records = active_records(run, request.revision_ids)
         if any(c['status'] != 'resolved' and set(c['revision_ids']) & set(request.revision_ids) for c in run['conflicts']):
@@ -2055,7 +2069,7 @@ def publish_baseline(store: Store, run_id: str, request: BaselineRequest, actor:
             if not decision or decision['action'] != 'accept' or record.content_hash not in decision['revision_hashes']:
                 raise ValueError('Missing revision-bound human acceptance decision.')
         snapshot = store.get('snapshot', run['snapshot_id'])
-        payload = {'schema_version': 'rq1-validated-requirement-baseline-v2', 'name': request.name,
+        payload = {'schema_version': 'rq1-validated-requirement-baseline-v3', 'name': request.name,
             'workflow_version': run['workflow_version'], 'snapshot': snapshot,
             'requirements': sorted([r.model_dump(mode='json') for r in records], key=lambda r: r['revision_id']),
             'provenance': {'run_id': run_id, 'role_runs': run['role_runs'], 'observations': run['observations'],
@@ -2063,21 +2077,56 @@ def publish_baseline(store: Store, run_id: str, request: BaselineRequest, actor:
                            'consolidation_events': run['consolidation_events'], 'conflicts': run['conflicts'],
                            'deliberations': run['deliberations'], 'assessment_history': run.get('assessment_history', []),
                            'implementation_hash': run.get('implementation_hash'), 'strategy': run['strategy'],
-                           'active_revision_ids': run['active_revision_ids'], 'attempt_history': run.get('attempt_history', [])},
+                           'active_revision_ids': run['active_revision_ids'],
+                           # The earlier attempts stay in the run (/attempts, the export): v3 records them, v2 copied them.
+                           'attempt_history_record': attempt_history_record(store, run_id)},
             'sources': [store.get('source', sid) for sid in snapshot['source_version_ids']],
             'evidence_units': [store.get('evidence', eid) for eid in run['evidence_ids']],
             'excluded_unresolved': [r for r in run['requirements'] if r['revision_id'] not in request.revision_ids],
             'published_by': actor}
         payload['provenance'].update(machine_snapshot=run.get('machine_snapshot', {}), model_calls=run.get('model_calls', []),
                                      role_manifest=run.get('role_manifest'))
-        payload['baseline_hash'] = digest(payload)
+        body = canonical(payload).encode()          # digest(payload), kept for the size check
+        if len(body) + 1_000 > MAX_VALUE_BYTES:
+            raise baseline_too_large(len(body))
+        payload['baseline_hash'] = hashlib.sha256(body).hexdigest()
+        del body
         payload['baseline_id'] = uid('baseline', payload['baseline_hash'])
+        summary = baseline_summary(payload)
+        run['baseline_summaries'] = [*baseline_summaries(store, run, with_inline=True), summary]
         # Save baseline inside the run transaction, then expose via saved-run lookup.
         run.setdefault('baselines', []).append(payload)
         run['stages']['baseline'] = 'completed'
         if run['stages']['adjudication'] == 'completed':
             run['status'] = 'completed'
-        return payload
-    # The baseline copies the model calls, machine snapshot and attempt history: load the parts.
+        return summary
+    # The baseline copies the model calls and the machine snapshot: load only those parts.
     return store.mutate(run_id, request.expected_version, 'baseline_published', apply, parts=True, hydrate=True,
+                        omit=tuple(p for p in RUN_PARTS if p not in {'model_calls', 'machine_snapshot'}),
                         key=request.idempotency_key, payload=request.model_dump(mode='json'))
+
+
+def attempt_history_record(store, run_id):
+    """The run's earlier attempts by number and by the SHA-256 of their saved list (digest of the list), read
+    one attempt at a time: what a baseline records instead of a copy."""
+    hasher, count = hashlib.sha256(b'['), 0
+    for attempt in store.run_part_bodies(run_id, 'attempt_history'):
+        hasher.update((',' if count else '').encode() + attempt.encode())
+        count += 1
+    hasher.update(b']')
+    return {'count': count, 'sha256': hasher.hexdigest()}
+
+
+def baseline_summary(baseline):
+    """What views and command responses show of a published baseline; the baseline itself is at /baselines/{id}."""
+    return {key: baseline.get(key) for key in ('baseline_id', 'baseline_hash', 'name')}
+
+
+def baseline_summaries(store, run, with_inline=False):
+    """The run's published baselines in short. For a run saved before the run kept them, they are read from its
+    baseline rows in SQL, without the run document; a view of a run still in the layout before parts lists its
+    inline baselines once its next update has moved them to rows. ``with_inline`` (publishing, which saves the
+    list) also reads those from the saved document."""
+    if 'baseline_summaries' in run:
+        return run['baseline_summaries']
+    return store.part_fields(run['run_id'], 'baselines', ('baseline_id', 'baseline_hash', 'name'), with_inline=with_inline)

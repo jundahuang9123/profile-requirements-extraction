@@ -6345,6 +6345,14 @@
           "default": null,
           "title": "Base Registry Policy Version"
         },
+        "baseline_summaries": {
+          "description": "One entry per published baseline: baseline_id, baseline_hash and name. Views and command responses carry these; the full baselines are at /baselines/{id} and in the export.",
+          "items": {
+            "type": "object"
+          },
+          "title": "Baseline Summaries",
+          "type": "array"
+        },
         "baselines": {
           "items": {
             "type": "object"

@@ -57,7 +57,12 @@ def test_end_to_end_review_baseline_restores_and_exports_without_rerun(context):
     published = client.post(f'/api/rq1/v2/runs/{run["run_id"]}/baselines', json={
         'expected_version': run['version'], 'idempotency_key': 'baseline', 'revision_ids': [record['revision_id']]})
     assert published.status_code == 200, published.text
-    baseline = published.json()['result']
+    # The response names the baseline; the baseline itself is downloaded by its id.
+    summary = published.json()['result']
+    attachment = client.get(f'/api/rq1/v2/runs/{run["run_id"]}/baselines/{summary["baseline_id"]}?download=true')
+    baseline = attachment.json()
+    assert summary == {key: baseline[key] for key in ('baseline_id', 'baseline_hash', 'name')}
+    assert published.json()['run']['baseline_summaries'] == [summary] and 'baselines' not in published.json()['run']
     assert baseline['requirements'][0]['lifecycle_state'] == 'accepted'
     assert baseline['sources'][0]['raw_base64'] and baseline['evidence_units']
     assert baseline['provenance']['observations'] and baseline['provenance']['decisions']
@@ -72,9 +77,7 @@ def test_end_to_end_review_baseline_restores_and_exports_without_rerun(context):
     assert metrics['machine']['support_distribution'] == {'uncertain': 1}
     assert metrics['human_accepted']['count'] == 1
     assert baseline['provenance']['machine_snapshot']['requirements'][0]['lifecycle_state'] == 'awaiting_human'
-    attachment = client.get(f'/api/rq1/v2/runs/{run["run_id"]}/baselines/{baseline["baseline_id"]}?download=true')
-    assert attachment.json() == baseline
-    assert attachment.headers['content-disposition'] == 'attachment; filename="rq1-validated-baseline-v2.json"'
+    assert attachment.headers['content-disposition'] == 'attachment; filename="rq1-validated-baseline-v3.json"'
 
 
 def test_human_added_need_is_not_counted_as_machine_output(context):

@@ -237,7 +237,7 @@ def test_derive_restores_snapshot_and_stepwise_pauses_before_discussion(setup):
 
 
 @pytest.mark.parametrize('change',[
-    {'status':'deliberating'}, {'decisions':[{'test':'decision'}]}, {'baselines':[{'id':'b'}]},
+    {'status':'deliberating'}, {'decisions':[{'test':'decision'}]}, {'baselines':[{'id':'b'}]}, {'baseline_summaries':[{'baseline_id':'b'}]},
     {'request':{'stakeholder_workflow':'independent'}},
 ])
 def test_base_derivation_rejects_unsafe_source(setup,change):

@@ -1639,7 +1639,7 @@ def restore_need(store,run_id,request,actor):
 
 
 def needs_export(store,run_id):
-    run=store.get_run(run_id,omit=('attempt_history',))
+    run=store.get_run(run_id,omit=('attempt_history','baselines'))
     if run['request'].get('output_form')!='needs':
         raise ValueError('This historical run has candidate outputs. Derive a separate needs trial to export needs.json.')
     by_revision={r['revision_id']:r for r in run['requirements']}
