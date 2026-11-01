@@ -2046,7 +2046,11 @@ def publish_baseline(store: Store, run_id: str, request: BaselineRequest, actor:
     # The model calls and the machine snapshot appear verbatim in a baseline: refuse before loading them.
     copied = store.part_bytes(run_id, ('model_calls', 'machine_snapshot'))
     if copied + 1_000 > MAX_VALUE_BYTES:
-        raise baseline_too_large(copied, 'at least ')
+        def refuse(run):
+            raise baseline_too_large(copied, 'at least ')
+        # Through mutate, so that a command repeated under its key still returns its saved response.
+        return store.mutate(run_id, request.expected_version, 'baseline_published', refuse, hydrate=True,
+                            key=request.idempotency_key, payload=request.model_dump(mode='json'))
     def apply(run):
         records = active_records(run, request.revision_ids)
         if any(c['status'] != 'resolved' and set(c['revision_ids']) & set(request.revision_ids) for c in run['conflicts']):
@@ -2120,8 +2124,9 @@ def baseline_summary(baseline):
 
 
 def baseline_summaries(store, run):
-    """The run's published baselines in short. For a run saved before the run kept them, they are taken from its
-    baselines, read without the run document again."""
+    """The run's published baselines in short. For a run saved before the run kept them, they are read from its
+    baseline rows in SQL, without the run document; a run still in the layout before parts lists its inline
+    baselines once its next update has moved them to rows."""
     if 'baseline_summaries' in run:
         return run['baseline_summaries']
-    return [baseline_summary(json.loads(baseline)) for baseline in store.run_part_bodies(run['run_id'], 'baselines')]
+    return store.part_fields(run['run_id'], 'baselines', ('baseline_id', 'baseline_hash', 'name'))

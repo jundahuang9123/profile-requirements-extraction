@@ -5,6 +5,7 @@ responses list baselines by ``baseline_summaries``. The baseline itself is read 
 full view and in the export."""
 import json
 import sqlite3
+from contextlib import contextmanager
 from collections import Counter
 
 import pytest
@@ -144,11 +145,17 @@ def test_a_run_published_before_it_kept_summaries_still_lists_its_baselines(cont
         del body['baseline_summaries']
         db.execute("UPDATE objects SET body=? WHERE kind='run' AND id=?", (canonical(body), run['run_id']))
     base = f'/api/rq1/v2/runs/{run["run_id"]}'
-    reads = Counter()
-    get_run = Store.get_run
-    monkeypatch.setattr(Store, 'get_run', lambda self, *a, **k: (reads.update(['run']), get_run(self, *a, **k))[1])
+    statements = []
+    connect = Store.connect
+    @contextmanager
+    def traced(self):
+        with connect(self) as db:
+            db.set_trace_callback(statements.append)
+            yield db
+    monkeypatch.setattr(Store, 'connect', traced)
     view = client.get(base + '?audit=false').json()
-    assert view['baseline_summaries'] == [summary] and reads['run'] == 1      # the run document is read once
+    assert view['baseline_summaries'] == [summary]
+    assert sum('FROM objects' in s for s in statements) == 1      # the run document is read once
     assert client.get(base + '/stages/baseline').json()['results'] == {'baseline_summaries': [summary]}
     # The run's next baseline keeps the earlier one in the list.
     second = publish(client, view, record, key='second', name='Second').json()
@@ -215,3 +222,16 @@ def test_the_trace_of_a_trial_reads_no_baseline_of_the_run_it_was_derived_from(s
     engine.execute_run(store, child['run_id'], split_client())
     assert part_reads['rows']['baselines'] == 0
     assert store.get('run', child['run_id'])['stage_results']['traceability']
+
+
+def test_a_repeated_publish_returns_its_saved_response_even_where_a_new_one_is_refused(context, monkeypatch):
+    store, client = context
+    run, record = accepted_run(context)
+    first = publish(client, run, record, key='once')
+    assert first.status_code == 200, first.text
+    # The run grows past the size a new baseline may take.
+    store.append_run_part(run['run_id'], 'model_calls', {'call_id': 'later', 'output': 'x' * 2_000})
+    monkeypatch.setattr(engine, 'MAX_VALUE_BYTES', store.part_bytes(run['run_id'], ('model_calls', 'machine_snapshot')))
+    assert publish(client, run, record, key='once').json() == first.json()
+    refused = publish(client, first.json()['run'], record, key='again', name='Again')
+    assert refused.status_code == 422 and 'at least' in refused.text
