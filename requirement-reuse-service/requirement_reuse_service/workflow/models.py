@@ -618,6 +618,9 @@ class WorkflowRun(Contract):
     assessment_history: list[dict[str, Any]] = Field(default_factory=list)
     attempt_history: list[dict[str, Any]] = Field(default_factory=list)
     baselines: list[dict[str, Any]] = Field(default_factory=list)
+    baseline_summaries: list[dict[str, Any]] = Field(default_factory=list, description=(
+        'One entry per published baseline: baseline_id, baseline_hash and name. Views and command responses '
+        'carry these; the full baselines are at /baselines/{id} and in the export.'))
     machine_snapshot: dict[str, Any] = Field(default_factory=dict)
     model_calls: list[dict[str, Any]] = Field(default_factory=list)
     catalogues: dict[str, list[dict[str, Any]]] = Field(default_factory=dict, description=(

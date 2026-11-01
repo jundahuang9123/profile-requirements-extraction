@@ -393,7 +393,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
             <button className="workflow-primary" disabled={busy || !accepted.length} onClick={() => void act(async () => {
               const result = await workflowApi<{ run: Run; result: Baseline }>(`/runs/${run.run_id}/baselines`, { expected_version: run.version, idempotency_key: commandKey(), revision_ids: accepted, name: 'Validated profile requirements' }); setRun(result.run); setRuns(previous => previous.map(item => item.run_id === run.run_id ? { ...item, status: result.run.status, version: result.run.version } : item)); onStatus('Validated baseline saved.');
             })}>Publish {accepted.length} accepted requirements</button>
-            {run.baselines?.map(baseline => <div className="workflow-toolbar" key={baseline.baseline_id}><span>{baseline.name}</span><a className="workflow-download" href={`/api/rq1/v2/runs/${run.run_id}/baselines/${baseline.baseline_id}?download=true`}>Download baseline</a></div>)}
+            {run.baseline_summaries?.map(baseline => <div className="workflow-toolbar" key={baseline.baseline_id}><span>{baseline.name}</span><a className="workflow-download" href={`/api/rq1/v2/runs/${run.run_id}/baselines/${baseline.baseline_id}?download=true`}>Download baseline</a></div>)}
           </section>
     </>}
     {!run && !['acquisition', 'decomposition', 'role_selection'].includes(page) && <section className="workflow-empty"><h2>No saved run selected</h2><p>Choose a saved run above, or configure roles to start a new workflow.</p><button onClick={() => navigate('role_selection')}>Configure workflow</button></section>}

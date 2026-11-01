@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import json
+import hashlib
 from copy import deepcopy
 import time
 import uuid
@@ -19,7 +20,7 @@ from .output_recovery import LABEL_POLICY, reset_unknown_labels
 from .models import (BaselineRequest, CorpusSnapshot, DecisionRequest, DeliberationCase, DeriveRequest,
                      SpanElicitationResult, NeedSpanElicitationResult, NEEDS_ELICITATION_POLICY, ELICITATION_POLICY_VERSION, NORMALIZATION_POLICY_VERSION, NEEDS_NORMALIZATION_POLICY, EvidenceLink, EvidenceUnit, Finding, Observation,
                      NormalizedIntent, Qualification, RequirementRecord, RunRequest, SnapshotRequest, WorkflowRun)
-from .storage import ConflictError, RUN_PARTS, Store, canonical, digest, now, uid
+from .storage import ConflictError, MAX_VALUE_BYTES, RUN_PARTS, Store, canonical, digest, now, uid
 from .call_log import recorded_calls, report_call
 from .role_selection import initial_manifest, panel_roles, select_roles
 from .semantic_consolidation import EXACT_POLICY, SEMANTIC_POLICY, NEED_SEMANTIC_POLICY, SEMANTIC_POLICIES
@@ -86,7 +87,7 @@ STAGE_RESULT_FIELDS = {
     'consolidation': ['requirements', 'active_revision_ids', 'consolidation_events', 'conflicts', 'consolidation_policy_version'],
     'base_review': ['requirements', 'active_revision_ids'],
     'deliberation': ['deliberations'], 'adjudication': ['requirements', 'decisions', 'assessment_history'],
-    'baseline': ['baselines'],
+    'baseline': ['baseline_summaries'],
 }
 RUN_POLICY_FIELDS = ('elicitation_policy_version', 'normalization_policy_version',
                      'consolidation_policy_version', 'base_profile_id', 'base_profile_sha256',
@@ -364,8 +365,9 @@ def pin_base_needs_catalogue(run: WorkflowRun):
 
 def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='local-reviewer') -> dict:
     """Restart from a frozen panel or extraction without mutating the source."""
-    # A trial starts with no attempts of its own; the source's are not copied.
-    source = store.get_run(source_run_id, omit=('attempt_history',))
+    # A trial starts with no attempts or baselines of its own; the source's are not copied.
+    source = store.get_run(source_run_id, omit=('attempt_history', 'baselines'))
+    source['baseline_summaries'] = baseline_summaries(store, source)
     if source['version'] != request.expected_version:
         raise ConflictError('Source run changed. Refresh before deriving a run.')
     if source.get('worker_id') and source.get('job_lease_until', 0) > time.time():
@@ -2070,14 +2072,35 @@ def publish_baseline(store: Store, run_id: str, request: BaselineRequest, actor:
             'published_by': actor}
         payload['provenance'].update(machine_snapshot=run.get('machine_snapshot', {}), model_calls=run.get('model_calls', []),
                                      role_manifest=run.get('role_manifest'))
-        payload['baseline_hash'] = digest(payload)
+        body = canonical(payload).encode()          # digest(payload), kept for the size check
+        if len(body) + 1_000 > MAX_VALUE_BYTES:
+            raise ValueError(f'This baseline would take {len(body) / 1e6:,.0f} MB, more than the run store keeps in one '
+                             f'record ({MAX_VALUE_BYTES / 1e6:,.0f} MB). It was not published.')
+        payload['baseline_hash'] = hashlib.sha256(body).hexdigest()
+        del body
         payload['baseline_id'] = uid('baseline', payload['baseline_hash'])
+        summary = baseline_summary(payload)
+        run['baseline_summaries'] = [*baseline_summaries(store, run), summary]
         # Save baseline inside the run transaction, then expose via saved-run lookup.
         run.setdefault('baselines', []).append(payload)
         run['stages']['baseline'] = 'completed'
         if run['stages']['adjudication'] == 'completed':
             run['status'] = 'completed'
-        return payload
-    # The baseline copies the model calls, machine snapshot and attempt history: load the parts.
+        return summary
+    # The baseline copies the model calls, machine snapshot and attempt history: load only those parts.
     return store.mutate(run_id, request.expected_version, 'baseline_published', apply, parts=True, hydrate=True,
+                        omit=tuple(p for p in RUN_PARTS if p not in {'model_calls', 'machine_snapshot', 'attempt_history'}),
                         key=request.idempotency_key, payload=request.model_dump(mode='json'))
+
+
+def baseline_summary(baseline):
+    """What views and command responses show of a published baseline; the baseline itself is at /baselines/{id}."""
+    return {key: baseline.get(key) for key in ('baseline_id', 'baseline_hash', 'name')}
+
+
+def baseline_summaries(store, run):
+    """The run's published baselines in short. For a run published before the run kept them, they are taken
+    from its baselines."""
+    if 'baseline_summaries' in run:
+        return run['baseline_summaries']
+    return [baseline_summary(b) for b in store.get_run(run['run_id'], omit=tuple(p for p in RUN_PARTS if p != 'baselines'))['baselines']]

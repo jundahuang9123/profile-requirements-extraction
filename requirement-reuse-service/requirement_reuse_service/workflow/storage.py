@@ -8,12 +8,13 @@ run rewrites only the document. The run's status and worker lease are also kept 
 small state row, so that extending the lease before each model call writes only that row.
 ``get`` / ``get_run`` assemble the complete run, so readers see the same structure as
 before; ``mutate(..., hydrate=True)`` returns it without the attempt history, which every
-resume extends by a copy of the run's working state. Runs saved by earlier versions keep their parts
+resume extends by a copy of the run's working state, and without the published baselines,
+which copy the run's model calls and attempts. Runs saved by earlier versions keep their parts
 inline until their next update, which moves the parts to rows.
 
 A command repeated under its idempotency key returns its first response unchanged: the run
 document saved with the command and the parts as they were at that moment, without the attempt
-history (also for a command first applied before responses left it out). A response saved by
+history and the baselines (also for a command first applied before responses left them out). A response saved by
 the layout before parts, with its parts inline, is returned exactly as saved. To make that
 possible, a part row that a saved response included is kept in ``run_part_history`` when a
 later update replaces or removes it.
@@ -63,8 +64,12 @@ RUN_PARTS = {'model_calls': list, 'attempt_history': list, 'baselines': list, 'b
 _LISTS = {name for name, shape in RUN_PARTS.items() if shape is list}
 _VALUES = {'machine_snapshot'}          # stored as one row; every other dict is keyed per entry
 # Every resume adds a copy of the run's working state to its attempt history, so a run resumed often
-# carries far more history than current state. Command responses leave it out; get_run includes it.
-NOT_IN_RESPONSES = ('attempt_history',)
+# carries far more history than current state; a published baseline copies the run's model calls and
+# attempts. Command responses leave both out (the run lists its baselines in baseline_summaries);
+# get_run includes them.
+NOT_IN_RESPONSES = ('attempt_history', 'baselines')
+# SQLite's default SQLITE_MAX_LENGTH: a larger value is refused when it is saved.
+MAX_VALUE_BYTES = 1_000_000_000
 _MISSING = object()
 
 
@@ -262,8 +267,8 @@ class Store:
         to a list part, setting or removing entries of ``stage_results``, and assigning a
         part are saved without loading the part. With ``parts=True`` the parts are loaded
         and any change to them is saved; parts named in ``omit`` stay write-only. With
-        ``hydrate=True`` the returned run includes the parts but the attempt history, as API
-        responses need.
+        ``hydrate=True`` the returned run includes the parts but those in ``NOT_IN_RESPONSES``,
+        as API responses need.
 
         A command repeated with the same ``key`` and payload is not applied again; it returns
         the response of its first application (see ``_replayed``).

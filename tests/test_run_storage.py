@@ -258,7 +258,7 @@ def test_workbench_view_leaves_out_audit_parts_only(setup):
     view = http.get(f'/api/rq1/v2/runs/{run["run_id"]}?audit=false').json()
     assert full['model_calls'] and full['machine_snapshot'] and full['catalogues']
     assert view == {key: value for key, value in full.items() if key not in api.AUDIT_PARTS}
-    assert view['stage_results'] and 'baselines' in view and 'attempt_history' not in view
+    assert view['stage_results'] and view['baseline_summaries'] == [] and 'baselines' not in view and 'attempt_history' not in view
 
 
 # A command repeated under its idempotency key returns its first response unchanged.

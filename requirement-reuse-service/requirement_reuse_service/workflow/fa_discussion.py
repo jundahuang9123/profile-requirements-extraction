@@ -2162,7 +2162,7 @@ def derive_discussion_run(store,source,request,actor):
     if any(source['stages'].get(s)!='completed' for s in
            ('acquisition','decomposition','role_selection','elicitation','normalization','verification','consolidation')):
         raise ValueError('Discussion continuation requires completed upstream stages.')
-    if source.get('decisions') or source.get('baselines'):
+    if source.get('decisions') or source.get('baselines') or source.get('baseline_summaries'):
         raise ValueError('Cannot continue a run with human decisions or published baselines.')
     if not source.get('deliberations') or not source.get('stakeholder_audit',{}).get('fa_discussion_plan'):
         raise ValueError('No frozen discussion cases to continue.')

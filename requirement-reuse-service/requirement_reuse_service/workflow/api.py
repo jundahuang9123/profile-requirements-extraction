@@ -14,7 +14,7 @@ from pydantic import BaseModel
 from .engine import (HUMAN_REQUEST_PREFIX, UNFINISHED_CASE_STATES, active_records, configured_client, decide,
                      execute_case, execute_run, freeze_snapshot, is_human_request, lexical_relation, make_case, new_run,
                      publish_baseline, ensure_elicitation_resumable, qualify_record, record_from_observation, verify, derive_run,
-                     apply_base_check, retain_base_findings)
+                     apply_base_check, retain_base_findings, baseline_summaries)
 from .evidence import register_source, resolve_evidence
 from .models import (AdditionRequest, AssessmentRequest, BaselineRequest, DecisionRequest, EvidenceUnit,
                      MessageRequest, RestoreRequest, Observation, RunRequest, DeriveRequest, SnapshotRequest, SourceRequest)
@@ -110,9 +110,9 @@ def downloadable(value, enabled: bool, filename: str):
     return JSONResponse(value)
 
 
-# Audit parts the workbench does not display; the export always includes them. The attempt history
-# (NOT_IN_RESPONSES) outgrows the rest of a run that was resumed often: no workbench read loads it. A
-# published baseline keeps its own copy in its provenance, as it keeps the model-call log.
+# Audit parts the workbench does not display; the export always includes them. The attempt history and
+# the published baselines, which copy the model-call log and the attempts (NOT_IN_RESPONSES), outgrow
+# the rest of a run: no workbench read loads them, and the workbench lists baselines by baseline_summaries.
 AUDIT_PARTS = ('model_calls', 'machine_snapshot', 'catalogues', 'assessment_reuse', 'consolidation_chunks', 'base_check_audit', 'need_chunks',
                *NOT_IN_RESPONSES)
 # Statuses a run can be left in when its worker stops (a failure, a cancel or a server restart), plus
@@ -235,8 +235,15 @@ def create_run(request: RunRequest, background: BackgroundTasks):
 def get_run(run_id: str, audit: bool = True, download: bool = False):
     """The saved run. ``audit=false`` leaves out the audit parts (``AUDIT_PARTS``), which the
     workbench does not display: among them the model-call log, the frozen machine snapshot, the
-    excerpt catalogues and the earlier attempts (``/attempts``)."""
-    return downloadable(translate(lambda: Store().get_run(run_id, omit=() if audit else AUDIT_PARTS)), download, f'{run_id}.json')
+    excerpt catalogues, the earlier attempts (``/attempts``) and the published baselines, which it
+    lists by ``baseline_summaries`` (``/baselines/{id}``)."""
+    def read():
+        store = Store()
+        run = store.get_run(run_id, omit=() if audit else AUDIT_PARTS)
+        if not audit:
+            run['baseline_summaries'] = baseline_summaries(store, run)
+        return run
+    return downloadable(translate(read), download, f'{run_id}.json')
 
 
 @router.post('/runs/{run_id}/derive', status_code=202)
@@ -307,6 +314,7 @@ def export_stage(run_id: str, stage: str, download: bool = False):
     def read():
         store = Store()
         run = store.get_run(run_id, omit=NOT_IN_RESPONSES)
+        run['baseline_summaries'] = baseline_summaries(store, run)
         from .trace_links import stage_results
         results = stage_results(run, stage)
         checkpoint = run.get('stage_results', {}).get(stage) if stage not in {'adjudication', 'baseline'} else None

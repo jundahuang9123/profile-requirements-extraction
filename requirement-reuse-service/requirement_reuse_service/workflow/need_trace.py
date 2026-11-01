@@ -52,7 +52,7 @@ class TraceIndex:
             source = (self.origin_run.get('derived_from') or {}).get('run_id')
             if not source: break
             try: self.origin_run = store.get_run(source, omit=('need_chunks', 'deliberations', 'stage_results', 'machine_snapshot',
-                                                                 'requirements', 'stakeholder_audit', 'catalogues', 'attempt_history'))
+                                                                 'requirements', 'stakeholder_audit', 'catalogues', 'attempt_history', 'baselines'))
             except Exception: break
             self.earlier_runs.append(self.origin_run); hops += 1
         self.run_ids = [run.get('run_id'), *[r.get('run_id') for r in self.earlier_runs]]

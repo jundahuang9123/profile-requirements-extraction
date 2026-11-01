@@ -217,9 +217,7 @@ def test_a_baseline_is_read_without_the_earlier_attempts_of_its_run(context, att
     published = client.post(f'/api/rq1/v2/runs/{run["run_id"]}/baselines', json={
         'expected_version': run['version'], 'idempotency_key': 'baseline', 'revision_ids': [record['revision_id']]})
     assert published.status_code == 200, published.text
-    baseline = published.json()['result']
-    # The baseline keeps its own copy of the attempts in its provenance, as it keeps the model-call log.
-    assert baseline['provenance']['attempt_history'] == [{'status': 'failed'}]
     attempt_reads['on'] = True
-    served = client.get(f'/api/rq1/v2/runs/{run["run_id"]}/baselines/{baseline["baseline_id"]}')
-    assert served.json() == baseline and attempt_reads['rows'] == 0
+    served = client.get(f'/api/rq1/v2/runs/{run["run_id"]}/baselines/{published.json()["result"]["baseline_id"]}').json()
+    # The baseline keeps its own copy of the attempts in its provenance, as it keeps the model-call log.
+    assert served['provenance']['attempt_history'] == [{'status': 'failed'}] and attempt_reads['rows'] == 0

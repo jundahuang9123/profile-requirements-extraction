@@ -458,7 +458,7 @@ def derive_base_review_run(store,source,request,actor):
     upstream=('acquisition','decomposition','role_selection','elicitation','normalization','verification','consolidation')
     if any(source['stages'].get(s)!='completed' for s in upstream) or not source.get('machine_snapshot'):
         raise ValueError('Completed stages through consolidation and machine_snapshot required.')
-    if source.get('decisions') or source.get('baselines'):raise ValueError('Human decisions or baselines prevent derivation.')
+    if source.get('decisions') or source.get('baselines') or source.get('baseline_summaries'):raise ValueError('Human decisions or baselines prevent derivation.')
     pinned_catalogue(source)
     allowed={'start_from','expected_version','name','rationale','execution_mode','allow_live_provider',
         'mediation_timeout_fallback','step_models','step_model_options'}
