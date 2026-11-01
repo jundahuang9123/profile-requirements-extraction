@@ -312,7 +312,7 @@ def semantic_consolidate(store, run, records, client=None, previous=None):
     from ..llm.step_models import for_step
     from .engine import (qualify_record, record_from_observation, reusable_qualification, verify, assess, lexical_relation,
                          inherit_base_checks, retain_base_findings)
-    saved = store.get_run(run['run_id'], omit=('model_calls','catalogues','machine_snapshot','assessment_reuse'))['consolidation_chunks']
+    saved = store.get_run(run['run_id'], omit=('model_calls','catalogues','machine_snapshot','assessment_reuse','attempt_history'))['consolidation_chunks']
     policy = run.get('consolidation_policy_version') or LEGACY_SEMANTIC_POLICY
     blocks = {}
     for r in records: blocks.setdefault(block_key(r), []).append(r)

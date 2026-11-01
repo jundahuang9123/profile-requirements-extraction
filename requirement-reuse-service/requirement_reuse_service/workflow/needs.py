@@ -719,7 +719,7 @@ def run_needs_policies(run):
 
 
 def process_needs(store, run, records, client, profile):
-    saved = store.get_run(run['run_id'], omit=('model_calls','catalogues','machine_snapshot','assessment_reuse'))
+    saved = store.get_run(run['run_id'], omit=('model_calls','catalogues','machine_snapshot','assessment_reuse','attempt_history'))
     policies = run_needs_policies(run)
     store.mutate(run['run_id'], None, 'needs_policies_saved', lambda r:r.update(needs_policies=policies))
     passing = [r for r in records if (r.verification or {}).get('status') == 'pass']
@@ -831,7 +831,7 @@ def classify_needs(store, run, needs, client):
                    retained_count=len(needs), generic_count=0, base_gap_counts={'not_checked': len(needs)})
         return needs
     catalogue = load_catalogue(run['base_profile_id'], run.get('base_profile_sha256'))
-    frozen = store.get('run', run['run_id']).get('base_needs_catalogue')
+    frozen = store.get_run(run['run_id'], parts=False).get('base_needs_catalogue')
     if frozen and frozen['catalogue_hash'] != catalogue['catalogue_hash']:
         raise ValueError('Base needs catalogue changed; derive a separate trial.')
     store.mutate(run['run_id'], None, 'base_needs_catalogue_pinned', lambda r:r.update(base_needs_catalogue={k:v for k,v in catalogue.items() if k!='entries'}))

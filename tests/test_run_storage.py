@@ -105,6 +105,22 @@ def test_a_cancelled_run_refuses_model_calls_and_the_lease_blocks_resume(setup):
         store.touch_run(run['run_id'], time.time() + 900)
 
 
+def test_a_loading_change_leaves_omitted_parts_write_only(setup):
+    store, run, _ = setup
+    store.mutate(run['run_id'], None, 'seed', lambda r: (r['attempt_history'].append({'status': 'failed'}),
+                                                         r['stage_results'].update(review={'phases': {'a': 1}})))
+    others = tuple(p for p in RUN_PARTS if p != 'stage_results')
+    with pytest.raises(PartNotLoaded):
+        store.mutate(run['run_id'], None, 'read', lambda r: len(r['attempt_history']), parts=True, omit=others)
+    def change(r):
+        r['stage_results']['review']['phases']['b'] = 2      # a loaded part is read and edited in place
+        r['attempt_history'].append({'status': 'cancelled'})   # an omitted one is still written
+    store.mutate(run['run_id'], None, 'change', change, parts=True, omit=others)
+    saved = store.get('run', run['run_id'])
+    assert saved['stage_results']['review'] == {'phases': {'a': 1, 'b': 2}}
+    assert saved['attempt_history'] == [{'status': 'failed'}, {'status': 'cancelled'}]
+
+
 def test_change_functions_cannot_read_unloaded_parts_but_can_write_them(setup):
     store, run, _ = setup
     with pytest.raises(PartNotLoaded):
@@ -230,7 +246,7 @@ def test_workbench_view_leaves_out_audit_parts_only(setup):
     view = http.get(f'/api/rq1/v2/runs/{run["run_id"]}?audit=false').json()
     assert full['model_calls'] and full['machine_snapshot'] and full['catalogues']
     assert view == {key: value for key, value in full.items() if key not in api.AUDIT_PARTS}
-    assert view['stage_results'] and 'attempt_history' in view and 'baselines' in view
+    assert view['stage_results'] and 'baselines' in view and 'attempt_history' not in view
 
 
 # A command repeated under its idempotency key returns its first response unchanged.

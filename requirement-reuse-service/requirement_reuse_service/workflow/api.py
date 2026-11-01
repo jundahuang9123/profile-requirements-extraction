@@ -109,8 +109,10 @@ def downloadable(value, enabled: bool, filename: str):
     return JSONResponse(value)
 
 
-# Audit parts the workbench does not display; the export always includes them.
-AUDIT_PARTS = ('model_calls', 'machine_snapshot', 'catalogues', 'assessment_reuse', 'consolidation_chunks', 'base_check_audit', 'need_chunks')
+# Audit parts the workbench does not display; the export always includes them. Every resume adds a copy
+# of the run's working state to attempt_history, so it outgrows the rest of a run that was resumed often.
+AUDIT_PARTS = ('model_calls', 'machine_snapshot', 'catalogues', 'assessment_reuse', 'consolidation_chunks', 'base_check_audit', 'need_chunks',
+               'attempt_history')
 # Statuses a run can be left in when its worker stops (a failure, a cancel or a server restart), plus
 # awaiting_human for failed roles or unfinished discussions. Every status a stage starts with belongs here,
 # reviewing_base included: a restart during base review otherwise strands the run.
@@ -230,7 +232,8 @@ def create_run(request: RunRequest, background: BackgroundTasks):
 @router.get('/runs/{run_id}')
 def get_run(run_id: str, audit: bool = True, download: bool = False):
     """The saved run. ``audit=false`` leaves out the model-call log, the frozen machine
-    snapshot and the excerpt catalogues, which the workbench does not display."""
+    snapshot, the excerpt catalogues and the earlier attempts (``/attempts``), which the
+    workbench does not display."""
     return downloadable(translate(lambda: Store().get_run(run_id, omit=() if audit else AUDIT_PARTS)), download, f'{run_id}.json')
 
 
@@ -576,6 +579,16 @@ def need_trace_view(run_id: str, revision_id: str, download: bool = False):
         trace = need_trace(index, revision_id)
         return {**link_trace(index, trace), 'summary': need_summary(trace), 'summary_parts': summary_parts(trace)}
     return downloadable(translate(read), download, f'trace-{revision_id}.json')
+
+
+@router.get('/runs/{run_id}/attempts')
+def attempt_history_view(run_id: str, download: bool = False):
+    """The run's earlier attempts: the working state each resume replaced, oldest first."""
+    def read():
+        from .storage import RUN_PARTS
+        run = Store().get_run(run_id, omit=tuple(p for p in RUN_PARTS if p != 'attempt_history'))
+        return {'run_id': run_id, 'attempts': run['attempt_history']}
+    return downloadable(translate(read), download, f'{run_id}-attempts.json')
 
 
 @router.get('/runs/{run_id}/calls/{call_id}')

@@ -220,14 +220,14 @@ class Store:
 
     def mutate(self, run_id: str, expected_version: int | None, event_type: str,
                change: Callable[[dict], Any], *, key: str | None = None, payload: dict | None = None,
-               parts: bool = False, hydrate: bool = False) -> dict:
+               parts: bool = False, hydrate: bool = False, omit: tuple[str, ...] = ()) -> dict:
         """The command result, event, and aggregate update share one transaction.
 
         ``change`` receives the run document. Its parts are write-only stand-ins: appending
         to a list part, setting or removing entries of ``stage_results``, and assigning a
         part are saved without loading the part. With ``parts=True`` the parts are loaded
-        and any change to them is saved. With ``hydrate=True`` the returned run includes
-        the parts, as API responses need.
+        and any change to them is saved; parts named in ``omit`` stay write-only. With
+        ``hydrate=True`` the returned run includes the parts, as API responses need.
 
         A command repeated with the same ``key`` and payload is not applied again; it returns
         the response of its first application (see ``_replayed``).
@@ -245,13 +245,13 @@ class Store:
             if expected_version is not None and expected_version != run['version']:
                 raise ConflictError('The run has changed. Refresh before applying this command.')
             if parts:
-                loaded, before = self._read_parts(db, run_id, with_bodies=True)
-                run.update(loaded)
+                loaded, before = self._read_parts(db, run_id, with_bodies=True, omit=omit)
+                run.update({name: value for name, value in loaded.items() if name not in omit})
             else:
-                before = None
-                # A value part (the machine snapshot) can only be replaced as a whole.
-                run.update({name: _WriteOnlyList(name) if name in _LISTS else
-                            _WriteOnlyPart(name) if name in _VALUES else _WriteOnlyDict(name) for name in RUN_PARTS})
+                before, omit = None, tuple(RUN_PARTS)
+            # A value part (the machine snapshot) can only be replaced as a whole.
+            run.update({name: _WriteOnlyList(name) if name in _LISTS else
+                        _WriteOnlyPart(name) if name in _VALUES else _WriteOnlyDict(name) for name in omit if name in RUN_PARTS})
             result = change(run)
             run['version'] += 1
             self._save_parts(db, run_id, run, before)
