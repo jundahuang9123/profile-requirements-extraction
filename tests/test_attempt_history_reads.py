@@ -1,6 +1,7 @@
 """Every resume adds a copy of the run's working state to attempt_history, so a run resumed often
-carries hundreds of megabytes of earlier attempts. The worker, the workbench's reads and command
-responses never load them; the export, the audit trace, a baseline and ``/runs/{id}/attempts`` do."""
+carries hundreds of megabytes of earlier attempts. The worker, the workbench's reads, derived trials
+and command responses never load them; the export, the audit trace, publishing a baseline and
+``/runs/{id}/attempts`` do."""
 import pytest
 from fastapi.testclient import TestClient
 
@@ -9,6 +10,7 @@ from test_resume_discussions import setup as discussions_setup  # noqa: F401 (fi
 from test_resume_base_review import Reviewer, resume, stopped_in_base_review  # noqa: F401 (fixture)
 from test_base_review import prepared
 from test_derived_runs import completed
+from test_workflow import assess, context, decision, setup_run  # noqa: F401 (fixture)
 from test_fa_workflow import Dialogue
 from test_need_trace_v1 import full_client
 from test_need_trace_v1_shapes import build_source, client_for, merged_event, new_fa_run, split_client
@@ -106,6 +108,7 @@ def test_the_workbench_reads_and_commands_never_load_the_earlier_attempts(setup,
                'rationale': 'Needs a second look.'}
     response = http.post(base + '/decisions', json=command)
     assert response.status_code == 200, response.text
+    assert http.post(base + '/decisions', json=command).json() == response.json()     # repeated: the saved response
     assert attempt_reads['rows'] == 0 and 'attempt_history' not in response.json()['run']
     # The audit views still include them.
     assert http.get(base + '/export').json()['run']['attempt_history'] == [{'status': 'failed'}]
@@ -129,9 +132,12 @@ def test_a_run_with_a_base_profile_never_reads_the_earlier_attempts(setup, attem
 
 def test_a_derived_run_reads_its_assessment_cache_without_the_earlier_attempts(discussions_setup, attempt_reads):
     store, source, client = completed(discussions_setup)
+    source = seeded(store, source)
+    attempt_reads['on'] = True
     child = engine.derive_run(store, source['run_id'], DeriveRequest(output_form='candidates', consolidation='exact',
         expected_version=source['version'], rationale='Reuse the assessments.'))
-    assert child['derived_from']['reuse_assessments'] and child['assessment_reuse']
+    attempt_reads['on'] = False
+    assert child['derived_from']['reuse_assessments'] and child['assessment_reuse'] and child['attempt_history'] == []
     seeded(store, child)
     mark = len(client.calls)
     attempt_reads['on'] = True
@@ -188,9 +194,10 @@ def test_tracing_a_trial_reads_the_run_it_was_derived_from_without_its_earlier_a
     # Merge events saved before written_group_id name a group of the source run: the trial's merged need is solid
     # only when its trace reads the run the trial was derived from.
     source = seeded(store, build_source(store, original, strip=True))
+    attempt_reads['on'] = True
     child = engine.derive_run(store, source['run_id'], DeriveRequest(start_from='base_review', expected_version=source['version'],
                               rationale='Base trial of an older run.'))
-    attempt_reads['on'] = True
+    assert child['attempt_history'] == []
     engine.execute_run(store, child['run_id'], split_client())
     attempt_reads['on'] = False
     trial = store.get('run', child['run_id'])
@@ -199,3 +206,20 @@ def test_tracing_a_trial_reads_the_run_it_was_derived_from_without_its_earlier_a
     merged, traced = merged_event(trial)['outputs'][0], trial['stage_results']['traceability']
     assert merged in trial['active_revision_ids'] and traced['needs'][merged]['solid'] and not traced['set_aside_ids']
     assert attempt_reads['rows'] == 0 and store.get('run', source['run_id'])['attempt_history'] == [{'status': 'failed'}]
+
+
+def test_a_baseline_is_read_without_the_earlier_attempts_of_its_run(context, attempt_reads):
+    store, client = context
+    run = seeded(store, setup_run(context))
+    record = run['requirements'][0]
+    accepted, _ = decision(client, assess(client, run, record), [record['revision_id']])
+    run = accepted.json()['run']
+    published = client.post(f'/api/rq1/v2/runs/{run["run_id"]}/baselines', json={
+        'expected_version': run['version'], 'idempotency_key': 'baseline', 'revision_ids': [record['revision_id']]})
+    assert published.status_code == 200, published.text
+    baseline = published.json()['result']
+    # The baseline keeps its own copy of the attempts in its provenance, as it keeps the model-call log.
+    assert baseline['provenance']['attempt_history'] == [{'status': 'failed'}]
+    attempt_reads['on'] = True
+    served = client.get(f'/api/rq1/v2/runs/{run["run_id"]}/baselines/{baseline["baseline_id"]}')
+    assert served.json() == baseline and attempt_reads['rows'] == 0

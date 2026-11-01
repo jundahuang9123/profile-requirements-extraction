@@ -12,7 +12,9 @@ resume extends by a copy of the run's working state. Runs saved by earlier versi
 inline until their next update, which moves the parts to rows.
 
 A command repeated under its idempotency key returns its first response unchanged: the run
-document saved with the command and the parts as they were at that moment. To make that
+document saved with the command and the parts as they were at that moment, without the attempt
+history (also for a command first applied before responses left it out). A response saved by
+the layout before parts, with its parts inline, is returned exactly as saved. To make that
 possible, a part row that a saved response included is kept in ``run_part_history`` when a
 later update replaces or removes it.
 """

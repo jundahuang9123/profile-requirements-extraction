@@ -111,7 +111,8 @@ def downloadable(value, enabled: bool, filename: str):
 
 
 # Audit parts the workbench does not display; the export always includes them. The attempt history
-# (NOT_IN_RESPONSES) outgrows the rest of a run that was resumed often: no workbench read loads it.
+# (NOT_IN_RESPONSES) outgrows the rest of a run that was resumed often: no workbench read loads it. A
+# published baseline keeps its own copy in its provenance, as it keeps the model-call log.
 AUDIT_PARTS = ('model_calls', 'machine_snapshot', 'catalogues', 'assessment_reuse', 'consolidation_chunks', 'base_check_audit', 'need_chunks',
                *NOT_IN_RESPONSES)
 # Statuses a run can be left in when its worker stops (a failure, a cancel or a server restart), plus
@@ -232,9 +233,9 @@ def create_run(request: RunRequest, background: BackgroundTasks):
 
 @router.get('/runs/{run_id}')
 def get_run(run_id: str, audit: bool = True, download: bool = False):
-    """The saved run. ``audit=false`` leaves out the model-call log, the frozen machine
-    snapshot, the excerpt catalogues and the earlier attempts (``/attempts``), which the
-    workbench does not display."""
+    """The saved run. ``audit=false`` leaves out the audit parts (``AUDIT_PARTS``), which the
+    workbench does not display: among them the model-call log, the frozen machine snapshot, the
+    excerpt catalogues and the earlier attempts (``/attempts``)."""
     return downloadable(translate(lambda: Store().get_run(run_id, omit=() if audit else AUDIT_PARTS)), download, f'{run_id}.json')
 
 

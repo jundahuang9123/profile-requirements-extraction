@@ -364,7 +364,8 @@ def pin_base_needs_catalogue(run: WorkflowRun):
 
 def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='local-reviewer') -> dict:
     """Restart from a frozen panel or extraction without mutating the source."""
-    source = store.get('run', source_run_id)
+    # A trial starts with no attempts of its own; the source's are not copied.
+    source = store.get_run(source_run_id, omit=('attempt_history',))
     if source['version'] != request.expected_version:
         raise ConflictError('Source run changed. Refresh before deriving a run.')
     if source.get('worker_id') and source.get('job_lease_until', 0) > time.time():

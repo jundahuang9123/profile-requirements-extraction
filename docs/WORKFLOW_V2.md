@@ -192,7 +192,7 @@ New endpoints use `/api/rq1/v2`; `/docs` exposes complete request contracts.
 | `GET /evidence/{id}` | Inspect source resolution and selectors |
 | `POST /runs` | Return 202 and queue execution; `discussion` is `automatic` or `on_request` |
 | `GET /runs`, `GET /runs/{id}` | Restore run state/progress; `?audit=false` leaves out the model-call log, machine snapshot, excerpt catalogues and earlier attempts |
-| `GET /runs/{id}/attempts` | The earlier attempts: the working state each resume replaced, oldest first; left out of every other workbench read and of command responses |
+| `GET /runs/{id}/attempts` | The earlier attempts: the working state each resume replaced, oldest first; left out of every other workbench read and of command responses (a published baseline keeps its own copy) |
 | `POST /runs/{id}/cancel`, `/resume` | Cancel or resume interrupted unreviewed work; resume accepts a run left in any stage, base review included, once its worker lease has expired |
 | `GET /runs/{id}/events`, `/export`, `/evaluation` | Audit events, saved review and metrics |
 | `POST /runs/{id}/assessments`, `/decisions`, `/requirements` | Human assessment, decisions/revisions and additions |
@@ -216,8 +216,10 @@ call appends one row and extends the worker lease in a small state row; it no lo
 rewrites the run. Reading a run assembles the document and its parts in one
 transaction. Every resume adds a copy of the run's working state to the attempt
 history, so a run resumed often carries far more history than current state. The
-workflow's own steps, the workbench's reads and command responses never load it; the
-export, the audit trace, a baseline and `/attempts` (sent one attempt at a time) do.
+workflow's own steps, the workbench's reads, derived trials and command responses never
+load it; the full run view, the export, the audit trace and `/attempts` (sent one attempt at a time) do.
+Publishing a baseline copies it into the baseline's provenance, as it copies the model-call
+log, and every view that includes the run's baselines carries that copy.
 Runs saved by earlier versions are read as before, and their next update moves the parts to rows. Do not open the database with an earlier version afterwards.
 A part row that a saved command response includes is kept when a later update
 replaces or removes it, so that repeating the command returns that response.
