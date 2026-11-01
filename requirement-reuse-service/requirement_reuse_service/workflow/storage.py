@@ -258,15 +258,21 @@ class Store:
                 yield row[0]
         return entries()
 
-    def part_fields(self, run_id: str, part: str, fields: tuple[str, ...]) -> list[dict]:
+    def part_fields(self, run_id: str, part: str, fields: tuple[str, ...], *, with_inline: bool = False) -> list[dict]:
         """The named top-level fields of each entry of a list part saved as rows, oldest first, read in SQL
-        without loading the entries."""
+        without loading the entries. ``with_inline`` puts first the entries a document saved by an earlier
+        version still holds, as get_run orders them; that reads the document."""
         if part not in _LISTS:
             raise ValueError(f'{part} is not a list part of a run.')
+        paths = tuple(f'$.{f}' for f in fields)
         with self.connect() as db:
+            db.execute('BEGIN')
+            inline = db.execute(f'SELECT {",".join("json_extract(value, ?)" for _ in fields)} FROM objects, '
+                                "json_each(objects.body, ?) WHERE objects.kind='run' AND objects.id=?",
+                                (*paths, f'$.{part}', run_id)).fetchall() if with_inline else []
             rows = db.execute(f'SELECT {",".join("json_extract(body, ?)" for _ in fields)} FROM run_parts '
-                              'WHERE run_id=? AND part=? ORDER BY sequence', (*(f'$.{f}' for f in fields), run_id, part)).fetchall()
-        return [dict(zip(fields, row)) for row in rows]
+                              'WHERE run_id=? AND part=? ORDER BY sequence', (*paths, run_id, part)).fetchall()
+        return [dict(zip(fields, row)) for row in [*inline, *rows]]
 
     def part_bytes(self, run_id: str, parts: tuple[str, ...]) -> int:
         """The saved size of the named parts' rows, without reading them into Python."""

@@ -367,7 +367,6 @@ def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='
     """Restart from a frozen panel or extraction without mutating the source."""
     # A trial starts with no attempts or baselines of its own; the source's are not copied.
     source = store.get_run(source_run_id, omit=('attempt_history', 'baselines'))
-    source['baseline_summaries'] = baseline_summaries(store, source)
     if source['version'] != request.expected_version:
         raise ConflictError('Source run changed. Refresh before deriving a run.')
     if source.get('worker_id') and source.get('job_lease_until', 0) > time.time():
@@ -2094,7 +2093,7 @@ def publish_baseline(store: Store, run_id: str, request: BaselineRequest, actor:
         del body
         payload['baseline_id'] = uid('baseline', payload['baseline_hash'])
         summary = baseline_summary(payload)
-        run['baseline_summaries'] = [*baseline_summaries(store, run), summary]
+        run['baseline_summaries'] = [*baseline_summaries(store, run, with_inline=True), summary]
         # Save baseline inside the run transaction, then expose via saved-run lookup.
         run.setdefault('baselines', []).append(payload)
         run['stages']['baseline'] = 'completed'
@@ -2123,10 +2122,11 @@ def baseline_summary(baseline):
     return {key: baseline.get(key) for key in ('baseline_id', 'baseline_hash', 'name')}
 
 
-def baseline_summaries(store, run):
+def baseline_summaries(store, run, with_inline=False):
     """The run's published baselines in short. For a run saved before the run kept them, they are read from its
-    baseline rows in SQL, without the run document; a run still in the layout before parts lists its inline
-    baselines once its next update has moved them to rows."""
+    baseline rows in SQL, without the run document; a view of a run still in the layout before parts lists its
+    inline baselines once its next update has moved them to rows. ``with_inline`` (publishing, which saves the
+    list) also reads those from the saved document."""
     if 'baseline_summaries' in run:
         return run['baseline_summaries']
-    return store.part_fields(run['run_id'], 'baselines', ('baseline_id', 'baseline_hash', 'name'))
+    return store.part_fields(run['run_id'], 'baselines', ('baseline_id', 'baseline_hash', 'name'), with_inline=with_inline)

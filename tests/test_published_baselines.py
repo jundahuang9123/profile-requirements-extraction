@@ -235,3 +235,51 @@ def test_a_repeated_publish_returns_its_saved_response_even_where_a_new_one_is_r
     assert publish(client, run, record, key='once').json() == first.json()
     refused = publish(client, first.json()['run'], record, key='again', name='Again')
     assert refused.status_code == 422 and 'at least' in refused.text
+
+
+def test_a_run_still_in_the_layout_before_parts_keeps_its_inline_baselines_when_it_publishes_again(context):
+    store, client = context
+    run, record = accepted_run(context)
+    first = publish(client, run, record, key='first', name='First').json()['result']
+    with sqlite3.connect(store.path) as db:   # as saved before parts: the baseline inline, no rows, no summaries
+        body = json.loads(db.execute("SELECT body FROM objects WHERE kind='run' AND id=?", (run['run_id'],)).fetchone()[0])
+        rows = [json.loads(r[0]) for r in db.execute("SELECT body FROM run_parts WHERE run_id=? AND part='baselines'", (run['run_id'],))]
+        db.execute("DELETE FROM run_parts WHERE run_id=? AND part='baselines'", (run['run_id'],))
+        del body['baseline_summaries']
+        body['baselines'] = rows
+        db.execute("UPDATE objects SET body=? WHERE kind='run' AND id=?", (canonical(body), run['run_id']))
+    view = client.get(f'/api/rq1/v2/runs/{run["run_id"]}?audit=false').json()
+    second = publish(client, view, record, key='second', name='Second').json()['result']
+    saved = store.get('run', run['run_id'])
+    assert [b['name'] for b in saved['baselines']] == ['First', 'Second']
+    assert saved['baseline_summaries'] == [first, second]
+    assert client.get(f'/api/rq1/v2/runs/{run["run_id"]}?audit=false').json()['baseline_summaries'] == [first, second]
+
+
+def test_the_copied_parts_are_measured_in_saved_bytes(context):
+    store, client = context
+    run, _ = accepted_run(context)
+    store.append_run_part(run['run_id'], 'model_calls', {'call_id': 'größe', 'output': 'Ä' * 100})
+    saved = store.get('run', run['run_id'])
+    expected = sum(len(canonical(call).encode()) for call in saved['model_calls'])
+    expected += len(canonical(saved['machine_snapshot']).encode()) if saved['machine_snapshot'] else 0
+    assert store.part_bytes(run['run_id'], ('model_calls', 'machine_snapshot')) == expected
+
+
+def test_an_fa_needs_run_is_published(setup):
+    store, original, _, _ = setup
+    run = needs_run(store, original)
+    engine.execute_run(store, run['run_id'], full_client())
+    client = TestClient(app)
+    run = client.get(f'/api/rq1/v2/runs/{run["run_id"]}?audit=false').json()
+    assert run['status'] == 'awaiting_human', run['diagnostics']
+    record = next(r for r in run['requirements'] if r['revision_id'] == run['active_revision_ids'][0])
+    run = assess(client, run, record)
+    record = next(r for r in run['requirements'] if r['revision_id'] == record['revision_id'])
+    accepted, _ = decision(client, run, [record['revision_id']])
+    assert accepted.status_code == 200, accepted.text
+    published = publish(client, accepted.json()['run'], record, name='Needs')
+    assert published.status_code == 200, published.text
+    baseline = client.get(f'/api/rq1/v2/runs/{run["run_id"]}/baselines/{published.json()["result"]["baseline_id"]}').json()
+    assert [r['revision_id'] for r in baseline['requirements']] == [record['revision_id']]
+    assert baseline['provenance']['attempt_history_record']['count'] == 1

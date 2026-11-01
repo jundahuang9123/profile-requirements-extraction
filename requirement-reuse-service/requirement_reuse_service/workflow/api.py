@@ -314,7 +314,8 @@ def export_stage(run_id: str, stage: str, download: bool = False):
     def read():
         store = Store()
         run = store.get_run(run_id, omit=NOT_IN_RESPONSES)
-        run['baseline_summaries'] = baseline_summaries(store, run)
+        if stage == 'baseline':
+            run['baseline_summaries'] = baseline_summaries(store, run)
         from .trace_links import stage_results
         results = stage_results(run, stage)
         checkpoint = run.get('stage_results', {}).get(stage) if stage not in {'adjudication', 'baseline'} else None
