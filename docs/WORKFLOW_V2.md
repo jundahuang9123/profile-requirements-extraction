@@ -245,7 +245,10 @@ hashes are saved. Actual provider tokens/cost remain unavailable. Summed call la
 is not wall-clock duration when roles run concurrently.
 
 `scripts/evaluate_workflow.py` reads saved review/baseline JSON offline. It does not
-rerun extraction or infer precision/recall from token overlap. V1 retains independent
+rerun extraction or infer precision/recall from token overlap. A baseline does not record
+its run's request, so the summary of a baseline gives the discussion mode as `automatic`
+and the needs metrics as not enabled, whatever the run's settings; summarize the saved
+review for those. V1 retains independent
 expert packages, ratings and aggregation. No lossless automatic v2→v1 conversion or
 integrated v2 multi-reviewer summative package is supplied. Formal evaluation still
 needs a predeclared reference/equivalence rubric, independent labels, repeated model

@@ -42,6 +42,8 @@ def _summary(records):
 
 def workflow_metrics(run: dict) -> dict:
     frozen = run.get('machine_snapshot', {})
+    # A published baseline (scripts/evaluate_workflow.py) does not record its run's request.
+    request = run.get('request') or {}
     raw = frozen.get('requirements', [])
     machine = [r for r in raw if r['revision_id'] in frozen.get('active_revision_ids', [])]
     current = [r for r in run['requirements'] if r['revision_id'] in run['active_revision_ids']]
@@ -102,7 +104,7 @@ def workflow_metrics(run: dict) -> dict:
             'max_output_tokens_reserved_sum': sum(c.get('output_tokens_reserved', c.get('max_output_tokens') or 0) for c in selection_calls)},
         'raw_proposals_by_role': dict(Counter(o['role_id'] for o in frozen.get('observations', []))),
         'review_actions': dict(Counter(d['action'] for d in run['decisions'])),
-        'deliberation': {'mode': run['request'].get('discussion', 'automatic'),
+        'deliberation': {'mode': request.get('discussion', 'automatic'),
             'selected': len(run['deliberations']), 'message_count': sum(len(c['messages']) for c in run['deliberations']),
             'stop_reasons': dict(Counter(c.get('stop_reason') or 'pending' for c in run['deliberations']))},
         'model_calls': {'count': len(calls), 'failures': sum(c['status'] == 'failed' for c in calls),
@@ -132,7 +134,8 @@ def workflow_metrics(run: dict) -> dict:
 
 
 def needs_metrics(run, frozen=None):
-    if run['request'].get('output_form')!='needs': return {'enabled':False}
+    request=run.get('request') or {}   # a published baseline does not record its run's request
+    if request.get('output_form')!='needs': return {'enabled':False}
     frozen=frozen or {};records=frozen.get('requirements',run['requirements'])
     steps=frozen.get('need_steps',run.get('need_steps',{}))
     asides=frozen.get('set_aside_observations',run.get('set_aside_observations',[]))
@@ -152,7 +155,7 @@ def needs_metrics(run, frozen=None):
         fallbacks[chunk['step']] += len(chunk.get('fallback_rows',{}))
         for attempt in chunk.get('attempts',[]):
             if attempt.get('validation_errors') or attempt.get('error'): validations[chunk['step']]+=1
-    return {'enabled':True,'policies':run.get('needs_policies',{}),'scoping':run['request'].get('scoping'),
+    return {'enabled':True,'policies':run.get('needs_policies',{}),'scoping':request.get('scoping'),
         'counts':{'proposals':len(frozen.get('observations',run['observations'])),
                   'set_aside_by_reason':dict(Counter(a['reason'] for a in asides)),
                   'candidates':sum(not r.get('parent_revision_ids') for r in records),
