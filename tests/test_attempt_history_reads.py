@@ -27,12 +27,18 @@ def attempt_reads(monkeypatch):
     return reads
 
 
-def test_a_run_worker_never_reads_the_earlier_attempts(setup, attempt_reads):
-    store, original, _, _ = setup
+def needs_run(store, original):
+    """A new F/A needs run with one earlier attempt in its history."""
     run = engine.new_run(store, RunRequest(snapshot_id=original['snapshot_id'], strategy='multi_agent',
         role_ids=['consumer_discovery', 'publisher_feasibility'], stakeholder_workflow='fa_mediated', discussion='automatic',
         scoping='off', base_check=False))
     store.mutate(run['run_id'], None, 'earlier_attempt', lambda r: r['attempt_history'].append({'status': 'failed'}))
+    return run
+
+
+def test_a_run_worker_never_reads_the_earlier_attempts(setup, attempt_reads):
+    store, original, _, _ = setup
+    run = needs_run(store, original)
     attempt_reads['on'] = True
     engine.execute_run(store, run['run_id'], full_client())
     attempt_reads['on'] = False
@@ -74,3 +80,25 @@ def test_the_workbench_view_leaves_out_the_attempts_and_they_are_served_apart(se
     served = http.get(f'/api/rq1/v2/runs/{run["run_id"]}/attempts')
     assert served.json() == {'run_id': run['run_id'], 'attempts': [{'status': 'failed'}, {'status': 'cancelled'}]}
     assert http.get('/api/rq1/v2/runs/run-missing/attempts').status_code == 404
+
+
+def test_the_workbench_reads_and_commands_never_load_the_earlier_attempts(setup, attempt_reads):
+    store, original, _, _ = setup
+    run = needs_run(store, original)
+    engine.execute_run(store, run['run_id'], full_client())
+    done = store.get('run', run['run_id'])
+    base, http = f'/api/rq1/v2/runs/{run["run_id"]}', TestClient(app)
+    reads = ['?audit=false', '/evaluation', '/coverage', '/needs', '/traceability',
+             f'/needs/{done["active_revision_ids"][0]}/trace', *[f'/stages/{stage}' for stage in done['stages']]]
+    attempt_reads['on'] = True
+    for path in reads:
+        assert http.get(base + path).status_code == 200, path
+    command = {'expected_version': done['version'], 'idempotency_key': 'defer-1', 'action': 'defer', 'revision_ids': done['active_revision_ids'][:1],
+               'rationale': 'Needs a second look.'}
+    response = http.post(base + '/decisions', json=command)
+    assert response.status_code == 200, response.text
+    assert attempt_reads['rows'] == 0 and 'attempt_history' not in response.json()['run']
+    # The audit views still include them.
+    assert http.get(base + '/export').json()['run']['attempt_history'] == [{'status': 'failed'}]
+    assert http.get(base + '/trace').json()['attempt_history'] == [{'status': 'failed'}]
+    assert attempt_reads['rows'] == 2
