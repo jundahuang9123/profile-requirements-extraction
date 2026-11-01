@@ -1,7 +1,7 @@
 """Every resume adds a copy of the run's working state to attempt_history, so a run resumed often
 carries hundreds of megabytes of earlier attempts. The worker, the workbench's reads, derived trials
-and command responses never load them; the export, the audit trace, publishing a baseline and
-``/runs/{id}/attempts`` do."""
+and command responses never load them; the export, the audit trace and ``/runs/{id}/attempts`` do. A
+baseline records them by number and SHA-256."""
 import pytest
 from fastapi.testclient import TestClient
 
@@ -19,7 +19,7 @@ from requirement_reuse_service.main import app
 from requirement_reuse_service.workflow import api, base_review, engine, fa_discussion
 from requirement_reuse_service.workflow.models import DeriveRequest, RunRequest
 from requirement_reuse_service.workflow.semantic_consolidation import semantic_consolidate
-from requirement_reuse_service.workflow.storage import Store
+from requirement_reuse_service.workflow.storage import Store, digest
 
 
 @pytest.fixture
@@ -219,5 +219,6 @@ def test_a_baseline_is_read_without_the_earlier_attempts_of_its_run(context, att
     assert published.status_code == 200, published.text
     attempt_reads['on'] = True
     served = client.get(f'/api/rq1/v2/runs/{run["run_id"]}/baselines/{published.json()["result"]["baseline_id"]}').json()
-    # The baseline keeps its own copy of the attempts in its provenance, as it keeps the model-call log.
-    assert served['provenance']['attempt_history'] == [{'status': 'failed'}] and attempt_reads['rows'] == 0
+    # The baseline records the attempts by number and SHA-256; they stay in the run.
+    assert served['provenance']['attempt_history_record'] == {'count': 1, 'sha256': digest([{'status': 'failed'}])}
+    assert 'attempt_history' not in served['provenance'] and attempt_reads['rows'] == 0

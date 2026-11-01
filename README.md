@@ -105,9 +105,10 @@ running; exports are portable audit artifacts, not database restore files.
 
 **Export saved review** downloads `rq1-requirement-dataset-v2` without rerunning
 extraction. **Publish accepted requirements** creates
-`rq1-validated-requirement-baseline-v2`, with exact accepted revisions, original
+`rq1-validated-requirement-baseline-v3`, with exact accepted revisions, original
 source bytes, resolvable evidence, assessments, human decisions, derivation history,
-frozen machine output and an excluded/unresolved appendix. Edits after publication
+frozen machine output and an excluded/unresolved appendix. The run's earlier attempts
+are recorded by number and SHA-256 rather than copied (v2 copied them). Edits after publication
 create new unaccepted revisions; previously published baselines remain unchanged.
 RQ1 does not generate LinkML/SHACL profile decisions as an acceptance side effect.
 

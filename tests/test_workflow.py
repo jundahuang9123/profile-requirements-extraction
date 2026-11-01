@@ -77,7 +77,7 @@ def test_end_to_end_review_baseline_restores_and_exports_without_rerun(context):
     assert metrics['machine']['support_distribution'] == {'uncertain': 1}
     assert metrics['human_accepted']['count'] == 1
     assert baseline['provenance']['machine_snapshot']['requirements'][0]['lifecycle_state'] == 'awaiting_human'
-    assert attachment.headers['content-disposition'] == 'attachment; filename="rq1-validated-baseline-v2.json"'
+    assert attachment.headers['content-disposition'] == 'attachment; filename="rq1-validated-baseline-v3.json"'
 
 
 def test_human_added_need_is_not_counted_as_machine_output(context):

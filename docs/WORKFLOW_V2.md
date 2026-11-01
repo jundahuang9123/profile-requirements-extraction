@@ -192,7 +192,7 @@ New endpoints use `/api/rq1/v2`; `/docs` exposes complete request contracts.
 | `GET /evidence/{id}` | Inspect source resolution and selectors |
 | `POST /runs` | Return 202 and queue execution; `discussion` is `automatic` or `on_request` |
 | `GET /runs`, `GET /runs/{id}` | Restore run state/progress; `?audit=false` leaves out the model-call log, machine snapshot, excerpt catalogues, earlier attempts and published baselines, which it lists by `baseline_summaries` (id, hash, name) |
-| `GET /runs/{id}/attempts` | The earlier attempts: the working state each resume replaced, oldest first; left out of every other workbench read and of command responses (a published baseline keeps its own copy, read only with the baseline) |
+| `GET /runs/{id}/attempts` | The earlier attempts: the working state each resume replaced, oldest first; left out of every other workbench read and of command responses; a v3 baseline records them by number and SHA-256 |
 | `POST /runs/{id}/cancel`, `/resume` | Cancel or resume interrupted unreviewed work; resume accepts a run left in any stage, base review included, once its worker lease has expired |
 | `GET /runs/{id}/events`, `/export`, `/evaluation` | Audit events, saved review and metrics |
 | `POST /runs/{id}/assessments`, `/decisions`, `/requirements` | Human assessment, decisions/revisions and additions |
@@ -218,9 +218,11 @@ transaction. Every resume adds a copy of the run's working state to the attempt
 history, so a run resumed often carries far more history than current state. The
 workflow's own steps, the workbench's reads, derived trials and command responses never
 load it; the full run view, the export, the audit trace and `/attempts` (sent one attempt at a time) do.
-Publishing a baseline copies it into the baseline's provenance, as it copies the model-call
-log, so a baseline of a long run is large too. Publishing loads only the parts a baseline
-copies, and the run lists its baselines by `baseline_summaries`: views, step downloads and
+A baseline records the attempt history by number and SHA-256
+(`provenance.attempt_history_record`, the digest of the list `/attempts` sends); a v2
+baseline copied it. A baseline copies the model-call log, so a baseline of a long run is
+still large. Publishing loads only the parts a baseline copies, and the run lists its
+baselines by `baseline_summaries`: views, step downloads and
 command responses carry those, and a baseline itself is read at `/baselines/{id}`, in the
 full run view and in the export. A baseline larger than the 1 GB the store keeps in one
 record is refused and nothing is saved.
@@ -259,7 +261,8 @@ No full-corpus recall, model quality or empirical deliberation benefit is claime
 Publication rechecks accepted revisions against original bytes. Unresolved conflicts
 or pending cases affecting them block publication. Baselines contain exact accepted
 hashes, source bytes, evidence, assessments, decisions, frozen machine output,
-derivations and an excluded/unresolved appendix. Canonical SHA-256 excludes only its
+derivations and an excluded/unresolved appendix (`rq1-validated-requirement-baseline-v3`;
+the run's earlier attempts by number and SHA-256 only). Canonical SHA-256 excludes only its
 own derived hash/ID; the publish command returns the baseline's ID, hash and name, and the
 event and saved response record the same. Later review leaves saved baselines unchanged. Audit exports
 are not database-import files; no import/supersession endpoint is implemented.

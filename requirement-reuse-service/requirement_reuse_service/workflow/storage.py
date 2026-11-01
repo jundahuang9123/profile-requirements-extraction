@@ -9,7 +9,7 @@ small state row, so that extending the lease before each model call writes only 
 ``get`` / ``get_run`` assemble the complete run, so readers see the same structure as
 before; ``mutate(..., hydrate=True)`` returns it without the attempt history, which every
 resume extends by a copy of the run's working state, and without the published baselines,
-which copy the run's model calls and attempts. Runs saved by earlier versions keep their parts
+which copy the run's model calls. Runs saved by earlier versions keep their parts
 inline until their next update, which moves the parts to rows.
 
 A command repeated under its idempotency key returns its first response unchanged: the run
@@ -64,9 +64,9 @@ RUN_PARTS = {'model_calls': list, 'attempt_history': list, 'baselines': list, 'b
 _LISTS = {name for name, shape in RUN_PARTS.items() if shape is list}
 _VALUES = {'machine_snapshot'}          # stored as one row; every other dict is keyed per entry
 # Every resume adds a copy of the run's working state to its attempt history, so a run resumed often
-# carries far more history than current state; a published baseline copies the run's model calls and
-# attempts. Command responses leave both out (the run lists its baselines in baseline_summaries);
-# get_run includes them.
+# carries far more history than current state; a published baseline copies the run's model calls (a
+# v2 baseline also its attempts). Command responses leave both out (the run lists its baselines in
+# baseline_summaries); get_run includes them.
 NOT_IN_RESPONSES = ('attempt_history', 'baselines')
 # SQLite's default SQLITE_MAX_LENGTH: a larger value is refused when it is saved.
 MAX_VALUE_BYTES = 1_000_000_000

@@ -1,7 +1,8 @@
-"""A published baseline copies the run's model calls, machine snapshot and earlier attempts, so on a long run
-it is far larger than the run's current state. Publishing loads only the parts it copies and answers with a
-summary; views, step downloads and command responses list baselines by ``baseline_summaries``. The baseline
-itself is read at ``/baselines/{id}``, in the full view and in the export, under the same hash as before."""
+"""A published baseline copies the run's model calls and machine snapshot and records its earlier attempts by
+number and SHA-256, which a v2 baseline copied; on a long run they were far larger than the run's current
+state. Publishing loads only the parts it copies and answers with a summary; views, step downloads and command
+responses list baselines by ``baseline_summaries``. The baseline itself is read at ``/baselines/{id}``, in the
+full view and in the export."""
 import json
 import sqlite3
 from collections import Counter
@@ -60,7 +61,7 @@ def test_publishing_loads_no_earlier_baseline_and_answers_with_a_summary(context
     assert second.json()['run']['baseline_summaries'] == summaries and 'baselines' not in second.json()['run']
     # Repeated under its key, the command returns its first response.
     assert publish(client, run, record, key='second', name='Second').json() == second.json()
-    assert part_reads['rows']['baselines'] == 0
+    assert part_reads['rows']['baselines'] == 0 and part_reads['rows']['attempt_history'] == 0
     part_reads['on'] = False
     # The event and the saved response hold the summary, not two more copies of the baseline.
     event = [e for e in store.events(run['run_id']) if e['event_type'] == 'baseline_published'][-1]
@@ -73,7 +74,8 @@ def test_publishing_loads_no_earlier_baseline_and_answers_with_a_summary(context
     saved = store.get('run', run['run_id'])['baselines']
     assert [engine.baseline_summary(b) for b in saved] == summaries
     for baseline in saved:
-        assert baseline['provenance']['attempt_history'] == [{'status': 'failed'}]
+        assert 'attempt_history' not in baseline['provenance']
+        assert baseline['provenance']['attempt_history_record'] == {'count': 1, 'sha256': digest([{'status': 'failed'}])}
         assert baseline['baseline_hash'] == digest({k: v for k, v in baseline.items() if k not in {'baseline_hash', 'baseline_id'}})
 
 
@@ -152,3 +154,20 @@ def test_a_discussion_of_a_published_run_cannot_be_continued():
               'stages': {s: 'completed' for s in upstream}, 'baseline_summaries': [{'baseline_id': 'baseline-b'}]}
     with pytest.raises(ValueError, match='published baselines'):
         fd.derive_discussion_run(None, source, DeriveRequest(start_from='deliberation', expected_version=3, rationale='Continue.'), 'fixture')
+
+
+def test_a_baseline_records_the_attempts_the_run_serves(context):
+    store, client = context
+    run = setup_run(context)
+    for attempt in ({'status': 'failed', 'note': 'Größe'}, {'status': 'cancelled'}):
+        store.mutate(run['run_id'], None, 'earlier_attempt', lambda r, a=attempt: r['attempt_history'].append(a))
+    run = store.get('run', run['run_id'])
+    record = run['requirements'][0]
+    accepted, _ = decision(client, assess(client, run, record), [record['revision_id']])
+    summary = publish(client, accepted.json()['run'], record).json()['result']
+    baseline = client.get(f'/api/rq1/v2/runs/{run["run_id"]}/baselines/{summary["baseline_id"]}?download=true')
+    assert baseline.headers['content-disposition'] == 'attachment; filename="rq1-validated-baseline-v3.json"'
+    served = client.get(f'/api/rq1/v2/runs/{run["run_id"]}/attempts').json()['attempts']
+    assert baseline.json()['schema_version'] == 'rq1-validated-requirement-baseline-v3'
+    assert baseline.json()['provenance']['attempt_history_record'] == {'count': 2, 'sha256': digest(served)}
+    assert served == [{'status': 'failed', 'note': 'Größe'}, {'status': 'cancelled'}]

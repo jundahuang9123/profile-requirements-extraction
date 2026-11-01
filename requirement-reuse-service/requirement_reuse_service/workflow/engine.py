@@ -2057,7 +2057,7 @@ def publish_baseline(store: Store, run_id: str, request: BaselineRequest, actor:
             if not decision or decision['action'] != 'accept' or record.content_hash not in decision['revision_hashes']:
                 raise ValueError('Missing revision-bound human acceptance decision.')
         snapshot = store.get('snapshot', run['snapshot_id'])
-        payload = {'schema_version': 'rq1-validated-requirement-baseline-v2', 'name': request.name,
+        payload = {'schema_version': 'rq1-validated-requirement-baseline-v3', 'name': request.name,
             'workflow_version': run['workflow_version'], 'snapshot': snapshot,
             'requirements': sorted([r.model_dump(mode='json') for r in records], key=lambda r: r['revision_id']),
             'provenance': {'run_id': run_id, 'role_runs': run['role_runs'], 'observations': run['observations'],
@@ -2065,7 +2065,9 @@ def publish_baseline(store: Store, run_id: str, request: BaselineRequest, actor:
                            'consolidation_events': run['consolidation_events'], 'conflicts': run['conflicts'],
                            'deliberations': run['deliberations'], 'assessment_history': run.get('assessment_history', []),
                            'implementation_hash': run.get('implementation_hash'), 'strategy': run['strategy'],
-                           'active_revision_ids': run['active_revision_ids'], 'attempt_history': run.get('attempt_history', [])},
+                           'active_revision_ids': run['active_revision_ids'],
+                           # The earlier attempts stay in the run (/attempts, the export): v3 records them, v2 copied them.
+                           'attempt_history_record': attempt_history_record(store, run_id)},
             'sources': [store.get('source', sid) for sid in snapshot['source_version_ids']],
             'evidence_units': [store.get('evidence', eid) for eid in run['evidence_ids']],
             'excluded_unresolved': [r for r in run['requirements'] if r['revision_id'] not in request.revision_ids],
@@ -2087,10 +2089,21 @@ def publish_baseline(store: Store, run_id: str, request: BaselineRequest, actor:
         if run['stages']['adjudication'] == 'completed':
             run['status'] = 'completed'
         return summary
-    # The baseline copies the model calls, machine snapshot and attempt history: load only those parts.
+    # The baseline copies the model calls and the machine snapshot: load only those parts.
     return store.mutate(run_id, request.expected_version, 'baseline_published', apply, parts=True, hydrate=True,
-                        omit=tuple(p for p in RUN_PARTS if p not in {'model_calls', 'machine_snapshot', 'attempt_history'}),
+                        omit=tuple(p for p in RUN_PARTS if p not in {'model_calls', 'machine_snapshot'}),
                         key=request.idempotency_key, payload=request.model_dump(mode='json'))
+
+
+def attempt_history_record(store, run_id):
+    """The run's earlier attempts by number and by the SHA-256 of their saved list (digest of the list), read
+    one attempt at a time: what a baseline records instead of a copy."""
+    hasher, count = hashlib.sha256(b'['), 0
+    for attempt in store.run_part_bodies(run_id, 'attempt_history'):
+        hasher.update((',' if count else '').encode() + attempt.encode())
+        count += 1
+    hasher.update(b']')
+    return {'count': count, 'sha256': hasher.hexdigest()}
 
 
 def baseline_summary(baseline):

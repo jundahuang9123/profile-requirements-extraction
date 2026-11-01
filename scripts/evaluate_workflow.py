@@ -17,12 +17,12 @@ def main():
     data = json.loads(args.export.read_text(encoding='utf-8'))
     if data.get('export_kind') == 'saved_review_state':
         run = data['run']
-    elif data.get('schema_version') == 'rq1-validated-requirement-baseline-v2':
+    elif data.get('schema_version') in {'rq1-validated-requirement-baseline-v2', 'rq1-validated-requirement-baseline-v3'}:
         provenance = data['provenance']
         run = {**provenance, 'snapshot_id': data['snapshot']['snapshot_id'],
             'strategy': provenance['strategy'], 'requirements': provenance['all_revisions']}
     else:
-        parser.error('Expected a saved v2 workflow export or validated v2 baseline.')
+        parser.error('Expected a saved v2 workflow export or a validated v2 or v3 baseline.')
     output = json.dumps(workflow_metrics(run), indent=2, ensure_ascii=False) + '\n'
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)

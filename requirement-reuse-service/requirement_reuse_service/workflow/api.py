@@ -111,8 +111,8 @@ def downloadable(value, enabled: bool, filename: str):
 
 
 # Audit parts the workbench does not display; the export always includes them. The attempt history and
-# the published baselines, which copy the model-call log and the attempts (NOT_IN_RESPONSES), outgrow
-# the rest of a run: no workbench read loads them, and the workbench lists baselines by baseline_summaries.
+# the published baselines, which copy the model-call log (NOT_IN_RESPONSES), outgrow the rest of a run:
+# no workbench read loads them, and the workbench lists baselines by baseline_summaries.
 AUDIT_PARTS = ('model_calls', 'machine_snapshot', 'catalogues', 'assessment_reuse', 'consolidation_chunks', 'base_check_audit', 'need_chunks',
                *NOT_IN_RESPONSES)
 # Statuses a run can be left in when its worker stops (a failure, a cancel or a server restart), plus
@@ -543,7 +543,9 @@ def get_baseline(run_id: str, baseline_id: str, download: bool = False):
         if baseline is None:
             raise KeyError(baseline_id)
         return baseline
-    return downloadable(translate(read), download, 'rq1-validated-baseline-v2.json')
+    baseline = translate(read)
+    version = baseline['schema_version'].rsplit('-', 1)[-1]
+    return downloadable(baseline, download, f'rq1-validated-baseline-{version}.json')
 
 
 @router.get('/base-profiles/{profile_id}/needs')
