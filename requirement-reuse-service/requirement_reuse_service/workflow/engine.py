@@ -364,7 +364,8 @@ def pin_base_needs_catalogue(run: WorkflowRun):
 
 def derive_run(store: Store, source_run_id: str, request: DeriveRequest, actor='local-reviewer') -> dict:
     """Restart from a frozen panel or extraction without mutating the source."""
-    source = store.get('run', source_run_id)
+    # A trial starts with no attempts of its own; the source's are not copied.
+    source = store.get_run(source_run_id, omit=('attempt_history',))
     if source['version'] != request.expected_version:
         raise ConflictError('Source run changed. Refresh before deriving a run.')
     if source.get('worker_id') and source.get('job_lease_until', 0) > time.time():
@@ -1528,7 +1529,7 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
         prior_records = {r['revision_id']: r for r in run['requirements']}
         assessment_reuse = {}
         if (run.get('derived_from') or {}).get('reuse_assessments'):
-            assessment_reuse = store.get_run(run_id, omit=('model_calls', 'catalogues', 'machine_snapshot'))['assessment_reuse']
+            assessment_reuse = store.get_run(run_id, omit=tuple(p for p in RUN_PARTS if p != 'assessment_reuse'))['assessment_reuse']
             if digest(assessment_reuse) != run['derived_from']['assessments_hash']:
                 raise ValueError('Frozen assessment reuse cache hash mismatch.')
             prior_records.update({f'reused-{h}': r for h, r in assessment_reuse.items()})
@@ -1704,9 +1705,9 @@ def execute_run(store: Store, run_id: str, client: LLMClient | None = None):
             from .base_review import review_base
             active_stage = 'base_review'
             start_stage('base_review', 'reviewing_base')
-            review_base(store, store.get('run', run_id), client, phase='before_discussion')
+            review_base(store, store.get_run(run_id, omit=('attempt_history',)), client, phase='before_discussion')
             # Rehydrate revisions changed by the procedural reviewer before discussion.
-            run = store.get('run', run_id)
+            run = store.get_run(run_id, omit=('attempt_history',))
             run = patch('base_review', {'requirements': run['requirements'], 'status': 'routing'},
                 result_extras=run['stage_results']['base_review'])
             if pause('base_review'):

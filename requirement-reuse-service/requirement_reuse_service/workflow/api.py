@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import re
 import uuid
@@ -7,7 +8,7 @@ import time
 from copy import deepcopy
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
 from .engine import (HUMAN_REQUEST_PREFIX, UNFINISHED_CASE_STATES, active_records, configured_client, decide,
@@ -17,7 +18,7 @@ from .engine import (HUMAN_REQUEST_PREFIX, UNFINISHED_CASE_STATES, active_record
 from .evidence import register_source, resolve_evidence
 from .models import (AdditionRequest, AssessmentRequest, BaselineRequest, DecisionRequest, EvidenceUnit,
                      MessageRequest, RestoreRequest, Observation, RunRequest, DeriveRequest, SnapshotRequest, SourceRequest)
-from .storage import ConflictError, Store, now, uid
+from .storage import NOT_IN_RESPONSES, RUN_PARTS, ConflictError, Store, now, uid
 from ..llm.config import runtime_config_status, set_runtime_config
 from .role_selection import ensure_selection_resumable
 
@@ -109,8 +110,11 @@ def downloadable(value, enabled: bool, filename: str):
     return JSONResponse(value)
 
 
-# Audit parts the workbench does not display; the export always includes them.
-AUDIT_PARTS = ('model_calls', 'machine_snapshot', 'catalogues', 'assessment_reuse', 'consolidation_chunks', 'base_check_audit', 'need_chunks')
+# Audit parts the workbench does not display; the export always includes them. The attempt history
+# (NOT_IN_RESPONSES) outgrows the rest of a run that was resumed often: no workbench read loads it. A
+# published baseline keeps its own copy in its provenance, as it keeps the model-call log.
+AUDIT_PARTS = ('model_calls', 'machine_snapshot', 'catalogues', 'assessment_reuse', 'consolidation_chunks', 'base_check_audit', 'need_chunks',
+               *NOT_IN_RESPONSES)
 # Statuses a run can be left in when its worker stops (a failure, a cancel or a server restart), plus
 # awaiting_human for failed roles or unfinished discussions. Every status a stage starts with belongs here,
 # reviewing_base included: a restart during base review otherwise strands the run.
@@ -229,8 +233,9 @@ def create_run(request: RunRequest, background: BackgroundTasks):
 
 @router.get('/runs/{run_id}')
 def get_run(run_id: str, audit: bool = True, download: bool = False):
-    """The saved run. ``audit=false`` leaves out the model-call log, the frozen machine
-    snapshot and the excerpt catalogues, which the workbench does not display."""
+    """The saved run. ``audit=false`` leaves out the audit parts (``AUDIT_PARTS``), which the
+    workbench does not display: among them the model-call log, the frozen machine snapshot, the
+    excerpt catalogues and the earlier attempts (``/attempts``)."""
     return downloadable(translate(lambda: Store().get_run(run_id, omit=() if audit else AUDIT_PARTS)), download, f'{run_id}.json')
 
 
@@ -258,7 +263,7 @@ def get_events(run_id: str):
 @router.get('/runs/{run_id}/evaluation')
 def evaluate_run(run_id: str, download: bool = False):
     from .evaluation import workflow_metrics
-    return downloadable(translate(lambda: workflow_metrics(Store().get('run', run_id))), download, 'rq1-workflow-metrics.json')
+    return downloadable(translate(lambda: workflow_metrics(Store().get_run(run_id, omit=NOT_IN_RESPONSES))), download, 'rq1-workflow-metrics.json')
 
 
 @router.get('/runs/{run_id}/export')
@@ -301,7 +306,7 @@ def cancel_run(run_id: str, request: VersionRequest):
 def export_stage(run_id: str, stage: str, download: bool = False):
     def read():
         store = Store()
-        run = store.get('run', run_id)
+        run = store.get_run(run_id, omit=NOT_IN_RESPONSES)
         from .trace_links import stage_results
         results = stage_results(run, stage)
         checkpoint = run.get('stage_results', {}).get(stage) if stage not in {'adjudication', 'baseline'} else None
@@ -525,7 +530,8 @@ def create_baseline(run_id: str, request: BaselineRequest):
 @router.get('/runs/{run_id}/baselines/{baseline_id}')
 def get_baseline(run_id: str, baseline_id: str, download: bool = False):
     def read():
-        baseline = next((b for b in Store().get('run', run_id).get('baselines', []) if b['baseline_id'] == baseline_id), None)
+        baselines = Store().get_run(run_id, omit=tuple(p for p in RUN_PARTS if p != 'baselines'))['baselines']
+        baseline = next((b for b in baselines if b['baseline_id'] == baseline_id), None)
         if baseline is None:
             raise KeyError(baseline_id)
         return baseline
@@ -541,7 +547,7 @@ def base_needs_catalogue(profile_id: str, download: bool = False):
 @router.get('/runs/{run_id}/coverage')
 def export_coverage(run_id: str):
     from .fa_requirements import coverage_ledger
-    return translate(lambda: coverage_ledger(Store().get('run',run_id)))
+    return translate(lambda: coverage_ledger(Store().get_run(run_id, omit=NOT_IN_RESPONSES)))
 
 
 @router.get('/runs/{run_id}/needs')
@@ -555,7 +561,7 @@ def run_traceability(run_id: str, download: bool = False):
     """The saved traceability summary of a finished run, or one built now for a run finished before rq1-need-trace-v1."""
     def read():
         from .need_trace import TraceIndex, need_summary, need_trace, produced_needs, review_items, traceability
-        store = Store(); run = store.get_run(run_id)
+        store = Store(); run = store.get_run(run_id, omit=NOT_IN_RESPONSES)
         if (run.get('stage_results') or {}).get('traceability'): return run['stage_results']['traceability']
         index = TraceIndex(store, run); traces = {r: need_trace(index, r) for r in produced_needs(run)}
         return {**traceability(traces, set(run['active_revision_ids'])), 'saved': False, 'review_items_unresolved': review_items(index),
@@ -571,18 +577,31 @@ def need_trace_view(run_id: str, revision_id: str, download: bool = False):
     def read():
         from .need_trace import TraceIndex, need_summary, need_trace, summary_parts
         from .trace_links import link_trace
-        store = Store(); run = store.get_run(run_id); index = TraceIndex(store, run)
+        store = Store(); run = store.get_run(run_id, omit=NOT_IN_RESPONSES); index = TraceIndex(store, run)
         if revision_id not in index.records: raise KeyError(f'No revision {revision_id} in {run_id}.')
         trace = need_trace(index, revision_id)
         return {**link_trace(index, trace), 'summary': need_summary(trace), 'summary_parts': summary_parts(trace)}
     return downloadable(translate(read), download, f'trace-{revision_id}.json')
 
 
+@router.get('/runs/{run_id}/attempts')
+def attempt_history_view(run_id: str, download: bool = False):
+    """The run's earlier attempts: the working state each resume replaced, oldest first. Sent as saved,
+    one attempt at a time: a run resumed often carries hundreds of megabytes of them."""
+    attempts = translate(lambda: Store().run_part_bodies(run_id, 'attempt_history'))
+    def body():
+        yield '{"run_id":' + json.dumps(run_id) + ',"attempts":['
+        for number, attempt in enumerate(attempts):
+            yield (',' if number else '') + attempt
+        yield ']}'
+    headers = {'Content-Disposition': f'attachment; filename="{run_id}-attempts.json"'} if download else None
+    return StreamingResponse(body(), media_type='application/json', headers=headers)
+
+
 @router.get('/runs/{run_id}/calls/{call_id}')
 def model_call_view(run_id: str, call_id: str, download: bool = False):
     """One saved model call: its step, model, output and hashes (inputs are kept only as hashes)."""
     def read():
-        from .storage import RUN_PARTS
         run = Store().get_run(run_id, omit=tuple(p for p in RUN_PARTS if p != 'model_calls'))
         call = next((c for c in run.get('model_calls') or [] if c.get('call_id') == call_id), None)
         if call is None: raise KeyError(f'No model call {call_id} in {run_id}.')

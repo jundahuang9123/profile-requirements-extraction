@@ -17,7 +17,8 @@ from requirement_reuse_service.workflow.engine import TrackedClient, execute_run
 from requirement_reuse_service.workflow.evaluation import workflow_metrics
 from requirement_reuse_service.workflow.evidence import register_source
 from requirement_reuse_service.workflow.models import RunRequest, SnapshotRequest, SourceRequest
-from requirement_reuse_service.workflow.storage import RUN_PARTS, ConflictError, PartNotLoaded, Store, canonical, digest
+from requirement_reuse_service.workflow.storage import (NOT_IN_RESPONSES, RUN_PARTS, ConflictError, PartNotLoaded, Store,
+                                                         canonical, digest)
 
 from test_resume_discussions import NEEDS, ROLES, ScriptedClient
 
@@ -103,6 +104,33 @@ def test_a_cancelled_run_refuses_model_calls_and_the_lease_blocks_resume(setup):
     store.mutate(run['run_id'], None, 'cancel', lambda r: r.update(status='cancelled'))
     with pytest.raises(ConflictError, match='cancelled'):
         store.touch_run(run['run_id'], time.time() + 900)
+
+
+def test_a_loading_change_leaves_omitted_parts_write_only(setup):
+    store, run, _ = setup
+    store.mutate(run['run_id'], None, 'seed', lambda r: (r['attempt_history'].append({'status': 'failed'}),
+                                                         r['stage_results'].update(review={'phases': {'a': 1}})))
+    others = tuple(p for p in RUN_PARTS if p != 'stage_results')
+    with pytest.raises(PartNotLoaded):
+        store.mutate(run['run_id'], None, 'read', lambda r: len(r['attempt_history']), parts=True, omit=others)
+    def change(r):
+        r['stage_results']['review']['phases']['b'] = 2      # a loaded part is read and edited in place
+        r['attempt_history'].append({'status': 'cancelled'})   # an omitted one is still written
+    store.mutate(run['run_id'], None, 'change', change, parts=True, omit=others)
+    saved = store.get('run', run['run_id'])
+    assert saved['stage_results']['review'] == {'phases': {'a': 1, 'b': 2}}
+    assert saved['attempt_history'] == [{'status': 'failed'}, {'status': 'cancelled'}]
+
+
+def test_a_loading_change_that_assigns_an_omitted_part_replaces_its_stored_rows(setup):
+    store, run, _ = setup
+    store.mutate(run['run_id'], None, 'seed', lambda r: (r['attempt_history'].append({'n': 1}), r['need_steps'].update(a=1, b=2)))
+    def assign(r):
+        r['attempt_history'] = [{'n': 1}, {'n': 2}]
+        r['need_steps'] = {'a': 1}
+    store.mutate(run['run_id'], None, 'assign', assign, parts=True, omit=('attempt_history', 'need_steps'))
+    saved = store.get('run', run['run_id'])
+    assert saved['attempt_history'] == [{'n': 1}, {'n': 2}] and saved['need_steps'] == {'a': 1}
 
 
 def test_change_functions_cannot_read_unloaded_parts_but_can_write_them(setup):
@@ -230,7 +258,7 @@ def test_workbench_view_leaves_out_audit_parts_only(setup):
     view = http.get(f'/api/rq1/v2/runs/{run["run_id"]}?audit=false').json()
     assert full['model_calls'] and full['machine_snapshot'] and full['catalogues']
     assert view == {key: value for key, value in full.items() if key not in api.AUDIT_PARTS}
-    assert view['stage_results'] and 'attempt_history' in view and 'baselines' in view
+    assert view['stage_results'] and 'baselines' in view and 'attempt_history' not in view
 
 
 # A command repeated under its idempotency key returns its first response unchanged.
@@ -263,6 +291,41 @@ def test_a_retried_command_returns_its_first_response_after_the_run_changed(setu
     # Candidates, stage copies and logs all as the first response showed them.
     assert retried.json() == first.json()
     assert store.get('run', run['run_id']) == now        # nothing applied twice
+
+
+def test_command_responses_leave_out_the_attempt_history_also_when_repeated(setup):
+    store, run, client = setup
+    execute_run(store, run['run_id'], client)
+    store.mutate(run['run_id'], None, 'earlier_attempt', lambda r: r['attempt_history'].append({'status': 'failed'}))
+    saved = store.get('run', run['run_id'])
+    record = next(r for r in saved['requirements'] if r['revision_id'] in saved['active_revision_ids'])
+    http = TestClient(app)
+    command = {'expected_version': saved['version'], 'idempotency_key': 'defer-attempts', 'action': 'defer',
+               'revision_ids': [record['revision_id']], 'rationale': 'Needs a second look.'}
+    first = http.post(f'/api/rq1/v2/runs/{run["run_id"]}/decisions', json=command)
+    assert first.status_code == 200, first.text
+    assert 'attempt_history' not in first.json()['run'] and first.json()['run']['model_calls']
+    store.mutate(run['run_id'], None, 'later_attempt', lambda r: r['attempt_history'].append({'status': 'resumed'}))
+    retried = http.post(f'/api/rq1/v2/runs/{run["run_id"]}/decisions', json=command)
+    assert retried.json() == first.json()
+    assert store.get('run', run['run_id'])['attempt_history'] == [{'status': 'failed'}, {'status': 'resumed'}]
+
+
+def test_the_attempts_are_sent_as_saved_also_from_a_run_saved_by_an_earlier_version(setup):
+    store, run, _ = setup
+    http = TestClient(app)
+    legacy = {**store.get('run', run['run_id']), 'attempt_history': [{'status': 'failed', 'note': 'ä'}]}
+    write_earlier_layout(store, run['run_id'], legacy)
+    assert http.get(f'/api/rq1/v2/runs/{run["run_id"]}/attempts').json()['attempts'] == [{'status': 'failed', 'note': 'ä'}]
+    store.mutate(run['run_id'], None, 'resumed', lambda r: r['attempt_history'].append({'status': 'cancelled'}))
+    assert 'attempt_history' not in document(store, run['run_id'])
+    served = http.get(f'/api/rq1/v2/runs/{run["run_id"]}/attempts?download=true')
+    assert served.json() == {'run_id': run['run_id'], 'attempts': [{'status': 'failed', 'note': 'ä'}, {'status': 'cancelled'}]}
+    assert 'attachment' in served.headers['content-disposition']
+    assert list(store.run_part_bodies(run['run_id'], 'attempt_history')) == [
+        canonical({'status': 'failed', 'note': 'ä'}), canonical({'status': 'cancelled'})]
+    with pytest.raises(ValueError):
+        store.run_part_bodies(run['run_id'], 'stage_results')
 
 
 def test_a_retried_command_of_a_run_saved_by_an_earlier_version_returns_its_saved_response(setup):
@@ -326,7 +389,7 @@ def test_a_retried_command_saved_without_its_part_position_returns_the_current_r
     store.mutate(run_id, None, 'later', lambda r: r['stage_results'].update(a={'x': 2}))
     # The document and the parts come from the same moment, not one from each.
     assert store.mutate(run_id, None, 'x', lambda r: None, key='k', payload=None, hydrate=True) == {
-        'run': store.get('run', run_id), 'result': 'done'}
+        'run': store.get_run(run_id, omit=NOT_IN_RESPONSES), 'result': 'done'}
 
 
 def test_a_database_written_before_saved_responses_recorded_their_parts_is_upgraded(tmp_path):

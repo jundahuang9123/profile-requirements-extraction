@@ -2091,8 +2091,8 @@ def deliberate(store,run_id,client):
             store.mutate(run_id,None,'fa_discussion_budget_review',pending)
     if policy in BASE_POLICIES:
         from .base_review import review_base
-        review_base(store,store.get('run',run_id),client,phase='after_discussion')
-    final_coverage=coverage_ledger(store.get('run',run_id))
+        review_base(store,store.get_run(run_id,omit=('attempt_history',)),client,phase='after_discussion')
+    final_coverage=coverage_ledger(store.get_run(run_id,omit=('attempt_history',)))
     def finish(r):
         r.update(status='awaiting_human');r['stages']['deliberation']='completed'
         outcomes=[o for c in r['deliberations'] for o in c.get('mediation',{}).get('outcomes',[])]

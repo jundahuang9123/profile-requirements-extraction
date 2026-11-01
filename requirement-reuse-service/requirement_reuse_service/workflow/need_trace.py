@@ -52,7 +52,7 @@ class TraceIndex:
             source = (self.origin_run.get('derived_from') or {}).get('run_id')
             if not source: break
             try: self.origin_run = store.get_run(source, omit=('need_chunks', 'deliberations', 'stage_results', 'machine_snapshot',
-                                                                 'requirements', 'stakeholder_audit', 'catalogues'))
+                                                                 'requirements', 'stakeholder_audit', 'catalogues', 'attempt_history'))
             except Exception: break
             self.earlier_runs.append(self.origin_run); hops += 1
         self.run_ids = [run.get('run_id'), *[r.get('run_id') for r in self.earlier_runs]]
@@ -767,7 +767,7 @@ def record_traceability(store, run_id, style='card'):
     put in front of a reviewer. It stays visible and restorable like any set-aside."""
     from .models import RequirementRecord
     from .needs import need_integrity
-    run = store.get_run(run_id)
+    run = store.get_run(run_id, omit=('attempt_history',))
     if run.get('status') != 'awaiting_human' or not produced_needs(run): return None
     index = TraceIndex(store, run)
     traces = {r: need_trace(index, r) for r in produced_needs(run)}

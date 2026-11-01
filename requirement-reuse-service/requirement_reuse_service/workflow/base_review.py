@@ -5,7 +5,7 @@ from types import SimpleNamespace
 from typing import Literal
 from pydantic import Field, ValidationError
 from .models import Contract, RequirementRecord
-from .storage import canonical, digest, now
+from .storage import RUN_PARTS, canonical, digest, now
 from .call_log import recorded_calls
 from .base_needs import load_catalogue, offer_entries, item_picks
 from .stakeholder_workflow import audit, save
@@ -440,7 +440,7 @@ def review_base(store,run,client,phase='before_discussion'):
         stage=r.setdefault('stage_results',{}).setdefault('base_review',{'policy_version':POLICY,'review_questions':[],'phases':{}})
         stage['phases'][phase]={'results':results,'counts':dict(Counter(x['status'] for x in results)),'saved_at':now()}
         stage['review_questions']=[q for q in stage['review_questions'] if q.get('phase')!=phase]+[{**q,'phase':phase} for q in questions]
-    store.mutate(run['run_id'],None,'base_review_summary',summary,parts=True)
+    store.mutate(run['run_id'],None,'base_review_summary',summary,parts=True,omit=tuple(p for p in RUN_PARTS if p!='stage_results'))
     return results
 
 

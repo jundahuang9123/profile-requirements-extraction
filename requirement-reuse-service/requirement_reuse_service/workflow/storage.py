@@ -6,12 +6,15 @@ call records, stage copies, the frozen machine snapshot, attempt history, baseli
 extraction excerpt catalogues). Keeping them out of the document means that updating a
 run rewrites only the document. The run's status and worker lease are also kept in a
 small state row, so that extending the lease before each model call writes only that row.
-``get`` / ``get_run`` and ``mutate(..., hydrate=True)`` assemble the complete run, so
-readers see the same structure as before. Runs saved by earlier versions keep their parts
+``get`` / ``get_run`` assemble the complete run, so readers see the same structure as
+before; ``mutate(..., hydrate=True)`` returns it without the attempt history, which every
+resume extends by a copy of the run's working state. Runs saved by earlier versions keep their parts
 inline until their next update, which moves the parts to rows.
 
 A command repeated under its idempotency key returns its first response unchanged: the run
-document saved with the command and the parts as they were at that moment. To make that
+document saved with the command and the parts as they were at that moment, without the attempt
+history (also for a command first applied before responses left it out). A response saved by
+the layout before parts, with its parts inline, is returned exactly as saved. To make that
 possible, a part row that a saved response included is kept in ``run_part_history`` when a
 later update replaces or removes it.
 """
@@ -25,7 +28,7 @@ import uuid
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Iterator
 
 
 def canonical(value: Any) -> str:
@@ -59,6 +62,9 @@ RUN_PARTS = {'model_calls': list, 'attempt_history': list, 'baselines': list, 'b
              'consolidation_chunks': dict, 'need_chunks': dict, 'need_steps': dict, 'stakeholder_audit': dict}
 _LISTS = {name for name, shape in RUN_PARTS.items() if shape is list}
 _VALUES = {'machine_snapshot'}          # stored as one row; every other dict is keyed per entry
+# Every resume adds a copy of the run's working state to its attempt history, so a run resumed often
+# carries far more history than current state. Command responses leave it out; get_run includes it.
+NOT_IN_RESPONSES = ('attempt_history',)
 _MISSING = object()
 
 
@@ -218,16 +224,46 @@ class Store:
             return self.get_run(run_id, omit=tuple(name for name in RUN_PARTS if name != part))[part].get(key)
         return json.loads(row[0]) if row else None
 
+    def run_part_bodies(self, run_id: str, part: str) -> Iterator[str]:
+        """The saved JSON of each entry of a list part, oldest first, without parsing it.
+
+        Entries are read one at a time, each in its own short transaction, so that streaming
+        a part of hundreds of megabytes neither holds it in memory nor keeps writers waiting.
+        A part still held inline in the document (an earlier layout) is read as get_run reads it.
+        """
+        if part not in _LISTS:
+            raise ValueError(f'{part} is not a list part of a run.')
+        with self.connect() as db:
+            db.execute('BEGIN')
+            inline = db.execute("SELECT json_type(body, '$.' || ?) FROM objects WHERE kind='run' AND id=?",
+                                (part, run_id)).fetchone()
+            if inline is None:
+                raise KeyError(f'run {run_id} not found')
+            positions = [row[0] for row in db.execute(
+                'SELECT sequence FROM run_parts WHERE run_id=? AND part=? ORDER BY sequence', (run_id, part))]
+        if inline[0] is not None:
+            return iter([canonical(item) for item in self.get_run(run_id, omit=tuple(p for p in RUN_PARTS if p != part))[part]])
+        def entries():
+            for position in positions:
+                with self.connect() as db:
+                    row = db.execute('SELECT body FROM run_parts WHERE sequence=? AND run_id=? AND part=?',
+                                     (position, run_id, part)).fetchone()
+                if row is None:
+                    raise ConflictError(f'{part} of {run_id} changed while it was read.')
+                yield row[0]
+        return entries()
+
     def mutate(self, run_id: str, expected_version: int | None, event_type: str,
                change: Callable[[dict], Any], *, key: str | None = None, payload: dict | None = None,
-               parts: bool = False, hydrate: bool = False) -> dict:
+               parts: bool = False, hydrate: bool = False, omit: tuple[str, ...] = ()) -> dict:
         """The command result, event, and aggregate update share one transaction.
 
         ``change`` receives the run document. Its parts are write-only stand-ins: appending
         to a list part, setting or removing entries of ``stage_results``, and assigning a
         part are saved without loading the part. With ``parts=True`` the parts are loaded
-        and any change to them is saved. With ``hydrate=True`` the returned run includes
-        the parts, as API responses need.
+        and any change to them is saved; parts named in ``omit`` stay write-only. With
+        ``hydrate=True`` the returned run includes the parts but the attempt history, as API
+        responses need.
 
         A command repeated with the same ``key`` and payload is not applied again; it returns
         the response of its first application (see ``_replayed``).
@@ -245,13 +281,15 @@ class Store:
             if expected_version is not None and expected_version != run['version']:
                 raise ConflictError('The run has changed. Refresh before applying this command.')
             if parts:
-                loaded, before = self._read_parts(db, run_id, with_bodies=True)
-                run.update(loaded)
+                loaded, before = self._read_parts(db, run_id, with_bodies=True, omit=omit)
+                run.update({name: value for name, value in loaded.items() if name not in omit})
+                # An omitted part that the change assigns is compared with its stored rows.
+                before = {name: rows for name, rows in before.items() if name not in omit}
             else:
-                before = None
-                # A value part (the machine snapshot) can only be replaced as a whole.
-                run.update({name: _WriteOnlyList(name) if name in _LISTS else
-                            _WriteOnlyPart(name) if name in _VALUES else _WriteOnlyDict(name) for name in RUN_PARTS})
+                before, omit = None, tuple(RUN_PARTS)
+            # A value part (the machine snapshot) can only be replaced as a whole.
+            run.update({name: _WriteOnlyList(name) if name in _LISTS else
+                        _WriteOnlyPart(name) if name in _VALUES else _WriteOnlyDict(name) for name in omit if name in RUN_PARTS})
             result = change(run)
             run['version'] += 1
             self._save_parts(db, run_id, run, before)
@@ -267,7 +305,7 @@ class Store:
                            (run_id, key, digest(payload), canonical({**response, 'parts_sequence': position})))
                 db.execute('UPDATE run_state SET replay_sequence=? WHERE run_id=?', (position, run_id))
             if hydrate:
-                response = {'run': self._attach_parts(db, run_id, dict(run)), 'result': result}
+                response = {'run': self._hydrated(db, run_id, dict(run)), 'result': result}
             return response
 
     def append_run_part(self, run_id: str, part: str, item: Any, *, event_type: str | None = None) -> None:
@@ -437,23 +475,28 @@ class Store:
         if position is not None:
             if hydrate:
                 parts = self._parts_as_of(db, run_id, position, saved['run']['version'])
-                saved['run'] = {**saved['run'], **parts}
+                saved['run'] = {**saved['run'], **{name: value for name, value in parts.items() if name not in NOT_IN_RESPONSES}}
             return saved
         if set(RUN_PARTS) & saved['run'].keys():
             return saved     # saved by an earlier version with the parts inline, as it was returned
         # Saved by this layout before responses recorded their position: the run as it is now,
         # document and parts read together.
         run = self._load_run(db, run_id)
-        return {'run': self._attach_parts(db, run_id, run) if hydrate else self._without_parts(run),
+        return {'run': self._hydrated(db, run_id, run) if hydrate else self._without_parts(run),
                 'result': saved['result']}
 
+    def _hydrated(self, db, run_id: str, run: dict) -> dict:
+        run = self._attach_parts(db, run_id, run, omit=NOT_IN_RESPONSES)
+        return {key: value for key, value in run.items() if key not in NOT_IN_RESPONSES}
+
     def _parts_as_of(self, db, run_id: str, position: int, version: int) -> dict:
+        left_out = ','.join('?' * len(NOT_IN_RESPONSES))
         rows = db.execute(
             'SELECT part,key,body FROM ('
-            ' SELECT sequence,part,key,body FROM run_parts WHERE run_id=? AND sequence<=?'
+            f' SELECT sequence,part,key,body FROM run_parts WHERE run_id=? AND sequence<=? AND part NOT IN ({left_out})'
             ' UNION ALL'
-            ' SELECT sequence,part,key,body FROM run_part_history WHERE run_id=? AND sequence<=? AND retired_at>?'
-            ') ORDER BY sequence', (run_id, position, run_id, position, version))
+            f' SELECT sequence,part,key,body FROM run_part_history WHERE run_id=? AND sequence<=? AND retired_at>? AND part NOT IN ({left_out})'
+            ') ORDER BY sequence', (run_id, position, *NOT_IN_RESPONSES, run_id, position, version, *NOT_IN_RESPONSES))
         return self._collect_parts(rows)
 
     @staticmethod
@@ -491,7 +534,7 @@ class Store:
                     else:
                         self._retire(db, run_id, name, version, keep, key)
                 continue
-            old = before[name] if before is not None else self._stored_bodies(db, run_id, name)
+            old = before[name] if before is not None and name in before else self._stored_bodies(db, run_id, name)
             if name in _LISTS:
                 items = list(value or [])
                 kept = len(items) >= len(old) and all(canonical(item) == body for item, body in zip(items, old))
