@@ -8,8 +8,14 @@ import sqlite3
 from collections import Counter
 
 import pytest
+from fastapi.testclient import TestClient
 
 from test_workflow import assess, context, decision, setup_run  # noqa: F401 (fixture)
+from test_routed_stakeholder_workflow import setup  # noqa: F401 (fixture)
+from test_attempt_history_reads import needs_run
+from test_need_trace_v1 import full_client
+from test_need_trace_v1_shapes import build_source, split_client
+from requirement_reuse_service.main import app
 from requirement_reuse_service.workflow import engine
 from requirement_reuse_service.workflow import fa_discussion as fd
 from requirement_reuse_service.workflow.models import DeriveRequest
@@ -106,21 +112,30 @@ def test_the_workbench_lists_baselines_without_reading_them(context, part_reads)
     # The baseline itself: its download, the full view and the export.
     baseline = client.get(f'{base}/baselines/{summary["baseline_id"]}').json()
     assert engine.baseline_summary(baseline) == summary and baseline['requirements'][0]['lifecycle_state'] == 'accepted'
+    part_reads['on'] = True
     assert client.get(base).json()['baselines'] == [baseline]
+    assert part_reads['rows']['baselines'] == 1      # the counter does see a read of the baselines
+    part_reads['on'] = False
     assert client.get(base + '/export').json()['run']['baselines'] == [baseline]
 
 
-def test_a_baseline_too_large_for_one_record_is_refused_and_nothing_is_saved(context, monkeypatch):
+@pytest.mark.parametrize('room', [2_000, 0])
+def test_a_baseline_too_large_for_one_record_is_refused_and_nothing_is_saved(context, part_reads, monkeypatch, room):
     store, client = context
     run, record = accepted_run(context)
-    monkeypatch.setattr(engine, 'MAX_VALUE_BYTES', 10_000)
+    copied = store.part_bytes(run['run_id'], ('model_calls', 'machine_snapshot'))
+    monkeypatch.setattr(engine, 'MAX_VALUE_BYTES', copied + room)
+    part_reads['on'] = True
     refused = publish(client, run, record)
+    part_reads['on'] = False
     assert refused.status_code == 422 and 'more than the run store keeps in one record' in refused.text
+    if not room:      # the parts it would copy are already too large: refused before anything is loaded
+        assert 'at least' in refused.text and not part_reads['rows']
     after = store.get('run', run['run_id'])
     assert after['version'] == run['version'] and after['baselines'] == [] and after['baseline_summaries'] == []
 
 
-def test_a_run_published_before_it_kept_summaries_still_lists_its_baselines(context):
+def test_a_run_published_before_it_kept_summaries_still_lists_its_baselines(context, monkeypatch):
     store, client = context
     run, record = accepted_run(context)
     summary = publish(client, run, record, key='first', name='First').json()['result']
@@ -129,8 +144,11 @@ def test_a_run_published_before_it_kept_summaries_still_lists_its_baselines(cont
         del body['baseline_summaries']
         db.execute("UPDATE objects SET body=? WHERE kind='run' AND id=?", (canonical(body), run['run_id']))
     base = f'/api/rq1/v2/runs/{run["run_id"]}'
+    reads = Counter()
+    get_run = Store.get_run
+    monkeypatch.setattr(Store, 'get_run', lambda self, *a, **k: (reads.update(['run']), get_run(self, *a, **k))[1])
     view = client.get(base + '?audit=false').json()
-    assert view['baseline_summaries'] == [summary]
+    assert view['baseline_summaries'] == [summary] and reads['run'] == 1      # the run document is read once
     assert client.get(base + '/stages/baseline').json()['results'] == {'baseline_summaries': [summary]}
     # The run's next baseline keeps the earlier one in the list.
     second = publish(client, view, record, key='second', name='Second').json()
@@ -171,3 +189,29 @@ def test_a_baseline_records_the_attempts_the_run_serves(context):
     assert baseline.json()['schema_version'] == 'rq1-validated-requirement-baseline-v3'
     assert baseline.json()['provenance']['attempt_history_record'] == {'count': 2, 'sha256': digest(served)}
     assert served == [{'status': 'failed', 'note': 'Größe'}, {'status': 'cancelled'}]
+
+
+def stub_baseline(store, run_id):
+    store.mutate(run_id, None, 'stub_baseline', lambda r: r['baselines'].append({'baseline_id': 'baseline-stub', 'name': 'Stub'}))
+
+
+def test_the_needs_export_reads_no_baseline(setup, part_reads):
+    store, original, _, _ = setup
+    run = needs_run(store, original)
+    engine.execute_run(store, run['run_id'], full_client())
+    stub_baseline(store, run['run_id'])
+    part_reads['on'] = True
+    assert TestClient(app).get(f'/api/rq1/v2/runs/{run["run_id"]}/needs').status_code == 200
+    assert part_reads['rows']['baselines'] == 0
+
+
+def test_the_trace_of_a_trial_reads_no_baseline_of_the_run_it_was_derived_from(setup, part_reads):
+    store, original, _, _ = setup
+    source = build_source(store, original, strip=True)
+    child = engine.derive_run(store, source['run_id'], DeriveRequest(start_from='base_review', expected_version=source['version'],
+                              rationale='Base trial of an older run.'))
+    stub_baseline(store, source['run_id'])
+    part_reads['on'] = True
+    engine.execute_run(store, child['run_id'], split_client())
+    assert part_reads['rows']['baselines'] == 0
+    assert store.get('run', child['run_id'])['stage_results']['traceability']

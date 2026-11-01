@@ -2037,7 +2037,16 @@ def decide(store: Store, run_id: str, request: DecisionRequest, actor: str) -> d
                         key=request.idempotency_key, payload=request.model_dump(mode='json'))
 
 
+def baseline_too_large(size, at_least=''):
+    return ValueError(f'This baseline would take {at_least}{size / 1e6:,.0f} MB, more than the run store keeps in one '
+                      f'record ({MAX_VALUE_BYTES / 1e6:,.0f} MB). It was not published.')
+
+
 def publish_baseline(store: Store, run_id: str, request: BaselineRequest, actor: str) -> dict:
+    # The model calls and the machine snapshot appear verbatim in a baseline: refuse before loading them.
+    copied = store.part_bytes(run_id, ('model_calls', 'machine_snapshot'))
+    if copied + 1_000 > MAX_VALUE_BYTES:
+        raise baseline_too_large(copied, 'at least ')
     def apply(run):
         records = active_records(run, request.revision_ids)
         if any(c['status'] != 'resolved' and set(c['revision_ids']) & set(request.revision_ids) for c in run['conflicts']):
@@ -2076,8 +2085,7 @@ def publish_baseline(store: Store, run_id: str, request: BaselineRequest, actor:
                                      role_manifest=run.get('role_manifest'))
         body = canonical(payload).encode()          # digest(payload), kept for the size check
         if len(body) + 1_000 > MAX_VALUE_BYTES:
-            raise ValueError(f'This baseline would take {len(body) / 1e6:,.0f} MB, more than the run store keeps in one '
-                             f'record ({MAX_VALUE_BYTES / 1e6:,.0f} MB). It was not published.')
+            raise baseline_too_large(len(body))
         payload['baseline_hash'] = hashlib.sha256(body).hexdigest()
         del body
         payload['baseline_id'] = uid('baseline', payload['baseline_hash'])
@@ -2112,8 +2120,8 @@ def baseline_summary(baseline):
 
 
 def baseline_summaries(store, run):
-    """The run's published baselines in short. For a run published before the run kept them, they are taken
-    from its baselines."""
+    """The run's published baselines in short. For a run saved before the run kept them, they are taken from its
+    baselines, read without the run document again."""
     if 'baseline_summaries' in run:
         return run['baseline_summaries']
-    return [baseline_summary(b) for b in store.get_run(run['run_id'], omit=tuple(p for p in RUN_PARTS if p != 'baselines'))['baselines']]
+    return [baseline_summary(json.loads(baseline)) for baseline in store.run_part_bodies(run['run_id'], 'baselines')]

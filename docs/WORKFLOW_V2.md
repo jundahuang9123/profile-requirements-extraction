@@ -221,11 +221,14 @@ load it; the full run view, the export, the audit trace and `/attempts` (sent on
 A baseline records the attempt history by number and SHA-256
 (`provenance.attempt_history_record`, the digest of the list `/attempts` sends); a v2
 baseline copied it. A baseline copies the model-call log, so a baseline of a long run is
-still large. Publishing loads only the parts a baseline copies, and the run lists its
-baselines by `baseline_summaries`: views, step downloads and
-command responses carry those, and a baseline itself is read at `/baselines/{id}`, in the
-full run view and in the export. A baseline larger than the 1 GB the store keeps in one
-record is refused and nothing is saved.
+still large. A baseline is built from only the parts it copies, and the run lists its
+baselines by `baseline_summaries`: views, step downloads and command responses carry
+those, and a baseline itself is read at `/baselines/{id}`, in the full run view and in the
+export. For a run published before the run kept summaries, views take them from its
+baselines; its command responses carry none, and the workbench keeps the list it has. A
+baseline larger than the 1 GB the store keeps in one record is refused and nothing is
+saved: before anything is loaded when the model calls and machine snapshot alone are that
+large.
 Runs saved by earlier versions are read as before, and their next update moves the parts to rows. Do not open the database with an earlier version afterwards.
 A part row that a saved command response includes is kept when a later update
 replaces or removes it, so that repeating the command returns that response.

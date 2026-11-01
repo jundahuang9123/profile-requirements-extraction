@@ -258,6 +258,13 @@ class Store:
                 yield row[0]
         return entries()
 
+    def part_bytes(self, run_id: str, parts: tuple[str, ...]) -> int:
+        """The saved size of the named parts' rows, without reading them into Python."""
+        with self.connect() as db:
+            row = db.execute('SELECT coalesce(sum(length(CAST(body AS BLOB))), 0) FROM run_parts WHERE run_id=? AND part IN '
+                             f'({",".join("?" * len(parts))})', (run_id, *parts)).fetchone()
+        return row[0]
+
     def mutate(self, run_id: str, expected_version: int | None, event_type: str,
                change: Callable[[dict], Any], *, key: str | None = None, payload: dict | None = None,
                parts: bool = False, hydrate: bool = False, omit: tuple[str, ...] = ()) -> dict:

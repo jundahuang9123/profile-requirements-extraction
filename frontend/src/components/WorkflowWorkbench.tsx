@@ -209,7 +209,7 @@ export function WorkflowWorkbench({ onStatus }: { onStatus: (value: string) => v
   });
   const command = async (path: string, payload: unknown) => {
     if (!run) return;
-    const result = await workflowApi<{ run: Run }>(`/runs/${run.run_id}${path}`, payload); setRun(result.run); setRuns(previous => previous.map(item => item.run_id === run.run_id ? { ...item, status: result.run.status, version: result.run.version } : item)); onStatus('Changes saved.');
+    const result = await workflowApi<{ run: Run }>(`/runs/${run.run_id}${path}`, payload); setRun(previous => ({ ...result.run, baseline_summaries: result.run.baseline_summaries ?? previous?.baseline_summaries })); setRuns(previous => previous.map(item => item.run_id === run.run_id ? { ...item, status: result.run.status, version: result.run.version } : item)); onStatus('Changes saved.');
   };
   const inspectEvidence = (id: string) => act(async () => setEvidence(await workflowApi<Evidence>(`/evidence/${id}`)));
   const currentRecords = (run?.requirements.filter(record => run.request?.output_form === 'needs' ? run.active_revision_ids.includes(record.revision_id) : run.active_revision_ids.length ? run.active_revision_ids.includes(record.revision_id) : !record.parent_revision_ids.length) ?? []).sort((a,b) => (a.rank ?? Number.MAX_SAFE_INTEGER) - (b.rank ?? Number.MAX_SAFE_INTEGER) || a.requirement_id.localeCompare(b.requirement_id));
