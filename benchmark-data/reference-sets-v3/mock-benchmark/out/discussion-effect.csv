@@ -1,0 +1,9 @@
+case,run,atom_id,pre_discussion,after_discussion,why
+jrc,v6,JRC-1.1,equivalent,none,equivalent need set aside by the discussion: Users can know the creator of a dataset.
+jrc,v6,JRC-2.1,partial,none,"partial need set aside by the discussion: Users can know narrative descriptions that explain the resource, its methods or technical information for a dataset.; partial need set aside by the discussion: Users can know what typed relationships connect the resource to related objects for a resource."
+jrc,v6,JRC-4.1,broader,none,broader need set aside by the discussion: Users can know what typed relationships connect the resource to related objects for a resource.
+jrc,v6,JRC-5.1,broader,none,broader need set aside by the discussion: Users can know what typed relationships connect the resource to related objects for a resource.
+jrc,v6,JRC-9.1,partial,none,"partial need set aside by the discussion: Users can know narrative descriptions that explain the resource, its methods or technical information for a dataset.; partial need set aside by the discussion: Users can know what typed relationships connect the resource to related objects for a resource."
+jrc,v8,JRC-1.1,equivalent,none,equivalent need set aside by the discussion: Users can know the creator of a dataset.
+jrc,v11+needs-v3,JRC-8.1,none,partial,partial need added by the discussion: Users can know the accepted interfaces through which the JRC data can be accessed.
+jrc,v11+needs-v3,JRC-8.2,none,partial,partial need added by the discussion: Users can know the accepted interfaces through which the JRC data can be accessed.

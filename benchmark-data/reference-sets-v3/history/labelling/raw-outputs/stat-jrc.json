@@ -1,0 +1,166 @@
+[
+ {"atom_id": "S-1.1", "raw": {"label": "partial", "sources": [
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "5.2 The cube model - dimensions, attributes, measures", "quote": "The dimension components serve to identify the observations. A set of values for all the dimension components is sufficient to identify a single observation. Examples of dimensions include the time to which the observation applies, or a geographic region which the observation covers."},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "6. Creating data structure definitions", "quote": "A qb:DataStructureDefinition defines the structure of one or more datasets. In particular, it defines the dimensions, attributes and measures used in the dataset along with qualifying information such as ordering of dimensions and whether attributes are required or optional."},
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "1. Introduction", "quote": "Data can come in many formats, ranging from spreadsheets over XML and RDF to various speciality formats. DCAT does not make any assumptions about the format of the datasets described in a catalog."}
+ ], "rationale": "Data Cube defines dimensions identifying observations, declared in DSDs; DCAT is format-agnostic, but format-independent dimension description is not stated."}},
+ {"atom_id": "S-2.1", "raw": {"label": "partial", "sources": [
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "5.2 The cube model - dimensions, attributes, measures", "quote": "The attribute components allow us to qualify and interpret the observed value(s). They enable specification of the units of measure, any scaling factors and metadata such as the status of the observation"},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "5.1 Data Sets (Structural metadata)", "quote": "Having located an observation, we need certain metadata in order to be able to interpret it. What is the unit of measurement? Is it a normal value or a series break? Is the value measured or estimated? These metadata are provided as attributes"},
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "1. Introduction", "quote": "Data can come in many formats, ranging from spreadsheets over XML and RDF to various speciality formats. DCAT does not make any assumptions about the format of the datasets described in a catalog."}
+ ], "rationale": "Data Cube attributes qualify and interpret observed values (units, scaling factors, status); DCAT is format-agnostic, but format-independent attribute description is not stated."}},
+ {"atom_id": "S-3.1", "raw": {"label": "unsupported", "sources": [], "rationale": "Neither input mentions quality information; Data Cube has only observation-level status attributes (estimated, provisional), not dataset or distribution quality links."}},
+ {"atom_id": "S-3.2", "raw": {"label": "unsupported", "sources": [], "rationale": "No input discusses quality annotations or their motivation."}},
+ {"atom_id": "S-3.3", "raw": {"label": "unsupported", "sources": [], "rationale": "No input discusses quality information, whether as text or as links to quality information published elsewhere."}},
+ {"atom_id": "S-4.1", "raw": {"label": "unsupported", "sources": [], "rationale": "Visualisations appear only as uses of statistical data and slice-based chart presentation; nothing links metadata to visualisations or models them as distributions."}},
+ {"atom_id": "S-5.1", "raw": {"label": "unsupported", "sources": [], "rationale": "No passage asks for the number of series; Data Cube only defines time series as slices, and DCAT's VoID statistics concern RDF datasets."}},
+ {"atom_id": "S-6.1", "raw": {"label": "supported", "sources": [
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "6.3 Example dimensions and measure (Unit measure attribute)", "quote": "The primary measure on its own is a plain decimal value. To correctly interpret this value we need to define what units it is measured in (years in this case). This is defined using attributes which qualify the interpretation of the observed value."},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "7.1 Data sets and observations", "quote": "For example, the unit of measure for the life expectancy is uniform across the whole data set and does not change between observations. To cater for situations like this the Data Cube vocabulary allows components to be attached at a high level in the nested structure."}
+ ], "rationale": "Data Cube requires defining the units observed values are measured in and allows attaching the unit of measure at data-set level."}},
+ {"atom_id": "S-7.1", "raw": {"label": "supported", "sources": [
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "5.3 Class: Dataset, Property: temporal coverage", "quote": "Definition: The temporal period that the dataset covers. Range: dct:PeriodOfTime (An interval of time that is named or defined by its start and end dates)"}
+ ], "rationale": "DCAT temporal coverage is the period a dataset covers, an interval defined by its start and end dates."}},
+ {"atom_id": "S-7.2", "raw": {"label": "supported", "sources": [
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "5.3 Class: Dataset, Property: temporal coverage", "quote": "Definition: The temporal period that the dataset covers. Range: dct:PeriodOfTime (An interval of time that is named or defined by its start and end dates)"}
+ ], "rationale": "DCAT temporal coverage is the period a dataset covers, an interval defined by its start and end dates."}},
+ {"atom_id": "S-7.3", "raw": {"label": "uncertain", "sources": [
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "5.3 Class: Dataset, Property: frequency", "quote": "Definition: The frequency at which dataset is published. Range: dct:Frequency (A rate at which something recurs)"},
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "4.1 Basic Example", "quote": "In order to express frequency of update in the example above, we chose to use an instance from the Content-Oriented Guidelines developed as part of the W3C Data Cube Vocabulary efforts."},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "5.3 Introducing Slices", "quote": "to refer to such slices in which the single free dimension is time as Time Series"}
+ ], "rationale": "DCAT frequency is publication/update frequency (example uses an SDMX code); unclear whether it covers the periodicity of a time series's observations."}},
+ {"atom_id": "S-8.1", "raw": {"label": "supported", "sources": [
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "Abstract", "quote": "By using DCAT to describe datasets in data catalogs, publishers increase discoverability and enable applications easily to consume metadata from multiple catalogs."},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "9. DataSet metadata", "quote": "DataSets should be marked up with metadata to support discovery, presentation and processing."},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "9. DataSet metadata", "quote": "provide additional recommendations for metadata terms for data sets which may be used for describing Data Cube DataSets."}
+ ], "rationale": "DCAT descriptions increase dataset discoverability in catalogs; Data Cube says statistical DataSets need discovery metadata and DCAT terms may describe them."}},
+ {"atom_id": "S-9.1", "raw": {"label": "supported", "sources": [
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "Abstract", "quote": "By using DCAT to describe datasets in data catalogs, publishers increase discoverability and enable applications easily to consume metadata from multiple catalogs. It further enables decentralized publishing of catalogs and facilitates federated dataset search across sites."},
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "3. Conformance", "quote": "A DCAT profile is a specification for data catalogs that adds additional constraints to DCAT. A data catalog that conforms to the profile also conforms to DCAT."},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "9. DataSet metadata", "quote": "provide additional recommendations for metadata terms for data sets which may be used for describing Data Cube DataSets."}
+ ], "rationale": "DCAT lets catalogs publish RDF metadata others consume and federate; a profile-conformant catalog also conforms to DCAT; Data Cube datasets may use DCAT terms."}},
+ {"atom_id": "S-9.2", "raw": {"label": "uncertain", "sources": [
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "2.3 Audience and scope", "quote": "It is aimed at people wishing to publish statistical or other multi-dimension data in RDF. Mechanics of cross-format translation from other formats such as SDMX-ML are not covered here."},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "Abstract", "quote": "The model underpinning the Data Cube vocabulary is compatible with the cube model that underlies SDMX (Statistical Data and Metadata eXchange), an ISO standard for exchanging and sharing statistical data and metadata among organizations."},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "2. Introduction", "quote": "In particular, we see the need for an SDMX extension vocabulary to support the publication of additional context to statistical data (such as the encompassing Data Flows and associated Provision Agreements)."}
+ ], "rationale": "Data Cube is SDMX-compatible but leaves SDMX-ML translation out of scope; unclear whether this supports mapping guidance for SDMX-based systems."}},
+ {"atom_id": "S-10.1", "raw": {"label": "partial", "sources": [
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "3. Conformance", "quote": "A DCAT profile is a specification for data catalogs that adds additional constraints to DCAT. A data catalog that conforms to the profile also conforms to DCAT."},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "9. DataSet metadata", "quote": "provide additional recommendations for metadata terms for data sets which may be used for describing Data Cube DataSets."}
+ ], "rationale": "DCAT says a profile's conforming catalogs also conform to DCAT and Data Cube points to DCAT terms; DCAT-AP is not mentioned in the inputs."}},
+ {"atom_id": "S-11.1", "raw": {"label": "partial", "sources": [
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "Abstract", "quote": "By using DCAT to describe datasets in data catalogs, publishers increase discoverability"},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "9. DataSet metadata", "quote": "DataSets should be marked up with metadata to support discovery, presentation and processing."}
+ ], "rationale": "Inputs tie dataset metadata to discoverability, but neither restricts or prioritises a profile's elements to discovery; Data Cube also cites presentation and processing."}},
+ {"atom_id": "S-12.1", "raw": {"label": "supported", "sources": [
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "Status of This Document", "quote": "DCAT incorporates terms from pre-existing vocabularies, where stable terms with appropriate meanings could be found, such as foaf:homepage and dct:title."},
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "2. Namespaces", "quote": "DCAT makes extensive use of terms from other vocabularies, in particular Dublin Core"},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "2. Introduction", "quote": "The Data Cube in turn builds upon the following existing RDF vocabularies: SKOS for concept schemes SCOVO for core statistical structures Dublin Core Terms for metadata VoiD for data access FOAF for agents ORG for organizations"}
+ ], "rationale": "DCAT reuses stable terms from pre-existing vocabularies such as Dublin Core, and Data Cube builds on existing RDF vocabularies."}},
+ {"atom_id": "S-13.1", "raw": {"label": "partial", "sources": [
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "3. Conformance", "quote": "Additional constraints in a profile MAY include: A minimum set of required metadata fields Classes and properties for additional metadata fields not covered in DCAT Controlled vocabularies or URI sets as acceptable values for properties"},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "2.2 SDMX and related standards", "quote": "a set of cross-domain concepts, code lists, and categories that support interoperability and comparability between datasets by providing a shared terminology between SDMX implementers"}
+ ], "rationale": "DCAT lets profiles fix controlled vocabularies as values and Data Cube promotes shared SDMX code lists; the EU Publications Office is never mentioned."}},
+ {"atom_id": "S-14.1", "raw": {"label": "unsupported", "sources": [], "rationale": "No passage addresses balancing simplicity against expressiveness or a non-specialist audience; Data Cube targets people publishing statistical data in RDF."}},
+ {"atom_id": "S-15.1", "raw": {"label": "supported", "sources": [
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "1. Introduction", "quote": "Data can come in many formats, ranging from spreadsheets over XML and RDF to various speciality formats. DCAT does not make any assumptions about the format of the datasets described in a catalog."},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "2.2 SDMX and related standards", "quote": "The SDMX specification defines a core information model which is reflected in concrete form in two syntaxes - SDMX-ML (an XML syntax) and SDMX-EDI."},
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "4.1 Basic Example", "quote": "The dataset distribution :dataset-001-csv can be downloaded as a 5Kb CSV file."}
+ ], "rationale": "DCAT makes no assumption about dataset format (examples use CSV); the inputs present SDMX syntaxes and Data Cube as statistical formats."}},
+ {"atom_id": "S-16.1", "raw": {"label": "partial", "sources": [
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "5.3 Class: Dataset, Property: theme/category", "quote": "Property: theme/category RDF Property: dcat:theme Definition: The main category of the dataset. A dataset can have multiple themes."},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "9.1 Categorizing a data set", "quote": "We encourage use of dct:subject to record such a classification of a whole data set. The classification terms can include coarse grained classifications, such as the List of Subject-matter Domains from the SDMX Content-oriented Guidelines"}
+ ], "rationale": "DCAT dcat:theme and Data Cube's statistical-domain classification support theme classification; the EU data theme vocabulary and a Eurostat mapping are absent."}},
+ {"atom_id": "S-17.1", "raw": {"label": "supported", "sources": [
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "7.1 Data sets and observations", "quote": "A resource representing the entire data set is created and typed as qb:DataSet and linked to the corresponding data structure definition via the qb:structure property."},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "11.1 Integrity constraints, IC-2. Unique DSD", "quote": "Every qb:DataSet has exactly one associated qb:DataStructureDefinition"},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "6. Creating data structure definitions", "quote": "The notion of a Data Structure Definition (DSD) allows us to define that structure once and then reuse it for each publication in the series. Consumers can then be confident that the structure of the data has not changed."}
+ ], "rationale": "Data Cube links each RDF qb:DataSet to its data structure definition via qb:structure; IC-2 requires exactly one, so consumers know the structure."}},
+ {"atom_id": "S-18.1", "raw": {"label": "partial", "sources": [
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "5.3 Class: Dataset, Property: release date", "quote": "Date of formal issuance (e.g., publication) of the dataset. Range: rdfs:Literal encoded using the relevant ISO 8601 Date and Time compliant string and typed using the appropriate XML Schema datatype"},
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "5.3 Class: Dataset, Property: update/modification date", "quote": "Most recent date on which the dataset was changed, updated or modified. Range: rdfs:Literal encoded using the relevant ISO 8601 Date and Time compliant string and typed using the appropriate XML Schema datatype"}
+ ], "rationale": "DCAT dates may be ISO 8601 date-and-time literals with an XML Schema datatype; the condition of several publications per day is not stated."}},
+ {"atom_id": "S-19.1", "raw": {"label": "supported", "sources": [
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "5.2 The cube model - dimensions, attributes, measures", "quote": "The measure components represent the phenomenon being observed."},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "6. Creating data structure definitions", "quote": "A qb:DataStructureDefinition defines the structure of one or more datasets. In particular, it defines the dimensions, attributes and measures used in the dataset"},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "6.5 Handling multiple measures", "quote": "This measure dimension approach is the one supported by the SDMX information model."}
+ ], "rationale": "Data Cube defines measures as the observed phenomenon, declared in each data set's DSD, with measure handling following the SDMX information model."}},
+ {"atom_id": "S-20.1", "raw": {"label": "unsupported", "sources": [], "rationale": "Neither input mentions data quality or SIMS; Data Cube only foresees extensions for statistical reference metadata without naming quality."}},
+ {"atom_id": "S-21.1", "raw": {"label": "uncertain", "sources": [
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "2. Introduction", "quote": "Other extensions are possible to support metadata for surveys (so called \"micro-data\", as encompassed by DDI"}
+ ], "rationale": "Data Cube mentions DDI only as a possible extension for survey micro-data metadata; unclear whether this supports expressing DDI descriptions with a DCAT profile."}},
+ {"atom_id": "S-22.1", "raw": {"label": "partial", "sources": [
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "9. DataSet metadata", "quote": "provide additional recommendations for metadata terms for data sets which may be used for describing Data Cube DataSets."},
+  {"path": "statdcat/input-raw/w3c-data-cube-2014.html", "locator": "C. Complete example Data Cube", "quote": "This is a complete Data Cube encoding of the running example introduced in section 5.4"},
+  {"path": "statdcat/input-raw/w3c-dcat-2014.html", "locator": "4. Vocabulary Overview", "quote": "dcat:Distribution represents an accessible form of a dataset as for example a downloadable file, an RSS feed or a web service that provides the data."}
+ ], "rationale": "Data Cube's complete example links qb:DataSet to its DSD and DCAT terms may describe it; distribution-to-Data-Cube relations are undocumented."}},
+ {"atom_id": "JRC-1.1", "raw": {"label": "supported", "sources": [
+  {"path": "jrc-research/input-raw/datacite-3.1-field-context.json", "locator": "field: Creator", "quote": "The schema records resource creators and can associate them with names and identifier schemes."}
+ ], "rationale": "DataCite records resource creators, i.e. the dataset's authors, with names and identifier schemes."}},
+ {"atom_id": "JRC-2.1", "raw": {"label": "supported", "sources": [
+  {"path": "jrc-research/input-raw/w3c-dcat-2014.html", "locator": "5.2 Class: Catalog record (usage note on PROV-O)", "quote": "allows describing further provenance information such as the details of the process and the agent involved in a particular change to a dataset."},
+  {"path": "jrc-research/input-raw/datacite-3.1-field-context.json", "locator": "field: Description", "quote": "Narrative descriptions may explain the resource, its methods or technical information."},
+  {"path": "jrc-research/input-raw/jrc-data-policy-2015.pdf", "locator": "[page 6] Article 2(2)(e)", "quote": "Ensuring reproducibility of accessible data"}
+ ], "rationale": "DCAT points to PROV-O for process and agent details of changes to a dataset; DataCite descriptions explain methods; JRC policy seeks reproducibility."}},
+ {"atom_id": "JRC-3.1", "raw": {"label": "uncertain", "sources": [
+  {"path": "jrc-research/input-raw/jrc-data-policy-2015.pdf", "locator": "[page 7] Article 5(2)", "quote": "Metadata mean description of the data that allows their inventory, discovery, evaluation or use."},
+  {"path": "jrc-research/input-raw/datacite-3.1-field-context.json", "locator": "field: Description", "quote": "Narrative descriptions may explain the resource, its methods or technical information."}
+ ], "rationale": "JRC defines metadata as enabling data use and DataCite descriptions may give technical information; neither explicitly calls for usage notes."}},
+ {"atom_id": "JRC-4.1", "raw": {"label": "partial", "sources": [
+  {"path": "jrc-research/input-raw/datacite-3.1-field-context.json", "locator": "field: RelatedIdentifier", "quote": "Typed relationships connect the resource to related objects."},
+  {"path": "jrc-research/input-raw/jrc-data-policy-2015.pdf", "locator": "[page 4] Executive summary", "quote": "develop a dedicated data policy to complement the JRC Policy on Open Access to Scientific Publications and Supporting Guidance, and to promote open access to research data"}
+ ], "rationale": "DataCite typed relationships link a resource to related objects and the policy complements an open-access publications policy; publications are not named as link targets."}},
+ {"atom_id": "JRC-5.1", "raw": {"label": "partial", "sources": [
+  {"path": "jrc-research/input-raw/datacite-3.1-field-context.json", "locator": "field: RelatedIdentifier", "quote": "Typed relationships connect the resource to related objects."},
+  {"path": "jrc-research/input-raw/jrc-data-policy-2015.pdf", "locator": "[page 9] Article 10(5)", "quote": "Licences with third parties on acquisition of data shall, where possible and feasible, not restrict use of derivative output produced by the JRC using the acquired data."}
+ ], "rationale": "DataCite typed relationships link related objects and the policy recognises outputs derived from acquired data; linking datasets to their input data is not stated."}},
+ {"atom_id": "JRC-6.1", "raw": {"label": "partial", "sources": [
+  {"path": "jrc-research/input-raw/datacite-3.1-field-context.json", "locator": "field: Creator", "quote": "The schema records resource creators and can associate them with names and identifier schemes."},
+  {"path": "jrc-research/input-raw/datacite-3.1-field-context.json", "locator": "field: RelatedIdentifier", "quote": "Typed relationships connect the resource to related objects."}
+ ], "rationale": "DataCite associates creators with identifier schemes and relates objects via typed related identifiers; persistence and filtering datasets by authors or inputs are not stated."}},
+ {"atom_id": "JRC-6.2", "raw": {"label": "uncertain", "sources": [
+  {"path": "jrc-research/input-raw/w3c-dcat-2014.html", "locator": "5.3 Class: Dataset, Property: identifier", "quote": "Definition: A unique identifier of the dataset. Range: rdfs:Literal Usage note: The identifier might be used as part of the URI of the dataset, but still having it represented explicitly is useful."}
+ ], "rationale": "DCAT notes a dataset identifier may form part of the dataset's URI, but keeps it as a literal; no input asks for HTTP URI identifiers."}},
+ {"atom_id": "JRC-6.3", "raw": {"label": "supported", "sources": [
+  {"path": "jrc-research/input-raw/datacite-3.1-field-context.json", "locator": "field: Identifier", "quote": "The registered resource identifier is a DOI."},
+  {"path": "jrc-research/input-raw/datacite-3.1-field-context.json", "locator": "field: AlternateIdentifier", "quote": "Identifiers outside the primary DOI can be given with their types."}
+ ], "rationale": "DataCite makes a DOI the registered primary identifier and records other identifiers separately as alternate identifiers with types."}},
+ {"atom_id": "JRC-6.4", "raw": {"label": "supported", "sources": [
+  {"path": "jrc-research/input-raw/datacite-3.1-field-context.json", "locator": "field: Identifier", "quote": "The registered resource identifier is a DOI."},
+  {"path": "jrc-research/input-raw/jrc-data-policy-2015.pdf", "locator": "[page 8] Article 7", "quote": "A user shall acknowledge the source of the JRC data."}
+ ], "rationale": "DataCite's registered resource identifier is a DOI; the JRC policy requires users to acknowledge the data source, which citations serve."}},
+ {"atom_id": "JRC-6.5", "raw": {"label": "supported", "sources": [
+  {"path": "jrc-research/input-raw/datacite-3.1-field-context.json", "locator": "field: AlternateIdentifier", "quote": "Identifiers outside the primary DOI can be given with their types."},
+  {"path": "jrc-research/input-raw/datacite-3.1-field-context.json", "locator": "field: Creator", "quote": "The schema records resource creators and can associate them with names and identifier schemes."}
+ ], "rationale": "DataCite gives alternate identifiers with their types and associates creators with identifier schemes."}},
+ {"atom_id": "JRC-7.1", "raw": {"label": "partial", "sources": [
+  {"path": "jrc-research/input-raw/datacite-3.1-field-context.json", "locator": "field: Contributor", "quote": "Contributors are associated with role types, including contact and curation roles."},
+  {"path": "jrc-research/input-raw/datacite-3.1-field-context.json", "locator": "field: Creator", "quote": "The schema records resource creators and can associate them with names and identifier schemes."}
+ ], "rationale": "DataCite assigns contributors typed roles (e.g. contact, curation) beyond publisher; minimality, consistency across catalogues and unambiguity are not stated."}},
+ {"atom_id": "JRC-8.1", "raw": {"label": "supported", "sources": [
+  {"path": "jrc-research/input-raw/w3c-dcat-2014.html", "locator": "4. Vocabulary Overview", "quote": "the API can be defined as an instance of dcat:Distribution. DCAT itself does not define properties specific to APIs description. These are considered out of the scope of this version of the vocabulary. Nevertheless, this can be defined as a profile of the DCAT vocabulary."},
+  {"path": "jrc-research/input-raw/w3c-dcat-2014.html", "locator": "5.4 Class: Distribution (usage note)", "quote": "This represents a general availability of a dataset it implies no information about the actual access method of the data, i.e. whether it is a direct download, API, or some through Web page. The use of dcat:downloadURL property indicates directly downloadable distributions."}
+ ], "rationale": "DCAT notes distributions carry no access-method information (download, API, Web page) and leaves API-specific description to profiles."}},
+ {"atom_id": "JRC-8.2", "raw": {"label": "partial", "sources": [
+  {"path": "jrc-research/input-raw/w3c-dcat-2014.html", "locator": "4. Vocabulary Overview", "quote": "the API can be defined as an instance of dcat:Distribution. DCAT itself does not define properties specific to APIs description. These are considered out of the scope of this version of the vocabulary. Nevertheless, this can be defined as a profile of the DCAT vocabulary."},
+  {"path": "jrc-research/input-raw/jrc-data-policy-2015.pdf", "locator": "[page 9] Article 11(3)", "quote": "The JRC data shall, to all possible extent, be made available in an accepted, platform- independent, machine-readable format via accepted interfaces."}
+ ], "rationale": "DCAT leaves API description to profiles and JRC requires machine-readable access via accepted interfaces; query parameters for selecting data are not mentioned."}},
+ {"atom_id": "JRC-9.1", "raw": {"label": "partial", "sources": [
+  {"path": "jrc-research/input-raw/jrc-data-policy-2015.pdf", "locator": "[page 6] Article 2(2)(e)", "quote": "Ensuring reproducibility of accessible data"},
+  {"path": "jrc-research/input-raw/w3c-dcat-2014.html", "locator": "5.2 Class: Catalog record (usage note on PROV-O)", "quote": "allows describing further provenance information such as the details of the process and the agent involved in a particular change to a dataset."}
+ ], "rationale": "JRC policy seeks reproducibility and DCAT points to PROV-O for process details; tracking how data are used is not stated."}},
+ {"atom_id": "JRC-10.1", "raw": {"label": "uncertain", "sources": [
+  {"path": "jrc-research/input-raw/jrc-data-policy-2015.pdf", "locator": "[page 6] Article 2(2)(c)", "quote": "Access to quality data"},
+  {"path": "jrc-research/input-raw/jrc-data-policy-2015.pdf", "locator": "[page 7] Article 5(2)", "quote": "Metadata mean description of the data that allows their inventory, discovery, evaluation or use."},
+  {"path": "jrc-research/input-raw/jrc-data-policy-2015.pdf", "locator": "[page 9] Article 13(b)", "quote": "The JRC does not represent or warrant that the data will be error free or uninterrupted, or that all non-conformities can or will be corrected, or that any data are accurate or complete, or that they are of a satisfactory technical or scientific quality."}
+ ], "rationale": "JRC policy aims at access to quality data, defines metadata as enabling evaluation, and disclaims quality warranties; describing quality assessments is not stated."}},
+ {"atom_id": "JRC-10.2", "raw": {"label": "uncertain", "sources": [
+  {"path": "jrc-research/input-raw/w3c-dcat-2014.html", "locator": "4.1 Basic Example", "quote": "A contact point is also provided where comments and feedback about the dataset can be sent."},
+  {"path": "jrc-research/input-raw/jrc-data-policy-2015.pdf", "locator": "[page 6] Article 2(2)(c)", "quote": "Access to quality data"}
+ ], "rationale": "DCAT offers a contact point for feedback about the dataset and JRC seeks quality data; publishing feedback as quality information is not stated."}},
+ {"atom_id": "JRC-11.1", "raw": {"label": "partial", "sources": [
+  {"path": "jrc-research/input-raw/jrc-data-policy-2015.pdf", "locator": "[page 8] Article 6(6)", "quote": "Metadata shall by default be open for access, even if access to and use of the underlying data is restricted."},
+  {"path": "jrc-research/input-raw/w3c-dcat-2014.html", "locator": "Abstract", "quote": "DCAT is an RDF vocabulary designed to facilitate interoperability between data catalogs published on the Web. This document defines the schema and provides examples for its use. By using DCAT to describe datasets in data catalogs, publishers increase discoverability"},
+  {"path": "jrc-research/input-raw/jrc-data-policy-2015.pdf", "locator": "[page 7] Article 5(2)", "quote": "Metadata mean description of the data that allows their inventory, discovery, evaluation or use."}
+ ], "rationale": "Inputs require open metadata and present DCAT catalogs on the Web as increasing discoverability; visibility through search engines is not mentioned."}}
+]

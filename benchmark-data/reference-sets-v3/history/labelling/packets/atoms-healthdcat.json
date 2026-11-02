@@ -1,0 +1,954 @@
+[
+ {
+  "atom_id": "H-1.1",
+  "row_statement": "Use stable, resolvable identifiers so metadata records and their relationships remain reliably identifiable across catalogues.",
+  "statement": "Give each dataset metadata record a persistent, dereferenceable identifier (HTTP URI).",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": "Mandated for all records (§5.2.1.1; dct:identifier [1..n] in all three columns of the §5.3.1.4 table); §5.3.1.3 repeats it as a mandatory PURI for high-impact datasets."
+ },
+ {
+  "atom_id": "H-1.2",
+  "row_statement": "Use stable, resolvable identifiers so metadata records and their relationships remain reliably identifiable across catalogues.",
+  "statement": "Use persistent, dereferenceable URIs in the properties that link a dataset to other datasets or external resources.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-2.1",
+  "row_statement": "Represent catalogue relationships as machine-interpretable links that support a health-data knowledge graph.",
+  "statement": "Represent the relationships between datasets and other resources (publications, codes) as machine-interpretable links, so the catalogue forms a knowledge graph.",
+  "stratum": "profile",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-3.1",
+  "row_statement": "Have data holders review their dataset descriptions at least once a year for accuracy and currency, and keep track of when each description was last reviewed.",
+  "statement": "Have data holders check at least once a year that their dataset descriptions are accurate and up to date.",
+  "stratum": "system",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-3.2",
+  "row_statement": "Have data holders review their dataset descriptions at least once a year for accuracy and currency, and keep track of when each description was last reviewed.",
+  "statement": "Where catalogues manage the review, record when a description was last reviewed, separately from when it was last modified.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": "The source also allows an internal review date that is not exchanged between catalogues."
+ },
+ {
+  "atom_id": "H-4.1",
+  "row_statement": "Make metadata sufficiently interpretable and informative to support machine-assisted search, including semantic and generative-AI use.",
+  "statement": "Provide meaningful free-text descriptions (what, why, how, who) that support natural-language and AI-based search.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": "Umbrella over the free-text elements §5.2.2 names (description, population coverage, purpose, provenance, publisher note); dct:description and dct:provenance exist in DCAT-AP 3.0.0, the others are new."
+ },
+ {
+  "atom_id": "H-4.2",
+  "row_statement": "Make metadata sufficiently interpretable and informative to support machine-assisted search, including semantic and generative-AI use.",
+  "statement": "Annotate datasets with concepts and relationships that users can query semantically (e.g. with SPARQL).",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-5.1",
+  "row_statement": "Allow dataset discovery to be refined using health categories, access bodies, holder types, personal-data categories, age ranges, population size, quality labels and coding information.",
+  "statement": "Classify every dataset by health category, using the mandatory controlled list of EHDS Art. 33 categories, to enable a category facet.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-5.2",
+  "row_statement": "Allow dataset discovery to be refined using health categories, access bodies, holder types, personal-data categories, age ranges, population size, quality labels and coding information.",
+  "statement": "Let users filter datasets by health data access body.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-5.3",
+  "row_statement": "Allow dataset discovery to be refined using health categories, access bodies, holder types, personal-data categories, age ranges, population size, quality labels and coding information.",
+  "statement": "Let users filter datasets by publisher type.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": "DCAT-AP 3.0.0 already has dct:type on foaf:Agent (recommended); HealthDCAT-AP mints healthdcatap:publisherType with its own controlled vocabulary."
+ },
+ {
+  "atom_id": "H-5.4",
+  "row_statement": "Allow dataset discovery to be refined using health categories, access bodies, holder types, personal-data categories, age ranges, population size, quality labels and coding information.",
+  "statement": "Describe the categories of personal data a dataset contains, so users can filter by them.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-5.5",
+  "row_statement": "Allow dataset discovery to be refined using health categories, access bodies, holder types, personal-data categories, age ranges, population size, quality labels and coding information.",
+  "statement": "State the minimum typical age of the population in a population dataset, as a search filter.",
+  "stratum": "content",
+  "applicability": "Population datasets only",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-5.6",
+  "row_statement": "Allow dataset discovery to be refined using health categories, access bodies, holder types, personal-data categories, age ranges, population size, quality labels and coding information.",
+  "statement": "State the maximum typical age of the population in a population dataset, as a search filter.",
+  "stratum": "content",
+  "applicability": "Population datasets only",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-5.7",
+  "row_statement": "Allow dataset discovery to be refined using health categories, access bodies, holder types, personal-data categories, age ranges, population size, quality labels and coding information.",
+  "statement": "Let users filter datasets by population size.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-5.8",
+  "row_statement": "Allow dataset discovery to be refined using health categories, access bodies, holder types, personal-data categories, age ranges, population size, quality labels and coding information.",
+  "statement": "Let users filter datasets by quality label.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-5.9",
+  "row_statement": "Allow dataset discovery to be refined using health categories, access bodies, holder types, personal-data categories, age ranges, population size, quality labels and coding information.",
+  "statement": "Let users filter datasets by the coding values they use.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-6.1",
+  "row_statement": "Adapt displayed filters to whether the catalogue query concerns personal or non-personal data.",
+  "statement": "Adapt the displayed search filters to whether the user is looking for personal or non-personal data.",
+  "stratum": "system",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-7.1",
+  "row_statement": "Use semantic annotations and shared coding vocabularies to make health descriptions interoperable and searchable.",
+  "statement": "Annotate datasets with shared concepts that have persistent identifiers, so datasets about the same concept can be found across the data space.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-7.2",
+  "row_statement": "Use semantic annotations and shared coding vocabularies to make health descriptions interoperable and searchable.",
+  "statement": "Identify the health themes of a dataset with HTTP URIs from an authoritative vocabulary; mandatory.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-7.3",
+  "row_statement": "Use semantic annotations and shared coding vocabularies to make health descriptions interoperable and searchable.",
+  "statement": "Identify the coding systems a dataset uses with HTTP URIs.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-7.4",
+  "row_statement": "Use semantic annotations and shared coding vocabularies to make health descriptions interoperable and searchable.",
+  "statement": "Identify the code values a dataset uses with HTTP URIs linked to external standards such as ICD-10.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-8.1",
+  "row_statement": "Describe at least one safe sample distribution for non-public datasets so users can prepare analyses without accessing sensitive records.",
+  "statement": "Describe at least one sample distribution (mock-up, synthetic or anonymised data) for every non-public dataset.",
+  "stratum": "content",
+  "applicability": "Non-public (protected or sensitive) datasets",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-9.1",
+  "row_statement": "Accompany sample data with definitions of its variables in a data dictionary.",
+  "statement": "Accompany each sample distribution with a data dictionary that defines all its data elements.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-10.1",
+  "row_statement": "Allow applicants to identify the variables they need, supporting data minimisation.",
+  "statement": "Let data access applicants list the specific variables they need, in line with data minimisation.",
+  "stratum": "system",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-11.1",
+  "row_statement": "Provide usable descriptions of data structures and coding so datasets can be understood and processed consistently.",
+  "statement": "Describe the data structures of a dataset, where available, in a publicly available and consistent manner.",
+  "stratum": "content",
+  "applicability": "Where available",
+  "notes": "Read, as D6.2 §5.2.6.1 does, as descriptions published in harmonised data dictionaries (CSVW)."
+ },
+ {
+  "atom_id": "H-11.2",
+  "row_statement": "Provide usable descriptions of data structures and coding so datasets can be understood and processed consistently.",
+  "statement": "Describe the data formats of a dataset, where available, in a publicly available and consistent manner.",
+  "stratum": "content",
+  "applicability": "Where available",
+  "notes": "Read, as D6.2 §5.2.6.1 does, as descriptions published in harmonised data dictionaries (CSVW). File formats of distributions are H-67.1."
+ },
+ {
+  "atom_id": "H-11.3",
+  "row_statement": "Provide usable descriptions of data structures and coding so datasets can be understood and processed consistently.",
+  "statement": "Describe the vocabularies of a dataset, where available, in a publicly available and consistent manner.",
+  "stratum": "content",
+  "applicability": "Where available",
+  "notes": "Read, as D6.2 §5.2.6.1 does, as descriptions published in harmonised data dictionaries (CSVW)."
+ },
+ {
+  "atom_id": "H-11.4",
+  "row_statement": "Provide usable descriptions of data structures and coding so datasets can be understood and processed consistently.",
+  "statement": "Describe the classification schemes of a dataset, where available, in a publicly available and consistent manner.",
+  "stratum": "content",
+  "applicability": "Where available",
+  "notes": "Read, as D6.2 §5.2.6.1 does, as descriptions published in harmonised data dictionaries (CSVW)."
+ },
+ {
+  "atom_id": "H-11.5",
+  "row_statement": "Provide usable descriptions of data structures and coding so datasets can be understood and processed consistently.",
+  "statement": "Describe the taxonomies of a dataset, where available, in a publicly available and consistent manner.",
+  "stratum": "content",
+  "applicability": "Where available",
+  "notes": "Read, as D6.2 §5.2.6.1 does, as descriptions published in harmonised data dictionaries (CSVW)."
+ },
+ {
+  "atom_id": "H-11.6",
+  "row_statement": "Provide usable descriptions of data structures and coding so datasets can be understood and processed consistently.",
+  "statement": "Describe the code lists of a dataset, where available, in a publicly available and consistent manner.",
+  "stratum": "content",
+  "applicability": "Where available",
+  "notes": "Read, as D6.2 §5.2.6.1 does, as descriptions published in harmonised data dictionaries (CSVW)."
+ },
+ {
+  "atom_id": "H-12.1",
+  "row_statement": "Describe logical dataset subdivisions and their relationships where large holdings need to be partitioned.",
+  "statement": "Describe coherent logical ('virtual') datasets within a large data warehouse, each with its own metadata record.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": "Each logical dataset is an ordinary dcat:Dataset with its own record; the source recommends this \"user-centric\" approach."
+ },
+ {
+  "atom_id": "H-12.2",
+  "row_statement": "Describe logical dataset subdivisions and their relationships where large holdings need to be partitioned.",
+  "statement": "Embed the breakdown of a data source into collections and datasets in the dataset descriptions.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": "The source leaves the method to future work."
+ },
+ {
+  "atom_id": "H-13.1",
+  "row_statement": "State intellectual-property and reuse conditions, including those on sample distributions.",
+  "statement": "State the conditions for re-use (rights) of every distribution, including sample distributions; mandatory.",
+  "stratum": "content",
+  "applicability": "All cohorts (§5.2.6.3); also mandatory in the NSIP list for protected data (§5.3.1.2)",
+  "notes": "HC-066 (NSIP cohort) is the same need and is merged here."
+ },
+ {
+  "atom_id": "H-13.2",
+  "row_statement": "State intellectual-property and reuse conditions, including those on sample distributions.",
+  "statement": "Indicate which parts of a dataset are protected by intellectual property rights.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-13.3",
+  "row_statement": "State intellectual-property and reuse conditions, including those on sample distributions.",
+  "statement": "Justify why those parts need intellectual-property protection.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-13.4",
+  "row_statement": "State intellectual-property and reuse conditions, including those on sample distributions.",
+  "statement": "Where intellectual property rights prevent a sample subset, provide a redacted data dictionary instead.",
+  "stratum": "content",
+  "applicability": "Intellectual property rights prevent a sample subset",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-14.1",
+  "row_statement": "Link to descriptive analytics that help prospective users assess a dataset.",
+  "statement": "Link to analytics resources (dashboards, reports, statistics APIs) that let users assess a dataset without accessing the raw data.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-15.1",
+  "row_statement": "Expose quality annotations or labels that help assess fitness for reuse.",
+  "statement": "Link each quality or utility annotation (e.g. a quality label or certificate) to the dataset or distribution it assesses.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-15.2",
+  "row_statement": "Expose quality annotations or labels that help assess fitness for reuse.",
+  "statement": "State the motivation of each quality annotation.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-15.3",
+  "row_statement": "Expose quality annotations or labels that help assess fitness for reuse.",
+  "statement": "Provide the content of each quality annotation as text or as a link to a resource.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-15.4",
+  "row_statement": "Expose quality annotations or labels that help assess fitness for reuse.",
+  "statement": "Describe dataset quality with one standardised approach across EU data spaces, aligned with StatDCAT-AP and mobilityDCAT-AP (DQV quality annotations).",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-16.1",
+  "row_statement": "Describe the purpose of data collection and the legal basis for processing personal data.",
+  "statement": "Describe the purpose for which the data were collected.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-16.2",
+  "row_statement": "Describe the purpose of data collection and the legal basis for processing personal data.",
+  "statement": "Identify the legal basis for processing personal data.",
+  "stratum": "content",
+  "applicability": "Personal data",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-17.1",
+  "row_statement": "Describe each dataset's source, scope, main characteristics, the nature of its health data and the conditions for making the data available.",
+  "statement": "Describe the source of each dataset.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "EHDS Art. 55 makes the information mandatory ('shall include'); the DCAT-AP 3.0.0 terms for a dataset's source (dct:source, dct:provenance) are optional."
+ },
+ {
+  "atom_id": "H-17.2",
+  "row_statement": "Describe each dataset's source, scope, main characteristics, the nature of its health data and the conditions for making the data available.",
+  "statement": "Describe the scope of each dataset.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "Read as spatial and temporal scope (dct:spatial, dct:temporal: recommended in DCAT-AP 3.0.0), made mandatory by EHDS Art. 55; if dct:description is meant, this would be a restatement."
+ },
+ {
+  "atom_id": "H-17.3",
+  "row_statement": "Describe each dataset's source, scope, main characteristics, the nature of its health data and the conditions for making the data available.",
+  "statement": "Describe the main characteristics of each dataset.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-17.4",
+  "row_statement": "Describe each dataset's source, scope, main characteristics, the nature of its health data and the conditions for making the data available.",
+  "statement": "Describe the nature of the electronic health data in each dataset.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-17.5",
+  "row_statement": "Describe each dataset's source, scope, main characteristics, the nature of its health data and the conditions for making the data available.",
+  "statement": "Describe the conditions for making the data available.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-18.1",
+  "row_statement": "Indicate the legislation that applies to a dataset (e.g. the EHDS Regulation), so health catalogues can filter the datasets in its scope.",
+  "statement": "State the legislation that applies to each dataset (e.g. the EHDS Regulation), so catalogues can filter the datasets in its scope.",
+  "stratum": "content",
+  "applicability": "All cohorts (mandatory in all three columns of the §5.3.1.4 table; upload condition for the EU health datasets catalogue)",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-19.1",
+  "row_statement": "Classify each dataset's access rights as public or non-public, so catalogues know whether access needs an application.",
+  "statement": "Classify each dataset's access rights (public, restricted or non-public), so catalogues know whether access needs an application; NSIP data may only be 'non-public' or 'restricted'.",
+  "stratum": "content",
+  "applicability": "All cohorts; protected (NSIP) data: open prohibited",
+  "notes": "HC-061 (NSIP cohort) is the same need and is merged here."
+ },
+ {
+  "atom_id": "H-20.1",
+  "row_statement": "Provide at least one distribution for every dataset: an access URL or download link for public data, a landing page of the health data access body for non-public data.",
+  "statement": "Provide at least one distribution for every dataset.",
+  "stratum": "content",
+  "applicability": "Open data (EHDS, DCAT-AP HVD); protected (NSIP); sensitive",
+  "notes": "HC-057 (open) and HC-062 (NSIP) are the same need for two cohorts and are merged here."
+ },
+ {
+  "atom_id": "H-20.2",
+  "row_statement": "Provide at least one distribution for every dataset: an access URL or download link for public data, a landing page of the health data access body for non-public data.",
+  "statement": "For public datasets, give an access URL or download link; for non-public datasets, point the distribution to the landing page of the health data access body or equivalent authority.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-21.1",
+  "row_statement": "Name a contact point for every dataset, so users can ask about it without working out whom to contact.",
+  "statement": "Give every dataset a contact point that acts as its helpdesk.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-22.1",
+  "row_statement": "Identify the health data access body that acts as the access gateway for a non-public or personal dataset.",
+  "statement": "Identify the health data access body that acts as access gateway for every dataset with personal or non-public data.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-23.1",
+  "row_statement": "Indicate whether a dataset contains personal data.",
+  "statement": "Indicate whether a dataset contains personal or non-personal data (data type).",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": "dct:type becomes mandatory and the source proposes adding \"personal data\" to the dataset-type vocabulary."
+ },
+ {
+  "atom_id": "H-24.1",
+  "row_statement": "Give each dataset's geographical coverage, preferably from controlled vocabularies, as a filter for populations.",
+  "statement": "Give each dataset's geographical coverage, preferably from controlled vocabularies, as a filter for populations.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-25.1",
+  "row_statement": "Characterise each dataset with a few main keywords per language rather than long lists.",
+  "statement": "Characterise each dataset with a few main keywords per language (10–15) rather than long lists.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-26.1",
+  "row_statement": "Describe a dataset's lineage: how it was created and modified, and by whom.",
+  "statement": "Describe a dataset's lineage: how it was created and modified, and by whom.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-27.1",
+  "row_statement": "Identify the publisher as the data holder accountable for making the dataset accessible.",
+  "statement": "Identify the publisher as the data holder accountable for making the dataset accessible.",
+  "stratum": "content",
+  "applicability": "Protected (NSIP) and sensitive cohorts",
+  "notes": "HC-060 (NSIP cohort) is the same need and is merged here."
+ },
+ {
+  "atom_id": "H-28.1",
+  "row_statement": "Describe the nature and type of the data holder as context for judging a dataset's credibility.",
+  "statement": "Describe the nature of the data holder in free text, as context for judging the credibility of the dataset.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-28.2",
+  "row_statement": "Describe the nature and type of the data holder as context for judging a dataset's credibility.",
+  "statement": "Classify the data holder by publisher type, using a controlled vocabulary.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": "DCAT-AP 3.0.0 already has dct:type on foaf:Agent (recommended); the proposal makes publisher type mandatory with a health-specific vocabulary (minted as healthdcatap:publisherType)."
+ },
+ {
+  "atom_id": "H-29.1",
+  "row_statement": "Tag every dataset in a health catalogue with the EU data theme for health.",
+  "statement": "Tag every dataset in a health catalogue with the EU data theme for health (HEAL).",
+  "stratum": "content",
+  "applicability": "All records in health data access body catalogues (dcat:theme mandatory in all three columns of the §5.3.1.4 table)",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-30.1",
+  "row_statement": "Identify the data models and other standards a dataset conforms to (e.g. OMOP), so users can find data ready for their analysis.",
+  "statement": "Identify the data model or other standard a dataset conforms to (e.g. OMOP), so users can find data ready for their analysis.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-30.2",
+  "row_statement": "Identify the data models and other standards a dataset conforms to (e.g. OMOP), so users can find data ready for their analysis.",
+  "statement": "Identify those standards with machine-interpretable identifiers (HTTP URIs).",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": "Implementation-neutral reading; the choice of Wikidata itself is H-52.1."
+ },
+ {
+  "atom_id": "H-69.1",
+  "row_statement": "Offer a common harmonised data validator in the infrastructure to check datasets that follow common data models.",
+  "statement": "Offer a common harmonised data validator in the infrastructure to check the quality and consistency of datasets that follow common data models.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-31.1",
+  "row_statement": "Link to documentation that helps users understand the dataset.",
+  "statement": "Link to documentation that helps users understand the dataset.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-32.1",
+  "row_statement": "Link a dataset to related resources and publications that show how it has been used.",
+  "statement": "Link a dataset to the publications and other resources that reference it.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-32.2",
+  "row_statement": "Link a dataset to related resources and publications that show how it has been used.",
+  "statement": "Link a dataset to related resources.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-33.1",
+  "row_statement": "Identify the datasets a dataset was derived from, and let datasets derived from it refer back to it.",
+  "statement": "Identify the datasets a dataset was derived from; research datasets derived from a health dataset should cite its metadata identifier.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": "§6.1 adds: \"they should also include the metadata identifier of the original electronic health data source in the DCAT metadata record of their research dataset\" (the same derived-to-source link)."
+ },
+ {
+  "atom_id": "H-34.1",
+  "row_statement": "Give a landing page that provides access to the dataset and further information.",
+  "statement": "Give a landing page that provides access to the dataset and further information.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-35.1",
+  "row_statement": "State the language of a dataset where applicable.",
+  "statement": "State the language of a dataset where applicable.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-36.1",
+  "row_statement": "Describe the population a dataset covers, where it contains one.",
+  "statement": "Describe the population a dataset covers, where it contains one.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal; only datasets that contain a population",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-37.1",
+  "row_statement": "State the size of a dataset (number of records, number of unique individuals; byte size of each distribution), so users can judge its value.",
+  "statement": "State the number of records in a dataset.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-37.2",
+  "row_statement": "State the size of a dataset (number of records, number of unique individuals; byte size of each distribution), so users can judge its value.",
+  "statement": "State the number of unique individuals in a dataset.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-37.3",
+  "row_statement": "State the size of a dataset (number of records, number of unique individuals; byte size of each distribution), so users can judge its value.",
+  "statement": "State the byte size of each distribution.",
+  "stratum": "content",
+  "applicability": "Protected (NSIP) data, mandatory",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-38.1",
+  "row_statement": "Give a dataset's temporal coverage, leaving the end open while collection continues.",
+  "statement": "Give a dataset's temporal coverage, leaving the end open while collection continues.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": "Recommended in DCAT-AP 3.0.0 and in the proposal; the open end is a usage convention, not a new constraint."
+ },
+ {
+  "atom_id": "H-39.1",
+  "row_statement": "State a dataset's temporal resolution, to judge whether it can be reused.",
+  "statement": "State a dataset's temporal resolution, to judge whether it can be reused.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-40.1",
+  "row_statement": "State when a dataset must be deleted (retention period), and keep its record available afterwards.",
+  "statement": "State the retention period after which a dataset must be deleted.",
+  "stratum": "content",
+  "applicability": "Datasets that must be deleted after a given date",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-40.2",
+  "row_statement": "State when a dataset must be deleted (retention period), and keep its record available afterwards.",
+  "statement": "Keep a deleted dataset's metadata record available, because publications may reference it.",
+  "stratum": "system",
+  "applicability": "The dataset has been deleted",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-41.1",
+  "row_statement": "Give a version designation where the holder follows a versioning strategy.",
+  "statement": "Give a version designation where the holder follows a versioning strategy.",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal; optional",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-42.1",
+  "row_statement": "State the spatial resolution where it applies, mainly for geospatial data.",
+  "statement": "State the spatial resolution where it applies, mainly for geospatial data.",
+  "stratum": "content",
+  "applicability": "Mainly geospatial data; optional",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-43.1",
+  "row_statement": "Record when each catalogue entry was listed and last changed, and which original metadata it was created from.",
+  "statement": "Record when each catalogue entry was listed.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-43.2",
+  "row_statement": "Record when each catalogue entry was listed and last changed, and which original metadata it was created from.",
+  "statement": "Record when each catalogue entry was last modified.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-43.3",
+  "row_statement": "Record when each catalogue entry was listed and last changed, and which original metadata it was created from.",
+  "statement": "Identify the original metadata an aggregated catalogue entry was created from.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-44.1",
+  "row_statement": "State which application profile a metadata record follows, so aggregators can validate it.",
+  "statement": "State which application profile a metadata record follows, so aggregators can validate it.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-45.1",
+  "row_statement": "Indicate whether a dataset's holder is a trusted data holder, as a search facet.",
+  "statement": "Indicate whether a dataset's holder is a trusted data holder, as a search facet.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": "Listed among the HealthDCAT-AP facets but missing from the v1 H-5 list; no matching element in the §5.3 tables."
+ },
+ {
+  "atom_id": "H-46.1",
+  "row_statement": "Provide the information the EHDS data quality and utility label needs: documentation, maturity of quality management, coverage, access and provision times, and data modifications.",
+  "statement": "Describe, where applicable, how representative the sampled population is and the average time a person appears in the dataset.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-46.2",
+  "row_statement": "Provide the information the EHDS data quality and utility label needs: documentation, maturity of quality management, coverage, access and provision times, and data modifications.",
+  "statement": "Describe the maturity of the data quality management processes, including review and audit processes and the examination of biases.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-46.3",
+  "row_statement": "Provide the information the EHDS data quality and utility label needs: documentation, maturity of quality management, coverage, access and provision times, and data modifications.",
+  "statement": "State the time between collecting the data and adding them to the dataset, and the time to provide data after an access application is approved.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-46.4",
+  "row_statement": "Provide the information the EHDS data quality and utility label needs: documentation, maturity of quality management, coverage, access and provision times, and data modifications.",
+  "statement": "Describe modifications of the data: merging and adding data to an existing dataset, including links with other datasets.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-47.1",
+  "row_statement": "Standardise the minimum metadata elements that health data holders must provide under the EHDS Regulation.",
+  "statement": "Standardise the minimum metadata elements that health data holders must provide under the EHDS Regulation.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-48.1",
+  "row_statement": "Remain fully compatible with DCAT-AP.",
+  "statement": "Remain fully compatible with DCAT-AP.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-49.1",
+  "row_statement": "Align the minimum elements for open health data with those of DCAT-AP for High-Value Datasets.",
+  "statement": "Align the minimum elements for open health data with those of DCAT-AP for High-Value Datasets.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-50.1",
+  "row_statement": "Align the minimum elements for non-open, non-personal health data with the metadata of national single information points under the Data Governance Act.",
+  "statement": "Align the minimum elements for non-open, non-personal health data with the NSIP metadata of the Data Governance Act.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-51.1",
+  "row_statement": "Define stricter, conditional minimum element sets for protected and for sensitive (personal) health data.",
+  "statement": "Define stricter, conditional minimum element sets for protected and for sensitive (personal) health data.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-52.1",
+  "row_statement": "Take coded values (health themes, coding systems, code values, standards) as HTTP URIs from one shared, authoritative knowledge base (Wikidata).",
+  "statement": "Take coded values (health themes, coding systems, code values, standards) as HTTP URIs from one shared, authoritative knowledge base (Wikidata).",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-53.1",
+  "row_statement": "Publish data dictionaries in one harmonised machine-readable format (CSVW), so variable definitions are consistent across catalogues.",
+  "statement": "Publish data dictionaries in one harmonised machine-readable format (CSVW).",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-54.1",
+  "row_statement": "Provide descriptions in at least one official EU language, preferably the holder's native language, with language tags.",
+  "statement": "Provide dataset descriptions in at least one official EU language.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-54.2",
+  "row_statement": "Provide descriptions in at least one official EU language, preferably the holder's native language, with language tags.",
+  "statement": "Encourage data holders to create metadata in their native language.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-55.1",
+  "row_statement": "Expose national health catalogues through endpoints that the EU datasets catalogue, single information points and other catalogues can harvest.",
+  "statement": "Expose national health catalogues through endpoints that the EU datasets catalogue, single information points and other catalogues can harvest.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-56.1",
+  "row_statement": "Keep the data holder's record as the single source of truth when aggregating: copies refer to the original, and access bodies add a persistent identifier without replacing the original one.",
+  "statement": "Keep copies of metadata linked to the original record at its source.",
+  "stratum": "system",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-56.2",
+  "row_statement": "Keep the data holder's record as the single source of truth when aggregating: copies refer to the original, and access bodies add a persistent identifier without replacing the original one.",
+  "statement": "Update metadata only at its primary source: the data holder, not the access body, owns and edits it.",
+  "stratum": "system",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": "Same need as the second part of H-63 (\"the data holder is the owner/editor of the metadata - not the HDAB\")."
+ },
+ {
+  "atom_id": "H-56.3",
+  "row_statement": "Keep the data holder's record as the single source of truth when aggregating: copies refer to the original, and access bodies add a persistent identifier without replacing the original one.",
+  "statement": "Where a record's identifier does not meet the profile's identifier rules, have the access body assign an additional persistent URI while keeping the data holder's original identifier.",
+  "stratum": "system",
+  "applicability": "The incoming identifier does not meet the profile identifier requirements",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-57.1",
+  "row_statement": "Detect broken URIs in the links between catalogue resources.",
+  "statement": "Detect broken URIs in the links between catalogue resources.",
+  "stratum": "system",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-58.1",
+  "row_statement": "Measure the maturity of the health data space from its metadata, such as the share of URIs, the level of interoperability and conformity to standards.",
+  "statement": "Measure the maturity of the health data space from its metadata (share of URIs, interoperability, conformity to standards).",
+  "stratum": "system",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-59.1",
+  "row_statement": "Order search facets by their relevance, as shown in the pilot use cases.",
+  "statement": "Order search facets by their relevance, as shown in the pilot use cases.",
+  "stratum": "system",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-60.1",
+  "row_statement": "Let applicants attach an analysis script to a data request, to obtain anonymised statistical answers.",
+  "statement": "Let applicants attach an analysis script to a data request, to obtain anonymised statistical answers.",
+  "stratum": "system",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-61.1",
+  "row_statement": "Support data holders in transforming existing metadata into the profile, with a user-friendly multilingual editor that needs no technical expertise.",
+  "statement": "Support data holders in transforming their existing metadata into the profile.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-61.2",
+  "row_statement": "Support data holders in transforming existing metadata into the profile, with a user-friendly multilingual editor that needs no technical expertise.",
+  "statement": "Provide a user-friendly, multilingual metadata editor that needs no technical expertise.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-62.1",
+  "row_statement": "Validate metadata against the profile (mandatory elements, data types, controlled vocabularies) before publication and when aggregating.",
+  "statement": "Validate metadata against the profile (mandatory elements, data types, controlled vocabularies) before publication and when aggregating.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-63.1",
+  "row_statement": "Assign responsible metadata managers at data holders and access bodies; the data holder, not the access body, owns and edits the metadata.",
+  "statement": "Designate responsible metadata managers at data holders and at access bodies.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-64.1",
+  "row_statement": "Let access bodies enrich metadata automatically when indicators show that a dataset falls under the EHDS.",
+  "statement": "Let access bodies enrich metadata automatically (e.g. add the EHDS as applicable legislation) when indicators show a dataset falls under the EHDS.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-65.1",
+  "row_statement": "Set up revision and maintenance procedures, with clear responsibility, for the profile.",
+  "statement": "Set up revision and maintenance procedures, with clear responsibility, for the profile.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-66.1",
+  "row_statement": "Provide the elements DCAT-AP already makes mandatory: a title and a description for every dataset and an access URL for every distribution.",
+  "statement": "Give every dataset a title.",
+  "stratum": "content",
+  "applicability": "All cohorts (mandatory in DCAT-AP 3.0.0, the NSIP list and the sensitive-data proposal)",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-66.2",
+  "row_statement": "Provide the elements DCAT-AP already makes mandatory: a title and a description for every dataset and an access URL for every distribution.",
+  "statement": "Give every dataset a description.",
+  "stratum": "content",
+  "applicability": "All cohorts (mandatory in DCAT-AP 3.0.0, the NSIP list and the sensitive-data proposal)",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-66.3",
+  "row_statement": "Provide the elements DCAT-AP already makes mandatory: a title and a description for every dataset and an access URL for every distribution.",
+  "statement": "Give each distribution an access URL that gives access to the data or explains how to request it.",
+  "stratum": "content",
+  "applicability": "All cohorts; listed as \"Access procedure\" in the NSIP table",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-67.1",
+  "row_statement": "Give each distribution of protected (NSIP) data exactly one file format, and offer other formats as separate distributions.",
+  "statement": "State the file format of each distribution; mandatory, with exactly one format per distribution, for protected (NSIP) data.",
+  "stratum": "content",
+  "applicability": "Protected (NSIP) data",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-67.2",
+  "row_statement": "Give each distribution of protected (NSIP) data exactly one file format, and offer other formats as separate distributions.",
+  "statement": "Offer the same data in another format as a separate distribution.",
+  "stratum": "content",
+  "applicability": "Protected (NSIP) data offered in several formats",
+  "notes": ""
+ },
+ {
+  "atom_id": "H-68.1",
+  "row_statement": "State how often a dataset is updated (frequency).",
+  "statement": "State how often a dataset is updated (frequency).",
+  "stratum": "content",
+  "applicability": "Personal (sensitive) health data cohort, D6.2 §5.3.1.3 proposal",
+  "notes": "Listed as \"frequency\" among the §5.3.1.3 recommended properties; the anchor is the §5.3.1.4 cardinality table."
+ }
+]

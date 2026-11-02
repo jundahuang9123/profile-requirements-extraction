@@ -1,0 +1,440 @@
+[
+{"atom_id": "Req-1.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 13] 4.1 Alignment criteria and requirements", "quote": "Provide an as much as possible comprehensive RDF-based representation of geospatial metadata, based on widely used vocabularies (as DCAT-AP), trying, at the same time, to avoid semantic loss and to promote cross-domain re-use."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 28] 7. Agent roles", "quote": "In specific cases, for example in exchanging data among domain-specific portals, it may be useful to express other, more specific agent roles. In such cases, extensions to the base profile may be defined using additional properties with more specific meanings."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§13 Qualified relations", "quote": "Nevertheless, additional information is required in order to fully express the semantics of some relationships."}],
+ "rationale": "GeoDCAT-AP aims at representations avoiding semantic loss; DCAT-AP and DCAT add more expressive constructs for domain-specific needs."}},
+{"atom_id": "Req-1.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 13] 4.1 Alignment criteria and requirements", "quote": "Provide an as much as possible comprehensive RDF-based representation of geospatial metadata"},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.2.1 Complementary vocabularies", "quote": "Elements from a number of complementary vocabularies MAY be used together with DCAT to provide more detailed information."},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 7] 1 Introduction", "quote": "A conversion to RDF syntax allows additional metadata elements to be displayed on general-purposed data portals"}],
+ "rationale": "Inputs aim at comprehensive representations and allow complementary vocabularies for more detailed, i.e. richer, descriptions."}},
+{"atom_id": "Req-1.3", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§1 Introduction", "quote": "Sharing data resources among different organizations, researchers, governments and citizens requires the provision of metadata."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 18] 2.2.2 Resource abstract", "quote": "The abstract provides a clear and concise statement that enables the reader to understand the content of the data or service"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 13] 1.1.3 Conclusion", "quote": "the minimum requirements expressed in the implementing rules have also to be met semantically, i.e. with metadata contents strictly satisfying the INSPIRE requirements."}],
+ "rationale": "Inputs require descriptive metadata that users can understand, but adequacy of description is not stated as a profile need."}},
+{"atom_id": "Req-1.4", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 21] 2.2.4.1 Resource Locator for data sets and dataset series", "quote": "of a metadata record which point users to the location (URL) where the data can be downloaded, or to where additional information about the resource may be provided."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 19] 4.5.1 Mandatory properties for Distribution (access URL)", "quote": "This property contains a URL that gives access to a Distribution of the Dataset."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§4 Conformance", "quote": "Access to data is organized into datasets, distributions, and data-services."}],
+ "rationale": "Mandatory access URLs and resource locators point users to where the data can be accessed or downloaded."}},
+{"atom_id": "Req-1.5", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.7 Class: Distribution", "quote": "Judgement about how to describe them is the responsibility of the provider, taking into account their understanding of the expectations of users, and practices in the relevant community."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 8] 2. Terminology used in the DCAT Application Profile", "quote": "An Application Profile is a specification that re-uses terms from one or more base standards, adding more specificity by identifying mandatory, recommended and optional elements to be used for a particular application"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 26] 2.2.7 Resource language", "quote": "Conditional for spatial dataset and spatial dataset series: Mandatory if the resource includes textual information."}],
+ "rationale": "Application-specific profiling, provider judgement and conditional obligations relate to context, but context-sensitive descriptions are not stated as a need."}},
+{"atom_id": "Req-1.6", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "Status of This Document", "quote": "loosening of constraints in class and property definitions to promote re-use of terms and modularity"},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 23] 5.3 Overview of bindings for GeoDCAT-AP Extended", "quote": "GeoDCAT-AP Extended is a superset of GeoDCAT-AP Core."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.4 Class: Cataloged Resource", "quote": "dcat:Resource is an extension point that enables the definition of any kind of catalog."}],
+ "rationale": "DCAT 2 explicitly promotes modularity; GeoDCAT-AP layers a core and an extended profile."}},
+{"atom_id": "Req-1.7", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 10] 3. Application profile overview", "quote": "The core classes of the Application Profile are thus the classes Catalogue, Dataset, Distribution and Data Service."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 5] Introduction", "quote": "It defines a number of metadata elements, their multiplicities and the value domains to be used in the metadata."}],
+ "rationale": "Specifications define structured classes and elements, but a need for a detailed description structure is not stated."}},
+{"atom_id": "Req-1.8", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.4.7 Property: release date", "quote": "encoded using the relevant ISO 8601 Date and Time compliant string [ DATETIME ] and typed using the appropriate XML Schema datatype"},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§4 Conformance", "quote": "A DCAT profile is a specification for a data catalog that adds additional constraints to DCAT."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§5.2 RDF considerations", "quote": "The DCAT vocabulary is an OWL2 ontology [ OWL2-OVERVIEW ] formalized using [ RDF-SCHEMA ]."}],
+ "rationale": "Property ranges require typed literals, DCAT is a formal ontology, and profiles add constraints (rules)."}},
+{"atom_id": "Req-1.9", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 27] 6.1 Provider requirements", "quote": "Provide descriptions of all organisations involved in the descriptions of Catalogue and Datasets, including at least the mandatory properties specified in section 4.6.1."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 69] A.5 Management of containment by reference", "quote": "The use of containment by reference is of course a very good way to ensure the consistency of the XML data and to reduce the maintenance cost."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§5.2 RDF considerations", "quote": "it is recommended that instances of the DCAT main classes have a global identifier, and use of blank nodes is generally discouraged when encoding DCAT in RDF."}],
+ "rationale": "Referenced agents must be described, references keep metadata consistent, and global identifiers keep entities linkable."}},
+{"atom_id": "Req-1.10", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§7 Dereferenceable identifiers", "quote": "DCAT primarily relies on persistent HTTP URIs as an effective way of making identifiers actionable."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 24] 2.2.5 Unique resource identifier", "quote": "Never delete an existing identifier for a resource. If a change in resource identification is needed, add a new identifier but also keep the old one."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 23] 5.1 Requirements for controlled vocabularies", "quote": "Have associated persistence and versioning policies."}],
+ "rationale": "DCAT relies on persistent HTTP URIs and INSPIRE requires stable resource identifiers."}},
+{"atom_id": "Req-2.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "Abstract", "quote": "This can increase the discoverability of datasets and data services. It also makes it possible to have a decentralized approach to publishing data catalogs and makes federated search for datasets across catalogs in multiple sites possible"},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 7] 1 Introduction", "quote": "Its basic use case is to make spatial datasets, dataset series, and services searchable on general data portals"}],
+ "rationale": "DCAT and GeoDCAT-AP aim to make datasets discoverable and searchable across catalogues."}},
+{"atom_id": "Req-2.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 6] 1.1 Context", "quote": "Therefore, an agreement on a common format for data exchange would support the sharing, discovery and re-use of this data."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 8] 2. Terminology used in the DCAT Application Profile", "quote": "A Data Portal is a Web-based system that contains a data catalogue with descriptions of datasets and provides services enabling discovery and re-use of the datasets."}],
+ "rationale": "DCAT-AP's stated purpose is supporting sharing, discovery and re-use of datasets."}},
+{"atom_id": "Req-2.3", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 7] 1.2 Scope of the revision", "quote": "The work does not cover implementation issues like mechanisms for exchange of data and expected behaviour of systems implementing the Application Profile other than what is defined in the Conformance Statement in section 6."},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 12] 3 Motivation and use cases", "quote": "Furthermore, data portals frequently are complemented by a triple store, making that the full set of GeoDCAT-AP metadata can be queried through a SPARQL endpoint."}],
+ "rationale": "Portal catalogues and triple stores are mentioned, but DCAT-AP excludes system implementation; no database-baseline purpose is stated."}},
+{"atom_id": "Req-2.4", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 27] 6.1 Provider requirements", "quote": "Provide a description of the Catalogue, including at least the mandatory properties specified in section 4.1.1."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.3 Class: Catalog", "quote": "A curated collection of metadata about resources (e.g., datasets and data services in the context of a data catalog)"}],
+ "rationale": "DCAT-AP requires a catalogue description and defines mandatory, recommended and optional catalogue properties."}},
+{"atom_id": "Req-2.5", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 27] 6.1 Provider requirements", "quote": "Provide descriptions of Datasets in the Catalogue, including at least the mandatory properties specified in section 4.4.1."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "Abstract", "quote": "DCAT enables a publisher to describe datasets and data services in a catalog using a standard model and vocabulary"}],
+ "rationale": "DCAT-AP requires dataset descriptions and defines many dataset properties."}},
+{"atom_id": "Req-2.6", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 27] 6.1 Provider requirements", "quote": "Provide descriptions of Distributions, if any, of Datasets in the Catalogue, including at least the mandatory properties specified in section 4.5.1."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 27] 6.1 Provider requirements", "quote": "Provide descriptions of Data Services, if any, of Datasets in the Catalogue, including at least the mandatory properties specified in section 4.3.1"}],
+ "rationale": "DCAT-AP requires descriptions of distributions and data services with defined properties."}},
+{"atom_id": "Req-2.7", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "Abstract", "quote": "DCAT enables a publisher to describe datasets and data services in a catalog using a standard model and vocabulary that facilitates the consumption and aggregation of metadata from multiple catalogs."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 7] 1.2 Scope of the revision", "quote": "The Application Profile is intended to facilitate data exchange"},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 18] 5.2 Overview of bindings for GeoDCAT-AP Core", "quote": "GeoDCAT-AP Core is meant to enable the harvesting and re-use of spatial metadata records through DCAT-AP-conformant applications and services, including data portals and APIs."}],
+ "rationale": "DCAT facilitates aggregating metadata from multiple catalogues; DCAT-AP and GeoDCAT-AP target exchange and harvesting."}},
+{"atom_id": "Req-3.1", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§1 Introduction", "quote": "DCAT information can be presented in many forms including RDF accessible via SPARQL endpoints, embedded in HTML pages as [ HTML-RDFa ]"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 31] 2.4.1 Keyword value", "quote": "Ideally, both a code (neutral language value) and a human-readable label (in any language) should be included in the metadata."},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 11] 2.8 GeoDCAT-AP XSLT script and API", "quote": "It supports HTTP content negotiation and multiple RDF serialisation formats (namely, RDF/XML, Turtle, N3, N-Triples, JSON-LD, HTML+RDFa)."}],
+ "rationale": "HTML/RDFa presentation and human-readable labels are mentioned, but no stated need for a human-readable metadata format."}},
+{"atom_id": "Req-3.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 7] 1.2 Scope of the revision", "quote": "The only requirement is that the systems can export and import data in RDF in conformance with this Application Profile."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§4 Conformance", "quote": "An RDF description of the catalog itself, the corresponding cataloged resources, and distributions is available"}],
+ "rationale": "Conformance requires RDF descriptions that systems export and import, i.e. machine-readable metadata."}},
+{"atom_id": "Req-4.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 30] 8. Accessibility and multilingual aspects", "quote": "Wherever values of properties are expressed with either type of string, the property can be repeated with translations in the case of free text and with parallel versions in case of named entities."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 69] A.6 ISO 19139 and multilingual metadata", "quote": "each instance represents a locale (language, country and character encoding) in which the metadata elements may be translated."}],
+ "rationale": "DCAT-AP and INSPIRE provide for translations and parallel language versions of metadata."}},
+{"atom_id": "Req-5.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 23] 5.2 Controlled vocabularies to be used", "quote": "The declaration of the following controlled vocabularies as mandatory ensures a minimum level of interoperability."},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 10] 2.4 DCAT and DCAT-AP", "quote": "while providing semantic interoperability with other applications on the basis of reuse of established controlled vocabularies (e.g. EuroVoc) and mappings to existing metadata vocabularies"}],
+ "rationale": "DCAT-AP mandates shared controlled vocabularies; semantic interoperability rests on reusing established vocabularies."}},
+{"atom_id": "Req-6.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 6] 1.1 Context", "quote": "Therefore, an agreement on a common format for data exchange would support the sharing, discovery and re-use of this data."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 7] 1.2 Scope of the revision", "quote": "The only requirement is that the systems can export and import data in RDF in conformance with this Application Profile."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§4 Conformance", "quote": "Requirements for specific access mechanisms (RDF syntaxes, protocols) to the catalog's RDF description"}],
+ "rationale": "A common RDF-based exchange format is required; profiles may fix RDF syntaxes and protocols for software access."}},
+{"atom_id": "Req-7.1", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 2] Document Metadata", "quote": "Licence ISA Open Metadata Licence v1.1, retrievable from"},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 23] 5.1 Requirements for controlled vocabularies", "quote": "Be published under an open licence."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 17] 2.1.2 ISO Schemas Location", "quote": "All the files of the Validator including documentation are available under EU Public License from the JoinUp Platform"}],
+ "rationale": "Specifications and tools are openly licensed and vocabularies should be, but open profile documentation is not stated as a need."}},
+{"atom_id": "Req-7.2", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§5.2 RDF considerations", "quote": "All RDF examples in this document are written in Turtle syntax [ Turtle ] and many are available from the DXWG code repository"},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.1 RDF representation", "quote": "The (revised) DCAT vocabulary is available in RDF"},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 10] 3. Application profile overview", "quote": "DCAT-AP provides guidelines online"}],
+ "rationale": "Machine-readable vocabulary files, repository examples and online guidelines exist as practice, not as a stated documentation need."}},
+{"atom_id": "Req-8.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 6] 1.1 Context", "quote": "This document is the result of the major semantic change release process described in the Change and Release Management Policy for DCAT-AP"},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 40] Annex II Change log, further textual changes (release 1.2)", "quote": "Updated the change management process in chapter 1 as now is based on Change and Release Management Policy for DCAT-AP."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 32] 9. Acknowledgements", "quote": "This work was elaborated by a Working Group under the ISA programme."}],
+ "rationale": "DCAT-AP is maintained by a working group under a Change and Release Management Policy, i.e. a governance process."}},
+{"atom_id": "Req-8.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 14] 4.3 Alignments defined in GeoDCAT-AP", "quote": "The alignments defined in the current version of GeoDCAT-AP are the result of an iterative revision process, following the criteria illustrated in the previous sections and the review of the GeoDCAT-AP WG."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.0.0.pdf", "locator": "[page 6] 1.2 Scope of the revision", "quote": "The objective of this work is to produce an updated release of the DCAT Application Profile based on requests for change coming from real-world implementations of the specification and an alignment with the upcoming release of W3C DCAT 2.0."}],
+ "rationale": "Inputs describe an iterative, review-based revision process driven by change requests."}},
+{"atom_id": "Req-8.3", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "Status of This Document", "quote": "GitHub Issues are preferred for discussion of this specification."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "Status of This Document", "quote": "Alternatively, you can send comments to our mailing list."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.0.0.pdf", "locator": "[page 2] Document History", "quote": "Applied changes from the public review"}],
+ "rationale": "DCAT invites public comments via GitHub issues and a mailing list; DCAT-AP went through public review."}},
+{"atom_id": "Req-8.4", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "Status of This Document", "quote": "that have been considered and discussed by the Data eXchange Working Group but have not been addressed due to lack of maturity or consensus are collected in GitHub. Those believed to be a priority for a future release are in the milestone DCAT Future Priority Work"},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 2] Document History", "quote": "Addresses several issues listed in github"},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 42] Annex II Change log, minor release 2.1.0", "quote": "The extended changelog can be found in github."}],
+ "rationale": "Issues are tracked in GitHub with milestones for future releases."}},
+{"atom_id": "Req-8.5", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 6] 1.2 Scope of the revision", "quote": "The objective of this work is to produce an updated release of the DCAT Application Profile based on numerous requests for change coming from real-world implementations of the specification listed on github since the previous release."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 2] Document History", "quote": "Address the resolutions adoped by the WG"},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "Status of This Document", "quote": "A full list of the significant changes (with links to the relevent github issues) is described in"}],
+ "rationale": "WG resolutions on GitHub change requests are incorporated into follow-up releases with change logs."}},
+{"atom_id": "Req-9.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 13] 4.1 Alignment criteria and requirements", "quote": "GeoDCAT-AP must include, at least, all the mandatory DCAT-AP elements."},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 13] 4.1 Alignment criteria and requirements", "quote": "Vocabularies different from DCAT-AP can be used only for those geospatial metadata elements not supported in DCAT-AP."},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 7] 1.1 Objectives", "quote": "and as much as possible avoiding minting new terms"}],
+ "rationale": "The prior DCAT-AP extension reuses DCAT-AP terms and uses other vocabularies only where DCAT-AP lacks support."}},
+{"atom_id": "Req-9.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 28] 7. Agent roles", "quote": "In such cases, extensions to the base profile may be defined using additional properties with more specific meanings."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 28] 7. Agent roles", "quote": "To enable the use of such properties, they must be defined as RDF properties with URIs in a well-managed namespace."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§14 DCAT Profiles", "quote": "a profile extends one of the DCAT profiles themselves, by adding classes and properties for metadata fields not covered in the reference DCAT profile."}],
+ "rationale": "DCAT-AP states how extensions add properties (RDF properties in well-managed namespaces); DCAT describes profiles extending profiles."}},
+{"atom_id": "Req-10.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 7] 1.1 Objectives", "quote": "To formulate recommendations to the Working Group dealing with the revision of the DCAT-AP, to maximally align DCAT-AP and GeoDCAT-AP."},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 15] 4.3 Alignments defined in GeoDCAT-AP", "quote": "Finally, the GeoDCAT-AP WG has worked in close coordination with the DCAT-AP WG, in order to ensure mutual compliance of the proposed solutions."}],
+ "rationale": "The prior DCAT-AP extension coordinates with and tracks DCAT-AP revisions to stay aligned."}},
+{"atom_id": "Req-11.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "source_locator", "quote": "CMC v2.0 §2.2; PDF pp.13–33"},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 13] 4.2 Metadata elements to be covered by GeoDCAT-AP", "quote": "The general criterion used for this task was that GeoDCAT-AP would ideally cover all the metadata elements of the core profile of ISO 19115 and those defined in INSPIRE, with the requirement that only optional elements might be excluded."}],
+ "rationale": "The CMC concept set is given and GeoDCAT-AP covers all elements of its domain standard; selecting elements fitting NAP needs is not stated."}},
+{"atom_id": "Req-12.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 28] 7. Agent roles", "quote": "Two possible approaches have been discussed, particular in the context of the development of the domain-specific GeoDCAT Application Profile, an extension of the base DCAT Application Profile."},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 7] 1 Introduction", "quote": "This document contains the specification for GeoDCAT-AP, an extension of the DCAT application profile for data portals in Europe (DCAT-AP) [DCAT-AP] for describing geospatial datasets, dataset series, and services."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§14 DCAT Profiles", "quote": "Each of these new specifications constitutes a DCAT profile, i.e. a named set of constraints based on DCAT"}],
+ "rationale": "DCAT-AP draws on GeoDCAT-AP practice; GeoDCAT-AP is a DCAT-AP extension for geospatial data among listed profiles."}},
+{"atom_id": "Req-12.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 7] 1 Introduction", "quote": "GeoDCAT-AP provides an RDF syntax binding for the union of metadata elements of the core profile of ISO 19115:2003 [ISO19115] and those defined in the framework of the INSPIRE Directive [INSPIRE-DIR]."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 5] Introduction", "quote": "The Regulation sets out the requirements for the creation and maintenance of metadata for spatial data sets, spatial data set series and spatial data services"}],
+ "rationale": "INSPIRE metadata rules are provided and the prior DCAT-AP extension binds INSPIRE elements."}},
+{"atom_id": "Req-13.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 13] 4.1 Alignment criteria and requirements", "quote": "base as much as possible the defined alignments on existing practices, in particular those contributed by the GeoDCAT-AP WG. The objective was to build upon experiences having already addressed issues in scope of GeoDCAT- AP, and to avoid a negative impact on existing implementations."},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 53] II.8.1 Topic category and keyword in datasets and dataset series", "quote": "In order to ensure consistency, the relevant MDR Data Theme keywords should be selected based on mappings with the controlled vocabularies used in INSPIRE / ISO 19115 metadata."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 25] 5.3 Other controlled vocabularies", "quote": "implementers are encouraged to publish and to use further region or domain-specific vocabularies that are available online."}],
+ "rationale": "Building on vocabularies of existing implementations for interoperability is supported; vocabularies of operational NAPs are absent."}},
+{"atom_id": "Req-14.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 13] 4.1 Alignment criteria and requirements", "quote": "Provide an as much as possible comprehensive RDF-based representation of geospatial metadata"},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 28] 7. Agent roles", "quote": "In specific cases, for example in exchanging data among domain-specific portals, it may be useful to express other, more specific agent roles."}],
+ "rationale": "Comprehensive domain-specific description is supported via the geospatial analogue; mobility data and its growing variety are absent."}},
+{"atom_id": "Req-15.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§4 Conformance", "quote": "Cardinality constraints, including a minimum set of required metadata fields"},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 14] 4.2 Metadata elements to be covered by GeoDCAT-AP", "quote": "The priority was to support all those elements relevant to any dataset."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 27] 6.1 Provider requirements", "quote": "Provide descriptions of Datasets in the Catalogue, including at least the mandatory properties specified in section 4.4.1."}],
+ "rationale": "Profiles define a minimum set of required fields relevant to any dataset, as DCAT-AP does for European portals."}},
+{"atom_id": "Req-15.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§4 Conformance", "quote": "DCAT-compliant catalogs MAY include additional non-DCAT metadata fields and additional RDF data in the catalog's RDF description."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 27] 6.1 Provider requirements", "quote": "In addition to the mandatory properties, any of the recommended and optional properties defined in section 4 MAY be provided."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 62] 3.1 Introduction (Detailed mapping)", "quote": "Additional properties defined in a profile of ISO 19115 or ISO 19119 compliant with the INSPIRE metadata elements can be expressed but are not documented here."}],
+ "rationale": "Conforming catalogues may carry additional metadata fields beyond the mandatory set."}},
+{"atom_id": "Req-16.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 18] 5.2 Overview of bindings for GeoDCAT-AP Core", "quote": "Those metadata elements for which DCAT-AP does not provide a binding are part of the GeoDCAT-AP Extended profile described in Section 5.3."},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 39] Annex I Overview of metadata elements covered by GeoDCAT-AP", "quote": "The following table provides an overview of the metadata elements in the INSPIRE metadata schema and in the core profile of ISO 19115, and the available mappings in DCAT-AP and GeoDCAT-AP."}],
+ "rationale": "GeoDCAT-AP uses domain-to-DCAT-AP mappings to find unrepresented elements; CMC-DCAT-AP mappings are absent."}},
+{"atom_id": "Req-17.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.5.4 Property: update/modification date (Catalog Record)", "quote": "Most recent date on which the catalog entry was changed, updated or modified."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 60] 2.11.2 Metadata date", "quote": "The date which specifies when the metadata record was created or updated"},
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-1", "quote": "\"id\": \"CMC-1\", \"concept\": \"record date\""}],
+ "rationale": "Metadata date (record created or updated) and catalogue-record modification date are defined."}},
+{"atom_id": "Req-17.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 60] 2.11.3 Metadata language", "quote": "This is the language in which the metadata elements are expressed"},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.4.9 Property: language", "quote": "This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource"},
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-2", "quote": "\"id\": \"CMC-2\", \"concept\": \"description language\""}],
+ "rationale": "INSPIRE mandates the metadata language; DCAT defines the language of textual metadata."}},
+{"atom_id": "Req-17.3", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 58] 2.11.1 Metadata point of contact", "quote": "This is the description of the organisation responsible for the creation and maintenance of the metadata."},
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-3", "quote": "\"id\": \"CMC-3\", \"concept\": \"metadata contact\""}],
+ "rationale": "INSPIRE's metadata point of contact identifies who creates and maintains the metadata."}},
+{"atom_id": "Req-18.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 51] 2.9 Constraints related to access and use", "quote": "ISO 19115 provides a general mechanism for documenting different categories of constraints applicable to the resource (or its metadata)."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 54] 2.9.2 Conditions applying to access and use", "quote": "Restrictions on the access and use of a resource or metadata"},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 14] 4.1.2 Recommended properties for Catalogue (licence)", "quote": "This property refers to the licence under 0..1 licence dct:license dct:LicenseDocument which the Catalogue can be used or reused."}],
+ "rationale": "Use constraints may apply to metadata; DCAT-AP gives a licence for reuse of the catalogue of metadata."}},
+{"atom_id": "Req-19.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 17] 2.2.1 Resource title", "quote": "This is a characteristic, and often unique, name by which the resource is known."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.4.6 Property: title", "quote": "A name given to the item."},
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-4", "quote": "\"id\": \"CMC-4\", \"concept\": \"dataset title\""}],
+ "rationale": "Resource title is a defined (mandatory) element in INSPIRE and DCAT-based profiles."}},
+{"atom_id": "Req-19.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 18] 2.2.2 Resource abstract", "quote": "This is a brief narrative summary of the content of the resource."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.4.5 Property: description", "quote": "A free-text account of the item."},
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-5", "quote": "\"id\": \"CMC-5\", \"concept\": \"dataset synopsis\""}],
+ "rationale": "Resource abstract/description is a defined element across the inputs."}},
+{"atom_id": "Req-19.3", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 20] 2.2.3 Resource Type", "quote": "This is the type of resource being described by the metadata and it is filled in with a value from a classification of the resource based on its scope."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 20] 2.2.3 Resource Type, TG Requirement 2", "quote": "- dataset for spatial datasets; - series for spatial dataset series; - service for spatial data services"},
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-6", "quote": "\"id\": \"CMC-6\", \"concept\": \"resource kind\""}],
+ "rationale": "INSPIRE mandates resource type distinguishing datasets, series and services; CMC lists resource kind."}},
+{"atom_id": "Req-19.4", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-7, CMC-8", "quote": "\"id\": \"CMC-7\", \"concept\": \"dataset category\" }, { \"id\": \"CMC-8\", \"concept\": \"detailed dataset classification\""},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 27] 2.3.1 Topic category", "quote": "The topic category is a high-level classification scheme to assist in the grouping and topic- based search of available spatial data resources."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.4.12 Property: theme/category", "quote": "A main category of the resource. A resource can have multiple themes."}],
+ "rationale": "Dataset categories and detailed classification are supported; categorisation per EC Delegated Regulations is absent."}},
+{"atom_id": "Req-19.5", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-9", "quote": "\"id\": \"CMC-9\", \"concept\": \"service category\""},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 29] 2.3.2 Spatial data service type", "quote": "This is a classification to assist in the search of available spatial data services."},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 53] II.8.2 Keyword in services", "quote": "Keywords from the ISO 19119 codelists of spatial data service type and categories are mapped to dct:type"}],
+ "rationale": "Service categorisation is supported; the category list of Delegated Regulation (EU) 2017/1926 is absent."}},
+{"atom_id": "Req-19.6", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 26] 2.2.7 Resource language", "quote": "It refers to the language(s) used within the resource (dataset, series, or service if relevant)."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 17] 4.4.3 Optional properties for Dataset (language)", "quote": "This property refers to a language of the Dataset."},
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-10", "quote": "\"id\": \"CMC-10\", \"concept\": \"data language\""}],
+ "rationale": "Resource language is defined in INSPIRE and DCAT-AP; CMC lists data language."}},
+{"atom_id": "Req-19.7", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-11", "quote": "\"id\": \"CMC-11\", \"concept\": \"payload location referencing\""}],
+ "rationale": "CMC lists payload location referencing, i.e. the georeferencing method used within the payload."}},
+{"atom_id": "Req-20.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 49] 2.8.2 Specification", "quote": "This is a citation of the implementing rules adopted under Article 7(1) of INSPIRE Directive 2007/2/EC or other specificationto which a particular resource conforms."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§12.2.1 Conformance to a standard", "quote": "conformant to the EU INSPIRE Regulation on interoperability of spatial data sets and services"}],
+ "rationale": "Citing the regulation or implementing rule relevant to a resource is supported; the ITS Delegated Regulations (MMTIS, RTTI, SRTI, SSTP) are absent."}},
+{"atom_id": "Req-21.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 8] 1.1 Objectives", "quote": "To define new controlled vocabularies or define mappings between controlled vocabularies;"},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.0.0.pdf", "locator": "[page 16] 4.4.3 Optional properties for Dataset (access rights)", "quote": "with three members (:public, :restricted, :non-public) will be created and maintained by the Publications Office of the EU."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 23] 5.1 Requirements for controlled vocabularies", "quote": "Be operated and/or maintained by an institution of the European Union, by a recognised standards organisation or another trusted organisation."}],
+ "rationale": "Creating and governing controlled vocabularies is supported; coordinated development of a dataset/service content vocabulary is not."}},
+{"atom_id": "Req-21.2", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 23] 5.1 Requirements for controlled vocabularies", "quote": "Have terms that are identified by URIs with each URI resolving to documentation about the term."},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 78] II.26 Spatial representation type", "quote": "the ISO 19115 code list of spatial representation types might be in the future available as a URI register from the INSPIRE Registry."}],
+ "rationale": "Inputs discuss URI-resolvable vocabularies hosted in external registries, not hosting a vocabulary within the profile."}},
+{"atom_id": "Req-21.3", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 23] 5.1 Requirements for controlled vocabularies", "quote": "Be operated and/or maintained by an institution of the European Union, by a recognised standards organisation or another trusted organisation."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 23] 5.1 Requirements for controlled vocabularies", "quote": "Have associated persistence and versioning policies."}],
+ "rationale": "DCAT-AP requires controlled vocabularies to be maintained by trusted bodies with versioning policies."}},
+{"atom_id": "Req-21.4", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 29] 6 Controlled vocabularies", "quote": "Other controlled vocabularies can be used in addition to those mentioned above."},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 79] II.27 Maintenance information", "quote": "For the frequency codes not covered by the MDR Frequency code list, the approach will be as follows:"}],
+ "rationale": "Inputs allow additional vocabularies and supplementing code lists, not keeping the profile's own vocabulary extendable."}},
+{"atom_id": "Req-21.5", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 23] 5.1 Requirements for controlled vocabularies", "quote": "Have labels in multiple languages, ideally in all official languages of the European Union."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 32] 2.4.1 Keyword value", "quote": "An INSPIRE aware tool is expected to manage the neutral language values (e.g. humanCatalogueViewer), of the service category or subcategory and eventually display the corresponding value in a language chosen by the user"}],
+ "rationale": "Controlled vocabularies should carry labels in all EU languages; language-neutral codes are displayed in users' languages."}},
+{"atom_id": "Req-22.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-12, CMC-13", "quote": "\"id\": \"CMC-12\", \"concept\": \"validity beginning\" }, { \"id\": \"CMC-13\", \"concept\": \"validity end\""}],
+ "rationale": "CMC lists validity beginning and end, delimiting the period in which published data remain valid."}},
+{"atom_id": "Req-23.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.6.3 Property: spatial/geographical coverage", "quote": "The geographical area covered by the dataset."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 35] 2.5.1 Geographic bounding box", "quote": "This is the extent of the resource in the geographic space, given as a bounding box."},
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-14", "quote": "\"id\": \"CMC-14\", \"concept\": \"publication footprint\""}],
+ "rationale": "Spatial coverage and geographic extent are defined elements; CMC lists the publication footprint."}},
+{"atom_id": "Req-23.2", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-14", "quote": "\"id\": \"CMC-14\", \"concept\": \"publication footprint\""},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 58] II.10 Geographic bounding box", "quote": "Geographic identifier: ISO 19115 core also allows specifying the geographic location using a geographic identifier."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.6.3 Property: spatial/geographical coverage", "quote": "It is recommended that links are to entries in a well maintained gazetteer such as Geonames"}],
+ "rationale": "Naming regions via geographic identifiers and footprint is supported; regions of validity, as distinct from coverage, are not explicit."}},
+{"atom_id": "Req-23.3", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-15, CMC-16", "quote": "\"id\": \"CMC-15\", \"concept\": \"network categories\" }, { \"id\": \"CMC-16\", \"concept\": \"network description\""}],
+ "rationale": "CMC lists network categories and description; use of existing, widely applicable functional classifications is not stated."}},
+{"atom_id": "Req-24.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-11", "quote": "\"id\": \"CMC-11\", \"concept\": \"payload location referencing\""}],
+ "rationale": "CMC lists payload location referencing, i.e. the location referencing method used in the data."}},
+{"atom_id": "Req-24.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§12.2.1 Conformance to a standard", "quote": "Another example concerns the specification of the coordinate reference system ( CRS ) used in a dataset - an information which is typically included in geospatial metadata."},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 73] II.23 Coordinate reference systems and Temporal reference systems", "quote": "In particular, spatial reference systems should be specified by using the corresponding URIs from the"}],
+ "rationale": "DCAT and GeoDCAT-AP specify how to state a dataset's coordinate reference system, e.g. with EPSG URIs."}},
+{"atom_id": "Req-25.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-17", "quote": "\"id\": \"CMC-17\", \"concept\": \"transport modes\""}],
+ "rationale": "CMC lists transport modes as a metadata concept."}},
+{"atom_id": "Req-25.2", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "No input passage or CMC concept covers the transport operators represented by the data."}},
+{"atom_id": "Req-26.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.4.10 Property: publisher", "quote": "The entity responsible for making the item available."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 29] 7. Agent roles", "quote": "the provision of information using dct:publisher is strongly recommended for Dataset."},
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-18", "quote": "\"id\": \"CMC-18\", \"concept\": \"publishing party\""}],
+ "rationale": "Publisher is a defined, strongly recommended dataset property; CMC lists the publishing party."}},
+{"atom_id": "Req-26.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 67] II.16 Responsible party, Table 9 Responsible party roles", "quote": "Owner Part B §6.3 Party that owns the resource. dct:rightsHolder"},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 28] 7. Agent roles", "quote": "For example, properties could be defined, such as foo:owner, foo:curator or foo:responsibleParty, in addition to the use of existing well-known properties, such as dct:creator and dct:rightsHolder."},
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-19", "quote": "\"id\": \"CMC-19\", \"concept\": \"owning party\""}],
+ "rationale": "The owner role is mapped to dct:rightsHolder; CMC lists the owning party."}},
+{"atom_id": "Req-27.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§8 License and rights statements", "quote": "use dct:license to refer to licenses;"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 54] 2.9.2 Conditions applying to access and use, TG Recommendation 22", "quote": "For detailed information it is recommended to provide a link to a license type (e.g. http://creativecommons.org/licenses/by/3.0), a website or to a document containing the necessary information."},
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-20", "quote": "\"id\": \"CMC-20\", \"concept\": \"licence or contract category\""}],
+ "rationale": "Licences governing use are a defined property; CMC lists licence or contract category."}},
+{"atom_id": "Req-27.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-20", "quote": "\"id\": \"CMC-20\", \"concept\": \"licence or contract category\""},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 54] 2.9.2 Conditions applying to access and use, TG Requirement 34", "quote": "Descriptions of terms and conditions, including where applicable, the corresponding fees shall be provided through this element or a link (URL) where these terms and conditions are described."}],
+ "rationale": "CMC lists licence or contract category; INSPIRE requires describing terms and conditions governing use."}},
+{"atom_id": "Req-27.3", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-21", "quote": "\"id\": \"CMC-21\", \"concept\": \"additional use conditions\""},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§8 License and rights statements", "quote": "use dct:rights for all the other types of rights statements - those which are not covered by dct:license and dct:accessRights , such as copyright statements."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 53] 2.9.2 Conditions applying to access and use", "quote": "Conditions for access and use of spatial data sets and services, and where applicable, corresponding fees"}],
+ "rationale": "Other use conditions and rights statements are defined; CMC lists additional use conditions."}},
+{"atom_id": "Req-28.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-22", "quote": "\"id\": \"CMC-22\", \"concept\": \"encoding\""},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 74] II.24 Character encoding", "quote": "The W3C Content vocabulary [CNT] provides a possibly suitable candidate, namely, property cnt:characterEncoding, taking as value the character set names in the IANA register [IANA-CS]."}],
+ "rationale": "CMC lists encoding; GeoDCAT-AP models the character encoding of distributions."}},
+{"atom_id": "Req-28.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-23", "quote": "\"id\": \"CMC-23\", \"concept\": \"syntax\""},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.7.17 Property: format", "quote": "The file format of the distribution."},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 77] II.25 Encoding - Distribution format", "quote": "In both DCAT and DCAT-AP, this information is specified for the distribution(s) of a dataset, and not for the dataset itself."}],
+ "rationale": "CMC lists syntax; DCAT and GeoDCAT-AP describe distribution formats."}},
+{"atom_id": "Req-28.3", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-24", "quote": "\"id\": \"CMC-24\", \"concept\": \"grammar\""},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.7.15 Property: conforms to (Distribution)", "quote": "In this context it will usually be used for a schema, ontology, data model or profile which specifies the structure of a dataset distribution."}],
+ "rationale": "CMC lists grammar; DCAT links distributions to schemas specifying their structure."}},
+{"atom_id": "Req-28.4", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-25", "quote": "\"id\": \"CMC-25\", \"concept\": \"data-model identification\""},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.7.15 Property: conforms to (Distribution)", "quote": "In this context it will usually be used for a schema, ontology, data model or profile which specifies the structure of a dataset distribution."}],
+ "rationale": "CMC lists data-model identification; DCAT links distributions to the data model they conform to."}},
+{"atom_id": "Req-29.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.7.15 Property: conforms to (Distribution)", "quote": "This property SHOULD be used to indicate the model, schema, ontology, view or profile that this representation of a dataset conforms to."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 19] 4.5.3 Optional properties for Distribution (linked schemas)", "quote": "linked dct:conformsTo dct:Standard schema to which the described Distribution 0..n"}],
+ "rationale": "DCAT and DCAT-AP describe the schema a distribution conforms to; the evaluation-before-consumption purpose is implicit."}},
+{"atom_id": "Req-29.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 18] 4.4.3 Optional properties for Dataset (sample)", "quote": "This property refers to a sample 0..n sample adms:sample dcat:Distribution distribution of the dataset"}],
+ "rationale": "DCAT-AP defines adms:sample for a sample distribution; the evaluation purpose is implicit."}},
+{"atom_id": "Req-30.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-25", "quote": "\"id\": \"CMC-25\", \"concept\": \"data-model identification\""},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 70] II.18 Metadata standard name, Metadata standard version", "quote": "Following DCAT-AP, GeoDCAT-AP uses dct:conformsTo to encode information about the metadata standard name and metadata standard version."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.7.15 Property: conforms to (Distribution)", "quote": "In this context it will usually be used for a schema, ontology, data model or profile which specifies the structure of a dataset distribution."}],
+ "rationale": "Data-model identification is supported; a precise data-model version only by analogy with metadata standard version."}},
+{"atom_id": "Req-30.2", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-25, CMC-26", "quote": "\"id\": \"CMC-25\", \"concept\": \"data-model identification\" }, { \"id\": \"CMC-26\", \"concept\": \"format explanation\""}],
+ "rationale": "Data-model identification and format explanation are listed, but publication types of a data model are not mentioned."}},
+{"atom_id": "Req-30.3", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-25, CMC-26", "quote": "\"id\": \"CMC-25\", \"concept\": \"data-model identification\" }, { \"id\": \"CMC-26\", \"concept\": \"format explanation\""}],
+ "rationale": "Format explanation might cover data-model extensions, but extensions are not mentioned in the inputs."}},
+{"atom_id": "Req-31.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.6.2 Property: frequency", "quote": "The value of dct:accrualPeriodicity gives the rate at which the dataset-as-a-whole is updated."},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 79] II.27 Maintenance information", "quote": "is meant mainly to describe how frequently a resource is updated."},
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-30", "quote": "\"id\": \"CMC-30\", \"concept\": \"update cadence\""}],
+ "rationale": "Update frequency is a defined property; CMC lists update cadence."}},
+{"atom_id": "Req-31.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-31", "quote": "\"id\": \"CMC-31\", \"concept\": \"quality narrative\""},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§12 Quality information", "quote": "The Data Quality Vocabulary (DQV) [ VOCAB-DQV ] offers common modelling patterns for different aspects of Data Quality."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 43] 2.7.1 Lineage, TG Recommendation 16", "quote": "If a data provider has a procedure for the quality management of their spatial data set (series) then the appropriate ISO data quality elements and measures should be used to evaluate and report (in the metadata) the results."}],
+ "rationale": "Dataset quality information (dimensions, measures, narrative) is to be reported in metadata."}},
+{"atom_id": "Req-31.3", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 47] 2.8 Conformity, TG Requirement 28", "quote": "the metadata shall include information on the degree of conformity with the implementing"},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 63] II.14 Conformity and data quality", "quote": "PROV-O allows encoding conformity as a test activity (prov:Activity) that generated a result encoded with property"},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§12.2.3 Conformance test results", "quote": "Further information about the tests can be provided using EARL [ EARL10-Schema ]. EARL provides specific classes to describe the testing activity"}],
+ "rationale": "Recording conformity assessments and test activities against regulations is supported; assessment history and ITS Delegated Regulations are not."}},
+{"atom_id": "Req-31.4", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/cmc-2019-concept-inventory.json", "locator": "CMC-32", "quote": "\"id\": \"CMC-32\", \"concept\": \"national-body compliance-assessment status\""},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 47] 2.8 Conformity", "quote": "The Degree of conformity can take either of the following three values (see Part D.5 of the Implementing Rules):"}],
+ "rationale": "CMC lists compliance-assessment status; INSPIRE records conformity degree including not evaluated."}},
+{"atom_id": "Req-32.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§4 Conformance", "quote": "Cardinality constraints, including a minimum set of required metadata fields"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 5] Introduction", "quote": "It defines a number of metadata elements, their multiplicities and the value domains to be used in the metadata."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 10] 3.1 Application profile diagram", "quote": "The cardinalities and qualifications are included in the figure."}],
+ "rationale": "Profiles specify cardinalities/multiplicities for each element."}},
+{"atom_id": "Req-32.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 8] 2. Terminology used in the DCAT Application Profile", "quote": "Mandatory property: a receiver MUST be able to process the information for that property; a sender MUST provide the information for that property."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 8] 2. Terminology used in the DCAT Application Profile", "quote": "adding more specificity by identifying mandatory, recommended and optional elements to be used for a particular application"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 15] 2.1 Introduction (Basic mapping)", "quote": "The INSPIRE obligation/condition applicable to the metadata element;"}],
+ "rationale": "DCAT-AP classifies elements as mandatory, recommended or optional; INSPIRE gives an obligation per element."}},
+{"atom_id": "Req-32.3", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 8] 2. Terminology used in the DCAT Application Profile", "quote": "In the given context, the term \"processing\" means that receivers must accept incoming data and transparently provide these data to applications and services."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 8] 2. Terminology used in the DCAT Application Profile", "quote": "It does neither imply nor prescribe what applications and services finally do with the data (parse, convert, store, make searchable, display to users, etc.)."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 31] 8. Accessibility and multilingual aspects", "quote": "How multilingual information is handled in systems, for example in indexing and user interfaces, is outside of the scope of this Application Profile."}],
+ "rationale": "Sender/receiver implications of obligations are defined; storage, GUI and deployment implications are explicitly out of scope."}},
+{"atom_id": "Req-32.4", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 13] 4.1 Alignment criteria and requirements", "quote": "GeoDCAT-AP must include, at least, all the mandatory DCAT-AP elements."},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 18] 5.2 Overview of bindings for GeoDCAT-AP Core", "quote": "it is indicated whether the element is mandatory (M), optional (O), conditional (C), or recommended (R) in either specification."}],
+ "rationale": "The prior DCAT-AP extension keeps DCAT-AP mandatory elements and records DCAT-AP obligations alongside its own."}},
+{"atom_id": "Req-33.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§7 Dereferenceable identifiers", "quote": "The need to distinguish between primary and alternative (or legacy) identifiers for a dataset within DCAT has been posed as a requirement. However, it is very much application-specific and would be better addressed in DCAT profiles rather than mandating a general approach."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§7 Dereferenceable identifiers", "quote": "Identifiers for datasets should follow the best practices in"},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 24] 2.2.5 Unique resource identifier", "quote": "Never delete an existing identifier for a resource."}],
+ "rationale": "DCAT gives identifier guidance and delegates identifier policies to profiles; INSPIRE gives identifier rules."}},
+{"atom_id": "Req-34.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§4 Conformance", "quote": "Controlled vocabularies or URI sets as acceptable values for properties"},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 23] 5.2 Controlled vocabularies to be used", "quote": "In the table below, a number of properties are listed with controlled vocabularies that MUST be used for the listed properties."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 5] Introduction", "quote": "It defines a number of metadata elements, their multiplicities and the value domains to be used in the metadata."}],
+ "rationale": "Profiles define acceptable values, value domains and mandatory controlled vocabularies per property."}},
+{"atom_id": "Req-35.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.5.4 Property: update/modification date (Catalog Record)", "quote": "This indicates the date of last change of a catalog entry, i.e. the catalog metadata description of the dataset, and not the date of the dataset itself."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.0.0.pdf", "locator": "[page 14] 4.2.2 Recommended properties for Catalogue Record (change type)", "quote": "This property refers to the type of the latest change type adms:status skos:Concept 0..1 revision of a Dataset's entry in the Catalogue."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.5 Class: Catalog Record", "quote": "allows describing further provenance information such as the details of the process and the agent involved in a particular change to a dataset or its registration."}],
+ "rationale": "Catalogue records carry last-change dates and change type for tracking changes to metadata entries."}},
+{"atom_id": "Req-35.2", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§10 Versioning", "quote": "Versioning can be applied to any of the first class citizens DCAT resources including Catalogs, Datasets, Distributions."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§5.1 DCAT scope", "quote": "It is used to capture provenance information about entries in a catalog explicitly."}],
+ "rationale": "Versioning of catalogued resources and record provenance are supported; versions of metadata records themselves are not."}},
+{"atom_id": "Req-36.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 17] 2.1.2 ISO Schemas Location (INSPIRE Validator Service)", "quote": "INSPIRE Validator Service: A RESTful Web service that can be invoked by http request to validate INSPIRE Metadata."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 17] 2.1.2 ISO Schemas Location (INSPIRE Validator Service)", "quote": "The purpose of the INSPIRE Metadata Validator is to test compliance of INSPIRE metadata with the INSPIRE Metadata Regulation."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 42] Annex II Change log, bugfix release 2.0.1", "quote": "corrections to the shacl templates"}],
+ "rationale": "INSPIRE offers an automatic metadata validator; DCAT-AP maintains SHACL templates for validation."}},
+{"atom_id": "Req-37.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 42] Annex II Detailed usage notes and examples", "quote": "This annex contains further usage notes and examples on the mappings summarised in Section 5 of the GeoDCAT-AP specification."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 15] 2.1 Introduction (Basic mapping)", "quote": "additional information is provided regarding: the description of the metadata element, advices on its fulfilment and important requirements and recommendations"}],
+ "rationale": "Specifications provide definitions, usage notes and guidance per metadata element."}},
+{"atom_id": "Req-37.2", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.5 Class: Catalog Record", "quote": "For example, the publication date property of the dataset reflects the date when the information was originally made available by the publishing agency, while the publication date of the catalog record is the date when the dataset was added to the catalog."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 51] 2.9 Constraints related to access and use", "quote": "There are two major requirements expressed in INSPIRE Directive 20007/2/EC in terms of documentation of the constraints as part of the metadata:"}],
+ "rationale": "Inputs relate elements to catalogue registration and legal obligations, but not to NAP operational processes."}},
+{"atom_id": "Req-38.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.6 Class: Dataset", "quote": "Information about licenses and rights SHOULD be provided on the level of Distribution. Information about licenses and rights MAY be provided for a Dataset in addition to but not instead of the information provided for the Distributions of that Dataset."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 10] 3. Application profile overview", "quote": "To improve the coherency between shared Dataset, Distribution and Data Service, DCAT-AP provides guidelines online"},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§6.4.9 Property: language", "quote": "If representations of a dataset are available for each language separately, define an instance of dcat:Distribution for each language"}],
+ "rationale": "Guidance allocates licences, rights and language between datasets and their distributions/data services."}},
+{"atom_id": "Req-39.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 12] 3 Motivation and use cases", "quote": "will make it easier to share descriptions of spatial datasets between spatial data portals and general data portals"},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 29] 7. Agent roles", "quote": "The provision of such information using dct:publisher will ensure interoperability with implementations that use the basic approach of DCAT-AP."},
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 18] 5.2 Overview of bindings for GeoDCAT-AP Core", "quote": "GeoDCAT-AP Core is meant to enable the harvesting and re-use of spatial metadata records through DCAT-AP-conformant applications and services, including data portals and APIs."}],
+ "rationale": "Guidance for exchanging domain-specific (geospatial) metadata with general portals exists; NAP/mobility-specific guidance is absent."}},
+{"atom_id": "Req-39.2", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/geodcat-ap-1.0.1-prior-extension.pdf", "locator": "[page 7] 1 Introduction", "quote": "A conversion to RDF syntax allows additional metadata elements to be displayed on general-purposed data portals, provided that such data portals are capable of displaying additional metadata elements."},
+ {"path": "mobilitydcat/input-raw/w3c-dcat-2-2020.html", "locator": "§4 Conformance", "quote": "DCAT-compliant catalogs MAY include additional non-DCAT metadata fields and additional RDF data in the catalog's RDF description."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 25] 5.3 Other controlled vocabularies", "quote": "While those may not be recognised by general implementations of the Application Profile, they may serve to increase interoperability across applications in the same region or"}],
+ "rationale": "How general portals treat extension elements is discussed for geospatial extensions; napDCAT-AP harvesting guidance is absent."}},
+{"atom_id": "Req-40.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 17] 2.1.2 ISO Schemas Location (INSPIRE Validator Service)", "quote": "The purpose of the INSPIRE Metadata Validator is to test compliance of INSPIRE metadata with the INSPIRE Metadata Regulation."},
+ {"path": "mobilitydcat/input-raw/dcat-ap-2.1.0.pdf", "locator": "[page 14] 4.1.2 Recommended properties for Catalogue (dataset)", "quote": "of problems, this property should be combined with the next property service to implement an empty Catalogue check."},
+ {"path": "mobilitydcat/input-raw/inspire-metadata-guidelines-1.3.pdf", "locator": "[page 13] 1.1.3 Conclusion", "quote": "the conformance to INSPIRE is also a matter of semantic of the information provided."}],
+ "rationale": "Metadata compliance and catalogue checks are supported; a NAP process for assuring quality of collected metadata is not."}}
+]

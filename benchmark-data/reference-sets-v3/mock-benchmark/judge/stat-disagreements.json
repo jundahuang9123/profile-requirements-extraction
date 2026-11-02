@@ -1,0 +1,77 @@
+[
+ {
+  "atom_id": "S-18.1",
+  "atom_statement": "Record publication and modification times to the time of day when data are published more than once a day.",
+  "source_passage": "if a dataset is published more than once per day, more precise information about the actual publication time will be needed",
+  "need_id": "N197",
+  "need_statement": "Users can know the semantics of date properties such as release date, modification date, and listing date for datasets and catalog records.",
+  "reviewer_1": {
+   "label": "partial",
+   "rationale": "Concerns the meaning of dataset release and modification dates, not recording them to the time of day."
+  },
+  "reviewer_2": {
+   "label": "unrelated",
+   "rationale": "not listed, so unrelated"
+  }
+ },
+ {
+  "atom_id": "S-18.1",
+  "atom_statement": "Record publication and modification times to the time of day when data are published more than once a day.",
+  "source_passage": "if a dataset is published more than once per day, more precise information about the actual publication time will be needed",
+  "need_id": "N387",
+  "need_statement": "Users can know release date (dct:issued) for a Catalog",
+  "reviewer_1": {
+   "label": "partial",
+   "rationale": "Release date of a catalogue rather than of datasets, without time-of-day precision."
+  },
+  "reviewer_2": {
+   "label": "unrelated",
+   "rationale": "not listed, so unrelated"
+  }
+ },
+ {
+  "atom_id": "S-18.1",
+  "atom_statement": "Record publication and modification times to the time of day when data are published more than once a day.",
+  "source_passage": "if a dataset is published more than once per day, more precise information about the actual publication time will be needed",
+  "need_id": "N412",
+  "need_statement": "Users can know update/modification date (dct:modified) for a Catalog",
+  "reviewer_1": {
+   "label": "partial",
+   "rationale": "Modification date of a catalogue rather than of datasets, without time-of-day precision."
+  },
+  "reviewer_2": {
+   "label": "unrelated",
+   "rationale": "not listed, so unrelated"
+  }
+ },
+ {
+  "atom_id": "S-18.1",
+  "atom_statement": "Record publication and modification times to the time of day when data are published more than once a day.",
+  "source_passage": "if a dataset is published more than once per day, more precise information about the actual publication time will be needed",
+  "need_id": "N825",
+  "need_statement": "Users can know core metadata of a dataset such as title, description, issued date, modified date, subject.",
+  "reviewer_1": {
+   "label": "broader",
+   "rationale": "Lists a dataset's issued and modified dates among other core metadata, without the time-of-day precision for multiple daily publication."
+  },
+  "reviewer_2": {
+   "label": "partial",
+   "rationale": "Issued and modified dates of a dataset among other core fields, without time-of-day precision or the multiple-daily-publication condition."
+  }
+ },
+ {
+  "atom_id": "S-2.1",
+  "atom_statement": "Describe the attributes needed to qualify and interpret observed values (e.g. units of measure, scaling factors, observation status), the same way whatever the distribution format.",
+  "source_passage": "Attributes: components used to qualify and interpret observed values such as units of measure, scaling factors",
+  "need_id": "N963",
+  "need_statement": "Users can know that component properties such as unit of measure can be attached at the dataset level to avoid redundancy.",
+  "reviewer_1": {
+   "label": "unrelated",
+   "rationale": "not listed, so unrelated"
+  },
+  "reviewer_2": {
+   "label": "partial",
+   "rationale": "Data Cube guidance that attributes such as unit of measure can be attached at dataset level overlaps on dataset-level attributes but is modelling advice."
+  }
+ }
+]

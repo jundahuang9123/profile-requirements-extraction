@@ -1,0 +1,757 @@
+% Supplementary material: every row and atom of the five reference sets.
+% Generated from benchmark-data/reference-sets-v3 (commit 671c60a) by make_tables.py. Compile with pdfLaTeX.
+\documentclass{llncs}
+\usepackage[T1]{fontenc}
+\IfFileExists{lmodern.sty}{\usepackage{lmodern}}{}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{amssymb}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\newcommand{\dcat}{\textsc{dcat}}
+\newcommand{\dcatap}{\textsc{dcat-ap}}
+\newcommand{\req}[1]{\texttt{#1}}
+
+\title{Supplementary Material: Reference Requirements of the Benchmark}
+\author{Anonymous Author(s)}
+\institute{Anonymous Institution}
+
+\begin{document}
+\maketitle
+
+This table lists every row and atom of the five reference sets (version 3). Rows are the published reference rows and rows added from the same reference document (marked $^{\dagger}$); each row is followed by its atoms, the scoring units. The reference statements are curator paraphrases; the reference documents' own wording is cited in the benchmark files. A provisional adjudication of reviewed items was applied on 23 October 2026: one duplicate merged, one umbrella atom left out of scoring, two compound atoms split, three evidence labels downgraded and one omitted need restored; each change is logged in the benchmark files.
+
+\paragraph{Columns.} \emph{Lev.}: the atom is about catalog content (c), the profile as a whole (p) or the catalog system (s); only content atoms are scored. \emph{Status} in the source: requirement (req.), proposal (prop.), open issue (open), guidance (guid.) or deferred to future work (def.). \emph{Base}: relation to the pinned \dcatap\ release: restates, tightens, extends, partly covered by, or beyond the base; -- for atoms that are not about metadata terms, ? if unresolved. \emph{Raw} and \emph{Cons.}: whether the raw corpus and, for mobilityDCAT-AP and HealthDCAT-AP, the pre-consolidation corpus state the atom: S stated, P in part, U uncertain, N not stated, -- no such corpus. These are AI labels with verbatim quotations checked by program; human review is pending. \emph{Sc.}: scored by default (\checkmark); m merged into an equivalent atom of another row (\req{Req-24.1} into \req{Req-19.7}); u an umbrella of separately scored atoms (\req{H-4.1} of \req{H-16.1}, \req{H-26.1}, \req{H-28.1}, \req{H-36.1}, \req{H-66.2}).
+
+{\scriptsize\setlength{\tabcolsep}{3pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{1.3cm}>{\raggedright\arraybackslash}p{5.5cm}cllccc@{}}
+\toprule
+ID & Reference requirement (atom) & Lev. & Status & Base & Raw & Cons. & Sc.\\
+\midrule
+\endfirsthead
+\toprule
+ID & Reference requirement (atom) & Lev. & Status & Base & Raw & Cons. & Sc.\\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\normalsize\textbf{mobilityDCAT-AP}\quad\footnotesize NAPCORE requirement analysis (2022), Table~1; base \dcatap\ 2.0.1; test case}\\*
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{40 rows (40 published), 98 atoms, 39 scored (39 requirements), 7 restate the base, 31 stated (37 at least in part); pre-consolidation corpus: 38 (39)}\\*
+\midrule
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-1}}\enspace Use sufficiently expressive, context-aware and modular descriptions with explicit structure, types and rules; distinguish entity identities, preserve references, and support persistent identifiers.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-1.1} & Make metadata descriptions expressive. & p & req. & -- & S & S & \\
+\req{Req-1.2} & Make metadata descriptions rich. & p & req. & -- & S & U & \\
+\req{Req-1.3} & Describe the data adequately. & p & req. & -- & S & S & \\
+\req{Req-1.4} & Support easy access to the data. & p & req. & -- & S & S & \\
+\req{Req-1.5} & Make metadata descriptions context-sensitive. & p & req. & -- & U & S & \\
+\req{Req-1.6} & Make metadata descriptions modular. & p & req. & -- & S & S & \\
+\req{Req-1.7} & Give metadata descriptions a detailed structure. & p & req. & -- & S & S & \\
+\req{Req-1.8} & Use strong typing and rules in metadata descriptions. & p & req. & -- & S & S & \\
+\req{Req-1.9} & Keep referential integrity. & p & req. & -- & S & U & \\
+\req{Req-1.10} & Enable persistent identifiers. & p & req. & -- & S & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-2}}\enspace Make data findable and reusable; provide a basis for NAP metadata databases, describe catalogues, data and their delivery options, and support metadata federation.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-2.1} & Make datasets discoverable and searchable. & p & req. & -- & S & S & \\
+\req{Req-2.2} & Make datasets reusable. & p & req. & -- & S & S & \\
+\req{Req-2.3} & Serve as a baseline for developing a NAP metadata database. & p & req. & -- & S & S & \\
+\req{Req-2.4} & Allow a detailed description of the registry (catalogue). & p & req. & -- & S & S & \\
+\req{Req-2.5} & Allow a detailed description of its datasets. & p & req. & -- & S & S & \\
+\req{Req-2.6} & Allow a detailed description of their distributions and/or data services. & p & req. & -- & S & S & \\
+\req{Req-2.7} & Allow aggregation and exchange of metadata. & p & req. & -- & S & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-3}}\enspace Expose descriptions in forms suitable for people and software.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-3.1} & Provide the metadata in a human-readable format. & p & req. & -- & S & S & \\
+\req{Req-3.2} & Provide the metadata in a machine-readable format. & p & req. & -- & S & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-4}}\enspace Accommodate descriptions in several languages.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-4.1} & Provide metadata information in multiple languages. & p & req. & -- & S & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-5}}\enspace Use shared vocabularies so participants interpret metadata consistently.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-5.1} & Adopt a standardised set of vocabularies to ensure semantic interoperability. & p & req. & -- & S & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-6}}\enspace Use a common serialization that software agents can process automatically.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-6.1} & Adopt a standard format or serialisation, for technological interoperability and automated access by software agents. & p & req. & -- & S & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-7}}\enspace Publish freely accessible documentation on the Web and, where feasible, provide digitally annotated repository documentation.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-7.1} & Make the documentation publicly available on the Web without proprietary licences. & s & req. & -- & P & S & \\
+\req{Req-7.2} & Where possible, annotate the documentation digitally in a public repository. & s & req. & -- & P & P & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-8}}\enspace Establish governance and revision procedures, public issue discussion and release planning, and incorporate resolved changes in later versions.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-8.1} & Define governance processes for maintaining the profile. & s & req. & -- & S & S & \\
+\req{Req-8.2} & Define a revision methodology for the profile. & s & req. & -- & S & S & \\
+\req{Req-8.3} & Allow public commenting on the profile's development. & s & req. & -- & S & S & \\
+\req{Req-8.4} & Provide an issues and releases planning tool. & s & req. & -- & S & S & \\
+\req{Req-8.5} & Have the authors discuss and resolve issues and proposals and incorporate them into follow-up releases. & s & req. & -- & S & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-9}}\enspace Build on DCAT-AP terms when suitable and follow its extension rules for additions.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-9.1} & Reuse DCAT-AP classes and properties where possible. & p & req. & -- & S & S & \\
+\req{Req-9.2} & Add any further classes and properties according to the DCAT-AP extension rules. & p & req. & -- & S & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-10}}\enspace Account for subsequent changes to the DCAT-AP baseline.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-10.1} & Follow the ongoing evolution of DCAT-AP, considering its developments and revisions. & p & req. & -- & S & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-11}}\enspace Review the complete CMC element set against mobility catalogue needs.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-11.1} & Consider all CMC metadata elements, to identify metadata that better fit the specific requirements of NAPs. & p & req. & -- & S & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-12}}\enspace Account for other DCAT-AP profiles and INSPIRE metadata practice.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-12.1} & Consider existing DCAT-AP extensions (e.g. GeoDCAT-AP for geospatial data). & p & req. & -- & S & S & \\
+\req{Req-12.2} & Consider the metadata specifications of the INSPIRE Directive. & p & req. & -- & S & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-13}}\enspace Preserve interoperability with code lists already deployed by NAP operators.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-13.1} & When defining controlled vocabularies, take into account the vocabularies already used in operational NAPs, for interoperability with existing solutions. & p & req. & -- & P & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-14}}\enspace Describe the varied mobility domain in enough detail to distinguish its growing dataset inventory.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-14.1} & Provide exhaustive metadata descriptions for mobility data, given the growing number and variety of mobility datasets. & p & req. & -- & P & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-15}}\enspace Define a common essential element set while permitting deployment-specific additions.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-15.1} & Propose essential metadata elements relevant to any NAP, as a minimum set of metadata for European NAPs. & p & req. & -- & S & S & \\
+\req{Req-15.2} & Allow further metadata elements in individual NAP deployments. & p & req. & -- & S & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-16}}\enspace Examine the established CMC/DCAT-AP correspondences to identify unrepresented information.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-16.1} & Use the canonical mappings between DCAT-AP and the CMC to identify information that DCAT-AP cannot yet represent. & p & req. & -- & P & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-17}}\enspace Record creation and revision times, description language, and responsibility for maintaining a metadata record.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-17.1} & Record the date and time a metadata record was created or last modified. & c & req. & restates & S & S & \checkmark\\
+\req{Req-17.2} & State the language in which the metadata are written. & c & req. & tightens & S & S & \checkmark\\
+\req{Req-17.3} & Identify who is responsible for creating and maintaining the metadata. & c & req. & extends & S & S & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-18}}\enspace State how the metadata record itself may be reused.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-18.1} & Describe the conditions of use of the metadata itself. & c & req. & restates & S & S & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-19}}\enspace Characterise the data using a title and synopsis, resource kind, dataset and service classifications including MMTIS service categories, language and payload georeferencing.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-19.1} & Give the name of a resource. & c & req. & restates & S & S & \checkmark\\
+\req{Req-19.2} & Give a brief description of a resource. & c & req. & restates & S & S & \checkmark\\
+\req{Req-19.3} & State the type of resource (dataset or service). & c & req. & restates & S & S & \checkmark\\
+\req{Req-19.4} & Give the dataset type category, by logical clustering or by the EC Delegated Regulations. & c & req. & beyond & S & S & \checkmark\\
+\req{Req-19.5} & Give the service type category listed in Delegated Regulation (EU) 2017/1926. & c & req. & beyond & P & P & \checkmark\\
+\req{Req-19.6} & State the language of a resource. & c & req. & restates & S & S & \checkmark\\
+\req{Req-19.7} & Describe the georeferencing method applied within the payload. & c & req. & beyond & S & S & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-20}}\enspace Indicate which ITS delegated regulations apply to a resource.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-20.1} & Indicate which Delegated Regulation (MMTIS, RTTI, SRTI, SSTP) covers a dataset or service. & c & req. & beyond & P & S & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-21}}\enspace Coordinate, host, maintain and extend multilingual code lists for describing dataset and service content.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-21.1} & Support the coordinated development of a controlled vocabulary for describing dataset and service content. & p & req. & -- & S & S & \\
+\req{Req-21.2} & Host the controlled vocabulary within the profile. & p & req. & -- & P & S & \\
+\req{Req-21.3} & Maintain the controlled vocabulary. & p & req. & -- & S & S & \\
+\req{Req-21.4} & Keep the controlled vocabulary extendable. & p & req. & -- & S & S & \\
+\req{Req-21.5} & Allow the controlled vocabulary to be translated into local languages, for harmonisation. & p & req. & -- & S & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-22}}\enspace Represent the interval over which the published data remain valid.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-22.1} & Describe the period in which the published data do not expire. & c & req. & extends & S & S & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-23}}\enspace Describe spatial extent, applicable regions and network coverage using established functional classifications.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-23.1} & Describe the area a dataset covers. & c & req. & tightens & S & S & \checkmark\\
+\req{Req-23.2} & Describe the regions in which a dataset is valid. & c & req. & tightens & S & S & \checkmark\\
+\req{Req-23.3} & Describe the transport network a dataset considers, following existing, widely applicable functional classifications. & c & req. & beyond & P & S & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-24}}\enspace Identify payload location-reference methods and coordinate reference systems.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-24.1} & Describe the location referencing methods used in a dataset or service. & c & req. & beyond & S & S & m\\
+\req{Req-24.2} & Describe the coordinate reference systems used in a dataset or service. & c & req. & tightens & S & S & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-25}}\enspace Identify the transport modes and operators represented by the data.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-25.1} & Describe the transport modes a dataset deals with. & c & req. & beyond & S & S & \checkmark\\
+\req{Req-25.2} & Describe the transport operators a dataset deals with. & c & req. & beyond & S & S & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-26}}\enspace Identify the publishing and owning parties for a dataset.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-26.1} & State who publishes a dataset. & c & req. & tightens & S & S & \checkmark\\
+\req{Req-26.2} & State who owns a dataset. & c & req. & beyond & S & S & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-27}}\enspace Describe contractual, licensing and other conditions on data use.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-27.1} & State whether a licence governs the use of the data. & c & req. & tightens & S & S & \checkmark\\
+\req{Req-27.2} & State whether a contract governs the use of the data. & c & req. & extends & S & S & \checkmark\\
+\req{Req-27.3} & Describe any other condition for using the data. & c & req. & extends & S & S & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-28}}\enspace Describe the encoding, syntax, grammar and underlying data model used for access.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-28.1} & Describe the encoding of the data for access. & c & req. & beyond & S & S & \checkmark\\
+\req{Req-28.2} & Describe the syntax of the data. & c & req. & tightens & S & S & \checkmark\\
+\req{Req-28.3} & Describe the grammar of the data. & c & req. & beyond & S & S & \checkmark\\
+\req{Req-28.4} & Describe the data model of the data. & c & req. & beyond & S & S & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-29}}\enspace Offer schema information and example data so consumers can assess suitability before integration.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-29.1} & Describe the data schema, so users can evaluate the data before setting up consumption. & c & req. & beyond & S & S & \checkmark\\
+\req{Req-29.2} & Provide data samples, so users can evaluate the data before setting up consumption. & c & req. & extends & S & S & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-30}}\enspace Distinguish precise data-model versions, publication types and extensions, such as those used in DATEX II, for discovery.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-30.1} & Describe precisely the version of the data model a dataset adopts (e.g. the DATEX II version), to allow better searching. & c & req. & beyond & P & S & \checkmark\\
+\req{Req-30.2} & Describe the publication type of the data model a dataset adopts (e.g. the DATEX II publication type), to allow better searching. & c & req. & beyond & U & S & \checkmark\\
+\req{Req-30.3} & Describe the extensions of the data model a dataset adopts (e.g. DATEX II extensions), to allow better searching. & c & req. & beyond & U & S & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-31}}\enspace Record update cadence, quality criteria and the history and status of ITS-regulation compliance assessments.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-31.1} & Describe the update rate of a dataset. & c & req. & tightens & S & S & \checkmark\\
+\req{Req-31.2} & Describe the quality criteria of a dataset. & c & req. & beyond & S & S & \checkmark\\
+\req{Req-31.3} & Describe the history of the procedures that assess compliance with the Delegated Regulations on providing data via a NAP. & c & req. & beyond & P & S & \checkmark\\
+\req{Req-31.4} & Describe the status of those compliance-assessment procedures. & c & req. & beyond & S & S & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-32}}\enspace Define occurrence limits and obligation levels and explain their consequences for database storage, user interfaces and harvesting, consistently with DCAT-AP.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-32.1} & Specify the cardinality of each metadata element. & p & req. & -- & S & S & \\
+\req{Req-32.2} & Specify the obligation of each metadata element (mandatory, recommended, optional). & p & req. & -- & S & S & \\
+\req{Req-32.3} & Establish clear rules on these cardinalities for NAP deployments (e.g. their implications for database set-ups, GUI designs and API or harvesting mechanisms). & p & req. & -- & P & S & \\
+\req{Req-32.4} & Consider the existing DCAT-AP rules on cardinalities. & p & req. & -- & S & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-33}}\enspace Provide identifier guidance.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-33.1} & Define guidelines for identifiers. & p & req. & -- & S & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-34}}\enspace Define permitted values for metadata elements, using suitable controlled vocabularies.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-34.1} & Define the expected value range of each metadata element (for example with controlled vocabularies). & p & req. & -- & S & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-35}}\enspace Track revisions and versions of catalogue metadata.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-35.1} & Track changes of metadata records on a NAP. & c & req. & restates & S & S & \checkmark\\
+\req{Req-35.2} & Track different versions of metadata records on a NAP. & c & req. & extends & P & S & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-36}}\enspace Enable automated conformance checking of metadata.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-36.1} & Support the validation, possibly automatic, of metadata that adopts the profile. & s & req. & -- & S & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-37}}\enspace Explain element meanings and how to apply them within NAP operations.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-37.1} & Provide usage rules in addition to the metadata definitions, explaining the semantics of each metadata element. & p & req. & -- & S & S & \\
+\req{Req-37.2} & Advise how to relate the metadata elements to NAP processes. & p & req. & -- & P & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-38}}\enspace Explain allocation of metadata between a dataset or service and its multiple delivery resources.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-38.1} & Provide guidelines and solutions for dividing metadata between a dataset or service and its multiple resources. & p & req. & -- & S & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-39}}\enspace Explain exchange of mobility-specific descriptions with other-domain portals, including handling extensions during harvesting.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-39.1} & Provide guidelines on making NAP-specific metadata interoperable with other data portals (e.g. outside the mobility domain). & s & req. & -- & S & S & \\
+\req{Req-39.2} & Cover in these guidelines how napDCAT-AP extensions are handled when harvesting from other portals. & s & req. & -- & P & S & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{Req-40}}\enspace Give guidance for assuring the quality of metadata received by a NAP.\enspace\textit{(Table 1, PDF pp. 15–19)}}\\*
+\req{Req-40.1} & Provide guidelines for a quality assurance process that checks the quality of metadata collected on a NAP. & s & req. & -- & S & S & \\
+\addlinespace[2pt]
+\midrule
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\normalsize\textbf{GeoDCAT-AP}\quad\footnotesize GeoDCAT-AP 1.0 (2015); base \dcatap\ 1.1; test case}\\*
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{46 rows (7 published), 56 atoms, 37 scored (37 requirements), 16 restate the base, 37 stated (37 at least in part)}\\*
+\midrule
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-1}}\enspace Provide RDF representations of spatial metadata that conform to DCAT-AP, retain meaning as far as practical and support cross-domain reuse.\enspace\textit{(GeoDCAT-AP 1.0 §1.1;4.1)}}\\*
+\req{G-1.1} & Provide a DCAT-AP-conformant representation of geospatial metadata. & p & req. & -- & P & -- & \\
+\req{G-1.2} & Provide an RDF representation of geospatial metadata that is as comprehensive as possible and avoids semantic loss. & p & req. & -- & S & -- & \\
+\req{G-1.3} & Promote the cross-domain reuse of geospatial metadata. & p & req. & -- & P & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-2}}\enspace Include every mandatory baseline DCAT-AP element.\enspace\textit{(GeoDCAT-AP 1.0 §4.1)}}\\*
+\req{G-2.1} & Include, at least, all mandatory DCAT-AP elements. & p & req. & -- & U & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-3}}\enspace Use other vocabularies for geospatial information only where the baseline does not cover it.\enspace\textit{(GeoDCAT-AP 1.0 §4.1)}}\\*
+\req{G-3.1} & Use vocabularies other than DCAT-AP only for geospatial metadata elements that DCAT-AP does not support. & p & req. & -- & P & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-4}}\enspace Base alignments on established practice and working-group implementation experience.\enspace\textit{(GeoDCAT-AP 1.0 §4.1)}}\\*
+\req{G-4.1} & Base the alignments as far as possible on existing practice, in particular the working group's experience. & p & req. & -- & P & -- & \\
+\req{G-4.2} & Avoid a negative impact on existing implementations. & p & req. & -- & U & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-5}}\enspace Assess any new terms carefully and avoid conflicting with ongoing standardisation.\enspace\textit{(GeoDCAT-AP 1.0 §4.1)}}\\*
+\req{G-5.1} & Define new terms only when existing vocabularies offer no suitable candidate, and only after careful assessment. & p & req. & -- & P & -- & \\
+\req{G-5.2} & Discard new terms that could conflict with standards under preparation. & p & req. & -- & N & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-6}}\enspace Cover the ISO core and common INSPIRE metadata elements; exclude only optional material where necessary, with theme-specific extensions outside the common scope.\enspace\textit{(GeoDCAT-AP 1.0 §4.2)}}\\*
+\req{G-6.1} & Cover all metadata elements of the core profile of ISO 19115. & p & req. & -- & S & -- & \\
+\req{G-6.2} & Cover the INSPIRE metadata elements, leaving out only those not common to all INSPIRE spatial data themes. & p & req. & -- & P & -- & \\
+\req{G-6.3} & Exclude only optional elements. & p & req. & -- & U & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-7}}\enspace Offer an additional RDF publication route while retaining the existing INSPIRE metadata obligations and implementations.\enspace\textit{(GeoDCAT-AP 1.0 §1.1)}}\\*
+\req{G-7.1} & Offer an RDF syntax binding as an additional way to implement and publish INSPIRE/ISO metadata on DCAT-AP-conformant portals. & p & req. & -- & U & -- & \\
+\req{G-7.2} & Leave the INSPIRE metadata regulation and technical guidelines, and the collections maintained under them, unchanged. & p & req. & -- & N & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-8}}$^{\dagger}$\enspace Identify who is responsible for a metadata record and how to contact them.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.16, II.20)}}\\*
+\req{G-8.1} & Identify who is responsible for a metadata record and how to contact them. & c & req. & extends & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-9}}$^{\dagger}$\enspace Record the date of each metadata record.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.11, II.21)}}\\*
+\req{G-9.1} & Record the date of each metadata record. & c & req. & restates & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-10}}$^{\dagger}$\enspace State the language of each metadata record.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.7, II.22)}}\\*
+\req{G-10.1} & State the language of each metadata record. & c & req. & restates & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-11}}$^{\dagger}$\enspace State the character set of each metadata record.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.19, II.24)}}\\*
+\req{G-11.1} & State the character set of a metadata record. & c & req. & beyond & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-12}}$^{\dagger}$\enspace Give each metadata record its own identifier.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.17)}}\\*
+\req{G-12.1} & Give a metadata record a file identifier. & c & req. & extends & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-13}}$^{\dagger}$\enspace State the metadata standard a record follows.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.18)}}\\*
+\req{G-13.1} & State the metadata standard a record follows. & c & req. & restates & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-14}}$^{\dagger}$\enspace State the version of the metadata standard a record follows.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.18)}}\\*
+\req{G-14.1} & State the version of the metadata standard a record follows. & c & req. & extends & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-15}}$^{\dagger}$\enspace Give each resource a title.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.1)}}\\*
+\req{G-15.1} & Give each resource a title. & c & req. & restates & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-16}}$^{\dagger}$\enspace Give the dates of creation, publication and last revision of a resource.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.11)}}\\*
+\req{G-16.1} & Give the date of creation of a resource. & c & req. & beyond & S & -- & \checkmark\\
+\req{G-16.2} & Give the date of publication of a resource. & c & req. & restates & S & -- & \checkmark\\
+\req{G-16.3} & Give the date of last revision of a resource. & c & req. & restates & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-17}}$^{\dagger}$\enspace Describe each resource in a short abstract.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.2)}}\\*
+\req{G-17.1} & Describe each resource in a short abstract. & c & req. & restates & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-18}}$^{\dagger}$\enspace State the language or languages used in a resource.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.7)}}\\*
+\req{G-18.1} & State the language or languages used in a resource. & c & req. & restates & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-19}}$^{\dagger}$\enspace Classify each resource by topic category.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.8)}}\\*
+\req{G-19.1} & Classify each resource by topic category. & c & req. & beyond & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-20}}$^{\dagger}$\enspace Give the geographic extent of a resource as a bounding box or a geographic identifier.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.10)}}\\*
+\req{G-20.1} & Give the geographic extent of a resource as a bounding box or a geographic identifier. & c & req. & restates & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-21}}$^{\dagger}$\enspace State the character encoding of a dataset.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.24)}}\\*
+\req{G-21.1} & State the character encoding of a dataset. & c & req. & beyond & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-22}}$^{\dagger}$\enspace Give the temporal extent a resource covers.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.11)}}\\*
+\req{G-22.1} & Give the temporal extent a resource covers. & c & req. & restates & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-23}}$^{\dagger}$\enspace Describe the lineage of a dataset: how it was produced and processed.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.12)}}\\*
+\req{G-23.1} & Describe the lineage of a dataset: how it was produced and processed. & c & req. & restates & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-24}}$^{\dagger}$\enspace State how spatial data are represented, e.g. as vector or grid data.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.26)}}\\*
+\req{G-24.1} & State how spatial data are represented, e.g. as vector or grid data. & c & req. & beyond & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-25}}$^{\dagger}$\enspace State the format in which each distribution is encoded.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.25)}}\\*
+\req{G-25.1} & State the format in which each distribution is encoded. & c & req. & restates & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-26}}$^{\dagger}$\enspace State the spatial resolution of a dataset.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.13)}}\\*
+\req{G-26.1} & State the spatial resolution of a dataset. & c & req. & beyond & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-27}}$^{\dagger}$\enspace Identify the organisations responsible for a resource and the role each plays.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.16)}}\\*
+\req{G-27.1} & Identify the organisations responsible for a resource and the role each plays. & c & req. & partly & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-28}}$^{\dagger}$\enspace Give links to the resource or to further information about it.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.4)}}\\*
+\req{G-28.1} & Give links to the resource or to further information about it. & c & req. & restates & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-29}}$^{\dagger}$\enspace State the coordinate reference system of a dataset.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.23)}}\\*
+\req{G-29.1} & State the coordinate reference system of a dataset. & c & req. & extends & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-30}}$^{\dagger}$\enspace State the temporal reference system of a dataset.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.23)}}\\*
+\req{G-30.1} & State the temporal reference system of a dataset. & c & req. & extends & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-31}}$^{\dagger}$\enspace State the specifications a resource conforms to, and whether it conforms.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.14)}}\\*
+\req{G-31.1} & State the specifications a resource conforms to, and whether it conforms. & c & req. & partly & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-32}}$^{\dagger}$\enspace State whether a resource is a dataset, a dataset series or a service.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.3)}}\\*
+\req{G-32.1} & State whether a resource is a dataset, a dataset series or a service. & c & req. & partly & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-33}}$^{\dagger}$\enspace State the type of a spatial data service, e.g. discovery, view or download.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.9)}}\\*
+\req{G-33.1} & State the type of a spatial data service, e.g. discovery, view or download. & c & req. & beyond & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-34}}$^{\dagger}$\enspace Characterise each resource with keywords and name the vocabularies they come from.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.8)}}\\*
+\req{G-34.1} & Characterise each resource with keywords and name the vocabularies they come from. & c & req. & partly & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-35}}$^{\dagger}$\enspace Link a service to the datasets or dataset series it operates on.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.6)}}\\*
+\req{G-35.1} & Link a service to the datasets or dataset series it operates on. & c & req. & beyond & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-36}}$^{\dagger}$\enspace Give each resource a unique identifier.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.5)}}\\*
+\req{G-36.1} & Give each resource a unique identifier. & c & req. & restates & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-37}}$^{\dagger}$\enspace State the conditions for accessing and using a resource.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.15)}}\\*
+\req{G-37.1} & State the conditions for accessing and using a resource. & c & req. & restates & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-38}}$^{\dagger}$\enspace State any limitations on public access to a resource.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.15)}}\\*
+\req{G-38.1} & State any limitations on public access to a resource. & c & req. & restates & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-39}}$^{\dagger}$\enspace State how often a resource is maintained and updated.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.27)}}\\*
+\req{G-39.1} & State how often a resource is maintained and updated. & c & req. & partly & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-40}}$^{\dagger}$\enspace Report the topological consistency of a dataset as a data quality result.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.14; §5.3)}}\\*
+\req{G-40.1} & Report the topological consistency of a dataset as a data quality result. & c & req. & beyond & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-41}}$^{\dagger}$\enspace Report the conceptual and domain consistency of a dataset as data quality results.\enspace\textit{(GeoDCAT-AP 1.0 §4.2; Annex I (Table 5); Annex II.14)}}\\*
+\req{G-41.1} & Report the conceptual consistency of a dataset as a data quality result. & c & req. & beyond & S & -- & \checkmark\\
+\req{G-41.2} & Report the domain consistency of a dataset as a data quality result. & c & req. & beyond & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-42}}$^{\dagger}$\enspace Make spatial datasets, dataset series and services searchable on general data portals.\enspace\textit{(GeoDCAT-AP 1.0 §1; §3)}}\\*
+\req{G-42.1} & Make spatial datasets, dataset series and services searchable on general data portals. & p & req. & -- & P & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-43}}$^{\dagger}$\enspace Allow ISO 19115/INSPIRE metadata records to be converted into the RDF representation; conversion back is not required.\enspace\textit{(GeoDCAT-AP 1.0 §1.1)}}\\*
+\req{G-43.1} & Support the conversion of ISO 19115/INSPIRE metadata records into the RDF representation; conversion back is not required. & s & req. & -- & U & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-44}}$^{\dagger}$\enspace Keep the RDF binding as simple as possible, reusing existing vocabularies and avoiding new terms.\enspace\textit{(GeoDCAT-AP 1.0 §1.1)}}\\*
+\req{G-44.1} & Keep the RDF syntax binding as simple as possible. & p & req. & -- & U & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-45}}$^{\dagger}$\enspace Reuse the published alignments between EuroVoc, GEMET and the INSPIRE themes.\enspace\textit{(GeoDCAT-AP 1.0 §1.1)}}\\*
+\req{G-45.1} & Reuse the published alignments between EuroVoc, GEMET and the INSPIRE themes. & p & req. & -- & U & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{G-46}}$^{\dagger}$\enspace Feed recommendations into the DCAT-AP revision so that DCAT-AP and GeoDCAT-AP stay aligned.\enspace\textit{(GeoDCAT-AP 1.0 §1.1)}}\\*
+\req{G-46.1} & Feed recommendations into the DCAT-AP revision so that DCAT-AP and GeoDCAT-AP stay aligned. & s & req. & -- & N & -- & \\
+\addlinespace[2pt]
+\midrule
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\normalsize\textbf{HealthDCAT-AP}\quad\footnotesize HealthData@EU Pilot D6.2 (2024); base \dcatap\ 3.0.0; development case}\\*
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{69 rows (16 published), 121 atoms, 89 scored (51 requirements), 13 restate the base, 59 stated (84 at least in part); pre-consolidation corpus: 5 (22)}\\*
+\midrule
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-1}}\enspace Use stable, resolvable identifiers so metadata records and their relationships remain reliably identifiable across catalogues.\enspace\textit{(D6.2 §5.2.1.1)}}\\*
+\req{H-1.1} & Give each dataset metadata record a persistent, dereferenceable identifier (HTTP URI). & c & req. & tightens & P & P & \checkmark\\
+\req{H-1.2} & Use persistent, dereferenceable URIs in the properties that link a dataset to other datasets or external resources. & c & req. & tightens & S & U & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-2}}\enspace Represent catalogue relationships as machine-interpretable links that support a health-data knowledge graph.\enspace\textit{(D6.2 §5.2.1.2)}}\\*
+\req{H-2.1} & Represent the relationships between datasets and other resources (publications, codes) as machine-interpretable links, so the catalogue forms a knowledge graph. & p & req. & -- & S & N & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-3}}\enspace Have data holders review their dataset descriptions at least once a year for accuracy and currency, and keep track of when each description was last reviewed.\enspace\textit{(D6.2 §5.2.1.3)}}\\*
+\req{H-3.1} & Have data holders check at least once a year that their dataset descriptions are accurate and up to date. & s & req. & -- & P & N & \\
+\req{H-3.2} & Where catalogues manage the review, record when a description was last reviewed, separately from when it was last modified. & c & prop. & beyond & N & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-4}}\enspace Make metadata sufficiently interpretable and informative to support machine-assisted search, including semantic and generative-AI use.\enspace\textit{(D6.2 §5.2.2)}}\\*
+\req{H-4.1} & Provide meaningful free-text descriptions (what, why, how, who) that support natural-language and AI-based search. & c & req. & partly & P & S & u\\
+\req{H-4.2} & Annotate datasets with concepts and relationships that users can query semantically (e.g. with SPARQL). & c & req. & beyond & S & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-5}}\enspace Allow dataset discovery to be refined using health categories, access bodies, holder types, personal-data categories, age ranges, population size, quality labels and coding information.\enspace\textit{(D6.2 §5.2.3)}}\\*
+\req{H-5.1} & Classify every dataset by health category, using the mandatory controlled list of EHDS Art. 33 categories, to enable a category facet. & c & req. & beyond & P & P & \checkmark\\
+\req{H-5.2} & Let users filter datasets by health data access body. & c & req. & beyond & P & P & \checkmark\\
+\req{H-5.3} & Let users filter datasets by publisher type. & c & req. & extends & P & P & \checkmark\\
+\req{H-5.4} & Describe the categories of personal data a dataset contains, so users can filter by them. & c & req. & beyond & P & P & \checkmark\\
+\req{H-5.5} & State the minimum typical age of the population in a population dataset, as a search filter. & c & req. & beyond & S & P & \checkmark\\
+\req{H-5.6} & State the maximum typical age of the population in a population dataset, as a search filter. & c & req. & beyond & S & P & \checkmark\\
+\req{H-5.7} & Let users filter datasets by population size. & c & req. & beyond & P & P & \checkmark\\
+\req{H-5.8} & Let users filter datasets by quality label. & c & req. & beyond & S & P & \checkmark\\
+\req{H-5.9} & Let users filter datasets by the coding values they use. & c & req. & beyond & S & P & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-6}}\enspace Adapt displayed filters to whether the catalogue query concerns personal or non-personal data.\enspace\textit{(D6.2 §5.2.3)}}\\*
+\req{H-6.1} & Adapt the displayed search filters to whether the user is looking for personal or non-personal data. & s & req. & -- & U & N & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-7}}\enspace Use semantic annotations and shared coding vocabularies to make health descriptions interoperable and searchable.\enspace\textit{(D6.2 §5.2.5)}}\\*
+\req{H-7.1} & Annotate datasets with shared concepts that have persistent identifiers, so datasets about the same concept can be found across the data space. & c & req. & beyond & S & U & \checkmark\\
+\req{H-7.2} & Identify the health themes of a dataset with HTTP URIs from an authoritative vocabulary; mandatory. & c & req. & beyond & P & N & \checkmark\\
+\req{H-7.3} & Identify the coding systems a dataset uses with HTTP URIs. & c & req. & beyond & S & N & \checkmark\\
+\req{H-7.4} & Identify the code values a dataset uses with HTTP URIs linked to external standards such as ICD-10. & c & req. & beyond & S & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-8}}\enspace Describe at least one safe sample distribution for non-public datasets so users can prepare analyses without accessing sensitive records.\enspace\textit{(D6.2 §5.2.6)}}\\*
+\req{H-8.1} & Describe at least one sample distribution (mock-up, synthetic or anonymised data) for every non-public dataset. & c & req. & tightens & P & S & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-9}}\enspace Accompany sample data with definitions of its variables in a data dictionary.\enspace\textit{(D6.2 §5.2.6)}}\\*
+\req{H-9.1} & Accompany each sample distribution with a data dictionary that defines all its data elements. & c & req. & beyond & P & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-10}}\enspace Allow applicants to identify the variables they need, supporting data minimisation.\enspace\textit{(D6.2 §5.2.6 (pp. 43–44))}}\\*
+\req{H-10.1} & Let data access applicants list the specific variables they need, in line with data minimisation. & s & req. & -- & S & N & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-11}}\enspace Provide usable descriptions of data structures and coding so datasets can be understood and processed consistently.\enspace\textit{(D6.2 §5.2.6.1)}}\\*
+\req{H-11.1} & Describe the data structures of a dataset, where available, in a publicly available and consistent manner. & c & req. & beyond & S & N & \checkmark\\
+\req{H-11.2} & Describe the data formats of a dataset, where available, in a publicly available and consistent manner. & c & req. & beyond & S & N & \checkmark\\
+\req{H-11.3} & Describe the vocabularies of a dataset, where available, in a publicly available and consistent manner. & c & req. & beyond & S & N & \checkmark\\
+\req{H-11.4} & Describe the classification schemes of a dataset, where available, in a publicly available and consistent manner. & c & req. & beyond & S & N & \checkmark\\
+\req{H-11.5} & Describe the taxonomies of a dataset, where available, in a publicly available and consistent manner. & c & req. & beyond & P & N & \checkmark\\
+\req{H-11.6} & Describe the code lists of a dataset, where available, in a publicly available and consistent manner. & c & req. & beyond & S & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-12}}\enspace Describe logical dataset subdivisions and their relationships where large holdings need to be partitioned.\enspace\textit{(D6.2 §5.2.6.2)}}\\*
+\req{H-12.1} & Describe coherent logical ('virtual') datasets within a large data warehouse, each with its own metadata record. & c & req. & restates & U & U & \checkmark\\
+\req{H-12.2} & Embed the breakdown of a data source into collections and datasets in the dataset descriptions. & c & def. & ? & P & U & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-13}}\enspace State intellectual-property and reuse conditions, including those on sample distributions.\enspace\textit{(D6.2 §5.2.6.3)}}\\*
+\req{H-13.1} & State the conditions for re-use (rights) of every distribution, including sample distributions; mandatory. & c & req. & tightens & P & N & \checkmark\\
+\req{H-13.2} & Indicate which parts of a dataset are protected by intellectual property rights. & c & req. & extends & P & N & \checkmark\\
+\req{H-13.3} & Justify why those parts need intellectual-property protection. & c & req. & extends & N & N & \checkmark\\
+\req{H-13.4} & Where intellectual property rights prevent a sample subset, provide a redacted data dictionary instead. & c & prop. & beyond & N & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-14}}\enspace Link to descriptive analytics that help prospective users assess a dataset.\enspace\textit{(D6.2 §5.2.7)}}\\*
+\req{H-14.1} & Link to analytics resources (dashboards, reports, statistics APIs) that let users assess a dataset without accessing the raw data. & c & req. & beyond & P & S & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-15}}\enspace Expose quality annotations or labels that help assess fitness for reuse.\enspace\textit{(D6.2 §5.2.8)}}\\*
+\req{H-15.1} & Link each quality or utility annotation (e.g. a quality label or certificate) to the dataset or distribution it assesses. & c & req. & beyond & S & N & \checkmark\\
+\req{H-15.2} & State the motivation of each quality annotation. & c & req. & beyond & P & N & \checkmark\\
+\req{H-15.3} & Provide the content of each quality annotation as text or as a link to a resource. & c & req. & beyond & P & N & \checkmark\\
+\req{H-15.4} & Describe dataset quality with one standardised approach across EU data spaces, aligned with StatDCAT-AP and mobilityDCAT-AP (DQV quality annotations). & p & req. & -- & P & N & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-16}}\enspace Describe the purpose of data collection and the legal basis for processing personal data.\enspace\textit{(D6.2 §5.2.9)}}\\*
+\req{H-16.1} & Describe the purpose for which the data were collected. & c & req. & beyond & S & S & \checkmark\\
+\req{H-16.2} & Identify the legal basis for processing personal data. & c & req. & beyond & S & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-17}}$^{\dagger}$\enspace Describe each dataset's source, scope, main characteristics, the nature of its health data and the conditions for making the data available.\enspace\textit{(D6.2 §4 (quoting EHDS Art. 55))}}\\*
+\req{H-17.1} & Describe the source of each dataset. & c & req. & tightens & S & P & \checkmark\\
+\req{H-17.2} & Describe the scope of each dataset. & c & req. & tightens & S & U & \checkmark\\
+\req{H-17.3} & Describe the main characteristics of each dataset. & c & req. & restates & S & U & \checkmark\\
+\req{H-17.4} & Describe the nature of the electronic health data in each dataset. & c & req. & beyond & S & N & \checkmark\\
+\req{H-17.5} & Describe the conditions for making the data available. & c & req. & tightens & S & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-18}}$^{\dagger}$\enspace Indicate the legislation that applies to a dataset (e.g. the EHDS Regulation), so health catalogues can filter the datasets in its scope.\enspace\textit{(D6.2 §4.2; §5.3.1.1; §5.3.1.3 (Applicable legislations))}}\\*
+\req{H-18.1} & State the legislation that applies to each dataset (e.g. the EHDS Regulation), so catalogues can filter the datasets in its scope. & c & prop. & tightens & P & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-19}}$^{\dagger}$\enspace Classify each dataset's access rights as public or non-public, so catalogues know whether access needs an application.\enspace\textit{(D6.2 §5.3.1.3 (Access rights))}}\\*
+\req{H-19.1} & Classify each dataset's access rights (public, restricted or non-public), so catalogues know whether access needs an application; NSIP data may only be 'non-public' or 'restricted'. & c & prop. & tightens & P & U & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-20}}$^{\dagger}$\enspace Provide at least one distribution for every dataset: an access URL or download link for public data, a landing page of the health data access body for non-public data.\enspace\textit{(D6.2 §5.3.1.1; §5.3.1.3 (Access rights; Dataset distribution))}}\\*
+\req{H-20.1} & Provide at least one distribution for every dataset. & c & prop. & tightens & P & N & \checkmark\\
+\req{H-20.2} & For public datasets, give an access URL or download link; for non-public datasets, point the distribution to the landing page of the health data access body or equivalent authority. & c & prop. & tightens & P & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-21}}$^{\dagger}$\enspace Name a contact point for every dataset, so users can ask about it without working out whom to contact.\enspace\textit{(D6.2 §5.3.1.3 (Contact point))}}\\*
+\req{H-21.1} & Give every dataset a contact point that acts as its helpdesk. & c & prop. & tightens & S & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-22}}$^{\dagger}$\enspace Identify the health data access body that acts as the access gateway for a non-public or personal dataset.\enspace\textit{(D6.2 §5.3.1.3 (Health data access body))}}\\*
+\req{H-22.1} & Identify the health data access body that acts as access gateway for every dataset with personal or non-public data. & c & prop. & beyond & P & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-23}}$^{\dagger}$\enspace Indicate whether a dataset contains personal data.\enspace\textit{(D6.2 §5.3.1.3 (Data type); §5.3.1.4)}}\\*
+\req{H-23.1} & Indicate whether a dataset contains personal or non-personal data (data type). & c & prop. & extends & S & U & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-24}}$^{\dagger}$\enspace Give each dataset's geographical coverage, preferably from controlled vocabularies, as a filter for populations.\enspace\textit{(D6.2 §5.3.1.3 (Geographical coverage))}}\\*
+\req{H-24.1} & Give each dataset's geographical coverage, preferably from controlled vocabularies, as a filter for populations. & c & prop. & tightens & S & P & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-25}}$^{\dagger}$\enspace Characterise each dataset with a few main keywords per language rather than long lists.\enspace\textit{(D6.2 §5.3.1.3 (Keyword))}}\\*
+\req{H-25.1} & Characterise each dataset with a few main keywords per language (10–15) rather than long lists. & c & prop. & tightens & P & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-26}}$^{\dagger}$\enspace Describe a dataset's lineage: how it was created and modified, and by whom.\enspace\textit{(D6.2 §5.3.1.3 (Provenance))}}\\*
+\req{H-26.1} & Describe a dataset's lineage: how it was created and modified, and by whom. & c & prop. & tightens & S & S & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-27}}$^{\dagger}$\enspace Identify the publisher as the data holder accountable for making the dataset accessible.\enspace\textit{(D6.2 §5.3.1.3 (Publisher))}}\\*
+\req{H-27.1} & Identify the publisher as the data holder accountable for making the dataset accessible. & c & prop. & tightens & S & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-28}}$^{\dagger}$\enspace Describe the nature and type of the data holder as context for judging a dataset's credibility.\enspace\textit{(D6.2 §5.3.1.3 (Publisher note; Publisher type))}}\\*
+\req{H-28.1} & Describe the nature of the data holder in free text, as context for judging the credibility of the dataset. & c & prop. & beyond & P & N & \checkmark\\
+\req{H-28.2} & Classify the data holder by publisher type, using a controlled vocabulary. & c & prop. & tightens & S & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-29}}$^{\dagger}$\enspace Tag every dataset in a health catalogue with the EU data theme for health.\enspace\textit{(D6.2 §5.3.1.3 (Theme); §5.3.1.4)}}\\*
+\req{H-29.1} & Tag every dataset in a health catalogue with the EU data theme for health (HEAL). & c & prop. & tightens & P & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-30}}$^{\dagger}$\enspace Identify the data models and other standards a dataset conforms to (e.g. OMOP), so users can find data ready for their analysis.\enspace\textit{(D6.2 §4.1; §5.2.6.2.1; §5.3.1.3 (Conforms to))}}\\*
+\req{H-30.1} & Identify the data model or other standard a dataset conforms to (e.g. OMOP), so users can find data ready for their analysis. & c & req. & tightens & S & N & \checkmark\\
+\req{H-30.2} & Identify those standards with machine-interpretable identifiers (HTTP URIs). & c & req. & tightens & S & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-31}}$^{\dagger}$\enspace Link to documentation that helps users understand the dataset.\enspace\textit{(D6.2 §5.3.1.3 (Documentation))}}\\*
+\req{H-31.1} & Link to documentation that helps users understand the dataset. & c & prop. & tightens & S & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-32}}$^{\dagger}$\enspace Link a dataset to related resources and publications that show how it has been used.\enspace\textit{(D6.2 §5.2.1.2; §5.3.1.3 (Is referenced by; Related resource); §6.1)}}\\*
+\req{H-32.1} & Link a dataset to the publications and other resources that reference it. & c & prop. & tightens & S & N & \checkmark\\
+\req{H-32.2} & Link a dataset to related resources. & c & prop. & tightens & S & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-33}}$^{\dagger}$\enspace Identify the datasets a dataset was derived from, and let datasets derived from it refer back to it.\enspace\textit{(D6.2 §5.3.1.3 (Source); §6.1)}}\\*
+\req{H-33.1} & Identify the datasets a dataset was derived from; research datasets derived from a health dataset should cite its metadata identifier. & c & prop. & tightens & S & U & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-34}}$^{\dagger}$\enspace Give a landing page that provides access to the dataset and further information.\enspace\textit{(D6.2 §5.3.1.3 (Landing page))}}\\*
+\req{H-34.1} & Give a landing page that provides access to the dataset and further information. & c & prop. & tightens & S & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-35}}$^{\dagger}$\enspace State the language of a dataset where applicable.\enspace\textit{(D6.2 §5.3.1.3 (Language))}}\\*
+\req{H-35.1} & State the language of a dataset where applicable. & c & prop. & tightens & S & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-36}}$^{\dagger}$\enspace Describe the population a dataset covers, where it contains one.\enspace\textit{(D6.2 §5.3.1.3 (Population coverage))}}\\*
+\req{H-36.1} & Describe the population a dataset covers, where it contains one. & c & prop. & beyond & S & S & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-37}}$^{\dagger}$\enspace State the size of a dataset (number of records, number of unique individuals; byte size of each distribution), so users can judge its value.\enspace\textit{(D6.2 §2.3.1.3 and §5.3.1.2 (DGA Art. 8); §5.3.1.3 (Number of records))}}\\*
+\req{H-37.1} & State the number of records in a dataset. & c & prop. & beyond & S & P & \checkmark\\
+\req{H-37.2} & State the number of unique individuals in a dataset. & c & prop. & beyond & S & P & \checkmark\\
+\req{H-37.3} & State the byte size of each distribution. & c & prop. & tightens & S & U & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-38}}$^{\dagger}$\enspace Give a dataset's temporal coverage, leaving the end open while collection continues.\enspace\textit{(D6.2 §5.3.1.3 (Temporal coverage))}}\\*
+\req{H-38.1} & Give a dataset's temporal coverage, leaving the end open while collection continues. & c & prop. & restates & S & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-39}}$^{\dagger}$\enspace State a dataset's temporal resolution, to judge whether it can be reused.\enspace\textit{(D6.2 §5.3.1.3 (Temporal resolution))}}\\*
+\req{H-39.1} & State a dataset's temporal resolution, to judge whether it can be reused. & c & prop. & tightens & S & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-40}}$^{\dagger}$\enspace State when a dataset must be deleted (retention period), and keep its record available afterwards.\enspace\textit{(D6.2 §5.3.1.3 (Retention period))}}\\*
+\req{H-40.1} & State the retention period after which a dataset must be deleted. & c & prop. & beyond & P & N & \checkmark\\
+\req{H-40.2} & Keep a deleted dataset's metadata record available, because publications may reference it. & s & prop. & -- & U & U & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-41}}$^{\dagger}$\enspace Give a version designation where the holder follows a versioning strategy.\enspace\textit{(D6.2 §5.3.1.3 (Version))}}\\*
+\req{H-41.1} & Give a version designation where the holder follows a versioning strategy. & c & prop. & restates & S & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-42}}$^{\dagger}$\enspace State the spatial resolution where it applies, mainly for geospatial data.\enspace\textit{(D6.2 §5.3.1.3 (Spatial resolution))}}\\*
+\req{H-42.1} & State the spatial resolution where it applies, mainly for geospatial data. & c & prop. & restates & S & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-43}}$^{\dagger}$\enspace Record when each catalogue entry was listed and last changed, and which original metadata it was created from.\enspace\textit{(D6.2 §5.2.1.1)}}\\*
+\req{H-43.1} & Record when each catalogue entry was listed. & c & req. & restates & S & N & \checkmark\\
+\req{H-43.2} & Record when each catalogue entry was last modified. & c & req. & restates & S & N & \checkmark\\
+\req{H-43.3} & Identify the original metadata an aggregated catalogue entry was created from. & c & req. & restates & S & U & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-44}}$^{\dagger}$\enspace State which application profile a metadata record follows, so aggregators can validate it.\enspace\textit{(D6.2 §5.2.1.3)}}\\*
+\req{H-44.1} & State which application profile a metadata record follows, so aggregators can validate it. & c & req. & restates & S & U & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-45}}$^{\dagger}$\enspace Indicate whether a dataset's holder is a trusted data holder, as a search facet.\enspace\textit{(D6.2 §5.2.3 (facet list))}}\\*
+\req{H-45.1} & Indicate whether a dataset's holder is a trusted data holder, as a search facet. & c & prop. & beyond & U & U & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-46}}$^{\dagger}$\enspace Provide the information the EHDS data quality and utility label needs: documentation, maturity of quality management, coverage, access and provision times, and data modifications.\enspace\textit{(D6.2 §5.2.8 (quoting EHDS Art. 56))}}\\*
+\req{H-46.1} & For the EHDS data quality and utility label, describe, when applicable, how representative the sampled population is. & c & req. & beyond & S & P & \checkmark\\
+\req{H-46.5} & For the EHDS data quality and utility label, state the average time a natural person appears in the dataset. & c & req. & beyond & S & P & \checkmark\\
+\req{H-46.2} & For the EHDS data quality and utility label, describe the maturity of the data quality management processes, including review and audit processes and the examination of biases. & c & req. & beyond & S & N & \checkmark\\
+\req{H-46.3} & For the EHDS data quality and utility label, state the time between collecting the data and adding them to the dataset. & c & req. & beyond & S & N & \checkmark\\
+\req{H-46.6} & For the EHDS data quality and utility label, state the time to provide the data after a data access application is approved. & c & req. & beyond & S & N & \checkmark\\
+\req{H-46.4} & For the EHDS data quality and utility label, describe modifications of the data: merging and adding data to an existing dataset, including links with other datasets. & c & req. & beyond & S & P & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-47}}$^{\dagger}$\enspace Standardise the minimum metadata elements that health data holders must provide under the EHDS Regulation.\enspace\textit{(D6.2 §2.2)}}\\*
+\req{H-47.1} & Standardise the minimum metadata elements that health data holders must provide under the EHDS Regulation. & p & req. & -- & S & N & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-48}}$^{\dagger}$\enspace Remain fully compatible with DCAT-AP.\enspace\textit{(D6.2 §2.2)}}\\*
+\req{H-48.1} & Remain fully compatible with DCAT-AP. & p & req. & -- & S & N & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-49}}$^{\dagger}$\enspace Align the minimum elements for open health data with those of DCAT-AP for High-Value Datasets.\enspace\textit{(D6.2 §4.2; §5.3.1.1)}}\\*
+\req{H-49.1} & Align the minimum elements for open health data with those of DCAT-AP for High-Value Datasets. & p & prop. & -- & P & N & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-50}}$^{\dagger}$\enspace Align the minimum elements for non-open, non-personal health data with the metadata of national single information points under the Data Governance Act.\enspace\textit{(D6.2 §5.3.1.2)}}\\*
+\req{H-50.1} & Align the minimum elements for non-open, non-personal health data with the NSIP metadata of the Data Governance Act. & p & prop. & -- & P & N & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-51}}$^{\dagger}$\enspace Define stricter, conditional minimum element sets for protected and for sensitive (personal) health data.\enspace\textit{(D6.2 §4.2; §5.3.1.4)}}\\*
+\req{H-51.1} & Define stricter, conditional minimum element sets for protected and for sensitive (personal) health data. & p & req. & -- & P & N & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-52}}$^{\dagger}$\enspace Take coded values (health themes, coding systems, code values, standards) as HTTP URIs from one shared, authoritative knowledge base (Wikidata).\enspace\textit{(D6.2 §5.2.4; §5.2.5)}}\\*
+\req{H-52.1} & Take coded values (health themes, coding systems, code values, standards) as HTTP URIs from one shared, authoritative knowledge base (Wikidata). & p & req. & -- & P & U & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-53}}$^{\dagger}$\enspace Publish data dictionaries in one harmonised machine-readable format (CSVW), so variable definitions are consistent across catalogues.\enspace\textit{(D6.2 §5.2.6.1)}}\\*
+\req{H-53.1} & Publish data dictionaries in one harmonised machine-readable format (CSVW). & p & req. & -- & P & N & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-54}}$^{\dagger}$\enspace Provide descriptions in at least one official EU language, preferably the holder's native language, with language tags.\enspace\textit{(D6.2 §6.1.3 (quoting EHDS Art. 55(1a)))}}\\*
+\req{H-54.1} & Provide dataset descriptions in at least one official EU language. & p & req. & -- & P & N & \\
+\req{H-54.2} & Encourage data holders to create metadata in their native language. & p & req. & -- & P & N & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-55}}$^{\dagger}$\enspace Expose national health catalogues through endpoints that the EU datasets catalogue, single information points and other catalogues can harvest.\enspace\textit{(D6.2 §2.3.1.3; §6.2)}}\\*
+\req{H-55.1} & Expose national health catalogues through endpoints that the EU datasets catalogue, single information points and other catalogues can harvest. & s & req. & -- & S & P & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-56}}$^{\dagger}$\enspace Keep the data holder's record as the single source of truth when aggregating: copies refer to the original, and access bodies add a persistent identifier without replacing the original one.\enspace\textit{(D6.2 §5.2.1.1)}}\\*
+\req{H-56.1} & Keep copies of metadata linked to the original record at its source. & s & req. & -- & S & P & \\
+\req{H-56.2} & Update metadata only at its primary source: the data holder, not the access body, owns and edits it. & s & req. & -- & P & U & \\
+\req{H-56.3} & Where a record's identifier does not meet the profile's identifier rules, have the access body assign an additional persistent URI while keeping the data holder's original identifier. & s & req. & -- & P & P & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-57}}$^{\dagger}$\enspace Detect broken URIs in the links between catalogue resources.\enspace\textit{(D6.2 §5.2.1.2)}}\\*
+\req{H-57.1} & Detect broken URIs in the links between catalogue resources. & s & req. & -- & U & N & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-58}}$^{\dagger}$\enspace Measure the maturity of the health data space from its metadata, such as the share of URIs, the level of interoperability and conformity to standards.\enspace\textit{(D6.2 §5.2.1.2)}}\\*
+\req{H-58.1} & Measure the maturity of the health data space from its metadata (share of URIs, interoperability, conformity to standards). & s & req. & -- & P & N & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-59}}$^{\dagger}$\enspace Order search facets by their relevance, as shown in the pilot use cases.\enspace\textit{(D6.2 §5.2.3)}}\\*
+\req{H-59.1} & Order search facets by their relevance, as shown in the pilot use cases. & s & req. & -- & N & U & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-60}}$^{\dagger}$\enspace Let applicants attach an analysis script to a data request, to obtain anonymised statistical answers.\enspace\textit{(D6.2 §5.2.6 (EHDS Art. 47))}}\\*
+\req{H-60.1} & Let applicants attach an analysis script to a data request, to obtain anonymised statistical answers. & s & req. & -- & P & U & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-61}}$^{\dagger}$\enspace Support data holders in transforming existing metadata into the profile, with a user-friendly multilingual editor that needs no technical expertise.\enspace\textit{(D6.2 §6; §6.1)}}\\*
+\req{H-61.1} & Support data holders in transforming their existing metadata into the profile. & s & req. & -- & S & P & \\
+\req{H-61.2} & Provide a user-friendly, multilingual metadata editor that needs no technical expertise. & s & req. & -- & P & P & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-62}}$^{\dagger}$\enspace Validate metadata against the profile (mandatory elements, data types, controlled vocabularies) before publication and when aggregating.\enspace\textit{(D6.2 §6.1.2; §6.2.1)}}\\*
+\req{H-62.1} & Validate metadata against the profile (mandatory elements, data types, controlled vocabularies) before publication and when aggregating. & s & req. & -- & S & U & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-63}}$^{\dagger}$\enspace Assign responsible metadata managers at data holders and access bodies; the data holder, not the access body, owns and edits the metadata.\enspace\textit{(D6.2 §6.1)}}\\*
+\req{H-63.1} & Designate responsible metadata managers at data holders and at access bodies. & s & req. & -- & P & N & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-64}}$^{\dagger}$\enspace Let access bodies enrich metadata automatically when indicators show that a dataset falls under the EHDS.\enspace\textit{(D6.2 §5.3.1.1)}}\\*
+\req{H-64.1} & Let access bodies enrich metadata automatically (e.g. add the EHDS as applicable legislation) when indicators show a dataset falls under the EHDS. & s & prop. & -- & U & U & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-65}}$^{\dagger}$\enspace Set up revision and maintenance procedures, with clear responsibility, for the profile.\enspace\textit{(D6.2 §6.2)}}\\*
+\req{H-65.1} & Set up revision and maintenance procedures, with clear responsibility, for the profile. & s & prop. & -- & U & N & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-66}}$^{\dagger}$\enspace Provide the elements DCAT-AP already makes mandatory: a title and a description for every dataset and an access URL for every distribution.\enspace\textit{(D6.2 §5.3.1.1; §5.3.1.2 (NSIP table); §5.3.1.3 (Title; Description))}}\\*
+\req{H-66.1} & Give every dataset a title. & c & prop. & restates & S & N & \checkmark\\
+\req{H-66.2} & Give every dataset a description. & c & prop. & restates & S & N & \checkmark\\
+\req{H-66.3} & Give each distribution an access URL that gives access to the data or explains how to request it. & c & prop. & restates & S & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-67}}$^{\dagger}$\enspace Give each distribution of protected (NSIP) data exactly one file format, and offer other formats as separate distributions.\enspace\textit{(D6.2 §5.3.1.2 (NSIP distribution table))}}\\*
+\req{H-67.1} & State the file format of each distribution; mandatory, with exactly one format per distribution, for protected (NSIP) data. & c & prop. & tightens & P & N & \checkmark\\
+\req{H-67.2} & Offer the same data in another format as a separate distribution. & c & prop. & restates & S & N & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-69}}$^{\dagger}$\enspace Offer a common harmonised data validator in the infrastructure to check datasets that follow common data models.\enspace\textit{(D6.2 §5.2.6.2.1)}}\\*
+\req{H-69.1} & Offer a common harmonised data validator in the infrastructure to check the quality and consistency of datasets that follow common data models. & s & prop. & -- & P & N & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{H-68}}$^{\dagger}$\enspace State how often a dataset is updated (frequency).\enspace\textit{(D6.2 §5.3.1.3 (recommended properties: frequency))}}\\*
+\req{H-68.1} & State how often a dataset is updated (frequency). & c & prop. & tightens & S & N & \checkmark\\
+\addlinespace[2pt]
+\midrule
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\normalsize\textbf{StatDCAT-AP}\quad\footnotesize StatDCAT-AP 1.0.0 (2016); base \dcatap\ 1.1; development case}\\*
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{22 rows (7 published), 27 atoms, 14 scored (10 requirements), 6 restate the base, 4 stated (8 at least in part)}\\*
+\midrule
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-1}}\enspace Expose the dimensions that distinguish observations, including time and demographic or regional dimensions.\enspace\textit{(StatDCAT-AP 1.0 §7.2.1)}}\\*
+\req{S-1.1} & Describe the dimensions that identify observations in a statistical dataset (e.g. time, sex, age, region), the same way whatever the distribution format. & c & req. & beyond & P & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-2}}\enspace Expose attributes needed to interpret observations, such as scaling and observation status.\enspace\textit{(StatDCAT-AP 1.0 §7.2.1)}}\\*
+\req{S-2.1} & Describe the attributes needed to qualify and interpret observed values (e.g. units of measure, scaling factors, observation status), the same way whatever the distribution format. & c & req. & beyond & P & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-3}}\enspace Associate statistical datasets with descriptive quality information.\enspace\textit{(StatDCAT-AP 1.0 §7.2.2)}}\\*
+\req{S-3.1} & Link quality information to the statistical dataset or distribution it describes. & c & req. & beyond & N & -- & \checkmark\\
+\req{S-3.2} & State the motivation of each quality annotation. & c & req. & beyond & N & -- & \checkmark\\
+\req{S-3.3} & Provide the quality information as text or as a link to quality information published elsewhere. & c & req. & beyond & N & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-4}}\enspace Identify delivery resources that present dataset visualisations.\enspace\textit{(StatDCAT-AP 1.0 §7.2.3)}}\\*
+\req{S-4.1} & Link to visualisations of the data (tables, graphs or interactive views), modelled as distributions of type visualisation. & c & req. & extends & N & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-5}}\enspace Indicate the actual number of statistical series represented in a dataset.\enspace\textit{(StatDCAT-AP 1.0 §7.2.4)}}\\*
+\req{S-5.1} & State the actual number of data series in a dataset, as distinct from the number of observations and the theoretical number of combinations. & c & req. & beyond & N & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-6}}\enspace Identify the unit in which dataset observations are measured.\enspace\textit{(StatDCAT-AP 1.0 §7.2.5)}}\\*
+\req{S-6.1} & State the unit of measurement of the observations in a dataset. & c & req. & beyond & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-7}}\enspace Represent time-series coverage and periodicity without relying on an ambiguous shorthand.\enspace\textit{(StatDCAT-AP 1.0 §7.2.6)}}\\*
+\req{S-7.1} & State the start of the period a time series covers. & c & guid. & restates & S & -- & \checkmark\\
+\req{S-7.2} & State the end of the period a time series covers. & c & guid. & restates & S & -- & \checkmark\\
+\req{S-7.3} & State the periodicity of a time series. & c & guid. & restates & U & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-8}}$^{\dagger}$\enspace Improve the discoverability of statistical datasets on general open data portals.\enspace\textit{(StatDCAT-AP 1.0.0 §2.2 (charter); §5.1)}}\\*
+\req{S-8.1} & Improve the discoverability of statistical datasets on general open data portals. & p & req. & -- & S & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-9}}$^{\dagger}$\enspace Let statistical portals feed general open data portals by exporting their metadata in the profile, with guidance for SDMX-based systems.\enspace\textit{(StatDCAT-AP 1.0.0 §5.2; §8; Annexes IV–V)}}\\*
+\req{S-9.1} & Let statistical portals export their metadata in the profile, so general open data portals can take it up. & s & req. & -- & S & -- & \\
+\req{S-9.2} & Give guidance for mapping and extracting metadata from SDMX-based systems. & s & req. & -- & U & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-10}}$^{\dagger}$\enspace Conform fully to DCAT-AP 1.1, meeting every obligation of its conformance statement.\enspace\textit{(StatDCAT-AP 1.0.0 §7.1)}}\\*
+\req{S-10.1} & Conform fully to DCAT-AP and keep statistical descriptions aligned with DCAT and DCAT-AP. & p & req. & -- & P & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-11}}$^{\dagger}$\enspace Concentrate on metadata elements that help users discover datasets.\enspace\textit{(StatDCAT-AP 1.0.0 §6.2)}}\\*
+\req{S-11.1} & Concentrate on the metadata elements that help users discover datasets. & p & req. & -- & P & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-12}}$^{\dagger}$\enspace Take terms from existing, well-known and well-maintained vocabularies, including the ISA Core Vocabularies and Eurostat's metadata vocabularies.\enspace\textit{(StatDCAT-AP 1.0.0 §6.2)}}\\*
+\req{S-12.1} & Take terms from existing, well-known and well-maintained vocabularies. & p & req. & -- & S & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-13}}$^{\dagger}$\enspace Prefer common controlled vocabularies maintained by the EU Publications Office.\enspace\textit{(StatDCAT-AP 1.0.0 §6.2)}}\\*
+\req{S-13.1} & Prefer common controlled vocabularies, preferably those maintained by the EU Publications Office. & p & req. & -- & P & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-14}}$^{\dagger}$\enspace Balance simplicity and expressiveness for a wide, non-specialist audience.\enspace\textit{(StatDCAT-AP 1.0.0 §6.2)}}\\*
+\req{S-14.1} & Balance simplicity and expressiveness for a wide, non-specialist audience. & p & req. & -- & N & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-15}}$^{\dagger}$\enspace Make the profile usable for datasets in any format, such as SDMX, Data Cube or CSV.\enspace\textit{(StatDCAT-AP 1.0.0 §7.1; Annex III)}}\\*
+\req{S-15.1} & Make the profile usable for datasets in any format, such as SDMX, Data Cube or CSV. & p & req. & -- & S & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-16}}$^{\dagger}$\enspace Classify statistical datasets by EU data theme, mapping Eurostat's own themes onto it.\enspace\textit{(StatDCAT-AP 1.0.0 §7.8.3)}}\\*
+\req{S-16.1} & Classify statistical datasets by EU data theme, mapping Eurostat's own themes onto it. & c & req. & restates & P & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-17}}$^{\dagger}$\enspace Link an RDF distribution to the data structure definition it follows.\enspace\textit{(StatDCAT-AP 1.0.0 Annex III (resolution log))}}\\*
+\req{S-17.1} & Link an RDF distribution to the data structure definition it follows. & c & guid. & restates & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-18}}$^{\dagger}$\enspace Record publication and modification times to the time of day when data are published more than once a day.\enspace\textit{(StatDCAT-AP 1.0.0 §11; Annex III)}}\\*
+\req{S-18.1} & Record publication and modification times to the time of day when data are published more than once a day. & c & req. & restates & P & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-19}}$^{\dagger}$\enspace Identify the measures a statistical dataset contains, as SDMX and Data Cube define them.\enspace\textit{(StatDCAT-AP 1.0.0 Annex III (resolution log))}}\\*
+\req{S-19.1} & Identify the measures a statistical dataset contains, as SDMX and Data Cube define them. & c & def. & beyond & S & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-20}}$^{\dagger}$\enspace Describe the quality of statistical data in more detail, e.g. following the ESS Single Integrated Metadata Structure (SIMS).\enspace\textit{(StatDCAT-AP 1.0.0 §7.2.2; Annex III)}}\\*
+\req{S-20.1} & Describe the quality of statistical data in more detail, e.g. following the ESS Single Integrated Metadata Structure (SIMS). & c & def. & beyond & N & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-21}}$^{\dagger}$\enspace Show how DDI descriptions of datasets can be expressed with the profile.\enspace\textit{(StatDCAT-AP 1.0.0 Annex III (resolution log))}}\\*
+\req{S-21.1} & Show how DDI descriptions of datasets can be expressed with the profile. & p & def. & -- & U & -- & \\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{S-22}}$^{\dagger}$\enspace Document, with a full example, how datasets, distributions, Data Cube datasets and data structure definitions relate.\enspace\textit{(StatDCAT-AP 1.0.0 Annex III; Annex VII)}}\\*
+\req{S-22.1} & Document, with a full example, how datasets, distributions, Data Cube datasets and data structure definitions relate. & p & req. & -- & P & -- & \\
+\addlinespace[2pt]
+\midrule
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\normalsize\textbf{DCAT-AP-JRC}\quad\footnotesize Perego et al., SDSVoc 2016, paper 27; base \dcatap\ 1.1; development case}\\*
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{11 rows (5 published), 18 atoms, 17 scored (9 requirements), 4 restate the base, 6 stated (12 at least in part)}\\*
+\midrule
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{JRC-1}}\enspace Identify the people who created a dataset.\enspace\textit{(Metadata elements relevant for scientific data, numbered item 1)}}\\*
+\req{JRC-1.1} & Identify the authors of a dataset. & c & req. & beyond & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{JRC-2}}\enspace Describe the origin and processing history of data.\enspace\textit{(Metadata elements relevant for scientific data, numbered item 2)}}\\*
+\req{JRC-2.1} & Describe the lineage of a dataset. & c & req. & restates & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{JRC-3}}\enspace Give prospective users practical guidance on using a dataset.\enspace\textit{(Metadata elements relevant for scientific data, numbered item 3)}}\\*
+\req{JRC-3.1} & Give potential data consumers information on how to use the data (usage notes). & c & req. & beyond & U & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{JRC-4}}\enspace Connect datasets to associated scientific publications.\enspace\textit{(Metadata elements relevant for scientific data, numbered item 4)}}\\*
+\req{JRC-4.1} & Link a dataset to scientific publications about it. & c & req. & beyond & P & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{JRC-5}}\enspace Identify source datasets used in producing a dataset.\enspace\textit{(Metadata elements relevant for scientific data, numbered item 5)}}\\*
+\req{JRC-5.1} & Link a dataset to its input data (the data used to create it). & c & req. & restates & P & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{JRC-6}}$^{\dagger}$\enspace Give datasets persistent identifiers, encoded as HTTP URIs where possible, and tell primary identifiers (e.g. DOIs) from alternative ones.\enspace\textit{(Perego et al. 2016 (SDSVoc paper 27), ``Data citation'', ``Identifiers'')}}\\*
+\req{JRC-6.1} & Use persistent identifiers for dataset authors and input data, so datasets can be reliably filtered and linked by them. & c & req. & tightens & P & -- & \checkmark\\
+\req{JRC-6.2} & Encode identifiers as HTTP URIs wherever possible. & c & open & tightens & U & -- & \checkmark\\
+\req{JRC-6.3} & Distinguish primary identifiers (e.g. DOIs) from alternative ones. & c & req. & restates & S & -- & \checkmark\\
+\req{JRC-6.4} & Use a DOI as the dataset identifier when generating DataCite citations. & c & req. & tightens & S & -- & \checkmark\\
+\req{JRC-6.5} & Qualify each identifier with its scheme or type. & c & req. & restates & S & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{JRC-7}}$^{\dagger}$\enspace Express the roles that agents play for a dataset beyond publisher and contact point, consistently across catalogues.\enspace\textit{(Perego et al. 2016 (SDSVoc paper 27), ``Data citation'', ``Agent roles'')}}\\*
+\req{JRC-7.1} & Use a minimal, consistent set of unambiguous agent roles beyond publisher and contact point. & c & open & beyond & P & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{JRC-8}}$^{\dagger}$\enspace Indicate when a distribution gives access through a service or API rather than to the data itself, and describe the service interface with the query parameters needed to select data.\enspace\textit{(Perego et al. 2016 (SDSVoc paper 27), ``Modelling service/API-based data access'')}}\\*
+\req{JRC-8.1} & Indicate when a distribution points to a service or API rather than directly to the data. & c & open & extends & S & -- & \checkmark\\
+\req{JRC-8.2} & Describe the API or service interface, with the query parameters needed to select data, so software agents can use it directly. & c & open & beyond & P & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{JRC-9}}$^{\dagger}$\enspace Describe provenance in enough detail to support reproducibility and to track how data are used.\enspace\textit{(Perego et al. 2016 (SDSVoc paper 27), ``Additional requirements'' (detailed specification of data provenance))}}\\*
+\req{JRC-9.1} & Describe provenance in enough detail to support reproducibility and to track how data are used. & c & open & beyond & P & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{JRC-10}}$^{\dagger}$\enspace Describe data and metadata quality assessments and include users' feedback on the data.\enspace\textit{(Perego et al. 2016 (SDSVoc paper 27), ``Additional requirements'' (modelling and using data quality assessments))}}\\*
+\req{JRC-10.1} & Describe data quality assessments of a dataset. & c & open & beyond & U & -- & \checkmark\\
+\req{JRC-10.2} & Include users' feedback on the data as quality information. & c & open & beyond & U & -- & \checkmark\\
+\req{JRC-10.3} & Describe quality assessments of the metadata of a dataset. & c & open & beyond & N & -- & \checkmark\\
+\addlinespace[2pt]
+\multicolumn{8}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{\textbf{\req{JRC-11}}$^{\dagger}$\enspace Publish metadata on the Web so that the data are visible and discoverable through search engines.\enspace\textit{(Perego et al. 2016 (SDSVoc paper 27), ``Additional requirements'' (optimising metadata publication on the Web))}}\\*
+\req{JRC-11.1} & Publish metadata on the Web so that the data are visible and discoverable through search engines. & s & open & -- & P & -- & \\
+\addlinespace[2pt]
+\end{longtable}}
+
+\end{document}

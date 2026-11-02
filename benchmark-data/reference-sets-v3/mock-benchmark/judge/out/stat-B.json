@@ -1,0 +1,45 @@
+{"case": "stat", "judge": "B", "atoms": [
+  {"atom_id": "S-1.1", "matches": [
+    {"need_id": "N982", "label": "broader", "rationale": "Asks which dimensions (time period, region, sex) are available plus their presentational order, without the format-independence condition."},
+    {"need_id": "N450", "label": "partial", "rationale": "Which dimensions each Data Cube observation must have overlaps on the dataset's dimensions but is framed as Data Cube requiredness, not a format-independent description."},
+    {"need_id": "N837", "label": "partial", "rationale": "Values of each identifying dimension for an individual observation: observation level rather than a dataset-level description of the dimensions."},
+    {"need_id": "N439", "label": "partial", "rationale": "Dataset metadata letting users judge that dimension values are unambiguously defined overlaps on describing dimensions but focuses on value definitions."}
+  ]},
+  {"atom_id": "S-2.1", "matches": [
+    {"need_id": "N909", "label": "partial", "rationale": "Unit and measured/estimated status of a single observation: two of the example attributes, at observation level, without the format-independent dataset description."},
+    {"need_id": "N206", "label": "partial", "rationale": "Unit of each observation's value: one attribute at observation level rather than a format-independent description of the dataset's attributes."},
+    {"need_id": "N963", "label": "partial", "rationale": "Data Cube guidance that attributes such as unit of measure can be attached at dataset level overlaps on dataset-level attributes but is modelling advice."},
+    {"need_id": "N779", "label": "partial", "rationale": "Which attributes are required for qb:Observations identifies a subset of attributes in Data Cube terms, not a format-independent description."},
+    {"need_id": "N493", "label": "partial", "rationale": "Stating whether an attribute is required for every observation covers one aspect of attributes in Data Cube terms, not their format-independent description."}
+  ]},
+  {"atom_id": "S-3.1", "matches": []},
+  {"atom_id": "S-3.2", "matches": []},
+  {"atom_id": "S-3.3", "matches": []},
+  {"atom_id": "S-4.1", "matches": []},
+  {"atom_id": "S-5.1", "matches": []},
+  {"atom_id": "S-6.1", "matches": [
+    {"need_id": "N206", "label": "equivalent", "rationale": "Knowing the unit of each observation's measured value is stating the unit of measurement of the observations."},
+    {"need_id": "N909", "label": "broader", "rationale": "Asks for the unit of measurement of an observation plus whether its value is measured or estimated."},
+    {"need_id": "N963", "label": "partial", "rationale": "Says unit of measure can be attached at dataset level (where to state it), not the unit itself."}
+  ]},
+  {"atom_id": "S-7.1", "matches": [
+    {"need_id": "N965", "label": "broader", "rationale": "Temporal coverage of any dataset includes the start of the period a time series covers, plus its end."}
+  ]},
+  {"atom_id": "S-7.2", "matches": [
+    {"need_id": "N965", "label": "broader", "rationale": "Temporal coverage of any dataset includes the end of the period a time series covers, plus its start."}
+  ]},
+  {"atom_id": "S-7.3", "matches": [
+    {"need_id": "N531", "label": "partial", "rationale": "Update frequency of a dataset is related to, but not the same as, the periodicity of a time series."}
+  ]},
+  {"atom_id": "S-16.1", "matches": [
+    {"need_id": "N734", "label": "partial", "rationale": "Thematic classification of a dataset with any SKOS concept, without the EU data theme vocabulary or the mapping of Eurostat themes."},
+    {"need_id": "N365", "label": "partial", "rationale": "How dataset themes come from a SKOS concept scheme via a theme taxonomy, without EU data themes or the Eurostat mapping."},
+    {"need_id": "N825", "label": "partial", "rationale": "Subject is one of several core dataset fields; topical classification overlaps but EU data themes and the Eurostat mapping are absent."}
+  ]},
+  {"atom_id": "S-17.1", "matches": [
+    {"need_id": "N603", "label": "partial", "rationale": "Association of a (Data Cube) dataset with exactly one data structure definition: the same link for a different resource, as an integrity check."}
+  ]},
+  {"atom_id": "S-18.1", "matches": [
+    {"need_id": "N825", "label": "partial", "rationale": "Issued and modified dates of a dataset among other core fields, without time-of-day precision or the multiple-daily-publication condition."}
+  ]}
+]}
