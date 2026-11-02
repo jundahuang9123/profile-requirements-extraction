@@ -1,0 +1,18 @@
+{
+  "run-e8bc1d3725a54664991c46d39ee1aa74": {
+    "unit": "eu-7f93da009c0775ace8b6ddb9",
+    "groupNeed": "rev-324e3b9486b4b22fc0a90129",
+    "rejectedProposal": "rev-2a370919dcdcc65bb0ad1867",
+    "baseNeed": "rev-b09ac95ce086f614b392d53a",
+    "traceNeed": "rev-93437ef84fc283334ed629cc",
+    "caseId": "case-9c4ea08f602b6aa07902ad4c",
+    "why": {
+      "unit": "The evidence unit cited by the traced need (traceNeed), in w3c-dcat-2014.html.",
+      "groupNeed": "A need grouped from two proposals (one selected role, one shared extractor); its base label was removed by a checked reviewer verdict; rank 1.",
+      "rejectedProposal": "The only proposal of the run rejected by proposal support and judged again (outcome: confirmed, not supported); set aside as not supported by its quote.",
+      "baseNeed": "A need the classifier labelled as restating the base, confirmed by the base reviewer, with source-linked dataset kinds.",
+      "traceNeed": "A need with a disputed judgment: the two find/access judgments disagree (fa_scope confirmation outcome: disputed); labelled a domain use of the base; discussed in case-705bb404c208a0f00b179759 and deferred to human review with a question; trace complete.",
+      "caseId": "A one-need discussion case with short texts: the mediator kept the need set aside (outside scope: not for finding or access) and asked a person whether to review the set-aside; two experience claims excluded and two admitted, each with a reason."
+    }
+  }
+}
