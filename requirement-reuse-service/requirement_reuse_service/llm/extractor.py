@@ -17,12 +17,15 @@ from ..models import (
     UserTask,
 )
 from ..rq1_codebook import codebook_prompt_text
-from .client import LLMClient
+from .client import LLMClient, LLMError, OutputTokenLimitError, OutputValidationError
 
 PROMPT_VERSION = 'rrs-shared-extract-v2'
 
 MAX_CHARS_PER_EVIDENCE_UNIT = 1200
 MAX_TOTAL_CHARS = 60000
+# The single pass reads at most this many units (service.dedupe_evidence_units); a covering run uses the same
+# size for each of its passes.
+MAX_UNITS_PER_PASS = 400
 
 REQUIREMENT_TYPES = [
     'descriptive_metadata',
@@ -133,6 +136,8 @@ def extract_with_llm(
     Returns candidate requirements (with provenance and verified evidence)
     plus human-readable warnings (e.g. discarded hallucinated quotes).
     """
+    if payload.llm_cover_all_evidence:
+        return extract_with_llm_all_evidence(payload, client)
     evidence_units = build_evidence_units(payload)
     if not evidence_units:
         return [], ['No analyzable source content was provided for LLM extraction.']
@@ -166,10 +171,121 @@ def extract_with_llm(
     return requirements, warnings
 
 
-def build_evidence_units(payload: AnalysisRequest) -> list[EvidenceUnit]:
+def chunk_evidence_units(
+    evidence_units: list[EvidenceUnit],
+    max_units: int = MAX_UNITS_PER_PASS,
+    max_chars: int = MAX_TOTAL_CHARS,
+) -> list[list[EvidenceUnit]]:
+    """Split units, in order, into passes that each fit the single pass's prompt budget.
+
+    A unit's size is counted as build_user_prompt counts it (content cut at MAX_CHARS_PER_EVIDENCE_UNIT), so no
+    unit is truncated beyond that per-unit cut and none is omitted.
+    """
+    chunks: list[list[EvidenceUnit]] = []
+    current: list[EvidenceUnit] = []
+    size = 0
+    for unit in evidence_units:
+        length = min(len(unit.content), MAX_CHARS_PER_EVIDENCE_UNIT)
+        if current and (len(current) >= max_units or size + length > max_chars):
+            chunks.append(current)
+            current, size = [], 0
+        current.append(unit)
+        size += length
+    if current:
+        chunks.append(current)
+    return chunks
+
+
+def _natural_key(text: str) -> list:
+    """'sentence:2' before 'sentence:10': digit runs compare as numbers."""
+    return [(0, int(part), '') if part.isdigit() else (1, 0, part) for part in re.split(r'(\d+)', text)]
+
+
+def extract_with_llm_all_evidence(
+    payload: AnalysisRequest,
+    client: LLMClient,
+) -> tuple[list[CandidateRequirement], list[str]]:
+    """The single-LLM baseline over every evidence unit: the same prompt, once per pass (chunk_evidence_units).
+
+    Units go to the passes in document order (by file, then locator in natural order), so each pass reads
+    contiguous text. Each pass cites only the units it was shown. A pass whose answer fails its schema or output
+    limit is skipped and reported, as is any failure after a pass has succeeded. A provider failure (for example a
+    timeout) before any pass has succeeded ends the run at once, and so does a failure of every pass: the error is
+    raised, so the request falls back to the rules result as a failed single pass does.
+    """
+    from ..service import stable_id
+
+    evidence_units = sorted(build_evidence_units(payload, limit=None),
+                            key=lambda unit: (unit.artifact_name, _natural_key(unit.locator or ''), unit.content))
+    if not evidence_units:
+        return [], ['No analyzable source content was provided for LLM extraction.']
+    chunks = chunk_evidence_units(evidence_units)
+    warnings: list[str] = []
+    requirements: list[CandidateRequirement] = []
+    seen_ids: set[str] = set()
+    known_task_ids = {task.id for task in payload.user_tasks}
+    created_at = datetime.now(timezone.utc).isoformat(timespec='seconds')
+    description = client.describe()
+    failed: list[int] = []
+    unread: list[EvidenceUnit] = []
+    last_error: Exception | None = None
+    for index, chunk in enumerate(chunks, start=1):
+        user_prompt, prompt_warnings = build_user_prompt(chunk, payload.user_tasks)
+        warnings.extend(f'pass {index}/{len(chunks)}: {warning}' for warning in prompt_warnings)
+        try:
+            result = client.generate_structured(system=SYSTEM_PROMPT, user=user_prompt, output_model=LLMExtractionResult)
+        except (LLMError, ValueError) as exc:
+            provider_failure = isinstance(exc, LLMError) and not isinstance(exc, (OutputValidationError, OutputTokenLimitError))
+            if provider_failure and len(failed) == index - 1:   # no pass has succeeded yet
+                raise
+            failed.append(index)
+            unread.extend(chunk)
+            last_error = exc
+            documents = ', '.join(sorted({unit.artifact_name for unit in chunk}))
+            warnings.append(f'pass {index}/{len(chunks)} failed and was skipped ({len(chunk)} unit(s) of {documents} not read): {exc}')
+            continue
+        evidence_by_id = {unit.id: unit for unit in chunk}
+        for item in result.requirements:
+            requirement = convert_requirement(
+                item,
+                evidence_by_id,
+                known_task_ids,
+                warnings,
+                provenance=ExtractionProvenance(
+                    strategy='llm',
+                    extractor=f'llm-extractor/{PROMPT_VERSION}+all-evidence',
+                    model_id=description.get('model'),
+                    prompt_version=PROMPT_VERSION,
+                    created_at=created_at,
+                ),
+            )
+            if requirement is None:
+                continue
+            # An ID depends on the statement and its verified quotes only; the same statement without a verified
+            # quote in two passes (or twice in one) would collide, so a repeat is re-keyed with its pass and order.
+            if requirement.id in seen_ids:
+                copy = 2
+                while stable_id('req', 'llm', requirement.normalized_statement, f'pass-{index}', str(copy)) in seen_ids:
+                    copy += 1
+                requirement = requirement.model_copy(update={
+                    'id': stable_id('req', 'llm', requirement.normalized_statement, f'pass-{index}', str(copy))})
+            seen_ids.add(requirement.id)
+            requirements.append(requirement)
+    if failed and len(failed) == len(chunks) and last_error is not None:
+        raise last_error
+    read = len(evidence_units) - len(unread)
+    warnings.insert(0, f'llm_cover_all_evidence: {read} of {len(evidence_units)} evidence unit(s) read in '
+                       f'{len(chunks) - len(failed)} of {len(chunks)} pass(es)')
+    if failed:
+        warnings.append(f'llm_cover_all_evidence: {len(failed)} of {len(chunks)} pass(es) failed: {failed}; '
+                        f'{len(unread)} unit(s) not read')
+    return requirements, warnings
+
+
+def build_evidence_units(payload: AnalysisRequest, limit: int | None = MAX_UNITS_PER_PASS) -> list[EvidenceUnit]:
     from ..service import extract_evidence_units
 
-    return extract_evidence_units(payload)
+    return extract_evidence_units(payload, limit=limit)
 
 
 def build_user_prompt(evidence_units: list[EvidenceUnit], user_tasks: list[UserTask]) -> tuple[str, list[str]]:
