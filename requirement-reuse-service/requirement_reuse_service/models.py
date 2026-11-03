@@ -291,8 +291,9 @@ class AnalysisRequest(BaseModel):
 
     @model_validator(mode='after')
     def cover_all_evidence_needs_the_llm_extractor(self) -> 'AnalysisRequest':
-        if self.llm_cover_all_evidence and self.strategy not in ('llm', 'hybrid'):
-            raise ValueError('llm_cover_all_evidence applies only to the llm and hybrid strategies')
+        # Not hybrid: its rule-based half still reads only the first 400 units.
+        if self.llm_cover_all_evidence and self.strategy != 'llm':
+            raise ValueError('llm_cover_all_evidence applies only to the llm strategy')
         return self
 
 

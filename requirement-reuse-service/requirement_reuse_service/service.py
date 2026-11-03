@@ -485,7 +485,7 @@ def export_rq1_dataset(payload: AnalysisRequest) -> dict[str, Any]:
 
 def study_setup_from_request(payload: AnalysisRequest) -> dict[str, Any]:
     codebook = load_rq1_codebook()
-    return {
+    setup = {
         'source_corpus_id': payload.source_corpus_id,
         'user_tasks': [task.model_dump(mode='json', exclude_none=True) for task in payload.user_tasks],
         'competency_questions': [
@@ -501,6 +501,11 @@ def study_setup_from_request(payload: AnalysisRequest) -> dict[str, Any]:
         'allowed_extraction_input': codebook.get('allowed_extraction_input', []),
         'held_out_validation_input': codebook.get('held_out_validation_input', []),
     }
+    # Recorded only when set, so the default setup stays as before; a covering run that fell back to rules still
+    # shows that it was one.
+    if payload.llm_cover_all_evidence:
+        setup['llm_cover_all_evidence'] = True
+    return setup
 
 
 def build_funnel_metrics(
