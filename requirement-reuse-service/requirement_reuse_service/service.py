@@ -247,13 +247,16 @@ def analyze_payload(payload: AnalysisRequest) -> AnalysisResponse:
         requirements = llm_requirements
     requirements = link_user_tasks(requirements, payload.user_tasks)
     duplicate_groups = detect_duplicate_requirements(requirements)
+    # When every unit was read, report every unit; the rules response lists only the first 400.
+    evidence_units = extract_evidence_units(payload, limit=None) if payload.llm_cover_all_evidence else rules_response.evidence_units
 
     return rules_response.model_copy(
         update={
             'strategy': payload.strategy,
             'requirements': requirements,
             'duplicate_groups': duplicate_groups,
-            'funnel_metrics': build_funnel_metrics(rules_response.evidence_units, requirements, duplicate_groups),
+            'evidence_units': evidence_units,
+            'funnel_metrics': build_funnel_metrics(evidence_units, requirements, duplicate_groups),
             'warnings': [*rules_response.warnings, *llm_warnings],
         }
     )
@@ -566,7 +569,8 @@ TEXT_EVIDENCE_PATTERNS = {
 }
 
 
-def extract_evidence_units(payload: AnalysisRequest) -> list[EvidenceUnit]:
+def extract_evidence_units(payload: AnalysisRequest, limit: int | None = 400) -> list[EvidenceUnit]:
+    """Evidence units of the request's sources: at most ``limit`` after sorting (None keeps every unit)."""
     evidence_units: list[EvidenceUnit] = []
     if payload.text and payload.text.strip():
         evidence_units.extend(evidence_from_text('text description', payload.text))
@@ -585,7 +589,7 @@ def extract_evidence_units(payload: AnalysisRequest) -> list[EvidenceUnit]:
             evidence_units.extend(evidence_from_ifc(artifact.name, content))
         else:
             evidence_units.extend(evidence_from_text(artifact.name, content, artifact_kind='text'))
-    return dedupe_evidence_units(evidence_units)
+    return dedupe_evidence_units(evidence_units, limit=limit)
 
 
 def evidence_from_text(source: str, text: str, artifact_kind: str = 'text') -> list[EvidenceUnit]:
@@ -1734,7 +1738,8 @@ def merged_statement_for(requirements: list[CandidateRequirement]) -> str:
     return f'A dcat:{resource} should support {", ".join(needs)}.'
 
 
-def dedupe_evidence_units(items: Iterable[EvidenceUnit]) -> list[EvidenceUnit]:
+def dedupe_evidence_units(items: Iterable[EvidenceUnit], limit: int | None = 400) -> list[EvidenceUnit]:
+    """Merge repeated units and sort them by file name and locator; keep the first ``limit`` (None keeps all)."""
     grouped: dict[tuple[str, str | None, str], EvidenceUnit] = {}
     for item in items:
         key = (item.artifact_name, item.locator, item.content)
@@ -1743,7 +1748,8 @@ def dedupe_evidence_units(items: Iterable[EvidenceUnit]) -> list[EvidenceUnit]:
         else:
             grouped[key].extracted_facts = merge_evidence(grouped[key].extracted_facts, item.extracted_facts)
             grouped[key].confidence = max(grouped[key].confidence, item.confidence)
-    return sorted(grouped.values(), key=lambda item: (item.artifact_name, item.locator or '', item.content))[:400]
+    units = sorted(grouped.values(), key=lambda item: (item.artifact_name, item.locator or '', item.content))
+    return units if limit is None else units[:limit]
 
 
 def split_sentences(text: str) -> list[str]:

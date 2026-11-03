@@ -269,6 +269,10 @@ class AnalysisRequest(BaseModel):
     user_tasks: list[UserTask] = Field(default_factory=list)
     strategy: ExtractionStrategy = 'rules'
     llm_model: str | None = None
+    # Single-LLM baseline only: run the same prompt once per chunk of evidence units (each chunk within the
+    # prompt's unit and character budget), so that every evidence unit of every document is read. The default
+    # keeps the single pass, which sees only the first 400 units in file-name order.
+    llm_cover_all_evidence: bool = False
     cq_guided: bool = True
     study_mode: StudyMode = 'formative'
     study_phase: StudyPhase = 'development'
@@ -283,6 +287,12 @@ class AnalysisRequest(BaseModel):
         role_ids = [context.role_id for context in self.agent_contexts]
         if len(role_ids) != len(set(role_ids)):
             raise ValueError('agent_contexts may contain at most one context package per role_id')
+        return self
+
+    @model_validator(mode='after')
+    def cover_all_evidence_needs_the_llm_extractor(self) -> 'AnalysisRequest':
+        if self.llm_cover_all_evidence and self.strategy not in ('llm', 'hybrid'):
+            raise ValueError('llm_cover_all_evidence applies only to the llm and hybrid strategies')
         return self
 
 
