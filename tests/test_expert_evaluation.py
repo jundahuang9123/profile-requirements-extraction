@@ -157,7 +157,11 @@ def test_incomplete_panel_and_cannot_assess_are_handled_without_false_completion
     assert result.summary_metrics['fleiss_kappa'] is None
 
 
-def test_revision_is_blocked_for_incomplete_panel_and_preserves_original_machine_output():
+def test_revision_is_blocked_for_incomplete_panel_and_preserves_original_machine_output(monkeypatch):
+    # Revision builds its client from LLMConfig.from_env(); pin the offline path so shell exports cannot change it.
+    monkeypatch.setenv('RRS_LLM_PROVIDER', 'disabled')
+    for variable in ['RRS_LLM_BASE_URL', 'RRS_LLM_API_KEY', 'RRS_LLM_MODEL']:
+        monkeypatch.delenv(variable, raising=False)
     pkg = package()
     target = pkg.machine_requirements[0].id
     incomplete_submissions = [submission(pkg, 'E1', {target: 'accept_with_revision'})]

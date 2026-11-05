@@ -85,11 +85,13 @@ class LLMConfig:
     provider: str = 'disabled'
     model: str | None = None
     base_url: str | None = None
-    api_key: str | None = None
+    # Kept out of repr, which tracebacks, logs and assertion messages print.
+    api_key: str | None = field(default=None, repr=False)
     reasoning_effort: str | None = None
     max_tokens: int = 16000
     timeout: float = 240.0
-    extra_headers: dict[str, str] = field(default_factory=dict)
+    # Can carry credentials (an API-key header, for example), so also kept out of repr.
+    extra_headers: dict[str, str] = field(default_factory=dict, repr=False)
     max_concurrency: int = 1
     rate_limit_retries: int = 5
     transient_retries: int = 2

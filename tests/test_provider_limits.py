@@ -265,6 +265,15 @@ def test_invalid_limits_fail_before_network():
     assert LLMConfig(rate_limit_retries=8, transient_retries=3, retry_wait_budget=600).retry_wait_budget == 600
 
 
+def test_config_repr_hides_api_key_and_extra_headers():
+    config = LLMConfig(provider='openai-compatible', model='m', base_url='https://x.invalid/v1',
+                       api_key='synthetic-secret', extra_headers={'X-Api-Key': 'synthetic-header'})
+    text = repr(config)
+    assert 'synthetic-secret' not in text
+    assert 'synthetic-header' not in text
+    assert "provider='openai-compatible'" in text  # the other fields stay visible
+
+
 def test_environment_sets_retry_bounds_and_provenance_records_reasoning_effort(monkeypatch):
     for name, value in {'RRS_LLM_PROVIDER': 'openai-compatible', 'RRS_LLM_MODEL': 'inferenz-gpt-oss-120b',
                         'RRS_LLM_BASE_URL': 'https://env-bounds.invalid/v1', 'RRS_LLM_REASONING_EFFORT': 'low',
