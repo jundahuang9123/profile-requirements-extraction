@@ -169,11 +169,11 @@ roles:
     panel_order: 17
     purpose: Identify every source-supported need about the described data, without taking any particular stakeholder's perspective.
     focus_questions:
-      - Which needs about finding, judging, accessing, using or maintaining the data do the sources state?
+      - Which needs to find, know, judge or access the data do the sources state?
       - Under which stated condition does each need hold?
-    include: [source-supported needs of every kind, stated conditions]
+    include: [source-supported needs of any stakeholder, stated conditions]
     exclude: [stakeholder-specific framing, invented needs, unsupported obligations]
-    prompt_version: rrs-role-single-analyst-v2
+    prompt_version: rrs-role-single-analyst-v3
     enabled: true
 
   - id: consolidation_conflict

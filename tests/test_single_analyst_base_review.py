@@ -73,7 +73,7 @@ def test_an_s_run_reviews_the_base_before_human_review_and_opens_no_discussion(s
     assert report['role_id'] == 'single_analyst' and report['assigned_evidence_ids'] == sorted(saved['evidence_ids'])
     assert report['processed_unit_count'] == len(saved['evidence_ids']) and 'routing_plan' not in saved['stakeholder_audit']
     # The F/A extraction contract and need checks of the F/A workflow.
-    assert saved['elicitation_policy_version'] == 'rq1-fa-elicitation-v1' and saved['stakeholder_audit']['fa_contract']
+    assert saved['elicitation_policy_version'] == 'rq1-fa-single-analyst-elicitation-v1' and saved['stakeholder_audit']['fa_contract']
     assert {'source_check', 'proposal_support', 'grouping', 'need_statement', 'classification', 'profile_scope',
             'assessment', 'families', 'selection'} <= set(saved['need_steps'])
     assert saved['need_steps']['profile_scope']['fa_policy_version'] == 'rq1-find-access-v1'
@@ -228,3 +228,44 @@ def test_the_resume_guard_applies_to_the_s_shape_only():
     fa = RunRequest(snapshot_id='s', base_profile_id='dcat-ap-1.1.0', strategy='multi_agent',
                     stakeholder_workflow='fa_mediated', output_form='needs', base_review='expert_v1')
     assert not single_analyst_shape(fa) and not single_analyst_review(fa.model_dump(mode='json'))
+
+
+GENERAL = ('Read every supplied excerpt and collect distinct source-supported user information needs without an '
+           'arbitrary candidate quota. Preserve different actors, conditions and obligations. General explanations of '
+           'RDF syntax, document layout and implementation mechanics are not automatically catalogue metadata needs. '
+           'When a passage has no supported information need, return an empty observation list.')
+ROUTED_ONLY = ('This is the single planned extraction pass', 'Use your assigned perspective',
+               'Later stakeholder discussion reviews this common pool')
+
+
+def extraction_texts(store, original, base_review):
+    run = engine.new_run(store, RunRequest(snapshot_id=original['snapshot_id'], base_profile_id='dcat-ap-1.1.0',
+                                           base_check=False, scoping='off', **{**S, 'base_review': base_review}))
+    client = s_client(); answer = client.generate_structured; seen = []
+    def spy(**kw):
+        if kw['output_model'].__name__ == 'NeedSpanElicitationResult':
+            seen.append((kw.get('system') or '', json.loads(kw['user'])))
+        return answer(**kw)
+    client.generate_structured = spy
+    engine.execute_run(store, run['run_id'], client)
+    return store.get_run(run['run_id']), seen
+
+
+def test_the_s_extraction_gets_the_general_sentences_of_the_routed_paragraph_only(setup):
+    store, original, _, _ = setup
+    saved, seen = extraction_texts(store, original, 'expert_v1')
+    assert seen and saved['elicitation_policy_version'] == 'rq1-fa-single-analyst-elicitation-v1'
+    for system, user in seen:
+        assert GENERAL in system and not any(text in system for text in ROUTED_ONLY)
+        # A neutral role, asked about the same scope as PM's shared extractor; nothing names a baseline.
+        assert user['role']['label'] == user['stakeholder_perspective']['label'] == 'Single Analyst'
+        assert user['role']['focus_questions'][0] == 'Which needs to find, know, judge or access the data do the sources state?'
+        assert 'baseline' not in json.dumps(user).lower() and 'baseline' not in system.lower()
+    assert {report['prompt_version'] for report in saved['role_runs']} == {'rq1-fa-single-analyst-elicitation-v1'}
+
+
+def test_a_single_analyst_run_without_the_base_review_keeps_its_extraction_text(setup):
+    store, original, _, _ = setup
+    saved, seen = extraction_texts(store, original, 'none')
+    assert seen and saved['elicitation_policy_version'] == 'rq1-fa-elicitation-v1'
+    assert all(GENERAL not in system and not any(text in system for text in ROUTED_ONLY) for system, _ in seen)

@@ -17,11 +17,14 @@ from pydantic import Field
 from ..models import AgentRoleConfig
 from ..llm.step_models import for_step, model_identity
 from .call_log import recorded_calls
-from .models import Contract, EvidenceLink, Observation, RequirementRecord, NormalizedIntent, DeliberationCase
+from .models import (Contract, EvidenceLink, Observation, RequirementRecord, NormalizedIntent, DeliberationCase,
+                     single_analyst_review)
 from .storage import canonical, digest, now, uid, ConflictError, RUN_PARTS
 
 POLICY = 'rq1-routed-mediated-v1'
 EXTRACTION_POLICY = 'rq1-routed-elicitation-v1'
+# The F/A extraction contract plus the non-routing sentences of the routed paragraph (single analyst + base review).
+SINGLE_ANALYST_EXTRACTION_POLICY = 'rq1-fa-single-analyst-elicitation-v1'
 MEDIATION_V2_POLICY = 'rq1-evidence-mediation-v2'
 MEDIATION_V3_POLICY = 'rq1-evidence-mediation-v3'
 MEDIATION_V4_POLICY = 'rq1-evidence-mediation-v4'
@@ -38,6 +41,8 @@ def enabled(run):
 
 
 def extraction_policy(request, legacy):
+    if single_analyst_review(request):
+        return SINGLE_ANALYST_EXTRACTION_POLICY
     if request.get('requirements_scope') == 'find_access_v1' or request.get('stakeholder_workflow') == 'fa_mediated':
         return 'rq1-fa-elicitation-v1'
     return EXTRACTION_POLICY if enabled(request) else legacy

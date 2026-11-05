@@ -150,6 +150,30 @@ after consolidation as below; the run then waits for human review. No discussion
 runs, so there is no after-discussion pass. Other independent or routed runs
 with `base_review` are refused, as before.
 
+Such a run (S) differs from an F/A run in its extraction as follows. One role,
+`single_analyst` (label "Single Analyst", `rrs-role-single-analyst-v3`), reads
+every passage; there is no routing, shared extractor or discussion. Its role asks
+which needs to find, know, judge or access the data the sources state, the scope
+of the F/A run's shared extractor. Its extraction text is the F/A needs text plus
+the sentences of the routed paragraph that are not about routing, an assigned
+perspective or the later discussion: "Read every supplied excerpt and collect
+distinct source-supported user information needs without an arbitrary candidate
+quota. Preserve different actors, conditions and obligations. General
+explanations of RDF syntax, document layout and implementation mechanics are not
+automatically catalogue metadata needs. When a passage has no supported
+information need, return an empty observation list." Its runs record the
+extraction policy `rq1-fa-single-analyst-elicitation-v1`. A single-analyst run
+without the base review keeps `rq1-fa-elicitation-v1` and the earlier text.
+
+When the analyst loses an evidence unit (an answer that fails its schema or
+budget) or fails on a provider error, an S run still goes through the base
+review and waits for human review with `failed_role_count` 1. A `/resume` reruns
+the extraction, every need step and the base review; a saved reviewer answer is
+reused only for an unchanged batch of needs. A finished F/A run keeps its lost
+units (it cannot be resumed), so for comparable runs resume an S run only after
+a provider or infrastructure failure, not to retry lost units. Run S from its own
+checkout and store, and never resume F/A runs through it.
+
 The new **Base review** stage runs after consolidation (and its stepwise pause),
 before discussion. Policy `rq1-base-expert-v5` reviews current revisions sorted
 by ID, in batches of up to four: one review generation and one independent check

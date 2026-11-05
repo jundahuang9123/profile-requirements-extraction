@@ -19,7 +19,8 @@ from .citations import elicitation_batch, materialize_observation
 from .output_recovery import LABEL_POLICY, reset_unknown_labels
 from .models import (BaselineRequest, CorpusSnapshot, DecisionRequest, DeliberationCase, DeriveRequest,
                      SpanElicitationResult, NeedSpanElicitationResult, NEEDS_ELICITATION_POLICY, ELICITATION_POLICY_VERSION, NORMALIZATION_POLICY_VERSION, NEEDS_NORMALIZATION_POLICY, EvidenceLink, EvidenceUnit, Finding, Observation,
-                     NormalizedIntent, Qualification, RequirementRecord, RunRequest, SnapshotRequest, WorkflowRun)
+                     NormalizedIntent, Qualification, RequirementRecord, RunRequest, SnapshotRequest, WorkflowRun,
+                     single_analyst_review)
 from .storage import ConflictError, MAX_VALUE_BYTES, RUN_PARTS, Store, canonical, digest, now, uid
 from .call_log import recorded_calls, report_call
 from .role_selection import initial_manifest, panel_roles, select_roles
@@ -1064,6 +1065,14 @@ def elicit(store: Store, run: dict, client: LLMClient | None) -> tuple[list[Obse
                     'document layout and implementation mechanics are not automatically catalogue metadata needs. '
                     'When a passage has no supported information need, return an empty observation list. '
                     'Later stakeholder discussion reviews this common pool; no completeness extraction loop follows.')
+            elif single_analyst_review(run['request']):
+                # S reads every passage in one pass without routing. It gets the sentences of the routed paragraph
+                # above that are not about routing, an assigned perspective or the later discussion.
+                extraction_system += (' Read every supplied excerpt and collect distinct source-supported user '
+                    'information needs without an arbitrary candidate quota. Preserve different actors, conditions '
+                    'and obligations. General explanations of RDF syntax, document layout and implementation '
+                    'mechanics are not automatically catalogue metadata needs. When a passage has no supported '
+                    'information need, return an empty observation list.')
             from .fa_requirements import enabled as fa_enabled, EXTRACTION_GUIDANCE
             if fa_enabled(run):
                 extraction_system = extraction_system.replace('Never put the whole words must, shall or should in the need statement.', 'Preserve source modality; never add or strengthen obligation.')
