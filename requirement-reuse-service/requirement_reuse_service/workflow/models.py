@@ -519,7 +519,13 @@ class RunRequest(Contract):
 
     @model_validator(mode='after')
     def panel_mode(self) -> 'RunRequest':
-        if self.base_review != 'none' and (self.stakeholder_workflow != 'fa_mediated' or not self.base_profile_id):
+        # The single-analyst comparison condition (S): the neutral single_analyst role reads every evidence unit,
+        # without routing or the shared extractor, the F/A checks run, and no discussion opens before human review.
+        # It may add the procedural base review, which runs after consolidation as in the F/A workflow.
+        single_analyst = (self.stakeholder_workflow == 'independent' and self.strategy == 'multi_agent'
+            and self.output_form in (None, 'needs') and self.requirements_scope == 'find_access_v1'
+            and self.role_selection == 'manual' and self.role_ids == ['single_analyst'] and self.discussion == 'on_request')
+        if self.base_review != 'none' and (not self.base_profile_id or not (self.stakeholder_workflow == 'fa_mediated' or single_analyst)):
             raise ValueError('Base expert review requires the F/A workflow and a selected base profile.')
         if self.mediation_timeout_fallback and (self.strategy != 'multi_agent' or self.stakeholder_workflow != 'fa_mediated'):
             raise ValueError('Case mediation fallback requires the F/A multi-agent workflow.')

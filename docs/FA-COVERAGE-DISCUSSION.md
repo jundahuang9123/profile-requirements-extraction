@@ -142,6 +142,14 @@ The default is `none`: existing v1 packet, phase and grouping identities and
 recovery rules remain unchanged. The advanced option is initially collapsed in
 the Stakeholder roles setup. It does not add a stakeholder or a vote.
 
+The single-analyst comparison condition may set it too, through the API:
+`stakeholder_workflow: "independent"`, `role_selection: "manual"`,
+`role_ids: ["single_analyst"]`, `requirements_scope: "find_access_v1"`, needs
+output, `discussion: "on_request"` and a selected base profile. The stage runs
+after consolidation as below; the run then waits for human review. No discussion
+runs, so there is no after-discussion pass. Other independent or routed runs
+with `base_review` are refused, as before.
+
 The new **Base review** stage runs after consolidation (and its stepwise pause),
 before discussion. Policy `rq1-base-expert-v5` reviews current revisions sorted
 by ID, in batches of up to four: one review generation and one independent check
