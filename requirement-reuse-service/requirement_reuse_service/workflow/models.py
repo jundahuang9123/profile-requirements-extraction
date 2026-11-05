@@ -487,6 +487,21 @@ class MediationTimeoutFallback(Contract):
     timeout_seconds: int = Field(default=120, ge=30, le=600)
 
 
+
+def single_analyst_shape(request) -> bool:
+    """The single-analyst comparison condition (S): one neutral role, manual selection, the F/A scope, needs output,
+    no routing and no discussion before human review. Accepts a RunRequest or a stored request dict."""
+    get = request.get if isinstance(request, dict) else (lambda key: getattr(request, key, None))
+    return (get('stakeholder_workflow') == 'independent' and get('strategy') == 'multi_agent'
+            and get('output_form') in (None, 'needs') and get('requirements_scope') == 'find_access_v1'
+            and get('role_selection') == 'manual' and get('role_ids') == ['single_analyst'] and get('discussion') == 'on_request')
+
+
+def single_analyst_review(request) -> bool:
+    """S with the procedural base review: the only independent shape that may request it."""
+    get = request.get if isinstance(request, dict) else (lambda key: getattr(request, key, None))
+    return single_analyst_shape(request) and get('base_review') == 'expert_v1' and bool(get('base_profile_id'))
+
 class RunRequest(Contract):
     base_review: Literal['none', 'expert_v1'] = 'none'
     mediation_timeout_fallback: MediationTimeoutFallback | None = None
@@ -519,7 +534,11 @@ class RunRequest(Contract):
 
     @model_validator(mode='after')
     def panel_mode(self) -> 'RunRequest':
-        if self.base_review != 'none' and (self.stakeholder_workflow != 'fa_mediated' or not self.base_profile_id):
+        # The single-analyst comparison condition (S): the neutral single_analyst role reads every evidence unit,
+        # without routing or the shared extractor, the F/A checks run, and no discussion opens before human review.
+        # It may add the procedural base review, which runs after consolidation as in the F/A workflow.
+        if self.base_review != 'none' and (not self.base_profile_id or not (self.stakeholder_workflow == 'fa_mediated'
+                                                                          or single_analyst_shape(self))):
             raise ValueError('Base expert review requires the F/A workflow and a selected base profile.')
         if self.mediation_timeout_fallback and (self.strategy != 'multi_agent' or self.stakeholder_workflow != 'fa_mediated'):
             raise ValueError('Case mediation fallback requires the F/A multi-agent workflow.')

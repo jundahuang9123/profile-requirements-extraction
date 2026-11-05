@@ -17,7 +17,7 @@ from .engine import (HUMAN_REQUEST_PREFIX, UNFINISHED_CASE_STATES, active_record
                      apply_base_check, retain_base_findings, baseline_summaries)
 from .evidence import register_source, resolve_evidence
 from .models import (AdditionRequest, AssessmentRequest, BaselineRequest, DecisionRequest, EvidenceUnit,
-                     MessageRequest, RestoreRequest, Observation, RunRequest, DeriveRequest, SnapshotRequest, SourceRequest)
+                     MessageRequest, RestoreRequest, Observation, RunRequest, DeriveRequest, SnapshotRequest, SourceRequest, single_analyst_review)
 from .storage import NOT_IN_RESPONSES, RUN_PARTS, ConflictError, Store, now, uid
 from ..llm.config import runtime_config_status, set_runtime_config
 from .role_selection import ensure_selection_resumable
@@ -395,6 +395,12 @@ def resume_run(run_id: str, request: VersionRequest, background: BackgroundTasks
             run['machine_snapshot'] = {}
             for stage in ('elicitation', 'normalization', 'verification', 'consolidation', 'deliberation'):
                 run.get('stage_results', {}).pop(stage, None)
+            if single_analyst_review(run['request']):
+                # In S the base review follows consolidation and judges the needs the rerun rebuilds, so it runs
+                # again. As for every other step, a saved answer is reused only for an unchanged batch of needs.
+                # The F/A workflow keeps its resume unchanged.
+                run['stages']['base_review'] = 'pending'
+                run.get('stage_results', {}).pop('base_review', None)
     result = translate(lambda: store.mutate(run_id, request.expected_version, 'run_resumed', resume, hydrate=True))
     background.add_task(execute_run, store, run_id)
     return result
