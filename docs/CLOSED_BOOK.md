@@ -1,6 +1,6 @@
 # Closed-book needs (CB)
 
-`scripts/closed_book.py` (policy `rq1-closed-book-v3`) writes the closed-book condition of the
+`scripts/closed_book.py` (policy `rq1-closed-book-v3-note`) writes the closed-book condition of the
 RQ1 benchmark. CB estimates how much of the reference the model recalls from training.
 
 The design (Junda, 5 Nov):
@@ -198,11 +198,16 @@ parity with PM:
   mechanics are not automatically catalogue metadata needs.";
 - the F/A sentence "missing formal use cases are uncertainty, not automatic exclusion".
 
+One sentence is CB-only: it follows PM's template sentence, which stays as PM sends it. In the
+Stat smoke run, 8 of 21 needs copied the template's bracket text ("for which resource", "can do
+<verb>"). PM's extraction text has no such sentence.
+
 | PM text (needs form, F/A, routed) | CB text |
 | --- | --- |
 | State source-supported needs, not solutions: … under which stated condition. | No source passages are given. The role field names this stakeholder, and the domain field names the domain and the base release the work extends. From your knowledge of that domain and of this stakeholder's work, state the needs this stakeholder has for finding datasets and getting access to them, not solutions: … under which condition. |
 | …in statements; preserve literally observed terms in rq2_hints. Hints must occur in the proposal or supplied source quotations; never invent terms. | …in statements. |
 | …only when the source makes them binding. | …only when they are binding in this domain. |
+| Use "[Actor] can [know/find/judge/do] [what] [for which resource] [stated condition]". | The same, followed by the CB-only sentence: Brackets are slots to fill or leave out, not text: never write "for which resource" or "can do". |
 | Use Users unless the source names a specific actor. | Use Users unless the need belongs to a specific actor. |
 | Preserve source modality; never add or strengthen obligation. (the F/A wording) | Never put the whole words must, shall or should in the need statement. (the needs-form wording it replaces) |
 | Set obligation_hint to mandatory, recommended or optional only when a supplied excerpt states that level, …; otherwise use unknown. | Leave obligation_hint unknown: no source states an obligation level. |
@@ -394,6 +399,8 @@ scripted model through the workbench's call recording. Then it checks the follow
 - each request holds only the domain line, the role label and the stakeholder names, and none
   of the role texts, evidence units, quotations, source names, task IDs or use cases;
 - the domain line names the pinned base release, and a run without one is refused;
+- the CB-only template note follows PM's template sentence once and passes the forbidden-term
+  and extension-name checks;
 - the case values are built in, the doc's table is the runner's, and other values need
   `--override-case-values`;
 - the extension name or its stem in the domain line, a label or a stakeholder name is refused,

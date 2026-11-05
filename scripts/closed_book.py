@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Closed-book (CB) needs for the stakeholder panel of one PM run (rq1-closed-book-v3).
+"""Closed-book (CB) needs for the stakeholder panel of one PM run (rq1-closed-book-v3-note).
 
 CB run i is paired with PM run i of the same case and uses that run's sealed stakeholder panel. For each role, the
 extraction model of the PM run gets only the role's label and its stakeholder names, and one neutral line naming the
@@ -50,7 +50,7 @@ from requirement_reuse_service.workflow.stakeholder_workflow import (SHARED, ena
                                                                      extraction_policy, shared_role)
 from requirement_reuse_service.workflow.storage import canonical, digest, now, uid  # noqa: E402
 
-POLICY = 'rq1-closed-book-v3'
+POLICY = 'rq1-closed-book-v3-note'
 # The workflow code the copy of the PM text below was last checked against (tests/test_closed_book.py). Other code
 # only gives a warning: the per-run parity check (parity_check) decides whether the copy is what PM sent.
 CHECKED_IMPLEMENTATION = '451e85325e879a4c'
@@ -127,6 +127,10 @@ def pm_extraction_system(run, task_ids):
     return system
 
 
+# CB-only, not in PM's text: it follows PM's template sentence, which stays as PM sends it. Without sources, the
+# model copied the template's bracket text into needs ("for which resource", "can do <verb>"; Stat smoke run).
+PM_TEMPLATE = 'Use "[Actor] can [know/find/judge/do] [what] [for which resource] [stated condition]".'
+TEMPLATE_NOTE = 'Brackets are slots to fill or leave out, not text: never write "for which resource" or "can do".'
 # Closed book: each (PM text, CB text) pair replaces wording that presupposes supplied sources, excerpts,
 # quotations, hints, use cases or the role descriptions PM sends. Every sentence not listed stays as it is.
 NEEDS_REPLACEMENTS = (
@@ -141,6 +145,7 @@ NEEDS_REPLACEMENTS = (
     ('in statements; preserve literally observed terms in rq2_hints. Hints must occur in the proposal or supplied '
      'source quotations; never invent terms.', 'in statements.'),
     ('only when the source makes them binding.', 'only when they are binding in this domain.'),
+    (PM_TEMPLATE, f'{PM_TEMPLATE} {TEMPLATE_NOTE}'),        # the CB-only note
     ('Use Users unless the source names a specific actor.', 'Use Users unless the need belongs to a specific actor.'),
     # The F/A contract keeps the source's modality; with no source the need states no obligation (the needs-form
     # wording the F/A contract replaces).

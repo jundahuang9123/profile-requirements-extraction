@@ -274,6 +274,20 @@ def test_closed_book_text_keeps_the_template_and_drops_source_wording(workflow):
     cb.check_closed_book_text(sent)
 
 
+def test_the_cb_only_template_note_follows_pms_template_once_and_passes_the_checks(pm):
+    note = 'Brackets are slots to fill or leave out, not text: never write "for which resource" or "can do".'
+    assert cb.TEMPLATE_NOTE == note and note not in cb.pm_extraction_system(pm['run'], [TASK.id])   # CB-only
+    for workflow in ('fa_mediated', 'independent'):
+        text = cb.closed_book_system({'request': {'output_form': 'needs', 'stakeholder_workflow': workflow,
+                                                  'requirements_scope': 'find_access_v1'}})
+        assert text.count(note) == 1 and f'{cb.PM_TEMPLATE} {note}' in text
+        cb.check_closed_book_text(cb.with_schema(text))
+        for _, name in cb.CASE_VALUES.values():
+            assert not [form for form in cb.extension_forms(name) if cb.holds(form, note) or cb.holds(form, text)]
+    assert cb.plan(pm['inputs'], **OPTIONS)['requests'][0]['system'].count(note) == 1
+    assert note in (ROOT / 'docs' / 'CLOSED_BOOK.md').read_text()
+
+
 def test_a_changed_workbench_text_or_a_forbidden_term_stops_the_runner(pm, monkeypatch):
     for term in ('use-case', 'NeedSpanObservation'):
         with pytest.raises(ValueError, match=term):
