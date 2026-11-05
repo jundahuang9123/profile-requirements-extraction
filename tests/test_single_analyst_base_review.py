@@ -150,3 +150,81 @@ def test_an_s_run_stopped_by_a_provider_failure_in_base_review_resumes_there(set
     # Only the base review ran again; extraction and the need steps were not repeated.
     assert set(client.contracts) == {'BaseReview', 'BaseReviewChecks'}
     assert all(r['base_relation']['status'] == 'checked' for r in done['requirements'] if r['revision_id'] in done['active_revision_ids'])
+
+
+def failing_extraction(client, needle):
+    """Fail the extraction of the evidence units whose excerpts contain needle (a schema-invalid answer)."""
+    from requirement_reuse_service.llm.client import OutputValidationError
+    answer = client.generate_structured
+    def generate(**kw):
+        if kw['output_model'].__name__ == 'NeedSpanElicitationResult':
+            data = json.loads(kw['user'])
+            if any(needle in span['quote'] for unit in data['evidence_units'] for span in unit['source_spans']):
+                raise OutputValidationError('NeedSpanElicitationResult', [{'loc': ['observations'], 'type': 'synthetic'}])
+        return answer(**kw)
+    client.generate_structured = generate
+    return client
+
+
+def failing_transport(client):
+    answer = client.generate_structured
+    def generate(**kw):
+        if kw['output_model'].__name__ == 'NeedSpanElicitationResult':
+            raise RuntimeError('Synthetic transport failure.')
+        return answer(**kw)
+    client.generate_structured = generate
+    return client
+
+
+def resume(store, run, monkeypatch, client):
+    from fastapi.testclient import TestClient
+    from requirement_reuse_service.main import app
+    from requirement_reuse_service.workflow import api
+    monkeypatch.setattr(api, 'execute_run', lambda store, run_id: engine.execute_run(store, run_id, client))
+    monkeypatch.setattr(api, 'configured_client', lambda request: client)
+    return TestClient(app).post(f"/api/rq1/v2/runs/{run['run_id']}/resume", json={'expected_version': run['version']})
+
+
+def reviewed(saved):
+    active = [r for r in saved['requirements'] if r['revision_id'] in saved['active_revision_ids']]
+    return active, [r for r in active if (r.get('base_relation') or {}).get('status') == 'checked']
+
+
+@pytest.mark.parametrize('failure', ['lost_unit', 'transport'])
+def test_a_resumed_s_run_reviews_the_rebuilt_needs_against_the_base_again(setup, monkeypatch, failure):
+    store, original, _, _ = setup
+    run = engine.new_run(store, RunRequest(snapshot_id=original['snapshot_id'], base_profile_id='dcat-ap-1.1.0',
+                                           base_check=False, scoping='off', **S))
+    first_client = (failing_extraction(s_client(), 'contact details') if failure == 'lost_unit'
+                    else failing_transport(s_client()))
+    engine.execute_run(store, run['run_id'], first_client)
+    first = store.get_run(run['run_id'])
+    # The analyst's failure leaves a partial run that has already been through the base review.
+    assert first['status'] == 'awaiting_human' and first['metrics']['failed_role_count'] == 1
+    assert first['stages']['base_review'] == 'completed'
+    client = s_client()
+    response = resume(store, first, monkeypatch, client)
+    assert response.status_code == 202, response.text
+    done = store.get_run(run['run_id'])
+    assert done['status'] == 'awaiting_human', done['diagnostics']
+    assert done['metrics']['failed_role_count'] == 0 and done['stages']['base_review'] == 'completed'
+    # The base review ran again, on the rebuilt needs, and every active need carries its decision.
+    assert 'BaseReview' in client.contracts and client.contracts[-1] == 'BaseReviewChecks'
+    active, checked = reviewed(done)
+    assert active and len(checked) == len(active)
+    assert done['stage_results']['base_review']['phases']['before_discussion']['counts'] == {'checked': len(active)}
+    trace = done['stage_results']['traceability']
+    assert trace['set_aside_ids'] == [] and trace['active'] == trace['active_solid'] == len(active)
+    # The failed attempt is kept in the attempt history.
+    assert done['attempt_history'] and done['attempt_history'][-1]['stages']['base_review'] == 'completed'
+
+
+def test_the_resume_guard_applies_to_the_s_shape_only():
+    from requirement_reuse_service.workflow.models import single_analyst_review, single_analyst_shape
+    request = RunRequest(snapshot_id='s', base_profile_id='dcat-ap-1.1.0', **S)
+    assert single_analyst_review(request) and single_analyst_review(request.model_dump(mode='json'))
+    assert single_analyst_shape({**request.model_dump(mode='json'), 'base_review': 'none'})
+    assert not single_analyst_review({**request.model_dump(mode='json'), 'base_review': 'none'})
+    fa = RunRequest(snapshot_id='s', base_profile_id='dcat-ap-1.1.0', strategy='multi_agent',
+                    stakeholder_workflow='fa_mediated', output_form='needs', base_review='expert_v1')
+    assert not single_analyst_shape(fa) and not single_analyst_review(fa.model_dump(mode='json'))
