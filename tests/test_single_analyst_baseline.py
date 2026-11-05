@@ -28,5 +28,5 @@ def test_single_analyst_run_extracts_with_one_perspective(setup):
     assert [r['role_id'] for r in saved['role_runs']] == ['single_analyst']
     extraction = [data for name, data in client.calls if name == 'NeedSpanElicitationResult']
     assert extraction and all(data['role']['id'] == 'single_analyst' for data in extraction)
-    assert all(data['stakeholder_perspective']['label'] == 'Single Analyst (comparison baseline)' for data in extraction)
+    assert all(data['stakeholder_perspective']['label'] == 'Single Analyst' for data in extraction)
     assert saved['active_revision_ids']

@@ -164,7 +164,7 @@ roles:
   # Comparison baseline for RQ1: one extraction perspective with no stakeholder role.
   # Not part of any preset; the workbench offers it as "Single analyst".
   - id: single_analyst
-    label: Single Analyst (comparison baseline)
+    label: Single Analyst
     phase: extraction
     panel_order: 17
     purpose: Identify every source-supported need about the described data, without taking any particular stakeholder's perspective.
@@ -173,7 +173,7 @@ roles:
       - Under which stated condition does each need hold?
     include: [source-supported needs of every kind, stated conditions]
     exclude: [stakeholder-specific framing, invented needs, unsupported obligations]
-    prompt_version: rrs-role-single-analyst-v1
+    prompt_version: rrs-role-single-analyst-v2
     enabled: true
 
   - id: consolidation_conflict
