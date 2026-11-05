@@ -85,11 +85,12 @@ class LLMConfig:
     provider: str = 'disabled'
     model: str | None = None
     base_url: str | None = None
-    api_key: str | None = None
+    # Credentials stay out of the dataclass repr, which tracebacks and test reports print.
+    api_key: str | None = field(default=None, repr=False)
     reasoning_effort: str | None = None
     max_tokens: int = 16000
     timeout: float = 240.0
-    extra_headers: dict[str, str] = field(default_factory=dict)
+    extra_headers: dict[str, str] = field(default_factory=dict, repr=False)
     max_concurrency: int = 1
     rate_limit_retries: int = 5
     transient_retries: int = 2
