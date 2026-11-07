@@ -365,10 +365,11 @@ Read the CB recall estimate with this stage difference in mind.
 
 ## Base labelling
 
-CB needs are labelled against the same pinned base in a separate step before scoring. That
-step is not built yet; the record keeps `base_profile_id`/`base_profile_sha256` for it. The runner
-cannot call the workbench's labelling directly, because neither step can take CB needs without
-a change to `workflow/`:
+CB needs are labelled against the same pinned base in a separate step before scoring:
+`scripts/cb_base_labels.py` (docs/CB_BASE_LABELS.md). Junda chose the procedural reviewer with
+the PM run's prompts, model and catalogue, without passages (option 1). The record keeps
+`base_profile_id`/`base_profile_sha256` for it. The runner itself cannot call the workbench's
+labelling, because neither step can take CB needs without a change to `workflow/`:
 
 - The classifier `needs.classify_needs` (`generic`, `domain_use_of_base`, `domain`) works inside
   a run in the store. It classifies only needs whose original-source check passed and keeps its
@@ -379,7 +380,7 @@ a change to `workflow/`:
   needs could only be labelled `restates_base`, `new` or `uncertain`.
 
 Copying the classifier's search loop into the runner would duplicate workflow logic outside
-the hashed code. How to label PM and CB needs the same way is the author's call.
+the hashed code.
 
 ## Not included
 
