@@ -1,0 +1,54 @@
+# Terms that identify the authors of this repository.
+#
+# Read by scripts/anonymization/anonymize.py (`check` and `snapshot`), and the
+# [replace] and [flag] terms are what you paste into Anonymous GitHub's
+# "terms to hide" box. Do not copy this file into anything you share.
+#
+# [replace]  rewritten by `anonymize.py snapshot` as `term => replacement`;
+#            the replacement defaults to ANONYMIZED. Matching ignores case and
+#            longer terms win over shorter ones (Junda Huang before Junda).
+# [flag]     reported by `anonymize.py check`, never rewritten: too broad, or
+#            a name of a published thing whose change would break the data.
+# [protect]  path globs never rewritten (checksum-pinned or third-party
+#            sources). They are still scanned; a hit there is a warning.
+
+[replace]
+Junda Huang => Anonymous Author
+Junda => Anonymous Author
+jundahuang9123 => anonymous-author
+junda.huang9123@gmail.com => anonymous@example.org
+junda.huang@radboudumc.nl => anonymous@example.org
+Bergische Universität Wuppertal
+Bergische Universitaet Wuppertal
+University of Wuppertal
+uni-wuppertal
+Wuppertal
+Radboud
+# The upstream prototype's author is a colleague; naming him names the group.
+Sebastian-inspired => upstream-inspired
+Reuse from Sebastian => Reuse from the upstream prototype
+Sebastian's => the upstream author's
+Sebastian => the upstream author
+https://github.com/U0iS112/654321 => https://github.com/ANONYMIZED/ANONYMIZED
+U0iS112
+
+[flag]
+Huang
+TMDT
+vcslam.tmdt.info
+KI:connect
+SimpleLLM
+SAST Blackboard
+profile-requirements-extraction
+rq1-blackboard
+visual-profile-editor
+
+[protect]
+requirement-reuse-service/config/base_profiles/source-inputs/**
+benchmark-data/*/input-raw/**
+benchmark-data/*/input-preconsolidation/**
+benchmark-data/*/exploratory/**
+benchmark-data/*/reference-requirements/**
+benchmark-data/*/provenance/**
+datacorpus/**
+docs/licenses/**
