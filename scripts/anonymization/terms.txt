@@ -7,6 +7,8 @@
 # [replace]  rewritten by `anonymize.py snapshot` as `term => replacement`;
 #            the replacement defaults to ANONYMIZED. Matching ignores case and
 #            longer terms win over shorter ones (Junda Huang before Junda).
+#            Wrap a term in double quotes when it starts with '#' or has spaces
+#            at its ends.
 # [flag]     reported by `anonymize.py check`, never rewritten: too broad, or
 #            a name of a published thing whose change would break the data.
 # [protect]  path globs never rewritten (checksum-pinned or third-party
@@ -31,6 +33,14 @@ Sebastian's => the upstream author's
 Sebastian => the upstream author
 https://github.com/U0iS112/654321 => https://github.com/ANONYMIZED/ANONYMIZED
 U0iS112
+# The upstream repository's name, the heading of docs/UPSTREAM_README.md. Quoted
+# because a bare line starting with '#' is a comment; the digits alone would hit hashes.
+"# 654321" => "# ANONYMIZED"
+# Commit identifiers of the sibling and upstream repositories: GitHub's commit
+# search resolves a public repository's commit to its owner.
+dc216b0e410594b7fb22eef3f823a17dd57a46e2
+8d512b9071750d300f08d5c87fa0612a1c65bea2
+074ddfc409bdd120c93a0b68773bafa464e56504
 
 [flag]
 Huang

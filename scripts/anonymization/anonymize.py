@@ -56,6 +56,7 @@ NOTICE = (
 
 EMAIL = re.compile(r'[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+')
 SESSION_LINK = re.compile(r'claude\.ai/code/session_[A-Za-z0-9]+')
+COMMIT_ID = re.compile(r'\b[0-9a-f]{40}\b')
 GITHUB_OWNER = re.compile(r'github\.com/([A-Za-z0-9][A-Za-z0-9-]{0,38})(?=[/"\')\]>\s,.]|$)')
 GITHUB_SITE_PATHS = {'about', 'advisories', 'apps', 'blog', 'enterprise', 'explore', 'features', 'join',
                      'login', 'marketplace', 'orgs', 'pricing', 'search', 'security', 'settings', 'site',
@@ -78,7 +79,7 @@ class Terms:
         section = None
         for number, raw in enumerate(path.read_text(encoding='utf-8').splitlines(), 1):
             line = raw.strip()
-            if not line or line.startswith('#'):
+            if not line or (line.startswith('#') and not line.startswith('"')):
                 continue
             if line in ('[replace]', '[flag]', '[protect]'):
                 section = line[1:-1]
@@ -86,10 +87,10 @@ class Terms:
             if section is None:
                 sys.exit(f'{path}:{number}: a term before the first [section]')
             if section == 'replace':
-                term, _, replacement = (part.strip() for part in line.partition('=>'))
+                term, _, replacement = (_unquote(part) for part in line.partition('=>'))
                 replace[term.casefold()] = replacement or DEFAULT_REPLACEMENT
             elif section == 'flag':
-                flag.append(line)
+                flag.append(_unquote(line))
             else:
                 protect.append(line)
         if not replace:
@@ -104,6 +105,12 @@ class Terms:
 
     def protected(self, relative: str) -> bool:
         return any(fnmatch.fnmatchcase(relative, glob) for glob in self.protect)
+
+
+def _unquote(part: str) -> str:
+    """A term wrapped in double quotes may start with '#' or carry surrounding spaces."""
+    part = part.strip()
+    return part[1:-1] if len(part) >= 2 and part[0] == part[-1] == '"' else part
 
 
 def _alternation(terms) -> re.Pattern[str]:
@@ -125,12 +132,22 @@ def list_files(root: Path) -> list[str]:
     return sorted(found)
 
 
+def is_binary(data: bytes) -> bool:
+    return b'\0' in data[:8192]
+
+
 def read_text(path: Path) -> str | None:
     """Text with the original bytes recoverable; None for binary files."""
     data = path.read_bytes()
-    if b'\0' in data[:8192]:
-        return None
-    return data.decode('utf-8', 'surrogateescape')
+    return None if is_binary(data) else data.decode('utf-8', 'surrogateescape')
+
+
+def binary_term_hits(data: bytes, terms: Terms) -> set[str]:
+    """Replace terms inside a binary file, as UTF-8 or UTF-16-LE in any ASCII case
+    (PDF Info strings, PNG text chunks and Office metadata are not NUL-free)."""
+    lowered = data.lower()
+    return {term for term in terms.replace
+            if term.encode('utf-8') in lowered or term.encode('utf-16-le') in lowered}
 
 
 # ----------------------------------------------------------------------------- check
@@ -142,8 +159,12 @@ class Report:
     binaries: int = 0
     replace_hits: dict[str, Counter] = field(default_factory=lambda: defaultdict(Counter))
     protected_hits: dict[str, Counter] = field(default_factory=lambda: defaultdict(Counter))
+    binary_hits: dict[str, Counter] = field(default_factory=lambda: defaultdict(Counter))
     flag_hits: dict[str, Counter] = field(default_factory=lambda: defaultdict(Counter))
     path_hits: list[tuple[str, str]] = field(default_factory=list)
+    protected_path_hits: list[tuple[str, str]] = field(default_factory=list)
+    binary_files: list[str] = field(default_factory=list)
+    commit_ids: dict[str, str] = field(default_factory=dict)          # identifier -> first file
     emails: dict[str, str] = field(default_factory=dict)          # address -> first file
     session_links: Counter = field(default_factory=Counter)
     owners: Counter = field(default_factory=Counter)
@@ -153,7 +174,8 @@ class Report:
     commits_with_links: int = 0
 
     def failing(self, strict: bool = False) -> bool:
-        return bool(self.replace_hits or self.path_hits or (strict and (self.flag_hits or self.protected_hits)))
+        return bool(self.replace_hits or self.binary_hits or self.path_hits
+                    or (strict and (self.flag_hits or self.protected_hits or self.protected_path_hits)))
 
 
 def scan(root: Path, terms: Terms, history: bool = False) -> Report:
@@ -162,15 +184,23 @@ def scan(root: Path, terms: Terms, history: bool = False) -> Report:
         if any(relative == skip or relative.startswith(skip + '/') for skip in DEFAULT_EXCLUDES):
             continue
         report.files += 1
+        protected = terms.protected(relative)
         for match in terms.pattern.finditer(relative):
-            report.path_hits.append((relative, match.group(0)))
-        text = read_text(root / relative)
-        if text is None:
+            (report.protected_path_hits if protected else report.path_hits).append((relative, match.group(0)))
+        data = (root / relative).read_bytes()
+        if is_binary(data):
             report.binaries += 1
+            report.binary_files.append(relative)
+            for term in binary_term_hits(data, terms):
+                (report.protected_hits if protected else report.binary_hits)[term][relative] += 1
             continue
-        bucket = report.protected_hits if terms.protected(relative) else report.replace_hits
+        text = data.decode('utf-8', 'surrogateescape')
+        bucket = report.protected_hits if protected else report.replace_hits
         for match in terms.pattern.finditer(text):
             bucket[match.group(0).casefold()][relative] += 1
+        if not protected:
+            for identifier in COMMIT_ID.findall(text):
+                report.commit_ids.setdefault(identifier, relative)
         if terms.flag_pattern:
             for match in terms.flag_pattern.finditer(text):
                 report.flag_hits[match.group(0).casefold()][relative] += 1
@@ -216,8 +246,14 @@ def print_report(report: Report, strict: bool) -> None:
         print('REPLACE terms in file or directory names:')
         for relative, term in report.path_hits:
             print(f'  {relative}  ({term})')
+    if report.binary_hits:
+        _print_hits('\nREPLACE terms inside binary files (never rewritten; exclude the file or edit it by hand):', report.binary_hits)
     if report.protected_hits:
         _print_hits('\nREPLACE terms inside protected paths (not rewritten; judge by hand, usually third-party text):', report.protected_hits)
+    if report.protected_path_hits:
+        print('\nREPLACE terms in protected file or directory names (not renamed):')
+        for relative, term in report.protected_path_hits:
+            print(f'  {relative}  ({term})')
     if report.flag_hits:
         _print_hits('\nFLAG terms (never rewritten; judge by hand):', report.flag_hits, examples=2)
     print('\nPatterns:')
@@ -227,6 +263,13 @@ def print_report(report: Report, strict: bool) -> None:
     print(f'  claude.ai session links: {sum(links.values())} in {len(links)} file(s)')
     owners = ', '.join(f'{owner} ({count})' for owner, count in report.owners.most_common(12))
     print(f'  GitHub owners referenced: {owners or "none"}')
+    ids = sorted(report.commit_ids)
+    print(f'  40-hex commit identifiers outside protected paths: {len(ids)} distinct'
+          + (f', e.g. {ids[0]} in {report.commit_ids[ids[0]]}' if ids else '')
+          + ('; a public one resolves to its repository through GitHub commit search, so list it under [replace]' if ids else ''))
+    if report.binary_files:
+        shown = ', '.join(report.binary_files[:8]) + (' ...' if len(report.binary_files) > 8 else '')
+        print(f'  binary files (raw bytes searched for replace terms only): {shown}')
     if report.commits:
         print('\nGit history (not part of a `snapshot`, which starts a fresh history):')
         for identity, count in report.identities.most_common():
@@ -235,7 +278,7 @@ def print_report(report: Report, strict: bool) -> None:
               f'{report.commits_with_links} carry session links or trailers')
     verdict = 'FAIL' if report.failing(strict) else 'PASS'
     notes = []
-    if report.protected_hits:
+    if report.protected_hits or report.protected_path_hits:
         notes.append('hits in protected paths')
     if report.flag_hits:
         notes.append('flag terms to judge')
@@ -274,6 +317,8 @@ def rename_paths(out: Path, terms: Terms) -> list[str]:
     renamed = []
     for path in sorted(candidates, key=lambda p: len(p.parts), reverse=True):   # deepest first
         target = path.with_name(terms.pattern.sub(terms.replacement, path.name))
+        if target.exists():
+            sys.exit(f'rename collision: {path.relative_to(out).as_posix()} -> {target.name} already exists')
         path.rename(target)
         renamed.append(f'{path.relative_to(out).as_posix()} -> {target.name}')
     return renamed
@@ -340,18 +385,31 @@ def init_git(out: Path, author: str) -> None:
            'GIT_COMMITTER_NAME': name, 'GIT_COMMITTER_EMAIL': email}
     git = ['git', '-C', str(out), '-c', 'commit.gpgsign=false', '-c', f'user.name={name}', '-c', f'user.email={email}']
     subprocess.run([*git, 'init', '-q', '-b', 'main'], check=True, env=env)
-    subprocess.run([*git, 'add', '-A'], check=True, env=env)
+    subprocess.run([*git, 'add', '-A', '-f'], check=True, env=env)
     subprocess.run([*git, 'commit', '-q', '-m', COMMIT_MESSAGE], check=True, env=env)
+
+
+def produced_by_this_tool(out: Path) -> bool:
+    """--force replaces only a previous snapshot: one carrying the notice or the anonymous commit."""
+    readme = out / 'README.md'
+    if readme.is_file() and readme.read_text(encoding='utf-8', errors='replace').startswith(NOTICE.splitlines()[0]):
+        return True
+    if (out / '.git').is_dir():
+        last = subprocess.run(['git', '-C', str(out), 'log', '-1', '--format=%s'], capture_output=True, text=True)
+        return last.returncode == 0 and last.stdout.strip() == COMMIT_MESSAGE
+    return False
 
 
 def cmd_snapshot(args: argparse.Namespace) -> int:
     root, terms = args.root, Terms.load(args.terms)
     out = Path(args.out).resolve() if args.out else root.parent / f'{root.name}-anonymous'
-    if out == root or root in out.parents:
-        sys.exit('the snapshot must be created outside the repository')
+    if out == root or root in out.parents or out in root.parents:
+        sys.exit('the snapshot must be created outside the repository: not inside it and not in a directory above it')
     if out.exists() and any(out.iterdir()):
         if not args.force:
             sys.exit(f'{out} exists and is not empty; pass --force to replace it')
+        if not produced_by_this_tool(out):
+            sys.exit(f'{out} is not a snapshot this tool produced; remove it yourself if that is intended')
         shutil.rmtree(out)
     out.mkdir(parents=True, exist_ok=True)
 
@@ -364,7 +422,9 @@ def cmd_snapshot(args: argparse.Namespace) -> int:
             except TypeError:                       # Python < 3.12 without the filter argument
                 tar.extractall(out)
     for relative in (*DEFAULT_EXCLUDES, *args.exclude):
-        target = out / relative
+        target = (out / relative).resolve()
+        if target == out or not target.is_relative_to(out):
+            sys.exit(f'--exclude {relative!r} must be a relative path inside the export')
         if target.is_dir():
             shutil.rmtree(target)
         elif target.exists():
@@ -424,7 +484,8 @@ def main(argv: list[str] | None = None) -> int:
     snapshot.add_argument('--out', help='target directory (default: ../<repo>-anonymous)')
     snapshot.add_argument('--ref', default='HEAD', help='commit, branch or tag to export (default: HEAD)')
     snapshot.add_argument('--author', default=DEFAULT_AUTHOR, help=f'author of the single commit (default: {DEFAULT_AUTHOR})')
-    snapshot.add_argument('--exclude', action='append', default=[], metavar='PATH', help='additional path to leave out (repeatable)')
+    snapshot.add_argument('--exclude', action='append', default=[], metavar='PATH',
+                          help='additional repository-relative path to leave out (repeatable)')
     snapshot.add_argument('--zip', action='store_true', help='also write <out>.zip (without .git) for Zenodo or EasyChair')
     snapshot.add_argument('--no-git', action='store_true', help='do not create the single-commit Git history')
     snapshot.add_argument('--no-notice', action='store_true', help='do not prepend the review notice to README.md')

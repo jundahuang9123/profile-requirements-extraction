@@ -27,7 +27,8 @@ is dual-anonymous and says, verbatim:
   Reviewers assess it; "Reproducibility and availability of resources" is a
   review criterion, and "Evaluations should be repeatable, and papers should
   provide links to the data sets, source code". The call points to ISWC's
-  [Supplemental Material Statement Guide](https://iswc.umbc.edu/authors/supplemental-material-statement-guide/),
+  [Supplemental Material Statement Guide](https://iswc2025.semanticweb.org/#/guidelines/supplemental)
+  (same text as the readable [2024 copy](https://iswc.umbc.edu/authors/supplemental-material-statement-guide/)),
   whose anonymous options are an EasyChair upload (up to 100 MB), "anonymous
   GitHub accounts", or Figshare/Zenodo records with author details suppressed;
   its examples list the creator as "Anonymous Authors".
@@ -39,8 +40,11 @@ ESWC publishes no anonymization how-to of its own. The research-track call
 delegates to the three linked resources above; the only ESWC-hosted guide is
 the HTML submission guide. The
 [Resources Track](https://2027.eswc-conferences.org/calls/papers-resource-track/)
-and In-Use Track are single-anonymous: no anonymization, but a persistent URI
-(PURL, DOI or w3id), a licence, public availability and findability.
+is single-anonymous and asks for a persistent URI (PURL, DOI or w3id), a
+licence, public availability and findability. The
+[In-Use Track](https://2027.eswc-conferences.org/calls/papers-in-use-track/) is
+single-anonymous too, "should not be anonymized", and recommends access to code
+and data during review "at a permanent location".
 
 | Date (23:59 AoE) | Research, Resources, In-Use |
 |---|---|
@@ -59,21 +63,26 @@ Source: [important dates](https://2027.eswc-conferences.org/important-dates/).
 `python3 scripts/anonymization/anonymize.py check --history` reports it; as of
 8 November 2026:
 
-- The first author's name in 27 files: dated decision notes in docs, code and
+- The first author's name in 29 files: dated decision notes in docs, code and
   test docstrings ("Junda, 23 Oct"), the `author` field of
   `benchmark-data/mobilitydcat/use-cases.json`, the `reviewer` of the reviewed
   DCAT-AP 2.0.1 base catalogue (whose `catalogue_hash` covers that field), and
   one test assertion.
-- The GitHub account name in 6 files, as links to the sibling repositories
-  `visual-profile-editor` and `rq1-blackboard`.
+- The GitHub account name in 5 files, as links to the sibling repositories
+  `visual-profile-editor` and `rq1-blackboard`, and three 40-hex commit
+  identifiers of those repositories and of the colleague's upstream repository.
+  GitHub's commit search resolves a public repository's commit to its owner, so
+  the identifiers are on the replace list too.
 - A colleague's first name and his repository URL in README,
   THIRD_PARTY_NOTICES, four docs and the frontend header.
-- Git history: 181 commits with the authors' names and two personal e-mail
-  addresses, 116 commit messages with session links or trailers, 48 that name
-  someone. A proxy hides history, but any repository you push does not, so a
-  review copy needs a fresh history.
+- Git history: 181 commits, 65 of them with the first author's name and a
+  personal or an institutional e-mail address, 117 authored by the AI assistant,
+  116 messages with session links or trailers and 48 that name someone. A proxy
+  hides history, but any repository you push does not, so a review copy needs a
+  fresh history.
 - The repository is public and indexed, and its GitHub description names the
   colleague. Searching a distinctive phrase from the paper finds it. Make it
+  and the sibling repositories `visual-profile-editor` and `rq1-blackboard`
   private for the anonymity period (Settings, General, Danger Zone, Change
   visibility), or accept the risk given that reviewers will not actively search.
 - Third-party corpora contain other people's data (W3C editors' e-mail
@@ -84,7 +93,9 @@ Judgement calls, listed under `[flag]` in `terms.txt` and only reported:
 the `vcslam.tmdt.info` namespace of the published VC-SLAM corpus (a hint at the
 group; the URIs are data and stay), the `KI:connect` provider (a hint at a
 German university; it is a feature), the upstream project names "SimpleLLM"
-and "SAST Blackboard", and the repository names.
+and "SAST Blackboard", and the repository names. Two weaker hints stay as well:
+the figure PDFs under `benchmark-data/figures/` carry Central European time-zone
+offsets in their creation dates, and a few inherited code comments are in German.
 
 ## 3. Where a review copy can live
 
@@ -95,7 +106,7 @@ and "SAST Blackboard", and the repository names.
 | **Private repository in your own account**, proxied by Anonymous GitHub | everything above, and search engines | only if the public instance lists your private repositories after login (its code supports a GitHub App for that) |
 | Second personal GitHub account | your account name | not allowed: "One person or legal entity may maintain no more than one free Account" ([GitHub terms](https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)) |
 | **Zenodo** record with creator "Anonymous Authors", open access | author metadata until you edit it; the DOI stays the same after the edit ([docs](https://help.zenodo.org/docs/deposit/manage-records/)) | the file is public and indexed; a zip, no browsing; Graziotin warns that restricted or embargoed access either hides the file or reveals account names during access requests, so keep it open |
-| OSF project with an anonymized view-only link | contributor names | courtesy anonymity: removing the link token shows the named page |
+| OSF project with an anonymized view-only link | contributor names | only while the project stays private; once it is public, the same URL without the token shows the contributors |
 | EasyChair supplementary upload | everything, from everyone but the reviewers | ISWC's guide allows 100 MB; the snapshot zip is about 43 MB |
 
 Recommended: a public repository under a neutral organisation, proxied by
@@ -125,7 +136,8 @@ repositories, a private repository in your own account replaces the organisation
    implementation hash that `scripts/closed_book.py`, `scripts/cb_base_labels.py`,
    their tests and two docs record (comment text in five workflow modules
    changes, so the hash changes), prepends a review notice to README.md,
-   verifies that no `[replace]` term remains, writes
+   verifies that no `[replace]` term remains in text files, file names or the
+   raw bytes of binary files, writes
    `../profile-requirements-extraction-anonymous` and `.zip`, and commits
    everything once as `Anonymous Authors <anonymous@example.org>`.
 
@@ -180,8 +192,9 @@ repositories, a private repository in your own account replaces the organisation
    Cite your own earlier work in the third person, do not link the public
    repository, and keep the Generative AI statement separate.
 
-8. During the anonymity period, keep the public repository private, post no
-   non-anonymized preprint, and do not link the paper from personal pages.
+8. During the anonymity period, keep this repository and its sibling
+   repositories private, post no non-anonymized preprint, and do not link the
+   paper from personal pages.
 
 9. After notification, for the camera-ready: restore attribution in
    THIRD_PARTY_NOTICES.md and README.md, replace the anonymous links with the
@@ -197,5 +210,5 @@ repositories, a private repository in your own account replaces the organisation
 - [ ] neutral organisation and repository created; snapshot pushed
 - [ ] Anonymous GitHub link created, terms pasted, expiration set, link tested privately
 - [ ] Zenodo record published with "Anonymous Authors"; DOI in the statement
-- [ ] public repository set to private; no preprint posted
+- [ ] this repository and its siblings set to private; no preprint posted
 - [ ] Supplemental Material Statement and Generative AI statement in the paper
