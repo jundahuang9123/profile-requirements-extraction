@@ -1,0 +1,1557 @@
+{
+ "schema_version": "rq1-reference-set-3",
+ "case": "jrc-research",
+ "reference_document": "Perego et al., Using DCAT-AP for research data (SDSVoc 2016, paper 27)",
+ "base": "DCAT-AP 1.1",
+ "status": "merged reference set with AI input-evidence labels; provisional adjudication of the reviewed items (2026-10-23); not independently adjudicated as a whole",
+ "built_from": {
+  "v1": "jrc-research/reference-requirements/core-requirements.json (published identities kept)",
+  "claude_v2": "core-requirements-v2.json (Claude completion, 2026-10-22)",
+  "pr45": "benchmark-data/reference-audit-2026-10-22 (PR #45, commit 7fec154)"
+ },
+ "decisions": [
+  "Mobility is scored at clause level (the PR #45 clauses, checked against NAPCORE Table 1).",
+  "Requirements that restate DCAT-AP are included and flagged (restates_dcat_ap); they may be left out at scoring time."
+ ],
+ "adjudication": {
+  "date": "2026-10-23",
+  "source": "reference-sets-v3/CODEX-REVIEW-2026-10-23.md",
+  "by": "Junda, provisional adjudication with ChatGPT/Codex assistance; applied by Claude",
+  "status": "provisional; not an independent human adjudication of the whole set",
+  "changes": [
+   "JRC-6.4 is a conditional requirement; JRC-10.1 has its anchor; JRC-10.3 restores metadata-quality assessment (P2, register).",
+   "Overlap review: 3 pairs classified (0 equivalent, 0 subsumption, 3 related)."
+  ]
+ },
+ "merge_rules": [
+  "Rows: all v1 rows and all Claude v2 rows keep their IDs. A row statement, locator or status changes only where a source check showed it wrong; the earlier value is kept in statement_before_v3, source_locator_before_v3 or status_in_source_before_v3.",
+  "Atoms are the scoring units and every atom belongs to exactly one row. PR #45 splits are used where PR #45 split a need; PR #45 items that state the same need for another data group are merged into one atom whose applicability lists the groups.",
+  "Content found only in Claude v2 is split into atoms; content found only in PR #45 is added; a few needs found while checking anchors are added and marked added_in_merge.",
+  "Requirements that only restate DCAT-AP (relation_to_base = restates_base) are kept and flagged with restates_dcat_ap so they can be left out at scoring time.",
+  "Source inconsistencies and source errors are recorded on the atom (source_flags), not resolved.",
+  "Overlapping atoms point to each other in overlaps; under one-to-one matching a prediction can be credited to only one of them.",
+  "Adjudication (2026-10-23): equivalent atoms from different rows are scored once (the duplicate names its canonical atom in merged_into); an atom that only bundles separately scored atoms (umbrella_of) is not scored by default; every overlap pair carries a review (overlap_review)."
+ ],
+ "scoring": {
+  "unit": "atom",
+  "default_selection": "stratum = content, status_in_source != deferred, and neither merged_into another atom nor umbrella_of separately scored atoms (field scored_by_default)",
+  "optional_filters": {
+   "leave_out_dcat_ap_restatements": "restates_dcat_ap = true",
+   "leave_out_rq2_reuse_and_alignment_rules": "reuse_or_alignment_rule = true",
+   "leave_out_unsettled_status": "status_in_source in (proposed, open_issue, guidance)",
+   "leave_out_atoms_added_in_merge": "provenance.added_in_merge = true"
+  },
+  "never": "Score a row and its atoms together, or credit one prediction to two overlapping atoms.",
+  "row_level": "Rows remain available for a separate row-level recovery analysis."
+ },
+ "counts": {
+  "rows": 11,
+  "rows_by_added_in": {
+   "v1": 5,
+   "v2": 6
+  },
+  "atoms": 18,
+  "atoms_by_stratum": {
+   "content": 17,
+   "system": 1
+  },
+  "atoms_by_status": {
+   "requirement": 9,
+   "open_issue": 9
+  },
+  "atoms_by_relation_to_base": {
+   "beyond_base": 9,
+   "restates_base": 4,
+   "tightens_base": 3,
+   "extends_base": 1,
+   "not_term_level": 1
+  },
+  "atoms_by_found_by": {
+   "v1 row": 5,
+   "both": 10,
+   "PR #45 only": 2,
+   "restored in adjudication (JC-006)": 1
+  },
+  "scored_by_default": 17,
+  "scored_by_default_without_dcat_ap_restatements": 13,
+  "scored_by_default_without_rq2_rules": 17,
+  "scored_by_default_requirement_status_only": 9,
+  "atoms_merged_for_scoring": 0,
+  "umbrella_atoms_not_scored": 0,
+  "atoms_provisionally_adjudicated": 4,
+  "atoms_with_source_flags": 0,
+  "atoms_with_evidence_labels": 18,
+  "raw_evidence_labels": {
+   "supported": 6,
+   "uncertain": 4,
+   "partial": 7,
+   "unsupported": 1
+  },
+  "scored_by_default_raw_supported": 6,
+  "scored_by_default_raw_supported_or_partial": 12,
+  "atoms_with_overlaps": 6
+ },
+ "requirements": [
+  {
+   "id": "JRC-1",
+   "statement": "Identify the people who created a dataset.",
+   "source_locator": "Metadata elements relevant for scientific data, numbered item 1",
+   "adopted_resolution": "dct:creator",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "origin": [
+    "std",
+    "prac"
+   ],
+   "problem": "P4",
+   "reuse_or_alignment_rule": false,
+   "added_in": "v1",
+   "pr45_legacy_review": "Retain published/scoped identity; adjudicate meaning and evidence before scoring.",
+   "derived_from": "JRC scientific data management needs",
+   "atom_ids": [
+    "JRC-1.1"
+   ]
+  },
+  {
+   "id": "JRC-2",
+   "statement": "Describe the origin and processing history of data.",
+   "source_locator": "Metadata elements relevant for scientific data, numbered item 2",
+   "adopted_resolution": "dct:provenance",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "requirement",
+   "origin": [
+    "prac"
+   ],
+   "problem": "P3",
+   "reuse_or_alignment_rule": false,
+   "added_in": "v1",
+   "pr45_legacy_review": "Retain published/scoped identity; adjudicate meaning and evidence before scoring.",
+   "derived_from": "JRC scientific data management needs",
+   "atom_ids": [
+    "JRC-2.1"
+   ]
+  },
+  {
+   "id": "JRC-3",
+   "statement": "Give prospective users practical guidance on using a dataset.",
+   "source_locator": "Metadata elements relevant for scientific data, numbered item 3",
+   "adopted_resolution": "vann:usageNote",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "origin": [
+    "prac"
+   ],
+   "problem": "P3",
+   "reuse_or_alignment_rule": false,
+   "added_in": "v1",
+   "pr45_legacy_review": "Retain published/scoped identity; adjudicate meaning and evidence before scoring.",
+   "derived_from": "JRC scientific data management needs",
+   "atom_ids": [
+    "JRC-3.1"
+   ]
+  },
+  {
+   "id": "JRC-4",
+   "statement": "Connect datasets to associated scientific publications.",
+   "source_locator": "Metadata elements relevant for scientific data, numbered item 4",
+   "adopted_resolution": "dct:isReferencedBy",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "requirement",
+   "origin": [
+    "prac"
+   ],
+   "problem": "P4",
+   "reuse_or_alignment_rule": false,
+   "added_in": "v1",
+   "pr45_legacy_review": "Retain published/scoped identity; adjudicate meaning and evidence before scoring.",
+   "derived_from": "JRC scientific data management needs",
+   "atom_ids": [
+    "JRC-4.1"
+   ]
+  },
+  {
+   "id": "JRC-5",
+   "statement": "Identify source datasets used in producing a dataset.",
+   "source_locator": "Metadata elements relevant for scientific data, numbered item 5",
+   "adopted_resolution": "dct:source",
+   "adjudication_status": "not_independently_adjudicated",
+   "level": "content",
+   "relation_to_base": "restates_base",
+   "status_in_source": "requirement",
+   "origin": [
+    "prac"
+   ],
+   "problem": "P4",
+   "reuse_or_alignment_rule": false,
+   "added_in": "v1",
+   "pr45_legacy_review": "Retain published/scoped identity; adjudicate meaning and evidence before scoring.",
+   "derived_from": "JRC scientific data management needs",
+   "atom_ids": [
+    "JRC-5.1"
+   ]
+  },
+  {
+   "id": "JRC-6",
+   "statement": "Give datasets persistent identifiers, encoded as HTTP URIs where possible, and tell primary identifiers (e.g. DOIs) from alternative ones.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Data citation\", \"Identifiers\"",
+   "anchor_quote": "For this purpose, it would be desirable to promote the encoding of identifiers as HTTP URIs, whenever possible.",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "level": "content",
+   "relation_to_base": "tightens_base",
+   "status_in_source": "open_issue",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "std",
+    "prac"
+   ],
+   "problem": "P4",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "Data citation practice (DataCite, DOI)",
+   "atom_ids": [
+    "JRC-6.1",
+    "JRC-6.2",
+    "JRC-6.3",
+    "JRC-6.4",
+    "JRC-6.5"
+   ]
+  },
+  {
+   "id": "JRC-7",
+   "statement": "Express the roles that agents play for a dataset beyond publisher and contact point, consistently across catalogues.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Data citation\", \"Agent roles\"",
+   "anchor_quote": "A consistent use of agent roles is crucial to enable metadata interoperability.",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "open_issue",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "std",
+    "prac"
+   ],
+   "problem": "P4",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [
+    "JRC-1"
+   ],
+   "derived_from": "Data citation practice (DataCite, ISO 19115 roles)",
+   "atom_ids": [
+    "JRC-7.1"
+   ]
+  },
+  {
+   "id": "JRC-8",
+   "statement": "Indicate when a distribution gives access through a service or API rather than to the data itself, and describe the service interface with the query parameters needed to select data.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Modelling service/API-based data access\"",
+   "anchor_quote": "Denote distributions as pointing to a service / API, and not directly to the actual data.",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "open_issue",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "prac"
+   ],
+   "problem": "P2",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "JRC data access services (APIs, OpenSearch)",
+   "statement_before_v3": "Indicate when a distribution gives access through a service or API rather than to the data itself, and which service standard it follows.",
+   "changed_in_v3": "The paper's second API requirement asks for the interface description with its query parameters (found by PR #45, JC-004).",
+   "atom_ids": [
+    "JRC-8.1",
+    "JRC-8.2"
+   ]
+  },
+  {
+   "id": "JRC-9",
+   "statement": "Describe provenance in enough detail to support reproducibility and to track how data are used.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Additional requirements\" (detailed specification of data provenance)",
+   "anchor_quote": "The objectives include (a) data reproducibility and (b) ability to track the usage of data",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "open_issue",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "prac"
+   ],
+   "problem": "P3",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [
+    "JRC-2"
+   ],
+   "derived_from": "JRC open research issues (provenance)",
+   "v3_note": "Reproducibility and usage tracking are two purposes of one provenance need, so one atom.",
+   "atom_ids": [
+    "JRC-9.1"
+   ]
+  },
+  {
+   "id": "JRC-10",
+   "statement": "Describe data and metadata quality assessments and include users' feedback on the data.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Additional requirements\" (modelling and using data quality assessments)",
+   "anchor_quote": "it potentially includes the integration of users' feedback as part of the meta/data management life-cycle.",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "level": "content",
+   "relation_to_base": "beyond_base",
+   "status_in_source": "open_issue",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "prac"
+   ],
+   "problem": "P3",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "JRC open research issues (quality, user feedback)",
+   "statement_before_adjudication": "Describe data quality assessments and include users' feedback on the data.",
+   "atom_ids": [
+    "JRC-10.1",
+    "JRC-10.2",
+    "JRC-10.3"
+   ]
+  },
+  {
+   "id": "JRC-11",
+   "statement": "Publish metadata on the Web so that the data are visible and discoverable through search engines.",
+   "statement_kind": "curator_paraphrase",
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Additional requirements\" (optimising metadata publication on the Web)",
+   "anchor_quote": "increasing visibility and discoverability of JRC data on the Web, also via search engines.",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "level": "system",
+   "relation_to_base": "not_term_level",
+   "status_in_source": "open_issue",
+   "reuse_or_alignment_rule": false,
+   "origin": [
+    "prac"
+   ],
+   "problem": "P1",
+   "note": "",
+   "added_in": "v2",
+   "curated_by": "Claude (Anthropic), 2026-10-22; not independently adjudicated",
+   "adjudication_status": "not_independently_adjudicated",
+   "overlaps_v2": [],
+   "derived_from": "JRC open research issues (Web visibility)",
+   "atom_ids": [
+    "JRC-11.1"
+   ]
+  }
+ ],
+ "atoms": [
+  {
+   "id": "JRC-1.1",
+   "parent_id": "JRC-1",
+   "statement": "Identify the authors of a dataset.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Metadata elements relevant for scientific data\", item 1",
+   "pr45_pdf_pages": [],
+   "anchor_page": null,
+   "anchor_quote": "Ability to indicate dataset authors.",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "overlaps": [
+    "JRC-7.1"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "JRC scientific data management needs",
+   "origin": [
+    "std",
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "jrc-research/input-raw/datacite-3.1-field-context.json",
+       "locator": "field: Creator",
+       "quote": "The schema records resource creators and can associate them with names and identifier schemes.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DataCite records resource creators, i.e. the dataset's authors, with names and identifier schemes.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "overlap_review": [
+    {
+     "atom": "JRC-7.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Identifying authors is not defining a set of agent roles."
+    }
+   ]
+  },
+  {
+   "id": "JRC-2.1",
+   "parent_id": "JRC-2",
+   "statement": "Describe the lineage of a dataset.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Metadata elements relevant for scientific data\", item 2",
+   "pr45_pdf_pages": [],
+   "anchor_page": null,
+   "anchor_quote": "Ability to describe data lineage.",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "overlaps": [
+    "JRC-9.1"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "The paper: \"Points (2) (data lineage) and (5) (input data) are already supported by DCAT-AP\".",
+   "restates_dcat_ap": true,
+   "derived_from": "JRC scientific data management needs",
+   "origin": [
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "jrc-research/input-raw/w3c-dcat-2014.html",
+       "locator": "5.2 Class: Catalog record (usage note on PROV-O)",
+       "quote": "allows describing further provenance information such as the details of the process and the agent involved in a particular change to a dataset.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "jrc-research/input-raw/datacite-3.1-field-context.json",
+       "locator": "field: Description",
+       "quote": "Narrative descriptions may explain the resource, its methods or technical information.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "jrc-research/input-raw/jrc-data-policy-2015.pdf",
+       "locator": "[page 6] Article 2(2)(e)",
+       "quote": "Ensuring reproducibility of accessible data",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT points to PROV-O for process and agent details of changes to a dataset; DataCite descriptions explain methods; JRC policy seeks reproducibility.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "overlap_review": [
+    {
+     "atom": "JRC-9.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "JRC-9.1 asks for detailed provenance for reproducibility and usage tracking, beyond lineage."
+    }
+   ]
+  },
+  {
+   "id": "JRC-3.1",
+   "parent_id": "JRC-3",
+   "statement": "Give potential data consumers information on how to use the data (usage notes).",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Metadata elements relevant for scientific data\", item 3",
+   "pr45_pdf_pages": [],
+   "anchor_page": null,
+   "anchor_quote": "Ability to give potential data consumers information on how to use the data",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "JRC scientific data management needs",
+   "origin": [
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "uncertain",
+     "sources": [
+      {
+       "path": "jrc-research/input-raw/jrc-data-policy-2015.pdf",
+       "locator": "[page 7] Article 5(2)",
+       "quote": "Metadata mean description of the data that allows their inventory, discovery, evaluation or use.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "jrc-research/input-raw/datacite-3.1-field-context.json",
+       "locator": "field: Description",
+       "quote": "Narrative descriptions may explain the resource, its methods or technical information.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "JRC defines metadata as enabling data use and DataCite descriptions may give technical information; neither explicitly calls for usage notes.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "JRC-4.1",
+   "parent_id": "JRC-4",
+   "statement": "Link a dataset to scientific publications about it.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Metadata elements relevant for scientific data\", item 4",
+   "pr45_pdf_pages": [],
+   "anchor_page": null,
+   "anchor_quote": "Ability to link to scientific publications about a dataset.",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "JRC scientific data management needs",
+   "origin": [
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "jrc-research/input-raw/datacite-3.1-field-context.json",
+       "locator": "field: RelatedIdentifier",
+       "quote": "Typed relationships connect the resource to related objects.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "jrc-research/input-raw/jrc-data-policy-2015.pdf",
+       "locator": "[page 4] Executive summary",
+       "quote": "develop a dedicated data policy to complement the JRC Policy on Open Access to Scientific Publications and Supporting Guidance, and to promote open access to research data",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DataCite typed relationships link a resource to related objects and the policy complements an open-access publications policy; publications are not named as link targets.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "JRC-5.1",
+   "parent_id": "JRC-5",
+   "statement": "Link a dataset to its input data (the data used to create it).",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "requirement",
+   "applicability": "",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Metadata elements relevant for scientific data\", item 5",
+   "pr45_pdf_pages": [],
+   "anchor_page": null,
+   "anchor_quote": "Ability to link to input data (i.e., data used to create a dataset).",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": true,
+    "claude_v2_rows": [],
+    "pr45_ids": [],
+    "added_in_merge": false,
+    "found_by": "v1 row"
+   },
+   "notes": "The paper: \"Points (2) (data lineage) and (5) (input data) are already supported by DCAT-AP\".",
+   "restates_dcat_ap": true,
+   "derived_from": "JRC scientific data management needs",
+   "origin": [
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "jrc-research/input-raw/datacite-3.1-field-context.json",
+       "locator": "field: RelatedIdentifier",
+       "quote": "Typed relationships connect the resource to related objects.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "jrc-research/input-raw/jrc-data-policy-2015.pdf",
+       "locator": "[page 9] Article 10(5)",
+       "quote": "Licences with third parties on acquisition of data shall, where possible and feasible, not restrict use of derivative output produced by the JRC using the acquired data.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DataCite typed relationships link related objects and the policy recognises outputs derived from acquired data; linking datasets to their input data is not stated.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "JRC-6.1",
+   "parent_id": "JRC-6",
+   "statement": "Use persistent identifiers for dataset authors and input data, so datasets can be reliably filtered and linked by them.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "explicit_requirement",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "tightens_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Metadata elements relevant for scientific data\"",
+   "pr45_pdf_pages": [],
+   "anchor_page": null,
+   "anchor_quote": "a key requirement is the ability to rely on persistent identifiers",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "JRC-6"
+    ],
+    "pr45_ids": [
+     "JC-008"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "Context: filtering datasets by authors or input data; JRC datasets already have persistent URIs and ORCIDs are used for authors.",
+   "restates_dcat_ap": false,
+   "derived_from": "Data citation practice (DataCite, DOI)",
+   "origin": [
+    "std",
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "jrc-research/input-raw/datacite-3.1-field-context.json",
+       "locator": "field: Creator",
+       "quote": "The schema records resource creators and can associate them with names and identifier schemes.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "jrc-research/input-raw/datacite-3.1-field-context.json",
+       "locator": "field: RelatedIdentifier",
+       "quote": "Typed relationships connect the resource to related objects.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DataCite associates creators with identifier schemes and relates objects via typed related identifiers; persistence and filtering datasets by authors or inputs are not stated.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "JRC-6.2",
+   "parent_id": "JRC-6",
+   "statement": "Encode identifiers as HTTP URIs wherever possible.",
+   "stratum": "content",
+   "status_in_source": "open_issue",
+   "modality": "recommendation",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "tightens_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Data citation\", \"Identifiers\"",
+   "pr45_pdf_pages": [],
+   "anchor_page": null,
+   "anchor_quote": "it would be desirable to promote the encoding of identifiers as HTTP URIs, whenever possible",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "JRC-6"
+    ],
+    "pr45_ids": [
+     "JC-011"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "Data citation practice (DataCite, DOI)",
+   "origin": [
+    "std",
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "uncertain",
+     "sources": [
+      {
+       "path": "jrc-research/input-raw/w3c-dcat-2014.html",
+       "locator": "5.3 Class: Dataset, Property: identifier",
+       "quote": "Definition: A unique identifier of the dataset. Range: rdfs:Literal Usage note: The identifier might be used as part of the URI of the dataset, but still having it represented explicitly is useful.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT notes a dataset identifier may form part of the dataset's URI, but keeps it as a literal; no input asks for HTTP URI identifiers.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "JRC-6.3",
+   "parent_id": "JRC-6",
+   "statement": "Distinguish primary identifiers (e.g. DOIs) from alternative ones.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "explicit_requirement",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Data citation\", \"Identifiers\"",
+   "pr45_pdf_pages": [],
+   "anchor_page": null,
+   "anchor_quote": "DCAT-AP already provides a mechanism to model primary and secondary identifiers, as well as the identifier type.",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "overlaps": [
+    "JRC-6.4"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "JRC-6"
+    ],
+    "pr45_ids": [
+     "JC-010"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "Met by the base: dct:identifier for primary and adms:identifier for alternative identifiers.",
+   "restates_dcat_ap": true,
+   "derived_from": "Data citation practice (DataCite, DOI)",
+   "origin": [
+    "std",
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "jrc-research/input-raw/datacite-3.1-field-context.json",
+       "locator": "field: Identifier",
+       "quote": "The registered resource identifier is a DOI.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "jrc-research/input-raw/datacite-3.1-field-context.json",
+       "locator": "field: AlternateIdentifier",
+       "quote": "Identifiers outside the primary DOI can be given with their types.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DataCite makes a DOI the registered primary identifier and records other identifiers separately as alternate identifiers with types.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "overlap_review": [
+    {
+     "atom": "JRC-6.4",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Distinguishing primary from alternative identifiers is not the DOI rule for DataCite citations."
+    }
+   ]
+  },
+  {
+   "id": "JRC-6.4",
+   "parent_id": "JRC-6",
+   "statement": "Use a DOI as the dataset identifier when generating DataCite citations.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "datacite_condition",
+   "applicability": "Conditional: applies when DataCite citations are generated (DataCite requires the dataset identifier to be a DOI).",
+   "relation_to_base": "tightens_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Data citation\", \"Identifiers\"",
+   "pr45_pdf_pages": [],
+   "anchor_page": null,
+   "anchor_quote": "DataCite requires the dataset identifier to be a DOI.",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "overlaps": [
+    "JRC-6.3"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [],
+    "pr45_ids": [
+     "JC-009"
+    ],
+    "added_in_merge": false,
+    "found_by": "PR #45 only"
+   },
+   "notes": "A DataCite rule the paper reports for citation generation.",
+   "restates_dcat_ap": false,
+   "derived_from": "Data citation practice (DataCite, DOI)",
+   "origin": [
+    "std",
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "provisional_adjudication_2026_10_23",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "jrc-research/input-raw/datacite-3.1-field-context.json",
+       "locator": "field: Identifier",
+       "quote": "The registered resource identifier is a DOI.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "jrc-research/input-raw/jrc-data-policy-2015.pdf",
+       "locator": "[page 8] Article 7",
+       "quote": "A user shall acknowledge the source of the JRC data.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DataCite's registered resource identifier is a DOI; the JRC policy requires users to acknowledge the data source, which citations serve.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "status_in_source_before_adjudication": "open_issue",
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "register (JRC-6.4)",
+     "change": "status open_issue -> requirement, with its condition in applicability"
+    }
+   ],
+   "overlap_review": [
+    {
+     "atom": "JRC-6.3",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Distinguishing primary from alternative identifiers is not the DOI rule for DataCite citations."
+    }
+   ]
+  },
+  {
+   "id": "JRC-6.5",
+   "parent_id": "JRC-6",
+   "statement": "Qualify each identifier with its scheme or type.",
+   "stratum": "content",
+   "status_in_source": "requirement",
+   "modality": "issue",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "restates_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Data citation\", \"Identifiers\"",
+   "pr45_pdf_pages": [],
+   "anchor_page": null,
+   "anchor_quote": "DCAT-AP already provides a mechanism to model primary and secondary identifiers, as well as the identifier type.",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [],
+    "pr45_ids": [
+     "JC-001"
+    ],
+    "added_in_merge": false,
+    "found_by": "PR #45 only"
+   },
+   "notes": "Met by the base (adms:Identifier carries the scheme); the paper questions this modelling because such identifiers are of little use for linking.",
+   "restates_dcat_ap": true,
+   "derived_from": "Data citation practice (DataCite, DOI)",
+   "origin": [
+    "std",
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "jrc-research/input-raw/datacite-3.1-field-context.json",
+       "locator": "field: AlternateIdentifier",
+       "quote": "Identifiers outside the primary DOI can be given with their types.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "jrc-research/input-raw/datacite-3.1-field-context.json",
+       "locator": "field: Creator",
+       "quote": "The schema records resource creators and can associate them with names and identifier schemes.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DataCite gives alternate identifiers with their types and associates creators with identifier schemes.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "JRC-7.1",
+   "parent_id": "JRC-7",
+   "statement": "Use a minimal, consistent set of unambiguous agent roles beyond publisher and contact point.",
+   "stratum": "content",
+   "status_in_source": "open_issue",
+   "modality": "issue",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Data citation\", \"Agent roles\"",
+   "pr45_pdf_pages": [],
+   "anchor_page": null,
+   "anchor_quote": "identifying a minimal set of unambiguous roles and promote their use would be preferable",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "overlaps": [
+    "JRC-1.1"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "JRC-7"
+    ],
+    "pr45_ids": [
+     "JC-002"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "Data citation practice (DataCite, ISO 19115 roles)",
+   "origin": [
+    "std",
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "jrc-research/input-raw/datacite-3.1-field-context.json",
+       "locator": "field: Contributor",
+       "quote": "Contributors are associated with role types, including contact and curation roles.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "jrc-research/input-raw/datacite-3.1-field-context.json",
+       "locator": "field: Creator",
+       "quote": "The schema records resource creators and can associate them with names and identifier schemes.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DataCite assigns contributors typed roles (e.g. contact, curation) beyond publisher; minimality, consistency across catalogues and unambiguity are not stated.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "overlap_review": [
+    {
+     "atom": "JRC-1.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "Identifying authors is not defining a set of agent roles."
+    }
+   ]
+  },
+  {
+   "id": "JRC-8.1",
+   "parent_id": "JRC-8",
+   "statement": "Indicate when a distribution points to a service or API rather than directly to the data.",
+   "stratum": "content",
+   "status_in_source": "open_issue",
+   "modality": "explicit_requirement",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "extends_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Modelling service/API-based data access\"",
+   "pr45_pdf_pages": [],
+   "anchor_page": null,
+   "anchor_quote": "Denote distributions as pointing to a service / API, and not directly to the actual data.",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "JRC-8"
+    ],
+    "pr45_ids": [
+     "JC-003"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "dct:type, not a distribution property in DCAT-AP 1.1, used on the distribution.",
+   "restates_dcat_ap": false,
+   "derived_from": "JRC data access services (APIs, OpenSearch)",
+   "origin": [
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "supported",
+     "sources": [
+      {
+       "path": "jrc-research/input-raw/w3c-dcat-2014.html",
+       "locator": "4. Vocabulary Overview",
+       "quote": "the API can be defined as an instance of dcat:Distribution. DCAT itself does not define properties specific to APIs description. These are considered out of the scope of this version of the vocabulary. Nevertheless, this can be defined as a profile of the DCAT vocabulary.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "jrc-research/input-raw/w3c-dcat-2014.html",
+       "locator": "5.4 Class: Distribution (usage note)",
+       "quote": "This represents a general availability of a dataset it implies no information about the actual access method of the data, i.e. whether it is a direct download, API, or some through Web page. The use of dcat:downloadURL property indicates directly downloadable distributions.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT notes distributions carry no access-method information (download, API, Web page) and leaves API-specific description to profiles.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "JRC-8.2",
+   "parent_id": "JRC-8",
+   "statement": "Describe the API or service interface, with the query parameters needed to select data, so software agents can use it directly.",
+   "stratum": "content",
+   "status_in_source": "open_issue",
+   "modality": "explicit_requirement",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Modelling service/API-based data access\"",
+   "pr45_pdf_pages": [],
+   "anchor_page": null,
+   "anchor_quote": "Provide a description of the API / service interface, along with the relevant query parameters",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "JRC-8"
+    ],
+    "pr45_ids": [
+     "JC-004"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "Claude v2 had only \"which service standard it follows\"; completed from PR #45.",
+   "restates_dcat_ap": false,
+   "derived_from": "JRC data access services (APIs, OpenSearch)",
+   "origin": [
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "provisional_adjudication_2026_10_23",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "jrc-research/input-raw/w3c-dcat-2014.html",
+       "locator": "4. Vocabulary Overview",
+       "quote": "the API can be defined as an instance of dcat:Distribution. DCAT itself does not define properties specific to APIs description. These are considered out of the scope of this version of the vocabulary. Nevertheless, this can be defined as a profile of the DCAT vocabulary.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "jrc-research/input-raw/jrc-data-policy-2015.pdf",
+       "locator": "[page 9] Article 11(3)",
+       "quote": "The JRC data shall, to all possible extent, be made available in an accepted, platform- independent, machine-readable format via accepted interfaces.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT leaves API description to profiles and JRC requires machine-readable access via accepted interfaces; query parameters for selecting data are not mentioned.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "register",
+     "change": "accepted: restored capability (interface and query-parameter description)"
+    }
+   ]
+  },
+  {
+   "id": "JRC-9.1",
+   "parent_id": "JRC-9",
+   "statement": "Describe provenance in enough detail to support reproducibility and to track how data are used.",
+   "stratum": "content",
+   "status_in_source": "open_issue",
+   "modality": "under_investigation",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Additional requirements\" (detailed specification of data provenance)",
+   "pr45_pdf_pages": [],
+   "anchor_page": null,
+   "anchor_quote": "The objectives include (a) data reproducibility and (b) ability to track the usage of data",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "overlaps": [
+    "JRC-2.1"
+   ],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "JRC-9"
+    ],
+    "pr45_ids": [
+     "JC-005"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "JRC open research issues (provenance)",
+   "origin": [
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "jrc-research/input-raw/jrc-data-policy-2015.pdf",
+       "locator": "[page 6] Article 2(2)(e)",
+       "quote": "Ensuring reproducibility of accessible data",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "jrc-research/input-raw/w3c-dcat-2014.html",
+       "locator": "5.2 Class: Catalog record (usage note on PROV-O)",
+       "quote": "allows describing further provenance information such as the details of the process and the agent involved in a particular change to a dataset.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "JRC policy seeks reproducibility and DCAT points to PROV-O for process details; tracking how data are used is not stated.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "overlap_review": [
+    {
+     "atom": "JRC-2.1",
+     "relation": "related",
+     "decision": "kept",
+     "rationale": "JRC-9.1 asks for detailed provenance for reproducibility and usage tracking, beyond lineage."
+    }
+   ]
+  },
+  {
+   "id": "JRC-10.1",
+   "parent_id": "JRC-10",
+   "statement": "Describe data quality assessments of a dataset.",
+   "stratum": "content",
+   "status_in_source": "open_issue",
+   "modality": "under_investigation",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Additional requirements\" (modelling and using data quality assessments)",
+   "pr45_pdf_pages": [],
+   "anchor_page": null,
+   "anchor_quote": "Modelling and using data quality assessments",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "JRC-10"
+    ],
+    "pr45_ids": [
+     "JC-006"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "JRC open research issues (quality, user feedback)",
+   "origin": [
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "provisional_adjudication_2026_10_23",
+   "input_evidence": {
+    "raw": {
+     "label": "uncertain",
+     "sources": [
+      {
+       "path": "jrc-research/input-raw/jrc-data-policy-2015.pdf",
+       "locator": "[page 6] Article 2(2)(c)",
+       "quote": "Access to quality data",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "jrc-research/input-raw/jrc-data-policy-2015.pdf",
+       "locator": "[page 7] Article 5(2)",
+       "quote": "Metadata mean description of the data that allows their inventory, discovery, evaluation or use.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "jrc-research/input-raw/jrc-data-policy-2015.pdf",
+       "locator": "[page 9] Article 13(b)",
+       "quote": "The JRC does not represent or warrant that the data will be error free or uninterrupted, or that all non-conformities can or will be corrected, or that any data are accurate or complete, or that they are of a satisfactory technical or scientific quality.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "JRC policy aims at access to quality data, defines metadata as enabling evaluation, and disclaims quality warranties; describing quality assessments is not stated.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "P2 (JRC-10.1 / JC-006)",
+     "change": "anchor added (section heading in \"Additional requirements\")"
+    }
+   ]
+  },
+  {
+   "id": "JRC-10.2",
+   "parent_id": "JRC-10",
+   "statement": "Include users' feedback on the data as quality information.",
+   "stratum": "content",
+   "status_in_source": "open_issue",
+   "modality": "under_investigation",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Additional requirements\" (modelling and using data quality assessments)",
+   "pr45_pdf_pages": [],
+   "anchor_page": null,
+   "anchor_quote": "it potentially includes the integration of users' feedback as part of the meta/data management life-cycle.",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "JRC-10"
+    ],
+    "pr45_ids": [
+     "JC-006"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "JRC open research issues (quality, user feedback)",
+   "origin": [
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "uncertain",
+     "sources": [
+      {
+       "path": "jrc-research/input-raw/w3c-dcat-2014.html",
+       "locator": "4.1 Basic Example",
+       "quote": "A contact point is also provided where comments and feedback about the dataset can be sent.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "jrc-research/input-raw/jrc-data-policy-2015.pdf",
+       "locator": "[page 6] Article 2(2)(c)",
+       "quote": "Access to quality data",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "DCAT offers a contact point for feedback about the dataset and JRC seeks quality data; publishing feedback as quality information is not stated.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  },
+  {
+   "id": "JRC-10.3",
+   "parent_id": "JRC-10",
+   "statement": "Describe quality assessments of the metadata of a dataset.",
+   "stratum": "content",
+   "status_in_source": "open_issue",
+   "modality": "under_investigation",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "beyond_base",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Additional requirements\" (modelling and using data quality assessments)",
+   "pr45_pdf_pages": [],
+   "anchor_page": null,
+   "anchor_quote": "This is not limited to data, but concerns metadata as well",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "JRC-10"
+    ],
+    "pr45_ids": [
+     "JC-006"
+    ],
+    "added_in_merge": false,
+    "found_by": "restored in adjudication (JC-006)",
+    "added_in_adjudication": true
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "JRC open research issues (quality, user feedback)",
+   "origin": [
+    "prac"
+   ],
+   "scored_by_default": true,
+   "adjudication_status": "provisional_adjudication_2026_10_23",
+   "input_evidence": {
+    "raw": {
+     "label": "unsupported",
+     "sources": [],
+     "rationale": "No staged input addresses the quality of metadata; the JRC policy objective \"Access to quality data\" concerns the data.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude, adjudication follow-up 2026-10-23, from the staged inputs; not blind to the reference; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   },
+   "adjudication": [
+    {
+     "date": "2026-10-23",
+     "source": "CODEX-REVIEW-2026-10-23.md",
+     "item": "P2 (JRC-10.1 / JC-006)",
+     "change": "restored metadata-quality capability (under investigation)"
+    }
+   ]
+  },
+  {
+   "id": "JRC-11.1",
+   "parent_id": "JRC-11",
+   "statement": "Publish metadata on the Web so that the data are visible and discoverable through search engines.",
+   "stratum": "system",
+   "status_in_source": "open_issue",
+   "modality": "under_investigation",
+   "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+   "relation_to_base": "not_term_level",
+   "relation_note": "",
+   "reuse_or_alignment_rule": false,
+   "source_locator": "Perego et al. 2016 (SDSVoc paper 27), \"Additional requirements\" (optimising metadata publication on the Web)",
+   "pr45_pdf_pages": [],
+   "anchor_page": null,
+   "anchor_quote": "increasing visibility and discoverability of JRC data on the Web, also via search engines.",
+   "anchor_check": "from_web_fetch_not_verified_locally",
+   "overlaps": [],
+   "source_flags": [],
+   "provenance": {
+    "v1_row": false,
+    "claude_v2_rows": [
+     "JRC-11"
+    ],
+    "pr45_ids": [
+     "JC-007"
+    ],
+    "added_in_merge": false,
+    "found_by": "both"
+   },
+   "notes": "",
+   "restates_dcat_ap": false,
+   "derived_from": "JRC open research issues (Web visibility)",
+   "origin": [
+    "prac"
+   ],
+   "scored_by_default": false,
+   "adjudication_status": "not_independently_adjudicated",
+   "input_evidence": {
+    "raw": {
+     "label": "partial",
+     "sources": [
+      {
+       "path": "jrc-research/input-raw/jrc-data-policy-2015.pdf",
+       "locator": "[page 8] Article 6(6)",
+       "quote": "Metadata shall by default be open for access, even if access to and use of the underlying data is restricted.",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "jrc-research/input-raw/w3c-dcat-2014.html",
+       "locator": "Abstract",
+       "quote": "DCAT is an RDF vocabulary designed to facilitate interoperability between data catalogs published on the Web. This document defines the schema and provides examples for its use. By using DCAT to describe datasets in data catalogs, publishers increase discoverability",
+       "quote_check": "verbatim_in_input_text"
+      },
+      {
+       "path": "jrc-research/input-raw/jrc-data-policy-2015.pdf",
+       "locator": "[page 7] Article 5(2)",
+       "quote": "Metadata mean description of the data that allows their inventory, discovery, evaluation or use.",
+       "quote_check": "verbatim_in_input_text"
+      }
+     ],
+     "rationale": "Inputs require open metadata and present DCAT catalogs on the Web as increasing discoverability; visibility through search engines is not mentioned.",
+     "quotes_verified": true
+    },
+    "consolidation": null,
+    "labelled_by": "Claude subagents working only from the staged inputs (separate from the curation pass), 2026-10-22; quotes machine-checked; not human-reviewed",
+    "human_review": "pending"
+   }
+  }
+ ]
+}

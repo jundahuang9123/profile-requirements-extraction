@@ -1,0 +1,384 @@
+[
+{"atom_id": "Req-1.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 45] 4.5 Automatic processing at scale", "quote": "To facilitate machine processing at scale, metadata will need to be even more elaborate, and all relationships will need to be stable and semantically defined."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 40] 4.3 Data standards, metadata standards, vocabularies and ontologies", "quote": "much essential work remains to be done to facilitate the implementation of solutions that support interoperability on the one hand and facilitate semantic richness to express scientific nuances on the other hand"}],
+ "rationale": "Inputs call for more elaborate, semantically defined metadata with the richness to express domain nuances, i.e. expressive descriptions."}},
+{"atom_id": "Req-1.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 19] 2.2 Definition of FAIR", "quote": "F2. data are described with rich metadata (defined by R1 below)"},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 19] 2.2 Definition of FAIR", "quote": "R1. (meta)data are richly described with a plurality of accurate and relevant attributes"}],
+ "rationale": "FAIR principles F2 and R1 require data to be described with rich metadata."}},
+{"atom_id": "Req-1.3", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/fair-cost-benefit-2018.pdf", "locator": "[page 15] 2.2.1.5 Registration and publication", "quote": "Registration and publication is the step in the research life cycle where data is accurately and adequately described using the relevant metadata."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 35] 4.1 FAIR Digital Objects (Figure 8)", "quote": "In order for Digital Objects to be assessable and reusable, they should be accompanied by sufficient metadata and documentation."}],
+ "rationale": "Inputs require data to be accurately and adequately described with sufficient metadata."}},
+{"atom_id": "Req-1.4", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/fair-cost-benefit-2018.pdf", "locator": "[page 14] 2.2.1.1 Creation and collection of the data", "quote": "The FAIR movement is advocating a single point of access, where you could query for metadata which would instantly point to the layer where the data are located, thus reducing considerably time to access (meta)data."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 19] 2.2 Definition of FAIR", "quote": "Accessible data objects can be obtained by humans and machines upon appropriate authorisation and through a well-defined and universally implementable protocol."}],
+ "rationale": "Metadata should let users reach data quickly through a single access point and well-defined, universally implementable access protocols."}},
+{"atom_id": "Req-1.5", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/fair-cost-benefit-2018.pdf", "locator": "[page 10] 1.3 FAIR versus open research data", "quote": "Openly and richly describe the context within which those data were generated, to enable evaluation of its utility;"},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 18] 2.1 Origin of FAIR", "quote": "There is a need for various things, including contextual and supporting information (metadata), to allow those data to be discovered, understood and used."}],
+ "rationale": "Inputs ask metadata to capture the context of data; unclear whether this matches 'context-sensitive' descriptions."}},
+{"atom_id": "Req-1.6", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 39] Data Documentation Initiative (DDI)", "quote": "DDI is canonically defined as a number of XML schemas, separated into modules."},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 40] Text Encoding Initiative (TEI)", "quote": "by picking which modules (groups of related elements intended for a specific purpose) should be included for a specific project"}],
+ "rationale": "NISO describes modular metadata standards (DDI, TEI) but states no requirement that descriptions be modular."}},
+{"atom_id": "Req-1.7", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/fair-cost-benefit-2018.pdf", "locator": "[page 38] Annex I, Table 7 (F2)", "quote": "Structured and rich metadata attributes such as title, creator, publication date, keyword(s), temporal and spatial coverage, etc."},
+ {"path": "mobilitydcat/input-raw/fair-cost-benefit-2018.pdf", "locator": "[page 13] 2.2.1.1 Creation and collection of the data", "quote": "Time lost due to unfindable, not human understandable or with unstructured or incomplete metadata."},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 8] Metadata in Everyday Life", "quote": "It is this notion of structure that turns raw information into actionable metadata."}],
+ "rationale": "FAIR metrics call for structured, rich metadata attributes; unstructured metadata is identified as a cost."}},
+{"atom_id": "Req-1.8", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 45] 4.5 Automatic processing at scale", "quote": "FAIR Digital Objects will need to be ‘typed’, so that by reference to a given information source, a machine can determine what operations are possible against a given data type"},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 15] Linked Data and RDF", "quote": "RDFS is used to formally define classes and properties, datatypes for objects, domains and ranges for properties"},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 20] Standardizing Metadata", "quote": "An XML Schema defines the elements that make up a valid document in that format"}],
+ "rationale": "Typing for machine processing is required; formal rules appear only as descriptions of schema languages, not as a stated need."}},
+{"atom_id": "Req-1.9", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 39] 4.2.3 Essential components of the FAIR ecosystem", "quote": "that requires maintenance, but is necessary to support stable references in a global virtual data domain in which data locations will change"},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 62] 8.4.1 Rec. 2, Action 2.3", "quote": "Systems must be refined and implemented to make automatic checks on the existence and accessibility of PIDs, metadata, a licence or waiver, and code, and to test the validity of the links between them."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 19] 2.2 Definition of FAIR", "quote": "I3. (meta)data include qualified references to other (meta)data"}],
+ "rationale": "Inputs require qualified references, stable PID-based references, and checks that links between objects remain valid."}},
+{"atom_id": "Req-1.10", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 19] 2.2 Definition of FAIR", "quote": "F1. (meta)data are assigned a globally unique and persistent identifier"},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 35] 4.1 FAIR Digital Objects", "quote": "Data need to be accompanied by Persistent Identifiers (PIDs) and metadata rich enough to enable them to be reliably found, used and cited."}],
+ "rationale": "FAIR principle F1 and the FAIR Digital Object model require persistent identifiers."}},
+{"atom_id": "Req-2.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 19] 2.2 Definition of FAIR", "quote": "Data are Findable when they are described by sufficiently rich metadata and registered or indexed in a searchable resource that is known and accessible to potential users."},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 1] 1 Introduction", "quote": "each EU member state has to implement a National Access Points (NAP) to make national transport data discoverable."}],
+ "rationale": "FAIR findability and the NAP mandate both require datasets to be discoverable and indexed in searchable resources."}},
+{"atom_id": "Req-2.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 20] 2.2 Definition of FAIR", "quote": "For data to be Reusable, the FAIR principles reassert the need for rich metadata and documentation that meet relevant community standards and provide information about provenance."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 8] Preface", "quote": "These digital objects must be accompanied by persistent identifiers, metadata and contextual documentation to enable discovery, citation and reuse."}],
+ "rationale": "FAIR reusability requires rich metadata, documentation and provenance enabling reuse."}},
+{"atom_id": "Req-2.3", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 2] 1 Introduction", "quote": "Nevertheless, the regulations don’t specify which metadata should be used to describe datasets, and how a NAP should be implemented."},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 3] 2 Metadata schemas for National Access Points", "quote": "defines a minimum set of metadata which, according to its authors, should be supported in all the NAP implementations."}],
+ "rationale": "Regulations leave NAP metadata unspecified; a common metadata set to be supported by every NAP implementation is called for."}},
+{"atom_id": "Req-2.4", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 53] 6.2.3 Metrics and other FAIR services", "quote": "Naturally, such services should themselves be FAIR, in the sense that they should themselves be discoverable, identifiable, recorded in catalogues or registries"},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 43] 4.4.1 Registries", "quote": "The FAIRness of registries is also in question: few are machine-readable and many cannot easily be found."}],
+ "rationale": "Registries and other services should themselves be described and findable; a detailed catalogue description is not specified."}},
+{"atom_id": "Req-2.5", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 35] 4.1 FAIR Digital Objects (Figure 8)", "quote": "Basic metadata will enable data discovery, but much richer information and provenance is required to understand how, why, when and by whom the objects were created."},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 3] 2 Metadata schemas for National Access Points", "quote": "The metadata schema is quite rich and contains multi-lingual documentation, geographical coverage, and both contact person and responsible transport operator."}],
+ "rationale": "Inputs require rich dataset-level metadata, and NAP schemas already describe datasets in detail."}},
+{"atom_id": "Req-2.6", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 3] 2 Metadata schemas for National Access Points", "quote": "which are made available as Community resource, which are alternative representations of the same main information described in the asset."},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 5] 3.2 Accessing metadata from the Asset Manager", "quote": "the journey planning asset type, which can be used to describe either datasets containing timetables or services"},
+ {"path": "mobilitydcat/input-raw/sprint-competency-tasks.json", "locator": "CQ-12", "quote": "Determine the available access format for a dataset."}],
+ "rationale": "NAP assets come with alternative representations and timetable services, and access formats must be retrievable."}},
+{"atom_id": "Req-2.7", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 1] Abstract", "quote": "The presented solution implements an automated ingestion pipeline harmonising metadata from three different European NAPs in a single metadata catalog."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 40] 4.2.3 Essential components of the FAIR ecosystem", "quote": "Descriptive metadata can be harvested by different service providers via standard protocols to create catalogues that are useful for certain groups of users."}],
+ "rationale": "Aggregating metadata from several NAPs and harvesting metadata via standard protocols are explicit aims."}},
+{"atom_id": "Req-3.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 8] Preface", "quote": "FAIR must work for humans and for machines"},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 63] 8.4.1 Rec. 3, Action 3.2", "quote": "By default, the FAIR ecosystem as a whole and each of its individual components should work for humans and for machines."},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 15] Linked Data and RDF", "quote": "The process of content negotiation is used to provide human users with Web pages and software applications with raw data when they visit the same URI."}],
+ "rationale": "FAIR components must serve humans as well as machines; content negotiation delivers human-readable pages."}},
+{"atom_id": "Req-3.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/fair-cost-benefit-2018.pdf", "locator": "[page 38] Annex I, Table 7 (F2)", "quote": "Ideally an URL should link to a document that contains machine-readable metadata for the digital resource."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 53] 6.2.2 Metrics and FAIR services: repositories", "quote": "machine readability of at minimum the metadata associated with the data"}],
+ "rationale": "FAIR metrics and repository criteria require machine-readable metadata."}},
+{"atom_id": "Req-4.1", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 3] 2 Metadata schemas for National Access Points", "quote": "The metadata schema is quite rich and contains multi-lingual documentation"},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 12] How is Metadata Stored and Shared? XML", "quote": "XML supports multilingualism of metadata by providing a predefined attribute to indicate the language in which an element’s value appears."}],
+ "rationale": "An operational NAP schema holds multilingual documentation and encodings support language tags, but multilingual metadata is never stated as a need."}},
+{"atom_id": "Req-5.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 19] 2.2 Definition of FAIR", "quote": "What this describes is semantic interoperability. In other words, the data are described using normative and community recognised specifications, vocabularies and standards that determine the precise meaning of concepts and qualities that the data represent."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 76] Glossary (Metadata)", "quote": "This report advocates the use of metadata standards and controlled vocabularies to support interoperability."}],
+ "rationale": "FAIR interoperability requires community-recognised vocabularies that fix the meaning of concepts, i.e. semantic interoperability."}},
+{"atom_id": "Req-6.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 20] 2.2 Definition of FAIR", "quote": "Technical interoperability means that the data and related information is encoded using a standard that can be read on all applicable systems."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 66] 8.4.1 Rec. 8, Action 8.2", "quote": "Metadata standards should be adopted and used consistently in order to enable machines to discover, assess and utilise data at scale."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 19] 2.2 Definition of FAIR", "quote": "I1. (meta)data use a formal, accessible, shared, and broadly applicable language for knowledge representation"}],
+ "rationale": "Inputs require standard encodings and formal shared languages so software can process metadata automatically."}},
+{"atom_id": "Req-7.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 40] 4.3 Data standards, metadata standards, vocabularies and ontologies", "quote": "Schemas (for data or metadata structure), ontologies, vocabularies and category definitions, which are the basis of interoperability and re-use, should also be made FAIR, with stable references"},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 41] 4.3 Data standards, metadata standards, vocabularies and ontologies", "quote": "the need to update concepts as domains evolve, incompatible licencing terms and the relative lack in many domains of coordinated community approaches to semantics"},
+ {"path": "mobilitydcat/input-raw/fair-cost-benefit-2018.pdf", "locator": "[page 39] Annex I, Table 7 (I2)", "quote": "terms from open, community-accepted vocabularies published in an appropriate knowledge exchange format."}],
+ "rationale": "Schemas and vocabularies should be FAIR, open and free of licence barriers; publishing the profile documentation itself is not addressed."}},
+{"atom_id": "Req-7.2", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 40] 4.2.3 Essential components of the FAIR ecosystem", "quote": "the availability of useful, readable and interpretable metadata (i.e. whether the scheme is accessible and the elements are semantically defined in open registries)"},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 40] 4.2.3 Essential components of the FAIR ecosystem", "quote": "There needs also to be a systematic setup for specifying and registering metadata schemas and metadata elements"}],
+ "rationale": "Schema elements should be semantically defined in open registries; annotating the profile documentation in a public repository is not stated."}},
+{"atom_id": "Req-8.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 58] 7.3 Sustainability of FAIR ecosystem components", "quote": "the organisations that maintain specifications and standards, as well as succession plans, should current methods of maintenance and support fail. The importance of stakeholder governance and transparent operations should not be overlooked"},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 23] Schema.org", "quote": "The vocabulary is managed through a community governance process."}],
+ "rationale": "TFR calls for stakeholder governance of bodies maintaining specifications; NISO cites community governance of a vocabulary."}},
+{"atom_id": "Req-8.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 58] 7.3 Sustainability of FAIR ecosystem components", "quote": "We need a more structured mechanism for defining what is widely adopted by different domains and research communities, as well as ways to refine, integrate and sustain them."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 73] 8.4.2 Rec. 23, Action 23.3", "quote": "FAIR components will need regular iteration cycles and evaluation processes to ensure that they are fit for purpose and meet community needs."}],
+ "rationale": "Standards need defined ways to be refined, and FAIR components need regular iteration and evaluation cycles."}},
+{"atom_id": "Req-8.3", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 73] 8.4.2 Rec. 23, Action 23.1", "quote": "The development of FAIR-compliant components needs to involve research communities, technical experts and other stakeholders. They should be provided with a forum for the exchange of views."},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 39] PREservation Metadata: Implementation Strategies (PREMIS)", "quote": "PREMIS is maintained at the Library of Congress by a volunteer editorial board, which operates on public input."}],
+ "rationale": "Stakeholder fora for component development and public input to a metadata standard appear; open public commenting is not required."}},
+{"atom_id": "Req-8.4", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "No input mentions issue trackers or release-planning tools for a specification."}},
+{"atom_id": "Req-8.5", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 73] 8.4.2 Rec. 23, Action 23.3", "quote": "FAIR components will need regular iteration cycles and evaluation processes to ensure that they are fit for purpose and meet community needs."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 9] Preface", "quote": "The Expert Group considered this input systematically, which has influenced and improved the report significantly."}],
+ "rationale": "Iteration cycles meeting community needs and systematic uptake of feedback are described; resolving issues into follow-up releases is not specified."}},
+{"atom_id": "Req-9.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 4] 3 Automating Metadata Aggregation from National Access Points", "quote": "Following the European guidelines to represent metadata in data catalogs, the DCAT Application Profile v2.0.1 [7] was selected as metadata schema for the Asset Manager."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 29] 3.2 Developing disciplinary interoperability frameworks for FAIR, Rec. 4", "quote": "To support interdisciplinary research, these interoperability frameworks should be articulated in common ways and adopt global standards where relevant."}],
+ "rationale": "DCAT-AP is chosen as the European guideline schema for catalogue metadata, and frameworks should adopt existing standards."}},
+{"atom_id": "Req-9.2", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 25] Schema.org", "quote": "OCLC’s definitions of new classes for the types of resources that appear in library collections, such as newspapers or musical scores, include triples that define these classes as subclasses of Schema.org’s CreativeWork."},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 23] Schema.org", "quote": "It also promotes the use of extensions to expand the vocabulary for use by specialized communities."}],
+ "rationale": "NISO describes extending base vocabularies by subclassing; DCAT-AP extension rules are never mentioned."}},
+{"atom_id": "Req-10.1", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/fair-cost-benefit-2018.pdf", "locator": "[page 14] 2.2.1.2 Pre-processing and data cleansing", "quote": "Maintenance of low quality metadata incurs significant costs and can be a source of errors. This cost increases with time for various potential reasons: human factors, standards changed etc."}],
+ "rationale": "Changing standards are noted as a metadata maintenance cost; tracking DCAT-AP's evolution is not stated."}},
+{"atom_id": "Req-11.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 3] 2 Metadata schemas for National Access Points", "quote": "defines a minimum set of metadata which, according to its authors, should be supported in all the NAP implementations."},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 4] 2 Metadata schemas for National Access Points", "quote": "Using the Coordinated Metadata Catalogue schema allows harmonising those NAP schemas onto a unified schema, as all the basic information contained in the assets coming from the three different NAPs can be represented."},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 4] 3.1 Configuring metadata ingestion", "quote": "We decided to use the Coordinated Metadata Catalogue as an intermediate model to ease the definition of mappings between the metadata schemas."}],
+ "rationale": "The CMC is presented as the NAP-specific minimum metadata set able to represent NAP assets, so its elements are the reference to review."}},
+{"atom_id": "Req-12.1", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "No input mentions DCAT-AP extensions such as GeoDCAT-AP."}},
+{"atom_id": "Req-12.2", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "INSPIRE metadata specifications are not mentioned in these inputs."}},
+{"atom_id": "Req-13.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 3] 2 Metadata schemas for National Access Points", "quote": "Such principle led to the appearance of different metadata vocabularies, and the need for interoperability between the metadata schemas adopted by different NAPs."},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 3] 2 Metadata schemas for National Access Points", "quote": "they all feature different metadata schemas, and even basic information describing who is responsible for the asset is not represented in the same way."}],
+ "rationale": "Interoperability with the differing vocabularies of operational NAPs is required; controlled vocabularies (code lists) are not specifically addressed."}},
+{"atom_id": "Req-14.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/fair-cost-benefit-2018.pdf", "locator": "[page 39] Annex I, Table 7 (R1)", "quote": "rather should provide as many attributes as possible, beyond those required for their anticipated downstream use."},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 1] 1 Introduction", "quote": "Multimodal Travel Information (MMTIS) (all modes like train, busses, metro, cycling etc.)"},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 1] 1 Introduction", "quote": "In the transportation domain, several data and metadata catalogs coexist, each one being maintained by a different initiative or mandated by a specific EU directive or country law."}],
+ "rationale": "Many-attribute metadata and the variety of NAP data domains are supported; growth in the number of mobility datasets is not mentioned."}},
+{"atom_id": "Req-15.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 3] 2 Metadata schemas for National Access Points", "quote": "defines a minimum set of metadata which, according to its authors, should be supported in all the NAP implementations."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 52] 6.2.2 Metrics and FAIR services: repositories", "quote": "To insist on minimum metadata, ideally with the use of semantic terms"}],
+ "rationale": "A minimum metadata set to be supported by all NAP implementations is described, and minimum metadata is recommended."}},
+{"atom_id": "Req-15.2", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 3] 2 Metadata schemas for National Access Points", "quote": "defines a minimum set of metadata which, according to its authors, should be supported in all the NAP implementations."},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 35] Metadata Object Description Schema (MODS)", "quote": "where additional elements are needed, they can be included within the same description."}],
+ "rationale": "A 'minimum' common NAP set and extension elements imply, but do not state, room for deployment-specific additions."}},
+{"atom_id": "Req-16.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 4] 3.1 Configuring metadata ingestion", "quote": "the Coordinated Metadata Catalogue specification acknowledges the existence of other vocabularies and already provide an alignment to DCAT-AP adopted by the Asset Manager."},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 5] 3.1 Configuring metadata ingestion", "quote": "defining a two-step conceptual mapping, as depicted in Figure 1: first from the specific NAP metadata schema onto Coordinated Metadata Catalogue, and then from that schema onto DCAT-AP."}],
+ "rationale": "The CMC–DCAT-AP alignment exists and is used for mapping; using it to identify what DCAT-AP cannot represent is not stated."}},
+{"atom_id": "Req-17.1", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 6] 4 Conclusions and Future Works", "quote": "we will investigate how to integrate the detection of changes in the metadata acquired from NAPs inside the lifecycle processes of other assets managed by the Asset Manager."},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 34] BIBFRAME example (bf:Annotation)", "quote": "<bf:changeDate>1998-07-21T12:52</bf:changeDate>"}],
+ "rationale": "Detecting changes in NAP metadata is a stated aim and a record change date appears in an example; no timestamp requirement."}},
+{"atom_id": "Req-17.2", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 12] How is Metadata Stored and Shared? XML", "quote": "XML supports multilingualism of metadata by providing a predefined attribute to indicate the language in which an element’s value appears."},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 15] Linked Data and RDF", "quote": "RDF standards allow literals to be marked as being in a specific language or as conforming to a defined data type."}],
+ "rationale": "NISO describes language tagging of metadata values as an encoding capability; stating the metadata language is not required."}},
+{"atom_id": "Req-17.3", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 45] 4.4.3 Trust and Certification", "quote": "Making FAIR data a reality requires determination of who will be responsible at what point of the data lifecycle."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 45] 4.4.3 Trust and Certification", "quote": "specialised data managers will often have an important role to play to assist with data/metadata curation and stewardship."},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 3] 2 Metadata schemas for National Access Points", "quote": "even basic information describing who is responsible for the asset is not represented in the same way."}],
+ "rationale": "Responsibility for metadata curation and for NAP assets is discussed, but recording who maintains a metadata record is not."}},
+{"atom_id": "Req-18.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/fair-cost-benefit-2018.pdf", "locator": "[page 39] Annex I, Table 7 (R1.1)", "quote": "An IRI of the licence (e.g. its URL) for the data licence and for the metadata licence must be provided."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 19] 2.2 Definition of FAIR", "quote": "R1.1. (meta)data are released with a clear and accessible data usage license"}],
+ "rationale": "The FAIR R1.1 metric requires a licence for the metadata as well as for the data."}},
+{"atom_id": "Req-19.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-competency-tasks.json", "locator": "CQ-5", "quote": "Find dataset titles for records published by CRTM."},
+ {"path": "mobilitydcat/input-raw/fair-cost-benefit-2018.pdf", "locator": "[page 38] Annex I, Table 7 (F2)", "quote": "Structured and rich metadata attributes such as title, creator, publication date, keyword(s), temporal and spatial coverage, etc."}],
+ "rationale": "A competency question retrieves dataset titles, and FAIR F2 lists title among discovery attributes."}},
+{"atom_id": "Req-19.2", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 27] Dublin Core (DC)", "quote": "Attendees were tasked with identifying a core set of features common to most types of digital information."},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 27] Dublin Core (DC)", "quote": "These are: contributor, coverage, creator, date, description, format, identifier, language, publisher, relation, rights, source, subject, title, and type."}],
+ "rationale": "Description appears only in NISO's account of the Dublin Core core element set, not as a stated need."}},
+{"atom_id": "Req-19.3", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 5] 3.2 Accessing metadata from the Asset Manager", "quote": "the journey planning asset type, which can be used to describe either datasets containing timetables or services"},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 27] Dublin Core (DC)", "quote": "These are: contributor, coverage, creator, date, description, format, identifier, language, publisher, relation, rights, source, subject, title, and type."}],
+ "rationale": "NAP items may be datasets or services and Dublin Core lists 'type', but stating the resource type is never required."}},
+{"atom_id": "Req-19.4", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-competency-tasks.json", "locator": "CQ-3", "quote": "Find operational datasets containing vehicle details under categories A-1.1.d.viii and A-1.2.c.ii."},
+ {"path": "mobilitydcat/input-raw/sprint-competency-tasks.json", "locator": "CQ-4", "quote": "Find special-fare-product datasets under category A-1.3.a.iii."}],
+ "rationale": "Competency questions select datasets by dataset-category codes."}},
+{"atom_id": "Req-19.5", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 1] 1 Introduction", "quote": "According to the EU Delegated Regulations 2017/1926, 885/2013, 886/2013 and 2015/962, each EU member state has to implement a National Access Points (NAP)"},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 5] 3.2 Accessing metadata from the Asset Manager", "quote": "the journey planning asset type, which can be used to describe either datasets containing timetables or services"}],
+ "rationale": "Regulation 2017/1926 and timetable services are mentioned, but no service-type categorisation is required."}},
+{"atom_id": "Req-19.6", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 27] Dublin Core (DC)", "quote": "These are: contributor, coverage, creator, date, description, format, identifier, language, publisher, relation, rights, source, subject, title, and type."},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 33] Bibliographic Framework Initiative (BIBFRAME)", "quote": "Metadata about titles, creators, topics, genres, form, language, production, edition, physical characteristics, identifiers, notes, relationships to other resources, and holdings in a specific library are all provided for in BIBFRAME."}],
+ "rationale": "Resource language appears only in descriptions of existing standards (Dublin Core, BIBFRAME), not as a stated need."}},
+{"atom_id": "Req-19.7", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "No input mentions georeferencing methods within data payloads."}},
+{"atom_id": "Req-20.1", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 1] 1 Introduction", "quote": "A NAP is a web-based portal handling data concerning Safe and Secure Truck Parking’s (SSTP), Real-Time Traffic Information (road) (RTTI)"},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 1] 1 Introduction", "quote": "According to the EU Delegated Regulations 2017/1926, 885/2013, 886/2013 and 2015/962, each EU member state has to implement a National Access Points (NAP)"}],
+ "rationale": "NAP data falls under several delegated regulations, but indicating the applicable regulation per dataset is not stated."}},
+{"atom_id": "Req-21.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 12] 1.3 Technical ecosystem for FAIR data", "quote": "the development, refinement and adoption of shared vocabularies, ontologies, metadata specifications and standards which are central to interoperability and reuse at scale"},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 12] 1.3 Technical ecosystem for FAIR data", "quote": "The first of these requires more concerted, coordinated and better resourced community efforts."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 41] 4.3 Data standards, metadata standards, vocabularies and ontologies", "quote": "There remains a need for concerted efforts from research communities to establish and implement more effective processes for community development, endorsement and adoption of ontologies and vocabularies."}],
+ "rationale": "Coordinated community development of shared vocabularies is called for; their use for describing dataset content is implicit."}},
+{"atom_id": "Req-21.2", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 41] 4.3 Data standards, metadata standards, vocabularies and ontologies", "quote": "the structural and semantic objects that are needed for interoperability and re-use are scattered, rather than being registered to make them easily findable and accessible"},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 41] 4.3 Data standards, metadata standards, vocabularies and ontologies", "quote": "What is missing is a systemic approach that allows interested researchers - and in particular machines - to easily find, access and reuse them."}],
+ "rationale": "Vocabularies should be registered in findable, accessible places rather than scattered; hosting them within the profile is not stated."}},
+{"atom_id": "Req-21.3", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 41] 4.3 Data standards, metadata standards, vocabularies and ontologies", "quote": "they remain dramatically underused in current practice for a variety of reasons, relating to the diversity of ontologies available, the challenge of establishing mappings between different expressions of a concept, the need to update concepts as domains evolve"},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 58] 7.3 Sustainability of FAIR ecosystem components", "quote": "We need a more structured mechanism for defining what is widely adopted by different domains and research communities, as well as ways to refine, integrate and sustain them."},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 21] Controlled vocabularies", "quote": "Those developed and maintained by the cultural heritage community, such as LCSH, tend to be among the most robust controlled vocabularies in common use."}],
+ "rationale": "Vocabularies must be updated as domains evolve and sustained over time; maintained vocabularies are cited as the most robust."}},
+{"atom_id": "Req-21.4", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 41] 4.3 Data standards, metadata standards, vocabularies and ontologies", "quote": "Large ontologies are meant to capture the semantics of a scientific (sub)field but they are often static due to their complexity and thus underused."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 41] 4.3 Data standards, metadata standards, vocabularies and ontologies", "quote": "the need to update concepts as domains evolve"},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 23] Schema.org", "quote": "It also promotes the use of extensions to expand the vocabulary for use by specialized communities."}],
+ "rationale": "Static vocabularies are criticised, concepts must evolve with domains, and vocabulary extension for specialised communities is cited."}},
+{"atom_id": "Req-21.5", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 21] Controlled vocabularies", "quote": "Controlled vocabularies typically have in scope only a single language, though large communities occasionally work to link existing controlled vocabularies in different languages or define new controlled vocabularies to bring together terms from different languages."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 41] 4.3 Data standards, metadata standards, vocabularies and ontologies", "quote": "It applies Wikipedia’s collaborative approach to the construction and maintenance of a multilingual and essentially FAIR knowledge graph"}],
+ "rationale": "Multilingual vocabularies are described as existing practice; translating a vocabulary into local languages is not stated as a need."}},
+{"atom_id": "Req-22.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-competency-tasks.json", "locator": "CQ-9", "quote": "Retrieve the beginning and end of a dataset validity interval."}],
+ "rationale": "A competency question requires the start and end of a dataset's validity interval."}},
+{"atom_id": "Req-23.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-competency-tasks.json", "locator": "CQ-6", "quote": "Find datasets covering Madrid and bus transport together."},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 3] 2 Metadata schemas for National Access Points", "quote": "Also, spatial information about the covered area is provided, allowing for geographical queries."}],
+ "rationale": "Spatial coverage is queried in a competency question and recorded in NAP schemas."}},
+{"atom_id": "Req-23.2", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-competency-tasks.json", "locator": "CQ-6", "quote": "Find datasets covering Madrid and bus transport together."},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 3] 2 Metadata schemas for National Access Points", "quote": "The metadata schema is quite rich and contains multi-lingual documentation, geographical coverage"}],
+ "rationale": "Geographic coverage is supported; the distinct notion of regions where a dataset is valid is not."}},
+{"atom_id": "Req-23.3", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "Transport network coverage and functional road classifications are not mentioned in these inputs."}},
+{"atom_id": "Req-24.1", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "Location referencing methods are not mentioned in these inputs."}},
+{"atom_id": "Req-24.2", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "Coordinate reference systems are not mentioned in these inputs."}},
+{"atom_id": "Req-25.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-competency-tasks.json", "locator": "CQ-10", "quote": "Identify the transport modes represented by a dataset."},
+ {"path": "mobilitydcat/input-raw/sprint-competency-tasks.json", "locator": "CQ-6", "quote": "Find datasets covering Madrid and bus transport together."}],
+ "rationale": "Competency questions require the transport modes a dataset represents."}},
+{"atom_id": "Req-25.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 2] 1 Introduction", "quote": "Creating such mobility packages means locating and accessing timetables of multiple transport operators."},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 3] 2 Metadata schemas for National Access Points", "quote": "contains multi-lingual documentation, geographical coverage, and both contact person and responsible transport operator."}],
+ "rationale": "Users must locate timetables per transport operator, and NAP schemas record the responsible transport operator."}},
+{"atom_id": "Req-26.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-competency-tasks.json", "locator": "CQ-5", "quote": "Find dataset titles for records published by CRTM."},
+ {"path": "mobilitydcat/input-raw/sprint-competency-tasks.json", "locator": "CQ-7", "quote": "Order dataset publishers using their website addresses."},
+ {"path": "mobilitydcat/input-raw/sprint-competency-tasks.json", "locator": "CQ-1", "quote": "Identify the providers of datasets about public-transport modes."}],
+ "rationale": "Competency questions identify and order dataset publishers and providers."}},
+{"atom_id": "Req-26.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-competency-tasks.json", "locator": "CQ-2", "quote": "Identify the owners of datasets describing public-transport modes."},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 3] 2 Metadata schemas for National Access Points", "quote": "an owner transport operator company"}],
+ "rationale": "A competency question asks for dataset owners, and the Dutch NAP schema records an owner operator."}},
+{"atom_id": "Req-27.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-competency-tasks.json", "locator": "CQ-11", "quote": "Determine the licence governing use of a dataset."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 19] 2.2 Definition of FAIR", "quote": "R1.1. (meta)data are released with a clear and accessible data usage license"}],
+ "rationale": "A competency question and FAIR R1.1 require the licence governing data use."}},
+{"atom_id": "Req-27.2", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 45] 4.5 Automatic processing at scale", "quote": "The metadata must also include formal statements about who is allowed to use the data and for what purposes."},
+ {"path": "mobilitydcat/input-raw/fair-cost-benefit-2018.pdf", "locator": "[page 10] 1.3 FAIR versus open research data", "quote": "Explicitly define the conditions under which they may be reused; and"}],
+ "rationale": "Usage conditions must be stated in metadata; contracts as a specific type of condition are not mentioned."}},
+{"atom_id": "Req-27.3", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 19] 2.2 Definition of FAIR", "quote": "Accessibility means that the human or machine is provided - through metadata - with the precise conditions by which the data are accessible"},
+ {"path": "mobilitydcat/input-raw/fair-cost-benefit-2018.pdf", "locator": "[page 10] 1.3 FAIR versus open research data", "quote": "Explicitly define the conditions under which they may be reused"},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 45] 4.5 Automatic processing at scale", "quote": "The metadata must also include formal statements about who is allowed to use the data and for what purposes."}],
+ "rationale": "Metadata must convey the precise conditions for access and reuse."}},
+{"atom_id": "Req-28.1", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 10] Types of Metadata", "quote": "technical metadata, information about digital files necessary to decode and render them, such as file type"}],
+ "rationale": "Technical metadata for decoding files is described generally; the character encoding of data is not mentioned."}},
+{"atom_id": "Req-28.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-competency-tasks.json", "locator": "CQ-12", "quote": "Determine the available access format for a dataset."}],
+ "rationale": "A competency question requires the format in which a dataset can be accessed."}},
+{"atom_id": "Req-28.3", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "Describing the grammar or schema language of the data is not mentioned in these inputs."}},
+{"atom_id": "Req-28.4", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 3] 2 Metadata schemas for National Access Points", "quote": "The main focus of the NAP regulations is to promote the usage of a specific set of standards, based on Transmodel, across all Europe to improve transport data interoperability."},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 3] 2 Metadata schemas for National Access Points", "quote": "This National Access Point supports NeTEx representation of static transport data"}],
+ "rationale": "NAP data follow Transmodel-based standards such as NeTEx, but recording a dataset's data model in metadata is not stated."}},
+{"atom_id": "Req-29.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 22] 2.4.3 Assessability", "quote": "It is important to provide information that allows potential (re)users to judge the accuracy, reliability and quality of the data, and to determine whether these data meet their needs."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 40] 4.3 Data standards, metadata standards, vocabularies and ontologies", "quote": "Schemas (for data or metadata structure), ontologies, vocabularies and category definitions, which are the basis of interoperability and re-use, should also be made FAIR, with stable references"}],
+ "rationale": "Users must judge fitness before use and data schemas should be referenceable; a schema element in dataset metadata is not stated."}},
+{"atom_id": "Req-29.2", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 22] 2.4.3 Assessability", "quote": "It is important to provide information that allows potential (re)users to judge the accuracy, reliability and quality of the data, and to determine whether these data meet their needs."},
+ {"path": "mobilitydcat/input-raw/fair-cost-benefit-2018.pdf", "locator": "[page 22] 2.4.1.3 Integration of the data", "quote": "enabling a human or a machine to “decide if the data is actually useful in a particular context”"}],
+ "rationale": "Pre-use evaluation of data is a stated purpose, but data samples are never mentioned."}},
+{"atom_id": "Req-30.1", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "Versions of data models or standards such as DATEX II are not mentioned in these inputs."}},
+{"atom_id": "Req-30.2", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "Publication types of data models are not mentioned in these inputs."}},
+{"atom_id": "Req-30.3", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "Extensions of data models are not mentioned in these inputs."}},
+{"atom_id": "Req-31.1", "raw": {"label": "unsupported", "sources": [],
+ "rationale": "The update frequency of datasets is not mentioned in these inputs."}},
+{"atom_id": "Req-31.2", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 22] 2.4.3 Assessability", "quote": "The rich metadata and provenance information required to achieve Reusability should include details that address data assessability."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 22] 2.4.3 Assessability", "quote": "It is important to provide information that allows potential (re)users to judge the accuracy, reliability and quality of the data"}],
+ "rationale": "Metadata should carry information letting users judge data accuracy, reliability and quality."}},
+{"atom_id": "Req-31.3", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-competency-tasks.json", "locator": "CQ-8", "quote": "Retrieve metadata and national-body assessment status for a selected dataset."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 52] 6.2.1 Metrics and FAIR data", "quote": "Since ratings could alter over time, assessments should be time stamped."}],
+ "rationale": "National-body assessment status is queried and time-stamped assessments are urged; the history of assessment procedures is not required."}},
+{"atom_id": "Req-31.4", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-competency-tasks.json", "locator": "CQ-8", "quote": "Retrieve metadata and national-body assessment status for a selected dataset."}],
+ "rationale": "A competency question retrieves the national-body assessment status of a dataset."}},
+{"atom_id": "Req-32.1", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 20] Standardizing Metadata", "quote": "An XML Schema defines the elements that make up a valid document in that format, along with the attributes each element can take, in what order they can appear, and how many times they can appear."}],
+ "rationale": "NISO notes that schemas define how often elements may appear; no requirement to specify cardinalities is stated."}},
+{"atom_id": "Req-32.2", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 3] 2 Metadata schemas for National Access Points", "quote": "an asset has only a responsible organization and the metadata does not mandate for a contact person."},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 37] Categories for the Description of Works of Art (CDWA)", "quote": "CDWA defines approximately 540 data elements and relationships among them; a smaller number are defined as the core minimum"},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 52] 6.2.2 Metrics and FAIR services: repositories", "quote": "To insist on minimum metadata, ideally with the use of semantic terms"}],
+ "rationale": "Mandatory and core-minimum elements are discussed; recommended and optional obligation levels are not."}},
+{"atom_id": "Req-32.3", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 4] 3.1 Configuring metadata ingestion", "quote": "The first and most important part to configure the NAP metadata ingestion process is understanding the metadata schemas and identify which attributes and data structures can be found in all the different NAPs."}],
+ "rationale": "Harvesting depends on which attributes all NAPs provide, but cardinality rules for NAP deployments are not discussed."}},
+{"atom_id": "Req-32.4", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 5] 3.1 Configuring metadata ingestion", "quote": "obtaining an RDF representation compliant with the DCAT-AP profile"}],
+ "rationale": "Compliance with DCAT-AP is required, but its cardinality rules are not mentioned."}},
+{"atom_id": "Req-33.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 52] 6.2.2 Metrics and FAIR services: repositories", "quote": "To create a policy for deploying PIDs"},
+ {"path": "mobilitydcat/input-raw/fair-cost-benefit-2018.pdf", "locator": "[page 38] Annex I, Table 7 (F1)", "quote": "Presence of an URL linking to a policy that would manage changes in the identifier scheme."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 62] 8.4.1 Rec. 2, Action 2.1", "quote": "The universal use of appropriate PIDs for FAIR Digital Objects needs to be facilitated and implemented."}],
+ "rationale": "Inputs call for policies on deploying PIDs and on managing changes to identifier schemes."}},
+{"atom_id": "Req-34.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 21] Controlled vocabularies", "quote": "In addition to standardizing syntax, metadata designers often wish to standardize metadata through control of the actual values used. One way in which this is done is through the use of controlled vocabularies."},
+ {"path": "mobilitydcat/input-raw/fair-cost-benefit-2018.pdf", "locator": "[page 39] Annex I, Table 7 (I2)", "quote": "The metadata values and qualified relations should themselves be FAIR, for example, terms from open, community-accepted vocabularies"},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 15] Linked Data and RDF", "quote": "Domains and ranges serve a dual purpose: first, to guide implementers as to how a particular property should be used"}],
+ "rationale": "Metadata values should be constrained by vocabularies and property ranges; FAIR I2 requires values from community vocabularies."}},
+{"atom_id": "Req-35.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 6] 4 Conclusions and Future Works", "quote": "we will investigate how to integrate the detection of changes in the metadata acquired from NAPs inside the lifecycle processes of other assets managed by the Asset Manager."},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 6] 4 Conclusions and Future Works", "quote": "it is important to promptly detect the availability of new versions of a remote asset"}],
+ "rationale": "Detecting changes in metadata acquired from NAPs is stated as important."}},
+{"atom_id": "Req-35.2", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 6] 4 Conclusions and Future Works", "quote": "it is important to promptly detect the availability of new versions of a remote asset"},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 39] 4.2.3 Essential components of the FAIR ecosystem", "quote": "copies and versions will be created and in which provenance information, attached to the persistent identifier, will clarify the versioning history of the data."}],
+ "rationale": "Detecting new asset versions and data versioning history are supported; versions of metadata records specifically are not."}},
+{"atom_id": "Req-36.1", "raw": {"label": "supported", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 66] 8.4.1 Rec. 7, Action 7.1", "quote": "Programs need to be funded to make semantic interoperability more practical, including the further development of metadata specifications and standards, vocabularies and ontologies, along with appropriate validation infrastructure."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 62] 8.4.1 Rec. 2, Action 2.3", "quote": "Systems must be refined and implemented to make automatic checks on the existence and accessibility of PIDs, metadata, a licence or waiver, and code"},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 49] Appendix: Resources, Projects to Watch", "quote": "A W3C working group to define methods for defining structural constraints and validation methods for RDF graphs."}],
+ "rationale": "Metadata specifications should come with validation infrastructure, and automatic checks of metadata are required."}},
+{"atom_id": "Req-37.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 40] 4.2.3 Essential components of the FAIR ecosystem", "quote": "whether the scheme is accessible and the elements are semantically defined in open registries"},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 22] Content standards", "quote": "content standards, which are sets of guidelines that dictate how textual values in metadata should be structured."},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 20] Standardizing Metadata", "quote": "organizations frequently predefine metadata sets to meet certain needs, and publish these definitions for system designers (and sometimes end users) to consult."}],
+ "rationale": "Element semantics should be defined and published; usage guidelines appear only as described practice (content standards)."}},
+{"atom_id": "Req-37.2", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 6] 4 Conclusions and Future Works", "quote": "The integration of remote metadata providers (such as the NAPs) in the IT systems of a transport operator is an operation which must carefully follow the data quality assurance and the information lifecycle processes defined inside the company."}],
+ "rationale": "Linking NAP metadata to operators' lifecycle processes is discussed; relating metadata elements to NAP processes is not."}},
+{"atom_id": "Req-38.1", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 3] 2 Metadata schemas for National Access Points", "quote": "which are made available as Community resource, which are alternative representations of the same main information described in the asset."},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 38] Visual Resources Association Core (VRA Core)", "quote": "A distinctive feature of the VRA Core is its separation of metadata about the work of art itself and metadata about images of those works."}],
+ "rationale": "Assets with several alternative representations and standards separating work-level from image-level metadata are described; no need for division guidance is stated."}},
+{"atom_id": "Req-39.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 29] 3.2 Developing disciplinary interoperability frameworks for FAIR, Rec. 4", "quote": "To support interdisciplinary research, these interoperability frameworks should be articulated in common ways and adopt global standards where relevant. Intelligent crosswalks, brokering mechanisms and semantic technologies should all be explored to break down silos."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 41] 4.3 Data standards, metadata standards, vocabularies and ontologies", "quote": "there are initiatives to enhance metadata specifications and vocabularies to serve cross-discipline discovery and reuse."},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 3] 1 Introduction", "quote": "like open data portals, multimodal National Access Points, or other instances of the Asset Manager."}],
+ "rationale": "Domain frameworks should interoperate across domains via common standards and crosswalks; NAP-specific interoperability guidelines are not stated."}},
+{"atom_id": "Req-39.2", "raw": {"label": "uncertain", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 40] 4.2.3 Essential components of the FAIR ecosystem", "quote": "There needs also to be a systematic setup for specifying and registering metadata schemas and metadata elements, and for harvesting, mapping and exploiting metadata."},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 35] Metadata Object Description Schema (MODS)", "quote": "If a system that encounters these MODS records understands the namespace for elements used within the extension element, it can index and process that data."},
+ {"path": "mobilitydcat/input-raw/niso-understanding-metadata-2017.pdf", "locator": "[page 21] Standardizing Metadata", "quote": "The best practice of allowing URIs or IRIs to be dereferenced to discover additional information about a subject, object, or predicate is designed to assist software applications in processing data in previously unknown namespaces."}],
+ "rationale": "Harvesting and mapping setups and processing of extension namespaces are described; handling profile extensions during harvesting is not."}},
+{"atom_id": "Req-40.1", "raw": {"label": "partial", "sources": [
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 52] 6.2.1 Metrics and FAIR data", "quote": "Assessments on the FAIRness of data sets should be run by repositories and made public alongside metadata records."},
+ {"path": "mobilitydcat/input-raw/turning-fair-into-reality-2018.pdf", "locator": "[page 74] 8.4.2 Rec. 25, Action 25.3", "quote": "Methodologies for assessing FAIR data need to be piloted and developed into automated tools before they can be applied systematically and in a standardised way by repositories."},
+ {"path": "mobilitydcat/input-raw/sprint-nap-federation-2021.pdf", "locator": "[page 6] 4 Conclusions and Future Works", "quote": "must carefully follow the data quality assurance and the information lifecycle processes defined inside the company"}],
+ "rationale": "Repositories should assess collected datasets with standardised methods; NAP-specific metadata quality-assurance guidelines are not stated."}}
+]

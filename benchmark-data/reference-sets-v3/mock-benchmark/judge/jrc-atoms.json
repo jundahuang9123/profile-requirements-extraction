@@ -1,0 +1,114 @@
+[
+ {
+  "atom_id": "JRC-1.1",
+  "statement": "Identify the authors of a dataset.",
+  "source_passage": "Ability to indicate dataset authors.",
+  "source_wording_of_obligation": "requirement",
+  "status_in_source": "requirement"
+ },
+ {
+  "atom_id": "JRC-2.1",
+  "statement": "Describe the lineage of a dataset.",
+  "source_passage": "Ability to describe data lineage.",
+  "source_wording_of_obligation": "requirement",
+  "status_in_source": "requirement"
+ },
+ {
+  "atom_id": "JRC-3.1",
+  "statement": "Give potential data consumers information on how to use the data (usage notes).",
+  "source_passage": "Ability to give potential data consumers information on how to use the data",
+  "source_wording_of_obligation": "requirement",
+  "status_in_source": "requirement"
+ },
+ {
+  "atom_id": "JRC-4.1",
+  "statement": "Link a dataset to scientific publications about it.",
+  "source_passage": "Ability to link to scientific publications about a dataset.",
+  "source_wording_of_obligation": "requirement",
+  "status_in_source": "requirement"
+ },
+ {
+  "atom_id": "JRC-5.1",
+  "statement": "Link a dataset to its input data (the data used to create it).",
+  "source_passage": "Ability to link to input data (i.e., data used to create a dataset).",
+  "source_wording_of_obligation": "requirement",
+  "status_in_source": "requirement"
+ },
+ {
+  "atom_id": "JRC-6.1",
+  "statement": "Use persistent identifiers for dataset authors and input data, so datasets can be reliably filtered and linked by them.",
+  "source_passage": "a key requirement is the ability to rely on persistent identifiers",
+  "source_wording_of_obligation": "explicit_requirement",
+  "status_in_source": "requirement"
+ },
+ {
+  "atom_id": "JRC-6.2",
+  "statement": "Encode identifiers as HTTP URIs wherever possible.",
+  "source_passage": "it would be desirable to promote the encoding of identifiers as HTTP URIs, whenever possible",
+  "source_wording_of_obligation": "recommendation",
+  "status_in_source": "open_issue"
+ },
+ {
+  "atom_id": "JRC-6.3",
+  "statement": "Distinguish primary identifiers (e.g. DOIs) from alternative ones.",
+  "source_passage": "DCAT-AP already provides a mechanism to model primary and secondary identifiers, as well as the identifier type.",
+  "source_wording_of_obligation": "explicit_requirement",
+  "status_in_source": "requirement"
+ },
+ {
+  "atom_id": "JRC-6.4",
+  "statement": "Use a DOI as the dataset identifier when generating DataCite citations.",
+  "source_passage": "DataCite requires the dataset identifier to be a DOI.",
+  "source_wording_of_obligation": "datacite_condition",
+  "status_in_source": "open_issue"
+ },
+ {
+  "atom_id": "JRC-6.5",
+  "statement": "Qualify each identifier with its scheme or type.",
+  "source_passage": "DCAT-AP already provides a mechanism to model primary and secondary identifiers, as well as the identifier type.",
+  "source_wording_of_obligation": "issue",
+  "status_in_source": "requirement"
+ },
+ {
+  "atom_id": "JRC-7.1",
+  "statement": "Use a minimal, consistent set of unambiguous agent roles beyond publisher and contact point.",
+  "source_passage": "identifying a minimal set of unambiguous roles and promote their use would be preferable",
+  "source_wording_of_obligation": "issue",
+  "status_in_source": "open_issue"
+ },
+ {
+  "atom_id": "JRC-8.1",
+  "statement": "Indicate when a distribution points to a service or API rather than directly to the data.",
+  "source_passage": "Denote distributions as pointing to a service / API, and not directly to the actual data.",
+  "source_wording_of_obligation": "explicit_requirement",
+  "status_in_source": "open_issue"
+ },
+ {
+  "atom_id": "JRC-8.2",
+  "statement": "Describe the API or service interface, with the query parameters needed to select data, so software agents can use it directly.",
+  "source_passage": "Provide a description of the API / service interface, along with the relevant query parameters",
+  "source_wording_of_obligation": "explicit_requirement",
+  "status_in_source": "open_issue"
+ },
+ {
+  "atom_id": "JRC-9.1",
+  "statement": "Describe provenance in enough detail to support reproducibility and to track how data are used.",
+  "source_passage": "The objectives include (a) data reproducibility and (b) ability to track the usage of data",
+  "source_wording_of_obligation": "under_investigation",
+  "status_in_source": "open_issue"
+ },
+ {
+  "atom_id": "JRC-10.1",
+  "statement": "Describe data quality assessments of a dataset.",
+  "source_passage": null,
+  "source_wording_of_obligation": "under_investigation",
+  "status_in_source": "open_issue"
+ },
+ {
+  "atom_id": "JRC-10.2",
+  "statement": "Include users' feedback on the data as quality information.",
+  "source_passage": "it potentially includes the integration of users' feedback as part of the meta/data management life-cycle.",
+  "source_wording_of_obligation": "under_investigation",
+  "status_in_source": "open_issue"
+ }
+]

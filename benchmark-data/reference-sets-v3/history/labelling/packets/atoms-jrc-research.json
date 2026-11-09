@@ -1,0 +1,138 @@
+[
+ {
+  "atom_id": "JRC-1.1",
+  "row_statement": "Identify the people who created a dataset.",
+  "statement": "Identify the authors of a dataset.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "JRC-2.1",
+  "row_statement": "Describe the origin and processing history of data.",
+  "statement": "Describe the lineage of a dataset.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "The paper: \"Points (2) (data lineage) and (5) (input data) are already supported by DCAT-AP\"."
+ },
+ {
+  "atom_id": "JRC-3.1",
+  "row_statement": "Give prospective users practical guidance on using a dataset.",
+  "statement": "Give potential data consumers information on how to use the data (usage notes).",
+  "stratum": "content",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "JRC-4.1",
+  "row_statement": "Connect datasets to associated scientific publications.",
+  "statement": "Link a dataset to scientific publications about it.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "JRC-5.1",
+  "row_statement": "Identify source datasets used in producing a dataset.",
+  "statement": "Link a dataset to its input data (the data used to create it).",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "The paper: \"Points (2) (data lineage) and (5) (input data) are already supported by DCAT-AP\"."
+ },
+ {
+  "atom_id": "JRC-6.1",
+  "row_statement": "Give datasets persistent identifiers, encoded as HTTP URIs where possible, and tell primary identifiers (e.g. DOIs) from alternative ones.",
+  "statement": "Use persistent identifiers for dataset authors and input data, so datasets can be reliably filtered and linked by them.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": "Context: filtering datasets by authors or input data; JRC datasets already have persistent URIs and ORCIDs are used for authors."
+ },
+ {
+  "atom_id": "JRC-6.2",
+  "row_statement": "Give datasets persistent identifiers, encoded as HTTP URIs where possible, and tell primary identifiers (e.g. DOIs) from alternative ones.",
+  "statement": "Encode identifiers as HTTP URIs wherever possible.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "JRC-6.3",
+  "row_statement": "Give datasets persistent identifiers, encoded as HTTP URIs where possible, and tell primary identifiers (e.g. DOIs) from alternative ones.",
+  "statement": "Distinguish primary identifiers (e.g. DOIs) from alternative ones.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": "Met by the base: dct:identifier for primary and adms:identifier for alternative identifiers."
+ },
+ {
+  "atom_id": "JRC-6.4",
+  "row_statement": "Give datasets persistent identifiers, encoded as HTTP URIs where possible, and tell primary identifiers (e.g. DOIs) from alternative ones.",
+  "statement": "Use a DOI as the dataset identifier when generating DataCite citations.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": "A DataCite rule the paper reports for citation generation."
+ },
+ {
+  "atom_id": "JRC-6.5",
+  "row_statement": "Give datasets persistent identifiers, encoded as HTTP URIs where possible, and tell primary identifiers (e.g. DOIs) from alternative ones.",
+  "statement": "Qualify each identifier with its scheme or type.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": "Met by the base (adms:Identifier carries the scheme); the paper questions this modelling because such identifiers are of little use for linking."
+ },
+ {
+  "atom_id": "JRC-7.1",
+  "row_statement": "Express the roles that agents play for a dataset beyond publisher and contact point, consistently across catalogues.",
+  "statement": "Use a minimal, consistent set of unambiguous agent roles beyond publisher and contact point.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "JRC-8.1",
+  "row_statement": "Indicate when a distribution gives access through a service or API rather than to the data itself, and describe the service interface with the query parameters needed to select data.",
+  "statement": "Indicate when a distribution points to a service or API rather than directly to the data.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": "dct:type, not a distribution property in DCAT-AP 1.1, used on the distribution."
+ },
+ {
+  "atom_id": "JRC-8.2",
+  "row_statement": "Indicate when a distribution gives access through a service or API rather than to the data itself, and describe the service interface with the query parameters needed to select data.",
+  "statement": "Describe the API or service interface, with the query parameters needed to select data, so software agents can use it directly.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": "Claude v2 had only \"which service standard it follows\"; completed from PR #45."
+ },
+ {
+  "atom_id": "JRC-9.1",
+  "row_statement": "Describe provenance in enough detail to support reproducibility and to track how data are used.",
+  "statement": "Describe provenance in enough detail to support reproducibility and to track how data are used.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "JRC-10.1",
+  "row_statement": "Describe data quality assessments and include users' feedback on the data.",
+  "statement": "Describe data quality assessments of a dataset.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "JRC-10.2",
+  "row_statement": "Describe data quality assessments and include users' feedback on the data.",
+  "statement": "Include users' feedback on the data as quality information.",
+  "stratum": "content",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ },
+ {
+  "atom_id": "JRC-11.1",
+  "row_statement": "Publish metadata on the Web so that the data are visible and discoverable through search engines.",
+  "statement": "Publish metadata on the Web so that the data are visible and discoverable through search engines.",
+  "stratum": "system",
+  "applicability": "Within the cited source scope; not an assertion of universal applicability.",
+  "notes": ""
+ }
+]

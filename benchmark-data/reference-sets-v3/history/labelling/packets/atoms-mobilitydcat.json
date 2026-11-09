@@ -1,0 +1,786 @@
+[
+ {
+  "atom_id": "Req-1.1",
+  "row_statement": "Use sufficiently expressive, context-aware and modular descriptions with explicit structure, types and rules; distinguish entity identities, preserve references, and support persistent identifiers.",
+  "statement": "Make metadata descriptions expressive.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-1.2",
+  "row_statement": "Use sufficiently expressive, context-aware and modular descriptions with explicit structure, types and rules; distinguish entity identities, preserve references, and support persistent identifiers.",
+  "statement": "Make metadata descriptions rich.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": "In Table 1; missing from the v1 paraphrase and the PR #45 draft."
+ },
+ {
+  "atom_id": "Req-1.3",
+  "row_statement": "Use sufficiently expressive, context-aware and modular descriptions with explicit structure, types and rules; distinguish entity identities, preserve references, and support persistent identifiers.",
+  "statement": "Describe the data adequately.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": "In Table 1; missing from the v1 paraphrase and the PR #45 draft."
+ },
+ {
+  "atom_id": "Req-1.4",
+  "row_statement": "Use sufficiently expressive, context-aware and modular descriptions with explicit structure, types and rules; distinguish entity identities, preserve references, and support persistent identifiers.",
+  "statement": "Support easy access to the data.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": "In Table 1; missing from the v1 paraphrase and the PR #45 draft."
+ },
+ {
+  "atom_id": "Req-1.5",
+  "row_statement": "Use sufficiently expressive, context-aware and modular descriptions with explicit structure, types and rules; distinguish entity identities, preserve references, and support persistent identifiers.",
+  "statement": "Make metadata descriptions context-sensitive.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-1.6",
+  "row_statement": "Use sufficiently expressive, context-aware and modular descriptions with explicit structure, types and rules; distinguish entity identities, preserve references, and support persistent identifiers.",
+  "statement": "Make metadata descriptions modular.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-1.7",
+  "row_statement": "Use sufficiently expressive, context-aware and modular descriptions with explicit structure, types and rules; distinguish entity identities, preserve references, and support persistent identifiers.",
+  "statement": "Give metadata descriptions a detailed structure.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-1.8",
+  "row_statement": "Use sufficiently expressive, context-aware and modular descriptions with explicit structure, types and rules; distinguish entity identities, preserve references, and support persistent identifiers.",
+  "statement": "Use strong typing and rules in metadata descriptions.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": "\"strong typing and ruling\" is one item of the Table 1 list."
+ },
+ {
+  "atom_id": "Req-1.9",
+  "row_statement": "Use sufficiently expressive, context-aware and modular descriptions with explicit structure, types and rules; distinguish entity identities, preserve references, and support persistent identifiers.",
+  "statement": "Keep referential integrity.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": "PR #45 clause \"Distinguish entity identities\" has no counterpart in Table 1 and is folded into referential integrity."
+ },
+ {
+  "atom_id": "Req-1.10",
+  "row_statement": "Use sufficiently expressive, context-aware and modular descriptions with explicit structure, types and rules; distinguish entity identities, preserve references, and support persistent identifiers.",
+  "statement": "Enable persistent identifiers.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-2.1",
+  "row_statement": "Make data findable and reusable; provide a basis for NAP metadata databases, describe catalogues, data and their delivery options, and support metadata federation.",
+  "statement": "Make datasets discoverable and searchable.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-2.2",
+  "row_statement": "Make data findable and reusable; provide a basis for NAP metadata databases, describe catalogues, data and their delivery options, and support metadata federation.",
+  "statement": "Make datasets reusable.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-2.3",
+  "row_statement": "Make data findable and reusable; provide a basis for NAP metadata databases, describe catalogues, data and their delivery options, and support metadata federation.",
+  "statement": "Serve as a baseline for developing a NAP metadata database.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-2.4",
+  "row_statement": "Make data findable and reusable; provide a basis for NAP metadata databases, describe catalogues, data and their delivery options, and support metadata federation.",
+  "statement": "Allow a detailed description of the registry (catalogue).",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-2.5",
+  "row_statement": "Make data findable and reusable; provide a basis for NAP metadata databases, describe catalogues, data and their delivery options, and support metadata federation.",
+  "statement": "Allow a detailed description of its datasets.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-2.6",
+  "row_statement": "Make data findable and reusable; provide a basis for NAP metadata databases, describe catalogues, data and their delivery options, and support metadata federation.",
+  "statement": "Allow a detailed description of their distributions and/or data services.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-2.7",
+  "row_statement": "Make data findable and reusable; provide a basis for NAP metadata databases, describe catalogues, data and their delivery options, and support metadata federation.",
+  "statement": "Allow aggregation and exchange of metadata.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-3.1",
+  "row_statement": "Expose descriptions in forms suitable for people and software.",
+  "statement": "Provide the metadata in a human-readable format.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": "\"both\": human- and machine-readable formats are cumulative."
+ },
+ {
+  "atom_id": "Req-3.2",
+  "row_statement": "Expose descriptions in forms suitable for people and software.",
+  "statement": "Provide the metadata in a machine-readable format.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-4.1",
+  "row_statement": "Accommodate descriptions in several languages.",
+  "statement": "Provide metadata information in multiple languages.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-5.1",
+  "row_statement": "Use shared vocabularies so participants interpret metadata consistently.",
+  "statement": "Adopt a standardised set of vocabularies to ensure semantic interoperability.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-6.1",
+  "row_statement": "Use a common serialization that software agents can process automatically.",
+  "statement": "Adopt a standard format or serialisation, for technological interoperability and automated access by software agents.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-7.1",
+  "row_statement": "Publish freely accessible documentation on the Web and, where feasible, provide digitally annotated repository documentation.",
+  "statement": "Make the documentation publicly available on the Web without proprietary licences.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-7.2",
+  "row_statement": "Publish freely accessible documentation on the Web and, where feasible, provide digitally annotated repository documentation.",
+  "statement": "Where possible, annotate the documentation digitally in a public repository.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-8.1",
+  "row_statement": "Establish governance and revision procedures, public issue discussion and release planning, and incorporate resolved changes in later versions.",
+  "statement": "Define governance processes for maintaining the profile.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-8.2",
+  "row_statement": "Establish governance and revision procedures, public issue discussion and release planning, and incorporate resolved changes in later versions.",
+  "statement": "Define a revision methodology for the profile.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-8.3",
+  "row_statement": "Establish governance and revision procedures, public issue discussion and release planning, and incorporate resolved changes in later versions.",
+  "statement": "Allow public commenting on the profile's development.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-8.4",
+  "row_statement": "Establish governance and revision procedures, public issue discussion and release planning, and incorporate resolved changes in later versions.",
+  "statement": "Provide an issues and releases planning tool.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-8.5",
+  "row_statement": "Establish governance and revision procedures, public issue discussion and release planning, and incorporate resolved changes in later versions.",
+  "statement": "Have the authors discuss and resolve issues and proposals and incorporate them into follow-up releases.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-9.1",
+  "row_statement": "Build on DCAT-AP terms when suitable and follow its extension rules for additions.",
+  "statement": "Reuse DCAT-AP classes and properties where possible.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-9.2",
+  "row_statement": "Build on DCAT-AP terms when suitable and follow its extension rules for additions.",
+  "statement": "Add any further classes and properties according to the DCAT-AP extension rules.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-10.1",
+  "row_statement": "Account for subsequent changes to the DCAT-AP baseline.",
+  "statement": "Follow the ongoing evolution of DCAT-AP, considering its developments and revisions.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-11.1",
+  "row_statement": "Review the complete CMC element set against mobility catalogue needs.",
+  "statement": "Consider all CMC metadata elements, to identify metadata that better fit the specific requirements of NAPs.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-12.1",
+  "row_statement": "Account for other DCAT-AP profiles and INSPIRE metadata practice.",
+  "statement": "Consider existing DCAT-AP extensions (e.g. GeoDCAT-AP for geospatial data).",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-12.2",
+  "row_statement": "Account for other DCAT-AP profiles and INSPIRE metadata practice.",
+  "statement": "Consider the metadata specifications of the INSPIRE Directive.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-13.1",
+  "row_statement": "Preserve interoperability with code lists already deployed by NAP operators.",
+  "statement": "When defining controlled vocabularies, take into account the vocabularies already used in operational NAPs, for interoperability with existing solutions.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-14.1",
+  "row_statement": "Describe the varied mobility domain in enough detail to distinguish its growing dataset inventory.",
+  "statement": "Provide exhaustive metadata descriptions for mobility data, given the growing number and variety of mobility datasets.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": "Umbrella goal realised by the mobility-specific content atoms; kept out of the content stratum to avoid double counting."
+ },
+ {
+  "atom_id": "Req-15.1",
+  "row_statement": "Define a common essential element set while permitting deployment-specific additions.",
+  "statement": "Propose essential metadata elements relevant to any NAP, as a minimum set of metadata for European NAPs.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-15.2",
+  "row_statement": "Define a common essential element set while permitting deployment-specific additions.",
+  "statement": "Allow further metadata elements in individual NAP deployments.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-16.1",
+  "row_statement": "Examine the established CMC/DCAT-AP correspondences to identify unrepresented information.",
+  "statement": "Use the canonical mappings between DCAT-AP and the CMC to identify information that DCAT-AP cannot yet represent.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-17.1",
+  "row_statement": "Record creation and revision times, description language, and responsibility for maintaining a metadata record.",
+  "statement": "Record the date and time a metadata record was created or last modified.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "Table 1 names one timestamp (\"created or last modified\"); dct:modified on the catalogue record serves it. mobilityDCAT-AP also imports dct:created."
+ },
+ {
+  "atom_id": "Req-17.2",
+  "row_statement": "Record creation and revision times, description language, and responsibility for maintaining a metadata record.",
+  "statement": "State the language in which the metadata are written.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "Record language raised to mandatory."
+ },
+ {
+  "atom_id": "Req-17.3",
+  "row_statement": "Record creation and revision times, description language, and responsibility for maintaining a metadata record.",
+  "statement": "Identify who is responsible for creating and maintaining the metadata.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "Publisher placed on the catalogue record."
+ },
+ {
+  "atom_id": "Req-18.1",
+  "row_statement": "State how the metadata record itself may be reused.",
+  "statement": "Describe the conditions of use of the metadata itself.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "The catalogue licence (dct:license) covers reuse of the metadata."
+ },
+ {
+  "atom_id": "Req-19.1",
+  "row_statement": "Characterise the data using a title and synopsis, resource kind, dataset and service classifications including MMTIS service categories, language and payload georeferencing.",
+  "statement": "Give the name of a resource.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "dct:title, mandatory in DCAT-AP."
+ },
+ {
+  "atom_id": "Req-19.2",
+  "row_statement": "Characterise the data using a title and synopsis, resource kind, dataset and service classifications including MMTIS service categories, language and payload georeferencing.",
+  "statement": "Give a brief description of a resource.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "dct:description, mandatory in DCAT-AP."
+ },
+ {
+  "atom_id": "Req-19.3",
+  "row_statement": "Characterise the data using a title and synopsis, resource kind, dataset and service classifications including MMTIS service categories, language and payload georeferencing.",
+  "statement": "State the type of resource (dataset or service).",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "DCAT-AP distinguishes datasets and data services by class; the CMC \"resource type\" element is not used in mobilityDCAT-AP 1.0.0."
+ },
+ {
+  "atom_id": "Req-19.4",
+  "row_statement": "Characterise the data using a title and synopsis, resource kind, dataset and service classifications including MMTIS service categories, language and payload georeferencing.",
+  "statement": "Give the dataset type category, by logical clustering or by the EC Delegated Regulations.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "mobilitydcatap:mobilityTheme (sub-property of dcat:theme)."
+ },
+ {
+  "atom_id": "Req-19.5",
+  "row_statement": "Characterise the data using a title and synopsis, resource kind, dataset and service classifications including MMTIS service categories, language and payload georeferencing.",
+  "statement": "Give the service type category listed in Delegated Regulation (EU) 2017/1926.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "mobilitydcatap:intendedInformationService."
+ },
+ {
+  "atom_id": "Req-19.6",
+  "row_statement": "Characterise the data using a title and synopsis, resource kind, dataset and service classifications including MMTIS service categories, language and payload georeferencing.",
+  "statement": "State the language of a resource.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "dct:language as in the base."
+ },
+ {
+  "atom_id": "Req-19.7",
+  "row_statement": "Characterise the data using a title and synopsis, resource kind, dataset and service classifications including MMTIS service categories, language and payload georeferencing.",
+  "statement": "Describe the georeferencing method applied within the payload.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "mobilitydcatap:georeferencingMethod."
+ },
+ {
+  "atom_id": "Req-20.1",
+  "row_statement": "Indicate which ITS delegated regulations apply to a resource.",
+  "statement": "Indicate which Delegated Regulation (MMTIS, RTTI, SRTI, SSTP) covers a dataset or service.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "dcatap:applicableLegislation is not in DCAT-AP 2.0.1 (taken from DCAT-AP HVD)."
+ },
+ {
+  "atom_id": "Req-21.1",
+  "row_statement": "Coordinate, host, maintain and extend multilingual code lists for describing dataset and service content.",
+  "statement": "Support the coordinated development of a controlled vocabulary for describing dataset and service content.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-21.2",
+  "row_statement": "Coordinate, host, maintain and extend multilingual code lists for describing dataset and service content.",
+  "statement": "Host the controlled vocabulary within the profile.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-21.3",
+  "row_statement": "Coordinate, host, maintain and extend multilingual code lists for describing dataset and service content.",
+  "statement": "Maintain the controlled vocabulary.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-21.4",
+  "row_statement": "Coordinate, host, maintain and extend multilingual code lists for describing dataset and service content.",
+  "statement": "Keep the controlled vocabulary extendable.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-21.5",
+  "row_statement": "Coordinate, host, maintain and extend multilingual code lists for describing dataset and service content.",
+  "statement": "Allow the controlled vocabulary to be translated into local languages, for harmonisation.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-22.1",
+  "row_statement": "Represent the interval over which the published data remain valid.",
+  "statement": "Describe the period in which the published data do not expire.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "dct:temporal read as validity time and added to the distribution. The source wording is ambiguous."
+ },
+ {
+  "atom_id": "Req-23.1",
+  "row_statement": "Describe spatial extent, applicable regions and network coverage using established functional classifications.",
+  "statement": "Describe the area a dataset covers.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "dct:spatial raised to mandatory with controlled vocabularies."
+ },
+ {
+  "atom_id": "Req-23.2",
+  "row_statement": "Describe spatial extent, applicable regions and network coverage using established functional classifications.",
+  "statement": "Describe the regions in which a dataset is valid.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "dct:spatial with controlled vocabularies."
+ },
+ {
+  "atom_id": "Req-23.3",
+  "row_statement": "Describe spatial extent, applicable regions and network coverage using established functional classifications.",
+  "statement": "Describe the transport network a dataset considers, following existing, widely applicable functional classifications.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "mobilitydcatap:networkCoverage."
+ },
+ {
+  "atom_id": "Req-24.1",
+  "row_statement": "Identify payload location-reference methods and coordinate reference systems.",
+  "statement": "Describe the location referencing methods used in a dataset or service.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "mobilitydcatap:georeferencingMethod."
+ },
+ {
+  "atom_id": "Req-24.2",
+  "row_statement": "Identify payload location-reference methods and coordinate reference systems.",
+  "statement": "Describe the coordinate reference systems used in a dataset or service.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "dct:conformsTo used as reference system with EPSG values."
+ },
+ {
+  "atom_id": "Req-25.1",
+  "row_statement": "Identify the transport modes and operators represented by the data.",
+  "statement": "Describe the transport modes a dataset deals with.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "mobilitydcatap:transportMode."
+ },
+ {
+  "atom_id": "Req-25.2",
+  "row_statement": "Identify the transport modes and operators represented by the data.",
+  "statement": "Describe the transport operators a dataset deals with.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "No property for operators in mobilityDCAT-AP 1.0.0."
+ },
+ {
+  "atom_id": "Req-26.1",
+  "row_statement": "Identify the publishing and owning parties for a dataset.",
+  "statement": "State who publishes a dataset.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "dct:publisher raised to mandatory."
+ },
+ {
+  "atom_id": "Req-26.2",
+  "row_statement": "Identify the publishing and owning parties for a dataset.",
+  "statement": "State who owns a dataset.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "dct:rightsHolder imported."
+ },
+ {
+  "atom_id": "Req-27.1",
+  "row_statement": "Describe contractual, licensing and other conditions on data use.",
+  "statement": "State whether a licence governs the use of the data.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "Licence identifier from the EU licence list."
+ },
+ {
+  "atom_id": "Req-27.2",
+  "row_statement": "Describe contractual, licensing and other conditions on data use.",
+  "statement": "State whether a contract governs the use of the data.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "Rights statement typed with a new code list (conditions for access and usage)."
+ },
+ {
+  "atom_id": "Req-27.3",
+  "row_statement": "Describe contractual, licensing and other conditions on data use.",
+  "statement": "Describe any other condition for using the data.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "Rights statement typed with a new code list (conditions for access and usage)."
+ },
+ {
+  "atom_id": "Req-28.1",
+  "row_statement": "Describe the encoding, syntax, grammar and underlying data model used for access.",
+  "statement": "Describe the encoding of the data for access.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "cnt:characterEncoding imported."
+ },
+ {
+  "atom_id": "Req-28.2",
+  "row_statement": "Describe the encoding, syntax, grammar and underlying data model used for access.",
+  "statement": "Describe the syntax of the data.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "dct:format raised to mandatory."
+ },
+ {
+  "atom_id": "Req-28.3",
+  "row_statement": "Describe the encoding, syntax, grammar and underlying data model used for access.",
+  "statement": "Describe the grammar of the data.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "mobilitydcatap:grammar."
+ },
+ {
+  "atom_id": "Req-28.4",
+  "row_statement": "Describe the encoding, syntax, grammar and underlying data model used for access.",
+  "statement": "Describe the data model of the data.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "mobilitydcatap:mobilityDataStandard."
+ },
+ {
+  "atom_id": "Req-29.1",
+  "row_statement": "Offer schema information and example data so consumers can assess suitability before integration.",
+  "statement": "Describe the data schema, so users can evaluate the data before setting up consumption.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "mobilitydcatap:schema."
+ },
+ {
+  "atom_id": "Req-29.2",
+  "row_statement": "Offer schema information and example data so consumers can assess suitability before integration.",
+  "statement": "Provide data samples, so users can evaluate the data before setting up consumption.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "adms:sample moved from dataset to distribution."
+ },
+ {
+  "atom_id": "Req-30.1",
+  "row_statement": "Distinguish precise data-model versions, publication types and extensions, such as those used in DATEX II, for discovery.",
+  "statement": "Describe precisely the version of the data model a dataset adopts (e.g. the DATEX II version), to allow better searching.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "Mobility data standard with version information."
+ },
+ {
+  "atom_id": "Req-30.2",
+  "row_statement": "Distinguish precise data-model versions, publication types and extensions, such as those used in DATEX II, for discovery.",
+  "statement": "Describe the publication type of the data model a dataset adopts (e.g. the DATEX II publication type), to allow better searching.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-30.3",
+  "row_statement": "Distinguish precise data-model versions, publication types and extensions, such as those used in DATEX II, for discovery.",
+  "statement": "Describe the extensions of the data model a dataset adopts (e.g. DATEX II extensions), to allow better searching.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "mobilitydcatap:dataFormatNotes."
+ },
+ {
+  "atom_id": "Req-31.1",
+  "row_statement": "Record update cadence, quality criteria and the history and status of ITS-regulation compliance assessments.",
+  "statement": "Describe the update rate of a dataset.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "dct:accrualPeriodicity raised to mandatory; a mobility list adds intervals."
+ },
+ {
+  "atom_id": "Req-31.2",
+  "row_statement": "Record update cadence, quality criteria and the history and status of ITS-regulation compliance assessments.",
+  "statement": "Describe the quality criteria of a dataset.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "DQV quality annotation imported."
+ },
+ {
+  "atom_id": "Req-31.3",
+  "row_statement": "Record update cadence, quality criteria and the history and status of ITS-regulation compliance assessments.",
+  "statement": "Describe the history of the procedures that assess compliance with the Delegated Regulations on providing data via a NAP.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "mobilitydcatap:Assessment."
+ },
+ {
+  "atom_id": "Req-31.4",
+  "row_statement": "Record update cadence, quality criteria and the history and status of ITS-regulation compliance assessments.",
+  "statement": "Describe the status of those compliance-assessment procedures.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "mobilitydcatap:assessmentResult."
+ },
+ {
+  "atom_id": "Req-32.1",
+  "row_statement": "Define occurrence limits and obligation levels and explain their consequences for database storage, user interfaces and harvesting, consistently with DCAT-AP.",
+  "statement": "Specify the cardinality of each metadata element.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-32.2",
+  "row_statement": "Define occurrence limits and obligation levels and explain their consequences for database storage, user interfaces and harvesting, consistently with DCAT-AP.",
+  "statement": "Specify the obligation of each metadata element (mandatory, recommended, optional).",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-32.3",
+  "row_statement": "Define occurrence limits and obligation levels and explain their consequences for database storage, user interfaces and harvesting, consistently with DCAT-AP.",
+  "statement": "Establish clear rules on these cardinalities for NAP deployments (e.g. their implications for database set-ups, GUI designs and API or harvesting mechanisms).",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": "Database, GUI and harvesting are examples in Table 1, not separate obligations."
+ },
+ {
+  "atom_id": "Req-32.4",
+  "row_statement": "Define occurrence limits and obligation levels and explain their consequences for database storage, user interfaces and harvesting, consistently with DCAT-AP.",
+  "statement": "Consider the existing DCAT-AP rules on cardinalities.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-33.1",
+  "row_statement": "Provide identifier guidance.",
+  "statement": "Define guidelines for identifiers.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-34.1",
+  "row_statement": "Define permitted values for metadata elements, using suitable controlled vocabularies.",
+  "statement": "Define the expected value range of each metadata element (for example with controlled vocabularies).",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": "Controlled vocabularies are an example in Table 1, not the requirement."
+ },
+ {
+  "atom_id": "Req-35.1",
+  "row_statement": "Track revisions and versions of catalogue metadata.",
+  "statement": "Track changes of metadata records on a NAP.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "dct:modified and the change type of the catalogue record are in the base."
+ },
+ {
+  "atom_id": "Req-35.2",
+  "row_statement": "Track revisions and versions of catalogue metadata.",
+  "statement": "Track different versions of metadata records on a NAP.",
+  "stratum": "content",
+  "applicability": "",
+  "notes": "DCAT-AP 2.0.1 has version terms for datasets but not for catalogue records."
+ },
+ {
+  "atom_id": "Req-36.1",
+  "row_statement": "Enable automated conformance checking of metadata.",
+  "statement": "Support the validation, possibly automatic, of metadata that adopts the profile.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-37.1",
+  "row_statement": "Explain element meanings and how to apply them within NAP operations.",
+  "statement": "Provide usage rules in addition to the metadata definitions, explaining the semantics of each metadata element.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-37.2",
+  "row_statement": "Explain element meanings and how to apply them within NAP operations.",
+  "statement": "Advise how to relate the metadata elements to NAP processes.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-38.1",
+  "row_statement": "Explain allocation of metadata between a dataset or service and its multiple delivery resources.",
+  "statement": "Provide guidelines and solutions for dividing metadata between a dataset or service and its multiple resources.",
+  "stratum": "profile",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-39.1",
+  "row_statement": "Explain exchange of mobility-specific descriptions with other-domain portals, including handling extensions during harvesting.",
+  "statement": "Provide guidelines on making NAP-specific metadata interoperable with other data portals (e.g. outside the mobility domain).",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ },
+ {
+  "atom_id": "Req-39.2",
+  "row_statement": "Explain exchange of mobility-specific descriptions with other-domain portals, including handling extensions during harvesting.",
+  "statement": "Cover in these guidelines how napDCAT-AP extensions are handled when harvesting from other portals.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": "\"This may include\" in Table 1."
+ },
+ {
+  "atom_id": "Req-40.1",
+  "row_statement": "Give guidance for assuring the quality of metadata received by a NAP.",
+  "statement": "Provide guidelines for a quality assurance process that checks the quality of metadata collected on a NAP.",
+  "stratum": "system",
+  "applicability": "",
+  "notes": ""
+ }
+]

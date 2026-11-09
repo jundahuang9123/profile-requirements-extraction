@@ -30,6 +30,9 @@ not source-document content**. Original documents with unclear redistribution ri
 are not committed; public facts may be represented by explicitly marked curator
 synopses. Original copies retain their notices and are not relicensed by this repository.
 
+- [`reference-sets-v3/`](reference-sets-v3/README.md): evaluator-only merged reference
+  sets (version 3): atomic scoring units, DCAT-AP relation flags, and input-evidence labels
+  for full and evidence-eligible recall. The v1 files in each case stay unchanged.
 - [`runtime-inputs.json`](runtime-inputs.json): exact document allowlists for separate
   `raw` and `consolidation` runs. These are not workflow API request objects.
 - [`BENCHMARK-METHODOLOGY.md`](BENCHMARK-METHODOLOGY.md): protocol, version controls,
