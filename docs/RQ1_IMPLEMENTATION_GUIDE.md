@@ -36,7 +36,7 @@ The existing workbench is a substantial starting point. Extend it incrementally;
 
 | Existing location | Observed behavior | Required extension |
 | --- | --- | --- |
-| [README](../README.md), [migration plan](VPE_MIGRATION.md) | Standalone RQ1 application migrated from VPE; upstream Sebastian code retained separately | Keep this application as the implementation target and retain attribution |
+| [README](../README.md), [migration plan](../archive/docs/VPE_MIGRATION.md) | Standalone RQ1 application migrated from VPE; upstream Sebastian code retained separately | Keep this application as the implementation target and retain attribution |
 | [models.py](../requirement-reuse-service/requirement_reuse_service/models.py) | `EvidenceUnit`, `SourceEvidence`, `CandidateRequirement`, intent, provenance, contributions, consolidation events, critiques, evaluation and baseline models | Add source versions, typed selectors, immutable requirement revisions, orthogonal verification states, conflicts, deliberations and decisions |
 | [service.py](../requirement-reuse-service/requirement_reuse_service/service.py) | `extract_evidence_units`, format-specific decomposition, normalization, validation, duplicate detection, exports | Separate decomposition, source verification, normalization, qualification and solution hints into services |
 | [llm/extractor.py](../requirement-reuse-service/requirement_reuse_service/llm/extractor.py) | `locate_quote` uses exact then whitespace-tolerant matching inside `EvidenceUnit.content`; `convert_requirement` removes invalid evidence references | Retain quote matching but bind it to immutable original-source representations; preserve failed citation attempts in audit records |
@@ -64,7 +64,7 @@ Specific limitations to address, rather than treating the existing names as comp
 
 ## 3. Reuse from Sebastian: mechanism, not task semantics
 
-The inspected [upstream core](../blackboard/codebase/core/blackboard_semantic_mapping.py) obtains discussion proposals from a reasoning agent and calls [DiscussionEngine](../blackboard/codebase/components/discussion_engine.py). That engine builds attribute/mapping context, iterates participants with a turn limit, applies mapping commands, records turns, and reports correction, acceptance, or no agreement. The RQ1 orchestrator currently does not call it.
+The inspected [upstream core](../archive/blackboard/codebase/core/blackboard_semantic_mapping.py) obtains discussion proposals from a reasoning agent and calls [DiscussionEngine](../archive/blackboard/codebase/components/discussion_engine.py). That engine builds attribute/mapping context, iterates participants with a turn limit, applies mapping commands, records turns, and reports correction, acceptance, or no agreement. The RQ1 orchestrator currently does not call it.
 
 | Sebastian-inspired mechanism | RQ1 adaptation | Do not transfer unchanged |
 | --- | --- | --- |

@@ -150,8 +150,9 @@ expert-evaluation harness.
 - `requirement-reuse-service/schema/rq1_workflow_v2.schema.json`: generated v2
   runtime contracts. The original LinkML schema describes v1.
 - `scripts/`, `tests/`, `docs/`: launchers, offline evaluation, fixtures and guides.
-- `blackboard/`, `simplellm/`, `datacorpus/`, root `main.py` and `requirements.txt`:
-  Sebastian's original prototype, separate from the RQ1 app's dependencies.
+- `archive/`: what the paper does not use, kept for the record: Sebastian's original prototype (`blackboard/`,
+  `simplellm/`, `datacorpus/`, `main.py`, `requirements.txt`), the migration notes and the old plans (`archive/docs/`).
+  Nothing in the RQ1 app, its scripts or its tests reads it.
 
 Derived from [Sebastian's SimpleLLM & SAST Blackboard](https://github.com/U0iS112/654321),
 with the earlier RQ1 service/interface migrated from
@@ -159,7 +160,7 @@ with the earlier RQ1 service/interface migrated from
 V2 adapts bounded turns, selective routing, frozen context and durable messages to
 requirement review. It does not invoke upstream semantic-mapping commands or
 treat agent agreement as human acceptance. See [attribution](THIRD_PARTY_NOTICES.md)
-and [the source snapshot manifest](docs/VPE_SOURCE_MANIFEST.json).
+and [the source snapshot manifest](archive/docs/VPE_SOURCE_MANIFEST.json).
 
 See [exact extraction citations and provider request limits](docs/EXTRACTION_CITATIONS.md) for the current citation policy and KI:connect configuration.
 
