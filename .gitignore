@@ -1,6 +1,6 @@
 env/.env
-simplellm/exports/
-blackboard/exports/
+archive/simplellm/exports/
+archive/blackboard/exports/
 
 # RQ1 local state, environments, and build outputs
 .env
