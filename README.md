@@ -142,6 +142,8 @@ independently adjudicated reference set; the new metrics do not infer it from
 lexical similarity. `scripts/evaluate_rq1.py` remains the v1 strategy and
 expert-evaluation harness.
 
+The paper's single prompt (SP; in keys and earlier text: OS, one-shot prompt; single LLM, all evidence) is the strategy `llm` with `llm_cover_all_evidence`, prompt version `rrs-shared-extract-v2` (`requirement_reuse_service/llm/extractor.py`).
+
 ## Repository structure and attribution
 
 - `requirement-reuse-service/requirement_reuse_service/workflow/`: v2 contracts,
